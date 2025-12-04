@@ -19,17 +19,29 @@ alwaysApply: true
 
 ## Naming
 
-**Branches**: `feat/RYLA-XX-description`
-**Commits**: `feat(scope): description [#RYLA-XX]`
-**Issues**: `[FEATURE] Short description`
+**Epics**: `EP-XXX` → `[EPIC] EP-XXX: Title`
+**Stories**: `ST-XXX` → `[STORY] ST-XXX: Title (EP-XXX)`
+**Tasks**: `TSK-XXX` → `[TASK] TSK-XXX: Title (ST-XXX)`
 
-**Types**: feat, fix, refactor, docs, test, chore
+**Branches**: `epic/ep-001-scope` or `feat/st-010-feature`
+**Commits**: `feat(ep-001 st-010): description`
+
+## 10-Phase Pipeline
+
+P1→P2→P3→P4→P5→P6→P7→P8→P9→P10
+
+No phase skipped. See `docs/process/10-PHASE-PIPELINE.md`
 
 ## Slack Formats
 ```
-STATUS: RYLA-42 in-progress
-DONE: RYLA-42 implemented
-BLOCKED: RYLA-42 waiting on spec
-DEPLOY: staging v1.2.3 success
-LEARNING: testing - mock at boundaries
+[EVENT=PR_MERGED] repo=ryla issues=EP-001,ST-010 phase=P6
+[EVENT=DEPLOY] env=staging version=v1.2.3 status=success
+LEARNING area=testing source=playwright text="insight"
+STATUS: EP-001 ST-010 phase=P6 status=in-progress
 ```
+
+## Channels
+- #mvp-ryla-pm
+- #mvp-ryla-dev
+- #mvp-ryla-log (audit)
+- #mvp-ryla-learnings

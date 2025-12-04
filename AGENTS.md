@@ -1,71 +1,44 @@
 # RYLA MVP - Agent Instructions
 
-## Project Overview
-RYLA MVP is a layered architecture application with clear separation of concerns across presentation, business, data, and management layers.
-
-## Architecture Principles
-
-- **Layer Separation**: Never skip layers. Data flows: Presentation → Business → Data → Database
-- **Single Responsibility**: Each layer has a specific purpose
-- **Dependency Direction**: Outer layers depend on inner layers, never the reverse
-- **Management Layer**: Can interact with all layers for administrative operations
+## Architecture
+- Layer flow: Presentation → Business → Data → DB
+- Never skip layers
+- Management layer can access all
 
 ## Code Style
+- Self-documenting names
+- Small functions
+- Explicit error handling
+- Tests for business logic
 
-- Use descriptive, self-documenting names
-- Keep functions small and focused
-- Prefer composition over inheritance
-- Handle errors explicitly
-- Write tests for business logic
+## 10-Phase Pipeline
+P1 Requirements → P2 Scoping → P3 Architecture → P4 UI → P5 Tech Spec → P6 Implementation → P7 Testing → P8 Integration → P9 Deploy Prep → P10 Production
 
-## When Adding Features
+No phase skipped.
 
-1. Start with domain models in business layer
-2. Implement business services with rules
-3. Create data repositories for persistence
-4. Add presentation controllers and routes
-5. Update management layer if admin features needed
+## Business Metrics (A-E)
+Every feature must move one:
+- A: Activation
+- B: Retention
+- C: Core Value
+- D: Conversion
+- E: CAC
 
-## Common Patterns
-
-- **Services**: Business logic orchestration
-- **Repositories**: Data access abstraction
-- **DTOs**: API input/output validation
-- **Controllers**: HTTP request handling
-- **Middleware**: Cross-cutting concerns
-
-## Testing Strategy
-
-- Unit tests for business logic and rules
-- Integration tests for layer interactions
-- E2E tests for complete workflows
-- Mock external dependencies in tests
-
-## MVP Principles
-
-- Mobile first design
-- >98% browser/device compatibility
-- Pareto: 80% value from 20% features
-- Functionality > animations
-- Ship in < 1 week per feature
-- Measure everything with PostHog
+## Naming
+- Epics: `EP-XXX`
+- Stories: `ST-XXX`
+- Tasks: `TSK-XXX`
+- Branches: `epic/ep-001-scope` or `feat/st-010-feature`
+- Commits: `feat(ep-001 st-010): description`
 
 ## Way of Work
-
-- Concise communication (cost = time/tokens)
+- Communication = cost
 - Bullet points > paragraphs
 - Async by default
-- Document decisions in GitHub issues
-
-## Naming Conventions
-
-- Branches: `feat/RYLA-XX-description`
-- Commits: `feat(scope): description [#RYLA-XX]`
-- Issues: `[FEATURE] Description`
+- Learnings → Slack → GitHub → heuristics
 
 ## Integrations
-
-- **GitHub**: Issues, PRs, Projects, Actions
-- **Slack**: #ryla-pm, #ryla-audit, #ryla-learnings, #ryla-deploys, #ryla-alerts
-- **PostHog**: Analytics, funnels, feature flags
-- **Playwright**: E2E testing
+- GitHub: Issues, PRs, Projects, Actions
+- Slack: #mvp-ryla-pm, #mvp-ryla-dev, #mvp-ryla-log, #mvp-ryla-learnings
+- PostHog: Analytics, funnels
+- Playwright: E2E tests

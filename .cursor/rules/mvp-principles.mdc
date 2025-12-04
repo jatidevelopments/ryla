@@ -28,6 +28,16 @@ alwaysApply: true
 3. Ship in < 1 week? No → break down
 4. Can measure success? No → define metrics first
 
+## Business Metrics (A-E)
+Every feature must move one:
+- **A**: Activation (signup → first action)
+- **B**: Retention (D7/D30)
+- **C**: Core Value (North Star usage)
+- **D**: Conversion (trial → paid)
+- **E**: CAC (acquisition cost)
+
+If it doesn't move A/B/C/D/E → not MVP.
+
 ## Scope
 **MVP**: Core flow, basic auth, data persistence, analytics, error handling
 **Phase 2+**: Advanced customization, complex integrations, i18n

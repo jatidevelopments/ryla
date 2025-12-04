@@ -1,6 +1,6 @@
 ---
 name: Feature Request
-about: New feature or enhancement
+about: Quick feature (use Epic for larger work)
 title: '[FEATURE] '
 labels: 'type:feature'
 assignees: ''
@@ -11,21 +11,22 @@ assignees: ''
 - **Problem**: 
 - **Goal**: 
 
+## Business Metric
+- [ ] A - Activation
+- [ ] B - Retention
+- [ ] C - Core Value
+- [ ] D - Conversion
+- [ ] E - CAC
+
 ## Acceptance Criteria
-- [ ] Criteria 1
-- [ ] Criteria 2
-- [ ] Criteria 3
+- [ ] AC 1
+- [ ] AC 2
 
-## Technical Notes
-- 
-
-## Dependencies
-- 
+## Analytics AC
+- [ ] Event fires
 
 ## Layer
-<!-- Check applicable layers -->
 - [ ] Presentation
 - [ ] Business
 - [ ] Data
 - [ ] Management
-

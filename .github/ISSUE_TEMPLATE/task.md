@@ -1,21 +1,19 @@
 ---
 name: Task
-about: General task or work item
-title: '[TASK] '
+about: Implementation task within a story
+title: '[TASK] TSK-XXX: '
 labels: 'type:task'
 assignees: ''
 ---
 
-## Description
-What needs to be done.
+## Context
 
-## Acceptance Criteria
-- [ ] Criteria 1
-- [ ] Criteria 2
+**Parent Story**: ST-XXX
+**Parent Epic**: EP-XXX
 
-## Notes
+## Work
 - 
 
-## Estimate
-<!-- Time estimate -->
-
+## Done When
+- [ ] Implementation complete
+- [ ] Tests pass
