@@ -8,51 +8,39 @@ alwaysApply: true
 ## Layer Responsibilities
 
 ### Presentation Layer (`src/presentation/`)
-- Handle HTTP requests/responses only
-- Validate input using DTOs
-- Route requests to business services
-- Never contain business logic
-- Return standardized response formats
+- HTTP requests/responses only
+- Validate input via DTOs
+- Route to business services
+- No business logic
 
 ### Business Logic Layer (`src/business/`)
-- Contains all business rules and domain logic
-- Orchestrates complex operations
-- Validates business constraints
-- Coordinates between services
-- Never directly access databases
+- All business rules and domain logic
+- Orchestrate complex operations
+- Never access database directly
 
 ### Data Access Layer (`src/data/`)
-- Abstracts database operations
-- Implements repository pattern
-- Handles data persistence only
-- No business logic allowed
-- Returns domain models, not raw database entities
+- Abstract database operations
+- Repository pattern
+- Return domain models
 
 ### Management Layer (`src/management/`)
-- System administration functions
-- Configuration management
-- User and role management
-- Monitoring and logging
-- Administrative operations
+- System administration
+- Config, monitoring, logging
+- User/role management
 
 ### Shared Layer (`src/shared/`)
-- Common utilities used across layers
-- Shared types and interfaces
-- Constants and configuration
-- Validation utilities
-- Custom error classes
+- Common utilities, types, constants
+- Validation, error classes
 
-## Data Flow Rules
+## Data Flow
 
-1. **Request Flow**: Presentation → Business → Data → Database
-2. **Response Flow**: Database → Data → Business → Presentation
-3. **Never skip layers**: Each layer must go through the next layer
-4. **Management Layer**: Can interact with all layers for admin operations
+1. Request: Presentation → Business → Data → DB
+2. Response: DB → Data → Business → Presentation
+3. Never skip layers
+4. Management can access all layers
 
 ## Dependencies
 
-- Presentation depends on Business
-- Business depends on Data
-- Data depends on Shared
-- Management can depend on all layers
-- Never create circular dependencies
+- Presentation → Business → Data → Shared
+- Management → all layers
+- No circular dependencies

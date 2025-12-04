@@ -4,11 +4,9 @@ globs: ["src/**"]
 alwaysApply: false
 ---
 
-# Analytics Guidelines
+# Analytics
 
-## PostHog Integration
-
-### Key Events to Track
+## Key Events
 
 | Event | When | Properties |
 |-------|------|------------|
@@ -18,46 +16,19 @@ alwaysApply: false
 | `user_converted` | Paid subscription | plan, trial_days |
 | `error_occurred` | User-facing error | type, message |
 
-### Event Naming
-- Use snake_case
-- Verb + noun format
-- Be specific and consistent
+## Event Naming
+- snake_case
+- verb_noun format
+- Consistent across app
 
-### Properties
-- Include context needed for analysis
-- Avoid PII in properties
-- Use consistent property names
-
-## Business Metrics
-
-### Acquisition
-- Signup rate
-- Activation rate
-- Trial conversion
-
-### Retention
-- D1/D7/D30 retention
-- Churn rate
-- Feature adoption
-
-### Revenue
-- MRR, ARPU, LTV
-- CAC, LTV:CAC ratio
+## Metrics
+- **Acquisition**: signup rate, activation rate, trial conversion
+- **Retention**: D1/D7/D30, churn rate, feature adoption
+- **Revenue**: MRR, ARPU, LTV, CAC, LTV:CAC
 
 ## Implementation
-
 ```javascript
-// Identify user
 posthog.identify(userId, { email, plan });
-
-// Track event
-posthog.capture('feature_used', {
-  feature: 'export',
-  format: 'pdf'
-});
-
-// Feature flags
-if (posthog.isFeatureEnabled('new-feature')) {
-  // Show new feature
-}
+posthog.capture('feature_used', { feature: 'export', format: 'pdf' });
+if (posthog.isFeatureEnabled('new-feature')) { /* show */ }
 ```

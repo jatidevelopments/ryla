@@ -5,42 +5,29 @@ alwaysApply: true
 
 # MVP Principles
 
-## Core Philosophy
-- Build fast, validate early, iterate based on data
-- Pareto focus: 80% value from 20% features
-- Speed to value > perfection
+## Core
+- Build fast, validate early, iterate on data
+- 80% value from 20% features
+- Speed > perfection
 
-## Technical Constraints
-
-### Must Follow
-- Mobile first design
-- >98% browser/device compatibility
-- Page load < 3 seconds
+## Constraints
+- Mobile first
+- >98% browser compatibility
+- Page load < 3s
 - Functionality > animations
 
-### Avoid
+## Avoid
 - Bleeding-edge APIs (< 95% support)
 - Heavy frameworks for simple features
-- Complex animations that slow performance
-- Features requiring browser extensions
+- Complex animations
+- Browser extension requirements
 
 ## Decision Framework
+1. Solves user problem? No → don't build
+2. Simplest solution? No → simplify
+3. Ship in < 1 week? No → break down
+4. Can measure success? No → define metrics first
 
-1. Does this solve a user problem? No → Don't build
-2. Is this the simplest solution? No → Simplify
-3. Can we ship in < 1 week? No → Break down
-4. Can we measure success? No → Define metrics first
-
-## Scope Boundaries
-
-### In Scope (MVP)
-- Core user flow
-- Basic authentication
-- Essential data persistence
-- Analytics tracking
-- Error handling
-
-### Out of Scope (Phase 2+)
-- Advanced customization
-- Complex integrations
-- Multi-language support
+## Scope
+**MVP**: Core flow, basic auth, data persistence, analytics, error handling
+**Phase 2+**: Advanced customization, complex integrations, i18n

@@ -5,39 +5,31 @@ alwaysApply: true
 
 # Code Style Rules
 
-## Naming Conventions
+## Naming
+- camelCase: variables, functions
+- PascalCase: classes, interfaces, types
+- UPPER_SNAKE_CASE: constants
+- kebab-case: file names
 
-- Use **camelCase** for variables, functions, and methods
-- Use **PascalCase** for classes, interfaces, and types
-- Use **UPPER_SNAKE_CASE** for constants
-- Use **kebab-case** for file names (when applicable)
-- Use descriptive names that indicate purpose
-
-## File Organization
-
+## Files
 - One class/interface per file
-- Group related functionality in modules
-- Keep files focused and under 300 lines when possible
-- Use index files for clean exports
+- < 300 lines
+- Use index files for exports
 
 ## Code Quality
+- Self-documenting names
+- Comments only for complex logic
+- Small, focused functions
+- Max 3 nesting levels
+- Handle errors explicitly
 
-- Write self-documenting code with clear variable names
-- Add comments for complex business logic
-- Keep functions small and focused (single responsibility)
-- Avoid deep nesting (max 3 levels)
-- Handle errors explicitly, don't swallow exceptions
-
-## Type Safety
-
-- Use strict typing (avoid `any`)
-- Define interfaces for all data structures
-- Use type guards for runtime validation
-- Prefer composition over inheritance
+## Types
+- Strict typing (no `any`)
+- Interfaces for data structures
+- Type guards for runtime validation
+- Composition over inheritance
 
 ## Testing
-
-- Write tests for business logic first
-- Mock external dependencies in unit tests
-- Use integration tests for layer interactions
-- Keep test names descriptive: `should [expected behavior] when [condition]`
+- Business logic first
+- Mock external dependencies
+- Test name: `should [behavior] when [condition]`

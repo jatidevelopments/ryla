@@ -4,41 +4,31 @@ globs: ["src/presentation/**"]
 alwaysApply: false
 ---
 
-# Presentation Layer Rules
+# Presentation Layer
 
 ## Controllers
+- HTTP concerns only
+- Extract to DTOs immediately
+- Call services, no logic
+- Standardized responses
 
-- Controllers handle HTTP-specific concerns only
-- Extract request data to DTOs immediately
-- Call business services, don't implement logic
-- Return standardized response formats
-- Handle HTTP status codes appropriately
-
-## DTOs (Data Transfer Objects)
-
-- Use DTOs for all API inputs and outputs
-- Validate DTOs before passing to business layer
-- DTOs should not contain business logic
-- Document required vs optional fields
+## DTOs
+- All API inputs/outputs
+- Validate before business layer
+- No business logic
 
 ## Routes
-
-- Organize routes by resource/domain
-- Use RESTful conventions when applicable
-- Version APIs appropriately
-- Document route parameters and query strings
+- Organize by resource
+- RESTful conventions
+- Version APIs
 
 ## Middleware
+- Auth/authz
+- Request logging
+- Error handling
+- Rate limiting
 
-- Use middleware for cross-cutting concerns
-- Authentication/authorization middleware
-- Request logging middleware
-- Error handling middleware
-- Rate limiting middleware
-
-## Response Format
-
-- Use consistent response structure
-- Include error details in error responses
-- Don't expose internal errors to clients
-- Return appropriate HTTP status codes
+## Responses
+- Consistent structure
+- No internal error exposure
+- Appropriate HTTP status codes
