@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - RYLA (Version B)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #eee; margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    nav a { color: #000; text-decoration: none; margin-left: 24px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    h1 { font-size: 28px; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; font-weight: bold; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat { background: #f5f5f5; padding: 16px; text-align: center; }
+    .stat-value { font-size: 24px; font-weight: bold; }
+    .stat-label { font-size: 14px; color: #666; }
+    .characters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
+    .character-card { border: 1px solid #ccc; padding: 16px; text-decoration: none; color: inherit; }
+    .character-card:hover { border-color: #000; }
+    .character-image { background: #f5f5f5; height: 150px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; position: relative; }
+    .watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); font-size: 24px; color: rgba(0,0,0,0.2); font-weight: bold; }
+    .character-name { font-weight: bold; margin-bottom: 4px; }
+    .character-meta { font-size: 14px; color: #666; }
+    .upgrade-banner { background: #000; color: #fff; padding: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
+    .upgrade-banner .btn { background: #fff; color: #000; }
+    .version-badge { position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; }
+    .success-toast { background: #d4edda; border: 1px solid #c3e6cb; padding: 16px; margin-bottom: 24px; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">Version B</div>
+  <div class="container">
+    <header>
+      <a href="dashboard.html" class="logo">RYLA</a>
+      <nav>
+        <a href="dashboard.html"><strong>Dashboard</strong></a>
+        <a href="wizard-1.html">Create New</a>
+        <a href="#">Settings</a>
+        <a href="index.html">Logout</a>
+      </nav>
+    </header>
+
+    <div class="success-toast">
+      ✓ Character "Luna" created successfully! Images are watermarked on free plan.
+    </div>
+
+    <div class="upgrade-banner">
+      <span>Free Plan: 1/1 characters • 3/3 images used</span>
+      <a href="pricing.html" class="btn">Upgrade to Remove Watermarks →</a>
+    </div>
+
+    <div class="page-header">
+      <h1>My Characters</h1>
+      <span class="btn" style="background: #ccc; cursor: not-allowed;">+ Create New (limit reached)</span>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">1</div>
+        <div class="stat-label">Characters</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Images</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">0</div>
+        <div class="stat-label">Credits Left</div>
+      </div>
+    </div>
+
+    <div class="characters-grid">
+      <a href="character.html" class="character-card">
+        <div class="character-image">
+          <span>[Luna]</span>
+          <div class="watermark">RYLA</div>
+        </div>
+        <div class="character-name">Luna</div>
+        <div class="character-meta">3 images • Watermarked</div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+

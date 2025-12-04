@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generating... - RYLA (Version B)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 480px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .spinner { width: 60px; height: 60px; border: 4px solid #eee; border-top-color: #000; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 24px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    p { color: #666; }
+    .redirect-link { margin-top: 32px; font-size: 14px; }
+    .redirect-link a { color: #000; }
+    .version-badge { position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">Version B</div>
+  <div class="container">
+    <div class="spinner"></div>
+    <h1>Creating your character...</h1>
+    <p>This usually takes 30-60 seconds</p>
+    <div class="redirect-link">
+      <a href="dashboard-with-character.html">→ View result (demo)</a>
+    </div>
+  </div>
+</body>
+</html>
+

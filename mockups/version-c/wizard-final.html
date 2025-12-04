@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Preview & Generate - RYLA (Version C)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .layout { display: flex; min-height: 100vh; }
+    .preview-panel { flex: 1.5; background: #f5f5f5; padding: 24px; }
+    .preview-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .preview-item { background: #ddd; aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; }
+    .preview-item.main { grid-column: span 2; aspect-ratio: 4/3; }
+    .form-panel { flex: 1; padding: 24px; max-width: 350px; }
+    header { margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .progress { height: 4px; background: #eee; margin-bottom: 16px; }
+    .progress-bar { height: 100%; background: #000; width: 100%; }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: bold; margin-bottom: 8px; }
+    .form-group input { width: 100%; padding: 12px; border: 2px solid #ccc; font-size: 16px; }
+    .summary { background: #fff; padding: 16px; margin: 24px 0; border: 1px solid #ccc; }
+    .summary h3 { margin-bottom: 8px; font-size: 14px; }
+    .summary-item { display: flex; justify-content: space-between; padding: 4px 0; font-size: 14px; }
+    .generate-btn { display: block; width: 100%; background: #000; color: #fff; padding: 16px; text-align: center; text-decoration: none; font-weight: bold; margin: 16px 0; }
+    .note { font-size: 12px; color: #666; text-align: center; }
+    .version-badge { position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; z-index: 100; }
+    .difference { background: #f0f0f0; padding: 12px; margin-bottom: 16px; border-left: 4px solid #000; font-size: 14px; }
+    @media (max-width: 768px) {
+      .layout { flex-direction: column; }
+      .preview-panel { order: 1; }
+      .form-panel { order: 2; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="version-badge">Version C</div>
+  
+  <div class="layout">
+    <div class="preview-panel">
+      <div class="difference">
+        <strong>Version C:</strong> Shows MULTIPLE preview variations before payment. User sees what they're getting.
+      </div>
+      <div class="preview-grid">
+        <div class="preview-item main">[Main Preview - Full Body]</div>
+        <div class="preview-item">[Pose 1]</div>
+        <div class="preview-item">[Pose 2]</div>
+        <div class="preview-item">[Pose 3]</div>
+        <div class="preview-item">[Pose 4]</div>
+      </div>
+    </div>
+
+    <div class="form-panel">
+      <header><a href="index.html" class="logo">RYLA</a></header>
+      <div class="progress"><div class="progress-bar"></div></div>
+      
+      <h1>Love your character?</h1>
+      <p class="subtitle">Name her and generate high-res versions</p>
+
+      <div class="form-group">
+        <label>Character Name</label>
+        <input type="text" placeholder="e.g., Yuki" value="Yuki">
+      </div>
+
+      <div class="summary">
+        <h3>Your Character</h3>
+        <div class="summary-item"><span>Ethnicity</span><span>Asian</span></div>
+        <div class="summary-item"><span>Age</span><span>18-24</span></div>
+        <div class="summary-item"><span>Body</span><span>Slim</span></div>
+        <div class="summary-item"><span>Hair</span><span>Long Black</span></div>
+        <div class="summary-item"><span>Style</span><span>Casual</span></div>
+      </div>
+
+      <a href="paywall.html" class="generate-btn">Generate HD Images →</a>
+      <p class="note">Previews are low-res. HD images require subscription.</p>
+    </div>
+  </div>
+</body>
+</html>
+

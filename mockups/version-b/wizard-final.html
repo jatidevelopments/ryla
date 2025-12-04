@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generate - RYLA (Version B)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 480px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+    header { padding: 16px 0; display: flex; justify-content: space-between; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .progress { height: 4px; background: #eee; margin: 16px 0; }
+    .progress-bar { height: 100%; background: #000; width: 100%; }
+    h1 { font-size: 24px; margin-bottom: 16px; text-align: center; }
+    .character-preview { background: #f5f5f5; height: 200px; display: flex; align-items: center; justify-content: center; margin: 24px 0; }
+    .credits-warning { background: #fff3cd; padding: 16px; margin: 24px 0; }
+    .credits-warning strong { display: block; margin-bottom: 4px; }
+    .generate-btn { display: block; width: 100%; background: #000; color: #fff; padding: 20px; text-align: center; text-decoration: none; font-weight: bold; font-size: 18px; margin: 16px 0; }
+    .upgrade-btn { display: block; width: 100%; background: #fff; color: #000; border: 2px solid #000; padding: 16px; text-align: center; text-decoration: none; font-weight: bold; }
+    .nav { margin-top: auto; padding: 24px 0; text-align: center; }
+    .nav a { color: #666; text-decoration: underline; }
+    .version-badge { position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">Version B</div>
+  <div class="container">
+    <header>
+      <a href="dashboard.html" class="logo">RYLA</a>
+    </header>
+    <div class="progress"><div class="progress-bar"></div></div>
+    
+    <h1>Ready to Generate!</h1>
+    <div class="character-preview"><span>[Preview]</span></div>
+
+    <div class="credits-warning">
+      <strong>⚠️ Free Plan Limits</strong>
+      You have 3 free images. This will use all of them. Upgrade for unlimited.
+    </div>
+
+    <a href="generating.html" class="generate-btn">Generate (3 images)</a>
+    <a href="pricing.html" class="upgrade-btn">Upgrade for More →</a>
+
+    <div class="nav">
+      <a href="wizard-1.html">← Edit settings</a>
+    </div>
+  </div>
+</body>
+</html>
+

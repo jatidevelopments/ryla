@@ -2,13 +2,16 @@
 
 ## Product Vision
 
-**RYLA** = AI Influencer Creation & Management Platform
+**RYLA** = AI Influencer Creation & Monetization Platform
+
+> **Category**: First integrated "AI Influencer in a Box" with monetization tools
+> **Market Size**: $97B+ adult content market + $21B influencer market
 
 ---
 
 ## The Problem
 
-**Target Users**: Content creators, marketers, and entrepreneurs who want to create and monetize AI influencers (for OnlyFans, TikTok, Instagram, etc.)
+**Target Users**: Content creators, marketers, and entrepreneurs who want to create and monetize AI influencers (for OnlyFans, Fanvue, TikTok, Instagram, etc.)
 
 **Problem Statement**:
 Creating and managing AI influencers is fragmented, frustrating, and inconsistent. Users bounce between 5+ separate tools (image gen, voice, video, lip-sync, scheduling) with no unified workflow, leading to:
@@ -17,7 +20,7 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 - Hours wasted on manual file juggling
 - No persistent character memory or backstory
 - Low-quality outputs that look fake
-- No direct path to monetization platforms
+- **No direct path to monetization platforms** ← Key gap in market
 
 **Evidence**:
 
@@ -26,14 +29,37 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 - **77 unique users** in week 1, **51** in week 2
 - Primary traffic: Facebook (73 users), Direct (43), Instagram (6)
 - Course seller research identified 10 core pain points
+- **AI Influencer Vault** course on Skool validates paid demand for this category
+
+---
+
+## Market Opportunity
+
+### Why Now
+
+| Signal                   | Evidence                                                           |
+| ------------------------ | ------------------------------------------------------------------ |
+| **Funding Activity**     | Higgsfield raised $50M (Sep 2025) for AI video/image platform      |
+| **Market Fragmentation** | 40+ competitors, no dominant "AI influencer + monetization" player |
+| **Revenue Potential**    | Adult creators earn **3-5x more** than mainstream influencers      |
+| **Pricing Validation**   | Competitors charge €14-€124/month; market accepts premium pricing  |
+| **Platform Shifts**      | Fanvue AI-friendly as OnlyFans tightens AI policies                |
+
+### Total Addressable Market
+
+| Segment                | Size           | RYLA Opportunity                                    |
+| ---------------------- | -------------- | --------------------------------------------------- |
+| Adult Content Creators | $97B+ annually | Primary target - underserved by mainstream AI tools |
+| Influencer Marketing   | $21B globally  | Secondary - brand partnerships                      |
+| AI Companion Apps      | $2B+ projected | Adjacent - character/persona tech                   |
 
 ---
 
 ## Core Hypothesis
 
-> **We believe** content creators who want AI influencers **have** fragmented tooling, inconsistent outputs, and no character continuity.
+> **We believe** content creators who want AI influencers **have** fragmented tooling, inconsistent outputs, and no monetization pathway.
 >
-> **If we build** a unified platform that generates consistent AI personas, maintains character memory, and provides one-click export to monetization platforms,
+> **If we build** a unified platform that generates consistent AI personas, maintains character memory, and provides **one-click export to monetization platforms**,
 >
 > **They will** complete the funnel and pay for subscriptions.
 >
@@ -41,42 +67,125 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 
 ---
 
+## Unique Value Proposition
+
+### The Gap We Fill
+
+| What Exists                               | What's Missing              | RYLA Solution                            |
+| ----------------------------------------- | --------------------------- | ---------------------------------------- |
+| **AI Image Gen** (Midjourney, SoulGen)    | No character persistence    | Consistent characters across all content |
+| **AI Companions** (Replika, Character.AI) | No monetization path        | Built-in export to OF/Fanvue             |
+| **OF Agencies**                           | Manual, expensive ($5K+/mo) | Automated, self-serve ($29/mo)           |
+| **Viral Tools** (Higgsfield, Foxy.ai)     | No NSFW, no monetization    | Full content spectrum + revenue tools    |
+| **Chat Bots** (dFans.ai)                  | No character creation       | Character + chat + content               |
+
+### Why RYLA Wins
+
+1. **First "AI Influencer + Monetization" Platform** - No competitor owns this category
+2. **Creator-Centric** - Designed for individuals, not enterprises
+3. **NSFW Support** - While Foxy.ai, SynthLife prohibit adult content
+4. **Character Consistency** - The #1 pain point competitors fail to solve
+5. **Transparent Pricing** - Clear tiers vs. "contact sales" competitors
+
+---
+
 ## User Pain Points (Validated)
 
-| #   | Pain Point                                                                         | Severity    | RYLA Solution                                            |
-| --- | ---------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------- |
-| 1   | **Model quality & realism** - outputs look fake, face inconsistency, glitchy hands | 🔴 Critical | Curated model selection, consistent seed/style locking   |
-| 2   | **Prompt inconsistency** - same prompt = different results                         | 🔴 Critical | Saved character profiles with locked parameters          |
-| 3   | **Character memory/continuity** - AI forgets backstory, personality breaks         | 🔴 Critical | Persistent character profiles with traits, history, tone |
-| 4   | **Tooling & workflow** - too many separate tools, manual file juggling             | 🔴 Critical | All-in-one: image, voice, video, lip-sync, export        |
-| 5   | **Generation speed & stability** - slow renders, timeouts                          | 🟡 High     | Optimized pipelines, queue management, fallbacks         |
-| 6   | **Voice & lip-sync** - voice mismatch, robotic sync                                | 🟡 High     | Voice cloning + sync models, preview before render       |
-| 7   | **Copyright/rights uncertainty** - commercial use concerns                         | 🟡 High     | Clear licensing, 100% synthetic faces, terms clarity     |
-| 8   | **Platform integration gaps** - no easy export to social/OF                        | 🟡 High     | One-click export, format presets, scheduling             |
-| 9   | **Pricing frustration** - expensive, confusing credits                             | 🟠 Medium   | Simple subscription tiers, transparent usage             |
-| 10  | **NSFW/moderation constraints** - filters too strict                               | 🟠 Medium   | Tiered content controls with safety boundaries           |
+| #   | Pain Point                                           | Severity    | RYLA Solution                 | Competitor Gap                       |
+| --- | ---------------------------------------------------- | ----------- | ----------------------------- | ------------------------------------ |
+| 1   | **Model quality & realism** - outputs look fake      | 🔴 Critical | Curated models, style locking | Most tools generic                   |
+| 2   | **Prompt inconsistency** - same prompt ≠ same result | 🔴 Critical | Saved character profiles      | No competitor solves well            |
+| 3   | **Character memory** - AI forgets backstory          | 🔴 Critical | Persistent profiles           | Only Candy.ai partially              |
+| 4   | **Tooling fragmentation** - 5+ separate tools        | 🔴 Critical | All-in-one platform           | SynthLife partial, no monetization   |
+| 5   | **No monetization path** - create but can't sell     | 🔴 Critical | One-click OF/Fanvue export    | **Zero competitors**                 |
+| 6   | **Generation speed** - slow renders                  | 🟡 High     | Optimized pipelines           | Most platforms slow                  |
+| 7   | **Voice & lip-sync** - mismatch, robotic             | 🟡 High     | Voice cloning + sync          | Phase 2 differentiator               |
+| 8   | **Copyright uncertainty**                            | 🟡 High     | 100% synthetic, clear terms   | Industry-wide issue                  |
+| 9   | **Pricing confusion** - credits, hidden fees         | 🟠 Medium   | Simple subscriptions          | Creatify, Foxy use confusing credits |
+| 10  | **NSFW constraints** - filters too strict            | 🟠 Medium   | Tiered content controls       | Foxy, SynthLife, Creatify prohibit   |
+
+---
+
+## Competitive Landscape
+
+### Direct Competitors (High Threat 🔴)
+
+| Competitor     | Focus                   | Pricing     | Strengths                             | Key Weakness                 |
+| -------------- | ----------------------- | ----------- | ------------------------------------- | ---------------------------- |
+| **Higgsfield** | AI video/image platform | TBD         | $50M funded, Soul ID, video gen       | No monetization focus        |
+| **Foxy.ai**    | AI content studio       | $14-$124/mo | Celebrity endorsements, viral presets | **No NSFW**                  |
+| **MySnapFace** | AI influencer training  | TBD         | 75+ packs, Chrome extension           | Personal brand focus         |
+| **dFans AI**   | Chat automation         | $49/mo      | OF chat bots, typo injection          | **No character creation**    |
+| **Fanvue AI**  | Creator platform        | TBD         | OF alternative, AI-friendly           | Limited AI tools             |
+| **SoulGen**    | AI girlfriend images    | Premium     | Consistent faces, NSFW                | No workflow, no monetization |
+| **Candy.ai**   | AI chat + images        | Premium     | Character memory, chat                | Expensive, no export         |
+
+### Indirect Competitors (Medium Threat 🟡)
+
+| Category         | Examples                     | Why Not Direct Threat             |
+| ---------------- | ---------------------------- | --------------------------------- |
+| Generic AI Tools | Midjourney, DALL-E, Flux     | No character persistence, no NSFW |
+| AI Companions    | Replika, Character.AI        | No images, no monetization        |
+| Video Platforms  | Synthesia, D-ID              | B2B focus, no NSFW                |
+| Audio Erotica    | Quinn, Femtasy, AudioDesires | No visuals, different use case    |
+
+### Competitive Positioning
+
+```
+                    High Quality Output
+                           ↑
+                           |
+   Enterprise Tools    |   ★ RYLA TARGET
+   (Synthesia, D-ID)   |   (Quality + Monetization + Self-Serve)
+                       |
+Low Accessibility ←----+----→ High Accessibility
+                       |
+   Agencies            |   Consumer Apps
+   (Brud, OF agencies) |   (Replika, Candy.ai, DreamGF)
+                       |
+                           ↓
+                    Lower Quality Output
+```
+
+**RYLA's Unique Position**: High quality + high accessibility + monetization + NSFW support
+
+📄 **Full competitor analysis**: [docs/research/COMPETITORS.md](../research/COMPETITORS.md)
 
 ---
 
 ## Key Differentiators (Validated in Funnel)
 
-These features were explicitly sold in the ghost test funnel and showed high engagement:
+| Feature                   | What We Sell                     | Pain It Solves                  | Competitor Status        |
+| ------------------------- | -------------------------------- | ------------------------------- | ------------------------ |
+| **Character Consistency** | Same face across ALL content     | "Face changes every generation" | No one solves well       |
+| **Hyper Realistic Skin**  | AI indistinguishable from photos | "Outputs look fake"             | Quality varies           |
+| **Perfect Hands**         | Solved #1 AI image problem       | "Hands always glitch"           | Improving industry-wide  |
+| **OF/Fanvue Export**      | One-click monetization           | "No path to revenue"            | **ZERO competitors**     |
+| **NSFW Toggle**           | Creator-controlled boundaries    | "Filters too strict"            | Foxy, SynthLife prohibit |
+| **Outfit Customization**  | Dress character in any style     | "Can't control appearance"      | Limited elsewhere        |
 
-| Feature                   | What We Sell                               | Pain It Solves                     | Funnel Step |
-| ------------------------- | ------------------------------------------ | ---------------------------------- | ----------- |
-| **Hyper Realistic Skin**  | AI skin indistinguishable from real photos | "Outputs look fake/uncanny"        | Step 5      |
-| **Perfect Hands**         | Solved the #1 AI image problem             | "Hands always glitch/look wrong"   | Step 16     |
-| **Character Consistency** | Same face across ALL your content          | "Face changes every generation"    | Step 12     |
-| **Outfit Customization**  | Dress your character in any style          | "Can't control appearance details" | Step 20-21  |
-| **Lipsync**               | Realistic talking videos                   | "Lip-sync robotic/out of sync"     | Step 29     |
-| **NSFW Toggle**           | Creator-controlled content boundaries      | "Filters too strict"               | Step 27-28  |
+---
 
-### Why These Matter
+## Pricing Strategy
 
-1. **Hyper Realistic Skin + Perfect Hands** → Direct response to "AI looks fake" objection
-2. **Character Consistency** → The #1 pain point from course seller research
-3. **Outfit Customization** → Enables varied content without losing character identity
-4. **Lipsync** → Key for video content (Phase 2, but validated demand)
+### Market Context
+
+| Competitor Tier | Price Range | Target                          |
+| --------------- | ----------- | ------------------------------- |
+| Entry           | €14-€29/mo  | Hobbyists (SynthLife)           |
+| Mid             | €39-€49/mo  | Creators (Creatify, dFans)      |
+| Premium         | €99-€124/mo | Professionals (Foxy Ultimate)   |
+| Enterprise      | Custom      | Agencies (Traackr, HypeAuditor) |
+
+### RYLA Pricing (Proposed)
+
+| Tier        | Price  | Target              | Rationale                |
+| ----------- | ------ | ------------------- | ------------------------ |
+| **Starter** | $29/mo | First-time creators | Validated in ghost test  |
+| **Creator** | $49/mo | Active creators     | Match dFans.ai, Creatify |
+| **Pro**     | $99/mo | Full-time creators  | Match premium tier       |
+
+**NSFW Premium**: +50-100% premium for adult content features (team hypothesis)
 
 ---
 
@@ -90,16 +199,16 @@ These features were explicitly sold in the ghost test funnel and showed high eng
 - Basic voice selection
 - Image pack generation
 - Payment integration
-- Export to common formats
+- **Export to OF/Fanvue formats** ← Key differentiator
 
 ### Out of Scope (Phase 2+)
 
 - Video generation
 - Lip-sync
-- Platform scheduling (OF, TikTok auto-post)
+- Platform scheduling (auto-post)
 - Multi-character scenes
 - Voice cloning
-- Advanced NSFW controls
+- Chat automation (potential dFans.ai integration)
 - API access
 
 ---
@@ -108,21 +217,21 @@ These features were explicitly sold in the ghost test funnel and showed high eng
 
 ### Primary (North Star)
 
-| Metric                                      | Target | Current | Timeline |
-| ------------------------------------------- | ------ | ------- | -------- |
-| **C - Core Value**: Characters created/user | >3     | TBD     | 30 days  |
-| **D - Conversion**: Funnel → Payment        | >20%   | ~54%\*  | 30 days  |
+| Metric                                      | Target | Current | Competitor Benchmark   |
+| ------------------------------------------- | ------ | ------- | ---------------------- |
+| **C - Core Value**: Characters created/user | >3     | TBD     | N/A                    |
+| **D - Conversion**: Funnel → Payment        | >20%   | ~54%\*  | Foxy claims 57% growth |
 
 \*54% is generation→payment, full funnel TBD
 
 ### Secondary
 
-| Metric                  | Category       | Target  | Current       |
-| ----------------------- | -------------- | ------- | ------------- |
-| Start → Generation      | A - Activation | >60%    | TBD           |
-| D7 Return Rate          | B - Retention  | >15%    | 5% (week 1→2) |
-| Time to first character | A - Activation | <10 min | TBD           |
-| Support tickets/user    | Quality        | <0.1    | TBD           |
+| Metric                  | Category       | Target  | Current |
+| ----------------------- | -------------- | ------- | ------- |
+| Start → Generation      | A - Activation | >60%    | TBD     |
+| D7 Return Rate          | B - Retention  | >15%    | 5%      |
+| Time to first character | A - Activation | <10 min | TBD     |
+| Support tickets/user    | Quality        | <0.1    | TBD     |
 
 ---
 
@@ -153,26 +262,17 @@ These features were explicitly sold in the ghost test funnel and showed high eng
 
 ---
 
-## Competitive Landscape
-
-| Competitor                            | Strengths            | Weaknesses                            | RYLA Opportunity          |
-| ------------------------------------- | -------------------- | ------------------------------------- | ------------------------- |
-| Generic AI tools (Midjourney, DALL-E) | Quality, flexibility | No character persistence, no workflow | Unified workflow + memory |
-| Character.AI                          | Personality, chat    | No image gen, no monetization path    | Full content pipeline     |
-| OnlyFans agencies                     | Business model       | Manual, expensive, human-dependent    | Automation + AI           |
-| Fanvue AI                             | NSFW focus           | Limited tooling                       | Better UX, more features  |
-
----
-
 ## Risks & Mitigations
 
-| Risk                          | Likelihood | Impact | Mitigation                                       |
-| ----------------------------- | ---------- | ------ | ------------------------------------------------ |
-| Model quality not good enough | Medium     | High   | Use best-in-class models, user feedback loop     |
-| Copyright/legal issues        | Low        | High   | 100% synthetic, clear terms, legal review        |
-| Platform bans (OF, social)    | Medium     | Medium | Diversify platforms, compliance guidelines       |
-| High compute costs            | High       | Medium | Tiered pricing, optimization, caching            |
-| Low retention                 | Medium     | High   | Character memory, content library, notifications |
+| Risk                                   | Likelihood | Impact | Mitigation                             |
+| -------------------------------------- | ---------- | ------ | -------------------------------------- |
+| **Higgsfield expands to monetization** | Medium     | High   | Speed to market, NSFW differentiation  |
+| **OnlyFans AI ban expansion**          | Medium     | High   | Fanvue primary, multi-platform support |
+| **Foxy.ai adds NSFW**                  | Low        | High   | Monetization focus, not just content   |
+| **Model quality not good enough**      | Medium     | High   | Best-in-class models, user feedback    |
+| **High compute costs**                 | High       | Medium | Tiered pricing, optimization           |
+| **Platform TOS changes**               | Medium     | High   | Diversified export options             |
+| **Copyright/legal issues**             | Low        | High   | 100% synthetic, clear terms            |
 
 ---
 
@@ -192,7 +292,13 @@ These features were explicitly sold in the ghost test funnel and showed high eng
 - Basic dashboard
 - **Success**: >20% paid conversion, >15% D7 retention
 
-### Phase 3: Iteration
+### Phase 3: Monetization Integration
+
+- OF/Fanvue export
+- Format optimization
+- **Success**: >50% users export content
+
+### Phase 4: Iteration
 
 - Add voice/video based on feedback
 - Platform integrations
@@ -202,22 +308,25 @@ These features were explicitly sold in the ghost test funnel and showed high eng
 
 ## Decision Log
 
-| Date     | Decision                             | Rationale                                          |
-| -------- | ------------------------------------ | -------------------------------------------------- |
-| Nov 2025 | Focus on character consistency first | #1 and #2 pain points from research                |
-| Nov 2025 | Skip video for MVP                   | Complexity vs. value; image packs validate demand  |
-| Nov 2025 | Subscription model                   | Predictable revenue, aligns with creator economics |
-| Dec 2025 | Nx monorepo                          | Multiple apps (web, admin), shared libs            |
+| Date     | Decision                             | Rationale                   |
+| -------- | ------------------------------------ | --------------------------- |
+| Nov 2025 | Focus on character consistency first | #1 pain point from research |
+| Nov 2025 | Skip video for MVP                   | Complexity vs. value        |
+| Nov 2025 | Subscription model at $29/mo         | Validated, matches market   |
+| Dec 2025 | Nx monorepo                          | Multiple apps, shared libs  |
+| Dec 2025 | **NSFW support from day 1**          | Key gap vs. Foxy/SynthLife  |
+| Dec 2025 | **Fanvue as primary export**         | AI-friendly vs. OnlyFans    |
 
 ---
 
 ## Open Questions
 
-1. ~~What's the optimal price point?~~ → **$29/mo** (validated in ghost test, A/B test later)
-2. How many images per character pack for MVP? → **TBD during P3** (likely 5-10)
-3. Which voice provider has best quality/cost ratio? → **TBD** (basic selection for MVP)
-4. What's the minimum character consistency users accept? → **Validate during P10**
-5. ~~Should we offer free tier or trial?~~ → **No free tier for MVP** (paid only, validate demand)
+1. ~~What's the optimal price point?~~ → **$29/mo** (validated)
+2. How many images per character pack for MVP? → **TBD** (likely 5-10)
+3. Which voice provider has best quality/cost ratio? → **TBD**
+4. ~~Should we offer free tier?~~ → **No free tier for MVP**
+5. **NEW**: Should we integrate dFans.ai for chat or build our own?
+6. **NEW**: What's the Fanvue API integration timeline?
 
 ---
 
@@ -228,3 +337,4 @@ These features were explicitly sold in the ghost test funnel and showed high eng
 3. **P3**: Architecture for character persistence ← NEXT
 4. **P4**: UI skeleton for wizard flow
 5. **P5**: Tech spec and task breakdown
+6. **P6**: Fanvue export integration research
