@@ -29,6 +29,11 @@
 | [MDC-FRONTEND-ARCHITECTURE.md](./MDC-FRONTEND-ARCHITECTURE.md) | Next.js 15, Zustand, TanStack Query |
 | [MDC-BACKEND-ARCHITECTURE.md](./MDC-BACKEND-ARCHITECTURE.md) | NestJS, TypeORM, Bull queues |
 
+### Research & Market Analysis
+| Document | Description |
+|----------|-------------|
+| [COMPETITORS.md](../research/COMPETITORS.md) | Competitive landscape, categorized competitors |
+
 ---
 
 ## Quick Reference: Tech Stack Comparison
