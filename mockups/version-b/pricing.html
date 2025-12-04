@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upgrade - RYLA (Version B)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    header { padding: 16px 0; border-bottom: 1px solid #eee; margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    h1 { font-size: 28px; text-align: center; margin-bottom: 8px; }
+    .subtitle { text-align: center; color: #666; margin-bottom: 32px; }
+    .plans { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .plan { border: 2px solid #ccc; padding: 24px; }
+    .plan.recommended { border-color: #000; }
+    .plan-badge { background: #000; color: #fff; font-size: 12px; padding: 4px 8px; display: inline-block; margin-bottom: 12px; }
+    .plan-name { font-size: 20px; font-weight: bold; margin-bottom: 8px; }
+    .plan-price { font-size: 32px; font-weight: bold; margin-bottom: 16px; }
+    .plan-price span { font-size: 16px; font-weight: normal; color: #666; }
+    .plan-features { margin-bottom: 24px; }
+    .plan-features li { padding: 8px 0; list-style: none; }
+    .plan-features li::before { content: "✓ "; }
+    .btn { display: block; width: 100%; background: #000; color: #fff; padding: 14px; text-align: center; text-decoration: none; font-weight: bold; }
+    .btn-secondary { background: #fff; color: #000; border: 1px solid #ccc; }
+    .back-link { text-align: center; margin-top: 24px; }
+    .back-link a { color: #666; text-decoration: underline; }
+    .version-badge { position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">Version B</div>
+  <div class="container">
+    <header>
+      <a href="dashboard.html" class="logo">RYLA</a>
+    </header>
+
+    <h1>Upgrade Your Plan</h1>
+    <p class="subtitle">Remove watermarks and create unlimited characters</p>
+
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Free</div>
+        <div class="plan-price">$0</div>
+        <ul class="plan-features">
+          <li>1 character</li>
+          <li>3 images</li>
+          <li>Watermarked</li>
+        </ul>
+        <span class="btn btn-secondary">Current Plan</span>
+      </div>
+      
+      <div class="plan recommended">
+        <div class="plan-badge">RECOMMENDED</div>
+        <div class="plan-name">Creator</div>
+        <div class="plan-price">$29 <span>/mo</span></div>
+        <ul class="plan-features">
+          <li>Unlimited characters</li>
+          <li>50 images/month</li>
+          <li>No watermarks</li>
+          <li>Commercial rights</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="dashboard-with-character.html" class="btn">Upgrade Now →</a>
+      </div>
+    </div>
+
+    <div class="back-link">
+      <a href="dashboard.html">← Back to dashboard</a>
+    </div>
+  </div>
+</body>
+</html>
+

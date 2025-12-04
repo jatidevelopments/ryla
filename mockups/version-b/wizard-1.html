@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Character - RYLA (Version B)</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 480px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .close { text-decoration: none; color: #666; font-size: 24px; }
+    .progress { height: 4px; background: #eee; margin: 16px 0; }
+    .progress-bar { height: 100%; background: #000; width: 10%; }
+    .step-info { font-size: 14px; color: #666; margin-bottom: 8px; }
+    h1 { font-size: 24px; margin-bottom: 24px; }
+    .options { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 24px 0; }
+    .option { border: 2px solid #ccc; padding: 16px; text-align: center; cursor: pointer; }
+    .option:hover { border-color: #000; }
+    .nav { display: flex; justify-content: space-between; margin-top: auto; padding: 24px 0; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; font-weight: bold; }
+    .btn-back { background: #fff; color: #000; border: 1px solid #000; }
+    .version-badge { position: fixed; top: 10px; right: 10px; background: #000; color: #fff; padding: 4px 8px; font-size: 12px; }
+    .difference { background: #f0f0f0; padding: 12px; margin-bottom: 16px; border-left: 4px solid #000; font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="version-badge">Version B</div>
+  <div class="container">
+    <header>
+      <a href="dashboard.html" class="logo">RYLA</a>
+      <a href="dashboard.html" class="close">×</a>
+    </header>
+
+    <div class="difference">
+      <strong>Version B:</strong> Wizard accessed from dashboard. User is already logged in. Close returns to dashboard.
+    </div>
+
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="step-info">Step 1 of 10</div>
+    
+    <h1>Choose Ethnicity</h1>
+    
+    <div class="options">
+      <div class="option">Caucasian</div>
+      <div class="option">Asian</div>
+      <div class="option">African</div>
+      <div class="option">Hispanic</div>
+      <div class="option">Middle Eastern</div>
+      <div class="option">Mixed</div>
+    </div>
+
+    <div class="nav">
+      <a href="dashboard.html" class="btn btn-back">Cancel</a>
+      <a href="wizard-final.html" class="btn">Next →</a>
+    </div>
+  </div>
+</body>
+</html>
+
