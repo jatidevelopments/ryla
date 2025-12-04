@@ -5,42 +5,65 @@ alwaysApply: true
 
 # Architecture Rules
 
+## Nx Monorepo Structure
+
+```
+apps/
+  web/       # Main web app
+  api/       # Backend API
+  admin/     # Admin dashboard
+libs/
+  shared/    # @ryla/shared - Utils, types, constants
+  business/  # @ryla/business - Services, models, rules
+  data/      # @ryla/data - Repositories, migrations
+  ui/        # @ryla/ui - Shared components
+  analytics/ # @ryla/analytics - Event tracking
+```
+
 ## Layer Responsibilities
 
-### Presentation Layer (`src/presentation/`)
-- HTTP requests/responses only
-- Validate input via DTOs
-- Route to business services
-- No business logic
+### Apps (apps/)
+- Entry points only
+- Route to libs
+- App-specific config
 
-### Business Logic Layer (`src/business/`)
+### Business Logic (libs/business/)
 - All business rules and domain logic
 - Orchestrate complex operations
 - Never access database directly
 
-### Data Access Layer (`src/data/`)
+### Data Access (libs/data/)
 - Abstract database operations
 - Repository pattern
 - Return domain models
 
-### Management Layer (`src/management/`)
-- System administration
-- Config, monitoring, logging
-- User/role management
-
-### Shared Layer (`src/shared/`)
+### Shared (libs/shared/)
 - Common utilities, types, constants
 - Validation, error classes
 
+### UI (libs/ui/)
+- Shared React components
+- Layouts, hooks
+
+### Analytics (libs/analytics/)
+- Event capture functions
+- PostHog integration
+
 ## Data Flow
 
-1. Request: Presentation → Business → Data → DB
-2. Response: DB → Data → Business → Presentation
-3. Never skip layers
-4. Management can access all layers
+1. Apps → Business → Data → DB
+2. Never skip layers
+3. Import via `@ryla/<lib>` aliases
 
 ## Dependencies
 
-- Presentation → Business → Data → Shared
-- Management → all layers
-- No circular dependencies
+```
+apps/web     → @ryla/ui, @ryla/analytics, @ryla/business
+apps/api     → @ryla/business, @ryla/shared
+apps/admin   → @ryla/ui, @ryla/analytics, @ryla/business
+
+@ryla/business → @ryla/data, @ryla/shared
+@ryla/data     → @ryla/shared
+@ryla/ui       → @ryla/shared
+@ryla/analytics → @ryla/shared
+```

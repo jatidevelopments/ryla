@@ -1,10 +1,18 @@
 ---
 description: Data access layer patterns and repository implementation
-globs: ["src/data/**"]
+globs: ["libs/data/**"]
 alwaysApply: false
 ---
 
 # Data Access Layer
+
+## Location
+`libs/data/src/`
+
+## Import
+```typescript
+import { UserRepository } from '@ryla/data';
+```
 
 ## Repository Pattern
 - One repository per entity

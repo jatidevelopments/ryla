@@ -3,26 +3,70 @@
 ## Quick Start
 
 ```bash
-cp config/env.template .env
 npm install
-npm run dev
+nx serve web          # Run web app
+nx serve api          # Run API
+```
+
+## Nx Monorepo Structure
+
+```
+apps/
+  web/           # Main web app (Next.js)
+  api/           # Backend API (Node.js)
+  admin/         # Admin dashboard
+libs/
+  shared/        # @ryla/shared - Utils, types, constants
+  business/      # @ryla/business - Services, models, rules
+  data/          # @ryla/data - Repositories, migrations
+  ui/            # @ryla/ui - Shared components
+  analytics/     # @ryla/analytics - Event tracking
+docs/
+  journeys/      # Customer + user journeys
+  process/       # 10-phase pipeline, metrics
+  analytics/     # Tracking plan
+  architecture/  # System architecture
+  decisions/     # ADRs
+  learnings/     # Post-mortems
+ai/
+  heuristics.md  # AI learnings
+  prompts/       # Prompt templates
+playwright/
+  tests/         # E2E tests
+config/
+  mcp.config.json
+  env.template
+```
+
+## Nx Commands
+
+```bash
+nx serve <app>           # Development server
+nx build <app>           # Production build
+nx test <lib>            # Run tests
+nx lint <project>        # Lint code
+nx affected --target=test    # Test affected
+nx graph                 # View dependency graph
 ```
 
 ## Architecture
 
-| Layer | Purpose | Location |
-|-------|---------|----------|
-| Presentation | API, controllers | `src/presentation/` |
-| Business | Logic, services | `src/business/` |
-| Data | Repositories | `src/data/` |
-| Management | Admin, config | `src/management/` |
-| Shared | Utils, types | `src/shared/` |
+| Layer | Lib | Import |
+|-------|-----|--------|
+| Shared | `libs/shared` | `@ryla/shared` |
+| Business | `libs/business` | `@ryla/business` |
+| Data | `libs/data` | `@ryla/data` |
+| UI | `libs/ui` | `@ryla/ui` |
+| Analytics | `libs/analytics` | `@ryla/analytics` |
+
+**Flow**: Apps → Business → Data → DB
 
 ## 10-Phase Pipeline
 
 ```
-P1 Requirements → P2 Scoping → P3 Architecture → P4 UI → P5 Tech Spec
-→ P6 Implementation → P7 Testing → P8 Integration → P9 Deploy → P10 Production
+P1 Requirements → P2 Scoping → P3 Architecture → P4 UI
+→ P5 Tech Spec → P6 Implementation → P7 Testing
+→ P8 Integration → P9 Deploy → P10 Production
 ```
 
 ## Business Metrics (A-E)
@@ -34,47 +78,15 @@ Every feature must move one:
 - **D**: Conversion (trial → paid)
 - **E**: CAC (acquisition cost)
 
-## Project Structure
-
-```
-docs/
-  requirements/       # P1 outputs
-  architecture/       # P3 outputs
-  analytics/          # Tracking plan
-  specs/              # Technical specs
-  process/            # 10-phase, metrics
-  decisions/          # ADRs
-  learnings/          # Post-mortems
-  releases/           # Release notes
-src/
-  presentation/       # Controllers, routes, DTOs
-  business/           # Services, models, rules
-  data/               # Repositories, migrations
-  management/         # Admin, config, monitoring
-  shared/             # Utils, types, constants
-tests/
-  unit/
-  integration/
-playwright/
-  tests/              # E2E tests
-ai/
-  heuristics.md       # AI learnings
-  prompts/            # Prompt templates
-config/
-  env.template
-  credentials.csv.example
-  mcp.config.json
-```
-
 ## Documentation
 
 | Doc | Purpose |
 |-----|---------|
 | [10-Phase Pipeline](docs/process/10-PHASE-PIPELINE.md) | Development process |
 | [Business Metrics](docs/process/BUSINESS-METRICS.md) | A-E framework |
+| [Customer Journey](docs/journeys/CUSTOMER-JOURNEY.md) | AAARRR funnel |
 | [Tracking Plan](docs/analytics/TRACKING-PLAN.md) | PostHog events |
 | [Naming Conventions](docs/specs/NAMING_CONVENTIONS.md) | IDs, branches, commits |
-| [ADR Template](docs/decisions/ADR-TEMPLATE.md) | Decision records |
 | [Heuristics](ai/heuristics.md) | AI learnings |
 
 ## Naming
@@ -91,10 +103,3 @@ config/
 - `#mvp-ryla-dev` - Development
 - `#mvp-ryla-log` - Audit (read-only)
 - `#mvp-ryla-learnings` - Knowledge capture
-
-## Integrations
-
-- **GitHub**: Issues, PRs, Projects, Actions
-- **Slack**: Structured events, learnings loop
-- **PostHog**: Analytics, funnels, feature flags
-- **Playwright**: E2E tests, analytics verification
