@@ -1,34 +1,50 @@
 ---
 description: Analytics and metrics tracking guidelines
-globs: ["src/**"]
+globs: ["libs/analytics/**", "apps/**"]
 alwaysApply: false
 ---
 
 # Analytics
 
+## Location
+`libs/analytics/src/`
+
+## Import
+```typescript
+import { capture, identify, USER_EVENTS } from '@ryla/analytics';
+```
+
 ## Key Events
 
 | Event | When | Properties |
 |-------|------|------------|
-| `user_signed_up` | Registration | source, plan |
-| `user_activated` | First key action | time_to_activate |
-| `feature_used` | Feature interaction | feature, count |
-| `user_converted` | Paid subscription | plan, trial_days |
-| `error_occurred` | User-facing error | type, message |
+| `user.signed_up` | Registration | source, plan |
+| `user.activated` | First key action | time_to_activate |
+| `feature.used` | Feature interaction | feature, count |
+| `subscription.created` | Payment | plan, amount |
+| `error.occurred` | User-facing error | type, message |
+
+## Usage
+```typescript
+import { capture, identify, USER_EVENTS } from '@ryla/analytics';
+
+// Identify user
+identify(userId, { email, plan });
+
+// Capture event
+capture(USER_EVENTS.ACTIVATED, { 
+  time_to_activate: 120 
+});
+```
 
 ## Event Naming
 - snake_case
-- verb_noun format
+- feature.action format
 - Consistent across app
 
-## Metrics
-- **Acquisition**: signup rate, activation rate, trial conversion
-- **Retention**: D1/D7/D30, churn rate, feature adoption
-- **Revenue**: MRR, ARPU, LTV, CAC, LTV:CAC
-
-## Implementation
-```javascript
-posthog.identify(userId, { email, plan });
-posthog.capture('feature_used', { feature: 'export', format: 'pdf' });
-if (posthog.isFeatureEnabled('new-feature')) { /* show */ }
-```
+## Metrics (A-E)
+- A: Activation
+- B: Retention
+- C: Core Value
+- D: Conversion
+- E: CAC

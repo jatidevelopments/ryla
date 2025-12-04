@@ -6,6 +6,7 @@ alwaysApply: true
 # Way of Work
 
 ## Communication = Cost
+
 - Every message costs time (human) / tokens (AI)
 - Say only what moves work forward
 - No filler, repetition, emotional padding
@@ -13,6 +14,7 @@ alwaysApply: true
 - Enough clarity to avoid follow-ups
 
 ## Style
+
 - Bullet points > paragraphs
 - Examples > explanations
 - Async by default
@@ -33,6 +35,7 @@ P1→P2→P3→P4→P5→P6→P7→P8→P9→P10
 No phase skipped. See `docs/process/10-PHASE-PIPELINE.md`
 
 ## Slack Formats
+
 ```
 [EVENT=PR_MERGED] repo=ryla issues=EP-001,ST-010 phase=P6
 [EVENT=DEPLOY] env=staging version=v1.2.3 status=success
@@ -41,6 +44,7 @@ STATUS: EP-001 ST-010 phase=P6 status=in-progress
 ```
 
 ## Channels
+
 - #mvp-ryla-pm
 - #mvp-ryla-dev
 - #mvp-ryla-log (audit)

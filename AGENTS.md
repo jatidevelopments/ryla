@@ -1,18 +1,27 @@
 # RYLA MVP - Agent Instructions
 
-## Architecture
-- Layer flow: Presentation → Business → Data → DB
-- Never skip layers
-- Management layer can access all
+## Nx Monorepo Structure
 
-## Code Style
-- Self-documenting names
-- Small functions
-- Explicit error handling
-- Tests for business logic
+```
+apps/
+  web/       # Main web app (Next.js)
+  api/       # Backend API (Node.js)
+  admin/     # Admin dashboard (Next.js)
+libs/
+  shared/    # @ryla/shared - Utils, types
+  business/  # @ryla/business - Services, models
+  data/      # @ryla/data - Repositories
+  ui/        # @ryla/ui - Components
+  analytics/ # @ryla/analytics - Events
+```
+
+## Architecture
+- Apps → Business → Data → DB
+- Import via `@ryla/<lib>` aliases
+- Never skip layers
 
 ## 10-Phase Pipeline
-P1 Requirements → P2 Scoping → P3 Architecture → P4 UI → P5 Tech Spec → P6 Implementation → P7 Testing → P8 Integration → P9 Deploy Prep → P10 Production
+P1→P2→P3→P4→P5→P6→P7→P8→P9→P10
 
 No phase skipped.
 
@@ -28,7 +37,7 @@ Every feature must move one:
 - Epics: `EP-XXX`
 - Stories: `ST-XXX`
 - Tasks: `TSK-XXX`
-- Branches: `epic/ep-001-scope` or `feat/st-010-feature`
+- Branches: `epic/ep-001-scope`
 - Commits: `feat(ep-001 st-010): description`
 
 ## Way of Work
@@ -37,8 +46,18 @@ Every feature must move one:
 - Async by default
 - Learnings → Slack → GitHub → heuristics
 
+## Nx Commands
+```bash
+nx serve web          # Run web app
+nx serve api          # Run API
+nx build <app>        # Build app
+nx test <lib>         # Test lib
+nx affected --target=test  # Test affected
+nx graph              # View dependency graph
+```
+
 ## Integrations
 - GitHub: Issues, PRs, Projects, Actions
 - Slack: #mvp-ryla-pm, #mvp-ryla-dev, #mvp-ryla-log, #mvp-ryla-learnings
-- PostHog: Analytics, funnels
+- PostHog: Analytics via @ryla/analytics
 - Playwright: E2E tests

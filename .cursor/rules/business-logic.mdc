@@ -1,10 +1,18 @@
 ---
 description: Business logic layer patterns and practices
-globs: ["src/business/**"]
+globs: ["libs/business/**"]
 alwaysApply: false
 ---
 
 # Business Logic Layer
+
+## Location
+`libs/business/src/`
+
+## Import
+```typescript
+import { UserService } from '@ryla/business';
+```
 
 ## Services
 - One service per domain entity/use case

@@ -1,32 +1,38 @@
 ---
 description: Presentation layer API and request handling patterns
-globs: ["src/presentation/**"]
+globs: ["apps/api/**", "apps/web/**", "apps/admin/**"]
 alwaysApply: false
 ---
 
-# Presentation Layer
+# Presentation Layer (Apps)
 
-## Controllers
+## Locations
+- `apps/web/` - Main web app
+- `apps/api/` - Backend API
+- `apps/admin/` - Admin dashboard
+
+## Apps Structure
+```
+apps/<app>/
+├── src/
+│   ├── app/           # Routes/pages
+│   ├── components/    # App-specific components
+│   └── styles/        # App-specific styles
+└── project.json       # Nx config
+```
+
+## Rules
+- Apps are entry points only
+- Import business logic from `@ryla/business`
+- Import UI from `@ryla/ui`
+- Import analytics from `@ryla/analytics`
+- No business logic in apps
+
+## API Controllers
 - HTTP concerns only
 - Extract to DTOs immediately
 - Call services, no logic
 - Standardized responses
-
-## DTOs
-- All API inputs/outputs
-- Validate before business layer
-- No business logic
-
-## Routes
-- Organize by resource
-- RESTful conventions
-- Version APIs
-
-## Middleware
-- Auth/authz
-- Request logging
-- Error handling
-- Rate limiting
 
 ## Responses
 - Consistent structure

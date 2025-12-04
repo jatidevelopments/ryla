@@ -7,32 +7,38 @@ alwaysApply: false
 # Management Layer
 
 ## Prioritization Order
+
 ```
 Activation → Retention → Core Value → Conversion
 ```
 
 ## Planning Rhythm
+
 - Weekly: goals → tasks → ship → review metrics
 - Monthly: recalibration
 
 ## Admin Operations
+
 - Require authorization
 - Log all actions
 - Strict input validation
 - Audit trails → #mvp-ryla-log
 
 ## Configuration
+
 - Environment-specific
 - Never commit secrets
 - Validate on startup
 
 ## Decisions
+
 - Fast if reversible
 - Document if irreversible (ADR)
 - Data > opinions
 - Simplicity > cleverness
 
 ## Accountability
+
 - Clear owner per epic
 - Progress = metric impact
 - No blame — systems > individuals
