@@ -1,0 +1,63 @@
+---
+description: External dependencies and third-party integrations
+alwaysApply: true
+---
+
+# External Dependencies
+
+## Core Services
+
+| Service | Purpose | SDK |
+|---------|---------|-----|
+| **Supabase** | Auth, DB, Storage | `@supabase/supabase-js` |
+| **Stripe** | Payments | `stripe`, `@stripe/stripe-js` |
+| **Replicate** | AI generation | `replicate` |
+| **PostHog** | Analytics | `posthog-js` |
+| **Vercel** | Hosting | - |
+
+## When Implementing
+
+### Authentication (EP-002)
+- Use Supabase Auth, not custom
+- `supabase.auth.signUp()`, `signInWithPassword()`
+- Session via `supabase.auth.getSession()`
+
+### Payments (EP-003)
+- Use Stripe Checkout, not custom forms
+- Server: `stripe.checkout.sessions.create()`
+- Webhooks for subscription events
+- Never store card details
+
+### AI Generation (EP-005)
+- Use Replicate API
+- `replicate.run(model, { input })`
+- Store images in Supabase Storage
+
+### Analytics (All)
+- Use `@ryla/analytics` lib
+- `analytics.capture(event, properties)`
+- See `docs/analytics/TRACKING-PLAN.md`
+
+## Env Vars Required
+
+```bash
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+
+# Stripe
+STRIPE_SECRET_KEY=
+STRIPE_PUBLISHABLE_KEY=
+STRIPE_WEBHOOK_SECRET=
+
+# AI
+REPLICATE_API_TOKEN=
+
+# Analytics
+NEXT_PUBLIC_POSTHOG_KEY=
+NEXT_PUBLIC_POSTHOG_HOST=
+```
+
+## Full Reference
+See `docs/specs/EXTERNAL-DEPENDENCIES.md`
