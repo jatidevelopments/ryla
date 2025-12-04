@@ -1,0 +1,42 @@
+---
+description: Business logic layer patterns and practices
+globs: ["src/business/**"]
+alwaysApply: false
+---
+
+# Business Logic Layer Rules
+
+## Service Pattern
+
+- Services contain business logic and orchestration
+- One service per domain entity or use case
+- Services coordinate between repositories and other services
+- Services validate business rules before data operations
+
+## Domain Models
+
+- Domain models represent business concepts
+- Keep models focused on business logic, not persistence
+- Use value objects for complex types
+- Models should be independent of data layer
+
+## Business Rules
+
+- Extract business rules into separate rule classes/functions
+- Rules should be testable in isolation
+- Document complex business rules with comments
+- Rules should be reusable across services
+
+## Process Definitions
+
+- Business processes should be clearly defined
+- Each process should have a clear entry point
+- Document process steps and dependencies
+- Handle process failures gracefully
+
+## Error Handling
+
+- Use domain-specific exceptions
+- Never expose database errors to presentation layer
+- Return meaningful error messages for business rule violations
+- Log errors with context for debugging

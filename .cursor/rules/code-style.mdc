@@ -1,0 +1,43 @@
+---
+description: Code style and conventions for RYLA MVP
+alwaysApply: true
+---
+
+# Code Style Rules
+
+## Naming Conventions
+
+- Use **camelCase** for variables, functions, and methods
+- Use **PascalCase** for classes, interfaces, and types
+- Use **UPPER_SNAKE_CASE** for constants
+- Use **kebab-case** for file names (when applicable)
+- Use descriptive names that indicate purpose
+
+## File Organization
+
+- One class/interface per file
+- Group related functionality in modules
+- Keep files focused and under 300 lines when possible
+- Use index files for clean exports
+
+## Code Quality
+
+- Write self-documenting code with clear variable names
+- Add comments for complex business logic
+- Keep functions small and focused (single responsibility)
+- Avoid deep nesting (max 3 levels)
+- Handle errors explicitly, don't swallow exceptions
+
+## Type Safety
+
+- Use strict typing (avoid `any`)
+- Define interfaces for all data structures
+- Use type guards for runtime validation
+- Prefer composition over inheritance
+
+## Testing
+
+- Write tests for business logic first
+- Mock external dependencies in unit tests
+- Use integration tests for layer interactions
+- Keep test names descriptive: `should [expected behavior] when [condition]`

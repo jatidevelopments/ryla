@@ -1,0 +1,58 @@
+---
+description: Layered architecture guidelines for RYLA MVP
+alwaysApply: true
+---
+
+# Architecture Rules
+
+## Layer Responsibilities
+
+### Presentation Layer (`src/presentation/`)
+- Handle HTTP requests/responses only
+- Validate input using DTOs
+- Route requests to business services
+- Never contain business logic
+- Return standardized response formats
+
+### Business Logic Layer (`src/business/`)
+- Contains all business rules and domain logic
+- Orchestrates complex operations
+- Validates business constraints
+- Coordinates between services
+- Never directly access databases
+
+### Data Access Layer (`src/data/`)
+- Abstracts database operations
+- Implements repository pattern
+- Handles data persistence only
+- No business logic allowed
+- Returns domain models, not raw database entities
+
+### Management Layer (`src/management/`)
+- System administration functions
+- Configuration management
+- User and role management
+- Monitoring and logging
+- Administrative operations
+
+### Shared Layer (`src/shared/`)
+- Common utilities used across layers
+- Shared types and interfaces
+- Constants and configuration
+- Validation utilities
+- Custom error classes
+
+## Data Flow Rules
+
+1. **Request Flow**: Presentation → Business → Data → Database
+2. **Response Flow**: Database → Data → Business → Presentation
+3. **Never skip layers**: Each layer must go through the next layer
+4. **Management Layer**: Can interact with all layers for admin operations
+
+## Dependencies
+
+- Presentation depends on Business
+- Business depends on Data
+- Data depends on Shared
+- Management can depend on all layers
+- Never create circular dependencies

@@ -1,0 +1,42 @@
+---
+description: Management layer for administration and system operations
+globs: ["src/management/**"]
+alwaysApply: false
+---
+
+# Management Layer Rules
+
+## Admin Operations
+
+- All admin operations require proper authorization
+- Log all administrative actions
+- Validate admin inputs strictly
+- Provide audit trails for sensitive operations
+
+## Configuration Management
+
+- Configuration should be environment-specific
+- Never commit secrets or credentials
+- Use configuration validation on startup
+- Support configuration hot-reload when possible
+
+## User Management
+
+- Implement proper password hashing
+- Enforce password policies
+- Support user role assignment
+- Track user activity for security
+
+## Monitoring
+
+- Log important system events
+- Use structured logging
+- Include correlation IDs for request tracing
+- Monitor system health metrics
+
+## Health Checks
+
+- Implement health check endpoints
+- Check database connectivity
+- Verify external service availability
+- Return appropriate status codes
