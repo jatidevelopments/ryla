@@ -1,0 +1,59 @@
+---
+description: Communication and workflow guidelines
+alwaysApply: true
+---
+
+# Way of Work
+
+## Communication Style
+
+### Efficiency First
+- Every message = cost (human time / AI tokens)
+- Be concise, not verbose
+- Async by default, sync when blocked
+
+### Documentation Style
+- On point, not full sentences
+- Bullet points > paragraphs
+- Examples > explanations
+- Keep detail needed for clarity
+
+## Naming Conventions
+
+### Branches
+```
+<type>/<issue-id>-<short-description>
+feat/RYLA-42-user-auth
+fix/RYLA-103-login-redirect
+```
+
+### Commits
+```
+<type>(<scope>): <description> [#issue-id]
+feat(auth): add JWT validation [#RYLA-42]
+fix(api): handle null response [#RYLA-103]
+```
+
+### Issues
+```
+[TYPE] Short description
+[FEATURE] User authentication flow
+[BUG] Login fails on Safari mobile
+```
+
+## Types
+- feat: New feature
+- fix: Bug fix
+- refactor: Code restructure
+- docs: Documentation
+- test: Tests
+- chore: Maintenance
+
+## Slack Formats
+```
+STATUS: RYLA-42 in-progress
+DONE: RYLA-42 implemented
+BLOCKED: RYLA-42 waiting on spec
+DEPLOY: staging v1.2.3 success
+LEARNING: testing - mock at boundaries
+```

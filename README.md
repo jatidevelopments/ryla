@@ -1,55 +1,84 @@
 # RYLA MVP
 
 ## Project Overview
+MVP implementation with layered architecture, automated workflows, and integrated tooling.
 
-MVP implementation with layered architecture, processes, and management capabilities.
+## Quick Start
+
+```bash
+# Clone and setup
+git clone <repo-url>
+cd ryla
+
+# Copy environment config
+cp config/env.template .env
+
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
 
 ## Architecture Layers
 
-### 1. Presentation Layer
-
-- User interface components
-- API endpoints
-- Request/response handling
-
-### 2. Business Logic Layer
-
-- Core business rules
-- Domain models
-- Service implementations
-
-### 3. Data Access Layer
-
-- Database interactions
-- Repository patterns
-- Data persistence
-
-### 4. Management Layer
-
-- System administration
-- Configuration management
-- Monitoring and logging
-- User/role management
-
-## Categories/Topics
-
-- To be defined based on domain requirements
+| Layer | Purpose | Location |
+|-------|---------|----------|
+| Presentation | API endpoints, controllers | `src/presentation/` |
+| Business | Core logic, services, rules | `src/business/` |
+| Data | Repositories, persistence | `src/data/` |
+| Management | Admin, config, monitoring | `src/management/` |
+| Shared | Utilities, types, constants | `src/shared/` |
 
 ## Project Structure
 
 ```
 RYLA/
-├── src/
-│   ├── presentation/     # Presentation layer
-│   ├── business/         # Business logic layer
-│   ├── data/             # Data access layer
-│   ├── management/       # Management layer
-│   └── shared/           # Shared utilities
+├── .cursor/rules/        # Cursor AI rules
+├── .github/              # GitHub workflows & templates
 ├── config/               # Configuration files
 ├── docs/                 # Documentation
-└── tests/                # Test files
+├── src/
+│   ├── presentation/     # Controllers, routes, middleware, DTOs
+│   ├── business/         # Services, models, rules, processes
+│   ├── data/             # Repositories, migrations, queries
+│   ├── management/       # Admin, config, monitoring, users
+│   └── shared/           # Utils, types, constants, validators
+└── tests/                # Unit, integration, E2E tests
 ```
 
-## Getting Started
+## Documentation
 
-[To be completed]
+| Document | Description |
+|----------|-------------|
+| [Architecture](docs/ARCHITECTURE.md) | Layer responsibilities and data flow |
+| [MVP Principles](docs/MVP_PRINCIPLES.md) | Development constraints and decisions |
+| [Way of Work](docs/WAY_OF_WORK.md) | Communication and workflow guidelines |
+| [Naming Conventions](docs/NAMING_CONVENTIONS.md) | Branches, commits, issues, Slack |
+| [Process Map](docs/PROCESS_MAP.md) | Development lifecycle stages |
+| [Business Metrics](docs/BUSINESS_METRICS.md) | KPIs and analytics tracking |
+| [Integrations](docs/INTEGRATIONS.md) | GitHub, Slack, PostHog, Playwright |
+| [Development Lifecycle](docs/DEVELOPMENT_LIFECYCLE.md) | Complete workflow documentation |
+
+## Integrations
+
+- **GitHub**: Issues, PRs, Projects, Actions (CI/CD)
+- **Slack**: Team channels for PM, audit, learnings, deploys, alerts
+- **PostHog**: Analytics, funnels, feature flags
+- **Playwright**: E2E testing
+
+## MVP Principles
+
+- Mobile first design
+- >98% browser/device compatibility
+- Pareto: 80% value from 20% features
+- Functionality > animations
+- Measure everything
+
+## Contributing
+
+1. Create issue: `[FEATURE] Description`
+2. Create branch: `feat/RYLA-XX-description`
+3. Implement with tests
+4. Commit: `feat(scope): description [#RYLA-XX]`
+5. Open PR and request review

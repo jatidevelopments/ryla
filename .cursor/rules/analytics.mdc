@@ -1,0 +1,63 @@
+---
+description: Analytics and metrics tracking guidelines
+globs: ["src/**"]
+alwaysApply: false
+---
+
+# Analytics Guidelines
+
+## PostHog Integration
+
+### Key Events to Track
+
+| Event | When | Properties |
+|-------|------|------------|
+| `user_signed_up` | Registration | source, plan |
+| `user_activated` | First key action | time_to_activate |
+| `feature_used` | Feature interaction | feature, count |
+| `user_converted` | Paid subscription | plan, trial_days |
+| `error_occurred` | User-facing error | type, message |
+
+### Event Naming
+- Use snake_case
+- Verb + noun format
+- Be specific and consistent
+
+### Properties
+- Include context needed for analysis
+- Avoid PII in properties
+- Use consistent property names
+
+## Business Metrics
+
+### Acquisition
+- Signup rate
+- Activation rate
+- Trial conversion
+
+### Retention
+- D1/D7/D30 retention
+- Churn rate
+- Feature adoption
+
+### Revenue
+- MRR, ARPU, LTV
+- CAC, LTV:CAC ratio
+
+## Implementation
+
+```javascript
+// Identify user
+posthog.identify(userId, { email, plan });
+
+// Track event
+posthog.capture('feature_used', {
+  feature: 'export',
+  format: 'pdf'
+});
+
+// Feature flags
+if (posthog.isFeatureEnabled('new-feature')) {
+  // Show new feature
+}
+```
