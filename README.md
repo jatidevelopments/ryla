@@ -1,84 +1,100 @@
 # RYLA MVP
 
-## Project Overview
-MVP implementation with layered architecture, automated workflows, and integrated tooling.
-
 ## Quick Start
 
 ```bash
-# Clone and setup
-git clone <repo-url>
-cd ryla
-
-# Copy environment config
 cp config/env.template .env
-
-# Install dependencies
 npm install
-
-# Run development server
 npm run dev
 ```
 
-## Architecture Layers
+## Architecture
 
 | Layer | Purpose | Location |
 |-------|---------|----------|
-| Presentation | API endpoints, controllers | `src/presentation/` |
-| Business | Core logic, services, rules | `src/business/` |
-| Data | Repositories, persistence | `src/data/` |
-| Management | Admin, config, monitoring | `src/management/` |
-| Shared | Utilities, types, constants | `src/shared/` |
+| Presentation | API, controllers | `src/presentation/` |
+| Business | Logic, services | `src/business/` |
+| Data | Repositories | `src/data/` |
+| Management | Admin, config | `src/management/` |
+| Shared | Utils, types | `src/shared/` |
+
+## 10-Phase Pipeline
+
+```
+P1 Requirements → P2 Scoping → P3 Architecture → P4 UI → P5 Tech Spec
+→ P6 Implementation → P7 Testing → P8 Integration → P9 Deploy → P10 Production
+```
+
+## Business Metrics (A-E)
+
+Every feature must move one:
+- **A**: Activation (signup → first action)
+- **B**: Retention (D7/D30)
+- **C**: Core Value (North Star usage)
+- **D**: Conversion (trial → paid)
+- **E**: CAC (acquisition cost)
 
 ## Project Structure
 
 ```
-RYLA/
-├── .cursor/rules/        # Cursor AI rules
-├── .github/              # GitHub workflows & templates
-├── config/               # Configuration files
-├── docs/                 # Documentation
-├── src/
-│   ├── presentation/     # Controllers, routes, middleware, DTOs
-│   ├── business/         # Services, models, rules, processes
-│   ├── data/             # Repositories, migrations, queries
-│   ├── management/       # Admin, config, monitoring, users
-│   └── shared/           # Utils, types, constants, validators
-└── tests/                # Unit, integration, E2E tests
+docs/
+  requirements/       # P1 outputs
+  architecture/       # P3 outputs
+  analytics/          # Tracking plan
+  specs/              # Technical specs
+  process/            # 10-phase, metrics
+  decisions/          # ADRs
+  learnings/          # Post-mortems
+  releases/           # Release notes
+src/
+  presentation/       # Controllers, routes, DTOs
+  business/           # Services, models, rules
+  data/               # Repositories, migrations
+  management/         # Admin, config, monitoring
+  shared/             # Utils, types, constants
+tests/
+  unit/
+  integration/
+playwright/
+  tests/              # E2E tests
+ai/
+  heuristics.md       # AI learnings
+  prompts/            # Prompt templates
+config/
+  env.template
+  credentials.csv.example
+  mcp.config.json
 ```
 
 ## Documentation
 
-| Document | Description |
-|----------|-------------|
-| [Architecture](docs/ARCHITECTURE.md) | Layer responsibilities and data flow |
-| [MVP Principles](docs/MVP_PRINCIPLES.md) | Development constraints and decisions |
-| [Way of Work](docs/WAY_OF_WORK.md) | Communication and workflow guidelines |
-| [Naming Conventions](docs/NAMING_CONVENTIONS.md) | Branches, commits, issues, Slack |
-| [Process Map](docs/PROCESS_MAP.md) | Development lifecycle stages |
-| [Business Metrics](docs/BUSINESS_METRICS.md) | KPIs and analytics tracking |
-| [Integrations](docs/INTEGRATIONS.md) | GitHub, Slack, PostHog, Playwright |
-| [Development Lifecycle](docs/DEVELOPMENT_LIFECYCLE.md) | Complete workflow documentation |
+| Doc | Purpose |
+|-----|---------|
+| [10-Phase Pipeline](docs/process/10-PHASE-PIPELINE.md) | Development process |
+| [Business Metrics](docs/process/BUSINESS-METRICS.md) | A-E framework |
+| [Tracking Plan](docs/analytics/TRACKING-PLAN.md) | PostHog events |
+| [Naming Conventions](docs/specs/NAMING_CONVENTIONS.md) | IDs, branches, commits |
+| [ADR Template](docs/decisions/ADR-TEMPLATE.md) | Decision records |
+| [Heuristics](ai/heuristics.md) | AI learnings |
+
+## Naming
+
+- Epics: `EP-XXX`
+- Stories: `ST-XXX`
+- Tasks: `TSK-XXX`
+- Branches: `epic/ep-001-scope`
+- Commits: `feat(ep-001 st-010): description`
+
+## Slack Channels
+
+- `#mvp-ryla-pm` - Project management
+- `#mvp-ryla-dev` - Development
+- `#mvp-ryla-log` - Audit (read-only)
+- `#mvp-ryla-learnings` - Knowledge capture
 
 ## Integrations
 
-- **GitHub**: Issues, PRs, Projects, Actions (CI/CD)
-- **Slack**: Team channels for PM, audit, learnings, deploys, alerts
+- **GitHub**: Issues, PRs, Projects, Actions
+- **Slack**: Structured events, learnings loop
 - **PostHog**: Analytics, funnels, feature flags
-- **Playwright**: E2E testing
-
-## MVP Principles
-
-- Mobile first design
-- >98% browser/device compatibility
-- Pareto: 80% value from 20% features
-- Functionality > animations
-- Measure everything
-
-## Contributing
-
-1. Create issue: `[FEATURE] Description`
-2. Create branch: `feat/RYLA-XX-description`
-3. Implement with tests
-4. Commit: `feat(scope): description [#RYLA-XX]`
-5. Open PR and request review
+- **Playwright**: E2E tests, analytics verification

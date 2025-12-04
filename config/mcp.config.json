@@ -1,0 +1,58 @@
+{
+  "name": "ryla-mvp",
+  "version": "1.0.0",
+  "tools": {
+    "github": {
+      "enabled": true,
+      "repo": "ryla",
+      "owner": "",
+      "features": ["issues", "prs", "projects", "actions"]
+    },
+    "slack": {
+      "enabled": true,
+      "channels": {
+        "pm": "#mvp-ryla-pm",
+        "dev": "#mvp-ryla-dev",
+        "log": "#mvp-ryla-log",
+        "learnings": "#mvp-ryla-learnings"
+      },
+      "events": {
+        "pr_merged": true,
+        "deploy": true,
+        "test_failed": true,
+        "funnel_drop": true
+      }
+    },
+    "filesystem": {
+      "enabled": true,
+      "allowed_paths": ["src/", "docs/", "tests/", "playwright/", "ai/"]
+    },
+    "shell": {
+      "enabled": true,
+      "allowed_commands": ["npm", "git", "playwright"]
+    },
+    "playwright": {
+      "enabled": true,
+      "config": "playwright.config.ts"
+    },
+    "http": {
+      "enabled": true,
+      "allowed_hosts": ["localhost", "api.posthog.com"]
+    },
+    "posthog": {
+      "enabled": false,
+      "note": "Enable when API key configured"
+    }
+  },
+  "pipeline": {
+    "enforce": true,
+    "phases": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8", "P9", "P10"],
+    "require_checklist": true
+  },
+  "learnings": {
+    "slack_channel": "#mvp-ryla-learnings",
+    "github_path": "ai/heuristics.md",
+    "auto_sync": true
+  }
+}
+
