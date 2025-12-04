@@ -2,7 +2,7 @@
 
 ## Overview
 
-Stripe-based payment system for subscription management, enabling users to pay for premium features.
+Finby-based payment system for subscription management, enabling users to pay for premium features.
 
 ---
 
@@ -27,14 +27,14 @@ Stripe-based payment system for subscription management, enabling users to pay f
 - Feature comparison
 - Price display with currency
 
-### F2: Stripe Checkout
-- Create Stripe Checkout session
-- Redirect to Stripe hosted page
+### F2: Finby Checkout
+- Create Finby payment session
+- Redirect to Finby hosted payment page
 - Handle success redirect
 - Handle cancel redirect
 
 ### F3: Webhook Handling
-- Receive Stripe webhooks
+- Receive Finby webhooks
 - Process subscription created
 - Process payment succeeded
 - Handle subscription cancelled
@@ -45,11 +45,10 @@ Stripe-based payment system for subscription management, enabling users to pay f
 - Show subscription in UI
 - Handle expired subscriptions
 
-### F5: Billing Portal
-- Link to Stripe Customer Portal
-- Users can manage subscription
-- Update payment method
+### F5: Subscription Management
+- View current subscription
 - Cancel subscription
+- Handle renewals
 
 ---
 
@@ -62,8 +61,8 @@ Stripe-based payment system for subscription management, enabling users to pay f
 - [ ] CTA buttons work
 
 ### AC-2: Checkout Flow
-- [ ] Clicking "Subscribe" creates Stripe session
-- [ ] User is redirected to Stripe Checkout
+- [ ] Clicking "Subscribe" creates Finby session
+- [ ] User is redirected to Finby payment page
 - [ ] Success redirects to success page
 - [ ] Cancel returns to pricing
 
@@ -71,7 +70,7 @@ Stripe-based payment system for subscription management, enabling users to pay f
 - [ ] Webhook receives payment events
 - [ ] Subscription is recorded in database
 - [ ] User gains access to paid features
-- [ ] Confirmation email sent (via Stripe)
+- [ ] Confirmation shown to user
 
 ### AC-4: Feature Gating
 - [ ] Free users see upgrade prompts
@@ -81,7 +80,6 @@ Stripe-based payment system for subscription management, enabling users to pay f
 
 ### AC-5: Subscription Management
 - [ ] User can view subscription status
-- [ ] Link to billing portal works
 - [ ] User can cancel subscription
 - [ ] Cancellation takes effect at period end
 
@@ -93,12 +91,11 @@ Stripe-based payment system for subscription management, enabling users to pay f
 |-------|---------|------------|
 | `pricing_viewed` | Pricing page loaded | `plans_shown` |
 | `plan_selected` | User clicks plan | `plan_id`, `price` |
-| `checkout_started` | Redirect to Stripe | `plan_id` |
+| `checkout_started` | Redirect to Finby | `plan_id` |
 | `checkout_completed` | Payment success | `plan_id`, `amount` |
 | `checkout_abandoned` | User cancels | `plan_id` |
 | `subscription_created` | Webhook received | `plan_id`, `customer_id` |
 | `subscription_cancelled` | User cancels | `plan_id`, `reason` |
-| `billing_portal_opened` | Portal link clicked | - |
 
 ---
 
@@ -128,35 +125,41 @@ Stripe-based payment system for subscription management, enabling users to pay f
 ### ST-012: Manage Subscription
 **As a** paying subscriber  
 **I want to** manage my subscription  
-**So that** I can update payment or cancel
+**So that** I can cancel if needed
 
 ---
 
 ## Technical Notes
 
-### Stripe Integration
+### Finby Integration
 ```typescript
 // libs/business/src/services/payment.service.ts
-import Stripe from 'stripe'
 
 export const paymentService = {
-  createCheckoutSession: async (userId: string, priceId: string) => {
-    return stripe.checkout.sessions.create({
-      customer_email: user.email,
-      line_items: [{ price: priceId, quantity: 1 }],
-      mode: 'subscription',
-      success_url: `${baseUrl}/payment/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/pricing`,
-      metadata: { user_id: userId },
+  createCheckoutSession: async (userId: string, productId: string) => {
+    const response = await fetch('https://api.finby.eu/v1/checkout/sessions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${process.env.FINBY_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        merchant_id: process.env.FINBY_MERCHANT_ID,
+        product_id: productId,
+        success_url: `${baseUrl}/payment/success?session_id={SESSION_ID}`,
+        cancel_url: `${baseUrl}/pricing`,
+        metadata: { user_id: userId },
+      }),
     })
+    return response.json()
   },
   
-  handleWebhook: async (event: Stripe.Event) => {
+  handleWebhook: async (event: FinbyWebhookEvent) => {
     switch (event.type) {
-      case 'checkout.session.completed':
+      case 'payment.completed':
         // Create subscription record
         break
-      case 'customer.subscription.deleted':
+      case 'subscription.cancelled':
         // Mark subscription as cancelled
         break
     }
@@ -169,8 +172,8 @@ export const paymentService = {
 CREATE TABLE subscriptions (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES users(id),
-  stripe_customer_id TEXT,
-  stripe_subscription_id TEXT,
+  finby_customer_id TEXT,
+  finby_subscription_id TEXT,
   plan_id TEXT,
   status TEXT, -- 'active', 'cancelled', 'past_due'
   current_period_end TIMESTAMP,
@@ -194,8 +197,7 @@ CREATE TABLE subscriptions (
 
 ## Dependencies
 
-- Stripe account configured
+- Finby merchant account configured
 - Webhook endpoint deployed
 - Supabase database ready
 - User authentication (EP-002)
-

@@ -12,6 +12,7 @@
 
 **Problem Statement**:
 Creating and managing AI influencers is fragmented, frustrating, and inconsistent. Users bounce between 5+ separate tools (image gen, voice, video, lip-sync, scheduling) with no unified workflow, leading to:
+
 - Inconsistent character appearance across generations
 - Hours wasted on manual file juggling
 - No persistent character memory or backstory
@@ -19,6 +20,7 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 - No direct path to monetization platforms
 
 **Evidence**:
+
 - Ghost test funnel: **~54% payment intent conversion** (generation → payment)
 - **128 WAUs** in first 2 weeks of testing
 - **77 unique users** in week 1, **51** in week 2
@@ -41,24 +43,25 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 
 ## User Pain Points (Validated)
 
-| # | Pain Point | Severity | RYLA Solution |
-|---|------------|----------|---------------|
-| 1 | **Model quality & realism** - outputs look fake, face inconsistency, glitchy hands | 🔴 Critical | Curated model selection, consistent seed/style locking |
-| 2 | **Prompt inconsistency** - same prompt = different results | 🔴 Critical | Saved character profiles with locked parameters |
-| 3 | **Character memory/continuity** - AI forgets backstory, personality breaks | 🔴 Critical | Persistent character profiles with traits, history, tone |
-| 4 | **Tooling & workflow** - too many separate tools, manual file juggling | 🔴 Critical | All-in-one: image, voice, video, lip-sync, export |
-| 5 | **Generation speed & stability** - slow renders, timeouts | 🟡 High | Optimized pipelines, queue management, fallbacks |
-| 6 | **Voice & lip-sync** - voice mismatch, robotic sync | 🟡 High | Voice cloning + sync models, preview before render |
-| 7 | **Copyright/rights uncertainty** - commercial use concerns | 🟡 High | Clear licensing, 100% synthetic faces, terms clarity |
-| 8 | **Platform integration gaps** - no easy export to social/OF | 🟡 High | One-click export, format presets, scheduling |
-| 9 | **Pricing frustration** - expensive, confusing credits | 🟠 Medium | Simple subscription tiers, transparent usage |
-| 10 | **NSFW/moderation constraints** - filters too strict | 🟠 Medium | Tiered content controls with safety boundaries |
+| #   | Pain Point                                                                         | Severity    | RYLA Solution                                            |
+| --- | ---------------------------------------------------------------------------------- | ----------- | -------------------------------------------------------- |
+| 1   | **Model quality & realism** - outputs look fake, face inconsistency, glitchy hands | 🔴 Critical | Curated model selection, consistent seed/style locking   |
+| 2   | **Prompt inconsistency** - same prompt = different results                         | 🔴 Critical | Saved character profiles with locked parameters          |
+| 3   | **Character memory/continuity** - AI forgets backstory, personality breaks         | 🔴 Critical | Persistent character profiles with traits, history, tone |
+| 4   | **Tooling & workflow** - too many separate tools, manual file juggling             | 🔴 Critical | All-in-one: image, voice, video, lip-sync, export        |
+| 5   | **Generation speed & stability** - slow renders, timeouts                          | 🟡 High     | Optimized pipelines, queue management, fallbacks         |
+| 6   | **Voice & lip-sync** - voice mismatch, robotic sync                                | 🟡 High     | Voice cloning + sync models, preview before render       |
+| 7   | **Copyright/rights uncertainty** - commercial use concerns                         | 🟡 High     | Clear licensing, 100% synthetic faces, terms clarity     |
+| 8   | **Platform integration gaps** - no easy export to social/OF                        | 🟡 High     | One-click export, format presets, scheduling             |
+| 9   | **Pricing frustration** - expensive, confusing credits                             | 🟠 Medium   | Simple subscription tiers, transparent usage             |
+| 10  | **NSFW/moderation constraints** - filters too strict                               | 🟠 Medium   | Tiered content controls with safety boundaries           |
 
 ---
 
 ## MVP Scope
 
 ### In Scope (MVP)
+
 - Character creation wizard (funnel)
 - Consistent face generation
 - Character profile persistence
@@ -68,6 +71,7 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 - Export to common formats
 
 ### Out of Scope (Phase 2+)
+
 - Video generation
 - Lip-sync
 - Platform scheduling (OF, TikTok auto-post)
@@ -81,41 +85,46 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 ## Success Metrics
 
 ### Primary (North Star)
-| Metric | Target | Current | Timeline |
-|--------|--------|---------|----------|
-| **C - Core Value**: Characters created/user | >3 | TBD | 30 days |
-| **D - Conversion**: Funnel → Payment | >20% | ~54%* | 30 days |
 
-*54% is generation→payment, full funnel TBD
+| Metric                                      | Target | Current | Timeline |
+| ------------------------------------------- | ------ | ------- | -------- |
+| **C - Core Value**: Characters created/user | >3     | TBD     | 30 days  |
+| **D - Conversion**: Funnel → Payment        | >20%   | ~54%\*  | 30 days  |
+
+\*54% is generation→payment, full funnel TBD
 
 ### Secondary
-| Metric | Category | Target | Current |
-|--------|----------|--------|---------|
-| Start → Generation | A - Activation | >60% | TBD |
-| D7 Return Rate | B - Retention | >15% | 5% (week 1→2) |
-| Time to first character | A - Activation | <10 min | TBD |
-| Support tickets/user | Quality | <0.1 | TBD |
+
+| Metric                  | Category       | Target  | Current       |
+| ----------------------- | -------------- | ------- | ------------- |
+| Start → Generation      | A - Activation | >60%    | TBD           |
+| D7 Return Rate          | B - Retention  | >15%    | 5% (week 1→2) |
+| Time to first character | A - Activation | <10 min | TBD           |
+| Support tickets/user    | Quality        | <0.1    | TBD           |
 
 ---
 
 ## Funnel Data (Ghost Test - Nov 2025)
 
 ### Traffic Sources
-| Source | Users (14d) |
-|--------|-------------|
-| m.facebook.com | 53 |
-| Direct | 43 |
-| l.facebook.com | 19 |
-| instagram.com | 6 |
-| google.com | 2 |
+
+| Source         | Users (14d) |
+| -------------- | ----------- |
+| m.facebook.com | 53          |
+| Direct         | 43          |
+| l.facebook.com | 19          |
+| instagram.com  | 6           |
+| google.com     | 2           |
 
 ### Weekly Metrics
-| Week | WAUs | New Users |
-|------|------|-----------|
-| Nov 23-29 | 77 | 77 (first week) |
-| Nov 30-Dec 4 | 51 | 47 |
+
+| Week         | WAUs | New Users       |
+| ------------ | ---- | --------------- |
+| Nov 23-29    | 77   | 77 (first week) |
+| Nov 30-Dec 4 | 51   | 47              |
 
 ### Retention (Week 1 → Week 2)
+
 - Week 0: 77 users
 - Week 1: 4 returned (**5.2% retention**)
 - Goal: **15% retention**
@@ -124,42 +133,45 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 
 ## Competitive Landscape
 
-| Competitor | Strengths | Weaknesses | RYLA Opportunity |
-|------------|-----------|------------|------------------|
+| Competitor                            | Strengths            | Weaknesses                            | RYLA Opportunity          |
+| ------------------------------------- | -------------------- | ------------------------------------- | ------------------------- |
 | Generic AI tools (Midjourney, DALL-E) | Quality, flexibility | No character persistence, no workflow | Unified workflow + memory |
-| Character.AI | Personality, chat | No image gen, no monetization path | Full content pipeline |
-| OnlyFans agencies | Business model | Manual, expensive, human-dependent | Automation + AI |
-| Fanvue AI | NSFW focus | Limited tooling | Better UX, more features |
+| Character.AI                          | Personality, chat    | No image gen, no monetization path    | Full content pipeline     |
+| OnlyFans agencies                     | Business model       | Manual, expensive, human-dependent    | Automation + AI           |
+| Fanvue AI                             | NSFW focus           | Limited tooling                       | Better UX, more features  |
 
 ---
 
 ## Risks & Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|------------|--------|------------|
-| Model quality not good enough | Medium | High | Use best-in-class models, user feedback loop |
-| Copyright/legal issues | Low | High | 100% synthetic, clear terms, legal review |
-| Platform bans (OF, social) | Medium | Medium | Diversify platforms, compliance guidelines |
-| High compute costs | High | Medium | Tiered pricing, optimization, caching |
-| Low retention | Medium | High | Character memory, content library, notifications |
+| Risk                          | Likelihood | Impact | Mitigation                                       |
+| ----------------------------- | ---------- | ------ | ------------------------------------------------ |
+| Model quality not good enough | Medium     | High   | Use best-in-class models, user feedback loop     |
+| Copyright/legal issues        | Low        | High   | 100% synthetic, clear terms, legal review        |
+| Platform bans (OF, social)    | Medium     | Medium | Diversify platforms, compliance guidelines       |
+| High compute costs            | High       | Medium | Tiered pricing, optimization, caching            |
+| Low retention                 | Medium     | High   | Character memory, content library, notifications |
 
 ---
 
 ## Validation Plan
 
 ### Phase 1: Ghost Test (✅ Complete)
+
 - Landing page + funnel
 - Payment intent capture
 - Traffic from ads
 - **Result**: 54% payment intent, 128 WAUs
 
 ### Phase 2: MVP Launch (Next)
+
 - Full character generation
 - Real payment processing
 - Basic dashboard
 - **Success**: >20% paid conversion, >15% D7 retention
 
 ### Phase 3: Iteration
+
 - Add voice/video based on feedback
 - Platform integrations
 - Scale acquisition
@@ -168,12 +180,12 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 
 ## Decision Log
 
-| Date | Decision | Rationale |
-|------|----------|-----------|
-| Nov 2025 | Focus on character consistency first | #1 and #2 pain points from research |
-| Nov 2025 | Skip video for MVP | Complexity vs. value; image packs validate demand |
-| Nov 2025 | Subscription model | Predictable revenue, aligns with creator economics |
-| Dec 2025 | Nx monorepo | Multiple apps (web, admin), shared libs |
+| Date     | Decision                             | Rationale                                          |
+| -------- | ------------------------------------ | -------------------------------------------------- |
+| Nov 2025 | Focus on character consistency first | #1 and #2 pain points from research                |
+| Nov 2025 | Skip video for MVP                   | Complexity vs. value; image packs validate demand  |
+| Nov 2025 | Subscription model                   | Predictable revenue, aligns with creator economics |
+| Dec 2025 | Nx monorepo                          | Multiple apps (web, admin), shared libs            |
 
 ---
 
@@ -194,4 +206,3 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 3. **P3**: Architecture for character persistence
 4. **P4**: UI skeleton for wizard flow
 5. **P5**: Tech spec and task breakdown
-

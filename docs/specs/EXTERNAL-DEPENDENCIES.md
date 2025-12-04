@@ -40,31 +40,30 @@ VERCEL_URL=
 
 ## Payments
 
-### Stripe
+### Finby
 | | |
 |---|---|
 | **Purpose** | Payment processing |
-| **Used For** | Subscriptions, checkout, billing portal |
-| **Docs** | https://stripe.com/docs |
-| **Dashboard** | https://dashboard.stripe.com |
-| **SDK** | `stripe` (server), `@stripe/stripe-js` (client) |
+| **Used For** | Subscriptions, checkout, recurring billing |
+| **Docs** | https://finby.eu/docs |
+| **Dashboard** | https://finby.eu/dashboard |
+| **API** | REST API |
 
 **Env Vars:**
 ```
-STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_PRICE_ID_CREATOR=
-STRIPE_PRICE_ID_PRO=
+FINBY_API_KEY=
+FINBY_MERCHANT_ID=
+FINBY_WEBHOOK_SECRET=
+FINBY_PRODUCT_ID_CREATOR=
+FINBY_PRODUCT_ID_PRO=
 ```
 
 **Webhook Events:**
-- `checkout.session.completed`
-- `customer.subscription.created`
-- `customer.subscription.updated`
-- `customer.subscription.deleted`
-- `invoice.payment_succeeded`
-- `invoice.payment_failed`
+- `payment.completed`
+- `subscription.created`
+- `subscription.cancelled`
+- `subscription.renewed`
+- `payment.failed`
 
 ---
 
@@ -176,7 +175,7 @@ EMAIL_FROM=noreply@ryla.ai
 | Supabase Auth | EP-002 | User authentication |
 | Supabase DB | EP-001, EP-004 | Character persistence |
 | Supabase Storage | EP-005 | Image storage |
-| Stripe | EP-003 | Payment processing |
+| Finby | EP-003 | Payment processing |
 | Replicate/Fal | EP-005 | Image generation |
 | PostHog | All | Analytics tracking |
 | Vercel | All | Deployment |
@@ -188,16 +187,16 @@ EMAIL_FROM=noreply@ryla.ai
 ### Before Development
 - [ ] Supabase project created
 - [ ] Supabase tables migrated
-- [ ] Stripe account in test mode
-- [ ] Stripe products/prices created
+- [ ] Finby merchant account setup
+- [ ] Finby products created
 - [ ] Replicate account with credits
 - [ ] PostHog project created
 - [ ] All env vars in `.env.local`
 
 ### Before Production
 - [ ] Supabase on paid plan (if needed)
-- [ ] Stripe in live mode
-- [ ] Stripe webhook configured
+- [ ] Finby in live mode
+- [ ] Finby webhook configured
 - [ ] Domain verified in all services
 - [ ] Production env vars in Vercel
 
@@ -208,10 +207,10 @@ EMAIL_FROM=noreply@ryla.ai
 | Service | Free Tier | Estimated Cost |
 |---------|-----------|----------------|
 | Supabase | 500MB DB, 1GB storage | $0-25/mo |
-| Stripe | 2.9% + $0.30 per tx | Variable |
+| Finby | Per transaction fees | Variable |
 | Replicate | Pay per use | $0.01-0.05 per image |
 | PostHog | 1M events/mo | $0 |
 | Vercel | Hobby free | $0-20/mo |
 
-**Estimated MVP monthly cost**: $25-100 + Stripe fees
+**Estimated MVP monthly cost**: $25-100 + Finby fees
 

@@ -10,7 +10,7 @@ alwaysApply: true
 | Service | Purpose | SDK |
 |---------|---------|-----|
 | **Supabase** | Auth, DB, Storage | `@supabase/supabase-js` |
-| **Stripe** | Payments | `stripe`, `@stripe/stripe-js` |
+| **Finby** | Payments | REST API |
 | **Replicate** | AI generation | `replicate` |
 | **PostHog** | Analytics | `posthog-js` |
 | **Vercel** | Hosting | - |
@@ -23,8 +23,8 @@ alwaysApply: true
 - Session via `supabase.auth.getSession()`
 
 ### Payments (EP-003)
-- Use Stripe Checkout, not custom forms
-- Server: `stripe.checkout.sessions.create()`
+- Use Finby API for checkout
+- Redirect to Finby hosted payment page
 - Webhooks for subscription events
 - Never store card details
 
@@ -46,10 +46,10 @@ NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 SUPABASE_SERVICE_ROLE_KEY=
 
-# Stripe
-STRIPE_SECRET_KEY=
-STRIPE_PUBLISHABLE_KEY=
-STRIPE_WEBHOOK_SECRET=
+# Finby
+FINBY_API_KEY=
+FINBY_MERCHANT_ID=
+FINBY_WEBHOOK_SECRET=
 
 # AI
 REPLICATE_API_TOKEN=
