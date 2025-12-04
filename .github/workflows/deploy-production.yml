@@ -1,0 +1,48 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - run: npm ci
+      - run: npm run build
+      
+      # Deploy to Vercel (or your hosting provider)
+      # - name: Deploy to Vercel
+      #   run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+      
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: production ${{ github.ref_name }} success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS }}
+      
+      - name: Notify Slack on Failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"ALERT: production deploy failed - ${{ github.ref_name }}"}' \
+            ${{ secrets.SLACK_WEBHOOK_ALERTS }}
+      
+      - name: Audit Log
+        if: always()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"AUDIT: production deploy by ${{ github.actor }} - status: ${{ job.status }}"}' \
+            ${{ secrets.SLACK_WEBHOOK_AUDIT }}
+

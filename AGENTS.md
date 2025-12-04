@@ -41,3 +41,32 @@ RYLA MVP is a layered architecture application with clear separation of concerns
 - E2E tests for complete workflows
 - Mock external dependencies in tests
 
+## MVP Principles
+
+- Mobile first design
+- >98% browser/device compatibility
+- Pareto: 80% value from 20% features
+- Functionality > animations
+- Ship in < 1 week per feature
+- Measure everything with PostHog
+
+## Way of Work
+
+- Concise communication (cost = time/tokens)
+- Bullet points > paragraphs
+- Async by default
+- Document decisions in GitHub issues
+
+## Naming Conventions
+
+- Branches: `feat/RYLA-XX-description`
+- Commits: `feat(scope): description [#RYLA-XX]`
+- Issues: `[FEATURE] Description`
+
+## Integrations
+
+- **GitHub**: Issues, PRs, Projects, Actions
+- **Slack**: #ryla-pm, #ryla-audit, #ryla-learnings, #ryla-deploys, #ryla-alerts
+- **PostHog**: Analytics, funnels, feature flags
+- **Playwright**: E2E testing
+
