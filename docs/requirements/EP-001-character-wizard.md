@@ -58,9 +58,9 @@ The core funnel that takes users from landing to their first AI character. This 
 
 ### F6: Payment Integration
 
-- Subscription plan selection
+- Subscription plan selection ($29/mo)
 - Email capture
-- Stripe payment processing
+- Finby payment processing
 - Success/failure handling
 
 ---
@@ -105,9 +105,9 @@ The core funnel that takes users from landing to their first AI character. This 
 
 ### AC-6: Payment Flow
 
-- [ ] User sees pricing before generation completes
+- [ ] User sees pricing ($29/mo) before generation completes
 - [ ] Email is captured before payment
-- [ ] Stripe checkout works on mobile and desktop
+- [ ] Finby checkout works on mobile and desktop
 - [ ] Success redirects to character dashboard
 - [ ] Failure shows clear error message
 
@@ -212,8 +212,8 @@ The core funnel that takes users from landing to their first AI character. This 
 ## Dependencies
 
 - Supabase database setup
-- Stripe account configuration
-- AI model provider access (image generation)
+- Finby account configuration
+- AI model provider access (Replicate)
 - PostHog project configured
 
 ---
@@ -253,8 +253,8 @@ GET  /api/characters - List user's characters
 GET  /api/characters/:id - Get character
 PUT  /api/characters/:id - Update character
 POST /api/characters/:id/generate - Generate images
-POST /api/checkout - Create Stripe session
-POST /api/webhooks/stripe - Handle payment
+POST /api/checkout - Create Finby session
+POST /api/webhooks/finby - Handle payment
 ```
 
 ---

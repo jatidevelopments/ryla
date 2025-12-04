@@ -20,11 +20,12 @@ Landing → Wizard → Generate Character → Payment → Dashboard → Download
 | Epic | Name | Priority | Metric | Status |
 |------|------|----------|--------|--------|
 | EP-001 | Character Creation Wizard | P0 | A - Activation | 📝 Defined |
-| EP-002 | User Authentication | P0 | A - Activation | ⬜ TODO |
-| EP-003 | Payment & Subscription | P0 | D - Conversion | ⬜ TODO |
-| EP-004 | Character Dashboard | P1 | B - Retention | ⬜ TODO |
-| EP-005 | Image Generation Engine | P0 | C - Core Value | ⬜ TODO |
-| EP-006 | Landing Page | P0 | A - Activation | ⬜ TODO |
+| EP-002 | User Authentication | P0 | A - Activation | 📝 Defined |
+| EP-003 | Payment & Subscription | P0 | D - Conversion | 📝 Defined |
+| EP-004 | Character Dashboard | P1 | B - Retention | 📝 Defined |
+| EP-005 | Image Generation Engine | P0 | C - Core Value | 📝 Defined |
+| EP-006 | Landing Page | P0 | A - Activation | 📝 Defined |
+| EP-007 | Emails & Notifications | P1 | A - Activation | 📝 Defined |
 
 ### Features per Epic
 
@@ -42,11 +43,17 @@ Landing → Wizard → Generate Character → Payment → Dashboard → Download
 - Guest → registered conversion
 
 #### EP-003: Payment & Subscription
-- Stripe Checkout integration
-- Subscription plans (1-2 tiers)
+- Finby Checkout integration
+- Subscription plans (starting $29/mo)
 - Payment success/failure handling
 - Subscription status in UI
-- Basic billing portal link
+- Webhook processing
+
+#### EP-007: Emails & Notifications
+- Welcome email on signup
+- Password reset email
+- Payment receipt email
+- Download ready notification
 
 #### EP-004: Character Dashboard
 - List saved characters
@@ -188,8 +195,17 @@ Landing → Wizard → Generate Character → Payment → Dashboard → Download
 | Decision | Rationale |
 |----------|-----------|
 | Email auth only | Fastest to implement, social login adds complexity |
-| 1-2 pricing tiers | Simple choice, optimize later |
+| $29/mo starting price | Validated in ghost test, can A/B test later |
 | No video for MVP | Images validate demand, video is 10x complexity |
 | Web only | Faster iteration than native apps |
-| Stripe only | Market leader, best docs, handles complexity |
+| Finby payment | Already integrated in ghost funnel |
+| Voice in MVP | Basic selection only, cloning is Phase 2 |
+| Resend for emails | Simple API, good deliverability |
+
+## Legal Requirements (MVP)
+
+- [ ] Terms of Service page
+- [ ] Privacy Policy page
+- [ ] Cookie consent (if EU traffic)
+- [ ] Content guidelines for AI generation
 
