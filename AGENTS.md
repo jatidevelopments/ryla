@@ -69,4 +69,3 @@ RYLA MVP is a layered architecture application with clear separation of concerns
 - **Slack**: #ryla-pm, #ryla-audit, #ryla-learnings, #ryla-deploys, #ryla-alerts
 - **PostHog**: Analytics, funnels, feature flags
 - **Playwright**: E2E testing
-

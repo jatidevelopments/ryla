@@ -4,39 +4,24 @@ globs: ["src/data/**"]
 alwaysApply: false
 ---
 
-# Data Access Layer Rules
+# Data Access Layer
 
 ## Repository Pattern
-
-- One repository per domain entity
-- Repositories abstract database operations
-- Methods should be named by intent (e.g., `findByUserId`, not `query`)
-- Return domain models, not raw database entities
+- One repository per entity
+- Name methods by intent: `findByUserId`, not `query`
+- Return domain models
 
 ## Database Operations
-
-- Use transactions for multi-step operations
-- Handle connection errors gracefully
-- Use parameterized queries to prevent SQL injection
-- Implement pagination for list operations
+- Transactions for multi-step ops
+- Parameterized queries (prevent SQL injection)
+- Pagination for lists
 
 ## Migrations
+- All schema changes via migrations
+- Reversible when possible
+- Document breaking changes
 
-- All schema changes must have migrations
-- Migrations should be reversible when possible
-- Test migrations on sample data before production
-- Document breaking changes in migration files
-
-## Query Optimization
-
-- Avoid N+1 query problems
-- Use indexes appropriately
-- Profile slow queries
-- Cache frequently accessed, rarely changing data
-
-## Data Mapping
-
-- Map database entities to domain models
-- Handle null values explicitly
-- Validate data integrity before persistence
-- Use data transfer objects for complex queries
+## Optimization
+- Avoid N+1 queries
+- Use indexes
+- Cache rarely-changing data

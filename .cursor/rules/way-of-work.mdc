@@ -5,49 +5,25 @@ alwaysApply: true
 
 # Way of Work
 
-## Communication Style
+## Communication = Cost
+- Every message costs time (human) / tokens (AI)
+- Say only what moves work forward
+- No filler, repetition, emotional padding
+- One line if possible
+- Enough clarity to avoid follow-ups
 
-### Efficiency First
-- Every message = cost (human time / AI tokens)
-- Be concise, not verbose
-- Async by default, sync when blocked
-
-### Documentation Style
-- On point, not full sentences
+## Style
 - Bullet points > paragraphs
 - Examples > explanations
-- Keep detail needed for clarity
+- Async by default
 
-## Naming Conventions
+## Naming
 
-### Branches
-```
-<type>/<issue-id>-<short-description>
-feat/RYLA-42-user-auth
-fix/RYLA-103-login-redirect
-```
+**Branches**: `feat/RYLA-XX-description`
+**Commits**: `feat(scope): description [#RYLA-XX]`
+**Issues**: `[FEATURE] Short description`
 
-### Commits
-```
-<type>(<scope>): <description> [#issue-id]
-feat(auth): add JWT validation [#RYLA-42]
-fix(api): handle null response [#RYLA-103]
-```
-
-### Issues
-```
-[TYPE] Short description
-[FEATURE] User authentication flow
-[BUG] Login fails on Safari mobile
-```
-
-## Types
-- feat: New feature
-- fix: Bug fix
-- refactor: Code restructure
-- docs: Documentation
-- test: Tests
-- chore: Maintenance
+**Types**: feat, fix, refactor, docs, test, chore
 
 ## Slack Formats
 ```
