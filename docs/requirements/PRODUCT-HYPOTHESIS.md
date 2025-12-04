@@ -58,6 +58,28 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 
 ---
 
+## Key Differentiators (Validated in Funnel)
+
+These features were explicitly sold in the ghost test funnel and showed high engagement:
+
+| Feature | What We Sell | Pain It Solves | Funnel Step |
+|---------|--------------|----------------|-------------|
+| **Hyper Realistic Skin** | AI skin indistinguishable from real photos | "Outputs look fake/uncanny" | Step 5 |
+| **Perfect Hands** | Solved the #1 AI image problem | "Hands always glitch/look wrong" | Step 16 |
+| **Character Consistency** | Same face across ALL your content | "Face changes every generation" | Step 12 |
+| **Outfit Customization** | Dress your character in any style | "Can't control appearance details" | Step 20-21 |
+| **Lipsync** | Realistic talking videos | "Lip-sync robotic/out of sync" | Step 29 |
+| **NSFW Toggle** | Creator-controlled content boundaries | "Filters too strict" | Step 27-28 |
+
+### Why These Matter
+
+1. **Hyper Realistic Skin + Perfect Hands** → Direct response to "AI looks fake" objection
+2. **Character Consistency** → The #1 pain point from course seller research
+3. **Outfit Customization** → Enables varied content without losing character identity
+4. **Lipsync** → Key for video content (Phase 2, but validated demand)
+
+---
+
 ## MVP Scope
 
 ### In Scope (MVP)
