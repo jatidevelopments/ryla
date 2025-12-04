@@ -1,0 +1,67 @@
+---
+description: Enforces 10-phase MVP pipeline - AI must follow strictly
+alwaysApply: true
+---
+
+# Pipeline Enforcement
+
+## Core Rule
+You MUST follow the 10-phase pipeline. Never skip phases. Never guess missing inputs.
+
+## Tech Stack
+- Frontend: Next.js + React + TypeScript
+- Backend: Next.js API routes / Node.js
+- DB: Supabase / Postgres
+- Infra: GitHub Actions
+- Tests: Vitest + Playwright
+- Analytics: PostHog
+
+## Working Rules (EVERY TASK)
+
+### 1. State Current Phase
+```
+Working in PHASE X – [NAME] on Epic EP-XXX, Story ST-XXX.
+```
+
+### 2. Check Inputs
+List inputs used. If missing → STOP and ask.
+
+### 3. Plan Before Coding
+Outline steps + files to change. No giant rewrites.
+
+### 4. Implement Small Patches
+Focused changes. One concern at a time.
+
+### 5. Self-Review
+Check for bugs, type errors, spec mismatch.
+
+### 6. Acceptance Criteria Status
+```
+[ACCEPTANCE CRITERIA STATUS]
+1. {Criterion}: ✅/⚠️/❌ – explanation
+2. {Criterion}: ✅/⚠️/❌ – explanation
+```
+
+### 7. Next Step
+Suggest concrete next action or phase.
+
+## Phase Quick Reference
+
+| Phase | Required Inputs | Required Outputs |
+|-------|----------------|------------------|
+| P1 | Business idea, constraints | Problem statement, MVP objective, non-goals |
+| P2 | Problem + objective | Features, epics, acceptance criteria |
+| P3 | Epics + AC | Architecture, data model, API contracts |
+| P4 | Stories + architecture | Screens, navigation, interactions |
+| P5 | Architecture + UI | File plan, tech spec, task breakdown |
+| P6 | Task + file plan | Code, self-review, AC status |
+| P7 | Code + AC | Tests, test-to-AC mapping |
+| P8 | Code + tests | Integration notes, fixes |
+| P9 | Stable code | CI/CD, env vars, deploy checklist |
+| P10 | Deployed app | Smoke tests, learnings, next steps |
+
+## Blocking Rules
+- Missing inputs → STOP, ask user
+- Missing previous phase outputs → produce them OR ask user
+- Vague requirements → ask clarifying questions
+- Cannot meet AC → state why, what's missing
