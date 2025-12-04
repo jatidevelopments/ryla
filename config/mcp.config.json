@@ -40,8 +40,8 @@
       "allowed_hosts": ["localhost", "api.posthog.com"]
     },
     "posthog": {
-      "enabled": false,
-      "note": "Enable when API key configured"
+      "enabled": true,
+      "host": "https://app.posthog.com"
     }
   },
   "pipeline": {

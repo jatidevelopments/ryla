@@ -20,12 +20,12 @@
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
-        "${workspaceFolder}/src",
-        "${workspaceFolder}/docs",
-        "${workspaceFolder}/tests",
-        "${workspaceFolder}/playwright",
-        "${workspaceFolder}/ai",
-        "${workspaceFolder}/config"
+        "/Users/admin/Documents/Projects/RYLA/apps",
+        "/Users/admin/Documents/Projects/RYLA/libs",
+        "/Users/admin/Documents/Projects/RYLA/docs",
+        "/Users/admin/Documents/Projects/RYLA/playwright",
+        "/Users/admin/Documents/Projects/RYLA/ai",
+        "/Users/admin/Documents/Projects/RYLA/config"
       ]
     },
     "playwright": {
@@ -37,10 +37,15 @@
     },
     "posthog": {
       "command": "npx",
-      "args": ["-y", "@posthog/mcp"],
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.posthog.com/sse",
+        "--header",
+        "Authorization:${POSTHOG_AUTH_HEADER}"
+      ],
       "env": {
-        "POSTHOG_API_KEY": "${POSTHOG_API_KEY}",
-        "POSTHOG_HOST": "${POSTHOG_HOST}"
+        "POSTHOG_AUTH_HEADER": "Bearer phx_MyQRwB1wj4mv6RFp7e3eHj0aTgECfrRBvJ4fTyg9VpsD1xS"
       }
     }
   }
