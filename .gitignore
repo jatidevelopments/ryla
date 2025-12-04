@@ -51,3 +51,4 @@ temp/
 coverage/
 playwright-report/
 test-results/
+.cursor/mcp.json
