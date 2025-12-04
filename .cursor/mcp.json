@@ -34,6 +34,14 @@
       "env": {
         "PLAYWRIGHT_BASE_URL": "${PLAYWRIGHT_BASE_URL}"
       }
+    },
+    "posthog": {
+      "command": "npx",
+      "args": ["-y", "@posthog/mcp"],
+      "env": {
+        "POSTHOG_API_KEY": "${POSTHOG_API_KEY}",
+        "POSTHOG_HOST": "${POSTHOG_HOST}"
+      }
     }
   }
 }

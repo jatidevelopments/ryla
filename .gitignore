@@ -13,6 +13,12 @@ ENV/
 dist/
 build/
 *.egg-info/
+.next/
+out/
+
+# Nx
+.nx/cache
+.nx/workspace-data
 
 # IDE
 .vscode/
@@ -30,6 +36,7 @@ build/
 logs/
 *.log
 npm-debug.log*
+pnpm-debug.log*
 
 # OS
 .DS_Store
@@ -40,3 +47,7 @@ tmp/
 temp/
 *.tmp
 
+# Test outputs
+coverage/
+playwright-report/
+test-results/
