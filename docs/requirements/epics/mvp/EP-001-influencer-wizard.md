@@ -1,10 +1,19 @@
-# [EPIC] EP-001: Character Creation Wizard
+# [EPIC] EP-001: AI Influencer Creation Wizard
 
 ## Overview
 
-6-step wizard for creating and customizing AI influencer characters. Core activation flow for the MVP product.
+6-step wizard for creating and customizing AI Influencers. Core activation flow for the MVP product.
 
 > ⚠️ **Scope**: This epic covers the **product wizard only**. Payment is handled separately in EP-003 (funnel/).
+
+---
+
+## Terminology
+
+| Term | Definition |
+|------|------------|
+| **AI Influencer** | A persistent AI-generated persona with fixed appearance + identity |
+| **Default Outfit** | The initial outfit selected in wizard, can be changed per generation |
 
 ---
 
@@ -12,11 +21,11 @@
 
 **Target Metric**: A - Activation
 
-**Hypothesis**: When users can easily customize and preview their AI character through a streamlined wizard, they will complete creation and engage with the product.
+**Hypothesis**: When users can easily customize and preview their AI Influencer through a streamlined wizard, they will complete creation and engage with the Content Studio.
 
 **Success Criteria**:
 - Wizard start → completion: **>70%**
-- Time to first character: **<10 minutes**
+- Time to first AI Influencer: **<10 minutes**
 - Form abandonment: **<30%**
 
 ---
@@ -95,11 +104,12 @@ Step 6: Generate  → Preview config + Generate button
 
 ### F6: Step 5 - Identity & Style
 
-This step creates the character's **identity** — who they are beyond appearance.
+This step creates the AI Influencer's **identity** — who they are beyond appearance.
 
-#### Outfit Selection
+#### Default Outfit Selection
 - 20 outfit options with visual cards
 - Organized by category
+- This becomes the "default" outfit (can be changed per generation in Content Studio)
 
 **Outfit Categories:**
 - Casual: Streetwear, Athleisure, Yoga, Jeans, Tank top, Crop top
@@ -109,25 +119,26 @@ This step creates the character's **identity** — who they are beyond appearanc
 
 > **Note**: US users prefer "date night glam" (31%) — feature prominently.
 
-#### Archetype Selection (NEW)
-- Character "vibe" or persona type
+#### Archetype Selection
+- AI Influencer "vibe" or persona type
 - Visual cards with descriptions
 - Single selection
+- **Affects caption tone generation**
 
 **Archetypes:**
-| Archetype | Description | Vibe |
-|-----------|-------------|------|
-| Girl Next Door | Relatable, friendly, approachable | Warm, authentic |
-| Fitness Enthusiast | Active, healthy, motivational | Energetic, disciplined |
-| Luxury Lifestyle | Glamorous, aspirational, sophisticated | Polished, exclusive |
-| Mysterious/Edgy | Intriguing, bold, unconventional | Dark, artistic |
-| Playful/Fun | Bubbly, entertaining, spontaneous | Light, flirty |
-| Professional/Boss | Ambitious, confident, successful | Powerful, inspiring |
+| Archetype | Description | Vibe | Caption Style |
+|-----------|-------------|------|---------------|
+| Girl Next Door | Relatable, friendly, approachable | Warm, authentic | Casual, relatable |
+| Fitness Enthusiast | Active, healthy, motivational | Energetic, disciplined | Motivational, energetic |
+| Luxury Lifestyle | Glamorous, aspirational, sophisticated | Polished, exclusive | Aspirational, elegant |
+| Mysterious/Edgy | Intriguing, bold, unconventional | Dark, artistic | Cryptic, intriguing |
+| Playful/Fun | Bubbly, entertaining, spontaneous | Light, flirty | Playful, emojis |
+| Professional/Boss | Ambitious, confident, successful | Powerful, inspiring | Confident, inspiring |
 
-#### Personality Traits (NEW)
+#### Personality Traits
 - Pick 3 personality traits
 - Multi-select (exactly 3 required)
-- Traits influence content tone
+- **Traits influence caption generation tone**
 
 **Trait Options:**
 | Category | Traits |
@@ -137,19 +148,20 @@ This step creates the character's **identity** — who they are beyond appearanc
 | Lifestyle | Adventurous, Homebody, Ambitious, Creative |
 | Vibe | Flirty, Classy, Edgy, Sweet |
 
-#### Character Bio (NEW)
+#### AI Influencer Bio
 - Optional short text field (max 200 chars)
-- Placeholder: "A short bio for your character..."
-- Used for: Brand consistency, future content prompts
+- Placeholder: "A short bio for your AI Influencer..."
+- Used for: Brand consistency, caption context
 - Example: "Luna is a 25-year-old fitness coach from Miami who loves sunrise workouts and motivating others."
 
 ### F7: Step 6 - Preview & Generate
 
 - Summary of all selections
 - Visual preview (placeholder or live)
-- Character name input
-- "Generate Character" button
-- Loading state during generation
+- AI Influencer name input
+- Handle/username auto-generation (e.g., @luna.dreams)
+- "Create AI Influencer" button
+- Loading state during initial generation
 
 ### F8: NSFW Content Toggle
 
@@ -279,8 +291,8 @@ This step creates the character's **identity** — who they are beyond appearanc
 ### ST-001: Complete Wizard Flow
 
 **As a** new user  
-**I want to** create my first AI character through a guided wizard  
-**So that** I can generate consistent AI influencer content
+**I want to** create my first AI Influencer through a guided wizard  
+**So that** I can generate consistent content in the Content Studio
 
 **AC**: AC-1, AC-2, AC-3, AC-4, AC-5, AC-6, AC-7
 
@@ -300,19 +312,19 @@ This step creates the character's **identity** — who they are beyond appearanc
 
 **AC**: AC-8
 
-### ST-004: Customize Character Appearance
+### ST-004: Customize AI Influencer Appearance
 
-**As a** user creating a character  
+**As a** user creating an AI Influencer  
 **I want to** select specific physical attributes  
-**So that** my AI influencer matches my vision
+**So that** my AI Influencer matches my vision
 
 **AC**: AC-3, AC-4, AC-5
 
-### ST-005: Define Character Identity
+### ST-005: Define AI Influencer Identity
 
-**As a** user creating a character  
-**I want to** define my character's personality and backstory  
-**So that** my AI influencer feels like a real person with a consistent brand
+**As a** user creating an AI Influencer  
+**I want to** define personality, archetype, and backstory  
+**So that** my AI Influencer has a consistent brand and captions match their persona
 
 **AC**: AC-6
 
@@ -323,7 +335,19 @@ This step creates the character's **identity** — who they are beyond appearanc
 ### Data Model
 
 ```typescript
-interface CharacterConfig {
+interface AIInfluencer {
+  id: string;
+  userId: string;
+  name: string;
+  handle: string; // e.g., @luna.dreams
+  appearance: AppearanceConfig;
+  identity: IdentityConfig;
+  nsfwEnabled: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface AppearanceConfig {
   // Step 1 - Style
   gender: 'female' | 'male';
   style: 'realistic' | 'anime';
@@ -340,18 +364,17 @@ interface CharacterConfig {
   // Step 4 - Body
   bodyType: string;
   breastSize?: string; // female only
-  
-  // Step 5 - Identity
-  outfit: string;
-  archetype: CharacterArchetype;
-  personalityTraits: string[]; // exactly 3
-  bio?: string; // optional, max 200 chars
-  
-  // NSFW
-  nsfwEnabled: boolean;
 }
 
-type CharacterArchetype = 
+interface IdentityConfig {
+  // Step 5 - Identity
+  defaultOutfit: string; // can be changed per generation
+  archetype: InfluencerArchetype;
+  personalityTraits: string[]; // exactly 3
+  bio?: string; // optional, max 200 chars
+}
+
+type InfluencerArchetype = 
   | 'girl_next_door'
   | 'fitness_enthusiast'
   | 'luxury_lifestyle'
@@ -374,7 +397,10 @@ const PERSONALITY_TRAITS = [
 interface WizardState {
   currentStep: number;
   completedSteps: number[];
-  config: Partial<CharacterConfig>;
+  appearance: Partial<AppearanceConfig>;
+  identity: Partial<IdentityConfig>;
+  name?: string;
+  nsfwEnabled: boolean;
   lastUpdated: Date;
 }
 ```
@@ -386,13 +412,15 @@ interface WizardState {
 {
   currentStep: 3,
   completedSteps: [1, 2],
-  config: {
+  appearance: {
     gender: 'female',
     style: 'realistic',
     ethnicity: 'latina',
     age: 25,
     // ... partial config
   },
+  identity: {},
+  nsfwEnabled: false,
   lastUpdated: '2025-12-05T10:00:00Z'
 }
 ```
@@ -400,30 +428,32 @@ interface WizardState {
 ### API Endpoints
 
 ```
-POST /api/characters - Create character (after wizard completion)
-  Body: { name, config: CharacterConfig }
-  Response: { character_id, status: 'generating' }
+POST /api/influencers - Create AI Influencer (after wizard completion)
+  Body: { name, appearance: AppearanceConfig, identity: IdentityConfig, nsfwEnabled: boolean }
+  Response: { influencer_id, handle, status: 'generating' }
 ```
 
 ---
 
 ## Non-Goals (Phase 2+)
 
-- Voice cloning (basic voice selection only)
+- Voice cloning (basic voice selection only in MVP)
 - Fantasy ethnicities (Elf, Angel, Demon)
 - Advanced personality customization
-- Character editing after generation
-- Multiple character creation in one session
+- AI Influencer appearance editing after generation
+- Multiple AI Influencer creation in one session
 - Custom attribute values (beyond presets)
+- Full wardrobe system (MVP has outfit changes per generation)
 
 ---
 
 ## Dependencies
 
 - UI components from MDC (copy via MDC-COPY-GUIDE.md)
-- Character constants (body types, ethnicities, etc.)
+- AI Influencer constants (body types, ethnicities, etc.)
 - User authentication (EP-002)
-- Image generation (EP-005)
+- Content Studio (EP-005) - for generation after creation
+- Caption generation (EP-014) - uses identity for tone
 
 ---
 
@@ -432,7 +462,7 @@ POST /api/characters - Create character (after wizard completion)
 See MDC-COPY-GUIDE.md for reusable components:
 - `CreateFromPresetsView.tsx` - Wizard container
 - `StyleScreen.tsx`, `GeneralScreen.tsx`, etc. - Step components
-- Character option constants
+- AI Influencer option constants
 
 ---
 
