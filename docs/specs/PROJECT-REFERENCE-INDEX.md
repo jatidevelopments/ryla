@@ -31,6 +31,11 @@
 | [MDC-COPY-GUIDE.md](../technical/MDC-COPY-GUIDE.md) | **Frontend code to copy from MDC** |
 | [MDC-BACKEND-COPY-GUIDE.md](../technical/MDC-BACKEND-COPY-GUIDE.md) | **Backend code to copy from MDC** |
 
+### Design System
+| Document | Description |
+|----------|-------------|
+| [DESIGN-SYSTEM.md](./DESIGN-SYSTEM.md) | **UI tokens, components, patterns** |
+
 ### Architecture Decisions
 | Document | Description |
 |----------|-------------|
