@@ -2,9 +2,9 @@
 
 ## Important: Funnel vs. MVP Product Separation
 
-| Concern                   | Scope                                           | Status                     |
-| ------------------------- | ----------------------------------------------- | -------------------------- |
-| **Funnel + Landing Page** | Acquisition, conversion, payment                | ✅ Exists (separate topic) |
+| Concern                   | Scope                                              | Status                     |
+| ------------------------- | -------------------------------------------------- | -------------------------- |
+| **Funnel + Landing Page** | Acquisition, conversion, payment                   | ✅ Exists (separate topic) |
 | **MVP Product**           | AI Influencer creation, studio, content management | 🔨 Building this           |
 
 > **This document focuses on the MVP PRODUCT**, not the funnel/landing page.
@@ -22,13 +22,13 @@
 
 ## Terminology
 
-| Term | Definition |
-|------|------------|
-| **AI Influencer** | A persistent AI-generated persona with fixed appearance + identity (formerly "Character") |
-| **Content Studio** | The workspace for generating images with scenes, environments, and outfit changes |
-| **Post** | An image + caption, ready for export to platforms |
-| **Scene** | A pre-defined scenario (e.g., "beach photoshoot", "morning vibes") |
-| **Environment** | A location setting (e.g., beach, bedroom, office) |
+| Term               | Definition                                                                                |
+| ------------------ | ----------------------------------------------------------------------------------------- |
+| **AI Influencer**  | A persistent AI-generated persona with fixed appearance + identity (formerly "Character") |
+| **Content Studio** | The workspace for generating images with scenes, environments, and outfit changes         |
+| **Post**           | An image + caption, ready for export to platforms                                         |
+| **Scene**          | A pre-defined scenario (e.g., "beach photoshoot", "morning vibes")                        |
+| **Environment**    | A location setting (e.g., beach, bedroom, office)                                         |
 
 ---
 
@@ -59,6 +59,7 @@
 ```
 
 **Content Studio Flow:**
+
 ```
 Select AI Influencer → Choose Scene + Environment + Outfit → Generate → Pick Captions → Like/Export
 ```
@@ -75,35 +76,35 @@ Select AI Influencer → Choose Scene + Environment + Outfit → Generate → Pi
 
 ### Key Differentiators (vs. Competitors)
 
-| Feature                  | RYLA MVP           | Higgsfield ($50M) | Foxy.ai | SoulGen |
-| ------------------------ | ------------------ | ----------------- | ------- | ------- |
+| Feature                   | RYLA MVP           | Higgsfield ($50M) | Foxy.ai | SoulGen |
+| ------------------------- | ------------------ | ----------------- | ------- | ------- |
 | AI Influencer consistency | ✅                 | ✅                | ✅      | ✅      |
-| NSFW support             | ✅                 | ❌                | ❌      | ✅      |
-| **Monetization export**  | ✅ OF/Fanvue ready | ❌                | ❌      | ❌      |
-| **Scene presets**        | ✅ 8 scenarios     | ❌                | ❌      | ❌      |
-| **Environment presets**  | ✅ 7 locations     | ❌                | ❌      | ❌      |
-| **AI-generated captions**| ✅                 | ❌                | ❌      | ❌      |
-| **Outfit changes**       | ✅ Per generation  | ❌                | ❌      | ❌      |
-| Self-serve               | ✅                 | ✅                | ✅      | ✅      |
+| NSFW support              | ✅                 | ❌                | ❌      | ✅      |
+| **Monetization export**   | ✅ OF/Fanvue ready | ❌                | ❌      | ❌      |
+| **Scene presets**         | ✅ 8 scenarios     | ❌                | ❌      | ❌      |
+| **Environment presets**   | ✅ 7 locations     | ❌                | ❌      | ❌      |
+| **AI-generated captions** | ✅                 | ❌                | ❌      | ❌      |
+| **Outfit changes**        | ✅ Per generation  | ❌                | ❌      | ❌      |
+| Self-serve                | ✅                 | ✅                | ✅      | ✅      |
 
 ### Epics (Priority Order)
 
 #### MVP Product (`docs/requirements/epics/mvp/`)
 
-| Epic                                             | Name                           | Priority | Metric       | Status     |
-| ------------------------------------------------ | ------------------------------ | -------- | ------------ | ---------- |
+| Epic                                              | Name                          | Priority | Metric       | Status     |
+| ------------------------------------------------- | ----------------------------- | -------- | ------------ | ---------- |
 | [EP-001](./epics/mvp/EP-001-influencer-wizard.md) | AI Influencer Creation Wizard | P0       | A-Activation | 📝 Defined |
-| [EP-002](./epics/mvp/EP-002-authentication.md)   | User Authentication            | P0       | A-Activation | 📝 Defined |
-| [EP-004](./epics/mvp/EP-004-dashboard.md)        | AI Influencer Management       | P0       | B-Retention  | 📝 Defined |
-| [EP-005](./epics/mvp/EP-005-content-studio.md)   | Content Studio & Generation    | P0       | C-Core Value | 📝 Defined |
-| [EP-007](./epics/mvp/EP-007-emails.md)           | Emails & Notifications         | P1       | A-Activation | 📝 Defined |
-| [EP-008](./epics/mvp/EP-008-gallery.md)          | Posts Gallery & Export         | P0       | C-Core Value | 📝 Defined |
-| [EP-009](./epics/mvp/EP-009-credits.md)          | Generation Credits & Limits    | P0       | D-Conversion | 📝 Defined |
-| [EP-010](./epics/mvp/EP-010-subscription.md)     | Subscription Management        | P0       | B-Retention  | 📝 Defined |
-| [EP-011](./epics/mvp/EP-011-legal.md)            | Legal & Compliance             | P0       | Risk         | 📝 Defined |
-| [EP-012](./epics/mvp/EP-012-onboarding.md)       | Onboarding & First-Time UX     | P1       | A-Activation | 📝 Defined |
-| [EP-013](./epics/mvp/EP-013-education.md)        | Education Hub                  | P1       | B-Retention  | 📝 Defined |
-| [EP-014](./epics/mvp/EP-014-captions.md)         | AI Caption Generation          | P0       | C-Core Value | 📝 Defined |
+| [EP-002](./epics/mvp/EP-002-authentication.md)    | User Authentication           | P0       | A-Activation | 📝 Defined |
+| [EP-004](./epics/mvp/EP-004-dashboard.md)         | AI Influencer Management      | P0       | B-Retention  | 📝 Defined |
+| [EP-005](./epics/mvp/EP-005-content-studio.md)    | Content Studio & Generation   | P0       | C-Core Value | 📝 Defined |
+| [EP-007](./epics/mvp/EP-007-emails.md)            | Emails & Notifications        | P1       | A-Activation | 📝 Defined |
+| [EP-008](./epics/mvp/EP-008-gallery.md)           | Posts Gallery & Export        | P0       | C-Core Value | 📝 Defined |
+| [EP-009](./epics/mvp/EP-009-credits.md)           | Generation Credits & Limits   | P0       | D-Conversion | 📝 Defined |
+| [EP-010](./epics/mvp/EP-010-subscription.md)      | Subscription Management       | P0       | B-Retention  | 📝 Defined |
+| [EP-011](./epics/mvp/EP-011-legal.md)             | Legal & Compliance            | P0       | Risk         | 📝 Defined |
+| [EP-012](./epics/mvp/EP-012-onboarding.md)        | Onboarding & First-Time UX    | P1       | A-Activation | 📝 Defined |
+| [EP-013](./epics/mvp/EP-013-education.md)         | Education Hub                 | P1       | B-Retention  | 📝 Defined |
+| [EP-014](./epics/mvp/EP-014-captions.md)          | AI Caption Generation         | P0       | C-Core Value | 📝 Defined |
 
 #### Funnel (`docs/requirements/epics/funnel/`)
 
@@ -393,20 +394,20 @@ These are handled separately:
 
 ### Simplified for MVP
 
-| Feature              | MVP Version              | Full Version (Later)           |
-| -------------------- | ------------------------ | ------------------------------ |
-| Auth                 | Email/password only      | + Social login, 2FA            |
-| Pricing              | 1-2 plans                | Multiple tiers, annual         |
-| AI Influencer editing | Regenerate only          | Full attribute editing         |
-| Images per pack      | 5-10                     | Unlimited/configurable         |
-| Export formats       | Generic resolution       | Platform-specific presets      |
-| Analytics            | PostHog only             | Custom dashboard               |
-| NSFW                 | Simple toggle            | Advanced controls, filters     |
-| Scenes               | 8 presets                | Custom scene builder           |
-| Environments         | 7 presets                | Custom environments, uploads   |
-| Outfits              | Change per generation    | Full wardrobe ownership        |
-| Captions             | 1 per image              | Multiple options, tone control |
-| Sequences            | ❌ Not in MVP            | Morning routine, storylines    |
+| Feature               | MVP Version           | Full Version (Later)           |
+| --------------------- | --------------------- | ------------------------------ |
+| Auth                  | Email/password only   | + Social login, 2FA            |
+| Pricing               | 1-2 plans             | Multiple tiers, annual         |
+| AI Influencer editing | Regenerate only       | Full attribute editing         |
+| Images per pack       | 5-10                  | Unlimited/configurable         |
+| Export formats        | Generic resolution    | Platform-specific presets      |
+| Analytics             | PostHog only          | Custom dashboard               |
+| NSFW                  | Simple toggle         | Advanced controls, filters     |
+| Scenes                | 8 presets             | Custom scene builder           |
+| Environments          | 7 presets             | Custom environments, uploads   |
+| Outfits               | Change per generation | Full wardrobe ownership        |
+| Captions              | 1 per image           | Multiple options, tone control |
+| Sequences             | ❌ Not in MVP         | Morning routine, storylines    |
 
 ---
 
@@ -424,31 +425,31 @@ Users come to **create AI Influencers and generate content for monetization**. T
 
 ### MVP Product Features
 
-| Feature                        | Priority | Epic   |
-| ------------------------------ | -------- | ------ |
-| AI Influencer wizard (6-step)  | P0       | EP-001 |
+| Feature                          | Priority | Epic   |
+| -------------------------------- | -------- | ------ |
+| AI Influencer wizard (6-step)    | P0       | EP-001 |
 | Identity (archetype/personality) | P0       | EP-001 |
-| Content Studio UI              | P0       | EP-005 |
-| Scene presets (8)              | P0       | EP-005 |
-| Environment presets (7)        | P0       | EP-005 |
-| Outfit changes in generation   | P0       | EP-005 |
-| AI caption generation          | P0       | EP-014 |
-| Consistent face generation     | P0       | EP-005 |
-| Social profile dashboard       | P0       | EP-004 |
-| Posts gallery (image+caption)  | P0       | EP-008 |
-| Like/favorite posts            | P0       | EP-008 |
-| Export (image + caption copy)  | P0       | EP-008 |
-| NSFW toggle                    | P0       | EP-001 |
-| Aspect ratio selection         | P0       | EP-005 |
-| Quality mode (draft/HQ)        | P0       | EP-005 |
-| Form state persistence         | P0       | EP-001 |
-| Auth & settings                | P0       | EP-002 |
-| Credit system & limits         | P0       | EP-009 |
-| Subscription management        | P0       | EP-010 |
-| Legal pages & compliance       | P0       | EP-011 |
-| Onboarding experience          | P1       | EP-012 |
-| Education hub                  | P1       | EP-013 |
-| Emails & notifications         | P1       | EP-007 |
+| Content Studio UI                | P0       | EP-005 |
+| Scene presets (8)                | P0       | EP-005 |
+| Environment presets (7)          | P0       | EP-005 |
+| Outfit changes in generation     | P0       | EP-005 |
+| AI caption generation            | P0       | EP-014 |
+| Consistent face generation       | P0       | EP-005 |
+| Social profile dashboard         | P0       | EP-004 |
+| Posts gallery (image+caption)    | P0       | EP-008 |
+| Like/favorite posts              | P0       | EP-008 |
+| Export (image + caption copy)    | P0       | EP-008 |
+| NSFW toggle                      | P0       | EP-001 |
+| Aspect ratio selection           | P0       | EP-005 |
+| Quality mode (draft/HQ)          | P0       | EP-005 |
+| Form state persistence           | P0       | EP-001 |
+| Auth & settings                  | P0       | EP-002 |
+| Credit system & limits           | P0       | EP-009 |
+| Subscription management          | P0       | EP-010 |
+| Legal pages & compliance         | P0       | EP-011 |
+| Onboarding experience            | P1       | EP-012 |
+| Education hub                    | P1       | EP-013 |
+| Emails & notifications           | P1       | EP-007 |
 
 ---
 
@@ -555,28 +556,28 @@ Brown, Blue, Green, Hazel, Gray, Amber
 
 ### Scene Presets (P0 - 8 options)
 
-| Scene | Description | Use Case |
-| ----- | ----------- | -------- |
+| Scene                 | Description                            | Use Case               |
+| --------------------- | -------------------------------------- | ---------------------- |
 | Professional portrait | Headshot style, confident, eye contact | Profile pics, business |
-| Candid lifestyle | Natural moment, authentic | Relatable posts |
-| Fashion editorial | Dramatic, magazine quality | Fashion content |
-| Fitness motivation | Athletic, energetic | Fitness niche |
-| Morning vibes | Relaxed, fresh, natural light | Morning posts |
-| Night out | Glamorous, sophisticated | Evening content |
-| Cozy at home | Comfortable, intimate | Personal content |
-| Beach day | Summer vibes, relaxed | Vacation/beach content |
+| Candid lifestyle      | Natural moment, authentic              | Relatable posts        |
+| Fashion editorial     | Dramatic, magazine quality             | Fashion content        |
+| Fitness motivation    | Athletic, energetic                    | Fitness niche          |
+| Morning vibes         | Relaxed, fresh, natural light          | Morning posts          |
+| Night out             | Glamorous, sophisticated               | Evening content        |
+| Cozy at home          | Comfortable, intimate                  | Personal content       |
+| Beach day             | Summer vibes, relaxed                  | Vacation/beach content |
 
 ### Environment Presets (P0 - 7 options)
 
-| Environment | Description | Prompt Addition |
-| ----------- | ----------- | --------------- |
-| Beach | Ocean, golden hour | "sunny beach, ocean background, golden hour" |
-| Home - Bedroom | Cozy, natural light | "cozy bedroom, soft natural lighting" |
-| Home - Living Room | Modern, warm | "stylish living room, modern decor" |
-| Office | Professional, clean | "professional office, clean workspace" |
-| Cafe | Trendy, warm interior | "trendy cafe, coffee shop ambiance" |
-| Urban Street | City, street style | "city street, urban environment" |
-| Studio | Plain background | "photography studio, clean background" |
+| Environment        | Description           | Prompt Addition                              |
+| ------------------ | --------------------- | -------------------------------------------- |
+| Beach              | Ocean, golden hour    | "sunny beach, ocean background, golden hour" |
+| Home - Bedroom     | Cozy, natural light   | "cozy bedroom, soft natural lighting"        |
+| Home - Living Room | Modern, warm          | "stylish living room, modern decor"          |
+| Office             | Professional, clean   | "professional office, clean workspace"       |
+| Cafe               | Trendy, warm interior | "trendy cafe, coffee shop ambiance"          |
+| Urban Street       | City, street style    | "city street, urban environment"             |
+| Studio             | Plain background      | "photography studio, clean background"       |
 
 ### Outfit Changes (P0)
 
@@ -608,22 +609,22 @@ Brown, Blue, Green, Hazel, Gray, Amber
 
 ### Content Studio Features by Priority
 
-| Feature                | MVP (P0)              | Phase 2                    |
-| ---------------------- | --------------------- | -------------------------- |
-| Scene presets          | ✅ 8 options          | Custom scene builder       |
-| Environment presets    | ✅ 7 options          | Custom environments        |
-| Outfit changes         | ✅ Per generation     | Full wardrobe system       |
-| Aspect ratio selection | ✅ 3 options          | Custom sizes               |
-| Quality toggle         | ✅ Draft/HQ           | Fine-tune control          |
-| NSFW toggle            | ✅ Simple on/off      | Advanced filters           |
-| Face consistency       | ✅ Seed locking       | Better control             |
-| Progress indicator     | ✅ Loading state      | Queue position             |
-| AI captions            | ✅ 1 per image        | Multiple options           |
-| Sequences              | ❌                    | ✅ Multi-scene stories     |
-| Face repair            | ❌                    | ✅ Auto-fix                |
-| Upscale                | ❌                    | ✅ 2x/4x                   |
-| Model selection        | ❌ Auto               | ✅ Manual                  |
-| Props/items            | ❌                    | ✅ Scene objects           |
+| Feature                | MVP (P0)          | Phase 2                |
+| ---------------------- | ----------------- | ---------------------- |
+| Scene presets          | ✅ 8 options      | Custom scene builder   |
+| Environment presets    | ✅ 7 options      | Custom environments    |
+| Outfit changes         | ✅ Per generation | Full wardrobe system   |
+| Aspect ratio selection | ✅ 3 options      | Custom sizes           |
+| Quality toggle         | ✅ Draft/HQ       | Fine-tune control      |
+| NSFW toggle            | ✅ Simple on/off  | Advanced filters       |
+| Face consistency       | ✅ Seed locking   | Better control         |
+| Progress indicator     | ✅ Loading state  | Queue position         |
+| AI captions            | ✅ 1 per image    | Multiple options       |
+| Sequences              | ❌                | ✅ Multi-scene stories |
+| Face repair            | ❌                | ✅ Auto-fix            |
+| Upscale                | ❌                | ✅ 2x/4x               |
+| Model selection        | ❌ Auto           | ✅ Manual              |
+| Props/items            | ❌                | ✅ Scene objects       |
 
 ---
 
@@ -782,23 +783,23 @@ Brown, Blue, Green, Hazel, Gray, Amber
 
 ### Primary (Product Quality)
 
-| Metric                      | Target | How to Measure |
-| --------------------------- | ------ | -------------- |
-| **Generation success**      | >95%   | Backend logs   |
-| **D7 retention**            | >15%   | PostHog cohort |
-| **AI Influencers/user**     | >2     | Database query |
-| **Time to 1st influencer**  | <10min | PostHog timing |
-| **Posts/AI Influencer**     | >10    | Database query |
+| Metric                     | Target | How to Measure |
+| -------------------------- | ------ | -------------- |
+| **Generation success**     | >95%   | Backend logs   |
+| **D7 retention**           | >15%   | PostHog cohort |
+| **AI Influencers/user**    | >2     | Database query |
+| **Time to 1st influencer** | <10min | PostHog timing |
+| **Posts/AI Influencer**    | >10    | Database query |
 
 ### Secondary (UX Quality)
 
-| Metric                   | Target | How to Measure |
-| ------------------------ | ------ | -------------- |
-| NSFW toggle adoption     | >70%   | PostHog event  |
-| Content Studio opens     | >80%   | PostHog event  |
-| Caption acceptance rate  | >60%   | PostHog event  |
-| Like/favorite rate       | >30%   | PostHog event  |
-| Export completion        | >50%   | PostHog event  |
+| Metric                  | Target | How to Measure |
+| ----------------------- | ------ | -------------- |
+| NSFW toggle adoption    | >70%   | PostHog event  |
+| Content Studio opens    | >80%   | PostHog event  |
+| Caption acceptance rate | >60%   | PostHog event  |
+| Like/favorite rate      | >30%   | PostHog event  |
+| Export completion       | >50%   | PostHog event  |
 
 ### Funnel Metrics (Separate Workstream)
 
@@ -849,12 +850,12 @@ Brown, Blue, Green, Hazel, Gray, Amber
 
 ### Funnel Decisions (Separate)
 
-| Decision              | Rationale                               |
-| --------------------- | --------------------------------------- |
-| $29/mo starting price | Validated in ghost test                 |
-| Lead with AI OnlyFans | 39% US users select this (funnel data)  |
-| Show curvy body types | 37% US prefer thick (funnel data)       |
-| Finby for payments    | Already integrated in funnel            |
+| Decision              | Rationale                              |
+| --------------------- | -------------------------------------- |
+| $29/mo starting price | Validated in ghost test                |
+| Lead with AI OnlyFans | 39% US users select this (funnel data) |
+| Show curvy body types | 37% US prefer thick (funnel data)      |
+| Finby for payments    | Already integrated in funnel           |
 
 ## Legal Requirements (MVP)
 
