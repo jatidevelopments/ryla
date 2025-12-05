@@ -28,6 +28,15 @@ alwaysApply: true
 **Branches**: `epic/ep-001-scope` or `feat/st-010-feature`
 **Commits**: `feat(ep-001 st-010): description`
 
+## Epic Locations
+
+| Scope       | Path                               | Epics                                          |
+| ----------- | ---------------------------------- | ---------------------------------------------- |
+| MVP Product | `docs/requirements/epics/mvp/`     | EP-001, EP-002, EP-004, EP-005, EP-007, EP-008 |
+| Funnel      | `docs/requirements/epics/funnel/`  | EP-003                                         |
+| Landing     | `docs/requirements/epics/landing/` | EP-006                                         |
+| Future      | `docs/requirements/epics/future/`  | EP-009+                                        |
+
 ## 10-Phase Pipeline
 
 P1→P2→P3→P4→P5→P6→P7→P8→P9→P10

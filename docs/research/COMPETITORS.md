@@ -330,6 +330,14 @@ Extracted from team WhatsApp group discussions:
 
 ---
 
+## Related Documents
+
+📄 **[COMPETITORS-FULL-ANALYSIS.md](./COMPETITORS-FULL-ANALYSIS.md)** - Full competitor profiles and analysis
+
+📄 **[COMPETITOR-UX-ANALYSIS.md](./COMPETITOR-UX-ANALYSIS.md)** - Priority list for UX research and benchmarking
+
+---
+
 ## Full Analysis Reference
 
 📄 **See [COMPETITORS-FULL-ANALYSIS.md](./COMPETITORS-FULL-ANALYSIS.md)** for:

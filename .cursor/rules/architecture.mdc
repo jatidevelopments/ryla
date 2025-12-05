@@ -20,6 +20,34 @@ libs/
   analytics/ # @ryla/analytics - Event tracking
 ```
 
+## Documentation Structure
+
+```
+docs/
+  requirements/
+    epics/
+      mvp/       # EP-001, EP-002, EP-004, EP-005, EP-007
+      funnel/    # EP-003 (Payment)
+      landing/   # EP-006 (Landing Page)
+      future/    # Phase 2+ planned epics
+    MVP-SCOPE.md
+    PRODUCT-HYPOTHESIS.md
+    ICP-PERSONAS.md
+  technical/
+    MDC-COPY-GUIDE.md
+  research/
+    COMPETITORS.md
+```
+
+## Epic Organization
+
+| Folder | Epics | Scope |
+|--------|-------|-------|
+| `epics/mvp/` | EP-001, EP-002, EP-004, EP-005, EP-007, EP-008 | Core product |
+| `epics/funnel/` | EP-003 | Payment & conversion |
+| `epics/landing/` | EP-006 | Landing page |
+| `epics/future/` | EP-009+ | Phase 2+ features |
+
 ## Layer Responsibilities
 
 ### Apps (apps/)

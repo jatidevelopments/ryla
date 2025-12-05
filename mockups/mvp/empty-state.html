@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #eee; margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .credits { background: #f5f5f5; padding: 8px 16px; font-size: 14px; }
+    nav a { color: #000; text-decoration: none; font-size: 14px; }
+    
+    h1 { font-size: 28px; margin-bottom: 24px; }
+    
+    /* Decision Callout */
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 16px; margin-bottom: 24px; }
+    .decision h3 { font-size: 14px; color: #996600; margin-bottom: 8px; }
+    .decision p { font-size: 13px; color: #664400; }
+    
+    /* Welcome Banner */
+    .welcome-banner { background: #f5f5f5; padding: 32px; text-align: center; margin-bottom: 32px; }
+    .welcome-banner h2 { font-size: 24px; margin-bottom: 8px; }
+    .welcome-banner p { color: #666; margin-bottom: 24px; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 16px 32px; text-decoration: none; font-weight: bold; font-size: 16px; }
+    .btn:hover { background: #333; }
+    
+    /* Onboarding Checklist */
+    .checklist { background: #fff; border: 1px solid #ddd; padding: 24px; margin-bottom: 32px; }
+    .checklist h3 { font-size: 16px; margin-bottom: 16px; }
+    .checklist-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0f0f0; }
+    .checklist-item:last-child { border-bottom: none; }
+    .checklist-check { width: 24px; height: 24px; border: 2px solid #ddd; border-radius: 50%; margin-right: 12px; display: flex; align-items: center; justify-content: center; }
+    .checklist-check.done { background: #000; border-color: #000; color: #fff; }
+    .checklist-text { flex: 1; }
+    .checklist-text.done { color: #666; text-decoration: line-through; }
+    .checklist-action { font-size: 14px; }
+    .checklist-action a { color: #000; }
+    
+    /* Empty State */
+    .empty-state { border: 2px dashed #ddd; padding: 64px; text-align: center; }
+    .empty-icon { font-size: 64px; margin-bottom: 16px; color: #ccc; }
+    .empty-state h3 { font-size: 20px; margin-bottom: 8px; }
+    .empty-state p { color: #666; margin-bottom: 24px; }
+    
+    /* Quick Tips */
+    .tips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px; }
+    .tip { padding: 16px; background: #f5f5f5; text-align: center; }
+    .tip h4 { font-size: 14px; margin-bottom: 4px; }
+    .tip p { font-size: 12px; color: #666; }
+    
+    footer { margin-top: 48px; padding: 24px 0; border-top: 1px solid #eee; text-align: center; font-size: 14px; }
+    footer a { color: #666; margin: 0 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <div class="header-right">
+        <div class="credits"><strong>300</strong> credits</div>
+        <nav><a href="settings.html">Settings</a></nav>
+      </div>
+    </header>
+
+    <h1>My Characters</h1>
+
+    <div class="decision">
+      <h3>🎯 DECISION: First-Time User Experience</h3>
+      <p><strong>A:</strong> Welcome banner + empty state (current) | <strong>B:</strong> Auto-start wizard | <strong>C:</strong> Guided tour modal</p>
+    </div>
+
+    <div class="welcome-banner">
+      <h2>Welcome to RYLA! 👋</h2>
+      <p>Create your first AI influencer character in under 10 minutes</p>
+      <a href="wizard-1.html" class="btn">✨ Create Your First Character</a>
+    </div>
+
+    <div class="checklist">
+      <h3>Getting Started</h3>
+      <div class="checklist-item">
+        <div class="checklist-check done">✓</div>
+        <div class="checklist-text done">Create account</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-check done">✓</div>
+        <div class="checklist-text done">Verify email</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-check"></div>
+        <div class="checklist-text">Create first character</div>
+        <div class="checklist-action"><a href="wizard-1.html">Start →</a></div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-check"></div>
+        <div class="checklist-text">Generate images</div>
+      </div>
+      <div class="checklist-item">
+        <div class="checklist-check"></div>
+        <div class="checklist-text">Download your first pack</div>
+      </div>
+    </div>
+
+    <div class="empty-state">
+      <div class="empty-icon">👤</div>
+      <h3>No characters yet</h3>
+      <p>Create your first AI influencer to get started</p>
+      <a href="wizard-1.html" class="btn">+ Create Character</a>
+    </div>
+
+    <div class="tips">
+      <div class="tip">
+        <h4>🎨 Face Consistency</h4>
+        <p>Same face across all images</p>
+      </div>
+      <div class="tip">
+        <h4>⚡ Fast Generation</h4>
+        <p>Draft mode in ~10 seconds</p>
+      </div>
+      <div class="tip">
+        <h4>🔞 NSFW Enabled</h4>
+        <p>Adult content supported</p>
+      </div>
+    </div>
+
+    <footer>
+      <a href="subscription.html">Subscription</a>
+      <a href="settings.html">Settings</a>
+      <a href="education.html">Help & Guides</a>
+      <a href="legal.html">Legal</a>
+    </footer>
+  </div>
+</body>
+</html>
+
