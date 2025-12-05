@@ -21,6 +21,14 @@
     @keyframes progress { to { width: 95%; } }
     .progress-text { font-size: 14px; color: #666; margin-top: 8px; }
     
+    /* Generation Steps */
+    .gen-steps { width: 100%; max-width: 300px; margin: 24px 0; text-align: left; }
+    .gen-step { display: flex; align-items: center; gap: 12px; padding: 8px 0; font-size: 14px; }
+    .gen-step-icon { width: 20px; text-align: center; }
+    .gen-step.done { color: #666; }
+    .gen-step.active { font-weight: bold; }
+    .gen-step.pending { color: #ccc; }
+    
     .preview-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 24px 0; width: 100%; max-width: 400px; }
     .preview-slot { aspect-ratio: 3/4; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; }
     .preview-slot.loading { animation: pulse 1.5s infinite; }
@@ -37,8 +45,8 @@
 <body>
   <div class="container">
     <div class="spinner"></div>
-    <h1>Creating Sofia...</h1>
-    <p class="subtitle">Generating 5 HQ images</p>
+    <h1>Creating Luna's Post...</h1>
+    <p class="subtitle">Generating 5 HQ images + captions</p>
     
     <div class="progress-container">
       <div class="progress-bar-outer">
@@ -47,8 +55,31 @@
       <div class="progress-text">Usually takes 30-60 seconds</div>
     </div>
 
+    <div class="gen-steps">
+      <div class="gen-step done">
+        <span class="gen-step-icon">✓</span>
+        <span>Processing character config</span>
+      </div>
+      <div class="gen-step done">
+        <span class="gen-step-icon">✓</span>
+        <span>Loading AI model</span>
+      </div>
+      <div class="gen-step active">
+        <span class="gen-step-icon">⏳</span>
+        <span>Generating images (2/5)</span>
+      </div>
+      <div class="gen-step pending">
+        <span class="gen-step-icon">○</span>
+        <span>Generating captions</span>
+      </div>
+      <div class="gen-step pending">
+        <span class="gen-step-icon">○</span>
+        <span>Finalizing posts</span>
+      </div>
+    </div>
+
     <div class="preview-grid">
-      <div class="preview-slot loading">[1]</div>
+      <div class="preview-slot">[1] ✓</div>
       <div class="preview-slot loading">[2]</div>
       <div class="preview-slot loading">[3]</div>
       <div class="preview-slot loading">[4]</div>
@@ -56,14 +87,13 @@
     </div>
 
     <div class="tip">
-      <h3>💡 Did you know?</h3>
-      <p>Your character's face will stay consistent across all images. Use regenerate to create new poses without changing appearance.</p>
+      <h3>💡 What's happening?</h3>
+      <p>We're generating images AND captions based on Luna's personality. You'll pick your favorites next!</p>
     </div>
 
     <div class="demo-link">
-      <a href="character.html">→ Skip to result (demo)</a>
+      <a href="caption-picker.html">→ Skip to caption picker (demo)</a>
     </div>
   </div>
 </body>
 </html>
-

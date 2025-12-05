@@ -14,7 +14,25 @@ This document identifies the most important competitors to analyze for features 
 
 ## 🔴 High Priority Competitors (Direct Competition)
 
-### 1. Foxy.ai
+### 1. MakeInfluencer ⭐ MOST DIRECT
+
+| Aspect | Details |
+|--------|---------|
+| **Website** | [makeinfluencer.ai](https://makeinfluencer.ai) |
+| **Why Analyze** | Most direct competitor - full AI influencer creation + monetization |
+| **Key UX Focus** | End-to-end workflow, character creation, monetization tools |
+| **Features to Study** | Full product flow, pricing model, export options |
+
+**UX Research Questions:**
+- [ ] What's their complete user journey?
+- [ ] How do they handle character creation?
+- [ ] What monetization features do they offer?
+- [ ] What's their pricing structure?
+- [ ] How do they position vs. competitors?
+
+---
+
+### 2. Foxy.ai
 
 | Aspect | Details |
 |--------|---------|
@@ -32,7 +50,7 @@ This document identifies the most important competitors to analyze for features 
 
 ---
 
-### 2. MySnapFace
+### 3. MySnapFace
 
 | Aspect | Details |
 |--------|---------|
@@ -49,7 +67,7 @@ This document identifies the most important competitors to analyze for features 
 
 ---
 
-### 3. Candy.ai
+### 4. Candy.ai
 
 | Aspect | Details |
 |--------|---------|
@@ -66,7 +84,7 @@ This document identifies the most important competitors to analyze for features 
 
 ---
 
-### 4. Higgsfield
+### 5. Higgsfield
 
 | Aspect | Details |
 |--------|---------|
@@ -84,7 +102,7 @@ This document identifies the most important competitors to analyze for features 
 
 ---
 
-### 5. SoulGen
+### 6. SoulGen
 
 | Aspect | Details |
 |--------|---------|
@@ -101,7 +119,7 @@ This document identifies the most important competitors to analyze for features 
 
 ---
 
-### 6. dFans
+### 7. dFans
 
 | Aspect | Details |
 |--------|---------|
@@ -203,12 +221,13 @@ This document identifies the most important competitors to analyze for features 
 
 ## 🎯 Recommended Analysis Order
 
-1. **Foxy.ai** - Best overall UX polish, premium positioning
-2. **MySnapFace** - Most similar feature set (character training)
-3. **Candy.ai** - Character memory + chat integration
-4. **Higgsfield** - Well-funded, feature-rich platform
-5. **SoulGen** - Simple onboarding benchmark
-6. **dFans** - Monetization automation UX
+1. **MakeInfluencer** ⭐ - Most direct competitor, priority #1
+2. **Foxy.ai** - Best overall UX polish, premium positioning
+3. **MySnapFace** - Most similar feature set (character training)
+4. **Candy.ai** - Character memory + chat integration
+5. **Higgsfield** - Well-funded, feature-rich platform
+6. **SoulGen** - Simple onboarding benchmark
+7. **dFans** - Monetization automation UX
 
 ---
 
