@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 4: Body - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .close { text-decoration: none; color: #666; font-size: 24px; }
+    
+    .progress { height: 4px; background: #eee; margin: 16px 0; }
+    .progress-bar { height: 100%; background: #000; width: 66.66%; }
+    .step-info { font-size: 14px; color: #666; margin-bottom: 8px; }
+    
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 12px; margin-bottom: 24px; font-size: 13px; }
+    .decision h3 { font-size: 12px; color: #996600; margin-bottom: 4px; }
+    
+    .option-group { margin-bottom: 24px; }
+    .option-label { font-weight: bold; margin-bottom: 12px; }
+    
+    /* Body type with images */
+    .body-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .body-option { border: 2px solid #ddd; cursor: pointer; text-align: center; }
+    .body-option:hover { border-color: #999; }
+    .body-option.selected { border-color: #000; }
+    .body-option.popular { border-color: #ffd700; }
+    .body-img { background: #f0f0f0; height: 100px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; }
+    .body-name { padding: 8px; font-size: 12px; font-weight: bold; }
+    .popular-tag { background: #ffd700; font-size: 9px; padding: 2px 4px; }
+    
+    /* Breast size (conditional) */
+    .breast-options { display: flex; gap: 8px; }
+    .breast-option { flex: 1; border: 2px solid #ddd; padding: 12px; text-align: center; cursor: pointer; }
+    .breast-option:hover { border-color: #999; }
+    .breast-option.selected { border-color: #000; background: #f5f5f5; }
+    
+    .nsfw-note { background: #f5f5f5; padding: 12px; font-size: 13px; color: #666; margin-top: 16px; }
+    
+    .nav { display: flex; justify-content: space-between; margin-top: auto; padding: 24px 0; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; font-weight: bold; }
+    .btn-back { background: #fff; color: #000; border: 1px solid #000; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <a href="index.html" class="close">×</a>
+    </header>
+
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="step-info">Step 4 of 6 • Body</div>
+    
+    <h1>Body Type</h1>
+    <p class="subtitle">Choose physical build</p>
+
+    <div class="decision">
+      <h3>🎯 DATA: US users prefer Curvy (37% vs 27% global)</h3>
+      <p>Prioritize curvy/voluptuous options in UI</p>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Body Type</div>
+      <div class="body-grid">
+        <div class="body-option">
+          <div class="body-img">[Slim]</div>
+          <div class="body-name">Slim</div>
+        </div>
+        <div class="body-option">
+          <div class="body-img">[Athletic]</div>
+          <div class="body-name">Athletic</div>
+        </div>
+        <div class="body-option popular selected">
+          <div class="body-img">[Curvy]</div>
+          <div class="body-name">Curvy <span class="popular-tag">Popular</span></div>
+        </div>
+        <div class="body-option">
+          <div class="body-img">[Voluptuous]</div>
+          <div class="body-name">Voluptuous</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Breast Size <span style="font-weight: normal; color: #666;">(Female only)</span></div>
+      <div class="breast-options">
+        <div class="breast-option">Small</div>
+        <div class="breast-option selected">Medium</div>
+        <div class="breast-option">Large</div>
+        <div class="breast-option">X-Large</div>
+      </div>
+    </div>
+
+    <div class="nsfw-note">
+      💡 Body options affect NSFW image generation. Ensure your selections match intended content.
+    </div>
+
+    <div class="nav">
+      <a href="wizard-3.html" class="btn btn-back">← Back</a>
+      <a href="wizard-5.html" class="btn">Next →</a>
+    </div>
+  </div>
+</body>
+</html>
+

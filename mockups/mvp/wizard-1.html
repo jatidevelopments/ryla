@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 1: Style - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .close { text-decoration: none; color: #666; font-size: 24px; }
+    
+    .progress { height: 4px; background: #eee; margin: 16px 0; }
+    .progress-bar { height: 100%; background: #000; width: 16.66%; }
+    .step-info { font-size: 14px; color: #666; margin-bottom: 8px; }
+    
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    
+    /* Decision Callout */
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 12px; margin-bottom: 24px; font-size: 13px; }
+    .decision h3 { font-size: 12px; color: #996600; margin-bottom: 4px; }
+    .decision p { color: #664400; margin: 0; }
+    
+    /* Option Styles */
+    .option-group { margin-bottom: 32px; }
+    .option-label { font-weight: bold; margin-bottom: 12px; }
+    
+    .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .option { border: 2px solid #ddd; padding: 20px; text-align: center; cursor: pointer; }
+    .option:hover { border-color: #999; }
+    .option.selected { border-color: #000; background: #f5f5f5; }
+    .option-icon { font-size: 32px; margin-bottom: 8px; }
+    .option-name { font-weight: bold; }
+    .option-desc { font-size: 12px; color: #666; margin-top: 4px; }
+    
+    /* Image-based options */
+    .options-images { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .option-image { border: 2px solid #ddd; cursor: pointer; overflow: hidden; }
+    .option-image:hover { border-color: #999; }
+    .option-image.selected { border-color: #000; }
+    .option-image .img-placeholder { background: #f0f0f0; height: 120px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; }
+    .option-image .img-label { padding: 8px; text-align: center; font-size: 14px; font-weight: bold; }
+    
+    .nav { display: flex; justify-content: space-between; margin-top: auto; padding: 24px 0; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; font-weight: bold; }
+    .btn:hover { background: #333; }
+    .btn-back { background: #fff; color: #000; border: 1px solid #000; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <a href="index.html" class="close">×</a>
+    </header>
+
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="step-info">Step 1 of 6 • Style</div>
+    
+    <h1>Choose Style</h1>
+    <p class="subtitle">Select gender and visual style for your character</p>
+
+    <div class="decision">
+      <h3>🎯 DECISION: Option Selection UI</h3>
+      <p><strong>A:</strong> Text-only cards (current) | <strong>B:</strong> Image previews | <strong>C:</strong> Large image tiles</p>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Gender</div>
+      <div class="options-grid">
+        <div class="option selected">
+          <div class="option-icon">♀</div>
+          <div class="option-name">Female</div>
+        </div>
+        <div class="option">
+          <div class="option-icon">♂</div>
+          <div class="option-name">Male</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Visual Style</div>
+      <div class="options-images">
+        <div class="option-image selected">
+          <div class="img-placeholder">[Realistic Preview]</div>
+          <div class="img-label">Realistic</div>
+        </div>
+        <div class="option-image">
+          <div class="img-placeholder">[Anime Preview]</div>
+          <div class="img-label">Anime</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav">
+      <a href="index.html" class="btn btn-back">Cancel</a>
+      <a href="wizard-2.html" class="btn">Next →</a>
+    </div>
+  </div>
+</body>
+</html>
+

@@ -22,14 +22,17 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 - Low-quality outputs that look fake
 - **No direct path to monetization platforms** ← Key gap in market
 
-**Evidence**:
+**Evidence** (Ghost Test - Nov 2025):
 
-- Ghost test funnel: **~54% payment intent conversion** (generation → payment)
-- **128 WAUs** in first 2 weeks of testing
-- **77 unique users** in week 1, **51** in week 2
-- Primary traffic: Facebook (73 users), Direct (43), Instagram (6)
-- Course seller research identified 10 core pain points
-- **AI Influencer Vault** course on Skool validates paid demand for this category
+- **64 US users** started funnel, 36 entered officially
+- **52.8% conversion** from funnel entry to character generation
+- **19% payment conversion** (4 of 21 reached payment step) - **PROBLEM**
+- **81% drop-off at payment** - Trust barrier identified
+- **93% are first-timers** (never created AI influencer)
+- **39% US users want AI OnlyFans** (2x global rate)
+- **72% enable NSFW** content
+- US = 82% of all funnel entries (dominant market)
+- **AI Influencer Vault** course on Skool validates paid demand
 
 ---
 
@@ -57,13 +60,35 @@ Creating and managing AI influencers is fragmented, frustrating, and inconsisten
 
 ## Core Hypothesis
 
-> **We believe** content creators who want AI influencers **have** fragmented tooling, inconsistent outputs, and no monetization pathway.
+> **We believe** first-time creators who want AI OnlyFans models **need** a simple platform to create and manage consistent AI characters.
 >
-> **If we build** a unified platform that generates consistent AI personas, maintains character memory, and provides **one-click export to monetization platforms**,
+> **If we build** a platform that generates consistent AI characters with NSFW support and easy management,
 >
-> **They will** complete the funnel and pay for subscriptions.
+> **They will** create multiple characters and return to generate more content.
 >
-> **We'll know we're right when** funnel-to-payment conversion exceeds **20%** and D7 retention reaches **15%**.
+> **We'll know we're right when** D7 retention reaches **15%** and characters/user exceeds **2**.
+
+---
+
+## Scope Separation
+
+| Concern              | Focus                          | Status                                   |
+| -------------------- | ------------------------------ | ---------------------------------------- |
+| **Funnel + Landing** | Acquisition, conversion        | ✅ Validated demand, separate workstream |
+| **MVP Product**      | Character creation, management | 🔨 Building                              |
+
+---
+
+### Validated Assumptions (Funnel)
+
+| Assumption             | Status       | Data                           |
+| ---------------------- | ------------ | ------------------------------ |
+| Users want AI OnlyFans | ✅ Validated | 39% US select this (2x global) |
+| Users want NSFW        | ✅ Validated | 72% enable                     |
+| Funnel UX works        | ✅ Validated | 21% mid-funnel attrition       |
+| Users complete wizard  | ✅ Validated | 19 users created characters    |
+| Users will pay         | ❓ Unknown   | Bug prevented payment flow     |
+| $29 is right price     | ❓ Unknown   | Need clean data after bug fix  |
 
 ---
 
@@ -215,50 +240,62 @@ Low Accessibility ←----+----→ High Accessibility
 
 ## Success Metrics
 
-### Primary (North Star)
+### MVP Product Metrics
 
-| Metric                                      | Target | Current | Competitor Benchmark   |
-| ------------------------------------------- | ------ | ------- | ---------------------- |
-| **C - Core Value**: Characters created/user | >3     | TBD     | N/A                    |
-| **D - Conversion**: Funnel → Payment        | >20%   | ~54%\*  | Foxy claims 57% growth |
+| Metric                 | Current | Target | Priority |
+| ---------------------- | ------- | ------ | -------- |
+| **D7 Return Rate**     | 5.2%    | >15%   | 🔴 P0    |
+| **Characters/user**    | TBD     | >2     | 🔴 P0    |
+| **Generation success** | TBD     | >95%   | 🔴 P0    |
+| NSFW toggle adoption   | 72%     | >70%   | Maintain |
 
-\*54% is generation→payment, full funnel TBD
+### Funnel Metrics (Separate Workstream)
 
-### Secondary
-
-| Metric                  | Category       | Target  | Current |
-| ----------------------- | -------------- | ------- | ------- |
-| Start → Generation      | A - Activation | >60%    | TBD     |
-| D7 Return Rate          | B - Retention  | >15%    | 5%      |
-| Time to first character | A - Activation | <10 min | TBD     |
-| Support tickets/user    | Quality        | <0.1    | TBD     |
+| Metric               | Current | Target | Notes                |
+| -------------------- | ------- | ------ | -------------------- |
+| Funnel → Generation  | 53%     | >50%   | ✅ Good              |
+| Mid-funnel attrition | 21%     | <25%   | ✅ Good              |
+| Payment conversion   | 19%     | TBD    | ⚠️ Bug affected data |
 
 ---
 
 ## Funnel Data (Ghost Test - Nov 2025)
 
-### Traffic Sources
+### US Market Performance (82% of users)
 
-| Source         | Users (14d) |
-| -------------- | ----------- |
-| m.facebook.com | 53          |
-| Direct         | 43          |
-| l.facebook.com | 19          |
-| instagram.com  | 6           |
-| google.com     | 2           |
+| Stage               | Users | Drop-off | Status                    |
+| ------------------- | ----- | -------- | ------------------------- |
+| Started (Step 0)    | 64    | -        | -                         |
+| Entered funnel      | 36    | 44%      | Partnership proof filters |
+| Mid-funnel (4-15)   | 24→19 | 21%      | ✅ Very stable            |
+| Late funnel (15-33) | 19-21 | ~0%      | ✅ Excellent              |
+| **Payment step**    | 4     | **81%**  | 🔴 **CRITICAL**           |
+| Email captured      | 1     | 75%      | 🔴 Trust barrier          |
 
-### Weekly Metrics
+### User Intent (US, Step 3)
 
-| Week         | WAUs | New Users       |
-| ------------ | ---- | --------------- |
-| Nov 23-29    | 77   | 77 (first week) |
-| Nov 30-Dec 4 | 51   | 47              |
+| Use Case        | US %    | Global % | Index |
+| --------------- | ------- | -------- | ----- |
+| **AI OnlyFans** | **39%** | 21%      | 1.9x  |
+| Not sure yet    | 24%     | 34%      | 0.7x  |
+| AI Influencer   | 24%     | 24%      | 1.0x  |
+| AI UGC          | 11%     | 11%      | 1.0x  |
 
-### Retention (Week 1 → Week 2)
+### User Characteristics (US)
 
-- Week 0: 77 users
-- Week 1: 4 returned (**5.2% retention**)
-- Goal: **15% retention**
+| Characteristic          | Value                   |
+| ----------------------- | ----------------------- |
+| First-timers            | **93%**                 |
+| NSFW enabled            | **72%**                 |
+| Prefer thick body types | **37%** (vs 27% global) |
+| Date night glam outfit  | **31%** (vs 22% global) |
+
+### Key Insight
+
+> **The funnel works beautifully through character creation.**
+> ⚠️ **Note**: There was a bug after character creation that prevented users from proceeding to payment.
+> The 81% payment drop-off may reflect this bug, not necessarily trust/conversion issues.
+> Payment conversion analysis will be revisited once bug is fixed.
 
 ---
 

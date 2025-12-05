@@ -1,125 +1,115 @@
-# RYLA MVP Wireframe Mockups
+# RYLA MVP Mockups
+
+## Overview
+
+Single clickable wireframe version with **decision callouts** for key UX choices.
+
+**Focus**: Character creation & management (not funnel/landing - separate workstream)
+
+---
 
 ## How to View
 
-Open any HTML file in your browser. No server needed.
-
 ```bash
-# Example: Open Version A landing page
-open mockups/version-a/index.html
+open /Users/admin/Documents/Projects/RYLA/mockups/mvp/index.html
 ```
 
----
-
-## 3 Versions to Compare
-
-| Version | Concept | Best For | Trade-off |
-|---------|---------|----------|-----------|
-| **A** | Linear Funnel | Maximizing wizard completion | Payment before seeing full result |
-| **B** | Dashboard-First | Return user experience | Higher signup friction |
-| **C** | Preview-Heavy | Reducing payment anxiety | More infrastructure (preview generation) |
-
----
-
-## Version A: Linear Funnel
-
-**Flow**: Landing → Wizard (10 steps) → Generating → Paywall → Dashboard
-
-**Key characteristics**:
-- Wizard is full-screen, no distractions
-- User completes all steps before seeing paywall
-- Payment gate shows blurred preview
-- No account needed until payment
-
-**Files**: `version-a/` (18 files)
-
----
-
-## Version B: Dashboard-First
-
-**Flow**: Landing → Signup → Dashboard (empty) → Wizard → Generating → Dashboard
-
-**Key characteristics**:
-- Account creation first
-- Dashboard is home base
-- Free tier with watermarks
-- Upgrade prompts throughout
-
-**Files**: `version-b/` (11 files)
-
----
-
-## Version C: Preview-Heavy
-
-**Flow**: Landing → Wizard with live preview → Paywall with comparison → Dashboard
-
-**Key characteristics**:
-- Side-by-side preview during wizard
-- Shows multiple variations before payment
-- Low-res vs HD comparison on paywall
-- "See before you pay" messaging
-
-**Files**: `version-c/` (9 files)
+Or open any HTML file in a browser.
 
 ---
 
 ## Screen Inventory
 
-### All Versions
-
-| Screen | Version A | Version B | Version C |
-|--------|-----------|-----------|-----------|
-| Landing | ✓ | ✓ | ✓ |
-| Login | ✓ | ✓ | ✓ |
-| Signup | - | ✓ | - |
-| Forgot Password | ✓ | - | - |
-| Wizard Steps | 10 | 2 (simplified) | 3 (with preview) |
-| Generating | ✓ | ✓ | - |
-| Paywall | ✓ | - | ✓ |
-| Payment Success | ✓ | - | ✓ |
-| Dashboard | ✓ | ✓ (empty + with char) | ✓ |
-| Character Detail | ✓ | ✓ | - |
-| Settings | ✓ | - | - |
-| Pricing | - | ✓ | - |
-
----
-
-## Design Principles
-
-- **Black & white only** - No color decisions yet
-- **System fonts** - No loading, maximum compatibility
-- **Mobile-first** - 480px base width
-- **Pure HTML/CSS** - No JavaScript frameworks
-- **Clickable** - Real links between pages
+| Screen | File | Purpose |
+|--------|------|---------|
+| **Dashboard** | `index.html` | Character grid, entry point (user arrives from funnel) |
+| **Dashboard (Empty)** | `empty-state.html` | First-time user experience |
+| **Login** | `login.html` | Returning user login |
+| **Wizard Step 1** | `wizard-1.html` | Gender + Style |
+| **Wizard Step 2** | `wizard-2.html` | Ethnicity + Age |
+| **Wizard Step 3** | `wizard-3.html` | Hair + Eyes |
+| **Wizard Step 4** | `wizard-4.html` | Body Type |
+| **Wizard Step 5** | `wizard-5.html` | Outfit + Personality |
+| **Wizard Step 6** | `wizard-6.html` | Review + Generation Options |
+| **Generating** | `generating.html` | Progress state |
+| **Character Detail** | `character.html` | Gallery, regenerate, download |
+| **Settings** | `settings.html` | Account, preferences |
+| **Subscription** | `subscription.html` | Plan management, billing |
+| **Education** | `education.html` | Help & guides |
+| **Legal** | `legal.html` | ToS, Privacy, etc. |
 
 ---
 
-## User Flows Documented
+## Decision Callouts
 
-See `docs/architecture/USER-FLOWS.md` for:
-- Primary conversion flow
-- Return user flow
-- Password reset flow
-- Guest conversion flow
-- Screen inventory with routes
+Yellow boxes in mockups mark decisions to make:
+
+### Dashboard (`index.html`)
+- **Layout**: Character grid vs Hero character vs Stats-driven
+
+### Wizard Step 1 (`wizard-1.html`)
+- **Option Selection UI**: Text cards vs Image previews vs Large tiles
+
+### Wizard Step 6 (`wizard-6.html`)
+- **Generation Controls Layout**: All visible vs Collapsed "Advanced" vs Sidebar
+- **NSFW Toggle Placement**: Prominent vs Inside options vs In Step 1
+
+### Character Detail (`character.html`)
+- **Gallery Actions**: Select + bulk download vs Hover actions vs Lightbox
+
+### Empty State (`empty-state.html`)
+- **First-Time UX**: Welcome banner vs Auto-start wizard vs Guided tour
 
 ---
 
-## Decision Points
+## User Flow
 
-After reviewing all 3 versions, decide:
+```
+[From Funnel (paid)] 
+    → Login (if returning)
+    → Dashboard (empty-state if new)
+    → Create Character (wizard-1 → wizard-6)
+    → Generating
+    → Character Detail
+    → Regenerate / Download
+```
 
-1. **Wizard approach**: Full steps (A) vs simplified (B/C)?
-2. **Account timing**: Before wizard (B) or at payment (A/C)?
-3. **Preview strategy**: None (A), watermarked (B), or side-by-side (C)?
-4. **Free tier**: Yes (B) or no (A/C)?
+---
+
+## Data-Driven Callouts
+
+Some mockups include data insights from funnel testing:
+
+- **US users prefer Curvy (37%)** → Shown in body type step
+- **"Date night glam" most popular (31%)** → Shown in outfit step
+- **72% enable NSFW** → NSFW toggle prominent
+- **Latina popular** → "Popular" badge on ethnicity
+
+---
+
+## MVP Product Scope (Not Funnel)
+
+These mockups cover:
+- ✅ EP-001: Character Creation Wizard (6 steps)
+- ✅ EP-002: User Authentication (login)
+- ✅ EP-004: Character Dashboard
+- ✅ EP-005: Image Generation Engine
+- ✅ EP-008: Image Gallery & Downloads
+- ✅ EP-009: Generation Credits & Limits
+- ✅ EP-010: Subscription Management
+- ✅ EP-011: Legal & Compliance
+- ✅ EP-012: Onboarding & First-Time UX
+- ✅ EP-013: Education Hub
+
+**Not included** (separate funnel workstream):
+- Landing page (EP-006)
+- Payment flow (EP-003)
+- Funnel optimization
 
 ---
 
 ## Next Steps
 
-1. Review all 3 versions in browser
-2. Choose approach (or hybrid)
-3. Document decision in `docs/decisions/`
-4. Proceed to P5 (Tech Spec)
-
+1. Review mockups in browser
+2. Make decisions on callouts
+3. Proceed to P5 - Tech Spec

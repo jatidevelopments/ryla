@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sofia - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #eee; margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .credits { background: #f5f5f5; padding: 8px 16px; font-size: 14px; }
+    nav a { color: #000; text-decoration: none; font-size: 14px; }
+    
+    .breadcrumb { font-size: 14px; color: #666; margin-bottom: 16px; }
+    .breadcrumb a { color: #666; }
+    
+    .page-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
+    .character-title h1 { font-size: 28px; margin-bottom: 4px; }
+    .character-meta { font-size: 14px; color: #666; }
+    .nsfw-tag { background: #ff4444; color: #fff; font-size: 11px; padding: 2px 6px; margin-left: 8px; }
+    
+    .actions { display: flex; gap: 8px; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 10px 20px; text-decoration: none; font-weight: bold; font-size: 14px; }
+    .btn:hover { background: #333; }
+    .btn-secondary { background: #fff; color: #000; border: 1px solid #000; }
+    .btn-danger { background: #fff; color: #c00; border: 1px solid #c00; }
+    
+    /* Decision Callout */
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 12px; margin-bottom: 24px; font-size: 13px; }
+    .decision h3 { font-size: 12px; color: #996600; margin-bottom: 4px; }
+    
+    /* Image Gallery */
+    .gallery { margin-bottom: 32px; }
+    .gallery h2 { font-size: 18px; margin-bottom: 16px; }
+    .gallery-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .gallery-item { aspect-ratio: 3/4; background: #f0f0f0; position: relative; cursor: pointer; border: 2px solid transparent; }
+    .gallery-item:hover { border-color: #000; }
+    .gallery-item.selected { border-color: #000; }
+    .gallery-img { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; }
+    .gallery-check { position: absolute; top: 8px; right: 8px; width: 20px; height: 20px; background: #000; color: #fff; display: none; align-items: center; justify-content: center; font-size: 12px; }
+    .gallery-item.selected .gallery-check { display: flex; }
+    
+    .gallery-actions { display: flex; gap: 8px; margin-top: 16px; }
+    .select-info { font-size: 13px; color: #666; margin-left: auto; align-self: center; }
+    
+    /* Character Details */
+    .details-section { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+    .detail-card { background: #f5f5f5; padding: 20px; }
+    .detail-card h3 { font-size: 14px; margin-bottom: 12px; }
+    .detail-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 14px; }
+    .detail-label { color: #666; }
+    
+    /* Regenerate Section */
+    .regenerate-section { background: #f5f5f5; padding: 20px; margin-bottom: 32px; }
+    .regenerate-section h3 { font-size: 16px; margin-bottom: 12px; }
+    .regenerate-options { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+    .regen-option { display: flex; align-items: center; gap: 8px; }
+    .regen-option label { font-size: 14px; }
+    .regen-option select { padding: 8px; border: 1px solid #ddd; }
+    .regen-cost { font-size: 14px; color: #666; }
+    
+    /* Danger Zone */
+    .danger-zone { border: 1px solid #fcc; padding: 20px; margin-top: 32px; }
+    .danger-zone h3 { color: #c00; margin-bottom: 8px; }
+    .danger-zone p { font-size: 14px; color: #666; margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <div class="header-right">
+        <div class="credits"><strong>72</strong> credits</div>
+        <nav><a href="settings.html">Settings</a></nav>
+      </div>
+    </header>
+
+    <div class="breadcrumb">
+      <a href="index.html">Dashboard</a> / Sofia
+    </div>
+
+    <div class="page-header">
+      <div class="character-title">
+        <h1>Sofia <span class="nsfw-tag">NSFW</span></h1>
+        <div class="character-meta">Created today • 5 images • 15 credits used</div>
+      </div>
+      <div class="actions">
+        <a href="#" class="btn">↓ Download All</a>
+        <a href="#" class="btn btn-secondary">⟳ Regenerate</a>
+      </div>
+    </div>
+
+    <div class="decision">
+      <h3>🎯 DECISION: Gallery Actions</h3>
+      <p><strong>A:</strong> Select + bulk download (current) | <strong>B:</strong> Hover actions per image | <strong>C:</strong> Lightbox with actions</p>
+    </div>
+
+    <div class="gallery">
+      <h2>Images</h2>
+      <div class="gallery-grid">
+        <div class="gallery-item selected">
+          <div class="gallery-img">[Image 1]</div>
+          <div class="gallery-check">✓</div>
+        </div>
+        <div class="gallery-item selected">
+          <div class="gallery-img">[Image 2]</div>
+          <div class="gallery-check">✓</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Image 3]</div>
+          <div class="gallery-check">✓</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Image 4]</div>
+          <div class="gallery-check">✓</div>
+        </div>
+        <div class="gallery-item">
+          <div class="gallery-img">[Image 5]</div>
+          <div class="gallery-check">✓</div>
+        </div>
+      </div>
+      <div class="gallery-actions">
+        <a href="#" class="btn">↓ Download Selected</a>
+        <a href="#" class="btn btn-secondary">Select All</a>
+        <span class="select-info">2 of 5 selected</span>
+      </div>
+    </div>
+
+    <div class="details-section">
+      <div class="detail-card">
+        <h3>Appearance</h3>
+        <div class="detail-row"><span class="detail-label">Style</span><span>Female, Realistic</span></div>
+        <div class="detail-row"><span class="detail-label">Ethnicity</span><span>White</span></div>
+        <div class="detail-row"><span class="detail-label">Age</span><span>25</span></div>
+        <div class="detail-row"><span class="detail-label">Hair</span><span>Long, Black</span></div>
+        <div class="detail-row"><span class="detail-label">Eyes</span><span>Blue</span></div>
+        <div class="detail-row"><span class="detail-label">Body</span><span>Curvy, Medium</span></div>
+      </div>
+      <div class="detail-card">
+        <h3>Identity</h3>
+        <div class="detail-row"><span class="detail-label">Outfit</span><span>Date Night</span></div>
+        <div class="detail-row"><span class="detail-label">Archetype</span><span>Girl Next Door</span></div>
+        <div class="detail-row"><span class="detail-label">Traits</span><span>Confident, Bold, Playful</span></div>
+        <div class="detail-row"><span class="detail-label">NSFW</span><span>Enabled</span></div>
+      </div>
+    </div>
+
+    <div class="regenerate-section">
+      <h3>Generate More Images</h3>
+      <div class="regenerate-options">
+        <div class="regen-option">
+          <label>Quantity:</label>
+          <select>
+            <option>1 image</option>
+            <option selected>5 images</option>
+            <option>10 images</option>
+          </select>
+        </div>
+        <div class="regen-option">
+          <label>Quality:</label>
+          <select>
+            <option>Draft (1 credit)</option>
+            <option selected>HQ (3 credits)</option>
+          </select>
+        </div>
+        <div class="regen-option">
+          <label>Ratio:</label>
+          <select>
+            <option>1:1 Square</option>
+            <option selected>9:16 Portrait</option>
+            <option>2:3 Tall</option>
+          </select>
+        </div>
+        <a href="generating.html" class="btn">Generate (15 credits)</a>
+        <span class="regen-cost">72 credits available</span>
+      </div>
+    </div>
+
+    <div class="danger-zone">
+      <h3>Danger Zone</h3>
+      <p>Deleting this character will permanently remove all images.</p>
+      <a href="index.html" class="btn btn-danger">Delete Character</a>
+    </div>
+  </div>
+</body>
+</html>
+
