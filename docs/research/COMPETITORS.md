@@ -1,6 +1,6 @@
 # RYLA - Competitor Analysis
 
-> **Last Updated**: December 4, 2025
+> **Last Updated**: December 5, 2025
 > **Status**: Living document - update as new competitors are discovered
 
 ---
@@ -15,21 +15,36 @@ RYLA operates at the intersection of **AI influencer creation**, **AI companions
 
 These platforms focus on generating AI images, often with adult content capabilities.
 
-| Competitor     | Website        | Focus                          | Strengths                                                      | Weaknesses                                      | Threat Level |
-| -------------- | -------------- | ------------------------------ | -------------------------------------------------------------- | ----------------------------------------------- | ------------ |
-| **MySnapFace** | mysnapface.com | AI influencer training         | 75+ photo packs, video gen, Chrome extension, consistent faces | Focused on personal brand, less on monetization | 🔴 High      |
-| **SoulGen**    | soulgen.net    | AI girlfriend image generation | Easy to use, consistent faces, NSFW                            | No character persistence, limited customization | 🔴 High      |
-| **Candy.ai**   | candy.ai       | AI girlfriend chat + images    | Chat + image combo, character memory                           | Expensive, limited export options               | 🔴 High      |
-| **Promptchan** | promptchan.ai  | NSFW AI image generation       | Uncensored, community prompts                                  | Poor consistency, no workflow                   | 🟡 Medium    |
-| **Pornpen.ai** | pornpen.ai     | Adult AI images                | Fast generation, variety                                       | Low quality, no character lock                  | 🟡 Medium    |
-| **Seduced.ai** | seduced.ai     | AI girlfriend images           | Realistic outputs                                              | Limited features, subscription heavy            | 🟡 Medium    |
-| **PicSo**      | picso.ai       | AI art generation              | Anime + realistic styles                                       | Not focused on characters                       | 🟢 Low       |
-| **Creatify**   | creatify.ai    | AI influencer generation       | €19-€99/mo, text-to-avatar, video                              | No monetization tools                           | 🟡 Medium    |
-| **SynthLife**  | synthlife.io   | Virtual influencer creation    | €14-€49/mo, IG/TikTok/YT integration                           | No NSFW, limited features                       | 🟡 Medium    |
-| **Glambase**   | glambase.app   | AI companion monetization      | €99 one-time, creator-focused                                  | Low maturity, limited tools                     | 🟡 Medium    |
-| **Foxy.ai**    | foxy.ai        | AI content studio              | $14-$124/mo, celebrity endorsements, viral presets             | No NSFW, credit-based pricing                   | 🔴 High      |
+| Competitor         | Website           | Focus                          | Strengths                                                      | Weaknesses                                      | Threat Level |
+| ------------------ | ----------------- | ------------------------------ | -------------------------------------------------------------- | ----------------------------------------------- | ------------ |
+| **MakeInfluencer** | makeinfluencer.ai | AI influencer creation         | Most direct competitor, full workflow, monetization focus      | TBD - needs deep analysis                       | 🔴 Critical  |
+| **MySnapFace**     | mysnapface.com    | AI influencer training         | 75+ photo packs, video gen, Chrome extension, consistent faces | Focused on personal brand, less on monetization | 🔴 High      |
+| **SoulGen**        | soulgen.net       | AI girlfriend image generation | Easy to use, consistent faces, NSFW                            | No character persistence, limited customization | 🔴 High      |
+| **Candy.ai**       | candy.ai          | AI girlfriend chat + images    | Chat + image combo, character memory                           | Expensive, limited export options               | 🔴 High      |
+| **Promptchan**     | promptchan.ai     | NSFW AI image generation       | Uncensored, community prompts                                  | Poor consistency, no workflow                   | 🟡 Medium    |
+| **Pornpen.ai**     | pornpen.ai        | Adult AI images                | Fast generation, variety                                       | Low quality, no character lock                  | 🟡 Medium    |
+| **Seduced.ai**     | seduced.ai        | AI girlfriend images           | Realistic outputs                                              | Limited features, subscription heavy            | 🟡 Medium    |
+| **PicSo**          | picso.ai          | AI art generation              | Anime + realistic styles                                       | Not focused on characters                       | 🟢 Low       |
+| **Creatify**       | creatify.ai       | AI influencer generation       | €19-€99/mo, text-to-avatar, video                              | No monetization tools                           | 🟡 Medium    |
+| **SynthLife**      | synthlife.io      | Virtual influencer creation    | €14-€49/mo, IG/TikTok/YT integration                           | No NSFW, limited features                       | 🟡 Medium    |
+| **Glambase**       | glambase.app      | AI companion monetization      | €99 one-time, creator-focused                                  | Low maturity, limited tools                     | 🟡 Medium    |
+| **Foxy.ai**        | foxy.ai           | AI content studio              | $14-$124/mo, celebrity endorsements, viral presets             | No NSFW, credit-based pricing                   | 🔴 High      |
 
 **RYLA Opportunity**: Character consistency + workflow + monetization path
+
+### MakeInfluencer.ai Deep Dive ⭐ MOST DIRECT COMPETITOR
+
+> Source: [makeinfluencer.ai](https://makeinfluencer.ai/)
+
+- **What**: AI influencer creation platform with monetization focus
+- **Key Features**: TBD - requires deep analysis
+- **Target**: Content creators looking to create and monetize AI influencers
+- **Threat Level**: 🔴 CRITICAL - Most direct overlap with RYLA's positioning
+- **RYLA Differentiation**: TBD after analysis
+
+**Research Priority**: Subscribe and document full product experience
+
+---
 
 ### MySnapFace.com Deep Dive
 

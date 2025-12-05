@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pick Caption - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 700px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #eee; margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .close { text-decoration: none; color: #666; font-size: 24px; }
+    
+    .progress-text { font-size: 14px; color: #666; margin-bottom: 8px; }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    
+    /* Decision Callout */
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 12px; margin-bottom: 24px; font-size: 13px; }
+    .decision h3 { font-size: 12px; color: #996600; margin-bottom: 4px; }
+    
+    /* Image Preview */
+    .image-preview { display: flex; gap: 24px; margin-bottom: 32px; }
+    .preview-image { width: 200px; height: 267px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #888; flex-shrink: 0; }
+    .preview-context { flex: 1; }
+    .context-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; font-size: 14px; }
+    .context-label { color: #666; }
+    
+    /* Caption Options */
+    .captions-section h2 { font-size: 16px; margin-bottom: 16px; }
+    .caption-options { display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px; }
+    .caption-option { border: 2px solid #ddd; padding: 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; }
+    .caption-option:hover { border-color: #999; }
+    .caption-option.selected { border-color: #000; background: #fafafa; }
+    .caption-radio { margin-top: 2px; }
+    .caption-radio input { width: 18px; height: 18px; }
+    .caption-text { flex: 1; font-size: 15px; }
+    .caption-badge { background: #f5f5f5; padding: 2px 8px; font-size: 11px; }
+    .caption-badge.recommended { background: #ffd700; }
+    
+    /* Custom Caption */
+    .custom-caption { margin-bottom: 24px; }
+    .custom-caption label { display: block; font-weight: bold; margin-bottom: 8px; font-size: 14px; }
+    .custom-caption textarea { width: 100%; padding: 12px; border: 1px solid #ddd; font-size: 15px; font-family: inherit; resize: vertical; min-height: 80px; }
+    .custom-caption textarea:focus { outline: none; border-color: #000; }
+    .char-count { font-size: 12px; color: #666; text-align: right; margin-top: 4px; }
+    
+    /* Tone Controls - Phase 2 */
+    .tone-controls { display: flex; gap: 16px; margin-bottom: 24px; padding: 16px; background: #f5f5f5; opacity: 0.6; }
+    .tone-controls.disabled { pointer-events: none; }
+    .tone-control label { font-size: 13px; margin-right: 8px; }
+    .tone-control select { padding: 6px 12px; border: 1px solid #ddd; }
+    .phase2-note { font-size: 11px; color: #666; margin-left: auto; }
+    
+    /* Actions */
+    .actions { display: flex; gap: 12px; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 14px 28px; text-decoration: none; font-weight: bold; font-size: 15px; border: none; cursor: pointer; }
+    .btn:hover { background: #333; }
+    .btn-secondary { background: #fff; color: #000; border: 1px solid #000; }
+    .btn-icon { background: #fff; color: #000; border: 1px solid #ddd; padding: 14px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <a href="character.html" class="close">×</a>
+    </header>
+
+    <div class="progress-text">Image 1 of 5</div>
+    <h1>Pick a Caption</h1>
+    <p class="subtitle">AI-generated based on Luna's personality</p>
+
+    <div class="decision">
+      <h3>🎯 NEW: AI Caption Generation</h3>
+      <p>Caption generated from: Character archetype (Girl Next Door) + Personality (Flirty, Confident) + Image context (Gym outfit)</p>
+    </div>
+
+    <div class="image-preview">
+      <div class="preview-image">[Gym Selfie - Luna]</div>
+      <div class="preview-context">
+        <div class="context-item"><span class="context-label">Character</span><span>Luna Martinez</span></div>
+        <div class="context-item"><span class="context-label">Archetype</span><span>Girl Next Door</span></div>
+        <div class="context-item"><span class="context-label">Personality</span><span>Flirty, Confident, Playful</span></div>
+        <div class="context-item"><span class="context-label">Outfit</span><span>Athleisure</span></div>
+        <div class="context-item"><span class="context-label">Setting</span><span>Gym/Fitness</span></div>
+      </div>
+    </div>
+
+    <div class="captions-section">
+      <h2>Generated Captions</h2>
+      <div class="caption-options">
+        <div class="caption-option selected">
+          <div class="caption-radio"><input type="radio" name="caption" checked></div>
+          <div class="caption-text">"Just finished my workout... want to help me stretch? 😏"</div>
+          <span class="caption-badge recommended">Recommended</span>
+        </div>
+        
+        <div class="caption-option">
+          <div class="caption-radio"><input type="radio" name="caption"></div>
+          <div class="caption-text">"Sweaty but worth it 💪 How do you stay motivated?"</div>
+          <span class="caption-badge">Engaging</span>
+        </div>
+        
+        <div class="caption-option">
+          <div class="caption-radio"><input type="radio" name="caption"></div>
+          <div class="caption-text">"Gym selfie because why not? 📸 Tell me your workout routine!"</div>
+          <span class="caption-badge">Casual</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="custom-caption">
+      <label>✏️ Or write your own</label>
+      <textarea placeholder="Type your custom caption..."></textarea>
+      <div class="char-count">0/280</div>
+    </div>
+
+    <div class="tone-controls disabled">
+      <div class="tone-control">
+        <label>Tone:</label>
+        <select disabled>
+          <option>Flirty</option>
+          <option>Casual</option>
+          <option>Spicy</option>
+        </select>
+      </div>
+      <div class="tone-control">
+        <label>Length:</label>
+        <select disabled>
+          <option>Short</option>
+          <option>Medium</option>
+          <option>Long</option>
+        </select>
+      </div>
+      <div class="phase2-note">Phase 2: Tone controls</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn-icon" title="Regenerate Captions">🔄</button>
+      <a href="caption-picker.html" class="btn btn-secondary">Skip Caption</a>
+      <a href="character.html" class="btn">Save & Continue →</a>
+    </div>
+  </div>
+</body>
+</html>
+

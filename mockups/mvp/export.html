@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Export Post - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #eee; margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .close { text-decoration: none; color: #666; font-size: 24px; }
+    
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    
+    /* Decision Callout */
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 12px; margin-bottom: 24px; font-size: 13px; }
+    .decision h3 { font-size: 12px; color: #996600; margin-bottom: 4px; }
+    
+    /* Post Preview */
+    .post-preview { border: 1px solid #ddd; margin-bottom: 24px; }
+    .post-image { background: #f0f0f0; aspect-ratio: 3/4; max-height: 300px; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; }
+    .post-caption-preview { padding: 16px; border-top: 1px solid #eee; }
+    .post-caption-preview p { font-size: 15px; }
+    .post-caption-preview .filename { font-size: 12px; color: #666; margin-top: 8px; }
+    
+    /* Export Options */
+    .export-section { margin-bottom: 24px; }
+    .export-section h2 { font-size: 16px; margin-bottom: 16px; }
+    
+    .export-options { display: flex; flex-direction: column; gap: 12px; }
+    .export-option { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid #eee; }
+    .export-option input { width: 18px; height: 18px; }
+    .export-option-info { flex: 1; }
+    .export-option-title { font-weight: bold; font-size: 14px; }
+    .export-option-desc { font-size: 12px; color: #666; }
+    
+    /* Quick Actions */
+    .quick-actions { display: flex; gap: 8px; margin-bottom: 24px; }
+    .quick-action { flex: 1; padding: 16px; border: 1px solid #ddd; text-align: center; cursor: pointer; text-decoration: none; color: inherit; }
+    .quick-action:hover { border-color: #000; }
+    .quick-action-icon { font-size: 24px; margin-bottom: 4px; }
+    .quick-action-label { font-size: 13px; }
+    
+    /* Platform Presets - Phase 2 */
+    .platform-section { margin-bottom: 24px; padding: 16px; background: #f5f5f5; opacity: 0.6; }
+    .platform-section h3 { font-size: 14px; margin-bottom: 12px; }
+    .platform-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .platform-btn { padding: 12px; border: 1px solid #ddd; text-align: center; font-size: 12px; background: #fff; }
+    .phase2-note { font-size: 11px; color: #666; margin-top: 8px; }
+    
+    /* Actions */
+    .actions { display: flex; gap: 12px; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 14px 28px; text-decoration: none; font-weight: bold; font-size: 15px; flex: 1; text-align: center; }
+    .btn:hover { background: #333; }
+    .btn-secondary { background: #fff; color: #000; border: 1px solid #000; }
+    
+    /* Success State */
+    .success-message { background: #e8f5e9; border: 1px solid #4caf50; padding: 16px; text-align: center; margin-bottom: 24px; display: none; }
+    .success-message.show { display: block; }
+    .success-message h3 { color: #2e7d32; margin-bottom: 4px; }
+    .success-message p { font-size: 14px; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <a href="character.html" class="close">×</a>
+    </header>
+
+    <h1>Export Post</h1>
+    <p class="subtitle">Download image + caption for posting</p>
+
+    <div class="decision">
+      <h3>🎯 NEW: Export Package</h3>
+      <p>Not just image download — full post package with caption. Copy to clipboard, download with .txt, etc.</p>
+    </div>
+
+    <div class="success-message">
+      <h3>✓ Caption Copied!</h3>
+      <p>Paste directly into OnlyFans/Fanvue</p>
+    </div>
+
+    <div class="post-preview">
+      <div class="post-image">[Gym Selfie - Luna]</div>
+      <div class="post-caption-preview">
+        <p>"Just finished my workout... want to help me stretch? 😏"</p>
+        <div class="filename">luna_gym_001.jpg</div>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <a href="#" class="quick-action">
+        <div class="quick-action-icon">📋</div>
+        <div class="quick-action-label">Copy Caption</div>
+      </a>
+      <a href="#" class="quick-action">
+        <div class="quick-action-icon">📥</div>
+        <div class="quick-action-label">Download Image</div>
+      </a>
+      <a href="#" class="quick-action">
+        <div class="quick-action-icon">📦</div>
+        <div class="quick-action-label">Download All</div>
+      </a>
+    </div>
+
+    <div class="export-section">
+      <h2>Export Options</h2>
+      <div class="export-options">
+        <div class="export-option">
+          <input type="checkbox" checked>
+          <div class="export-option-info">
+            <div class="export-option-title">Download image</div>
+            <div class="export-option-desc">luna_gym_001.jpg (1080x1920)</div>
+          </div>
+        </div>
+        <div class="export-option">
+          <input type="checkbox" checked>
+          <div class="export-option-info">
+            <div class="export-option-title">Copy caption to clipboard</div>
+            <div class="export-option-desc">Ready to paste into any platform</div>
+          </div>
+        </div>
+        <div class="export-option">
+          <input type="checkbox">
+          <div class="export-option-info">
+            <div class="export-option-title">Include caption as .txt file</div>
+            <div class="export-option-desc">luna_gym_001_caption.txt</div>
+          </div>
+        </div>
+        <div class="export-option">
+          <input type="checkbox">
+          <div class="export-option-info">
+            <div class="export-option-title">Include caption in filename</div>
+            <div class="export-option-desc">luna_gym_just-finished-my-workout.jpg</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="platform-section">
+      <h3>Platform Presets (Phase 2)</h3>
+      <div class="platform-grid">
+        <div class="platform-btn">OnlyFans</div>
+        <div class="platform-btn">Fanvue</div>
+        <div class="platform-btn">Instagram</div>
+        <div class="platform-btn">TikTok</div>
+      </div>
+      <div class="phase2-note">Auto-resize for each platform coming in Phase 2</div>
+    </div>
+
+    <div class="actions">
+      <a href="character.html" class="btn btn-secondary">Cancel</a>
+      <a href="character.html" class="btn">Export</a>
+    </div>
+  </div>
+</body>
+</html>
+
