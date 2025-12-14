@@ -1,0 +1,68 @@
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+      }
+    },
+    "slack": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-slack"],
+      "env": {
+        "SLACK_BOT_TOKEN": "${SLACK_BOT_TOKEN}",
+        "SLACK_TEAM_ID": "${SLACK_TEAM_ID}"
+      }
+    },
+    "filesystem": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "/Users/admin/Documents/Projects/RYLA/apps",
+        "/Users/admin/Documents/Projects/RYLA/libs",
+        "/Users/admin/Documents/Projects/RYLA/docs",
+        "/Users/admin/Documents/Projects/RYLA/playwright",
+        "/Users/admin/Documents/Projects/RYLA/ai",
+        "/Users/admin/Documents/Projects/RYLA/config"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp-server"],
+      "env": {
+        "PLAYWRIGHT_BASE_URL": "${PLAYWRIGHT_BASE_URL}"
+      }
+    },
+    "posthog": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.posthog.com/sse",
+        "--header",
+        "Authorization:${POSTHOG_AUTH_HEADER}"
+      ],
+      "env": {
+        "POSTHOG_AUTH_HEADER": "${POSTHOG_AUTH_HEADER}"
+      }
+    },
+    "runpod": {
+      "command": "npx",
+      "args": [
+        "@runpod/mcp-server@latest"
+      ],
+      "env": {
+        "RUNPOD_API_KEY": "${RUNPOD_API_KEY}"
+      }
+    },
+    "package-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@jankowtf/mcp-package-docs"
+      ]
+    }
+  }
+}
