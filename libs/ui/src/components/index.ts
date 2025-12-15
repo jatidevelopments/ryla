@@ -5,6 +5,7 @@
 
 // Form components
 export * from './button';
+export * from './checkbox';
 export * from './input';
 export * from './label';
 export * from './slider';
@@ -14,6 +15,11 @@ export * from './textarea';
 // Layout components
 export * from './card';
 export * from './tabs';
+export * from './header';
+export * from './bottom-nav';
+export * from './page-container';
+export * from './empty-state';
+export * from './sidebar';
 
 // Feedback components
 export * from './progress';

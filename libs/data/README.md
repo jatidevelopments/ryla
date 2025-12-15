@@ -11,10 +11,37 @@ import { UserRepository, ... } from '@ryla/data';
 ```
 libs/data/src/
 ├── repositories/  # Data repository implementations
-├── models/        # Database models/entities
+├── models/        # Database models/entities (re-exports from apps/api/src/database/schemas)
 ├── migrations/    # Database migrations
 ├── queries/       # Complex queries
 └── index.ts       # Public exports
+```
+
+## Database Schemas
+
+All database schemas are defined in `apps/api/src/database/schemas/` and re-exported from `libs/data`:
+
+```typescript
+import {
+  users,
+  characters,
+  posts,
+  images,
+  generationJobs,
+  userCredits,
+  creditTransactions,
+  loraModels,
+  subscriptions,
+  // Types
+  type User,
+  type Character,
+  type Post,
+  type GenerationJob,
+  // Enums
+  type CharacterStatus,
+  type JobStatus,
+  type JobType,
+} from '@ryla/data';
 ```
 
 ## Layer Rules

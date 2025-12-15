@@ -1,0 +1,91 @@
+"use client";
+
+import { Section, SectionHeader, PricingCard } from "@/components/ryla-ui";
+import { FadeInUp } from "@/components/animations";
+
+interface PricingTier {
+  name: string;
+  price: string;
+  period: string;
+  features: string[];
+  highlighted?: boolean;
+  cta: string;
+}
+
+// V4 Minimal: 3 tiers, short feature lists
+const tiers: PricingTier[] = [
+  {
+    name: "Starter",
+    price: "$29",
+    period: "/mo",
+    features: [
+      "1 AI persona",
+      "100 posts/month",
+      "3 platforms",
+      "Community access",
+    ],
+    cta: "Start Free",
+  },
+  {
+    name: "Pro",
+    price: "$79",
+    period: "/mo",
+    features: [
+      "5 AI personas",
+      "500 posts/month",
+      "Unlimited platforms",
+      "All courses included",
+      "Live earnings dashboard",
+    ],
+    highlighted: true,
+    cta: "Get Pro",
+  },
+  {
+    name: "Studio",
+    price: "$299",
+    period: "/mo",
+    features: [
+      "Unlimited personas",
+      "Unlimited posts",
+      "Dedicated support",
+      "1-on-1 strategy sessions",
+    ],
+    cta: "Contact Sales",
+  },
+];
+
+/**
+ * PricingSection Component (V4 Minimal)
+ * 
+ * 3 tiers, short features, one CTA per tier.
+ */
+export function PricingSection() {
+  return (
+    <Section id="pricing" background="default">
+      <FadeInUp>
+        <SectionHeader 
+          title="Simple pricing. Start free." 
+          titleHighlight="Start free"
+        />
+      </FadeInUp>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+        {tiers.map((tier, index) => (
+          <FadeInUp key={tier.name} delay={index * 100}>
+            <PricingCard
+              name={tier.name}
+              price={tier.price}
+              period={tier.period}
+              features={tier.features}
+              highlighted={tier.highlighted}
+              ctaText={tier.cta}
+            />
+          </FadeInUp>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+export default PricingSection;
+

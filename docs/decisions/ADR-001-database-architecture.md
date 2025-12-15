@@ -1,8 +1,9 @@
-# ADR-001: Database Architecture - Custom Postgres vs Supabase
+# ADR-001: Database Architecture - Custom Postgres with Drizzle ORM
 
 **Status**: Accepted
-**Date**: 2025-12-05
+**Date**: 2025-12-10
 **Deciders**: Tech Team
+**Supersedes**: Previous decision to use TypeORM (2025-12-05)
 
 ---
 
@@ -10,31 +11,40 @@
 
 RYLA MVP requires a database solution for:
 - User authentication & session management
-- Character data persistence
+- AI Influencer (character) data persistence
 - Generated image metadata & storage references
 - Subscription/payment records
+- Generation job queue management
 
-We have an existing codebase (MDC) with:
-- NestJS backend with TypeORM + PostgreSQL
-- ~40+ battle-tested entities
-- Custom auth with Passport.js (JWT, OAuth providers)
-- AWS S3 for image storage
-- Complex payment integrations (Stripe, PayPal, TrustPay, Shift4)
+**Key Requirements:**
+- Strong TypeScript type safety for MVP speed
+- High performance for real-time generation status updates
+- Complex queries (characters with images, subscriptions, jobs)
+- JSONB support for flexible config storage
+- Next.js App Router compatibility
+- Future-proof architecture
 
-The question: **Should RYLA use Supabase (as originally spec'd) or copy MDC's custom Postgres setup?**
+**Current State:**
+- NestJS backend API (`apps/api`)
+- TypeORM configured but **not yet implemented** (repositories are TODOs)
+- No entities or queries written yet
+- Clean slate for ORM choice
+
+The question: **Should RYLA use Drizzle ORM or TypeORM for database access?**
 
 ---
 
 ## Decision
 
-**Use Custom PostgreSQL with TypeORM (MDC patterns)** instead of Supabase.
+**Use Custom PostgreSQL with Drizzle ORM** instead of TypeORM.
 
-Copy and simplify the MDC backend architecture:
-- Keep: NestJS + TypeORM + PostgreSQL
-- Keep: JWT-based auth (simplify to email/password only)
-- Keep: Core entities (User, Character, Image, Session)
-- Replace: Payment providers → Finby only
-- Simplify: Remove unused modules (chat, video, multi-provider payments)
+**Architecture:**
+- Database: Custom PostgreSQL (managed: Neon/Railway)
+- ORM: **Drizzle ORM** (direct integration, no wrapper packages)
+- Framework: NestJS with dependency injection
+- Auth: JWT-based (email/password only for MVP)
+- Storage: AWS S3 for generated images
+- Payments: Finby integration
 
 ---
 
@@ -42,36 +52,60 @@ Copy and simplify the MDC backend architecture:
 
 ### Positive
 
-- **~60-80% code reuse** from MDC backend
-- **1-2 weeks faster** than rebuilding with Supabase patterns
-- **Full control** over database schema and queries
-- **No vendor lock-in** - standard Postgres
-- **Team familiarity** with NestJS/TypeORM patterns
-- **Battle-tested code** - MDC is production-proven
-- **Migration ready** - TypeORM migrations exist
+- **Superior type safety** - Compile-time inference, catches errors early
+- **Better performance** - Minimal runtime overhead, near raw SQL speed
+- **Modern TypeScript** - Built for modern TS patterns, excellent IDE support
+- **Next.js optimized** - Works seamlessly with App Router and server components
+- **SQL-first approach** - Predictable queries, easier to optimize
+- **Lightweight** - Smaller bundle, faster startup
+- **Active development** - Rapidly evolving, modern patterns
+- **Full control** - No vendor lock-in, standard Postgres
+- **Better JSONB support** - Excellent for flexible config storage
+- **Clean migration path** - No existing code to migrate (TypeORM was unused)
 
 ### Negative
 
-- **More infrastructure** to manage vs Supabase's managed offering
-- **Custom auth code** vs Supabase Auth out-of-box
-- **No built-in realtime** (not needed for MVP)
-- **Manual storage setup** (S3 or similar)
-- **Higher ops overhead** in production
+- **Smaller community** - Less Stack Overflow answers vs TypeORM
+- **Less documentation** - Fewer tutorials, but official docs are excellent
+- **SQL knowledge helpful** - Team should understand SQL (not a blocker)
+- **Manual setup** - Need to create Drizzle module (~30 lines)
+- **More infrastructure** - Manage Postgres vs Supabase BaaS
 
 ### Risks
 
 | Risk | Mitigation |
 |------|------------|
-| More setup time initially | Copy MDC Docker/config files directly |
-| Auth security concerns | Copy proven MDC auth patterns, don't reinvent |
-| Database hosting cost | Use managed Postgres (Neon, Railway) for simplicity |
-| Team unfamiliar with NestJS | Extensive MDC codebase as reference |
+| Team unfamiliar with Drizzle | Official docs are excellent, SQL knowledge transfers |
+| Less community support | Active Discord, growing GitHub community |
+| Learning curve | SQL-first approach is intuitive, simpler than TypeORM decorators |
+| Migration from TypeORM | No migration needed - TypeORM was never implemented |
 
 ---
 
 ## Alternatives Considered
 
-### Option A: Supabase (Full BaaS)
+### Option A: TypeORM
+
+**Approach**: Continue with TypeORM as originally planned.
+
+**Pros:**
+- Large community and extensive documentation
+- Many Stack Overflow answers
+- Class-based, OOP-friendly
+- Built-in migrations and seeding
+- Mature ecosystem
+
+**Cons:**
+- **Weaker type safety** - Runtime reflection, can miss edge cases
+- **Performance overhead** - Reflection and proxies add latency
+- **Less Next.js optimized** - Heavier, more setup needed
+- **Older patterns** - Decorator-based, less modern TypeScript
+- **Slower development** - More verbose queries, less predictable
+- **Complex JSONB queries** - Less intuitive for flexible schemas
+
+**Why not:** TypeORM was configured but never implemented. Drizzle offers better type safety, performance, and modern patterns for RYLA's needs. No migration cost since nothing was built yet.
+
+### Option B: Supabase (Full BaaS)
 
 **Approach**: Use Supabase for auth, database, storage, and realtime.
 
@@ -84,175 +118,273 @@ Copy and simplify the MDC backend architecture:
 - Row Level Security (RLS) for authorization
 
 **Cons:**
-- Would discard 60-80% reusable MDC code
-- Different paradigm (RLS vs middleware guards)
 - Vendor lock-in
 - Less control over query optimization
-- Learning curve for team used to TypeORM
+- Different paradigm (RLS vs middleware guards)
+- Would need to rewrite all database access patterns
+- Less flexibility for complex queries
 
-**Why not:** Throwing away proven, battle-tested code. Migration cost outweighs setup convenience.
+**Why not:** We need full control over database schema and queries. Custom Postgres + Drizzle gives us flexibility without vendor lock-in.
 
-### Option B: Supabase Hybrid
+### Option C: Prisma
 
-**Approach**: Use Supabase for auth + storage only, custom Postgres for main database.
+**Approach**: Use Prisma as the ORM.
 
 **Pros:**
-- Get Supabase auth convenience
-- Keep custom database control
+- Excellent developer experience
+- Great migrations
+- Strong type safety
+- Large community
 
 **Cons:**
-- Added complexity (two systems)
-- Auth token management between systems
-- Still need to rewrite MDC auth patterns
+- Heavier than Drizzle
+- Code generation step
+- Less SQL control
+- More abstraction
 
-**Why not:** Complexity of managing two paradigms without clear benefit.
+**Why not:** Drizzle offers similar type safety with better performance and more SQL control. Prisma's code generation adds complexity we don't need.
 
 ---
 
 ## Implementation Plan
 
-### What to Copy from MDC
+### 1. Install Dependencies
 
-```
-MDC/mdc-backend/
-├── src/
-│   ├── database/entities/           # Copy core entities
-│   │   ├── user.entity.ts           ✅ Copy, simplify
-│   │   ├── character.entity.ts      ✅ Copy
-│   │   ├── image.entity.ts          ✅ Copy
-│   │   ├── session.entity.ts        ✅ Copy
-│   │   ├── refresh-token.entity.ts  ✅ Copy
-│   │   └── payment-*.entity.ts      ⚠️ Adapt for Finby
-│   │
-│   ├── modules/auth/                # Copy auth module
-│   │   ├── auth.service.ts          ✅ Copy, simplify
-│   │   ├── token.service.ts         ✅ Copy
-│   │   └── guards/*.ts              ✅ Copy JWT guards
-│   │
-│   ├── modules/character/           # Copy character module
-│   │   └── *.ts                     ✅ Copy all
-│   │
-│   ├── modules/image/               # Copy image module
-│   │   └── *.ts                     ✅ Copy, adapt storage
-│   │
-│   └── modules/user/                # Copy user module
-│       └── *.ts                     ✅ Copy, simplify
+```bash
+pnpm add drizzle-orm drizzle-kit pg
+pnpm add -D @types/pg
 ```
 
-### What to Remove/Simplify
+### 2. Remove TypeORM Dependencies
 
-| MDC Module | RYLA Action |
-|------------|-------------|
-| `auth/strategies/google.strategy.ts` | ❌ Remove (MVP = email only) |
-| `auth/strategies/discord.strategy.ts` | ❌ Remove |
-| `auth/strategies/twitter.strategy.ts` | ❌ Remove |
-| `modules/stripe/` | ❌ Remove (use Finby) |
-| `modules/paypal/` | ❌ Remove |
-| `modules/trustpay/` | ❌ Remove |
-| `modules/shift4/` | ❌ Remove |
-| `modules/conversation/` | ❌ Remove (no chat in MVP) |
-| `modules/message/` | ❌ Remove |
-| `modules/video-generation/` | ❌ Remove |
-| `modules/redis/` | ⚠️ Optional (simplify if not needed) |
-| `modules/realtime/` | ❌ Remove |
+```bash
+pnpm remove @nestjs/typeorm typeorm
+```
 
-### What to Add
+### 3. Create Drizzle Module
 
-| Module | Description |
-|--------|-------------|
-| `modules/finby/` | New payment provider integration |
+**File**: `apps/api/src/modules/drizzle/drizzle.module.ts`
 
----
+```typescript
+import { Global, Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import { Pool } from 'pg';
+import * as schema from '../../../database/schemas';
 
-## Dependency Comparison
+@Global()
+@Module({
+  providers: [
+    {
+      provide: 'DRIZZLE_DB',
+      useFactory: (configService: ConfigService) => {
+        const pool = new Pool({
+          host: configService.get('postgres.host'),
+          port: configService.get('postgres.port'),
+          user: configService.get('postgres.user'),
+          password: configService.get('postgres.password'),
+          database: configService.get('postgres.dbName'),
+          ssl: configService.get('postgres.environment') !== 'local'
+            ? { rejectUnauthorized: false }
+            : false,
+        });
+        return drizzle(pool, { schema });
+      },
+      inject: [ConfigService],
+    },
+  ],
+  exports: ['DRIZZLE_DB'],
+})
+export class DrizzleModule {}
+```
 
-### MDC Backend Stack (Current)
+### 4. Define Schemas
 
-```json
-{
-  "core": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/typeorm": "^10.0.2",
-    "typeorm": "^0.3.20",
-    "pg": "^8.13.1"
-  },
-  "auth": {
-    "@nestjs/passport": "^10.0.3",
-    "@nestjs/jwt": "^10.2.0",
-    "passport-jwt": "^4.0.1",
-    "bcrypt": "^5.1.1"
-  },
-  "storage": {
-    "@aws-sdk/client-s3": "^3.721.0"
-  },
-  "payments (remove)": {
-    "stripe": "^17.6.0",
-    "@paypal/checkout-server-sdk": "^1.0.3"
+**File**: `apps/api/src/database/schemas/index.ts`
+
+```typescript
+// Export all schemas
+export * from './users.schema';
+export * from './characters.schema';
+export * from './images.schema';
+export * from './subscriptions.schema';
+export * from './generation-jobs.schema';
+```
+
+**Example Schema** (`characters.schema.ts`):
+
+```typescript
+import { pgTable, uuid, text, jsonb, timestamp, pgEnum } from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import { users } from './users.schema';
+import { images } from './images.schema';
+
+export const characterStatusEnum = pgEnum('character_status', [
+  'draft',
+  'generating',
+  'ready',
+  'failed',
+]);
+
+export const characters = pgTable('characters', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  config: jsonb('config').notNull().$type<CharacterConfig>(),
+  seed: text('seed'),
+  status: characterStatusEnum('status').default('draft'),
+  generationError: text('generation_error'),
+  createdAt: timestamp('created_at').defaultNow(),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const charactersRelations = relations(characters, ({ one, many }) => ({
+  user: one(users, { fields: [characters.userId], references: [users.id] }),
+  images: many(images),
+}));
+```
+
+### 5. Use in Services
+
+**Example**: `apps/api/src/modules/character/services/character.service.ts`
+
+```typescript
+import { Injectable, Inject } from '@nestjs/common';
+import { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { eq } from 'drizzle-orm';
+import * as schema from '../../../database/schemas';
+
+@Injectable()
+export class CharacterService {
+  constructor(
+    @Inject('DRIZZLE_DB')
+    private readonly db: NodePgDatabase<typeof schema>,
+  ) {}
+
+  async findById(id: string) {
+    return this.db.query.characters.findFirst({
+      where: eq(schema.characters.id, id),
+      with: { images: true, user: true },
+    });
+  }
+
+  async findByUserId(userId: string) {
+    return this.db.query.characters.findMany({
+      where: eq(schema.characters.userId, userId),
+      with: { images: true },
+    });
   }
 }
 ```
+
+### 6. Migrations Setup
+
+**File**: `apps/api/drizzle.config.ts`
+
+```typescript
+import type { Config } from 'drizzle-kit';
+
+export default {
+  schema: './src/database/schemas/*.ts',
+  out: './src/database/migrations',
+  driver: 'pg',
+  dbCredentials: {
+    connectionString: process.env.DATABASE_URL!,
+  },
+} satisfies Config;
+```
+
+**Package.json scripts**:
+
+```json
+{
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  }
+}
+```
+
+---
+
+## Dependency Stack
 
 ### RYLA Backend Stack (Target)
 
 ```json
 {
   "core": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/typeorm": "^10.0.2",
-    "typeorm": "^0.3.20",
-    "pg": "^8.13.1"
+    "@nestjs/common": "^11.1.9",
+    "@nestjs/core": "^11.1.9",
+    "drizzle-orm": "^0.29.0",
+    "drizzle-kit": "^0.20.0",
+    "pg": "^8.16.3"
   },
   "auth": {
-    "@nestjs/passport": "^10.0.3",
-    "@nestjs/jwt": "^10.2.0",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/jwt": "^11.0.2",
     "passport-jwt": "^4.0.1",
-    "bcrypt": "^5.1.1"
+    "bcrypt": "^6.0.0"
   },
   "storage": {
-    "@aws-sdk/client-s3": "^3.721.0"
+    "@aws-sdk/client-s3": "^3.948.0"
   },
-  "payments (new)": {
+  "payments": {
     "finby-sdk": "TBD"
   }
 }
 ```
 
+### Removed Dependencies
+
+- `@nestjs/typeorm` - Replaced by direct Drizzle integration
+- `typeorm` - Replaced by `drizzle-orm`
+
 ---
 
-## Entity Mapping
+## Schema Design
 
-### Core Entities to Copy
+### Core Schemas
 
-| MDC Entity | RYLA Entity | Changes |
-|------------|-------------|---------|
-| `user.entity.ts` | `user.entity.ts` | Remove social auth fields, simplify |
-| `character.entity.ts` | `character.entity.ts` | Map to RYLA 6-step wizard attributes |
-| `image.entity.ts` | `image.entity.ts` | Keep as-is |
-| `session.entity.ts` | `session.entity.ts` | Keep as-is |
-| `refresh-token.entity.ts` | `refresh-token.entity.ts` | Keep as-is |
-| `payment-subscription.entity.ts` | `subscription.entity.ts` | Adapt for Finby |
+| Schema | File | Description |
+|--------|------|-------------|
+| `users` | `users.schema.ts` | User accounts, auth data |
+| `characters` | `characters.schema.ts` | AI Influencer definitions |
+| `images` | `images.schema.ts` | Generated image metadata |
+| `subscriptions` | `subscriptions.schema.ts` | Payment subscriptions (Finby) |
+| `generation_jobs` | `generation-jobs.schema.ts` | Queue management for image generation |
 
-### Character Entity Adaptation
+### Character Schema Structure
 
 ```typescript
-// MDC character.entity.ts → RYLA character.entity.ts
-
-// Keep these fields:
-- id, userId, name, gender, style
-- ethnicity, age, bodyType
-- hairStyle, hairColor, eyeColor
-- outfit, personality
-- nsfwEnabled, createdAt, updatedAt
-
-// Add these fields (RYLA-specific):
-- archetype (new for identity)
-- personalityTraits (array, pick 3)
-- bio (optional text)
-
-// Remove these fields (not in RYLA MVP):
-- Complex MDC-specific fields
-- Chat/conversation references
+// characters.schema.ts
+{
+  id: uuid (PK)
+  userId: uuid (FK → users)
+  name: text
+  config: jsonb { // CharacterConfig
+    ethnicity, ageRange, bodyType,
+    hairStyle, hairColor, eyeColor,
+    outfitStyle, archetype,
+    personalityTraits: string[],
+    bio?: string,
+    nsfwEnabled: boolean
+  }
+  seed: text (for consistent generation)
+  status: enum ('draft' | 'generating' | 'ready' | 'failed')
+  generationError?: text
+  createdAt: timestamp
+  updatedAt: timestamp
+}
 ```
+
+### Relations
+
+- `users` → `characters` (one-to-many)
+- `characters` → `images` (one-to-many)
+- `users` → `subscriptions` (one-to-many)
+- `characters` → `generation_jobs` (one-to-many)
 
 ---
 
@@ -295,20 +427,27 @@ services:
 
 | Phase | Duration | Tasks |
 |-------|----------|-------|
-| 1. Setup | 1 day | Copy NestJS structure, configure TypeORM |
-| 2. Entities | 1 day | Copy & adapt core entities |
-| 3. Auth | 1 day | Copy JWT auth, remove OAuth |
-| 4. Character | 1 day | Copy character module, adapt for wizard |
-| 5. Image | 1 day | Copy image module, configure storage |
-| 6. Finby | 2 days | New payment integration |
-| **Total** | **~7 days** | Backend foundation ready |
+| 1. Setup Drizzle | 2 hours | Install deps, create DrizzleModule, remove TypeORM |
+| 2. Schemas | 1 day | Define all schemas (users, characters, images, subscriptions, jobs) |
+| 3. Migrations | 2 hours | Generate and run initial migrations |
+| 4. Repositories | 2 days | Implement repositories using Drizzle queries |
+| 5. Services | 2 days | Update services to use Drizzle repositories |
+| 6. Testing | 1 day | Test queries, relations, JSONB operations |
+| **Total** | **~6 days** | Backend foundation ready |
+
+**Note**: Faster than TypeORM because:
+- No entity decorator complexity
+- Direct SQL-like queries are more intuitive
+- Better type inference catches errors early
+- Simpler migration setup
 
 ---
 
 ## References
 
-- [MDC Backend Source](/Users/admin/Documents/Projects/MDC/mdc-backend)
-- [MDC Copy Guide - Frontend](../technical/MDC-COPY-GUIDE.md)
-- [MDC Copy Guide - Backend](../technical/MDC-BACKEND-COPY-GUIDE.md)
+- [Drizzle ORM Documentation](https://orm.drizzle.team/)
+- [Drizzle + NestJS Guide](https://orm.drizzle.team/docs/get-started-postgresql)
+- [Drizzle Benchmarks](https://orm.drizzle.team/benchmarks)
 - [External Dependencies](../specs/EXTERNAL-DEPENDENCIES.md)
+- [Tech Stack](../specs/TECH-STACK.md)
 

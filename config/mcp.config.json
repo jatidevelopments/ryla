@@ -42,6 +42,17 @@
     "posthog": {
       "enabled": true,
       "host": "https://app.posthog.com"
+    },
+    "runpod": {
+      "enabled": true,
+      "package": "@runpod/mcp-server",
+      "config": ".cursor/mcp.json"
+    },
+    "package-docs": {
+      "enabled": true,
+      "package": "@jankowtf/mcp-package-docs",
+      "config": ".cursor/mcp.json",
+      "description": "Provides access to package documentation for Go, Python, and NPM packages. Automatically checks latest versions and correct usage patterns."
     }
   },
   "pipeline": {

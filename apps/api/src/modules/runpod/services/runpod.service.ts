@@ -1,0 +1,172 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { RunPodClient } from '@ryla/business';
+
+export interface BaseImageGenerationInput {
+  prompt: string;
+  nsfw: boolean;
+  seed?: number;
+  useZImage?: boolean; // Use Z-Image-Turbo instead of Flux Dev
+}
+
+export interface FaceSwapInput {
+  baseImageUrl: string;
+  prompt: string;
+  nsfw: boolean;
+  seed?: number;
+}
+
+export interface FinalGenerationInput {
+  prompt: string;
+  loraPath: string;
+  nsfw: boolean;
+  seed?: number;
+  useZImage?: boolean; // Use Z-Image-Turbo instead of Flux Dev
+}
+
+export interface CharacterSheetInput {
+  baseImageUrl: string;
+  angles?: string[];
+  nsfw: boolean;
+}
+
+@Injectable()
+export class RunPodService {
+  private client: RunPodClient;
+  private fluxEndpointId: string;
+  private zImageEndpointId: string;
+
+  constructor(private configService: ConfigService) {
+    const apiKey = this.configService.get<string>('RUNPOD_API_KEY');
+    if (!apiKey) {
+      throw new Error('RUNPOD_API_KEY is required');
+    }
+
+    this.client = new RunPodClient({
+      apiKey,
+    });
+
+    // Get endpoint IDs from config
+    this.fluxEndpointId =
+      this.configService.get<string>('RUNPOD_ENDPOINT_FLUX_DEV') || '';
+    this.zImageEndpointId =
+      this.configService.get<string>('RUNPOD_ENDPOINT_Z_IMAGE_TURBO') || '';
+  }
+
+  /**
+   * Execute a job on a serverless endpoint
+   */
+  async runJob(endpointId: string, input: unknown): Promise<string> {
+    const job = await this.client.runJob(endpointId, input);
+    return job.id;
+  }
+
+  /**
+   * Get job status
+   */
+  async getJobStatus(jobId: string) {
+    return this.client.getJobStatus(jobId);
+  }
+
+  /**
+   * List all pods
+   */
+  async listPods() {
+    return this.client.listPods();
+  }
+
+  /**
+   * Get pod details
+   */
+  async getPod(podId: string) {
+    return this.client.getPod(podId);
+  }
+
+  /**
+   * List serverless endpoints
+   */
+  async listEndpoints() {
+    return this.client.listEndpoints();
+  }
+
+  /**
+   * Generate base images (3 variations)
+   */
+  async generateBaseImages(input: BaseImageGenerationInput): Promise<string> {
+    const endpointId = input.useZImage
+      ? this.zImageEndpointId
+      : this.fluxEndpointId;
+
+    if (!endpointId) {
+      throw new Error(
+        `Endpoint ID not configured for ${input.useZImage ? 'Z-Image-Turbo' : 'Flux Dev'}`,
+      );
+    }
+
+    return this.runJob(endpointId, {
+      task_type: 'base_image',
+      prompt: input.prompt,
+      nsfw: input.nsfw,
+      seed: input.seed ?? -1,
+    });
+  }
+
+  /**
+   * Generate image with face swap (IPAdapter FaceID)
+   */
+  async generateFaceSwap(input: FaceSwapInput): Promise<string> {
+    if (!this.fluxEndpointId) {
+      throw new Error('Flux Dev endpoint ID not configured');
+    }
+
+    return this.runJob(this.fluxEndpointId, {
+      task_type: 'face_swap',
+      base_image_url: input.baseImageUrl,
+      prompt: input.prompt,
+      nsfw: input.nsfw,
+      seed: input.seed ?? -1,
+    });
+  }
+
+  /**
+   * Generate final image with LoRA
+   */
+  async generateFinal(input: FinalGenerationInput): Promise<string> {
+    const endpointId = input.useZImage
+      ? this.zImageEndpointId
+      : this.fluxEndpointId;
+
+    if (!endpointId) {
+      throw new Error(
+        `Endpoint ID not configured for ${input.useZImage ? 'Z-Image-Turbo' : 'Flux Dev'}`,
+      );
+    }
+
+    return this.runJob(endpointId, {
+      task_type: 'final_gen',
+      prompt: input.prompt,
+      lora_path: input.loraPath,
+      nsfw: input.nsfw,
+      seed: input.seed ?? -1,
+    });
+  }
+
+  /**
+   * Generate character sheet (7-10 images with PuLID + ControlNet)
+   */
+  async generateCharacterSheet(
+    input: CharacterSheetInput,
+  ): Promise<string> {
+    if (!this.fluxEndpointId) {
+      throw new Error('Flux Dev endpoint ID not configured');
+    }
+
+    return this.runJob(this.fluxEndpointId, {
+      task_type: 'character_sheet',
+      base_image_url: input.baseImageUrl,
+      angles: input.angles ?? ['front', 'side', '3/4', 'back'],
+      nsfw: input.nsfw,
+    });
+  }
+}
+

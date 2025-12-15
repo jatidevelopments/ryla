@@ -425,11 +425,12 @@ Users come to **create AI Influencers and generate content for monetization**. T
 
 ### MVP Product Features
 
-| Feature                          | Priority | Epic   |
-| -------------------------------- | -------- | ------ |
-| AI Influencer wizard (6-step)    | P0       | EP-001 |
-| Identity (archetype/personality) | P0       | EP-001 |
-| Content Studio UI                | P0       | EP-005 |
+| Feature                          | Priority | Epic   | Notes |
+| -------------------------------- | -------- | ------ | ----- |
+| AI Influencer wizard (6-step)    | P0       | EP-001 | |
+| **Hybrid Generation Pipeline**   | **P0**   | **EP-005** | **Standard (Instant) + HD (LORA)** |
+| **Background LORA Training**     | **P0**   | **EP-005** | **Train while user explores app** |
+| Content Studio UI                | P0       | EP-005 | |
 | Scene presets (8)                | P0       | EP-005 |
 | Environment presets (7)          | P0       | EP-005 |
 | Outfit changes in generation     | P0       | EP-005 |

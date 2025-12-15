@@ -3,11 +3,13 @@
 ## Setup
 
 1. Copy the example file to create your local config:
+
    ```bash
    cp .cursor/mcp.json.example .cursor/mcp.json
    ```
 
 2. Set the required environment variables:
+
    - `GITHUB_TOKEN` - GitHub personal access token
    - `SLACK_BOT_TOKEN` - Slack bot token
    - `SLACK_TEAM_ID` - Slack team ID

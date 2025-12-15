@@ -115,6 +115,66 @@ ALERT: [severity] [description]
 
 ---
 
+## RunPod (MCP)
+
+### Purpose
+- GPU infrastructure management
+- Pod lifecycle management
+- Serverless endpoint configuration
+- Template management
+- Network volume management
+
+### Setup
+1. Get RunPod API key from https://www.runpod.io/console/user/settings
+2. Configure MCP server in `.cursor/mcp.json`:
+   ```json
+   {
+     "mcpServers": {
+       "runpod": {
+         "command": "npx",
+         "args": ["@runpod/mcp-server@latest"],
+         "env": {
+           "RUNPOD_API_KEY": "your_api_key_here"
+         }
+       }
+     }
+   }
+   ```
+3. Add to credentials:
+   ```
+   RUNPOD_API_KEY=rpa_xxxxx
+   ```
+4. Restart Cursor to load MCP server
+
+### MCP Commands
+```
+# List pods
+List all my RunPod pods
+
+# Create pod
+Create a RunPod pod with GPU type RTX 4090
+
+# Manage endpoints
+Show me my RunPod serverless endpoints
+Create a new serverless endpoint
+
+# Templates
+List all RunPod templates
+Create a template for my workflow
+
+# Network volumes
+List my network volumes
+Create a 100GB network volume
+```
+
+### Use Cases
+- On-demand GPU pods for AI model training/inference
+- Serverless endpoints for scalable AI workloads
+- Template-based deployments for repeatable setups
+- Network volumes for persistent data storage
+
+---
+
 ## PostHog (Analytics)
 
 ### Purpose
@@ -330,6 +390,7 @@ jobs:
 - [ ] Create Slack workspace/channels
 - [ ] Create PostHog project
 - [ ] Setup Vercel project
+- [ ] Configure RunPod MCP server (`.cursor/mcp.json`)
 - [ ] Configure GitHub Actions secrets
 
 ### Credentials Storage
@@ -340,6 +401,7 @@ jobs:
 ### Verification
 - [ ] Test GitHub MCP commands
 - [ ] Test Slack webhooks
+- [ ] Test RunPod MCP commands (list pods, endpoints)
 - [ ] Verify PostHog events
 - [ ] Run Playwright tests
 - [ ] Trigger test deployment
