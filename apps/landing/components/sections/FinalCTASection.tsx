@@ -3,6 +3,7 @@
 import { GradientBackground } from "@/components/ryla-ui";
 import { FadeInUp } from "@/components/animations";
 import { ShinyButton } from "@/components/ui/shiny-button";
+import { FUNNEL_URL } from "@/lib/constants";
 
 /**
  * FinalCTASection Component (V4 Minimal)
@@ -11,7 +12,7 @@ import { ShinyButton } from "@/components/ui/shiny-button";
  */
 export function FinalCTASection() {
   return (
-    <section className="relative py-24 md:py-32 overflow-hidden bg-[var(--bg-primary)]">
+    <section className="relative py-24 md:py-32 overflow-hidden bg-transparent">
       {/* Gradient background */}
       <GradientBackground position="center" intensity="strong" />
       
@@ -40,7 +41,7 @@ export function FinalCTASection() {
         </FadeInUp>
 
         <FadeInUp delay={200}>
-          <ShinyButton className="text-lg px-10 py-4">
+          <ShinyButton href={FUNNEL_URL} className="text-lg px-10 py-4">
             Start Creating Now
           </ShinyButton>
         </FadeInUp>

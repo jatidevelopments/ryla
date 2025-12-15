@@ -254,7 +254,7 @@ function AnimatedMarqueeRow({ children, direction = 1, speed = 30, className }: 
  */
 export function TestimonialsSection() {
   return (
-    <section id="testimonials" className="relative py-20 md:py-28 overflow-hidden bg-[var(--bg-primary)]">
+    <section id="testimonials" className="relative py-20 md:py-28 overflow-hidden bg-transparent">
       <div className="max-w-7xl mx-auto px-6">
         <FadeInUp>
           <SectionHeader
@@ -283,8 +283,8 @@ export function TestimonialsSection() {
       </div>
 
       {/* Fade edges - positioned relative to section */}
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-[var(--bg-primary)] to-transparent z-10" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-[var(--bg-primary)] to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-24 bg-gradient-to-r from-transparent to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-24 bg-gradient-to-l from-transparent to-transparent z-10" />
     </section>
   );
 }

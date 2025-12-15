@@ -440,7 +440,7 @@ const features = [
  */
 export function FeatureShowcase() {
   return (
-    <Section id="features" background="default" className="py-20 md:py-32">
+    <Section id="features" background="default" className="py-20 md:py-32 bg-transparent">
       <FadeInUp>
         <SectionHeader 
           title="Everything you need to earn." 
@@ -448,13 +448,17 @@ export function FeatureShowcase() {
         />
       </FadeInUp>
 
-      <FadeInUp delay={200}>
-        <BentoGrid className="mt-12">
-          {features.map((feature) => (
-            <BentoCard key={feature.name} {...feature} />
+      <div className="mt-12">
+        <BentoGrid>
+          {features.map((feature, index) => (
+            <BentoCard 
+              key={feature.name} 
+              {...feature}
+              animationDelay={index * 50}
+            />
           ))}
         </BentoGrid>
-      </FadeInUp>
+      </div>
     </Section>
   );
 }

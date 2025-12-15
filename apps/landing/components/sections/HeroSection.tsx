@@ -11,6 +11,7 @@ import { VelocityScroll } from "@/components/ui/scroll-velocity";
 import { ShinyButton } from "@/components/ui/shiny-button";
 import { HeroBackground } from "./HeroBackground";
 import { ArrowRight } from "lucide-react";
+import { FUNNEL_URL } from "@/lib/constants";
 
 /**
  * HeroSection Component (V4 Minimal Copy)
@@ -46,7 +47,7 @@ export function HeroSection() {
           {/* CTAs */}
           <FadeInUp delay={200}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-              <ShinyButton>
+              <ShinyButton href={FUNNEL_URL}>
                 Start Creating
               </ShinyButton>
               <a href="#how-it-works">

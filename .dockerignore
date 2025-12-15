@@ -1,0 +1,48 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build outputs (will be rebuilt in Docker)
+dist
+.next
+out
+
+# Git
+.git
+.gitignore
+
+# Development files
+*.md
+!README.md
+.env*
+!.env.example
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+.cursor
+
+# Testing
+coverage
+.nyc_output
+**/*.test.ts
+**/*.spec.ts
+**/__tests__
+playwright-report
+test-results
+
+# Nx cache
+.nx
+tmp
+
+# Misc
+.DS_Store
+*.log
+*.tsbuildinfo
+
+# E2E apps (not needed for landing)
+apps/landing-e2e
+apps/web-e2e
+

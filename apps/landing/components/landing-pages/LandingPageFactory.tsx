@@ -3,7 +3,8 @@
 import { LandingPageLayout } from "./shared/LandingPageLayout";
 import { landingPageConfigs } from "./configs/landingPageConfigs";
 import type { LandingPageContent } from "@/data/landing-pages/types";
-import auraAiInfluencerContent from "@/data/landing-pages/aura-ai-influencer.json";
+// AURA landing page disabled - not available
+// import auraAiInfluencerContent from "@/data/landing-pages/aura-ai-influencer.json";
 
 // Import reusable landing components
 import {
@@ -41,7 +42,8 @@ interface LandingPageFactoryProps {
 
 // Map pageId to JSON content files
 const contentMap: Record<string, any> = {
-  "aura-ai-influencer": auraAiInfluencerContent,
+  // AURA landing page disabled - not available
+  // "aura-ai-influencer": auraAiInfluencerContent,
 };
 
 export function LandingPageFactory({ pageId }: LandingPageFactoryProps) {

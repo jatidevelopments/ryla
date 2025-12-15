@@ -230,6 +230,7 @@ interface PricingCardProps {
   features: string[];
   highlighted?: boolean;
   ctaText?: string;
+  ctaHref?: string;
   onCtaClick?: () => void;
   className?: string;
 }
@@ -242,6 +243,7 @@ function PricingCard({
   features,
   highlighted = false,
   ctaText = "Start Free Trial",
+  ctaHref,
   onCtaClick,
   className,
 }: PricingCardProps) {
@@ -315,6 +317,30 @@ function PricingCard({
       </ul>
 
       {/* CTA Button */}
+      {ctaHref ? (
+        <a
+          href={ctaHref}
+          className={cn(
+            "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-150 inline-block text-center",
+            highlighted
+              ? [
+                  "bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)]",
+                  "text-white",
+                  "hover:shadow-[var(--glow-purple)]",
+                  "hover:scale-[1.02]",
+                ]
+              : [
+                  "bg-transparent",
+                  "text-white",
+                  "border border-[var(--border-hover)]",
+                  "hover:border-[var(--purple-500)]",
+                  "hover:bg-[var(--purple-500)]/10",
+                ]
+          )}
+        >
+          {ctaText}
+        </a>
+      ) : (
       <button
         onClick={onCtaClick}
         className={cn(
@@ -337,6 +363,7 @@ function PricingCard({
       >
         {ctaText}
       </button>
+      )}
     </div>
   );
 }

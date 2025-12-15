@@ -1,0 +1,27 @@
+# fly.toml - RYLA Landing Page
+# Run with: fly deploy -c fly.landing.toml
+
+app = "ryla-landing"
+primary_region = "fra"
+
+[build]
+  dockerfile = "apps/landing/Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+  NEXT_PUBLIC_SITE_URL = "https://ryla-landing.fly.dev"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
