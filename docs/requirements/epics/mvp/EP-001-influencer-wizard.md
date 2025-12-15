@@ -38,7 +38,9 @@ Step 2: General   → Ethnicity + Age
 Step 3: Face      → Hair style + Hair color + Eye color
 Step 4: Body      → Body type + (Breast size if female)
 Step 5: Identity  → Outfit + Archetype + Personality traits + Bio
-Step 6: Generate  → Preview config + Generate button
+Step 6: Preview   → Summary + Generate Base Image button
+Base Image:       → 3 options generated, user selects one (can regenerate)
+Finalize:         → Create AI Influencer button (triggers background jobs)
 ```
 
 ---
@@ -160,10 +162,23 @@ This step creates the AI Influencer's **identity** — who they are beyond appea
 - Visual preview (placeholder or live)
 - AI Influencer name input
 - Handle/username auto-generation (e.g., @luna.dreams)
-- "Create AI Influencer" button
-- Loading state during initial generation
+- "Generate Base Image" button
+- Loading state during base image generation
 
-### F8: NSFW Content Toggle
+### F8: Base Image Selection (After Step 6)
+
+- System generates 3 base image options from wizard config
+- Images displayed in grid (3 options)
+- User can select preferred base image
+- "Regenerate" button to generate 3 new options
+- Selected base image becomes the foundation for:
+  - Character sheet generation (background)
+  - LoRA training (background)
+  - Initial face swap generation (immediate)
+- "Create AI Influencer" button (finalizes selection)
+- Loading state during character creation
+
+### F9: NSFW Content Toggle
 
 - Simple on/off toggle
 - Age verification gate (18+ confirmation)
@@ -171,7 +186,7 @@ This step creates the AI Influencer's **identity** — who they are beyond appea
 - State persisted with character config
 - Clear content guidelines shown
 
-### F9: Form State Persistence
+### F10: Form State Persistence
 
 - Save wizard progress to localStorage
 - Resume from last completed step on return
@@ -229,15 +244,26 @@ This step creates the AI Influencer's **identity** — who they are beyond appea
 - [ ] Outfit + archetype + 3 traits required to proceed
 - [ ] Bio is optional
 
-### AC-7: Step 6 - Generate
+### AC-7: Step 6 - Preview & Generate
 
 - [ ] User sees summary of all selections
 - [ ] User can enter character name
-- [ ] Generate button triggers generation
-- [ ] Loading state shown during generation
-- [ ] Success navigates to dashboard
+- [ ] "Generate Base Image" button triggers base image generation
+- [ ] Loading state shown during base image generation
 
-### AC-8: NSFW Toggle
+### AC-7a: Base Image Selection
+
+- [ ] System generates 3 base image options from wizard config
+- [ ] 3 images displayed in grid layout
+- [ ] User can select one preferred base image
+- [ ] "Regenerate" button generates 3 new options
+- [ ] Selected base image is saved
+- [ ] "Create AI Influencer" button finalizes selection
+- [ ] Loading state shown during character creation
+- [ ] Success navigates to dashboard
+- [ ] Background jobs start: character sheet generation + LoRA training
+
+### AC-9: NSFW Toggle
 
 - [ ] Toggle is visible and functional
 - [ ] Age verification (18+) shown before enabling
@@ -245,7 +271,7 @@ This step creates the AI Influencer's **identity** — who they are beyond appea
 - [ ] Content guidelines displayed
 - [ ] Toggle affects generation parameters
 
-### AC-9: Form Persistence
+### AC-10: Form Persistence
 
 - [ ] Progress saved to localStorage automatically
 - [ ] Returning user resumes from last step
@@ -262,7 +288,11 @@ This step creates the AI Influencer's **identity** — who they are beyond appea
 | `wizard_step_viewed` | Step becomes visible | `step_index`, `step_name` |
 | `wizard_step_completed` | User advances | `step_index`, `selections` |
 | `wizard_abandoned` | User leaves mid-wizard | `last_step`, `time_spent` |
-| `wizard_completed` | User clicks Generate | `character_config`, `total_time` |
+| `base_image_generation_started` | User clicks "Generate Base Image" | `character_config` |
+| `base_images_generated` | 3 base images ready | `generation_time_ms` |
+| `base_image_selected` | User selects preferred image | `selected_image_index` |
+| `base_images_regenerated` | User clicks "Regenerate" | `regeneration_count` |
+| `wizard_completed` | User clicks "Create AI Influencer" | `character_config`, `base_image_id`, `total_time` |
 | `nsfw_toggle_changed` | Toggle state changed | `enabled`, `step` |
 | `age_verification_shown` | 18+ gate displayed | - |
 | `age_verification_confirmed` | User confirms 18+ | - |
@@ -343,6 +373,9 @@ interface AIInfluencer {
   appearance: AppearanceConfig;
   identity: IdentityConfig;
   nsfwEnabled: boolean;
+  baseImageUrl: string; // Selected base image from wizard
+  baseImageId: string; // Reference to generated image
+  loraStatus: 'pending' | 'generating_sheets' | 'training' | 'ready' | 'failed';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -428,9 +461,21 @@ interface WizardState {
 ### API Endpoints
 
 ```
-POST /api/influencers - Create AI Influencer (after wizard completion)
-  Body: { name, appearance: AppearanceConfig, identity: IdentityConfig, nsfwEnabled: boolean }
-  Response: { influencer_id, handle, status: 'generating' }
+POST /api/influencers/generate-base-images - Generate 3 base image options
+  Body: { appearance: AppearanceConfig, identity: IdentityConfig, nsfwEnabled: boolean }
+  Response: { images: [{ id, url, thumbnail_url }], job_id }
+
+POST /api/influencers/regenerate-base-images - Regenerate 3 new options
+  Body: { job_id }
+  Response: { images: [{ id, url, thumbnail_url }], job_id }
+
+POST /api/influencers - Create AI Influencer (after base image selection)
+  Body: { name, appearance: AppearanceConfig, identity: IdentityConfig, nsfwEnabled: boolean, base_image_id: string }
+  Response: { influencer_id, handle, status: 'created', lora_status: 'pending' }
+  
+  Background jobs started:
+  - Character sheet generation (from base image)
+  - LoRA training (after character sheets ready)
 ```
 
 ---

@@ -4,7 +4,7 @@
 
 All external services, APIs, and third-party integrations used in RYLA.
 
-> **Architecture Decision**: Using **Custom PostgreSQL + TypeORM** (MDC patterns) instead of Supabase BaaS.
+> **Architecture Decision**: Using **Custom PostgreSQL + Drizzle ORM** instead of TypeORM or Supabase BaaS.
 > See [ADR-001: Database Architecture](../decisions/ADR-001-database-architecture.md)
 
 ---
@@ -16,9 +16,9 @@ All external services, APIs, and third-party integrations used in RYLA.
 |---|---|
 | **Purpose** | Primary database |
 | **Used For** | User accounts, character data, subscriptions |
-| **ORM** | TypeORM |
+| **ORM** | Drizzle ORM |
 | **Hosting** | Neon (recommended), Railway, or self-hosted |
-| **Docs** | https://typeorm.io |
+| **Docs** | https://orm.drizzle.team |
 
 **Env Vars:**
 ```
@@ -133,6 +133,30 @@ REPLICATE_API_TOKEN=
 FAL_KEY=
 ```
 
+### RunPod
+| | |
+|---|---|
+| **Purpose** | GPU infrastructure management |
+| **Used For** | Pod management, serverless endpoints, templates (via MCP) |
+| **Docs** | https://docs.runpod.io |
+| **MCP Server** | `@runpod/mcp-server` |
+| **Dashboard** | https://www.runpod.io/console |
+
+**Env Vars:**
+```
+RUNPOD_API_KEY=
+```
+
+**MCP Configuration:**
+Configured in `.cursor/mcp.json` for Cursor IDE integration. Allows managing RunPod resources through natural language commands.
+
+**Capabilities:**
+- Pods: Create, list, get details, update, start, stop, delete
+- Serverless Endpoints: Create, list, get details, update, delete
+- Templates: Create, list, get details, update, delete
+- Network Volumes: Create, list, get details, update, delete
+- Container Registry: Create, list, get details, delete authentications
+
 ---
 
 ## Analytics
@@ -199,6 +223,26 @@ EMAIL_FROM=noreply@ryla.ai
 |---|---|
 | **Purpose** | AI-assisted development |
 | **Rules** | `.cursor/rules/` |
+| **MCP Servers** | Configured in `.cursor/mcp.json` |
+
+#### Package Docs MCP Server
+| | |
+|---|---|
+| **Purpose** | Package documentation access for AI assistants |
+| **Used For** | Looking up latest package versions, API usage, examples |
+| **Package** | `@jankowtf/mcp-package-docs` |
+| **Docs** | See [MCP Package Docs Guide](../technical/MCP-PACKAGE-DOCS.md) |
+| **Languages** | NPM, Python, Go |
+
+**MCP Configuration:**
+Configured in `.cursor/mcp.json` for Cursor IDE integration. Provides real-time access to package documentation to ensure correct usage patterns and latest version information.
+
+**Capabilities:**
+- NPM packages: Lookup docs from public/private registries
+- Python libraries: Access built-in help() documentation
+- Go packages: Fetch via go doc
+- Search: Fuzzy search within package documentation
+- Version checking: Verify latest versions and breaking changes
 
 ---
 
@@ -211,6 +255,7 @@ EMAIL_FROM=noreply@ryla.ai
 | S3 / Supabase Storage | EP-005 | Image storage |
 | Finby | EP-003 | Payment processing |
 | Replicate/Fal | EP-005 | Image generation |
+| RunPod | Future | GPU infrastructure (MCP managed) |
 | PostHog | All | Analytics tracking |
 | Vercel | All | Deployment |
 
@@ -225,6 +270,9 @@ EMAIL_FROM=noreply@ryla.ai
 - [ ] Finby merchant account setup
 - [ ] Finby products created
 - [ ] Replicate account with credits
+- [ ] RunPod account created and API key obtained
+- [ ] RunPod MCP server configured in `.cursor/mcp.json`
+- [ ] Package Docs MCP server configured in `.cursor/mcp.json` (automatic via npx)
 - [ ] PostHog project created
 - [ ] All env vars in `.env.local`
 - [ ] MDC code copied (see [Backend Copy Guide](../technical/MDC-BACKEND-COPY-GUIDE.md))

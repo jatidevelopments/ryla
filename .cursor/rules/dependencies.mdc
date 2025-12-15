@@ -12,8 +12,10 @@ alwaysApply: true
 | **Supabase** | Auth, DB, Storage | `@supabase/supabase-js` |
 | **Finby** | Payments | REST API |
 | **Replicate** | AI generation | `replicate` |
+| **RunPod** | GPU Infrastructure (MCP) | `@runpod/mcp-server` |
 | **PostHog** | Analytics | `posthog-js` |
 | **Vercel** | Hosting | - |
+| **Package Docs** | Documentation Lookup (MCP) | `@jankowtf/mcp-package-docs` |
 
 ## When Implementing
 
@@ -38,6 +40,18 @@ alwaysApply: true
 - `analytics.capture(event, properties)`
 - See `docs/analytics/TRACKING-PLAN.md`
 
+### Package Documentation (All)
+- **ALWAYS** use Package Docs MCP server when:
+  - Adding new packages to `package.json`
+  - Updating package versions
+  - Writing code that uses external libraries
+  - Debugging API usage issues
+  - Checking for breaking changes
+- Use `lookup_npm_doc` for NPM packages (supports private registries via `.npmrc`)
+- Use `search_package_docs` to find usage examples
+- Verify latest versions before implementation
+- See `docs/technical/MCP-PACKAGE-DOCS.md` for full reference
+
 ## Env Vars Required
 
 ```bash
@@ -53,6 +67,9 @@ FINBY_WEBHOOK_SECRET=
 
 # AI
 REPLICATE_API_TOKEN=
+
+# RunPod (GPU Infrastructure - MCP)
+RUNPOD_API_KEY=
 
 # Analytics
 NEXT_PUBLIC_POSTHOG_KEY=

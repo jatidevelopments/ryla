@@ -1,0 +1,613 @@
+{
+  "id": "aura-ai-influencer",
+  "title": "AI Influencer Creator",
+  "description": "Create, manage, and monetize AI influencers",
+  "version": "1.0.0",
+
+  "header": {
+    "title": "AI Influencer Creator",
+    "icon": "A",
+    "gradient": "from-purple-600 to-pink-600",
+    "navigation": [
+      { "label": "Features", "href": "#features" },
+      { "label": "Templates", "href": "#templates" },
+      { "label": "Pricing", "href": "#pricing" },
+      { "label": "Integrations", "href": "#integrations" }
+    ],
+    "cta": {
+      "text": "Get Started",
+      "href": "#pricing"
+    },
+    "variant": "default"
+  },
+
+  "sections": [
+    {
+      "component": "HeroSection",
+      "content": {
+        "headline": "Create your AI Influencer in Minutes",
+        "subheadline": "Design. Generate. Post. Earn. Safe-by-default, NSFW optional.",
+        "description": "The complete platform for AI influencer creation, content generation, and monetization",
+        "gradient": "from-purple-600 to-pink-600",
+        "ctas": [
+          {
+            "text": "Start Free",
+            "href": "#pricing",
+            "icon": "Sparkles"
+          },
+          {
+            "text": "Watch Demo",
+            "href": "#demo",
+            "variant": "outline",
+            "icon": "Play"
+          }
+        ],
+        "socialProof": [
+          { "label": "Posts Generated", "value": "2.3M+" },
+          { "label": "Active Creators", "value": "50K+" },
+          { "label": "Total Earned", "value": "$2M+" }
+        ]
+      },
+      "assets": [
+        {
+          "type": "image",
+          "src": "/assets/images/hero/ai-influencer-hero-aryanna.jpg",
+          "alt": "AI Influencer Hero Background",
+          "priority": true
+        }
+      ]
+    },
+    {
+      "component": "SocialProof",
+      "content": {
+        "title": "Trusted by Creators Worldwide",
+        "description": "Join thousands of creators who are already earning with AURA"
+      }
+    },
+    {
+      "component": "ProblemPromise",
+      "content": {
+        "problems": [
+          {
+            "title": "Content is a grind",
+            "description": "Spending hours creating posts that barely get engagement"
+          },
+          {
+            "title": "Posting is chaos",
+            "description": "Managing multiple platforms and inconsistent schedules"
+          },
+          {
+            "title": "Monetization is hard",
+            "description": "Struggling to turn followers into revenue"
+          }
+        ],
+        "promises": [
+          {
+            "title": "70% time savings",
+            "description": "AI generates content in minutes, not hours"
+          },
+          {
+            "title": "Automated posting",
+            "description": "Schedule and post across all platforms automatically"
+          },
+          {
+            "title": "Built-in monetization",
+            "description": "Multiple revenue streams built right into the platform"
+          }
+        ]
+      }
+    },
+    {
+      "component": "HowItWorks",
+      "content": {
+        "title": "How It Works",
+        "description": "Create your AI influencer in three simple steps",
+        "steps": [
+          {
+            "id": "1",
+            "title": "Design Your Persona",
+            "description": "Create your AI influencer's appearance, personality, and voice",
+            "icon": "Wand2",
+            "image": "/assets/images/how-it-works/persona-builder.jpg"
+          },
+          {
+            "id": "2",
+            "title": "Generate Content",
+            "description": "AI creates posts, captions, and media tailored to your brand",
+            "icon": "Sparkles",
+            "image": "/assets/images/how-it-works/content-generation.jpg"
+          },
+          {
+            "id": "3",
+            "title": "Post & Monetize",
+            "description": "Automatically post across platforms and start earning",
+            "icon": "Rocket",
+            "image": "/assets/images/how-it-works/monetization.jpg"
+          }
+        ],
+        "cta": {
+          "text": "Get Started",
+          "href": "#pricing"
+        }
+      }
+    },
+    {
+      "component": "LiveDemo",
+      "content": {
+        "title": "See AURA in Action",
+        "description": "Watch how creators are using AURA to build, grow, and monetize their AI influencers",
+        "demoTitle": "Live Demo: Persona Builder → Post → Analytics",
+        "demoDescription": "Real-time content creation and performance tracking",
+        "videoSrc": "/assets/videos/demo.mp4",
+        "posterSrc": "/assets/images/demo-poster.jpg"
+      },
+      "assets": {
+        "video": "/assets/videos/demo.mp4",
+        "poster": "/assets/images/demo-poster.jpg"
+      }
+    },
+    {
+      "component": "AIInfluencerShowcase",
+      "content": {
+        "title": "Meet Our AI Influencers",
+        "description": "See how creators are building successful AI influencers across different niches. Each one has a unique personality and style.",
+        "influencers": [
+          {
+            "name": "Aryanna",
+            "handle": "@aryanna_ai",
+            "image": "/assets/images/gallery/ai-influencer-aryanna.jpg",
+            "followers": "2.3M",
+            "engagement": "8.5%",
+            "earnings": "$12.5K",
+            "niche": "Fashion & Lifestyle",
+            "verified": true
+          },
+          {
+            "name": "Myla",
+            "handle": "@myla_fitness",
+            "image": "/assets/images/gallery/ai-influencer-myla.jpg",
+            "followers": "1.8M",
+            "engagement": "12.3%",
+            "earnings": "$9.2K",
+            "niche": "Fitness & Wellness",
+            "verified": true
+          },
+          {
+            "name": "Elektra",
+            "handle": "@elektra_gaming",
+            "image": "/assets/images/gallery/ai-influencer-elektra.jpg",
+            "followers": "3.1M",
+            "engagement": "15.7%",
+            "earnings": "$18.7K",
+            "niche": "Gaming & Tech",
+            "verified": true
+          },
+          {
+            "name": "Brooke",
+            "handle": "@brooke_travel",
+            "image": "/assets/images/gallery/ai-influencer-brooke.jpg",
+            "followers": "1.5M",
+            "engagement": "9.8%",
+            "earnings": "$7.3K",
+            "niche": "Travel & Adventure",
+            "verified": true
+          },
+          {
+            "name": "Angelica",
+            "handle": "@angelica_beauty",
+            "image": "/assets/images/gallery/ai-influencer-angelica.jpg",
+            "followers": "2.7M",
+            "engagement": "11.2%",
+            "earnings": "$14.1K",
+            "niche": "Beauty & Skincare",
+            "verified": true
+          }
+        ],
+        "cta": {
+          "text": "Start Building Your AI Influencer",
+          "href": "#pricing"
+        }
+      }
+    },
+    {
+      "component": "TemplatesGallery",
+      "content": {
+        "title": "Template Gallery",
+        "description": "Choose from professionally designed templates across all major niches. Each template is optimized for maximum engagement and earnings.",
+        "categories": [
+          {
+            "id": "fitness",
+            "name": "Fitness",
+            "icon": "Dumbbell",
+            "color": "from-red-500 to-orange-500",
+            "templates": [
+              {
+                "name": "Morning Motivation",
+                "description": "Energizing fitness content for early risers",
+                "image": "/assets/templates/fitness/fitness-morning.jpg",
+                "stats": {
+                  "posts": "2.3K",
+                  "engagement": "12.5%",
+                  "earnings": "$8.2K"
+                },
+                "tags": ["Motivation", "Morning", "Workout"],
+                "featured": true
+              },
+              {
+                "name": "Workout Routines",
+                "description": "Step-by-step exercise guides and tips",
+                "image": "/assets/templates/fitness/fitness-workout.jpg",
+                "stats": {
+                  "posts": "1.8K",
+                  "engagement": "9.8%",
+                  "earnings": "$6.1K"
+                },
+                "tags": ["Exercise", "Tutorial", "Health"],
+                "featured": false
+              },
+              {
+                "name": "Nutrition Tips",
+                "description": "Healthy eating advice and meal prep content",
+                "image": "/assets/templates/fitness/fitness-nutrition.jpg",
+                "stats": {
+                  "posts": "1.5K",
+                  "engagement": "11.2%",
+                  "earnings": "$5.3K"
+                },
+                "tags": ["Nutrition", "Meal Prep", "Healthy"],
+                "featured": false
+              }
+            ]
+          },
+          {
+            "id": "fashion",
+            "name": "Fashion",
+            "icon": "Shirt",
+            "color": "from-pink-500 to-purple-500",
+            "templates": [
+              {
+                "name": "OOTD Showcase",
+                "description": "Daily outfit inspiration and styling tips",
+                "image": "/assets/templates/fashion/fashion-ootd.jpg",
+                "stats": {
+                  "posts": "3.1K",
+                  "engagement": "15.3%",
+                  "earnings": "$12.7K"
+                },
+                "tags": ["Style", "Outfit", "Trends"],
+                "featured": true
+              },
+              {
+                "name": "Trend Analysis",
+                "description": "Breaking down the latest fashion trends",
+                "image": "/assets/templates/fashion/fashion-trends.jpg",
+                "stats": {
+                  "posts": "2.2K",
+                  "engagement": "13.1%",
+                  "earnings": "$9.8K"
+                },
+                "tags": ["Trends", "Analysis", "Fashion"],
+                "featured": false
+              }
+            ]
+          },
+          {
+            "id": "travel",
+            "name": "Travel",
+            "icon": "Plane",
+            "color": "from-blue-500 to-cyan-500",
+            "templates": [
+              {
+                "name": "Destination Guides",
+                "description": "Comprehensive travel guides and tips",
+                "image": "/assets/templates/travel/travel-guides.jpg",
+                "stats": {
+                  "posts": "2.7K",
+                  "engagement": "14.2%",
+                  "earnings": "$11.5K"
+                },
+                "tags": ["Travel", "Guide", "Destinations"],
+                "featured": true
+              },
+              {
+                "name": "Adventure Content",
+                "description": "Thrilling adventure and outdoor activities",
+                "image": "/assets/templates/travel/travel-adventure.jpg",
+                "stats": {
+                  "posts": "1.9K",
+                  "engagement": "16.8%",
+                  "earnings": "$8.9K"
+                },
+                "tags": ["Adventure", "Outdoor", "Thrills"],
+                "featured": false
+              }
+            ]
+          },
+          {
+            "id": "gaming",
+            "name": "Gaming",
+            "icon": "Gamepad2",
+            "color": "from-green-500 to-emerald-500",
+            "templates": [
+              {
+                "name": "Game Reviews",
+                "description": "In-depth game analysis and recommendations",
+                "image": "/assets/templates/gaming/gaming-reviews.jpg",
+                "stats": {
+                  "posts": "4.2K",
+                  "engagement": "18.7%",
+                  "earnings": "$15.3K"
+                },
+                "tags": ["Reviews", "Gaming", "Analysis"],
+                "featured": true
+              },
+              {
+                "name": "Live Streams",
+                "description": "Interactive gaming content and commentary",
+                "image": "/assets/templates/gaming/gaming-streams.jpg",
+                "stats": {
+                  "posts": "3.8K",
+                  "engagement": "22.1%",
+                  "earnings": "$18.7K"
+                },
+                "tags": ["Streaming", "Live", "Gaming"],
+                "featured": false
+              }
+            ]
+          },
+          {
+            "id": "asmr",
+            "name": "ASMR",
+            "icon": "Headphones",
+            "color": "from-indigo-500 to-purple-500",
+            "templates": [
+              {
+                "name": "Relaxation Content",
+                "description": "Calming ASMR for stress relief",
+                "image": "/assets/templates/asmr/asmr-relaxation.jpg",
+                "stats": {
+                  "posts": "2.1K",
+                  "engagement": "19.3%",
+                  "earnings": "$7.4K"
+                },
+                "tags": ["Relaxation", "ASMR", "Calm"],
+                "featured": true
+              }
+            ]
+          },
+          {
+            "id": "nsfw",
+            "name": "NSFW+",
+            "icon": "Heart",
+            "color": "from-red-500 to-pink-500",
+            "templates": [
+              {
+                "name": "Adult Content",
+                "description": "Mature content for adult audiences",
+                "image": "/assets/templates/nsfw/nsfw-adult.jpg",
+                "stats": {
+                  "posts": "5.7K",
+                  "engagement": "25.4%",
+                  "earnings": "$32.1K"
+                },
+                "tags": ["Adult", "Mature", "18+"],
+                "featured": true,
+                "nsfw": true
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "component": "Integrations",
+      "content": {
+        "title": "Connect Your Socials",
+        "description": "Seamlessly integrate with all major platforms. Schedule, grow, and monetize across your entire social media presence.",
+        "platforms": [
+          {
+            "name": "Instagram",
+            "icon": "Instagram",
+            "description": "Share photos and stories",
+            "status": "connected"
+          },
+          {
+            "name": "TikTok",
+            "icon": "MessageCircle",
+            "description": "Create engaging short videos",
+            "status": "connected"
+          },
+          {
+            "name": "Twitter",
+            "icon": "Twitter",
+            "description": "Share thoughts and updates",
+            "status": "connected"
+          },
+          {
+            "name": "YouTube",
+            "icon": "Youtube",
+            "description": "Upload long-form content",
+            "status": "connected"
+          }
+        ],
+        "features": [
+          {
+            "icon": "Zap",
+            "title": "Auto-Posting",
+            "description": "Schedule and post automatically",
+            "color": "text-yellow-500"
+          },
+          {
+            "icon": "BarChart3",
+            "title": "Cross-Platform Analytics",
+            "description": "Track performance across all platforms",
+            "color": "text-blue-500"
+          },
+          {
+            "icon": "Clock",
+            "title": "Smart Scheduling",
+            "description": "Optimal posting times based on audience activity",
+            "color": "text-orange-500"
+          }
+        ],
+        "cta": {
+          "title": "Ready to Connect Your Platforms?",
+          "description": "Join thousands of creators who are already using AURA to manage their entire social media presence from one powerful dashboard.",
+          "ctas": [
+            {
+              "text": "Connect Platforms",
+              "href": "#connect"
+            },
+            {
+              "text": "View Integration Guide",
+              "href": "#guide",
+              "variant": "outline"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "component": "Pricing",
+      "content": {
+        "title": "Simple, Transparent Pricing",
+        "description": "Choose the plan that fits your needs",
+        "plans": [
+          {
+            "name": "Starter",
+            "description": "Perfect for individual creators getting started",
+            "price": {
+              "monthly": 29,
+              "yearly": 290
+            },
+            "features": [
+              "1 AI Influencer Persona",
+              "100 posts per month",
+              "3 platform connections",
+              "Basic analytics",
+              "Email support",
+              "Standard templates"
+            ],
+            "limitations": [
+              "No custom branding",
+              "Limited NSFW content",
+              "Basic monetization tools"
+            ],
+            "cta": {
+              "text": "Start Free Trial",
+              "href": "#pricing"
+            },
+            "popular": false
+          },
+          {
+            "name": "Pro",
+            "description": "For serious creators who want to scale",
+            "price": {
+              "monthly": 79,
+              "yearly": 790
+            },
+            "features": [
+              "5 AI Influencer Personas",
+              "500 posts per month",
+              "Unlimited platform connections",
+              "Advanced analytics & insights",
+              "Priority support",
+              "All templates + custom",
+              "Advanced monetization tools",
+              "A/B testing",
+              "Custom branding"
+            ],
+            "cta": {
+              "text": "Start Free Trial",
+              "href": "#pricing"
+            },
+            "popular": true,
+            "badge": "Most Popular"
+          },
+          {
+            "name": "Studio",
+            "description": "For agencies and enterprises",
+            "price": {
+              "monthly": 299,
+              "yearly": 2990
+            },
+            "features": [
+              "Unlimited AI Influencer Personas",
+              "Unlimited posts",
+              "Unlimited platform connections",
+              "Enterprise analytics",
+              "Dedicated support",
+              "White-label options",
+              "Team collaboration",
+              "Custom integrations",
+              "SLA guarantee"
+            ],
+            "cta": {
+              "text": "Contact Sales",
+              "href": "#contact"
+            },
+            "popular": false
+          }
+        ]
+      }
+    },
+    {
+      "component": "FAQ",
+      "content": {
+        "title": "Frequently Asked Questions",
+        "description": "Everything you need to know about AURA",
+        "faqs": [
+          {
+            "question": "How does AURA's AI create content that matches my brand?",
+            "answer": "AURA uses advanced machine learning to analyze your brand voice, target audience, and content preferences. Our AI learns from your input and creates content that maintains consistency with your established style while adapting to platform-specific requirements and trending topics."
+          },
+          {
+            "question": "What platforms does AURA support for auto-posting?",
+            "answer": "AURA currently supports Instagram, TikTok, Twitter/X, YouTube, Fansly, OnlyFans, and Discord. We're constantly adding new platforms based on user demand. Each platform integration includes platform-specific optimizations for maximum engagement."
+          },
+          {
+            "question": "Is my content safe and compliant with platform policies?",
+            "answer": "Yes, AURA includes built-in content moderation and compliance checking. Our AI is trained to follow platform guidelines and community standards. We also provide NSFW controls and content warnings to ensure your content meets platform requirements."
+          }
+        ]
+      }
+    },
+    {
+      "component": "FinalCTA",
+      "content": {
+        "headline": "Create your AI Influencer in Minutes",
+        "description": "Join thousands of creators who are already earning with AURA. Start your free trial today and see the difference AI can make.",
+        "ctas": [
+          {
+            "text": "Start Free Trial",
+            "href": "#pricing",
+            "icon": "Sparkles"
+          },
+          {
+            "text": "View Templates",
+            "href": "#templates",
+            "variant": "outline"
+          }
+        ]
+      }
+    }
+  ],
+
+  "assets": [],
+
+  "meta": {
+    "title": "AURA - Create Your AI Influencer in Minutes",
+    "description": "Create, manage, and monetize AI influencers with advanced content generation",
+    "keywords": [
+      "AI influencer",
+      "content creation",
+      "social media",
+      "monetization"
+    ]
+  },
+
+  "styling": {
+    "className": "min-h-screen bg-background",
+    "theme": "auto"
+  }
+}

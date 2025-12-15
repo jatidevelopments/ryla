@@ -86,20 +86,69 @@ The Content Studio is where users generate content for their AI Influencers. It 
 | Image Count | 1, 5, 10 | 5 |
 | NSFW | On/Off | From AI Influencer |
 
-### F6: AI Model Integration
+### F6: AI Model Integration (RunPod)
 
-- Connect to AI model provider (Replicate/Fal)
+- Connect to RunPod serverless endpoints (self-hosted infrastructure)
 - Build prompt from: AI Influencer appearance + Scene + Environment + Outfit
-- Send generation requests
+- **Primary Model**: Flux Dev (uncensored checkpoint for NSFW support)
+- **Secondary Model**: Z-Image-Turbo (test in parallel, use if NSFW works for faster/cheaper generation)
+- **Model Selection Logic**:
+  - If LoRA ready: Use Flux Dev + Custom LoRA (HD mode)
+  - If LoRA not ready: Use Flux Dev + IPAdapter FaceID (Face Swap mode)
+- Send generation requests to RunPod
 - Receive and process generated images
 - Handle model errors gracefully
+- **NSFW Support**: Use uncensored Flux Dev checkpoint when NSFW enabled
+- **Decision Rationale**: See `docs/technical/MVP-MODEL-DECISION.md` for complete analysis
 
-### F7: Consistent Face Generation
+### F7: Consistent Face Generation (Hybrid Strategy)
 
-- Seed locking for reproducibility per AI Influencer
-- Style consistency parameters
-- Same AI Influencer produces similar faces across generations
-- Face reference system for consistency
+**Tier 1: Face Swap (Instant - While LoRA Trains)**
+- **Tech**: IPAdapter FaceID / PuLID (via RunPod)
+- **Base Image**: Selected base image from wizard
+- **Availability**: Immediate upon character creation (<15s)
+- **Use Case**: Initial exploration, draft generations, rapid iteration while LoRA trains
+- **Consistency**: ~80% face match
+- **Status**: Available immediately, works until LoRA is ready
+
+**Tier 2: HD (LoRA Trained)**
+- **Tech**: Custom LoRA model (Flux Dev, trained on RunPod)
+- **Availability**: Ready 15-45 mins after creation (background training)
+- **Trigger**: Automatic background workflow:
+  1. Character sheet generation from base image (background)
+  2. LoRA training kickoff after character sheets ready (background)
+- **Use Case**: Final high-quality exports, best consistency
+- **Consistency**: >95% face match
+- **Notification**: User notified when "HD Mode" is unlocked
+- **Auto-switch**: System automatically uses LoRA when ready (seamless upgrade)
+
+### F7a: Character Sheet Generation (Background)
+
+- **Trigger**: Automatic after character creation (base image selected)
+- **Input**: Selected base image from wizard
+- **Process**: 
+  - Generate 7-10 character variations using PuLID + ControlNet
+  - Multiple angles (front, side, 3/4, back)
+  - Different poses and expressions
+  - Various lighting conditions
+- **Output**: Character sheet images (7-10 images)
+- **Storage**: Save to Supabase Storage
+- **Status**: Background job, user can generate with face swap while this runs
+- **Next Step**: Once complete, automatically kick off LoRA training
+
+### F7b: LoRA Training (Background)
+
+- **Trigger**: Automatic after character sheet generation completes
+- **Input**: Character sheet images (7-10 images from F7a)
+- **Process**:
+  - Upload images to RunPod
+  - Start LoRA training job on RunPod (flux-dev-lora-trainer template)
+  - Training: 700 steps for face LoRA (~45 minutes)
+  - Save trained LoRA model (.safetensors) to storage
+- **Output**: Trained LoRA model + trigger word
+- **Storage**: LoRA model stored in Supabase Storage
+- **Status**: Background job, user can generate with face swap while this runs
+- **Completion**: When ready, system automatically switches to LoRA for new generations
 
 ### F8: Image Pack Generation
 
@@ -244,8 +293,10 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 
 - [ ] Same AI Influencer produces similar faces
 - [ ] Multiple generations are recognizably same person
-- [ ] Seed is locked per AI Influencer
+- [ ] Face Swap mode works immediately (IPAdapter FaceID)
+- [ ] LoRA mode automatically activates when ready
 - [ ] Consistency maintained across sessions
+- [ ] System seamlessly switches from Face Swap to LoRA (no user action needed)
 
 ### AC-8: Image Pack
 
@@ -260,14 +311,20 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 
 | Event | Trigger | Properties |
 |-------|---------|------------|
-| `studio_opened` | User opens Content Studio | `influencer_id` |
+| `studio_opened` | User opens Content Studio | `influencer_id`, `lora_status` |
 | `scene_selected` | Scene preset chosen | `scene`, `influencer_id` |
 | `environment_selected` | Environment preset chosen | `environment`, `influencer_id` |
 | `outfit_changed` | Outfit changed from default | `outfit`, `influencer_id` |
-| `generation_started` | Generate clicked | `influencer_id`, `scene`, `environment`, `outfit`, `count`, `ratio`, `quality` |
-| `generation_image_completed` | Single image done | `influencer_id`, `image_index`, `duration_ms` |
-| `generation_pack_completed` | All images done | `influencer_id`, `image_count`, `total_duration_ms` |
+| `generation_started` | Generate clicked | `influencer_id`, `scene`, `environment`, `outfit`, `count`, `ratio`, `quality`, `mode` (face_swap/lora) |
+| `generation_image_completed` | Single image done | `influencer_id`, `image_index`, `duration_ms`, `mode` |
+| `generation_pack_completed` | All images done | `influencer_id`, `image_count`, `total_duration_ms`, `mode` |
 | `generation_failed` | Error occurred | `influencer_id`, `error_type`, `retry_count` |
+| `character_sheet_generation_started` | Background job starts | `influencer_id`, `base_image_id` |
+| `character_sheet_generation_completed` | Character sheets ready | `influencer_id`, `sheet_count`, `duration_ms` |
+| `lora_training_started` | LoRA training begins | `influencer_id`, `sheet_count` |
+| `lora_training_completed` | LoRA ready | `influencer_id`, `training_duration_ms`, `training_cost_cents` |
+| `lora_mode_activated` | System switches to LoRA | `influencer_id`, `time_since_creation_ms` |
+| `hd_mode_unlocked_notification` | User sees HD mode notification | `influencer_id`, `time_since_creation_ms` |
 
 ### Key Metrics
 
@@ -284,15 +341,22 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 
 ### Model Provider
 
-**Primary**: Replicate
-- Simple API
-- Wide model selection
-- Pay-per-use pricing
-- Good documentation
+**Primary**: RunPod (Serverless Endpoints)
+- GPU infrastructure for Flux Dev model
+- Serverless endpoints (scale to 0 when idle)
+- Cost-effective: $0.22/hr for RTX 3090, $0 when idle
+- Direct model control (uncensored checkpoints for NSFW)
 
-**Fallback**: Fal.ai
-- Faster generation
-- Alternative if Replicate issues
+**Models Used**:
+- **Base Model**: Flux Dev (uncensored checkpoint for NSFW)
+- **Face Swap**: IPAdapter FaceID (while LoRA trains)
+- **LoRA Training**: flux-dev-lora-trainer template on RunPod
+- **Character Sheets**: PuLID + ControlNet (background generation)
+
+**Infrastructure**:
+- Serverless endpoints for image generation
+- Persistent pods for LoRA training (or serverless with network volumes)
+- Network volumes for model storage (LoRA models)
 
 ### Generation Flow
 
@@ -301,20 +365,51 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 2. User selects: Scene + Environment + Outfit + Options
 3. Frontend: POST /api/generate with config
 4. Backend: Validate user, AI Influencer, credits
-5. Backend: Create generation job in database
-6. Backend: Deduct credits
-7. Worker: Pick up job from queue
-8. Worker: Build prompt from config
-9. Worker: Call AI model API (Replicate)
-10. Worker: Download generated image
-11. Worker: Upload to Supabase Storage
-12. Worker: Generate thumbnail
-13. Worker: Trigger caption generation (EP-014)
-14. Worker: Update job status
-15. Worker: Repeat for each image in pack
-16. Worker: Mark job complete
-17. Frontend: Poll for status, show progress
-18. Frontend: Display completed images with captions
+5. Backend: Check LoRA status (is character model trained?)
+   - If LoRA ready: Use Flux Dev + Custom LoRA (HD mode, >95% consistency)
+   - If LoRA not ready: Use Flux Dev + IPAdapter FaceID (Face Swap mode, ~80% consistency)
+6. Backend: Create generation job in database
+7. Backend: Deduct credits
+8. Worker: Pick up job from queue
+9. Worker: Build prompt from config
+10. Worker: Call RunPod serverless endpoint
+    - Model: Flux Dev (uncensored if NSFW enabled)
+    - Face consistency: IPAdapter FaceID (if LoRA not ready) OR LoRA (if ready)
+11. Worker: Download generated image
+12. Worker: Upload to Supabase Storage
+13. Worker: Generate thumbnail
+14. Worker: Trigger caption generation (EP-014)
+15. Worker: Update job status
+16. Worker: Repeat for each image in pack
+17. Worker: Mark job complete
+18. Frontend: Poll for status, show progress
+19. Frontend: Display completed images with captions
+```
+
+### Background Workflow (Character Creation)
+
+```
+1. User selects base image in wizard
+2. User clicks "Create AI Influencer"
+3. Backend: Save character with base_image_id
+4. Backend: Start background job queue:
+   
+   Job 1: Character Sheet Generation
+   - Input: base_image_id
+   - Process: Generate 7-10 variations using PuLID + ControlNet
+   - Output: Character sheet images (7-10 images)
+   - Status: lora_status = 'generating_sheets'
+   
+   Job 2: LoRA Training (starts after Job 1 completes)
+   - Input: Character sheet images
+   - Process: Train LoRA on RunPod (flux-dev-lora-trainer)
+   - Training: 700 steps, ~45 minutes
+   - Output: Trained LoRA model (.safetensors) + trigger word
+   - Status: lora_status = 'training' → 'ready'
+   
+5. User can generate images immediately (Face Swap mode)
+6. System automatically switches to LoRA when ready (seamless)
+7. User notified: "HD Mode unlocked!" (optional notification)
 ```
 
 ### Data Model
@@ -328,6 +423,36 @@ interface GenerationJob {
   config: GenerationConfig;
   imageCount: number;
   completedCount: number;
+  mode: 'face_swap' | 'lora'; // Which mode was used
+  errorMessage?: string;
+  startedAt?: Date;
+  completedAt?: Date;
+  createdAt: Date;
+}
+
+interface CharacterSheetJob {
+  id: string;
+  influencerId: string;
+  baseImageId: string;
+  status: 'pending' | 'generating' | 'completed' | 'failed';
+  sheetImages: string[]; // URLs to generated character sheet images
+  errorMessage?: string;
+  startedAt?: Date;
+  completedAt?: Date;
+  createdAt: Date;
+}
+
+interface LoraTrainingJob {
+  id: string;
+  influencerId: string;
+  characterSheetJobId: string;
+  status: 'pending' | 'training' | 'completed' | 'failed';
+  runpodJobId?: string;
+  modelUrl?: string; // URL to trained LoRA model
+  triggerWord?: string;
+  trainingSteps: number;
+  trainingDurationMs?: number;
+  trainingCostCents?: number;
   errorMessage?: string;
   startedAt?: Date;
   completedAt?: Date;
@@ -382,6 +507,8 @@ const QUALITY_STEPS = {
 
 ## API Endpoints
 
+### Image Generation
+
 ```
 POST /api/generate
   Body: { 
@@ -393,18 +520,71 @@ POST /api/generate
     aspect_ratio,
     quality_mode
   }
-  Response: { job_id, status: 'queued', credits_used }
+  Response: { 
+    job_id, 
+    status: 'queued', 
+    credits_used,
+    mode: 'face_swap' | 'lora' // Which mode will be used
+  }
 
 GET /api/generate/:job_id
   Response: { 
     status: 'queued' | 'processing' | 'completed' | 'failed',
     progress: { completed: 3, total: 5 },
+    mode: 'face_swap' | 'lora',
     posts: [{ id, image_url, thumbnail_url, caption }],
     error?: string
   }
 
 POST /api/generate/:job_id/cancel
   Response: { cancelled: true }
+```
+
+### Background Jobs (Internal/Admin)
+
+```
+GET /api/influencers/:id/lora-status
+  Response: {
+    lora_status: 'pending' | 'generating_sheets' | 'training' | 'ready' | 'failed',
+    character_sheet_job_id?: string,
+    lora_training_job_id?: string,
+    estimated_time_remaining_ms?: number,
+    error_message?: string
+  }
+
+GET /api/influencers/:id/character-sheet-job/:job_id
+  Response: {
+    status: 'pending' | 'generating' | 'completed' | 'failed',
+    sheet_count: number,
+    sheet_images: string[],
+    progress?: number, // 0-100
+    error_message?: string
+  }
+
+GET /api/influencers/:id/lora-training-job/:job_id
+  Response: {
+    status: 'pending' | 'training' | 'completed' | 'failed',
+    runpod_job_id?: string,
+    progress?: number, // 0-100 (if available from RunPod)
+    training_steps: number,
+    estimated_completion?: string, // ISO timestamp
+    error_message?: string
+  }
+```
+
+### Webhooks (RunPod)
+
+```
+POST /api/webhooks/runpod/lora-training
+  Body: RunPod webhook payload
+  Response: { received: true }
+  
+  Handles:
+  - Training job completion
+  - Training job failure
+  - Updates lora_training_jobs table
+  - Updates influencers.lora_status
+  - Notifies user (optional notification)
 ```
 
 ---
@@ -418,6 +598,7 @@ CREATE TABLE generation_jobs (
   influencer_id UUID REFERENCES influencers(id) ON DELETE CASCADE,
   user_id UUID REFERENCES auth.users(id),
   status TEXT DEFAULT 'queued', -- queued, processing, completed, failed
+  mode TEXT NOT NULL, -- 'face_swap' or 'lora'
   scene TEXT NOT NULL,
   environment TEXT NOT NULL,
   outfit TEXT NOT NULL,
@@ -428,6 +609,40 @@ CREATE TABLE generation_jobs (
   completed_count INTEGER DEFAULT 0,
   error_message TEXT,
   credits_used INTEGER NOT NULL,
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Character sheet generation jobs (background)
+CREATE TABLE character_sheet_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  influencer_id UUID REFERENCES influencers(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id),
+  base_image_id UUID NOT NULL, -- Reference to selected base image
+  status TEXT DEFAULT 'pending', -- pending, generating, completed, failed
+  sheet_images TEXT[], -- Array of image URLs (7-10 images)
+  sheet_count INTEGER DEFAULT 0,
+  error_message TEXT,
+  started_at TIMESTAMPTZ,
+  completed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- LoRA training jobs (background)
+CREATE TABLE lora_training_jobs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  influencer_id UUID REFERENCES influencers(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES auth.users(id),
+  character_sheet_job_id UUID REFERENCES character_sheet_jobs(id),
+  status TEXT DEFAULT 'pending', -- pending, training, completed, failed
+  runpod_job_id TEXT, -- RunPod job ID for tracking
+  model_url TEXT, -- URL to trained LoRA model (.safetensors)
+  trigger_word TEXT, -- Trigger word for LoRA activation
+  training_steps INTEGER DEFAULT 700,
+  training_duration_ms INTEGER,
+  training_cost_cents INTEGER, -- Cost in cents
+  error_message TEXT,
   started_at TIMESTAMPTZ,
   completed_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT NOW()
@@ -452,9 +667,19 @@ CREATE TABLE posts (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Update influencers table (from EP-001)
+ALTER TABLE influencers ADD COLUMN IF NOT EXISTS base_image_id UUID;
+ALTER TABLE influencers ADD COLUMN IF NOT EXISTS base_image_url TEXT;
+ALTER TABLE influencers ADD COLUMN IF NOT EXISTS lora_status TEXT DEFAULT 'pending';
+-- lora_status: 'pending', 'generating_sheets', 'training', 'ready', 'failed'
+
 -- Indexes
 CREATE INDEX idx_generation_jobs_status ON generation_jobs(status);
 CREATE INDEX idx_generation_jobs_influencer ON generation_jobs(influencer_id);
+CREATE INDEX idx_character_sheet_jobs_influencer ON character_sheet_jobs(influencer_id);
+CREATE INDEX idx_character_sheet_jobs_status ON character_sheet_jobs(status);
+CREATE INDEX idx_lora_training_jobs_influencer ON lora_training_jobs(influencer_id);
+CREATE INDEX idx_lora_training_jobs_status ON lora_training_jobs(status);
 CREATE INDEX idx_posts_influencer ON posts(influencer_id);
 CREATE INDEX idx_posts_liked ON posts(influencer_id, liked);
 ```
@@ -470,24 +695,28 @@ CREATE INDEX idx_posts_liked ON posts(influencer_id, liked);
 - **Props/Items** - Objects in scenes
 - Video generation
 - Real-time generation preview
-- Custom model fine-tuning
+- Custom model fine-tuning (beyond LoRA)
 - Multiple model selection UI
 - Advanced NSFW controls (beyond toggle)
 - Image editing/inpainting
-- Upscaling
+- Upscaling (Phase 2)
 - Face repair/enhancement
-- LoRA/style presets
+- Multiple LoRA models per character
+- Manual character sheet upload (auto-generation only)
 
 ---
 
 ## Dependencies
 
-- AI Influencer persistence (EP-001)
+- AI Influencer persistence (EP-001) - **Must include base_image_id**
 - User authentication (EP-002)
 - Caption generation (EP-014)
 - Credits system (EP-009)
-- AI model provider account (Replicate)
+- RunPod account and API key
+- RunPod serverless endpoints configured
+- RunPod flux-dev-lora-trainer template
 - Supabase Storage configured
+- Background job queue system (Bull/BullMQ)
 
 ---
 

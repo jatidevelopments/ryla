@@ -3,4 +3,5 @@
  */
 
 export * from './character-wizard.store';
+export * from './influencer.store';
 

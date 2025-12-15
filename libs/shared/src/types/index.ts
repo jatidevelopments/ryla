@@ -1,3 +1,3 @@
 // Shared type definitions
-export {};
+export * from './influencer';
 
