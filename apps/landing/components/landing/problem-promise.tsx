@@ -178,7 +178,7 @@ export function ProblemPromise() {
               key={index}
               name={problem.title}
               description={problem.description}
-              header={problem.header}
+              background={problem.header}
               className={problem.className}
             />
           ))}

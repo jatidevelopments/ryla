@@ -15,6 +15,7 @@ import {
 import Image from 'next/image';
 import { StripedPattern } from '@/components/ui/striped-pattern';
 import { ShinyButton } from '@/components/ui/shiny-button';
+import { FUNNEL_URL } from '@/lib/constants';
 
 interface StorySection {
   step: number;
@@ -23,7 +24,8 @@ interface StorySection {
   highlight: string;
   icon: React.ComponentType<{ className?: string }>;
   preview: {
-    image: string;
+    type: 'image' | 'ui-mockup' | 'image-grid';
+    image?: string;
     caption: string;
   };
 }
@@ -38,8 +40,9 @@ const storySections: StorySection[] = [
     highlight: 'Your vision. Your influencer.',
     icon: Palette,
     preview: {
-      image: '/images/steps/step-1-design.webp',
-      caption: 'Choose from 3 AI-generated faces',
+      type: 'ui-mockup',
+      image: '/steps/step1.jpg',
+      caption: 'Customize hair color, ethnicity, body type, and more',
     },
   },
   {
@@ -50,8 +53,9 @@ const storySections: StorySection[] = [
     highlight: 'Hyper-realistic. Endlessly customizable.',
     icon: Sparkles,
     preview: {
-      image: '/images/steps/step-2-generate.webp',
-      caption: '7-10 images generated instantly',
+      type: 'image-grid',
+      image: '/steps/step2.jpg',
+      caption: '7-10 high-quality images generated instantly',
     },
   },
   {
@@ -62,7 +66,8 @@ const storySections: StorySection[] = [
     highlight: 'All platforms. One dashboard.',
     icon: Share2,
     preview: {
-      image: '/images/steps/step-3-post.webp',
+      type: 'image',
+      image: '/steps/step3.jpg',
       caption: 'Connect & schedule to all platforms',
     },
   },
@@ -74,11 +79,147 @@ const storySections: StorySection[] = [
     highlight: 'Passive income. 24/7.',
     icon: TrendingUp,
     preview: {
-      image: '/images/steps/step-4-earn.webp',
+      type: 'image',
+      image: '/steps/step4.jpg',
       caption: 'Track earnings in real-time',
     },
   },
 ];
+
+/**
+ * UI Mockup Preview Component (Step 1)
+ * Shows character customization interface
+ */
+function UIMockupPreview({
+  image,
+  caption,
+}: {
+  image?: string;
+  caption: string;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
+      <div className="aspect-[16/10] relative">
+        {image ? (
+          <Image
+            src={image}
+            alt={caption}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-950/30 to-pink-950/30">
+            <div className="text-center p-6">
+              <Palette className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <p className="text-sm text-white/60">UI Mockup Preview</p>
+            </div>
+          </div>
+        )}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      </div>
+      {/* Caption */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <p className="text-sm text-white/80 font-medium">
+          {caption}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Image Grid Preview Component (Step 2)
+ * Shows Instagram-style grid of generated images
+ */
+function ImageGridPreview({
+  image,
+  caption,
+}: {
+  image?: string;
+  caption: string;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
+      <div className="aspect-[16/10] relative">
+        {image ? (
+          <Image
+            src={image}
+            alt={caption}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full p-4 bg-gradient-to-br from-purple-950/30 to-pink-950/30">
+            {/* Instagram-style grid placeholder */}
+            <div className="grid grid-cols-3 gap-2 h-full">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="bg-white/5 rounded border border-white/10 flex items-center justify-center"
+                >
+                  {i < 7 && (
+                    <Sparkles className="w-6 h-6 text-purple-400/50" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      </div>
+      {/* Caption */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <p className="text-sm text-white/80 font-medium">
+          {caption}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Image Preview Component (Steps 3 & 4)
+ * Standard image preview
+ */
+function ImagePreview({
+  image,
+  caption,
+}: {
+  image?: string;
+  caption: string;
+}) {
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
+      <div className="aspect-[16/10] relative">
+        {image ? (
+          <Image
+            src={image}
+            alt={caption}
+            fill
+            className="object-cover"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-950/30 to-pink-950/30">
+            <div className="text-center p-6">
+              <Sparkles className="w-12 h-12 text-purple-400 mx-auto mb-4" />
+              <p className="text-sm text-white/60">Image Preview</p>
+            </div>
+          </div>
+        )}
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+      </div>
+      {/* Caption */}
+      <div className="absolute bottom-0 left-0 right-0 p-3">
+        <p className="text-sm text-white/80 font-medium">
+          {caption}
+        </p>
+      </div>
+    </div>
+  );
+}
 
 /**
  * Word component for text reveal animation
@@ -129,9 +270,9 @@ function StoryBlock({ section, index }: StoryBlockProps) {
   return (
     <div
       ref={targetRef}
-      className="relative min-h-[55vh] flex items-center py-12 md:py-16"
+      className="relative min-h-[55vh] flex items-center py-12 md:py-16 overflow-hidden"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 w-full">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 w-full relative z-10">
         {/* Card Column */}
         <div
           className={cn(
@@ -146,72 +287,72 @@ function StoryBlock({ section, index }: StoryBlockProps) {
             viewport={{ once: true }}
             className={cn(
               'relative p-6 md:p-8 rounded-3xl overflow-hidden',
-              // Glassmorphism effect
-              'bg-white/[0.03] backdrop-blur-xl',
-              'border border-white/10',
-              'shadow-2xl shadow-purple-500/5'
+              // 1:1 aspect ratio (square)
+              'aspect-square',
+              // Border
+              'border border-purple-500/20',
+              // Hover effects
+              'transform-gpu transition-all duration-300',
+              'hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10'
             )}
           >
-            {/* Striped pattern background */}
-            <StripedPattern
-              direction={index % 2 === 0 ? 'left' : 'right'}
-              className="stroke-purple-500/10 [mask-image:radial-gradient(ellipse_at_center,white_20%,transparent_70%)]"
-            />
-
-            {/* Glow effect behind card */}
-            <div className="absolute -inset-1 rounded-3xl bg-gradient-to-br from-purple-600/20 to-pink-500/10 blur-xl -z-10 opacity-50" />
-
-            {/* Step badge with icon */}
-            <div className="flex items-center gap-4 mb-6">
-              <div className="relative">
-                {/* Outer glow ring */}
-                <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 blur-sm opacity-50" />
-                {/* Badge */}
-                <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-lg">
-                  <Icon className="w-7 h-7 text-white" />
+            {/* Background Image */}
+            {section.preview.image && (
+              <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
+                <div className={cn(
+                  "absolute inset-0",
+                  index === 0 && "translate-y-[20%]"
+                )}>
+                  <Image
+                    src={section.preview.image}
+                    alt={section.preview.caption}
+                    fill
+                    className="object-cover"
+                    priority={index < 2}
+                  />
                 </div>
+                {/* Gradient from top to bottom - darker at top, extends to middle, clear at bottom */}
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0d0d12] via-[#0d0d12]/80 via-[#0d0d12]/40 to-transparent" />
               </div>
-              {/* Step number */}
-              <div className="flex flex-col">
-                <span className="text-xs uppercase tracking-wider text-purple-400 font-medium">
-                  Step {section.step}
-                </span>
-                <h3 className="text-3xl lg:text-4xl font-bold text-white">
-                  {section.title}
-                </h3>
-              </div>
-            </div>
+            )}
 
-            {/* Highlight tagline */}
-            <p className="text-lg text-purple-300 font-medium mb-6">
-              {section.highlight}
-            </p>
+            {/* Content overlay - z-10 to appear above background */}
+            <div className="relative z-10 flex flex-col h-full">
+              {/* Content at top - step badge, title, and highlight */}
+              <div className="flex flex-col gap-4">
+                {/* Step badge with icon */}
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    {/* Outer glow ring */}
+                    <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 blur-sm opacity-50" />
+                    {/* Badge */}
+                    <div className="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-pink-500 flex items-center justify-center shadow-lg">
+                      <Icon className="w-7 h-7 text-white" />
+                    </div>
+                  </div>
+                  {/* Step number */}
+                  <div className="flex flex-col">
+                    <span className="text-xs uppercase tracking-wider text-purple-400 font-medium">
+                      Step {section.step}
+                    </span>
+                    <h3 className="text-3xl lg:text-4xl font-bold text-white">
+                      {section.title}
+                    </h3>
+                  </div>
+                </div>
 
-            {/* Mini Preview Card */}
-            <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
-              <div className="aspect-[16/10] relative">
-                <Image
-                  src={section.preview.image}
-                  alt={section.preview.caption}
-                  fill
-                  className="object-cover"
-                />
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-              </div>
-              {/* Caption */}
-              <div className="absolute bottom-0 left-0 right-0 p-3">
-                <p className="text-sm text-white/80 font-medium">
-                  {section.preview.caption}
+                {/* Highlight tagline */}
+                <p className="text-2xl lg:text-3xl text-purple-300 font-semibold">
+                  {section.highlight}
                 </p>
               </div>
-            </div>
 
-            {/* Mobile: Show story text */}
-            <div className="lg:hidden mt-6">
-              <p className="text-base text-white/60 leading-relaxed">
-                {section.story}
-              </p>
+              {/* Mobile: Show story text at bottom */}
+              <div className="mt-auto lg:hidden">
+                <p className="text-base text-white/60 leading-relaxed">
+                  {section.story}
+                </p>
+              </div>
             </div>
           </motion.div>
         </div>
@@ -261,7 +402,7 @@ function StoryBlock({ section, index }: StoryBlockProps) {
  */
 export function HowItWorksSection() {
   return (
-    <Section id="how-it-works" background="default" className="py-16 md:py-28">
+    <Section id="how-it-works" background="default" className="py-16 md:py-28 bg-transparent">
       {/* Header */}
       <FadeInUp>
         <SectionHeader
@@ -301,7 +442,7 @@ export function HowItWorksSection() {
           <p className="text-lg text-white/50 mb-8">
             Join creators earning passive income.
           </p>
-          <ShinyButton className="text-base px-8 py-4">
+          <ShinyButton href={FUNNEL_URL} className="text-base px-8 py-4">
             Start Creating
             <ArrowRight className="w-4 h-4" />
           </ShinyButton>

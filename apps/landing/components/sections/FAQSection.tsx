@@ -139,7 +139,7 @@ export function FAQSection() {
   };
 
   return (
-    <section id="faq" className="py-20 md:py-28 bg-[var(--bg-primary)]">
+    <section id="faq" className="py-20 md:py-28 bg-transparent">
       <div className="max-w-2xl mx-auto px-6">
         <FadeInUp>
           <SectionHeader

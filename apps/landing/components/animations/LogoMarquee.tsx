@@ -52,12 +52,7 @@ export function LogoMarquee({
       <Marquee
         reverse={reverse}
         pauseOnHover={pauseOnHover}
-        className="[--gap:3rem]"
-        style={
-          {
-            "--duration": speedDuration[speed],
-          } as React.CSSProperties
-        }
+        className={cn("[--gap:3rem]", `[--duration:${speedDuration[speed]}]`)}
       >
         {children}
       </Marquee>

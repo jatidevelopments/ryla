@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useRef, useState } from 'react';
 import { ArrowRightIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -31,6 +31,7 @@ interface BentoCardProps {
   iconColor?: string;
   background?: ReactNode;
   className?: string;
+  animationDelay?: number;
 }
 
 export function BentoCard({
@@ -42,11 +43,49 @@ export function BentoCard({
   iconColor = 'text-purple-400',
   background,
   className,
+  animationDelay = 0,
 }: BentoCardProps) {
   iconColor = 'text-purple-400';
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+
+    if (prefersReducedMotion) {
+      setIsVisible(true);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(element);
+        }
+      },
+      {
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   return (
     <div
+      ref={ref}
       key={name}
       className={cn(
         'group relative col-span-3 flex flex-col justify-between overflow-hidden rounded-2xl',
@@ -55,8 +94,15 @@ export function BentoCard({
         // Hover effects
         'transform-gpu transition-all duration-300',
         'hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10',
+        // Animation
+        'transition-all duration-600',
+        isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8',
         className
       )}
+      style={{
+        transitionDelay: isVisible ? `${animationDelay}ms` : '0ms',
+        transitionTimingFunction: 'cubic-bezier(0.16, 1, 0.3, 1)',
+      }}
     >
       {/* Background element */}
       <div className="pointer-events-none absolute inset-0 z-0">

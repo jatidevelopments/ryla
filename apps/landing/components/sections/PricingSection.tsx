@@ -2,6 +2,7 @@
 
 import { Section, SectionHeader, PricingCard } from "@/components/ryla-ui";
 import { FadeInUp } from "@/components/animations";
+import { FUNNEL_URL } from "@/lib/constants";
 
 interface PricingTier {
   name: string;
@@ -61,7 +62,7 @@ const tiers: PricingTier[] = [
  */
 export function PricingSection() {
   return (
-    <Section id="pricing" background="default">
+    <Section id="pricing" background="default" className="bg-transparent">
       <FadeInUp>
         <SectionHeader 
           title="Simple pricing. Start free." 
@@ -79,6 +80,7 @@ export function PricingSection() {
               features={tier.features}
               highlighted={tier.highlighted}
               ctaText={tier.cta}
+              ctaHref={FUNNEL_URL}
             />
           </FadeInUp>
         ))}

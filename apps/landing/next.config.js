@@ -9,6 +9,17 @@ const { composePlugins, withNx } = require('@nx/next');
 const nextConfig = {
   nx: {},
   transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business'],
+  // Standalone output for Docker deployment
+  output: 'standalone',
+  // Optimize images
+  images: {
+    unoptimized: true,
+  },
+  // Experimental settings
+  experimental: {
+    // Reduce bundle size
+    optimizePackageImports: ['framer-motion', 'lucide-react'],
+  },
 };
 
 const plugins = [
