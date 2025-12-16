@@ -1,0 +1,80 @@
+import axios from "@/lib/axios";
+
+// Use Next.js API routes if backend API is not available
+const USE_NEXTJS_API = typeof window !== "undefined";
+
+export const finbyService = {
+    /**
+     * Setup payment and get the payment gateway URL
+     * Uses Next.js API routes if available, otherwise falls back to backend API
+     */
+    setupPayment: async (data: FinbySetupPayload): Promise<FinbySetupResponse> => {
+        if (USE_NEXTJS_API) {
+            // Use Next.js API route (relative path)
+            const response = await fetch("/api/finby/setup-payment", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                throw new Error(`Payment setup failed: ${response.statusText}`);
+            }
+            return response.json();
+        } else {
+            // Use backend API
+            const response = await axios.post<FinbySetupResponse>("/finby/setup-payment", data);
+            return response.data;
+        }
+    },
+    /**
+     * Get payment status by reference/transaction ID
+     * Uses Next.js API routes if available, otherwise falls back to backend API
+     */
+    getPaymentStatus: async (reference: string): Promise<FinbyPaymentStatusResponse> => {
+        if (USE_NEXTJS_API) {
+            // Use Next.js API route (relative path)
+            const response = await fetch(`/api/finby/payment-status/${reference}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+            if (!response.ok) {
+                throw new Error(`Payment status check failed: ${response.statusText}`);
+            }
+            return response.json();
+        } else {
+            // Use backend API
+            const response = await axios.get<FinbyPaymentStatusResponse>(`/finby/payment-status/${reference}`);
+            return response.data;
+        }
+    },
+    /**
+     * Process refund for a payment
+     * Uses Next.js API routes if available, otherwise falls back to backend API
+     */
+    processRefund: async (data: FinbyRefundPayload): Promise<FinbyRefundResponse> => {
+        if (USE_NEXTJS_API) {
+            // Use Next.js API route (relative path)
+            const response = await fetch("/api/finby/refund", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            if (!response.ok) {
+                const errorData = await response.json().catch(() => ({ error: response.statusText }));
+                throw new Error(errorData.error || `Refund failed: ${response.statusText}`);
+            }
+            return response.json();
+        } else {
+            // Use backend API
+            const response = await axios.post<FinbyRefundResponse>("/finby/refund", data);
+            return response.data;
+        }
+    },
+};
+

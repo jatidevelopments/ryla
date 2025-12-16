@@ -2,6 +2,7 @@
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { composePlugins, withNx } = require('@nx/next');
+const path = require('path');
 
 /**
  * @type {import('@nx/next/plugins/with-nx').WithNxOptions}
@@ -11,6 +12,8 @@ const nextConfig = {
   transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business'],
   // Standalone output for Docker deployment
   output: 'standalone',
+  // Fix standalone output path structure for monorepo
+  outputFileTracingRoot: path.join(__dirname, '../../'),
   // Optimize images
   images: {
     unoptimized: true,
