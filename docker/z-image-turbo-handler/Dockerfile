@@ -7,17 +7,16 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-RUN pip install --no-cache-dir \
-    runpod==1.4.0 \
-    diffusers>=0.27.0 \
-    transformers>=4.40.0 \
-    accelerate>=0.28.0 \
-    safetensors>=0.4.0 \
-    pillow>=10.0.0 \
-    torch>=2.1.0 \
-    torchvision>=0.16.0 \
-    xformers \
-    peft
+RUN python -m pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+      runpod==1.4.0 \
+      diffusers==0.30.3 \
+      transformers==4.45.2 \
+      accelerate==0.34.2 \
+      safetensors==0.4.5 \
+      pillow==10.4.0 \
+      xformers \
+      peft
 
 # Copy handler script (build context is repo root)
 COPY handlers/z-image-turbo-handler.py /handler.py
