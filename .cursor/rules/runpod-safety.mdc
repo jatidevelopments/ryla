@@ -1,0 +1,43 @@
+---
+description: "RunPod safety: confirmation-gated, create-only operations. Destructive actions are forbidden."
+---
+
+## RunPod Safety Policy (MANDATORY)
+
+This repository treats RunPod infrastructure as **production-like**. The agent must follow the rules below for **any** RunPod-related action (including via MCP servers, CLI, API calls, dashboards, or SDKs).
+
+### Hard Rules
+
+1. **CONFIRMATION REQUIRED (ALWAYS)**
+   - Before **any** RunPod action (even read/list), the agent must ask the user to confirm.
+   - The confirmation prompt must include:
+     - The **exact resource IDs** that would be touched (endpoint/pod/volume/job).
+     - The **exact operation** (create/list/update/etc.).
+     - Whether the resource is **new (created in this session / in ledger)** or **pre-existing**.
+
+2. **CREATE-ONLY (NO CHANGES TO EXISTING RESOURCES)**
+   - The agent must **never modify, stop, update, or delete** any pre-existing RunPod resources.
+   - **Read-only inspection** (list/get) is allowed **only** to gather IDs/config needed to create new resources, and still requires confirmation.
+   - Only resources explicitly created for RYLA during this project work may be operated on (including start/stop), and only after confirmation.
+
+3. **DESTRUCTIVE ACTIONS FORBIDDEN**
+   - The agent must never perform (or propose) destructive actions:
+     - delete/remove/destroy/terminate/stop/archive/cleanup
+     - scale-down-to-zero if it implies shutdown/termination
+     - wiping volumes, deleting endpoints, removing templates
+   - If the user asks for destructive actions, the agent must **STOP** and ask for explicit override wording + exact IDs.
+
+4. **LEDGER REQUIRED**
+   - Every created RunPod resource must be recorded in `docs/ops/runpod/RESOURCES.md` immediately after creation:
+     - name, type, id, region, created_at, purpose, creator (tool), notes
+   - If it’s not in the ledger, treat it as **pre-existing** → **do not touch**.
+
+### Default Behavior
+
+- If unsure whether an operation is safe → **assume NOT safe** and ask.
+- Prefer “dry-run” explanations (what would be done) over execution.
+
+### Naming Prefix
+
+- Use the prefix: `ryla-prod-guarded-`
+

@@ -1,4 +1,5 @@
 {
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "target": "ES2017",
     "lib": ["dom", "dom.iterable", "esnext"],
@@ -18,8 +19,14 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@ryla/shared": ["../../libs/shared/src/index.ts"],
+      "@ryla/business": ["../../libs/business/src/index.ts"],
+      "@ryla/data": ["../../libs/data/src/index.ts"],
+      "@ryla/ui": ["../../libs/ui/src/index.ts"],
+      "@ryla/analytics": ["../../libs/analytics/src/index.ts"]
     }
   },
   "include": [

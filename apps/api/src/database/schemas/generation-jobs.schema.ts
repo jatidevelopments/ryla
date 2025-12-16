@@ -82,7 +82,8 @@ export const generationJobs = pgTable(
 
     // Typed input/output
     input: jsonb('input').notNull().$type<GenerationInput>(),
-    output: jsonb('output').$type<GenerationOutput>(),
+    // Output shape depends on the RunPod handler. We persist raw JSON and normalize later.
+    output: jsonb('output').$type<Record<string, unknown>>(),
 
     // Progress tracking
     imageCount: integer('image_count'), // Total images to generate

@@ -46,3 +46,10 @@ export interface ArchetypeOption {
   emoji: string;
 }
 
+export interface SelectOption {
+  value: string;
+  label: string;
+  description?: string;
+  emoji?: string;
+}
+
