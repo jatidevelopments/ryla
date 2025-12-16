@@ -1,0 +1,49 @@
+{
+  "name": "funnel",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/funnel",
+  "projectType": "application",
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/funnel"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/funnel"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "funnel:build",
+        "dev": true
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "funnel:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "funnel:build:production",
+          "dev": false
+        }
+      }
+    },
+    "start": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "production",
+      "options": {
+        "buildTarget": "funnel:build:production",
+        "dev": false
+      }
+    }
+  }
+}

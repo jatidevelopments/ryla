@@ -1,0 +1,108 @@
+{
+    "source": "https://glambase.app/dashboard/create",
+    "scrapedAt": "2024-11-03T16:41:43.000Z",
+    "totalAssets": 34,
+    "structure": {
+        "gender": {
+            "count": 2,
+            "path": "gender/",
+            "files": ["female.png", "male.png"]
+        },
+        "bodyShapes": {
+            "count": 8,
+            "path": "body-shapes/",
+            "female": {
+                "count": 4,
+                "path": "body-shapes/female/",
+                "files": [
+                    "female-body-athletic.png",
+                    "female-body-curvy.png",
+                    "female-body-skinny.png",
+                    "female-body-well-built.png"
+                ]
+            },
+            "male": {
+                "count": 4,
+                "path": "body-shapes/male/",
+                "files": [
+                    "male-body-athletic.png",
+                    "male-body-chubby.png",
+                    "male-body-fat.png",
+                    "male-body-skinny.png"
+                ]
+            }
+        },
+        "hairStyles": {
+            "count": 16,
+            "path": "hair-styles/",
+            "female": {
+                "count": 12,
+                "path": "hair-styles/female/",
+                "files": [
+                    "female-hair-asymmetrical.png",
+                    "female-hair-bob.png",
+                    "female-hair-braid.png",
+                    "female-hair-bun.png",
+                    "female-hair-curly.png",
+                    "female-hair-hime-cut.png",
+                    "female-hair-long.png",
+                    "female-hair-ponytail.png",
+                    "female-hair-short.png",
+                    "female-hair-twintail.png",
+                    "female-hair-undercut.png",
+                    "female-hair-wavy.png"
+                ]
+            },
+            "male": {
+                "count": 4,
+                "path": "hair-styles/male/",
+                "files": [
+                    "male-hair-long.png",
+                    "male-hair-man-bun.png",
+                    "male-hair-pompadour.png",
+                    "male-hair-undercut.png"
+                ]
+            }
+        },
+        "breastSizes": {
+            "count": 4,
+            "path": "breast-sizes/",
+            "files": [
+                "female-breast-extra-large.png",
+                "female-breast-large.png",
+                "female-breast-medium.png",
+                "female-breast-small.png"
+            ]
+        },
+        "buttSizes": {
+            "count": 4,
+            "path": "butt-sizes/",
+            "files": [
+                "female-butt-extra-large.png",
+                "female-butt-large.png",
+                "female-butt-medium.png",
+                "female-butt-small.png"
+            ]
+        }
+    },
+    "summary": {
+        "byGender": {
+            "female": 22,
+            "male": 10
+        },
+        "byCategory": {
+            "gender": 2,
+            "bodyShapes": 8,
+            "hairStyles": 16,
+            "breastSizes": 4,
+            "buttSizes": 4
+        },
+        "byStep": {
+            "step1": 18,
+            "step2": 16,
+            "step3": 0,
+            "step4": 0,
+            "step5": 0
+        }
+    }
+}

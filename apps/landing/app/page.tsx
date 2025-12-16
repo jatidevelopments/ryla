@@ -24,7 +24,10 @@ export default function LandingPage() {
       <Navigation />
       <HeroSection />
 
-      {/* Container with background image for sections from Stats to FAQ */}
+      {/* Stats Section - no background */}
+      <StatsSection />
+
+      {/* Features Section with background.jpg */}
       <div className="relative">
         {/* Background Image */}
         <div className="absolute inset-0 z-0">
@@ -32,25 +35,57 @@ export default function LandingPage() {
             src="/background.jpg"
             alt="Background"
             fill
-            className="object-cover opacity-50"
+            className="object-cover opacity-40"
             priority={false}
           />
         </div>
-
-        {/* Black overlay with 70% opacity */}
-        <div className="absolute inset-0 z-0 bg-black/70" />
-
-        {/* Sections with background */}
+        {/* Black overlay */}
+        <div className="absolute inset-0 z-0 bg-black/60" />
+        {/* Top fade gradient - black fading in */}
+        <div className="absolute inset-x-0 top-0 h-32 z-[1] bg-gradient-to-b from-[var(--bg-primary)] to-transparent" />
+        {/* Bottom fade gradient - black fading out */}
+        <div className="absolute inset-x-0 bottom-0 h-32 z-[1] bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
+        {/* Content */}
         <div className="relative z-10">
-          <StatsSection />
           <FeatureShowcase />
-          <HowItWorksSection />
-          <TestimonialsSection />
-          <PricingSection />
-          <FinalCTASection />
-          <FAQSection />
         </div>
       </div>
+
+      {/* How It Works - no background */}
+      <HowItWorksSection />
+
+      {/* Testimonials - no background */}
+      <TestimonialsSection />
+
+      {/* Pricing Section with background2.png */}
+      <div className="relative">
+        {/* Background Image */}
+        <div className="absolute inset-0 z-0">
+          <Image
+            src="/background2.png"
+            alt="Background"
+            fill
+            className="object-cover opacity-40"
+            priority={false}
+          />
+        </div>
+        {/* Black overlay */}
+        <div className="absolute inset-0 z-0 bg-black/60" />
+        {/* Top fade gradient - black fading in */}
+        <div className="absolute inset-x-0 top-0 h-32 z-[1] bg-gradient-to-b from-[var(--bg-primary)] to-transparent" />
+        {/* Bottom fade gradient - black fading out */}
+        <div className="absolute inset-x-0 bottom-0 h-32 z-[1] bg-gradient-to-t from-[var(--bg-primary)] to-transparent" />
+        {/* Content */}
+        <div className="relative z-10">
+          <PricingSection />
+        </div>
+      </div>
+
+      {/* Final CTA - no background */}
+      <FinalCTASection />
+
+      {/* FAQ - no background */}
+      <FAQSection />
 
       <Footer />
     </main>
