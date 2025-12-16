@@ -1,3 +1,20 @@
+**/.git
+**/.next
+**/dist
+**/build
+**/out
+**/coverage
+**/playwright-report
+**/test-results
+**/node_modules
+**/.nx/cache
+**/.nx/workspace-data
+**/.DS_Store
+**/*.log
+.env
+.env.*
+tmp
+temp
 # Dependencies
 node_modules
 .pnpm-store
