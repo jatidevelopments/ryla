@@ -19,8 +19,8 @@ RUN pip install --no-cache-dir \
     xformers \
     peft
 
-# Copy handler script (from project root)
-COPY ../../handlers/z-image-turbo-handler.py /handler.py
+# Copy handler script (build context is repo root)
+COPY handlers/z-image-turbo-handler.py /handler.py
 
 # Set working directory
 WORKDIR /workspace
