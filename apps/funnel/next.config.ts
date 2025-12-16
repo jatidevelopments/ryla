@@ -47,6 +47,8 @@ const nextConfig: NextConfig = {
     output: "standalone",
     // Fix standalone output path structure for Nx monorepo
     outputFileTracingRoot: path.join(__dirname, "../../"),
+    // Transpile shared libs from monorepo
+    transpilePackages: ["@ryla/shared", "@ryla/analytics", "@ryla/business", "@ryla/ui"],
     /* config options here */
 
     // PostHog proxy configuration

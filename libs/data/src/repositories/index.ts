@@ -1,3 +1,3 @@
 // Data repositories
-export {};
+export * from './generation-jobs.repository';
 

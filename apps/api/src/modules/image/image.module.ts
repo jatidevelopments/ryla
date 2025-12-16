@@ -12,6 +12,11 @@ import { ImageController } from './image.controller';
 import { ImageService } from './services/image.service';
 import { BaseImageGenerationService } from './services/base-image-generation.service';
 import { CharacterSheetService } from './services/character-sheet.service';
+import { RunPodJobRunnerAdapter } from './services/runpod-job-runner.adapter';
+import { GenerationJobsRepository } from '@ryla/data';
+import { ImageGenerationService } from '@ryla/business';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import * as schema from '../../database/schemas';
 
 @Module({
   imports: [
@@ -31,11 +36,26 @@ import { CharacterSheetService } from './services/character-sheet.service';
     ImageService,
     BaseImageGenerationService,
     CharacterSheetService,
+    RunPodJobRunnerAdapter,
+    {
+      provide: GenerationJobsRepository,
+      useFactory: (db: NodePgDatabase<typeof schema>) => new GenerationJobsRepository(db),
+      inject: ['DRIZZLE_DB'],
+    },
+    {
+      provide: ImageGenerationService,
+      useFactory: (
+        generationJobsRepo: GenerationJobsRepository,
+        runpodRunner: RunPodJobRunnerAdapter,
+      ) => new ImageGenerationService(generationJobsRepo, runpodRunner),
+      inject: [GenerationJobsRepository, RunPodJobRunnerAdapter],
+    },
   ],
   exports: [
     ImageService,
     BaseImageGenerationService,
     CharacterSheetService,
+    ImageGenerationService,
   ],
 })
 export class ImageModule {}

@@ -47,4 +47,3 @@ export const getCdnStatus = () => {
         debug: DEBUG_CDN,
     };
 };
-
