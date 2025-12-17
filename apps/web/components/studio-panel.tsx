@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn, Button, Switch, Label } from "@ryla/ui";
+import * as React from 'react';
+import { cn, Button, Switch, Label } from '@ryla/ui';
 import {
   SCENE_OPTIONS,
   ENVIRONMENT_OPTIONS,
   OUTFIT_OPTIONS,
   DEFAULT_SCENE,
   DEFAULT_ENVIRONMENT,
-} from "@ryla/shared";
+} from '@ryla/shared';
 
 export interface StudioSettings {
   scene: string;
@@ -43,7 +43,7 @@ export function StudioPanel({
   className,
 }: StudioPanelProps) {
   return (
-    <div className={cn("flex flex-col gap-6", className)}>
+    <div className={cn('flex flex-col gap-6', className)}>
       {/* Scene Selection */}
       <div>
         <h3 className="mb-3 text-sm font-medium text-white">Scene</h3>
@@ -53,10 +53,10 @@ export function StudioPanel({
               key={scene.value}
               onClick={() => onSettingsChange({ scene: scene.value })}
               className={cn(
-                "flex flex-col items-center rounded-lg border p-3 text-center transition-all",
+                'flex flex-col items-center rounded-lg border p-3 text-center transition-all',
                 settings.scene === scene.value
-                  ? "border-[#b99cff] bg-[#b99cff]/20 text-white"
-                  : "border-white/10 bg-white/5 text-white/60 hover:border-white/30 hover:bg-white/10"
+                  ? 'border-[#b99cff] bg-[#b99cff]/20 text-white'
+                  : 'border-white/10 bg-white/5 text-white/60 hover:border-white/30 hover:bg-white/10'
               )}
             >
               <span className="mb-1 text-xl">{scene.emoji}</span>
@@ -75,10 +75,10 @@ export function StudioPanel({
               key={env.value}
               onClick={() => onSettingsChange({ environment: env.value })}
               className={cn(
-                "flex flex-col items-center rounded-lg border p-3 text-center transition-all",
+                'flex flex-col items-center rounded-lg border p-3 text-center transition-all',
                 settings.environment === env.value
-                  ? "border-[#b99cff] bg-[#b99cff]/20 text-white"
-                  : "border-white/10 bg-white/5 text-white/60 hover:border-white/30 hover:bg-white/10"
+                  ? 'border-[#b99cff] bg-[#b99cff]/20 text-white'
+                  : 'border-white/10 bg-white/5 text-white/60 hover:border-white/30 hover:bg-white/10'
               )}
             >
               <span className="mb-1 text-xl">{env.emoji}</span>
@@ -95,28 +95,31 @@ export function StudioPanel({
           <button
             onClick={() => onSettingsChange({ outfit: null })}
             className={cn(
-              "rounded-lg border px-3 py-2 text-xs font-medium transition-all",
+              'rounded-lg border px-3 py-2 text-xs font-medium transition-all',
               settings.outfit === null
-                ? "border-[#b99cff] bg-[#b99cff]/20 text-white"
-                : "border-white/10 bg-white/5 text-white/60 hover:border-white/30"
+                ? 'border-[#b99cff] bg-[#b99cff]/20 text-white'
+                : 'border-white/10 bg-white/5 text-white/60 hover:border-white/30'
             )}
           >
             Keep Current
           </button>
-          {OUTFIT_OPTIONS.slice(0, 6).map((outfit) => (
-            <button
-              key={outfit.value}
-              onClick={() => onSettingsChange({ outfit: outfit.value })}
-              className={cn(
-                "rounded-lg border px-3 py-2 text-xs font-medium transition-all",
-                settings.outfit === outfit.value
-                  ? "border-[#b99cff] bg-[#b99cff]/20 text-white"
-                  : "border-white/10 bg-white/5 text-white/60 hover:border-white/30"
-              )}
-            >
-              {outfit.label}
-            </button>
-          ))}
+          {OUTFIT_OPTIONS.slice(0, 6).map((outfit) => {
+            const outfitValue = outfit.label.toLowerCase().replace(/\s+/g, '-');
+            return (
+              <button
+                key={outfitValue}
+                onClick={() => onSettingsChange({ outfit: outfitValue })}
+                className={cn(
+                  'rounded-lg border px-3 py-2 text-xs font-medium transition-all',
+                  settings.outfit === outfitValue
+                    ? 'border-[#b99cff] bg-[#b99cff]/20 text-white'
+                    : 'border-white/10 bg-white/5 text-white/60 hover:border-white/30'
+                )}
+              >
+                {outfit.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 
@@ -127,12 +130,16 @@ export function StudioPanel({
           {ASPECT_RATIO_OPTIONS.map((ratio) => (
             <button
               key={ratio.value}
-              onClick={() => onSettingsChange({ aspectRatio: ratio.value as '1:1' | '9:16' | '2:3' })}
+              onClick={() =>
+                onSettingsChange({
+                  aspectRatio: ratio.value as '1:1' | '9:16' | '2:3',
+                })
+              }
               className={cn(
-                "flex-1 rounded-lg border px-3 py-2 text-center transition-all",
+                'flex-1 rounded-lg border px-3 py-2 text-center transition-all',
                 settings.aspectRatio === ratio.value
-                  ? "border-[#b99cff] bg-[#b99cff]/20 text-white"
-                  : "border-white/10 bg-white/5 text-white/60 hover:border-white/30"
+                  ? 'border-[#b99cff] bg-[#b99cff]/20 text-white'
+                  : 'border-white/10 bg-white/5 text-white/60 hover:border-white/30'
               )}
             >
               <div className="text-sm font-medium">{ratio.label}</div>
@@ -232,4 +239,3 @@ export const DEFAULT_STUDIO_SETTINGS: StudioSettings = {
   qualityMode: 'draft',
   nsfwEnabled: false,
 };
-

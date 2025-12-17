@@ -40,6 +40,16 @@ COPY --from=deps /app/package.json ./
 # Copy all source code
 COPY . .
 
+# Build arguments for NEXT_PUBLIC_* variables (required at build time)
+ARG NEXT_PUBLIC_CDN_URL
+ARG NEXT_PUBLIC_DEBUG_CDN
+ARG NEXT_PUBLIC_SITE_URL
+
+# Set as environment variables for Next.js build
+ENV NEXT_PUBLIC_CDN_URL=${NEXT_PUBLIC_CDN_URL}
+ENV NEXT_PUBLIC_DEBUG_CDN=${NEXT_PUBLIC_DEBUG_CDN}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+
 # Set environment for build
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1

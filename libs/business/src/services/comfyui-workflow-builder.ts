@@ -269,14 +269,6 @@ export class ComfyUIWorkflowBuilder {
     return JSON.stringify(this.build(), null, 2);
   }
 
-  /**
-   * Save workflow to file
-   */
-  async saveToFile(filePath: string): Promise<void> {
-    const fs = await import('fs/promises');
-    await fs.writeFile(filePath, this.export(), 'utf-8');
-  }
-
   private getNextNodeId(): string {
     return String(this.nodeCounter++);
   }
@@ -370,9 +362,8 @@ export function createCharacterSheetWorkflow(
   const vaeNode = builder.addVAELoader('vae.safetensors');
 
   // Build variation-specific prompt
-  const variationPrompt = `${prompt}, ${variationConfig.angle} angle, ${variationConfig.pose} pose${
-    variationConfig.expression ? `, ${variationConfig.expression} expression` : ''
-  }${variationConfig.lighting ? `, ${variationConfig.lighting} lighting` : ''}`;
+  const variationPrompt = `${prompt}, ${variationConfig.angle} angle, ${variationConfig.pose} pose${variationConfig.expression ? `, ${variationConfig.expression} expression` : ''
+    }${variationConfig.lighting ? `, ${variationConfig.lighting} lighting` : ''}`;
 
   // Encode prompts
   const positiveNode = builder.addTextEncode(variationPrompt, true);

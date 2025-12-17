@@ -1,75 +1,140 @@
-"use client";
+'use client';
 
-import { useAllInfluencers } from "@ryla/business";
-import { PageContainer, EmptyState, Button } from "@ryla/ui";
-import { InfluencerCard } from "../../components/influencer-card";
-import Link from "next/link";
+import { useAllInfluencers } from '@ryla/business';
+import {
+  PageContainer,
+  EmptyState,
+  Button,
+  RylaButton,
+  FadeInUp,
+  StaggerChildren,
+  GradientBackground,
+} from '@ryla/ui';
+import { InfluencerCard } from '../../components/influencer-card';
+import Link from 'next/link';
 
 export default function DashboardPage() {
   const influencers = useAllInfluencers();
   const hasInfluencers = influencers.length > 0;
 
   return (
-    <PageContainer>
-      {/* Page Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white">My AI Influencers</h1>
-          <p className="text-sm text-white/60">
-            {hasInfluencers
-              ? `${influencers.length} influencer${influencers.length !== 1 ? "s" : ""}`
-              : "Create your first AI influencer"}
-          </p>
-        </div>
-        {hasInfluencers && (
-          <Button asChild className="bg-gradient-to-r from-[#d5b9ff] to-[#b99cff]">
-            <Link href="/wizard/step-1">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="mr-1.5 h-4 w-4"
-              >
-                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-              </svg>
-              Create New
-            </Link>
-          </Button>
-        )}
+    <PageContainer className="relative">
+      {/* Background gradient effect */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-40 right-0 h-[500px] w-[500px] opacity-30"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
       </div>
+
+      {/* Page Header */}
+      <FadeInUp>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+              My AI Influencers
+            </h1>
+            <p className="mt-1 text-[var(--text-secondary)]">
+              {hasInfluencers
+                ? `${influencers.length} influencer${
+                    influencers.length !== 1 ? 's' : ''
+                  } created`
+                : 'Create your first AI influencer to get started'}
+            </p>
+          </div>
+          {hasInfluencers && (
+            <RylaButton asChild variant="primary" size="lg">
+              <Link href="/wizard/step-0" className="flex items-center gap-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-5 w-5"
+                >
+                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                </svg>
+                Create New
+              </Link>
+            </RylaButton>
+          )}
+        </div>
+      </FadeInUp>
 
       {/* Content */}
       {hasInfluencers ? (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {influencers.map((influencer) => (
-            <InfluencerCard key={influencer.id} influencer={influencer} />
-          ))}
-        </div>
+        <StaggerChildren staggerDelay={100}>
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+            {influencers.map((influencer) => (
+              <InfluencerCard key={influencer.id} influencer={influencer} />
+            ))}
+          </div>
+        </StaggerChildren>
       ) : (
-        <EmptyState
-          icon={
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="h-8 w-8"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
-              />
-            </svg>
-          }
-          title="No AI Influencers Yet"
-          description="Create your first AI influencer to start generating amazing content for your social media."
-          actionLabel="Create AI Influencer"
-          actionHref="/wizard/step-1"
-        />
+        <FadeInUp delay={200}>
+          <div className="relative rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-12 text-center overflow-hidden">
+            {/* Gradient glow */}
+            <div
+              className="absolute inset-0 opacity-50"
+              style={{
+                background:
+                  'radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
+              }}
+            />
+
+            <div className="relative z-10">
+              {/* Icon */}
+              <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  strokeWidth={1.5}
+                  stroke="currentColor"
+                  className="h-10 w-10 text-[var(--purple-400)]"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M18 18.72a9.094 9.094 0 003.741-.479 3 3 0 00-4.682-2.72m.94 3.198l.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0112 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 016 18.719m12 0a5.971 5.971 0 00-.941-3.197m0 0A5.995 5.995 0 0012 12.75a5.995 5.995 0 00-5.058 2.772m0 0a3 3 0 00-4.681 2.72 8.986 8.986 0 003.74.477m.94-3.197a5.971 5.971 0 00-.94 3.197M15 6.75a3 3 0 11-6 0 3 3 0 016 0zm6 3a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0zm-13.5 0a2.25 2.25 0 11-4.5 0 2.25 2.25 0 014.5 0z"
+                  />
+                </svg>
+              </div>
+
+              {/* Text */}
+              <h2 className="text-2xl font-bold text-[var(--text-primary)] mb-3">
+                No AI Influencers Yet
+              </h2>
+              <p className="text-[var(--text-secondary)] mb-8 max-w-md mx-auto">
+                Create your first AI influencer to start generating amazing
+                content for your social media platforms.
+              </p>
+
+              {/* CTA */}
+              <RylaButton asChild variant="gradient" size="xl">
+                <Link href="/wizard/step-0" className="flex items-center gap-2">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    className="h-5 w-5"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5zM18 1.5a.75.75 0 01.728.568l.258 1.036c.236.94.97 1.674 1.91 1.91l1.036.258a.75.75 0 010 1.456l-1.036.258c-.94.236-1.674.97-1.91 1.91l-.258 1.036a.75.75 0 01-1.456 0l-.258-1.036a2.625 2.625 0 00-1.91-1.91l-1.036-.258a.75.75 0 010-1.456l1.036-.258a2.625 2.625 0 001.91-1.91l.258-1.036A.75.75 0 0118 1.5z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                  Create AI Influencer
+                </Link>
+              </RylaButton>
+            </div>
+          </div>
+        </FadeInUp>
       )}
     </PageContainer>
   );
 }
-

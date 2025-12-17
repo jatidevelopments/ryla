@@ -19,6 +19,19 @@ export interface WizardStep {
 
 /** Character form data matching the 6-step wizard */
 export interface CharacterFormData {
+  // Step 0: Creation Method
+  creationMethod: 'presets' | 'ai' | 'custom' | null;
+
+  // AI Flow Fields
+  aiDescription?: string;
+  aiReferenceImage?: string;
+  aiGeneratedConfig?: any;
+
+  // Custom Flow Fields
+  customAppearancePrompt?: string;
+  customIdentityPrompt?: string;
+  customImagePrompt?: string;
+
   // Step 1: Style
   gender: 'female' | 'male' | null;
   style: 'realistic' | 'anime' | null;
@@ -68,6 +81,7 @@ export interface CharacterWizardState {
   prevStep: () => void;
   setStatus: (status: CharacterWizardState['status']) => void;
   setCharacterId: (id: string | null) => void;
+  updateSteps: (method: 'presets' | 'ai' | 'custom') => void;
 
   // Form actions
   setField: <K extends keyof CharacterFormData>(field: K, value: CharacterFormData[K]) => void;
@@ -79,8 +93,8 @@ export interface CharacterWizardState {
   canProceed: () => boolean;
 }
 
-/** Default wizard steps */
-const WIZARD_STEPS: WizardStep[] = [
+/** Default wizard steps - will be dynamically built based on creation method */
+const PRESETS_STEPS: WizardStep[] = [
   { id: 1, title: 'Style', description: 'Choose gender and style' },
   { id: 2, title: 'General', description: 'Set ethnicity and age' },
   { id: 3, title: 'Face', description: 'Design hair and eyes' },
@@ -89,8 +103,29 @@ const WIZARD_STEPS: WizardStep[] = [
   { id: 6, title: 'Generate', description: 'Preview and create' },
 ];
 
+const AI_STEPS: WizardStep[] = [
+  { id: 1, title: 'AI Description', description: 'Describe your influencer' },
+  { id: 2, title: 'AI Generation', description: 'AI is creating...' },
+  { id: 3, title: 'Review & Edit', description: 'Review AI-generated config' },
+  { id: 4, title: 'Generate', description: 'Preview and create' },
+];
+
+const CUSTOM_STEPS: WizardStep[] = [
+  { id: 1, title: 'Custom Prompts', description: 'Enter custom prompts' },
+  { id: 2, title: 'Review', description: 'Review your prompts' },
+  { id: 3, title: 'Generate', description: 'Preview and create' },
+];
+
 /** Default form values */
 const DEFAULT_FORM: CharacterFormData = {
+  // Step 0
+  creationMethod: null,
+  aiDescription: undefined,
+  aiReferenceImage: undefined,
+  aiGeneratedConfig: undefined,
+  customAppearancePrompt: undefined,
+  customIdentityPrompt: undefined,
+  customImagePrompt: undefined,
   // Step 1
   gender: null,
   style: null,
@@ -121,8 +156,8 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
   persist(
     immer((set, get) => ({
       // Initial state
-      step: 1,
-      steps: WIZARD_STEPS,
+      step: 0, // Start at step 0 (creation method selection)
+      steps: [], // Will be set when creation method is selected
       status: 'idle',
       form: { ...DEFAULT_FORM },
       characterId: null,
@@ -142,7 +177,7 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
 
       prevStep: () =>
         set((state) => {
-          if (state.step > 1) {
+          if (state.step > 0) {
             state.step -= 1;
           }
         }),
@@ -155,6 +190,19 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
       setCharacterId: (id) =>
         set((state) => {
           state.characterId = id;
+        }),
+
+      updateSteps: (method: 'presets' | 'ai' | 'custom') =>
+        set((state) => {
+          if (method === 'ai') {
+            state.steps = AI_STEPS;
+          } else if (method === 'custom') {
+            state.steps = CUSTOM_STEPS;
+          } else {
+            state.steps = PRESETS_STEPS;
+          }
+          // Reset to step 1 of the selected flow
+          state.step = 1;
         }),
 
       // Form actions
@@ -177,7 +225,8 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
 
       resetForm: () =>
         set((state) => {
-          state.step = 1;
+          state.step = 0;
+          state.steps = [];
           state.status = 'idle';
           state.form = { ...DEFAULT_FORM };
           state.characterId = null;
@@ -185,23 +234,59 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
 
       // Validation
       isStepValid: (step) => {
-        const { form } = get();
+        const { form, steps } = get();
+        const currentStep = steps.find((s) => s.id === step);
 
-        switch (step) {
-          case 1: // Style
-            return !!form.gender && !!form.style;
-          case 2: // General
-            return !!form.ethnicity && form.age >= 18 && form.age <= 65;
-          case 3: // Face
-            return !!form.hairStyle && !!form.hairColor && !!form.eyeColor;
-          case 4: // Body
-            return !!form.bodyType;
-          case 5: // Identity
-            return !!form.outfit; // Other identity fields optional
-          case 6: // Generate (always valid if reached)
-            return true;
-          default:
-            return false;
+        if (!currentStep) return false;
+
+        // Step 0: Creation Method (if no method selected yet)
+        if (step === 0 || !form.creationMethod) {
+          return !!form.creationMethod;
+        }
+
+        // Validation based on creation method
+        if (form.creationMethod === 'ai') {
+          switch (step) {
+            case 1: // AI Description
+              return !!form.aiDescription?.trim();
+            case 2: // AI Generation (loader, always valid)
+              return true;
+            case 3: // AI Review (always valid if reached)
+              return true;
+            case 4: // Generate
+              return true;
+            default:
+              return false;
+          }
+        } else if (form.creationMethod === 'custom') {
+          switch (step) {
+            case 1: // Custom Prompts
+              return !!form.customAppearancePrompt?.trim() && !!form.customIdentityPrompt?.trim();
+            case 2: // Custom Review (always valid if reached)
+              return true;
+            case 3: // Generate
+              return true;
+            default:
+              return false;
+          }
+        } else {
+          // Presets flow
+          switch (step) {
+            case 1: // Style
+              return !!form.gender && !!form.style;
+            case 2: // General
+              return !!form.ethnicity && form.age >= 18 && form.age <= 65;
+            case 3: // Face
+              return !!form.hairStyle && !!form.hairColor && !!form.eyeColor;
+            case 4: // Body
+              return !!form.bodyType;
+            case 5: // Identity
+              return !!form.outfit; // Other identity fields optional
+            case 6: // Generate (always valid if reached)
+              return true;
+            default:
+              return false;
+          }
         }
       },
 

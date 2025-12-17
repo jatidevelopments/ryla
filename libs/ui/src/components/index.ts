@@ -1,6 +1,6 @@
 /**
  * UI Components for @ryla/ui
- * Based on shadcn/ui, adapted from MDC
+ * Based on shadcn/ui with RYLA design system
  */
 
 // Form components
@@ -35,4 +35,24 @@ export * from './dialog';
 
 // Wizard components
 export * from './option-card';
+
+// ============================================
+// RYLA Design System Components (from landing)
+// ============================================
+
+// Animation effects
+export * from './magic-card';
+export * from './marquee';
+export * from './shiny-button';
+export * from './spotlight';
+export * from './blur-fade';
+export * from './meteors';
+export * from './animated-beam';
+export * from './animated-list';
+export * from './bento-grid';
+
+// RYLA branded components
+export * from './ryla-button';
+export * from './ryla-card';
+export * from './ryla-layout';
 

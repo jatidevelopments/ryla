@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { useCharacterWizardStore, useInfluencerStore } from "@ryla/business";
-import { Button, Switch, Label } from "@ryla/ui";
-import type { AIInfluencer } from "@ryla/shared";
+import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { useCharacterWizardStore, useInfluencerStore } from '@ryla/business';
+import { Switch, cn } from '@ryla/ui';
+import type { AIInfluencer } from '@ryla/shared';
 
 /**
  * Step 6: Generate
@@ -23,33 +23,38 @@ export function StepGenerate() {
 
   const handleGenerate = async () => {
     setIsGenerating(true);
-    setStatus("generating");
+    setStatus('generating');
 
     // Simulate generation delay
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // Create new influencer
     const newId = `influencer-${Date.now()}`;
-    const handle = `@${form.name.toLowerCase().replace(/\s+/g, ".")}`;
+    const handle = `@${(form.name || 'unnamed')
+      .toLowerCase()
+      .replace(/\s+/g, '.')}`;
 
     const newInfluencer: AIInfluencer = {
       id: newId,
-      name: form.name || "Unnamed",
+      name: form.name || 'Unnamed',
       handle,
-      bio: form.bio || "New AI influencer ✨",
-      avatar: "", // Would be filled by actual generation
-      gender: form.gender || "female",
-      style: form.style || "realistic",
-      ethnicity: form.ethnicity || "caucasian",
+      bio: form.bio || 'New AI influencer ✨',
+      avatar: '',
+      gender: form.gender || 'female',
+      style: form.style || 'realistic',
+      ethnicity: form.ethnicity || 'caucasian',
       age: form.age,
-      hairStyle: form.hairStyle || "long-straight",
-      hairColor: form.hairColor || "brown",
-      eyeColor: form.eyeColor || "brown",
-      bodyType: form.bodyType || "slim",
+      hairStyle: form.hairStyle || 'long-straight',
+      hairColor: form.hairColor || 'brown',
+      eyeColor: form.eyeColor || 'brown',
+      bodyType: form.bodyType || 'slim',
       breastSize: form.breastSize || undefined,
-      archetype: form.archetype || "girl-next-door",
-      personalityTraits: form.personalityTraits.length > 0 ? form.personalityTraits : ["friendly"],
-      outfit: form.outfit || "casual",
+      archetype: form.archetype || 'girl-next-door',
+      personalityTraits:
+        form.personalityTraits.length > 0
+          ? form.personalityTraits
+          : ['friendly'],
+      outfit: form.outfit || 'casual',
       nsfwEnabled: form.nsfwEnabled,
       postCount: 0,
       imageCount: 0,
@@ -60,40 +65,71 @@ export function StepGenerate() {
 
     addInfluencer(newInfluencer);
     setCharacterId(newId);
-    setStatus("completed");
+    setStatus('completed');
     resetForm();
 
-    // Navigate to the new influencer's studio
     router.push(`/influencer/${newId}/studio`);
   };
 
-  // Build summary
-  const summary = [
-    { label: "Gender", value: form.gender },
-    { label: "Style", value: form.style },
-    { label: "Ethnicity", value: form.ethnicity },
-    { label: "Age", value: form.age },
-    { label: "Hair", value: `${form.hairColor} ${form.hairStyle}` },
-    { label: "Eyes", value: form.eyeColor },
-    { label: "Body", value: form.bodyType },
-    { label: "Outfit", value: form.outfit },
-    { label: "Archetype", value: form.archetype },
+  // Build summary items
+  const summaryItems = [
+    { label: 'Gender', value: form.gender },
+    { label: 'Style', value: form.style },
+    { label: 'Ethnicity', value: form.ethnicity },
+    { label: 'Age', value: form.age },
+    {
+      label: 'Hair',
+      value: `${form.hairColor || ''} ${form.hairStyle || ''}`.trim(),
+    },
+    { label: 'Eyes', value: form.eyeColor },
+    { label: 'Body', value: form.bodyType },
   ].filter((item) => item.value);
 
-  return (
-    <div className="space-y-6">
-      {/* Name display */}
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-white">
-          {form.name || "Your AI Influencer"}
+  if (isGenerating) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        {/* Animated loader */}
+        <div className="relative w-24 h-24 mb-8">
+          <div className="absolute inset-0 rounded-full border-4 border-purple-500/20" />
+          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 animate-spin" />
+          <div className="absolute inset-3 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              className="w-8 h-8 text-purple-400"
+            >
+              <path
+                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </div>
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">
+          Creating Your Influencer
         </h2>
-        {form.bio && <p className="mt-1 text-sm text-white/60">{form.bio}</p>}
+        <p className="text-white/60 text-sm">This will only take a moment...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col items-center">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <p className="text-white/60 text-sm font-medium mb-2">Final Step</p>
+        <h1 className="text-white text-2xl font-bold">
+          {form.name || 'Your AI Influencer'}
+        </h1>
         {form.personalityTraits.length > 0 && (
-          <div className="mt-2 flex flex-wrap justify-center gap-1">
+          <div className="mt-3 flex flex-wrap justify-center gap-2">
             {form.personalityTraits.map((trait) => (
               <span
                 key={trait}
-                className="rounded-full bg-[#b99cff]/20 px-2 py-0.5 text-xs text-[#b99cff] capitalize"
+                className="rounded-full bg-gradient-to-r from-purple-500/20 to-pink-500/20 border border-purple-500/30 px-3 py-1 text-xs text-white/80 capitalize"
               >
                 {trait}
               </span>
@@ -103,38 +139,41 @@ export function StepGenerate() {
       </div>
 
       {/* Summary */}
-      <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-        <h3 className="mb-3 text-sm font-medium text-white">Summary</h3>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          {summary.map((item) => (
-            <div key={item.label}>
-              <span className="text-white/40">{item.label}:</span>{" "}
-              <span className="text-white capitalize">
-                {String(item.value).replace(/-/g, " ")}
-              </span>
-            </div>
-          ))}
+      <div className="w-full mb-5">
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <p className="text-white/70 text-sm mb-4">Character Summary</p>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            {summaryItems.map((item) => (
+              <div key={item.label} className="flex flex-col">
+                <span className="text-white/40 text-xs">{item.label}</span>
+                <span className="text-white capitalize">
+                  {String(item.value).replace(/-/g, ' ')}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Generation Settings */}
-      <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-        <h3 className="mb-4 text-sm font-medium text-white">Generation Settings</h3>
+      {/* Settings */}
+      <div className="w-full mb-5">
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm space-y-4">
+          <p className="text-white/70 text-sm">Generation Settings</p>
 
-        <div className="space-y-4">
           {/* Aspect Ratio */}
           <div>
-            <Label className="mb-2 block text-xs text-white/60">Aspect Ratio</Label>
+            <p className="text-white/50 text-xs mb-2">Aspect Ratio</p>
             <div className="flex gap-2">
-              {(["1:1", "9:16", "2:3"] as const).map((ratio) => (
+              {(['1:1', '9:16', '2:3'] as const).map((ratio) => (
                 <button
                   key={ratio}
-                  onClick={() => setField("aspectRatio", ratio)}
-                  className={`flex-1 rounded border px-3 py-2 text-center text-sm transition-all ${
+                  onClick={() => setField('aspectRatio', ratio)}
+                  className={cn(
+                    'flex-1 rounded-lg border px-3 py-2.5 text-center text-sm transition-all',
                     form.aspectRatio === ratio
-                      ? "border-[#b99cff] bg-[#b99cff]/20 text-white"
-                      : "border-white/10 bg-white/5 text-white/60"
-                  }`}
+                      ? 'border-purple-400/50 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white'
+                      : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20'
+                  )}
                 >
                   {ratio}
                 </button>
@@ -143,78 +182,55 @@ export function StepGenerate() {
           </div>
 
           {/* Quality Mode */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-2">
             <div>
-              <Label className="text-white">HQ Mode</Label>
-              <p className="text-xs text-white/40">Higher quality, uses more credits</p>
+              <p className="text-white text-sm font-medium">HQ Mode</p>
+              <p className="text-white/40 text-xs">Higher quality output</p>
             </div>
             <Switch
-              checked={form.qualityMode === "hq"}
+              checked={form.qualityMode === 'hq'}
               onCheckedChange={(checked) =>
-                setField("qualityMode", checked ? "hq" : "draft")
+                setField('qualityMode', checked ? 'hq' : 'draft')
               }
             />
           </div>
 
           {/* NSFW */}
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between py-2">
             <div>
-              <Label className="text-white">18+ Content</Label>
-              <p className="text-xs text-white/40">Enable adult content generation</p>
+              <p className="text-white text-sm font-medium">18+ Content</p>
+              <p className="text-white/40 text-xs">Enable adult content</p>
             </div>
             <Switch
               checked={form.nsfwEnabled}
-              onCheckedChange={(checked) => setField("nsfwEnabled", checked)}
+              onCheckedChange={(checked) => setField('nsfwEnabled', checked)}
             />
           </div>
         </div>
       </div>
 
       {/* Generate Button */}
-      <Button
-        onClick={handleGenerate}
-        disabled={isGenerating}
-        className="w-full bg-gradient-to-r from-[#d5b9ff] to-[#b99cff] py-6 text-lg font-semibold"
-      >
-        {isGenerating ? (
-          <>
-            <svg
-              className="mr-2 h-5 w-5 animate-spin"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
+      <div className="w-full">
+        <button
+          onClick={handleGenerate}
+          className="w-full h-14 rounded-xl font-bold text-base bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all relative overflow-hidden group"
+        >
+          <div className="absolute inset-0 w-[200%] -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 pointer-events-none" />
+          <span className="relative z-10 flex items-center justify-center gap-2">
+            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
               <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               />
             </svg>
-            Creating Your AI Influencer...
-          </>
-        ) : (
-          <>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="mr-2 h-5 w-5"
-            >
-              <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684zM13.949 13.684a1 1 0 00-1.898 0l-.184.551a1 1 0 01-.632.633l-.551.183a1 1 0 000 1.898l.551.183a1 1 0 01.633.633l.183.551a1 1 0 001.898 0l.184-.551a1 1 0 01.632-.633l.551-.183a1 1 0 000-1.898l-.551-.184a1 1 0 01-.633-.632l-.183-.551z" />
-            </svg>
-            Create AI Influencer (5 credits)
-          </>
-        )}
-      </Button>
+            Create AI Influencer
+          </span>
+        </button>
+        <p className="text-white/40 text-xs text-center mt-3">Uses 5 credits</p>
+      </div>
     </div>
   );
 }
-

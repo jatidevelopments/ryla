@@ -24,7 +24,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "funnel:build",
-        "dev": true
+        "dev": true,
+        "port": 3002
       },
       "configurations": {
         "development": {

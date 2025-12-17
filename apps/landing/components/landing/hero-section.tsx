@@ -1,12 +1,10 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Spotlight } from "@/components/ui/spotlight";
-import { Play, ArrowRight, Sparkles } from "lucide-react";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import type { ComponentProps } from "@/data/landing-pages/types";
+import { Button, Card, CardContent, Spotlight } from '@ryla/ui';
+import { Play, ArrowRight, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import type { ComponentProps } from '@/data/landing-pages/types';
 
 interface HeroSectionProps extends ComponentProps {
   content?: {
@@ -18,7 +16,7 @@ interface HeroSectionProps extends ComponentProps {
     ctas?: Array<{
       text: string;
       href: string;
-      variant?: "default" | "outline" | "ghost";
+      variant?: 'default' | 'outline' | 'ghost';
       icon?: string;
     }>;
     socialProof?: Array<{
@@ -27,7 +25,7 @@ interface HeroSectionProps extends ComponentProps {
       icon?: string;
     }>;
     media?: {
-      type: "image" | "video";
+      type: 'image' | 'video';
       src: string;
       alt?: string;
     };
@@ -35,28 +33,28 @@ interface HeroSectionProps extends ComponentProps {
 }
 
 const defaultContent = {
-  headline: "Create your AI Influencer in Minutes",
-  subheadline: "Design. Generate. Post. Earn. Safe-by-default, NSFW optional.",
+  headline: 'Create your AI Influencer in Minutes',
+  subheadline: 'Design. Generate. Post. Earn. Safe-by-default, NSFW optional.',
   description:
-    "The complete platform for AI influencer creation, content generation, and monetization",
-  gradient: "from-purple-600 to-pink-600",
+    'The complete platform for AI influencer creation, content generation, and monetization',
+  gradient: 'from-purple-600 to-pink-600',
   ctas: [
     {
-      text: "Start Free",
-      href: "#pricing",
-      icon: "Sparkles",
+      text: 'Start Free',
+      href: '#pricing',
+      icon: 'Sparkles',
     },
     {
-      text: "Watch Demo",
-      href: "#demo",
-      variant: "outline" as const,
-      icon: "Play",
+      text: 'Watch Demo',
+      href: '#demo',
+      variant: 'outline' as const,
+      icon: 'Play',
     },
   ],
   socialProof: [
-    { label: "Posts Generated", value: "2.3M+" },
-    { label: "Active Creators", value: "50K+" },
-    { label: "Total Earned", value: "$2M+" },
+    { label: 'Posts Generated', value: '2.3M+' },
+    { label: 'Active Creators', value: '50K+' },
+    { label: 'Total Earned', value: '$2M+' },
   ],
 };
 
@@ -68,9 +66,9 @@ export function HeroSection({
 
   // Get background image from assets or content
   const backgroundImage =
-    assets?.find((a) => a.type === "image")?.src ||
+    assets?.find((a) => a.type === 'image')?.src ||
     content.backgroundImage ||
-    "/assets/images/hero/ai-influencer-hero-aryanna.jpg";
+    '/assets/images/hero/ai-influencer-hero-aryanna.jpg';
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Background Image */}
@@ -78,12 +76,12 @@ export function HeroSection({
         <Image
           src={backgroundImage}
           alt={
-            assets?.find((a) => a.type === "image")?.alt ||
-            "AI Influencer Hero Background"
+            assets?.find((a) => a.type === 'image')?.alt ||
+            'AI Influencer Hero Background'
           }
           fill
           className="object-cover"
-          priority={assets?.find((a) => a.type === "image")?.priority || true}
+          priority={assets?.find((a) => a.type === 'image')?.priority || true}
         />
         <div className="absolute inset-0 bg-linear-to-br from-background/80 via-background/60 to-muted/40 dark:from-background/90 dark:via-background/80 dark:to-muted/50" />
       </div>
@@ -102,11 +100,11 @@ export function HeroSection({
           >
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-7xl font-bold tracking-tight">
-                {content.headline?.split(" ").map((word, i, arr) => {
+                {content.headline?.split(' ').map((word, i, arr) => {
                   // Highlight keywords in gradient
                   const isHighlight =
-                    word.toLowerCase().includes("ai") ||
-                    word.toLowerCase().includes("influencer");
+                    word.toLowerCase().includes('ai') ||
+                    word.toLowerCase().includes('influencer');
                   return isHighlight ? (
                     <span key={i}>
                       <span
@@ -114,12 +112,12 @@ export function HeroSection({
                       >
                         {word}
                       </span>
-                      {i < arr.length - 1 ? " " : ""}
+                      {i < arr.length - 1 ? ' ' : ''}
                     </span>
                   ) : (
                     <span key={i}>
                       {word}
-                      {i < arr.length - 1 ? " " : ""}
+                      {i < arr.length - 1 ? ' ' : ''}
                     </span>
                   );
                 }) || content.headline}
@@ -139,9 +137,9 @@ export function HeroSection({
             <div className="flex flex-col sm:flex-row gap-4">
               {content.ctas?.map((cta, index) => {
                 const IconComponent =
-                  cta.icon === "Sparkles"
+                  cta.icon === 'Sparkles'
                     ? Sparkles
-                    : cta.icon === "Play"
+                    : cta.icon === 'Play'
                     ? Play
                     : ArrowRight;
 
@@ -149,7 +147,7 @@ export function HeroSection({
                   <Button
                     key={index}
                     size="lg"
-                    variant={cta.variant || "default"}
+                    variant={cta.variant || 'default'}
                     className="text-lg px-8 py-6"
                     asChild
                   >
@@ -167,7 +165,7 @@ export function HeroSection({
             {content.socialProof && content.socialProof.length > 0 && (
               <div className="flex items-center space-x-6 text-sm text-muted-foreground">
                 {content.socialProof.map((proof, index) => {
-                  const colors = ["green", "blue", "purple", "pink", "orange"];
+                  const colors = ['green', 'blue', 'purple', 'pink', 'orange'];
                   const color = colors[index % colors.length];
                   return (
                     <div key={index} className="flex items-center space-x-2">

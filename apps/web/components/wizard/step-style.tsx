@@ -1,8 +1,88 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useCharacterWizardStore } from "@ryla/business";
-import { OptionCard } from "@ryla/ui";
+import * as React from 'react';
+import { useCharacterWizardStore } from '@ryla/business';
+import { cn } from '@ryla/ui';
+
+const genderOptions = [
+  {
+    value: 'female' as const,
+    label: 'Female',
+    gradient: 'from-pink-500 to-rose-500',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
+        <circle cx="12" cy="8" r="5" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="M12 13v8M9 18h6"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    value: 'male' as const,
+    label: 'Male',
+    gradient: 'from-blue-500 to-indigo-600',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
+        <circle cx="10" cy="14" r="5" stroke="currentColor" strokeWidth="1.5" />
+        <path
+          d="M14 10l5-5M15 5h4v4"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+];
+
+const styleOptions = [
+  {
+    value: 'realistic' as const,
+    label: 'Realistic',
+    description: 'Photorealistic AI images',
+    gradient: 'from-purple-500 to-pink-500',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
+        <path
+          d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+  {
+    value: 'anime' as const,
+    label: 'Anime',
+    description: 'Stylized anime art',
+    gradient: 'from-cyan-500 to-blue-600',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
+        <path
+          d="M9.53 16.122a3 3 0 00-5.78 1.128 2.25 2.25 0 01-2.4 2.245 4.5 4.5 0 008.4-2.245c0-.399-.078-.78-.22-1.128zm0 0a15.998 15.998 0 003.388-1.62m-5.043-.025a15.994 15.994 0 011.622-3.395m3.42 3.42a15.995 15.995 0 004.764-4.648l3.876-5.814a1.151 1.151 0 00-1.597-1.597L14.146 6.32a15.996 15.996 0 00-4.649 4.763m3.42 3.42a6.776 6.776 0 00-3.42-3.42"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    ),
+  },
+];
 
 /**
  * Step 1: Style Selection
@@ -13,55 +93,132 @@ export function StepStyle() {
   const setField = useCharacterWizardStore((s) => s.setField);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col items-center">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <p className="text-white/60 text-sm font-medium mb-2">Basic Settings</p>
+        <h1 className="text-white text-2xl font-bold">Choose Gender & Style</h1>
+      </div>
+
       {/* Gender Selection */}
-      <div>
-        <h2 className="mb-2 text-lg font-semibold text-white">Select Gender</h2>
-        <p className="mb-4 text-sm text-white/60">
-          Choose your AI influencer&apos;s gender
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <OptionCard
-            variant="default"
-            emoji="👩"
-            label="Female"
-            selected={form.gender === "female"}
-            onSelect={() => setField("gender", "female")}
-          />
-          <OptionCard
-            variant="default"
-            emoji="👨"
-            label="Male"
-            selected={form.gender === "male"}
-            onSelect={() => setField("gender", "male")}
-          />
+      <div className="w-full mb-6">
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <p className="text-white/70 text-sm mb-4">Select Gender</p>
+          <div className="grid grid-cols-2 gap-3">
+            {genderOptions.map((option) => {
+              const isSelected = form.gender === option.value;
+              return (
+                <button
+                  key={option.value}
+                  onClick={() => setField('gender', option.value)}
+                  className={cn(
+                    'relative aspect-square rounded-xl border-2 transition-all duration-200 overflow-hidden',
+                    isSelected
+                      ? 'border-purple-400/50 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/20'
+                      : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+                  )}
+                >
+                  {/* Shimmer effect when selected */}
+                  {isSelected && (
+                    <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
+                  )}
+
+                  {/* Content */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 z-10">
+                    <div
+                      className={cn(
+                        'w-12 h-12 rounded-lg flex items-center justify-center shadow-md transition-transform duration-200 bg-gradient-to-br',
+                        option.gradient,
+                        isSelected && 'scale-110'
+                      )}
+                    >
+                      {option.icon}
+                    </div>
+                    <p
+                      className={cn(
+                        'text-sm font-medium',
+                        isSelected ? 'text-white' : 'text-white/90'
+                      )}
+                    >
+                      {option.label}
+                    </p>
+                  </div>
+
+                  {/* Selection Indicator */}
+                  {isSelected && (
+                    <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center z-20 shadow-md">
+                      <svg
+                        width="12"
+                        height="12"
+                        viewBox="0 0 12 12"
+                        fill="none"
+                      >
+                        <path
+                          d="M10 3L4.5 8.5L2 6"
+                          stroke="white"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 
       {/* Style Selection */}
-      <div>
-        <h2 className="mb-2 text-lg font-semibold text-white">Select Style</h2>
-        <p className="mb-4 text-sm text-white/60">
-          Choose the visual style for your AI influencer
-        </p>
-        <div className="grid grid-cols-2 gap-3">
-          <OptionCard
-            variant="default"
-            emoji="📷"
-            label="Realistic"
-            selected={form.style === "realistic"}
-            onSelect={() => setField("style", "realistic")}
-          />
-          <OptionCard
-            variant="default"
-            emoji="🎨"
-            label="Anime"
-            selected={form.style === "anime"}
-            onSelect={() => setField("style", "anime")}
-          />
-        </div>
+      <div className="w-full space-y-3">
+        {styleOptions.map((option) => {
+          const isSelected = form.style === option.value;
+          return (
+            <button
+              key={option.value}
+              onClick={() => setField('style', option.value)}
+              className={cn(
+                'w-full p-4 rounded-2xl border-2 transition-all duration-200 text-left relative overflow-hidden group',
+                isSelected
+                  ? 'border-purple-400/50 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/20'
+                  : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+              )}
+            >
+              <div className="relative z-10 flex items-center gap-4">
+                <div
+                  className={cn(
+                    'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md transition-transform duration-200 bg-gradient-to-br',
+                    option.gradient,
+                    isSelected && 'scale-110'
+                  )}
+                >
+                  {option.icon}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-base font-bold text-white">
+                    {option.label}
+                  </h3>
+                  <p className="text-sm text-white/60">{option.description}</p>
+                </div>
+                {isSelected && (
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                      <path
+                        d="M11.6667 3.5L5.25 9.91667L2.33334 7"
+                        stroke="white"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
 }
-

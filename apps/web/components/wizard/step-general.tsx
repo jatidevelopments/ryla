@@ -1,9 +1,10 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { useCharacterWizardStore } from "@ryla/business";
-import { OptionCard, Slider, Label } from "@ryla/ui";
-import { ETHNICITY_OPTIONS } from "@ryla/shared";
+import * as React from 'react';
+import { useCharacterWizardStore } from '@ryla/business';
+import { Slider, cn } from '@ryla/ui';
+import { ETHNICITY_OPTIONS } from '@ryla/shared';
+import { WizardOptionCard } from './wizard-option-card';
 
 /**
  * Step 2: General Settings
@@ -14,48 +15,57 @@ export function StepGeneral() {
   const setField = useCharacterWizardStore((s) => s.setField);
 
   return (
-    <div className="space-y-8">
+    <div className="flex flex-col items-center">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <p className="text-white/60 text-sm font-medium mb-2">Appearance</p>
+        <h1 className="text-white text-2xl font-bold">Ethnicity & Age</h1>
+      </div>
+
       {/* Ethnicity Selection */}
-      <div>
-        <h2 className="mb-2 text-lg font-semibold text-white">Select Ethnicity</h2>
-        <p className="mb-4 text-sm text-white/60">
-          Choose your AI influencer&apos;s appearance
-        </p>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
-          {ETHNICITY_OPTIONS.map((option) => (
-            <OptionCard
-              key={option.value}
-              variant="default"
-              emoji={option.emoji}
-              label={option.label}
-              selected={form.ethnicity === option.value}
-              onSelect={() => setField("ethnicity", option.value)}
-              size="sm"
-            />
-          ))}
+      <div className="w-full mb-6">
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <p className="text-white/70 text-sm mb-4">Select Ethnicity</p>
+          <div className="grid grid-cols-3 gap-2.5">
+            {ETHNICITY_OPTIONS.filter(
+              (opt) =>
+                !opt.gender ||
+                opt.gender === form.gender ||
+                opt.gender === 'all'
+            ).map((option) => (
+              <WizardOptionCard
+                key={option.value}
+                label={option.title}
+                selected={form.ethnicity === option.value}
+                onSelect={() => setField('ethnicity', option.value)}
+                size="sm"
+              />
+            ))}
+          </div>
         </div>
       </div>
 
       {/* Age Selection */}
-      <div>
-        <h2 className="mb-2 text-lg font-semibold text-white">Select Age</h2>
-        <p className="mb-4 text-sm text-white/60">
-          Set your AI influencer&apos;s age (18-65)
-        </p>
-        <div className="rounded-lg border border-white/10 bg-white/5 p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <Label className="text-white/60">Age</Label>
-            <span className="text-2xl font-bold text-white">{form.age}</span>
+      <div className="w-full">
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-4">
+            <p className="text-white/70 text-sm">Select Age</p>
+            <div className="flex items-center gap-2">
+              <span className="text-3xl font-bold text-white">{form.age}</span>
+              <span className="text-white/50 text-sm">years</span>
+            </div>
           </div>
-          <Slider
-            value={[form.age]}
-            onValueChange={([value]) => setField("age", value)}
-            min={18}
-            max={65}
-            step={1}
-            className="[&_[role=slider]]:bg-[#b99cff] [&_[role=slider]]:border-[#b99cff]"
-          />
-          <div className="mt-2 flex justify-between text-xs text-white/40">
+          <div className="relative">
+            <Slider
+              value={[form.age]}
+              onValueChange={([value]) => setField('age', value)}
+              min={18}
+              max={65}
+              step={1}
+              className="[&_[role=slider]]:bg-gradient-to-r [&_[role=slider]]:from-purple-500 [&_[role=slider]]:to-pink-500 [&_[role=slider]]:border-0 [&_[role=slider]]:shadow-lg [&_[role=slider]]:shadow-purple-500/30 [&_[data-orientation=horizontal]]:bg-white/10 [&_[data-orientation=horizontal]>[data-orientation=horizontal]]:bg-gradient-to-r [&_[data-orientation=horizontal]>[data-orientation=horizontal]]:from-purple-500 [&_[data-orientation=horizontal]>[data-orientation=horizontal]]:to-pink-500"
+            />
+          </div>
+          <div className="mt-3 flex justify-between text-xs text-white/40">
             <span>18</span>
             <span>65</span>
           </div>
@@ -64,4 +74,3 @@ export function StepGeneral() {
     </div>
   );
 }
-

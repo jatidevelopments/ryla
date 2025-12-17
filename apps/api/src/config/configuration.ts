@@ -6,7 +6,7 @@ import { Config } from './config.type';
 // Based on MDC backend structure, adapted for RYLA requirements
 export default (): Config => ({
   app: {
-    port: Number(process.env.APP_PORT) || 3000,
+    port: Number(process.env.APP_PORT) || 3001,
     host: process.env.APP_HOST || 'localhost',
     environment: process.env.APP_ENVIRONMENT || 'local',
   },

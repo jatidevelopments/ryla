@@ -2,6 +2,7 @@ import type { AIInfluencer } from '../types/influencer';
 
 /**
  * Mock AI Influencers for development
+ * Using placeholder avatars (null) - UI should handle with fallback
  */
 export const mockInfluencers: AIInfluencer[] = [
   {
@@ -9,7 +10,7 @@ export const mockInfluencers: AIInfluencer[] = [
     name: 'Luna Martinez',
     handle: '@luna.dreams',
     bio: 'Just a small-town girl with big dreams ✨',
-    avatar: '/mocks/luna-avatar.jpg',
+    avatar: null,
     gender: 'female',
     style: 'realistic',
     ethnicity: 'latina',
@@ -34,7 +35,7 @@ export const mockInfluencers: AIInfluencer[] = [
     name: 'Sofia Chen',
     handle: '@sofia.style',
     bio: 'Fashion is my language 💋',
-    avatar: '/mocks/sofia-avatar.jpg',
+    avatar: null,
     gender: 'female',
     style: 'realistic',
     ethnicity: 'asian',
@@ -59,7 +60,7 @@ export const mockInfluencers: AIInfluencer[] = [
     name: 'Emma Rose',
     handle: '@emma.fit',
     bio: 'Strong is beautiful 💪',
-    avatar: '/mocks/emma-avatar.jpg',
+    avatar: null,
     gender: 'female',
     style: 'realistic',
     ethnicity: 'caucasian',
