@@ -44,3 +44,20 @@ export const PERSONALITY_CATEGORIES = ['energy', 'social', 'lifestyle', 'vibe'] 
 /** Maximum traits user can select */
 export const MAX_PERSONALITY_TRAITS = 3;
 
+/**
+ * Personality trait option with value field for form compatibility
+ */
+export interface PersonalityTraitOption extends PersonalityOption {
+  value: string;
+}
+
+/**
+ * Personality trait options with value field for form compatibility
+ * Maps PERSONALITY_OPTIONS to include a value field (lowercase label, spaces to underscores)
+ * Example: "Laid-back" -> "laid_back"
+ */
+export const PERSONALITY_TRAIT_OPTIONS: PersonalityTraitOption[] = PERSONALITY_OPTIONS.map((option) => ({
+  ...option,
+  value: option.label.toLowerCase().replace(/\s+/g, '_').replace(/-/g, '_'),
+}));
+

@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import { useParams, notFound } from "next/navigation";
-import { useInfluencer, useLikedPosts } from "@ryla/business";
-import { PageContainer, Button, Checkbox } from "@ryla/ui";
-import { LikedPostRow } from "../../../../components/liked-post-row";
+import * as React from 'react';
+import Link from 'next/link';
+import { useParams, notFound } from 'next/navigation';
+import { useInfluencer, useLikedPosts } from '@ryla/business';
+import { PageContainer, Button, Checkbox } from '@ryla/ui';
+import { LikedPostRow } from '../../../../components/liked-post-row';
 
 export default function LikedPostsPage() {
   const params = useParams();
   const influencerId = params.id as string;
-  
+
   const influencer = useInfluencer(influencerId);
   const likedPosts = useLikedPosts(influencerId);
   const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
@@ -19,7 +19,8 @@ export default function LikedPostsPage() {
     notFound();
   }
 
-  const allSelected = selectedIds.size === likedPosts.length && likedPosts.length > 0;
+  const allSelected =
+    selectedIds.size === likedPosts.length && likedPosts.length > 0;
   const someSelected = selectedIds.size > 0;
 
   const handleSelectAll = (checked: boolean) => {
@@ -45,7 +46,7 @@ export default function LikedPostsPage() {
   const handleExportSelected = () => {
     const selected = likedPosts.filter((p) => selectedIds.has(p.id));
     // Simulate batch export
-    const captions = selected.map((p) => p.caption).join("\n\n---\n\n");
+    const captions = selected.map((p) => p.caption).join('\n\n---\n\n');
     navigator.clipboard.writeText(captions);
     alert(`Exported ${selected.length} posts! Captions copied to clipboard.`);
   };
@@ -76,10 +77,11 @@ export default function LikedPostsPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-xl font-bold text-white">
-              ❤️ Liked Posts
+              ⭐ Shortlisted Posts
             </h1>
             <p className="text-sm text-white/60">
-              {likedPosts.length} post{likedPosts.length !== 1 ? "s" : ""} ready to export
+              {likedPosts.length} post{likedPosts.length !== 1 ? 's' : ''} ready
+              to export
             </p>
           </div>
 
@@ -97,7 +99,7 @@ export default function LikedPostsPage() {
                 <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
                 <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
               </svg>
-              Export {selectedIds.size} Post{selectedIds.size !== 1 ? "s" : ""}
+              Export {selectedIds.size} Post{selectedIds.size !== 1 ? 's' : ''}
             </Button>
           )}
         </div>
@@ -114,7 +116,7 @@ export default function LikedPostsPage() {
               className="border-white/30 data-[state=checked]:bg-[#b99cff] data-[state=checked]:border-[#b99cff]"
             />
             <span className="text-sm text-white/60">
-              {allSelected ? "Deselect all" : "Select all"}
+              {allSelected ? 'Deselect all' : 'Select all'}
             </span>
           </div>
 
@@ -133,9 +135,12 @@ export default function LikedPostsPage() {
           <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-white/10 text-3xl">
             ❤️
           </div>
-          <h3 className="mb-2 text-lg font-semibold text-white">No liked posts yet</h3>
+          <h3 className="mb-2 text-lg font-semibold text-white">
+            No shortlisted posts yet
+          </h3>
           <p className="mb-6 max-w-sm text-sm text-white/60">
-            Like posts from {influencer.name}&apos;s profile to add them here for easy export.
+            Shortlist posts from {influencer.name}&apos;s profile to add them
+            here for easy export.
           </p>
           <Button asChild variant="outline">
             <Link href={`/influencer/${influencerId}`}>View Profile</Link>
@@ -145,4 +150,3 @@ export default function LikedPostsPage() {
     </PageContainer>
   );
 }
-

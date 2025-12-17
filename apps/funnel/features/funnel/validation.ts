@@ -80,9 +80,23 @@ export const funnelV3Schema = z.object({
     enable_nsfw: z.boolean({ required_error: "Please, make your choice" }),
 
     // Creation Method
-    creation_method: z.string().trim().min(1, { message: "Please, select a creation method" }),
+    creation_method: z.enum(["presets", "ai", "custom"], {
+        required_error: "Please, select a creation method",
+        invalid_type_error: "Please, select a valid creation method"
+    }),
     upload_own_image: z.boolean().optional(),
     uploaded_image: z.string().optional(),
+
+    // AI Flow Fields
+    ai_description: z.string().trim().optional(),
+    ai_reference_image: z.string().optional(),
+    ai_generated_config: z.any().optional(),
+
+    // Custom Prompts Flow Fields
+    custom_appearance_prompt: z.string().trim().optional(),
+    custom_identity_prompt: z.string().trim().optional(),
+    custom_image_prompt: z.string().trim().optional(),
+    custom_advanced_settings: z.any().optional(),
 
     // Email for payment (no account creation needed)
     email: z.string().email({ message: "Please enter a valid email address" }).min(1, { message: "Email is required" }),

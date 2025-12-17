@@ -1,8 +1,16 @@
 export * from './wizard-layout';
+export * from './wizard-step-container';
+export * from './wizard-option-card';
+export * from './step-creation-method';
 export * from './step-style';
 export * from './step-general';
 export * from './step-face';
 export * from './step-body';
 export * from './step-identity';
 export * from './step-generate';
+export * from './step-ai-description';
+export * from './step-ai-generation';
+export * from './step-ai-review';
+export * from './step-custom-prompts';
+export * from './step-custom-review';
 

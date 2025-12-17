@@ -95,3 +95,14 @@ apps/admin   → @ryla/ui, @ryla/analytics, @ryla/business
 @ryla/ui       → @ryla/shared
 @ryla/analytics → @ryla/shared
 ```
+
+## Production Domains
+
+| Domain | Service | App |
+|--------|---------|-----|
+| `www.ryla.ai` / `ryla.ai` | Landing Page | `apps/landing` |
+| `goviral.ryla.ai` | Funnel | `apps/funnel` |
+| `app.ryla.ai` | Web App | `apps/web` |
+| `end.ryla.ai` | Backend API | `apps/api` |
+
+See `docs/ops/DOMAIN-REGISTRY.md` for full details.

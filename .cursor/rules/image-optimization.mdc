@@ -1,0 +1,134 @@
+---
+description: Image optimization and compression guidelines
+alwaysApply: true
+---
+
+# Image Optimization Rules
+
+## Mandatory Image Compression
+
+**Before committing any images to the repository, they MUST be compressed.**
+
+### Slider/Hero Background Images
+
+Images used in sliders or hero backgrounds (e.g., ) must be compressed using the provided script:
+
+```bash
+python3 scripts/compress-slider-images.py
+```
+
+Or use the npm script:
+
+```bash
+npm run compress:images
+```
+
+**Target sizes:**
+- Slider images: < 50 KB per image
+- Total slider folder: < 500 KB
+
+### Compression Script
+
+**Location:** Found 12 images to compress
+Settings: max_width=800, quality=80, method=6
+
+influencer-1.webp       31.7 KB →    28.0 KB ( 11.6% reduction)
+influencer-10.webp      37.6 KB →    34.0 KB (  9.7% reduction)
+influencer-11.webp      31.1 KB →    27.1 KB ( 12.9% reduction)
+influencer-12.webp      40.1 KB →    36.8 KB (  8.1% reduction)
+influencer-2.webp       31.6 KB →    28.5 KB (  9.8% reduction)
+influencer-3.webp       34.4 KB →    30.3 KB ( 12.0% reduction)
+influencer-4.webp       33.6 KB →    30.1 KB ( 10.4% reduction)
+influencer-5.webp       35.4 KB →    32.0 KB (  9.6% reduction)
+influencer-6.webp       30.3 KB →    27.7 KB (  8.5% reduction)
+influencer-7.webp       35.3 KB →    31.2 KB ( 11.7% reduction)
+influencer-8.webp       38.2 KB →    33.3 KB ( 12.7% reduction)
+influencer-9.webp       38.6 KB →    35.2 KB (  8.6% reduction)
+
+============================================================
+Total: 0.41 MB → 0.37 MB
+Total reduction: 10.4%
+Space saved: 0.04 MB
+
+**Usage:**
+```bash
+# From project root
+python3 scripts/compress-slider-images.py
+# OR
+npm run compress:images
+```
+
+**What it does:**
+- Compresses WebP images in 
+- Resizes to max 800px width
+- Uses quality 80, method 6 compression
+- **Overwrites originals** (backup if needed)
+
+### When to Compress
+
+**Always compress images when:**
+- Adding new images to 
+- Images are larger than 100 KB
+- Before deploying to production
+- Page load performance is slow
+
+### File Size Targets
+
+| Image Type | Target Size | Max Size |
+|------------|-------------|----------|
+| Slider/background | < 50 KB | 100 KB |
+| Feature images | < 100 KB | 200 KB |
+| Hero images | < 200 KB | 500 KB |
+
+### Best Practices
+
+1. **Always compress before committing** - Never commit uncompressed images
+2. **Use WebP format** - Better compression than JPEG/PNG
+3. **Test visual quality** - Ensure compression doesn't degrade UX
+4. **Check file sizes** - Use total 1552
+-rw-r--r--   1 admin  staff   1.9K Dec  4 15:30 AGENTS.md
+-rw-r--r--   1 admin  staff   2.7K Dec  4 11:58 README.md
+drwxr-xr-x   4 admin  staff   128B Dec  4 11:40 ai
+drwxr-xr-x   9 admin  staff   288B Dec 16 13:49 apps
+drwxr-xr-x   6 admin  staff   192B Dec 15 15:55 config
+drwxr-xr-x   3 admin  staff    96B Dec 10 15:02 dist
+drwxr-xr-x   6 admin  staff   192B Dec 11 13:46 docker
+drwxr-xr-x  17 admin  staff   544B Dec 16 18:43 docs
+-rw-r--r--   1 admin  staff   503B Dec 15 04:09 fly.landing.toml
+drwxr-xr-x   5 admin  staff   160B Dec 11 13:47 handlers
+drwxr-xr-x   7 admin  staff   224B Dec  4 11:55 libs
+drwxr-xr-x   5 admin  staff   160B Dec  5 14:06 mockups
+drwxr-xr-x  80 admin  staff   2.5K Dec 16 13:58 node_modules
+-rw-r--r--   1 admin  staff   1.2K Dec 16 13:49 nx.json
+-rw-r--r--   1 admin  staff   5.7K Dec 17 16:12 package.json
+drwxr-xr-x   3 admin  staff    96B Dec  4 11:39 playwright
+-rw-r--r--   1 admin  staff   735K Dec 16 13:58 pnpm-lock.yaml
+-rw-r--r--   1 admin  staff    37B Dec  4 15:07 pnpm-workspace.yaml
+-rw-r--r--   1 admin  staff    94B Dec  5 19:03 postcss.config.js
+drwxr-xr-x  11 admin  staff   352B Dec 17 16:07 scripts
+drwxr-xr-x   3 admin  staff    96B Dec 10 15:02 tmp
+-rw-r--r--   1 admin  staff   749B Dec  4 11:58 tsconfig.base.json
+-rw-r--r--   1 admin  staff   101B Dec  4 11:55 tsconfig.json
+drwxr-xr-x   4 admin  staff   128B Dec 11 14:01 workflows or 3.4G	. to verify
+5. **Document exceptions** - If an image must be larger, document why
+
+### Performance Impact
+
+Large images significantly impact:
+- Page load time (target: < 3s per MVP principles)
+- Mobile data usage
+- User experience
+- SEO rankings
+
+**Example:** Compressing 12 slider images from 14 MB → 0.4 MB (97% reduction) dramatically improves load times.
+
+### Dependencies
+
+Requires Pillow (PIL):
+```bash
+pip install Pillow
+```
+
+### Documentation
+
+Full details: 

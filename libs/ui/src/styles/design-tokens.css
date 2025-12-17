@@ -1,0 +1,465 @@
+/**
+ * RYLA Design System - CSS Design Tokens
+ * 
+ * Unified design tokens for all RYLA applications.
+ * Based on Mobbin-inspired design system with purple gradient accents.
+ */
+
+/* ============================================
+   1. TYPOGRAPHY
+   ============================================ */
+
+:root {
+  /* Font Families */
+  --font-primary: 'DM Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.875rem; /* 14px */
+  --text-base: 1rem; /* 16px */
+  --text-lg: 1.125rem; /* 18px */
+  --text-xl: 1.25rem; /* 20px */
+  --text-2xl: 1.5rem; /* 24px */
+  --text-3xl: 1.75rem; /* 28px */
+  --text-4xl: 2.25rem; /* 36px */
+  --text-5xl: 2.5rem; /* 40px */
+  --text-6xl: 3.5rem; /* 56px */
+
+  /* Font Weights */
+  --font-normal: 400;
+  --font-medium: 500;
+  --font-semibold: 600;
+  --font-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.1;
+  --leading-snug: 1.2;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.6;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+}
+
+/* ============================================
+   2. COLORS - RYLA PURPLE THEME
+   ============================================ */
+
+:root {
+  /* Background Colors */
+  --bg-primary: #0a0a0b;
+  --bg-elevated: #111113;
+  --bg-hover: #1a1a1d;
+  --bg-subtle: #16161a;
+
+  /* Purple Accent Colors */
+  --purple-300: #d8b4fe;
+  --purple-400: #c084fc;
+  --purple-500: #a855f7;
+  --purple-600: #9333ea;
+  --purple-700: #7e22ce;
+
+  /* Pink Accent Colors */
+  --pink-400: #f472b6;
+  --pink-500: #ec4899;
+  --pink-600: #db2777;
+
+  /* Text Colors */
+  --text-primary: #ffffff;
+  --text-secondary: rgba(255, 255, 255, 0.7);
+  --text-muted: rgba(255, 255, 255, 0.4);
+  --text-disabled: rgba(255, 255, 255, 0.25);
+
+  /* Border Colors */
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-hover: rgba(255, 255, 255, 0.15);
+  --border-active: rgba(255, 255, 255, 0.25);
+  --border-purple: rgba(168, 85, 247, 0.5);
+  --border-purple-strong: rgba(168, 85, 247, 0.8);
+
+  /* Success/Earnings Color */
+  --success: #22c55e;
+  --success-muted: rgba(34, 197, 94, 0.2);
+
+  /* Error Color */
+  --error: #ef4444;
+  --error-muted: rgba(239, 68, 68, 0.2);
+}
+
+/* ============================================
+   3. GRADIENTS
+   ============================================ */
+
+:root {
+  /* Primary Purple-Pink Gradient */
+  --gradient-primary: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);
+  --gradient-primary-hover: linear-gradient(135deg, #a855f7 0%, #f472b6 100%);
+
+  /* Subtle Background Glow */
+  --gradient-glow: radial-gradient(
+    circle at 50% 0%,
+    rgba(168, 85, 247, 0.15) 0%,
+    transparent 50%
+  );
+
+  --gradient-glow-center: radial-gradient(
+    circle at 50% 50%,
+    rgba(168, 85, 247, 0.1) 0%,
+    transparent 60%
+  );
+
+  /* Text Gradient */
+  --gradient-text: linear-gradient(135deg, #c084fc 0%, #ec4899 100%);
+
+  /* Card Gradients */
+  --gradient-card-border: linear-gradient(
+    135deg,
+    rgba(168, 85, 247, 0.3) 0%,
+    rgba(236, 72, 153, 0.3) 100%
+  );
+
+  /* Fade Masks for Marquee */
+  --gradient-fade-left: linear-gradient(
+    90deg,
+    var(--bg-primary) 0%,
+    transparent 10%
+  );
+  --gradient-fade-right: linear-gradient(
+    90deg,
+    transparent 90%,
+    var(--bg-primary) 100%
+  );
+}
+
+/* ============================================
+   4. SPACING
+   ============================================ */
+
+:root {
+  /* Base Spacing Scale */
+  --sp-0: 0;
+  --sp-1: 0.25rem; /* 4px */
+  --sp-2: 0.5rem; /* 8px */
+  --sp-3: 0.75rem; /* 12px */
+  --sp-4: 1rem; /* 16px */
+  --sp-5: 1.25rem; /* 20px */
+  --sp-6: 1.5rem; /* 24px */
+  --sp-8: 2rem; /* 32px */
+  --sp-10: 2.5rem; /* 40px */
+  --sp-12: 3rem; /* 48px */
+  --sp-16: 4rem; /* 64px */
+  --sp-20: 5rem; /* 80px */
+  --sp-24: 6rem; /* 96px */
+  --sp-32: 8rem; /* 128px */
+
+  /* Section Spacing */
+  --section-padding-mobile: 5rem; /* 80px */
+  --section-padding-desktop: 7.5rem; /* 120px */
+
+  /* Container */
+  --container-max: 75rem; /* 1200px */
+  --container-padding: 1.5rem; /* 24px */
+
+  /* Component Gaps */
+  --card-gap: 1.5rem; /* 24px */
+  --element-gap: 1rem; /* 16px */
+}
+
+/* ============================================
+   5. BORDER RADIUS
+   ============================================ */
+
+:root {
+  --radius-none: 0;
+  --radius-sm: 0.5rem; /* 8px */
+  --radius-md: 0.75rem; /* 12px */
+  --radius-lg: 1rem; /* 16px */
+  --radius-xl: 1.5rem; /* 24px */
+  --radius-2xl: 2rem; /* 32px */
+  --radius-full: 9999px;
+}
+
+/* ============================================
+   6. SHADOWS & EFFECTS
+   ============================================ */
+
+:root {
+  /* Glow Effects */
+  --glow-purple: 0 0 30px rgba(168, 85, 247, 0.4);
+  --glow-purple-sm: 0 0 20px rgba(168, 85, 247, 0.3);
+  --glow-purple-lg: 0 0 60px rgba(168, 85, 247, 0.3);
+  --glow-purple-xl: 0 0 100px rgba(168, 85, 247, 0.25);
+
+  /* Card Shadows */
+  --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* Elevation */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+
+  /* Backdrop Blur */
+  --blur-sm: blur(4px);
+  --blur-md: blur(8px);
+  --blur-lg: blur(16px);
+  --blur-xl: blur(24px);
+}
+
+/* ============================================
+   7. ANIMATION TIMING
+   ============================================ */
+
+:root {
+  /* Durations */
+  --duration-fast: 150ms;
+  --duration-base: 200ms;
+  --duration-slow: 300ms;
+  --duration-slower: 600ms;
+  --duration-stat: 2000ms;
+
+  /* Easing Functions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-linear: linear;
+
+  /* Stagger Delays */
+  --stagger-delay: 100ms;
+  --stagger-max: 500ms;
+}
+
+/* ============================================
+   8. Z-INDEX SCALE
+   ============================================ */
+
+:root {
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-popover: 60;
+  --z-tooltip: 70;
+}
+
+/* ============================================
+   9. BREAKPOINTS (for reference in JS)
+   ============================================ */
+
+:root {
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+}
+
+/* ============================================
+   10. COMPONENT-SPECIFIC TOKENS
+   ============================================ */
+
+:root {
+  /* Navigation */
+  --nav-height: 4rem; /* 64px */
+  --nav-bg: rgba(10, 10, 11, 0.8);
+
+  /* Buttons */
+  --btn-padding-x: 1.75rem; /* 28px */
+  --btn-padding-y: 0.875rem; /* 14px */
+  --btn-font-size: 1rem;
+  --btn-font-weight: 600;
+
+  /* Cards */
+  --card-padding: 2rem; /* 32px */
+  --card-padding-sm: 1.5rem; /* 24px */
+
+  /* Testimonials */
+  --testimonial-min-width: 350px;
+  --testimonial-avatar-size: 48px;
+
+  /* Stats */
+  --stat-number-size: 3rem; /* 48px */
+
+  /* Marquee */
+  --marquee-gap: 3rem; /* 48px */
+  --marquee-speed: 30s;
+}
+
+/* ============================================
+   11. UTILITY CLASSES
+   ============================================ */
+
+/* Text Gradient */
+.text-gradient {
+  background: var(--gradient-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Gradient Border Effect */
+.gradient-border {
+  position: relative;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+}
+
+.gradient-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: var(--gradient-primary);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+/* Glass Effect */
+.glass {
+  background: rgba(17, 17, 19, 0.8);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
+}
+
+/* Glow on Hover */
+.hover-glow {
+  transition: box-shadow var(--duration-fast) var(--ease-in-out);
+}
+
+.hover-glow:hover {
+  box-shadow: var(--glow-purple);
+}
+
+/* Focus Visible */
+.focus-ring:focus-visible {
+  outline: 2px solid var(--purple-500);
+  outline-offset: 2px;
+}
+
+/* ============================================
+   12. ANIMATION KEYFRAMES
+   ============================================ */
+
+/* Fade In Up */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp var(--duration-slower) var(--ease-out) forwards;
+}
+
+/* Fade In */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn var(--duration-slow) var(--ease-out) forwards;
+}
+
+/* Pulse Glow */
+@keyframes pulseGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(168, 85, 247, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(168, 85, 247, 0.5);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 2s ease-in-out infinite;
+}
+
+/* Shimmer */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.1) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s ease-in-out infinite;
+}
+
+/* Scale In */
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--duration-slow) var(--ease-out) forwards;
+}
+
+/* Marquee - Horizontal */
+@keyframes marqueeScroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-50% - var(--marquee-gap) / 2));
+  }
+}
+
+.animate-marquee-scroll {
+  animation: marqueeScroll var(--marquee-speed) linear infinite;
+}
+
+/* ============================================
+   13. REDUCED MOTION
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .animate-marquee-scroll {
+    animation: none;
+  }
+}

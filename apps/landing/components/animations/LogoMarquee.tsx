@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import Marquee from "@/components/ui/marquee";
-import { cn } from "@/lib/utils";
+import Marquee from '@/components/ui/marquee';
+import { cn } from '@/lib/utils';
 
 interface LogoMarqueeProps {
   className?: string;
   reverse?: boolean;
   pauseOnHover?: boolean;
   children: React.ReactNode;
-  speed?: "slow" | "normal" | "fast";
+  speed?: 'slow' | 'normal' | 'fast';
   fadeEdges?: boolean;
 }
 
 /**
  * LogoMarquee Component
- * 
+ *
  * A specialized marquee for displaying platform logos with fade edges.
  * Built on top of the base Marquee component.
- * 
+ *
  * @example
  * <LogoMarquee fadeEdges speed="slow">
  *   <PlatformLogo name="tiktok" />
@@ -29,17 +29,17 @@ export function LogoMarquee({
   reverse = false,
   pauseOnHover = true,
   children,
-  speed = "normal",
+  speed = 'normal',
   fadeEdges = true,
 }: LogoMarqueeProps) {
   const speedDuration = {
-    slow: "60s",
-    normal: "40s",
-    fast: "25s",
+    slow: '60s',
+    normal: '40s',
+    fast: '25s',
   };
 
   return (
-    <div className={cn("relative w-full overflow-hidden", className)}>
+    <div className={cn('relative w-full overflow-hidden', className)}>
       {/* Left fade edge */}
       {fadeEdges && (
         <div
@@ -52,7 +52,7 @@ export function LogoMarquee({
       <Marquee
         reverse={reverse}
         pauseOnHover={pauseOnHover}
-        className={cn("[--gap:3rem]", `[--duration:${speedDuration[speed]}]`)}
+        className={cn('[--gap:3rem]', `[--duration:${speedDuration[speed]}]`)}
       >
         {children}
       </Marquee>
@@ -69,62 +69,102 @@ export function LogoMarquee({
 }
 
 interface PlatformLogoProps {
-  name: "tiktok" | "instagram" | "fanvue" | "onlyfans" | "youtube" | "twitter";
+  name: 'tiktok' | 'instagram' | 'youtube' | 'twitter' | 'snapchat' | 'reddit';
   className?: string;
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
 }
 
 /**
  * PlatformLogo Component
- * 
+ *
  * Displays a platform logo with consistent sizing and styling.
  * Uses actual SVG files from /public/logos/platforms/
- * 
+ *
  * @example
  * <PlatformLogo name="tiktok" size="md" />
  */
 export function PlatformLogo({
   name,
   className,
-  size = "md",
+  size = 'md',
 }: PlatformLogoProps) {
   const sizeClasses = {
-    sm: "h-5",
-    md: "h-6",
-    lg: "h-8",
+    sm: 'h-5',
+    md: 'h-6',
+    lg: 'h-8',
   };
 
   // Platform colors for styling
   const platformColors: Record<string, string> = {
-    tiktok: "#00F2EA",
-    instagram: "#E4405F",
-    fanvue: "#8B5CF6",
-    onlyfans: "#00AFF0",
-    youtube: "#FF0000",
-    twitter: "#1DA1F2",
+    tiktok: '#00F2EA',
+    instagram: '#E4405F',
+    youtube: '#FF0000',
+    twitter: '#1DA1F2',
+    snapchat: '#FFFC00',
+    reddit: '#FF4500',
+  };
+
+  // Platform emoji/icons as fallback for missing SVGs
+  const platformIcons: Record<string, string> = {
+    tiktok: '🎵',
+    instagram: '📷',
+    youtube: '▶️',
+    twitter: '🐦',
+    snapchat: '👻',
+    reddit: '🤖',
   };
 
   return (
     <div
       className={cn(
-        "flex items-center gap-3 px-4 py-2 rounded-lg transition-all duration-200",
-        "text-[var(--text-muted)] hover:text-[var(--text-primary)]",
-        "opacity-60 hover:opacity-100",
+        'flex items-center gap-3 transition-all duration-200',
+        'text-[var(--text-muted)] hover:text-[var(--text-primary)]',
+        'opacity-60 hover:opacity-100',
         className
       )}
     >
-      <img
-        src={`/logos/platforms/${name}.svg`}
-        alt={name}
-        className={cn(sizeClasses[size], "w-auto")}
-        style={{ filter: "brightness(0) invert(1)" }}
-      />
+      {/* Try to load SVG, fallback to emoji if missing */}
+      <div className="relative flex items-center">
+        <img
+          src={`/logos/platforms/${name}.svg`}
+          alt={name}
+          className={cn(sizeClasses[size], 'w-auto')}
+          style={{ filter: 'brightness(0) invert(1)' }}
+          onError={(e) => {
+            // Hide SVG and show emoji fallback
+            const img = e.target as HTMLImageElement;
+            img.style.display = 'none';
+            const emoji = img.nextElementSibling as HTMLElement;
+            if (emoji) {
+              emoji.style.display = 'block';
+              emoji.style.fontSize = sizeClasses[size]
+                .replace('h-', '')
+                .replace('5', '1.25rem')
+                .replace('6', '1.5rem')
+                .replace('8', '2rem');
+            }
+          }}
+        />
+        <span
+          className="hidden"
+          style={{ display: 'none', lineHeight: 1, fontSize: '1.25rem' }}
+        >
+          {platformIcons[name] || '•'}
+        </span>
+      </div>
       <span className="text-sm font-medium capitalize whitespace-nowrap">
-        {name === "onlyfans" ? "OnlyFans" : name === "tiktok" ? "TikTok" : name}
+        {name === 'tiktok'
+          ? 'TikTok'
+          : name === 'snapchat'
+          ? 'Snapchat'
+          : name === 'reddit'
+          ? 'Reddit'
+          : name === 'twitter'
+          ? 'Twitter'
+          : name}
       </span>
     </div>
   );
 }
 
 export default LogoMarquee;
-

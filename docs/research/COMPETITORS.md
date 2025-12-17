@@ -1,6 +1,6 @@
 # RYLA - Competitor Analysis
 
-> **Last Updated**: December 5, 2025
+> **Last Updated**: December 6, 2025
 > **Status**: Living document - update as new competitors are discovered
 
 ---
@@ -33,6 +33,7 @@ These platforms focus on generating AI images, often with adult content capabili
 | **Foxy.ai**           | foxy.ai              | AI content studio              | $14-$124/mo, celebrity endorsements, viral presets                | No NSFW, credit-based pricing                   | 🔴 High      |
 | **CreatorCore AI**    | creatorcoreai.com    | AI influencer creation         | Credit-based pricing, NSFW support, video gen, API access         | No monetization tools, credit limits            | 🔴 High      |
 | **CreatorGen**        | creatorgen.ai        | AI influencer creation         | TBD - needs deep analysis                                         | TBD - needs deep analysis                       | 🟡 Medium    |
+| **ZenCreator**        | zencreator.pro       | Uncensored AI photo & video    | No content filters, face gen/swap, video gen, lip sync, 4K output | No monetization tools, credit-based pricing     | 🔴 High      |
 
 **RYLA Opportunity**: Character consistency + workflow + monetization path
 
@@ -137,6 +138,40 @@ These platforms focus on generating AI images, often with adult content capabili
 - **RYLA Differentiation**: TBD after analysis
 
 **Research Priority**: Deep analysis needed - visit site, document features, pricing, workflow
+
+---
+
+### ZenCreator Deep Dive ⭐ DIRECT COMPETITOR
+
+> Source: [zencreator.pro](https://zencreator.pro/)
+
+- **What**: Uncensored AI photo & video generation platform with no content restrictions
+- **Key Features**:
+  - **Uncensored Generation** - No content filters, complete creative freedom
+  - **Face Generation** - Generate realistic faces with AI technology
+  - **Face Swapping** - Swap faces in images with AI precision
+  - **Upscaling** - Enhance image quality and resolution (up to 4K)
+  - **Image Generation** - Text-to-image and reference-based generation
+  - **Video Generation** - Create videos from text and images
+  - **AI Influencer Generator** - Create realistic AI influencers and avatars for posts and ads
+  - **Lip Sync** - Animate faces with voice using OmniHuman 1.5
+  - **Virtual Try-On** - Preview outfits with AI, consistent backgrounds, face swap
+  - **Photo Shoot Generation** - Create professional photo shoots with AI
+  - **Dating Profile Generation** - Generate attractive dating profiles automatically
+  - **Carousel Generation** - Generate engaging carousel posts for social media
+  - **AI Photo Editor** - Edit photos with AI prompts: retouch, background removal, upscale, variations
+  - **Image to Video** - Turn images into videos with templates, captions, beat-sync for Reels & Shorts
+  - **Text to Video** - Turn scripts into videos with hooks, captions, templates
+  - **Video to Video** - Transform videos with AI, replace faces, animate photos
+- **Pricing**: 30 free credits to start (no credit card required)
+- **Target**: UGC & Influencers, E-commerce, Gaming, Dating, Agencies, SaaS, Education, Entertainment
+- **USP**: "Unrestricted AI Content Creation" - no content filters, no restrictions, just pure creative freedom
+- **Social Proof**: Supported by Microsoft for Startups, AWS Activate
+- **Weakness**: No monetization tools (OF export, etc.), credit-based pricing may limit usage
+- **Threat Level**: 🔴 HIGH - Feature-rich, uncensored, strong positioning, multiple use cases
+- **RYLA Differentiation**: Monetization path (OF/Fanvue export) + character personas for income + unified workflow with character memory
+
+**Research Priority**: Subscribe and document full product experience, compare credit costs vs RYLA pricing, analyze face generation consistency
 
 ---
 
@@ -437,6 +472,7 @@ Extracted from team WhatsApp group discussions:
 | Dec 4, 2025 | Added Higgsfield ($50M), Clonify, OpenMind           | Web research                          |
 | Dec 4, 2025 | **Imported 35+ competitors from ai-influencer repo** | GitHub jatidevelopments/ai-influencer |
 | Dec 5, 2025 | Added CreatorCore AI and CreatorGen.ai to Category 1 | Web research                          |
+| Dec 6, 2025 | Added ZenCreator to Category 1 with deep dive        | Web research                          |
 
 ---
 

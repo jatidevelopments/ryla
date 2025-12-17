@@ -24,7 +24,8 @@
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "landing:build",
-        "dev": true
+        "dev": true,
+        "port": 3003
       },
       "configurations": {
         "development": {

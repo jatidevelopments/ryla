@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { AnnouncementBar } from "@/components/announcement-bar";
-import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Button } from '@/components/ui/button';
+import { AnnouncementBar } from '@/components/announcement-bar';
+import { useState, useEffect } from 'react';
+import { Menu, X } from 'lucide-react';
 
 interface LandingPageHeaderProps {
   title: string;
@@ -15,7 +15,7 @@ interface LandingPageHeaderProps {
   }>;
   ctaText: string;
   ctaHref?: string;
-  variant?: "default" | "overlay";
+  variant?: 'default' | 'overlay';
 }
 
 export function LandingPageHeader({
@@ -24,8 +24,8 @@ export function LandingPageHeader({
   gradient,
   navigation,
   ctaText,
-  ctaHref = "#",
-  variant = "default",
+  ctaHref = '#',
+  variant = 'default',
 }: LandingPageHeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -34,8 +34,8 @@ export function LandingPageHeader({
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const handleNavClick = (
@@ -43,7 +43,7 @@ export function LandingPageHeader({
     href: string
   ) => {
     e.preventDefault();
-    if (href.startsWith("#")) {
+    if (href.startsWith('#')) {
       const element = document.querySelector(href);
       if (element) {
         const headerOffset = 140;
@@ -53,7 +53,7 @@ export function LandingPageHeader({
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
       }
     } else {
@@ -63,7 +63,7 @@ export function LandingPageHeader({
   };
 
   const handleCTAClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    if (ctaHref.startsWith("#")) {
+    if (ctaHref.startsWith('#')) {
       e.preventDefault();
       const element = document.querySelector(ctaHref);
       if (element) {
@@ -74,7 +74,7 @@ export function LandingPageHeader({
 
         window.scrollTo({
           top: offsetPosition,
-          behavior: "smooth",
+          behavior: 'smooth',
         });
       }
     } else {
@@ -83,36 +83,36 @@ export function LandingPageHeader({
   };
 
   const wrapperClasses =
-    variant === "overlay"
+    variant === 'overlay'
       ? `absolute top-0 left-0 right-0 z-30 transition-all duration-300 ${
           isScrolled
-            ? "bg-black/40 backdrop-blur-lg"
-            : "bg-black/20 backdrop-blur-md"
+            ? 'bg-black/40 backdrop-blur-lg'
+            : 'bg-black/20 backdrop-blur-md'
         }`
       : `sticky top-0 z-50 transition-all duration-300 ${
           isScrolled
-            ? "bg-background/98 backdrop-blur-lg shadow-sm"
-            : "bg-background/95 backdrop-blur-md"
+            ? 'bg-background/98 backdrop-blur-lg shadow-sm'
+            : 'bg-background/95 backdrop-blur-md'
         }`;
 
   const headerClasses =
-    variant === "overlay"
+    variant === 'overlay'
       ? `border-b border-white/20 transition-all duration-300 ${
-          isScrolled ? "border-white/20" : "border-white/10"
+          isScrolled ? 'border-white/20' : 'border-white/10'
         }`
       : `border-b transition-all duration-300 ${
-          isScrolled ? "border-border" : "border-border/50"
+          isScrolled ? 'border-border' : 'border-border/50'
         }`;
 
-  const textClasses = variant === "overlay" ? "text-white" : "text-foreground";
+  const textClasses = variant === 'overlay' ? 'text-white' : 'text-foreground';
 
   const navClasses =
-    variant === "overlay"
-      ? "text-white/90 hover:text-white transition-colors font-medium"
-      : "text-muted-foreground hover:text-foreground transition-colors font-medium";
+    variant === 'overlay'
+      ? 'text-white/90 hover:text-white transition-colors font-medium'
+      : 'text-muted-foreground hover:text-foreground transition-colors font-medium';
 
   const buttonClasses =
-    variant === "overlay" ? "text-white hover:bg-white/10 border-white/20" : "";
+    variant === 'overlay' ? 'text-white hover:bg-white/10 border-white/20' : '';
 
   return (
     <div className={wrapperClasses}>
@@ -151,7 +151,9 @@ export function LandingPageHeader({
               <Button
                 variant="ghost"
                 className={buttonClasses}
-                onClick={() => setMobileMenuOpen(false)}
+                onClick={() => {
+                  window.location.href = 'https://app.ryla.ai';
+                }}
               >
                 Sign In
               </Button>
@@ -166,7 +168,7 @@ export function LandingPageHeader({
             {/* Mobile Menu Button */}
             <button
               className={`md:hidden p-2 rounded-lg ${
-                variant === "overlay" ? "text-white" : "text-foreground"
+                variant === 'overlay' ? 'text-white' : 'text-foreground'
               } hover:bg-foreground/5`}
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               aria-label="Toggle menu"
@@ -183,7 +185,7 @@ export function LandingPageHeader({
           {mobileMenuOpen && (
             <div
               className={`md:hidden border-t ${
-                variant === "overlay" ? "border-white/20" : "border-border"
+                variant === 'overlay' ? 'border-white/20' : 'border-border'
               } py-4`}
             >
               <nav className="flex flex-col space-y-2">
@@ -201,7 +203,10 @@ export function LandingPageHeader({
                   <Button
                     variant="ghost"
                     className={`${buttonClasses} justify-start`}
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={() => {
+                      window.location.href = 'https://app.ryla.ai';
+                      setMobileMenuOpen(false);
+                    }}
                   >
                     Sign In
                   </Button>

@@ -106,24 +106,24 @@ async function bootstrap() {
     maxAge: 3600,
   });
 
-  const defaultPort = appConfig.port || 3000;
+  const defaultPort = appConfig.port || 3001;
 
   await app.listen(defaultPort, () => {
     console.log('');
     console.log(
       chalk.green.bold('🚀 ') +
-        chalk.white('Server running on ') +
-        chalk.cyan.bold(`http://${appConfig.host}:${defaultPort}`),
+      chalk.white('Server running on ') +
+      chalk.cyan.bold(`http://${appConfig.host}:${defaultPort}`),
     );
     console.log(
       chalk.blue.bold('📚 ') +
-        chalk.white('Swagger docs: ') +
-        chalk.cyan.bold(`http://${appConfig.host}:${defaultPort}/docs`),
+      chalk.white('Swagger docs: ') +
+      chalk.cyan.bold(`http://${appConfig.host}:${defaultPort}/docs`),
     );
     console.log(
       chalk.yellow.bold('🔐 ') +
-        chalk.white('Swagger auth: ') +
-        chalk.gray('admin / admin'),
+      chalk.white('Swagger auth: ') +
+      chalk.gray('admin / admin'),
     );
     console.log('');
   });

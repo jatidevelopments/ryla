@@ -7,7 +7,7 @@ export interface AIInfluencer {
   name: string;
   handle: string;
   bio: string;
-  avatar: string;
+  avatar: string | null;
   // Character attributes
   gender: 'female' | 'male';
   style: 'realistic' | 'anime';

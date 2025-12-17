@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { Section, SectionHeader } from '@/components/ryla-ui';
 import { FadeInUp } from '@/components/animations';
 import { cn } from '@/lib/utils';
@@ -62,7 +62,7 @@ const storySections: StorySection[] = [
     step: 3,
     title: 'Post',
     story:
-      'Connect your platforms with one click. TikTok. Instagram. Fanvue. OnlyFans. Choose from viral-ready prompts and scenes. Schedule posts for optimal engagement. Your AI influencer is now live.',
+      'Connect your platforms with one click. TikTok. Instagram. Choose from viral-ready prompts and scenes. Schedule posts for optimal engagement. Your AI influencer is now live.',
     highlight: 'All platforms. One dashboard.',
     icon: Share2,
     preview: {
@@ -101,12 +101,7 @@ function UIMockupPreview({
     <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
       <div className="aspect-[16/10] relative">
         {image ? (
-          <Image
-            src={image}
-            alt={caption}
-            fill
-            className="object-cover"
-          />
+          <Image src={image} alt={caption} fill className="object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-950/30 to-pink-950/30">
             <div className="text-center p-6">
@@ -120,9 +115,7 @@ function UIMockupPreview({
       </div>
       {/* Caption */}
       <div className="absolute bottom-0 left-0 right-0 p-3">
-        <p className="text-sm text-white/80 font-medium">
-          {caption}
-        </p>
+        <p className="text-sm text-white/80 font-medium">{caption}</p>
       </div>
     </div>
   );
@@ -143,12 +136,7 @@ function ImageGridPreview({
     <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
       <div className="aspect-[16/10] relative">
         {image ? (
-          <Image
-            src={image}
-            alt={caption}
-            fill
-            className="object-cover"
-          />
+          <Image src={image} alt={caption} fill className="object-cover" />
         ) : (
           <div className="w-full h-full p-4 bg-gradient-to-br from-purple-950/30 to-pink-950/30">
             {/* Instagram-style grid placeholder */}
@@ -158,9 +146,7 @@ function ImageGridPreview({
                   key={i}
                   className="bg-white/5 rounded border border-white/10 flex items-center justify-center"
                 >
-                  {i < 7 && (
-                    <Sparkles className="w-6 h-6 text-purple-400/50" />
-                  )}
+                  {i < 7 && <Sparkles className="w-6 h-6 text-purple-400/50" />}
                 </div>
               ))}
             </div>
@@ -171,9 +157,7 @@ function ImageGridPreview({
       </div>
       {/* Caption */}
       <div className="absolute bottom-0 left-0 right-0 p-3">
-        <p className="text-sm text-white/80 font-medium">
-          {caption}
-        </p>
+        <p className="text-sm text-white/80 font-medium">{caption}</p>
       </div>
     </div>
   );
@@ -183,23 +167,12 @@ function ImageGridPreview({
  * Image Preview Component (Steps 3 & 4)
  * Standard image preview
  */
-function ImagePreview({
-  image,
-  caption,
-}: {
-  image?: string;
-  caption: string;
-}) {
+function ImagePreview({ image, caption }: { image?: string; caption: string }) {
   return (
     <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
       <div className="aspect-[16/10] relative">
         {image ? (
-          <Image
-            src={image}
-            alt={caption}
-            fill
-            className="object-cover"
-          />
+          <Image src={image} alt={caption} fill className="object-cover" />
         ) : (
           <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-purple-950/30 to-pink-950/30">
             <div className="text-center p-6">
@@ -213,9 +186,7 @@ function ImagePreview({
       </div>
       {/* Caption */}
       <div className="absolute bottom-0 left-0 right-0 p-3">
-        <p className="text-sm text-white/80 font-medium">
-          {caption}
-        </p>
+        <p className="text-sm text-white/80 font-medium">{caption}</p>
       </div>
     </div>
   );
@@ -231,9 +202,10 @@ interface WordProps {
 }
 
 function Word({ children, progress, range }: WordProps) {
-  const opacity = useTransform(progress, range, [0.15, 1]);
+  // Start completely invisible, fade to full opacity
+  const opacity = useTransform(progress, range, [0, 1]);
   const color = useTransform(progress, range, [
-    'rgb(255 255 255 / 0.15)',
+    'rgb(255 255 255 / 0)',
     'rgb(255 255 255 / 1)',
   ]);
 
@@ -256,10 +228,35 @@ interface StoryBlockProps {
 
 function StoryBlock({ section, index }: StoryBlockProps) {
   const targetRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Track screen size for mobile/desktop logic
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 1024);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Desktop scroll reveal - more sensitive range
+  const { scrollYProgress: desktopScrollProgress } = useScroll({
     target: targetRef,
     offset: ['start 0.85', 'start 0.15'],
   });
+
+  // Mobile scroll reveal - wider range for slower, more gradual reveal
+  // Start when element bottom enters viewport, end when element top leaves viewport
+  const { scrollYProgress: mobileScrollProgress } = useScroll({
+    target: targetRef,
+    offset: ['start 1.2', 'start 0'],
+  });
+
+  // Use appropriate scroll progress based on screen size
+  const scrollYProgress = isMobile
+    ? mobileScrollProgress
+    : desktopScrollProgress;
 
   const words = section.story.split(' ');
   const Icon = section.icon;
@@ -270,9 +267,9 @@ function StoryBlock({ section, index }: StoryBlockProps) {
   return (
     <div
       ref={targetRef}
-      className="relative min-h-[55vh] flex items-center py-12 md:py-16 overflow-hidden"
+      className="relative min-h-[45vh] md:min-h-[55vh] flex items-center py-6 md:py-12 lg:py-16 overflow-hidden"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 w-full relative z-10">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-16 w-full relative z-10">
         {/* Card Column */}
         <div
           className={cn(
@@ -286,7 +283,7 @@ function StoryBlock({ section, index }: StoryBlockProps) {
             transition={{ duration: 0.5, delay: 0.1 }}
             viewport={{ once: true }}
             className={cn(
-              'relative p-6 md:p-8 rounded-3xl overflow-hidden',
+              'relative p-5 md:p-6 lg:p-8 rounded-3xl overflow-hidden',
               // 1:1 aspect ratio (square)
               'aspect-square',
               // Border
@@ -295,14 +292,17 @@ function StoryBlock({ section, index }: StoryBlockProps) {
               'transform-gpu transition-all duration-300',
               'hover:border-purple-500/40 hover:shadow-xl hover:shadow-purple-500/10'
             )}
+            style={{ willChange: 'transform, opacity' }}
           >
             {/* Background Image */}
             {section.preview.image && (
               <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
-                <div className={cn(
-                  "absolute inset-0",
-                  index === 0 && "translate-y-[20%]"
-                )}>
+                <div
+                  className={cn(
+                    'absolute inset-0',
+                    index === 0 && 'translate-y-[20%]'
+                  )}
+                >
                   <Image
                     src={section.preview.image}
                     alt={section.preview.caption}
@@ -319,7 +319,7 @@ function StoryBlock({ section, index }: StoryBlockProps) {
             {/* Content overlay - z-10 to appear above background */}
             <div className="relative z-10 flex flex-col h-full">
               {/* Content at top - step badge, title, and highlight */}
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-3 md:gap-4">
                 {/* Step badge with icon */}
                 <div className="flex items-center gap-4">
                   <div className="relative">
@@ -342,42 +342,51 @@ function StoryBlock({ section, index }: StoryBlockProps) {
                 </div>
 
                 {/* Highlight tagline */}
-                <p className="text-2xl lg:text-3xl text-purple-300 font-semibold">
+                <p className="text-xl md:text-2xl lg:text-3xl text-purple-300 font-semibold">
                   {section.highlight}
-                </p>
-              </div>
-
-              {/* Mobile: Show story text at bottom */}
-              <div className="mt-auto lg:hidden">
-                <p className="text-base text-white/60 leading-relaxed">
-                  {section.story}
                 </p>
               </div>
             </div>
           </motion.div>
         </div>
 
-        {/* Text Column - Story text with scroll reveal (desktop only) */}
+        {/* Text Column - Story text with scroll reveal */}
         <div
           className={cn(
-            'hidden lg:flex items-center',
+            'flex items-center mt-6 lg:mt-0',
             isFlipped && 'lg:order-1 lg:justify-end lg:text-right'
           )}
         >
+          {/* Scroll-revealed text (mobile and desktop) */}
           <p
             className={cn(
-              'text-xl lg:text-2xl font-medium leading-relaxed',
-              isFlipped && 'text-right'
+              'text-xl md:text-xl lg:text-2xl font-medium leading-relaxed',
+              isFlipped && 'lg:text-right'
             )}
           >
             {words.map((word, i) => {
-              const start = (i / words.length) * 0.85;
-              const end = Math.min(1, start + 0.1);
-              return (
-                <Word key={i} progress={scrollYProgress} range={[start, end]}>
-                  {word}
-                </Word>
-              );
+              // Different range calculation for mobile vs desktop
+              if (isMobile) {
+                // Mobile: slower reveal, words appear over longer scroll distance
+                // Spread words across the entire scroll progress for gradual reveal
+                // Start earlier and end later for smoother animation
+                const start = (i / words.length) * 0.3;
+                const end = Math.min(1, start + 0.25);
+                return (
+                  <Word key={i} progress={scrollYProgress} range={[start, end]}>
+                    {word}
+                  </Word>
+                );
+              } else {
+                // Desktop: original faster reveal
+                const start = (i / words.length) * 0.85;
+                const end = Math.min(1, start + 0.1);
+                return (
+                  <Word key={i} progress={scrollYProgress} range={[start, end]}>
+                    {word}
+                  </Word>
+                );
+              }
             })}
           </p>
         </div>
@@ -402,7 +411,11 @@ function StoryBlock({ section, index }: StoryBlockProps) {
  */
 export function HowItWorksSection() {
   return (
-    <Section id="how-it-works" background="default" className="py-16 md:py-28 bg-transparent">
+    <Section
+      id="how-it-works"
+      background="default"
+      className="py-12 md:py-20 lg:py-28 bg-transparent"
+    >
       {/* Header */}
       <FadeInUp>
         <SectionHeader
@@ -422,13 +435,17 @@ export function HowItWorksSection() {
         {/* Story blocks */}
         <div className="space-y-0">
           {storySections.map((section, index) => (
-            <StoryBlock
+            <div
               key={section.step}
-              section={section}
-              index={index}
-              isFirst={index === 0}
-              isLast={index === storySections.length - 1}
-            />
+              className={index > 0 ? 'mt-8 md:mt-12 lg:mt-16' : ''}
+            >
+              <StoryBlock
+                section={section}
+                index={index}
+                isFirst={index === 0}
+                isLast={index === storySections.length - 1}
+              />
+            </div>
           ))}
         </div>
       </div>

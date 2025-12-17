@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from 'react';
 import {
   motion,
   useAnimationFrame,
@@ -9,8 +9,8 @@ import {
   useSpring,
   useTransform,
   useVelocity,
-} from "framer-motion";
-import { cn } from "@/lib/utils";
+} from 'framer-motion';
+import { cn } from '@/lib/utils';
 
 interface VelocityScrollProps {
   children: React.ReactNode;
@@ -30,7 +30,11 @@ function wrap(min: number, max: number, v: number) {
   return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
 }
 
-function ParallaxText({ children, baseVelocity = 5, className }: ParallaxProps) {
+function ParallaxText({
+  children,
+  baseVelocity = 5,
+  className,
+}: ParallaxProps) {
   const baseX = useMotionValue(0);
   const { scrollY } = useScroll();
   const scrollVelocity = useVelocity(scrollY);
@@ -47,6 +51,8 @@ function ParallaxText({ children, baseVelocity = 5, className }: ParallaxProps) 
   const textRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    let ticking = false;
+
     const calculateRepetitions = () => {
       if (containerRef.current && textRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
@@ -58,8 +64,18 @@ function ParallaxText({ children, baseVelocity = 5, className }: ParallaxProps) 
 
     calculateRepetitions();
 
-    window.addEventListener("resize", calculateRepetitions);
-    return () => window.removeEventListener("resize", calculateRepetitions);
+    const handleResize = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          calculateRepetitions();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
+    window.addEventListener('resize', handleResize, { passive: true });
+    return () => window.removeEventListener('resize', handleResize);
   }, [children]);
 
   const x = useTransform(baseX, (v) => `${wrap(-100 / repetitions, 0, v)}%`);
@@ -82,10 +98,21 @@ function ParallaxText({ children, baseVelocity = 5, className }: ParallaxProps) 
     <div
       ref={containerRef}
       className="w-full overflow-hidden whitespace-nowrap"
+      style={{ willChange: 'transform' }}
     >
-      <motion.div className={cn("inline-flex", className)} style={{ x }}>
+      <motion.div
+        className={cn('inline-flex', className)}
+        style={{
+          x,
+          transform: 'translateZ(0)', // Force GPU acceleration
+        }}
+      >
         {Array.from({ length: repetitions }).map((_, i) => (
-          <span key={i} ref={i === 0 ? textRef : undefined} className="inline-block">
+          <span
+            key={i}
+            ref={i === 0 ? textRef : undefined}
+            className="inline-block"
+          >
             {children}
           </span>
         ))}
@@ -101,7 +128,7 @@ export function VelocityScroll({
   className,
 }: VelocityScrollProps) {
   return (
-    <div className={cn("relative w-full", className)}>
+    <div className={cn('relative w-full', className)}>
       {Array.from({ length: numRows }).map((_, i) => (
         <ParallaxText
           key={i}
@@ -128,14 +155,14 @@ interface VelocityTextProps {
 
 export function VelocityText({
   text,
-  separator = " • ",
+  separator = ' • ',
   className,
   textClassName,
   velocity = 2,
 }: VelocityTextProps) {
   return (
     <VelocityScroll defaultVelocity={velocity} className={className}>
-      <span className={cn("mx-4", textClassName)}>
+      <span className={cn('mx-4', textClassName)}>
         {text}
         <span className="mx-4 text-purple-500">{separator}</span>
       </span>
@@ -144,4 +171,3 @@ export function VelocityText({
 }
 
 export default VelocityScroll;
-

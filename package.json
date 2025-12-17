@@ -15,7 +15,10 @@
     "db:generate": "cd apps/api && drizzle-kit generate",
     "db:migrate": "cd apps/api && drizzle-kit migrate",
     "db:studio": "cd apps/api && drizzle-kit studio",
-    "db:push": "cd apps/api && drizzle-kit push"
+    "db:push": "cd apps/api && drizzle-kit push",
+    "compress:images": "python3 scripts/compress-slider-images.py",
+    "deploy:landing": "flyctl deploy --config apps/landing/fly.toml --dockerfile apps/landing/Dockerfile --build-arg NEXT_PUBLIC_SITE_URL=\"https://www.ryla.ai\" --build-arg NEXT_PUBLIC_CDN_URL=\"https://rylaai.b-cdn.net\" --build-arg NEXT_PUBLIC_DEBUG_CDN=\"true\"",
+    "deploy:funnel": "npm run predeploy && flyctl deploy --config apps/funnel/fly.toml --dockerfile apps/funnel/Dockerfile --build-arg NEXT_PUBLIC_CDN_URL=\"https://rylaai.b-cdn.net\" --build-arg NEXT_PUBLIC_DEBUG_CDN=\"true\" --build-arg NEXT_PUBLIC_SITE_URL=\"https://goviral.ryla.ai\" --build-arg NEXT_PUBLIC_API_BASE_URL=\"https://devapi.mydreamcompanion.com\" --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT=\"/\" --build-arg NEXT_PUBLIC_POSTHOG_HOST=\"https://us.i.posthog.com\" --build-arg NEXT_PUBLIC_POSTHOG_KEY=\"phc_z3f9QIPUEEiNCGvf2JUH1A73ucx43IG8Ru9qfdfkkGU\" --build-arg NEXT_PUBLIC_SUPABASE_URL=\"https://wkmhcjjphidaaxsulhrw.supabase.co\" --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrbWhjampwaGlkYWF4c3VsaHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0OTAzOTMsImV4cCI6MjA4MDA2NjM5M30.Ktt35-wkIFmJepj85VWopFG1_M89DXsSU8ic5vO1orA\""
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.948.0",

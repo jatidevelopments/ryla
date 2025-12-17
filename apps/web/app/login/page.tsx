@@ -1,110 +1,169 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { Button, Input, Label } from "@ryla/ui";
+import Link from 'next/link';
+import Image from 'next/image';
+import {
+  Button,
+  Input,
+  Label,
+  RylaButton,
+  MagicCard,
+  FadeInUp,
+} from '@ryla/ui';
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm">
+    <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden">
+      {/* Background image */}
+      <div
+        className="pointer-events-none absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{
+          backgroundImage: 'url(/images/background2.png)',
+        }}
+      />
+      {/* Dark overlay */}
+      <div className="pointer-events-none absolute inset-0 bg-black/95" />
+
+      <div className="relative w-full max-w-md">
         {/* Logo */}
-        <div className="mb-8 text-center">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-[#d5b9ff] to-[#b99cff] bg-clip-text text-transparent">
-            RYLA
-          </h1>
-          <p className="mt-2 text-white/60">Create Your AI Influencer</p>
-        </div>
+        <FadeInUp>
+          <div className="mb-10 text-center">
+            <Link href="/" className="inline-block mb-4">
+              <Image
+                src="/logos/Ryla_Logo_white.png"
+                alt="RYLA"
+                width={140}
+                height={48}
+                className="h-12 w-auto"
+              />
+            </Link>
+            <p className="text-[var(--text-secondary)]">
+              Create Your AI Influencer
+            </p>
+          </div>
+        </FadeInUp>
 
         {/* Login Form */}
-        <div className="rounded-xl border border-white/10 bg-white/5 p-6">
-          <h2 className="mb-6 text-center text-xl font-semibold text-white">
-            Welcome Back
-          </h2>
+        <FadeInUp delay={100}>
+          <MagicCard
+            gradientFrom="rgba(255, 255, 255, 0.15)"
+            gradientTo="rgba(255, 255, 255, 0.08)"
+            gradientSize={400}
+            gradientOpacity={0.3}
+            gradientColor="rgba(255, 255, 255, 0.1)"
+            className="rounded-3xl"
+          >
+            <div className="p-8">
+              <h2 className="mb-6 text-center text-2xl font-bold text-[var(--text-primary)]">
+                Welcome Back
+              </h2>
 
-          <form className="space-y-4">
-            <div>
-              <Label htmlFor="email" className="text-white">
-                Email
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                className="mt-1.5 bg-white/5 border-white/10 text-white placeholder:text-white/30"
-              />
+              <form className="space-y-5">
+                <div>
+                  <Label
+                    htmlFor="email"
+                    className="text-[var(--text-primary)] mb-2 block"
+                  >
+                    Email
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    className="h-12 rounded-xl bg-[var(--bg-primary)] border-[var(--border-default)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20"
+                  />
+                </div>
+
+                <div>
+                  <Label
+                    htmlFor="password"
+                    className="text-[var(--text-primary)] mb-2 block"
+                  >
+                    Password
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    className="h-12 rounded-xl bg-[var(--bg-primary)] border-[var(--border-default)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between text-sm">
+                  <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="rounded-md border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--purple-500)] focus:ring-[var(--purple-500)]/20"
+                    />
+                    Remember me
+                  </label>
+                  <a
+                    href="#"
+                    className="text-[var(--purple-400)] hover:text-[var(--purple-300)] transition-colors"
+                  >
+                    Forgot password?
+                  </a>
+                </div>
+
+                <RylaButton
+                  type="submit"
+                  variant="gradient"
+                  size="lg"
+                  className="w-full rounded-xl"
+                >
+                  Sign In
+                </RylaButton>
+              </form>
+
+              <div className="my-6 flex items-center gap-3">
+                <div className="h-px flex-1 bg-[var(--border-default)]" />
+                <span className="text-xs text-[var(--text-muted)]">
+                  OR CONTINUE WITH
+                </span>
+                <div className="h-px flex-1 bg-[var(--border-default)]" />
+              </div>
+
+              <Button
+                variant="outline"
+                className="w-full h-12 rounded-xl border-[var(--border-default)] bg-[var(--bg-primary)] hover:bg-[var(--bg-hover)] hover:border-[var(--border-hover)] text-[var(--text-primary)]"
+              >
+                <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                  />
+                </svg>
+                Continue with Google
+              </Button>
             </div>
-
-            <div>
-              <Label htmlFor="password" className="text-white">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                className="mt-1.5 bg-white/5 border-white/10 text-white placeholder:text-white/30"
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-white/60">
-                <input
-                  type="checkbox"
-                  className="rounded border-white/30 bg-white/5"
-                />
-                Remember me
-              </label>
-              <a href="#" className="text-[#b99cff] hover:underline">
-                Forgot password?
-              </a>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full bg-gradient-to-r from-[#d5b9ff] to-[#b99cff]"
-            >
-              Sign In
-            </Button>
-          </form>
-
-          <div className="my-6 flex items-center gap-3">
-            <div className="h-px flex-1 bg-white/10" />
-            <span className="text-xs text-white/40">OR</span>
-            <div className="h-px flex-1 bg-white/10" />
-          </div>
-
-          <Button variant="outline" className="w-full">
-            <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
-              <path
-                fill="currentColor"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="currentColor"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="currentColor"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
-            Continue with Google
-          </Button>
-        </div>
+          </MagicCard>
+        </FadeInUp>
 
         {/* Sign Up Link */}
-        <p className="mt-6 text-center text-sm text-white/60">
-          Don&apos;t have an account?{" "}
-          <Link href="/wizard/step-1" className="text-[#b99cff] hover:underline">
-            Get started
-          </Link>
-        </p>
+        <FadeInUp delay={200}>
+          <p className="mt-8 text-center text-sm text-[var(--text-secondary)]">
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/wizard/step-0"
+              className="text-[var(--purple-400)] hover:text-[var(--purple-300)] font-medium transition-colors"
+            >
+              Get started for free
+            </Link>
+          </p>
+        </FadeInUp>
       </div>
     </div>
   );
 }
-
