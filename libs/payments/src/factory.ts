@@ -5,8 +5,8 @@ import { FinbyProvider } from './providers/finby.provider';
 type ConfigForProvider<T extends PaymentProviderType> = T extends 'stripe'
   ? StripeConfig
   : T extends 'finby'
-    ? FinbyConfig
-    : never;
+  ? FinbyConfig
+  : never;
 
 /**
  * Create a payment provider instance

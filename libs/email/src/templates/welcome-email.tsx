@@ -9,8 +9,9 @@ import {
   Hr,
   Section,
   Button,
+  Img,
 } from '@react-email/components';
-import { baseStyles, colors } from '../styles';
+import { baseStyles, colors, brand } from '../styles';
 
 export interface WelcomeEmailProps {
   userName: string;
@@ -19,65 +20,50 @@ export interface WelcomeEmailProps {
 
 export function WelcomeEmail({
   userName,
-  loginUrl = 'https://app.ryla.ai/login',
+  loginUrl = 'https://app.ryla.ai',
 }: WelcomeEmailProps) {
   return (
     <Html>
-      <Head />
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
       <Body style={baseStyles.body}>
         <Container style={baseStyles.container}>
-          <Heading style={baseStyles.heading}>
-            Welcome to RYLA! 🎉
-          </Heading>
+          <Img src={brand.logo} alt="RYLA" style={baseStyles.logo} />
 
-          <Section>
-            <Text style={baseStyles.paragraph}>
-              Hi {userName},
-            </Text>
+          <Heading style={baseStyles.heading}>Welcome to RYLA</Heading>
 
-            <Text style={baseStyles.paragraph}>
-              We&apos;re thrilled to have you join RYLA! You&apos;re now part of a community
-              of creators using AI to bring their ideas to life.
-            </Text>
+          <Text style={baseStyles.paragraph}>Hi {userName},</Text>
 
-            <Text style={baseStyles.paragraph}>
-              Here&apos;s what you can do next:
-            </Text>
+          <Text style={baseStyles.paragraph}>
+            You&apos;re in. Create hyper-realistic AI influencers with perfect
+            character consistency. Generate images, videos, and content for any
+            platform.
+          </Text>
 
-            <ul style={{ ...baseStyles.paragraph, paddingLeft: '20px' }}>
-              <li style={{ marginBottom: '8px' }}>
-                <strong>Create your first character</strong> – Choose from endless customization options
-              </li>
-              <li style={{ marginBottom: '8px' }}>
-                <strong>Generate stunning images</strong> – Our AI creates high-quality visuals
-              </li>
-              <li style={{ marginBottom: '8px' }}>
-                <strong>Share your creations</strong> – Show off your work to the world
-              </li>
-            </ul>
-          </Section>
-
-          <Section style={{ textAlign: 'center', margin: '32px 0' }}>
+          <Section style={baseStyles.center}>
             <Button href={loginUrl} style={baseStyles.button}>
-              Get Started →
+              Open RYLA
             </Button>
           </Section>
 
           <Text style={baseStyles.mutedText}>
-            Need help? Reply to this email or check out our{' '}
-            <Link href="https://ryla.ai/help" style={baseStyles.link}>
-              help center
+            Questions? Reply to this email or reach us at{' '}
+            <Link href={`mailto:${brand.support}`} style={baseStyles.link}>
+              {brand.support}
             </Link>
-            .
           </Text>
 
           <Hr style={baseStyles.hr} />
 
           <Text style={baseStyles.footer}>
-            © {new Date().getFullYear()} RYLA. All rights reserved.
+            © {new Date().getFullYear()} {brand.name}
             <br />
-            <Link href="https://ryla.ai/unsubscribe" style={{ color: colors.textLight }}>
-              Unsubscribe
+            <Link href={brand.website} style={{ color: colors.mutedForeground }}>
+              ryla.ai
             </Link>
           </Text>
         </Container>
@@ -87,8 +73,8 @@ export function WelcomeEmail({
 }
 
 WelcomeEmail.PreviewProps = {
-  userName: 'John Doe',
-  loginUrl: 'https://app.ryla.ai/login',
+  userName: 'Alex',
+  loginUrl: 'https://app.ryla.ai',
 } as WelcomeEmailProps;
 
 export default WelcomeEmail;

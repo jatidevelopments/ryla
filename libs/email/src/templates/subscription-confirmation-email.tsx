@@ -5,12 +5,13 @@ import {
   Container,
   Heading,
   Text,
-  Link,
   Hr,
   Section,
   Button,
+  Img,
+  Link,
 } from '@react-email/components';
-import { baseStyles, colors } from '../styles';
+import { baseStyles, colors, brand } from '../styles';
 
 export interface SubscriptionConfirmationEmailProps {
   userName: string;
@@ -31,77 +32,62 @@ export function SubscriptionConfirmationEmail({
 }: SubscriptionConfirmationEmailProps) {
   return (
     <Html>
-      <Head />
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
       <Body style={baseStyles.body}>
         <Container style={baseStyles.container}>
+          <Img src={brand.logo} alt="RYLA" style={baseStyles.logo} />
+
           <Heading style={baseStyles.heading}>
-            🎉 Welcome to {planName}!
+            You&apos;re on {planName}
           </Heading>
 
-          <Section>
-            <Text style={baseStyles.paragraph}>
-              Hi {userName},
-            </Text>
+          <Text style={baseStyles.paragraph}>Hi {userName},</Text>
 
-            <Text style={baseStyles.paragraph}>
-              Thank you for subscribing to RYLA {planName}! Your payment has been
-              processed successfully.
-            </Text>
-          </Section>
+          <Text style={baseStyles.paragraph}>
+            Payment confirmed. You now have full access to all {planName}{' '}
+            features.
+          </Text>
 
           <Section style={baseStyles.card}>
-            <Text style={{ ...baseStyles.subheading, marginTop: 0 }}>
-              Subscription Details
-            </Text>
-
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
-                <tr>
-                  <td style={{ padding: '8px 0', color: colors.textMuted }}>Plan</td>
-                  <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: '600' }}>
-                    {planName}
-                  </td>
+                <tr style={baseStyles.tableRow}>
+                  <td style={baseStyles.tableCellLabel}>Plan</td>
+                  <td style={baseStyles.tableCellValue}>{planName}</td>
                 </tr>
-                <tr>
-                  <td style={{ padding: '8px 0', color: colors.textMuted }}>Amount</td>
-                  <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: '600' }}>
+                <tr style={baseStyles.tableRow}>
+                  <td style={baseStyles.tableCellLabel}>Amount</td>
+                  <td style={baseStyles.tableCellValue}>
                     {amount}/{interval}
                   </td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '8px 0', color: colors.textMuted }}>Next billing</td>
-                  <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: '600' }}>
-                    {nextBillingDate}
-                  </td>
+                  <td style={baseStyles.tableCellLabel}>Next billing</td>
+                  <td style={baseStyles.tableCellValue}>{nextBillingDate}</td>
                 </tr>
               </tbody>
             </table>
           </Section>
 
-          <Section>
-            <Text style={baseStyles.paragraph}>
-              You now have access to all {planName} features. Start creating amazing content!
-            </Text>
-          </Section>
-
-          <Section style={{ textAlign: 'center', margin: '32px 0' }}>
+          <Section style={baseStyles.center}>
             <Button href={dashboardUrl} style={baseStyles.button}>
-              View Your Subscription →
+              View Subscription
             </Button>
           </Section>
-
-          <Text style={baseStyles.mutedText}>
-            Need to manage your subscription? Visit your{' '}
-            <Link href={dashboardUrl} style={baseStyles.link}>
-              billing settings
-            </Link>
-            .
-          </Text>
 
           <Hr style={baseStyles.hr} />
 
           <Text style={baseStyles.footer}>
-            © {new Date().getFullYear()} RYLA. All rights reserved.
+            © {new Date().getFullYear()} {brand.name}
+            <br />
+            <Link href={brand.website} style={{ color: colors.mutedForeground }}>
+              ryla.ai
+            </Link>
           </Text>
         </Container>
       </Body>
@@ -110,11 +96,11 @@ export function SubscriptionConfirmationEmail({
 }
 
 SubscriptionConfirmationEmail.PreviewProps = {
-  userName: 'John',
+  userName: 'Alex',
   planName: 'Pro',
-  amount: '$29.90',
+  amount: '$29',
   interval: 'month',
-  nextBillingDate: 'January 15, 2025',
+  nextBillingDate: 'January 18, 2025',
 } as SubscriptionConfirmationEmailProps;
 
 export default SubscriptionConfirmationEmail;

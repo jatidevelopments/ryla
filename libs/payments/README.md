@@ -10,7 +10,11 @@ Unified payment abstraction layer supporting multiple providers.
 ## Usage
 
 ```typescript
-import { createPaymentProvider, StripeProvider, FinbyProvider } from '@ryla/payments';
+import {
+  createPaymentProvider,
+  StripeProvider,
+  FinbyProvider,
+} from '@ryla/payments';
 
 // Stripe (for main app)
 const stripe = createPaymentProvider('stripe', {
@@ -45,8 +49,8 @@ export const paymentsConfig = {
   stripe: {
     plans: {
       free: { priceId: '', name: 'Free', monthlyPrice: 0 },
-      basic: { priceId: 'price_xxx', name: 'Basic', monthlyPrice: 9.90 },
-      pro: { priceId: 'price_yyy', name: 'Pro', monthlyPrice: 29.90 },
+      basic: { priceId: 'price_xxx', name: 'Basic', monthlyPrice: 9.9 },
+      pro: { priceId: 'price_yyy', name: 'Pro', monthlyPrice: 29.9 },
     },
   },
 };
