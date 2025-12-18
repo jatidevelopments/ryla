@@ -5,12 +5,13 @@ import {
   Container,
   Heading,
   Text,
-  Link,
   Hr,
   Section,
   Button,
+  Img,
+  Link,
 } from '@react-email/components';
-import { baseStyles, colors } from '../styles';
+import { baseStyles, colors, brand } from '../styles';
 
 export interface SubscriptionCancelledEmailProps {
   userName: string;
@@ -27,60 +28,69 @@ export function SubscriptionCancelledEmail({
 }: SubscriptionCancelledEmailProps) {
   return (
     <Html>
-      <Head />
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
       <Body style={baseStyles.body}>
         <Container style={baseStyles.container}>
-          <Heading style={baseStyles.heading}>
-            Subscription Cancelled
-          </Heading>
+          <Img src={brand.logo} alt="RYLA" style={baseStyles.logo} />
 
-          <Section>
-            <Text style={baseStyles.paragraph}>
-              Hi {userName},
-            </Text>
+          <Heading style={baseStyles.heading}>Subscription Cancelled</Heading>
 
-            <Text style={baseStyles.paragraph}>
-              We&apos;re sorry to see you go! Your {planName} subscription has been cancelled.
-            </Text>
-          </Section>
+          <Text style={baseStyles.paragraph}>Hi {userName},</Text>
+
+          <Text style={baseStyles.paragraph}>
+            Your {planName} subscription has been cancelled.
+          </Text>
 
           <Section style={baseStyles.card}>
-            <Text style={{ ...baseStyles.paragraph, marginBottom: 0 }}>
-              <strong>Your access continues until:</strong>
-              <br />
-              <span style={{ fontSize: '18px', color: colors.primary }}>
-                {accessEndsDate}
-              </span>
+            <Text
+              style={{
+                ...baseStyles.mutedText,
+                margin: 0,
+                marginBottom: '4px',
+              }}
+            >
+              Access continues until
+            </Text>
+            <Text
+              style={{
+                ...baseStyles.paragraph,
+                fontSize: '18px',
+                fontWeight: '600',
+                margin: 0,
+              }}
+            >
+              {accessEndsDate}
             </Text>
           </Section>
 
-          <Section>
-            <Text style={baseStyles.paragraph}>
-              After this date, you&apos;ll be moved to our free plan. Your account and
-              all your creations will remain safe – you just won&apos;t have access to
-              premium features.
-            </Text>
+          <Text style={baseStyles.paragraph}>
+            After this date, you&apos;ll move to the free plan. Your account and
+            creations stay safe.
+          </Text>
 
-            <Text style={baseStyles.paragraph}>
-              Changed your mind? You can resubscribe anytime to regain full access.
-            </Text>
-          </Section>
-
-          <Section style={{ textAlign: 'center', margin: '32px 0' }}>
+          <Section style={baseStyles.center}>
             <Button href={resubscribeUrl} style={baseStyles.button}>
-              Resubscribe →
+              Resubscribe
             </Button>
           </Section>
 
           <Text style={baseStyles.mutedText}>
-            We&apos;d love to hear why you cancelled. Reply to this email with any
-            feedback – it helps us improve!
+            Feedback? Reply to this email—we&apos;d love to hear from you.
           </Text>
 
           <Hr style={baseStyles.hr} />
 
           <Text style={baseStyles.footer}>
-            © {new Date().getFullYear()} RYLA. All rights reserved.
+            © {new Date().getFullYear()} {brand.name}
+            <br />
+            <Link href={brand.website} style={{ color: colors.mutedForeground }}>
+              ryla.ai
+            </Link>
           </Text>
         </Container>
       </Body>
@@ -89,9 +99,9 @@ export function SubscriptionCancelledEmail({
 }
 
 SubscriptionCancelledEmail.PreviewProps = {
-  userName: 'John',
+  userName: 'Alex',
   planName: 'Pro',
-  accessEndsDate: 'January 15, 2025',
+  accessEndsDate: 'February 18, 2025',
 } as SubscriptionCancelledEmailProps;
 
 export default SubscriptionCancelledEmail;

@@ -1,114 +1,160 @@
 import type { CSSProperties } from 'react';
 
 // ============================================================================
-// Colors
+// RYLA Brand Colors (Minimal Black & White)
 // ============================================================================
 
 export const colors = {
-  primary: '#5059FE',
-  primaryHover: '#4048ed',
-  background: '#f6f9fc',
-  white: '#ffffff',
-  text: '#1a1a1a',
-  textMuted: '#666666',
-  textLight: '#8898aa',
-  border: '#e5e7eb',
+  // Dark theme (primary)
+  background: '#0a0a0f',
+  foreground: '#fafafa',
+  
+  // Light theme (email-safe)
+  backgroundLight: '#ffffff',
+  foregroundLight: '#0a0a0f',
+  
+  // Grays
+  muted: '#18181b',
+  mutedForeground: '#a1a1aa',
+  border: 'rgba(255, 255, 255, 0.1)',
+  borderLight: '#e4e4e7',
+  
+  // Accents (minimal use)
+  accent: '#27272a',
+  accentForeground: '#fafafa',
+  
+  // Status (only when needed)
   success: '#22c55e',
   error: '#ef4444',
-  warning: '#f59e0b',
 };
 
 // ============================================================================
-// Fonts
+// Typography
 // ============================================================================
 
 export const fonts = {
-  sans: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif',
-  mono: 'Menlo, Monaco, "Courier New", monospace',
+  // DM Sans - RYLA's primary font (with email-safe fallbacks)
+  sans: '"DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif',
+  mono: '"JetBrains Mono", Menlo, Monaco, "Courier New", monospace',
 };
 
 // ============================================================================
-// Base Styles
+// Brand Assets
+// ============================================================================
+
+export const brand = {
+  name: 'RYLA',
+  tagline: 'Create Hyper-Realistic AI Influencers',
+  logo: 'https://ryla.ai/logos/Ryla_Logo_white.png',
+  logoWidth: 100,
+  website: 'https://ryla.ai',
+  app: 'https://app.ryla.ai',
+  support: 'support@ryla.ai',
+  twitter: '@RylaAI',
+};
+
+// ============================================================================
+// Base Styles - RYLA Minimal Theme
 // ============================================================================
 
 export const baseStyles = {
+  // Main wrapper
   body: {
     backgroundColor: colors.background,
     fontFamily: fonts.sans,
     margin: 0,
-    padding: 0,
+    padding: '40px 0',
+    color: colors.foreground,
+    WebkitFontSmoothing: 'antialiased',
+    MozOsxFontSmoothing: 'grayscale',
   } as CSSProperties,
 
+  // Container
   container: {
     margin: '0 auto',
-    padding: '20px 25px 48px',
-    backgroundColor: colors.white,
-    maxWidth: '600px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    padding: '40px 32px',
+    backgroundColor: colors.muted,
+    maxWidth: '560px',
+    borderRadius: '12px',
   } as CSSProperties,
 
+  // Logo
+  logo: {
+    width: `${brand.logoWidth}px`,
+    height: 'auto',
+    margin: '0 auto 32px',
+    display: 'block',
+  } as CSSProperties,
+
+  // Typography
   heading: {
-    fontSize: '28px',
-    fontWeight: 'bold',
-    color: colors.text,
-    marginTop: '32px',
-    marginBottom: '24px',
+    fontSize: '24px',
+    fontWeight: '600',
+    color: colors.foreground,
+    margin: '0 0 24px 0',
     textAlign: 'center' as const,
+    letterSpacing: '-0.02em',
   } as CSSProperties,
 
   subheading: {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: '600',
-    color: colors.text,
-    marginTop: '24px',
-    marginBottom: '16px',
+    color: colors.foreground,
+    margin: '24px 0 16px 0',
+    letterSpacing: '-0.01em',
   } as CSSProperties,
 
   paragraph: {
-    fontSize: '16px',
-    lineHeight: '26px',
-    color: colors.text,
-    marginBottom: '16px',
+    fontSize: '15px',
+    lineHeight: '24px',
+    color: colors.foreground,
+    margin: '0 0 16px 0',
   } as CSSProperties,
 
   mutedText: {
-    fontSize: '14px',
-    lineHeight: '22px',
-    color: colors.textMuted,
-    marginBottom: '16px',
+    fontSize: '13px',
+    lineHeight: '20px',
+    color: colors.mutedForeground,
+    margin: '0 0 16px 0',
   } as CSSProperties,
 
+  // Links
   link: {
-    color: colors.primary,
+    color: colors.foreground,
     textDecoration: 'underline',
+    textUnderlineOffset: '2px',
   } as CSSProperties,
 
+  // Primary Button (white on dark)
   button: {
-    backgroundColor: colors.primary,
-    color: colors.white,
-    padding: '12px 24px',
-    borderRadius: '6px',
+    backgroundColor: colors.foreground,
+    color: colors.background,
+    padding: '14px 28px',
+    borderRadius: '10px',
     textDecoration: 'none',
     fontWeight: '600',
-    fontSize: '16px',
+    fontSize: '15px',
     display: 'inline-block',
     textAlign: 'center' as const,
+    letterSpacing: '-0.01em',
   } as CSSProperties,
 
+  // Secondary Button (outline)
   buttonSecondary: {
-    backgroundColor: colors.white,
-    color: colors.primary,
-    padding: '12px 24px',
-    borderRadius: '6px',
+    backgroundColor: 'transparent',
+    color: colors.foreground,
+    padding: '12px 26px',
+    borderRadius: '10px',
     textDecoration: 'none',
     fontWeight: '600',
-    fontSize: '16px',
+    fontSize: '15px',
     display: 'inline-block',
     textAlign: 'center' as const,
-    border: `2px solid ${colors.primary}`,
+    border: `1px solid ${colors.foreground}`,
+    letterSpacing: '-0.01em',
   } as CSSProperties,
 
+  // Divider
   hr: {
     borderColor: colors.border,
     borderWidth: '1px 0 0 0',
@@ -116,47 +162,78 @@ export const baseStyles = {
     margin: '32px 0',
   } as CSSProperties,
 
+  // Footer
   footer: {
-    color: colors.textLight,
+    color: colors.mutedForeground,
     fontSize: '12px',
-    marginTop: '48px',
     textAlign: 'center' as const,
+    marginTop: '32px',
+    lineHeight: '20px',
   } as CSSProperties,
 
-  logo: {
-    width: '120px',
-    height: 'auto',
-    margin: '0 auto 24px',
-    display: 'block',
-  } as CSSProperties,
-
+  // Card/Info Box
   card: {
-    backgroundColor: colors.background,
-    padding: '16px',
+    backgroundColor: colors.accent,
+    padding: '20px',
+    borderRadius: '10px',
+    margin: '24px 0',
+  } as CSSProperties,
+
+  // Table row
+  tableRow: {
+    borderBottom: `1px solid ${colors.border}`,
+  } as CSSProperties,
+
+  tableCell: {
+    padding: '12px 0',
+    fontSize: '14px',
+  } as CSSProperties,
+
+  tableCellLabel: {
+    color: colors.mutedForeground,
+    fontSize: '14px',
+  } as CSSProperties,
+
+  tableCellValue: {
+    color: colors.foreground,
+    fontWeight: '500',
+    textAlign: 'right' as const,
+    fontSize: '14px',
+  } as CSSProperties,
+
+  // Code/mono text
+  code: {
+    fontFamily: fonts.mono,
+    fontSize: '13px',
+    backgroundColor: colors.accent,
+    padding: '2px 6px',
+    borderRadius: '4px',
+  } as CSSProperties,
+
+  // URL display
+  urlBox: {
+    backgroundColor: colors.accent,
+    padding: '12px 16px',
     borderRadius: '8px',
-    marginBottom: '16px',
-  } as CSSProperties,
-
-  badge: {
-    display: 'inline-block',
-    padding: '4px 12px',
-    borderRadius: '16px',
+    wordBreak: 'break-all' as const,
     fontSize: '12px',
-    fontWeight: '600',
+    fontFamily: fonts.mono,
+    color: colors.mutedForeground,
+    marginTop: '8px',
   } as CSSProperties,
 
-  badgeSuccess: {
-    backgroundColor: '#dcfce7',
-    color: '#166534',
+  // Center wrapper
+  center: {
+    textAlign: 'center' as const,
+    margin: '32px 0',
   } as CSSProperties,
+};
 
-  badgeError: {
-    backgroundColor: '#fee2e2',
-    color: '#991b1b',
-  } as CSSProperties,
+// ============================================================================
+// Utility function for button center wrapper
+// ============================================================================
 
-  badgeWarning: {
-    backgroundColor: '#fef3c7',
-    color: '#92400e',
-  } as CSSProperties,
+export const buttonWrapper: CSSProperties = {
+  textAlign: 'center',
+  margin: '32px 0',
 };

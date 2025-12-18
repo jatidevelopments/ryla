@@ -5,13 +5,13 @@ import {
   Container,
   Heading,
   Text,
-  Link,
   Hr,
   Section,
   Button,
   Img,
+  Link,
 } from '@react-email/components';
-import { baseStyles, colors } from '../styles';
+import { baseStyles, colors, brand } from '../styles';
 
 export interface GenerationCompleteEmailProps {
   userName: string;
@@ -30,35 +30,34 @@ export function GenerationCompleteEmail({
 }: GenerationCompleteEmailProps) {
   return (
     <Html>
-      <Head />
+      <Head>
+        <link
+          href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </Head>
       <Body style={baseStyles.body}>
         <Container style={baseStyles.container}>
-          <Heading style={baseStyles.heading}>
-            ✨ Your Images Are Ready!
-          </Heading>
+          <Img src={brand.logo} alt="RYLA" style={baseStyles.logo} />
 
-          <Section>
-            <Text style={baseStyles.paragraph}>
-              Hi {userName},
-            </Text>
+          <Heading style={baseStyles.heading}>Generation Complete</Heading>
 
-            <Text style={baseStyles.paragraph}>
-              Great news! Your AI generation for <strong>{characterName}</strong> is
-              complete. {imageCount} {imageCount === 1 ? 'image has' : 'images have'} been
-              created and are waiting for you.
-            </Text>
-          </Section>
+          <Text style={baseStyles.paragraph}>Hi {userName},</Text>
+
+          <Text style={baseStyles.paragraph}>
+            Your generation for <strong>{characterName}</strong> is ready.{' '}
+            {imageCount} {imageCount === 1 ? 'image' : 'images'} created.
+          </Text>
 
           {previewImageUrl && (
             <Section style={{ textAlign: 'center', margin: '24px 0' }}>
               <Img
                 src={previewImageUrl}
-                alt={`Preview of ${characterName}`}
+                alt={characterName}
                 style={{
                   maxWidth: '100%',
-                  width: '400px',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                  width: '320px',
+                  borderRadius: '10px',
                 }}
               />
             </Section>
@@ -67,43 +66,38 @@ export function GenerationCompleteEmail({
           <Section style={baseStyles.card}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <tbody>
-                <tr>
-                  <td style={{ padding: '8px 0', color: colors.textMuted }}>Character</td>
-                  <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: '600' }}>
-                    {characterName}
-                  </td>
+                <tr style={baseStyles.tableRow}>
+                  <td style={baseStyles.tableCellLabel}>Character</td>
+                  <td style={baseStyles.tableCellValue}>{characterName}</td>
                 </tr>
                 <tr>
-                  <td style={{ padding: '8px 0', color: colors.textMuted }}>Images Generated</td>
-                  <td style={{ padding: '8px 0', textAlign: 'right', fontWeight: '600' }}>
-                    {imageCount}
-                  </td>
+                  <td style={baseStyles.tableCellLabel}>Images</td>
+                  <td style={baseStyles.tableCellValue}>{imageCount}</td>
                 </tr>
               </tbody>
             </table>
           </Section>
 
-          <Section style={{ textAlign: 'center', margin: '32px 0' }}>
+          <Section style={baseStyles.center}>
             <Button href={viewUrl} style={baseStyles.button}>
-              View Your Images →
+              View Images
             </Button>
           </Section>
-
-          <Text style={baseStyles.mutedText}>
-            These images will be saved to your library. You can download, share,
-            or use them anytime.
-          </Text>
 
           <Hr style={baseStyles.hr} />
 
           <Text style={baseStyles.footer}>
-            © {new Date().getFullYear()} RYLA. All rights reserved.
+            © {new Date().getFullYear()} {brand.name}
             <br />
+            <Link href={brand.website} style={{ color: colors.mutedForeground }}>
+              ryla.ai
+            </Link>
+            {' · '}
             <Link
               href="https://app.ryla.ai/settings/notifications"
-              style={{ color: colors.textLight }}
+              style={{ color: colors.mutedForeground }}
             >
-              Manage notification preferences
+              Notification settings
             </Link>
           </Text>
         </Container>
@@ -113,10 +107,10 @@ export function GenerationCompleteEmail({
 }
 
 GenerationCompleteEmail.PreviewProps = {
-  userName: 'John',
+  userName: 'Alex',
   characterName: 'Luna',
   imageCount: 5,
-  previewImageUrl: 'https://placehold.co/400x400/5059FE/white?text=Preview',
+  previewImageUrl: 'https://placehold.co/320x320/18181b/fafafa?text=Luna',
   viewUrl: 'https://app.ryla.ai/characters/123/images',
 } as GenerationCompleteEmailProps;
 
