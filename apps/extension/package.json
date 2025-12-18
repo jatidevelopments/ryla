@@ -1,0 +1,6 @@
+{
+  "name": "@ryla/extension",
+  "version": "0.0.1",
+  "private": true,
+  "description": "RYLA Chrome Extension for AI Influencer Management"
+}

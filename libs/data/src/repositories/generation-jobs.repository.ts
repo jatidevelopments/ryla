@@ -1,15 +1,13 @@
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 
-// NOTE: Schemas currently live under apps/api and are re-exported via libs/data/models.
-// We import them directly here to avoid circular imports at runtime.
-import * as schema from '../../../../apps/api/src/database/schemas';
+import * as schema from '../schema';
 
 export type GenerationJobRow = typeof schema.generationJobs.$inferSelect;
 export type NewGenerationJobRow = typeof schema.generationJobs.$inferInsert;
 
 export class GenerationJobsRepository {
-  constructor(private readonly db: NodePgDatabase<typeof schema>) {}
+  constructor(private readonly db: NodePgDatabase<typeof schema>) { }
 
   async createJob(values: Omit<NewGenerationJobRow, 'id' | 'createdAt' | 'updatedAt'>) {
     const [row] = await this.db

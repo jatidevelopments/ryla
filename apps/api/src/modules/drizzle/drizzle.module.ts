@@ -4,7 +4,9 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 
 import { Config, PostgresConfig } from '../../config/config.type';
-import * as schema from '../../database/schemas';
+
+// Import schemas from @ryla/data - the single source of truth
+import * as schema from '@ryla/data/schema';
 
 @Global()
 @Module({
@@ -38,5 +40,5 @@ import * as schema from '../../database/schemas';
   ],
   exports: ['DRIZZLE_DB'],
 })
-export class DrizzleModule {}
+export class DrizzleModule { }
 

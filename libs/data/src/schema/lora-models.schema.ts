@@ -110,4 +110,3 @@ export type LoraModel = typeof loraModels.$inferSelect;
 export type NewLoraModel = typeof loraModels.$inferInsert;
 export type LoraStatus = (typeof loraStatusEnum.enumValues)[number];
 export type LoraType = (typeof loraTypeEnum.enumValues)[number];
-

@@ -63,7 +63,7 @@ export class ImageGenerationService {
   constructor(
     private readonly generationJobsRepo: GenerationJobsRepository,
     private readonly runpod: RunPodJobRunner
-  ) {}
+  ) { }
 
   async startBaseImages(input: StartBaseImagesInput) {
     const prompt = this.buildPrompt(input.appearance, input.identity);
@@ -195,7 +195,7 @@ export class ImageGenerationService {
     };
 
     if (status.error) patch.error = status.error;
-    if (status.output) patch.output = status.output;
+    if (status.output) patch.output = status.output as Record<string, unknown>;
 
     if (mapped === 'completed' || mapped === 'failed' || mapped === 'cancelled') {
       patch.completedAt = new Date();

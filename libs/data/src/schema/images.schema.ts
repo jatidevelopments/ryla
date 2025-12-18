@@ -65,4 +65,3 @@ export const imagesRelations = relations(images, ({ one }) => ({
 export type Image = typeof images.$inferSelect;
 export type NewImage = typeof images.$inferInsert;
 export type ImageStatus = (typeof imageStatusEnum.enumValues)[number];
-

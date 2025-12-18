@@ -89,10 +89,13 @@ export const creditTransactions = pgTable(
   })
 );
 
-export const userCreditsRelations = relations(userCredits, ({ one, many }) => ({
-  user: one(users, { fields: [userCredits.userId], references: [users.id] }),
-  transactions: many(creditTransactions),
-}));
+export const userCreditsRelations = relations(
+  userCredits,
+  ({ one, many }) => ({
+    user: one(users, { fields: [userCredits.userId], references: [users.id] }),
+    transactions: many(creditTransactions),
+  })
+);
 
 export const creditTransactionsRelations = relations(
   creditTransactions,
@@ -129,4 +132,3 @@ export const PLAN_CREDIT_LIMITS = {
   pro: 300, // Per month
   unlimited: Infinity, // Unlimited
 } as const;
-

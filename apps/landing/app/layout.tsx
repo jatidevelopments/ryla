@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
+import { StructuredData } from '@/components/seo/StructuredData';
 
 // DM Sans - Clean, modern, geometric sans-serif
 // https://fonts.google.com/specimen/DM+Sans
@@ -33,7 +34,7 @@ export const metadata: Metadata = {
     template: '%s | RYLA',
   },
   description:
-    'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more. Build your AI influencer empire with one click.',
+    'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more. Build your AI influencer empire with one click. Starting at $29/month. Free trial available.',
   keywords: [
     'AI influencer',
     'AI creator',
@@ -62,6 +63,7 @@ export const metadata: Metadata = {
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
+    // AI crawlers are allowed via robots.txt
   },
   openGraph: {
     type: 'website',
@@ -114,6 +116,7 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${jetBrainsMono.variable} font-sans antialiased dark`}
       >
+        <StructuredData />
         {children}
       </body>
     </html>
