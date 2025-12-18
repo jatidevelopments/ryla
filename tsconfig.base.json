@@ -23,7 +23,11 @@
       "@ryla/ui": ["libs/ui/src/index.ts"],
       "@ryla/analytics": ["libs/analytics/src/index.ts"],
       "@ryla/trpc": ["libs/trpc/src/index.ts"],
-      "@ryla/trpc/*": ["libs/trpc/src/*"]
+      "@ryla/trpc/*": ["libs/trpc/src/*"],
+      "@ryla/payments": ["libs/payments/src/index.ts"],
+      "@ryla/payments/*": ["libs/payments/src/*"],
+      "@ryla/email": ["libs/email/src/index.ts"],
+      "@ryla/email/*": ["libs/email/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]
