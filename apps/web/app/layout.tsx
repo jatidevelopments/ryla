@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '../components/app-shell';
+import { StructuredData } from '../components/seo/StructuredData';
+import { TRPCProvider } from '../lib/trpc';
 
 // DM Sans - Clean, modern, geometric sans-serif (unified with landing)
 const dmSans = DM_Sans({
@@ -28,7 +30,7 @@ export const metadata: Metadata = {
     template: '%s | RYLA',
   },
   description:
-    'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more. Build your AI influencer empire with one click.',
+    'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more. Build your AI influencer empire with one click. Starting at $29/month. Free trial available.',
   keywords: [
     'AI influencer',
     'AI creator',
@@ -109,7 +111,10 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${jetBrainsMono.variable} font-sans bg-(--bg-primary) text-white min-h-screen antialiased`}
       >
-        <AppShell>{children}</AppShell>
+        <StructuredData />
+        <TRPCProvider>
+          <AppShell>{children}</AppShell>
+        </TRPCProvider>
       </body>
     </html>
   );

@@ -16,7 +16,7 @@ import { RunPodJobRunnerAdapter } from './services/runpod-job-runner.adapter';
 import { GenerationJobsRepository } from '@ryla/data';
 import { ImageGenerationService } from '@ryla/business';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import * as schema from '../../database/schemas';
+import * as schema from '@ryla/data/schema';
 
 @Module({
   imports: [
@@ -58,5 +58,5 @@ import * as schema from '../../database/schemas';
     ImageGenerationService,
   ],
 })
-export class ImageModule {}
+export class ImageModule { }
 

@@ -5,12 +5,10 @@ import {
   jsonb,
   timestamp,
   pgEnum,
-  boolean,
   index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
-import { images } from './images.schema';
 
 export const characterStatusEnum = pgEnum('character_status', [
   'draft', // Initial state, not yet generated
@@ -96,13 +94,12 @@ export const characters = pgTable(
   })
 );
 
-export const charactersRelations = relations(characters, ({ one, many }) => ({
+// Forward declaration for relations
+export const charactersRelations = relations(characters, ({ one }) => ({
   user: one(users, { fields: [characters.userId], references: [users.id] }),
-  images: many(images),
 }));
 
 // Type exports
 export type Character = typeof characters.$inferSelect;
 export type NewCharacter = typeof characters.$inferInsert;
 export type CharacterStatus = (typeof characterStatusEnum.enumValues)[number];
-

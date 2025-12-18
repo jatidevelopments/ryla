@@ -1,4 +1,11 @@
-import { pgTable, uuid, text, timestamp, pgEnum, integer, boolean } from 'drizzle-orm/pg-core';
+import {
+  pgTable,
+  uuid,
+  text,
+  timestamp,
+  pgEnum,
+  boolean,
+} from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
 
@@ -17,7 +24,9 @@ export const subscriptionTierEnum = pgEnum('subscription_tier', [
 
 export const subscriptions = pgTable('subscriptions', {
   id: uuid('id').defaultRandom().primaryKey(),
-  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
   finbySubscriptionId: text('finby_subscription_id').unique(), // External Finby subscription ID
   tier: subscriptionTierEnum('tier').default('free'),
   status: subscriptionStatusEnum('status').default('active'),
@@ -33,3 +42,9 @@ export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
   user: one(users, { fields: [subscriptions.userId], references: [users.id] }),
 }));
 
+// Type exports
+export type Subscription = typeof subscriptions.$inferSelect;
+export type NewSubscription = typeof subscriptions.$inferInsert;
+export type SubscriptionStatus =
+  (typeof subscriptionStatusEnum.enumValues)[number];
+export type SubscriptionTier = (typeof subscriptionTierEnum.enumValues)[number];

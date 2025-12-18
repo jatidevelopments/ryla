@@ -130,4 +130,3 @@ export type GenerationJob = typeof generationJobs.$inferSelect;
 export type NewGenerationJob = typeof generationJobs.$inferInsert;
 export type JobStatus = (typeof jobStatusEnum.enumValues)[number];
 export type JobType = (typeof jobTypeEnum.enumValues)[number];
-

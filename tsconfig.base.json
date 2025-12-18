@@ -19,8 +19,11 @@
       "@ryla/shared": ["libs/shared/src/index.ts"],
       "@ryla/business": ["libs/business/src/index.ts"],
       "@ryla/data": ["libs/data/src/index.ts"],
+      "@ryla/data/*": ["libs/data/src/*"],
       "@ryla/ui": ["libs/ui/src/index.ts"],
-      "@ryla/analytics": ["libs/analytics/src/index.ts"]
+      "@ryla/analytics": ["libs/analytics/src/index.ts"],
+      "@ryla/trpc": ["libs/trpc/src/index.ts"],
+      "@ryla/trpc/*": ["libs/trpc/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

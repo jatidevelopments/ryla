@@ -8,10 +8,6 @@ import {
   index,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
-import { characters } from './characters.schema';
-import { subscriptions } from './subscriptions.schema';
-import { generationJobs } from './generation-jobs.schema';
-import { images } from './images.schema';
 
 export const roleEnum = pgEnum('role', ['user', 'admin']);
 
@@ -41,15 +37,10 @@ export const users = pgTable(
   })
 );
 
-export const usersRelations = relations(users, ({ one, many }) => ({
-  characters: many(characters),
-  subscriptions: many(subscriptions),
-  generationJobs: many(generationJobs),
-  images: many(images),
-}));
+// Forward declaration for relations - will be set up in relations.ts
+export const usersRelations = relations(users, () => ({}));
 
 // Type exports
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Role = (typeof roleEnum.enumValues)[number];
-

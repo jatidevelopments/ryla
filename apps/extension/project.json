@@ -1,0 +1,29 @@
+{
+  "name": "extension",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/extension/src",
+  "projectType": "application",
+  "tags": ["type:app", "scope:extension"],
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/extension"
+      }
+    },
+    "dev": {
+      "executor": "@nx/vite:dev-server",
+      "options": {
+        "buildTarget": "extension:build",
+        "mode": "development"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["apps/extension/**/*.{ts,tsx}"]
+      }
+    }
+  }
+}

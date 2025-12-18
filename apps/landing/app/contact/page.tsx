@@ -2,10 +2,44 @@ import { Navigation, Footer } from '@/components/sections';
 import type { Metadata } from 'next';
 import { Mail, MessageSquare } from 'lucide-react';
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ryla.ai';
+
 export const metadata: Metadata = {
   title: 'Contact Us',
   description:
-    "Get in touch with RYLA - We're here to help you create amazing AI influencers.",
+    "Get in touch with RYLA - We're here to help you create amazing AI influencers. Contact our support team via email.",
+  keywords: [
+    'contact RYLA',
+    'RYLA support',
+    'AI influencer support',
+    'customer service',
+  ],
+  openGraph: {
+    title: 'Contact Us | RYLA',
+    description:
+      "Get in touch with RYLA - We're here to help you create amazing AI influencers.",
+    url: `${SITE_URL}/contact`,
+    siteName: 'RYLA',
+    type: 'website',
+    images: [
+      {
+        url: '/share-ryla.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'Contact RYLA',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Contact Us | RYLA',
+    description:
+      "Get in touch with RYLA - We're here to help you create amazing AI influencers.",
+    images: ['/share-ryla.jpg'],
+  },
+  alternates: {
+    canonical: '/contact',
+  },
 };
 
 export default function ContactPage() {

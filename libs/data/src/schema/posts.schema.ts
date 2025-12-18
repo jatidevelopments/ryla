@@ -122,4 +122,3 @@ export type EnvironmentPreset =
   (typeof environmentPresetEnum.enumValues)[number];
 export type AspectRatio = (typeof aspectRatioEnum.enumValues)[number];
 export type QualityMode = (typeof qualityModeEnum.enumValues)[number];
-
