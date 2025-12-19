@@ -4,14 +4,15 @@ Fast image generation with 8-9 steps
 """
 import runpod
 import torch
-from diffusers import DiffusionPipeline
+from diffusers import ZImagePipeline
 from PIL import Image
 import io
 import base64
 from typing import Dict, List, Any
 
-# Model path (mounted from network volume)
-MODEL_PATH = "/workspace/models/checkpoints/z-image-turbo.safetensors"
+# Model path (prefer local network volume, fallback to HuggingFace)
+MODEL_LOCAL_PATH = "/workspace/models/checkpoints/z-image-turbo"
+MODEL_REPO = "Tongyi-MAI/Z-Image-Turbo"
 
 # Global pipeline cache
 pipeline = None
@@ -21,12 +22,22 @@ def load_pipeline():
     """Load Z-Image-Turbo pipeline (cached between requests)"""
     global pipeline
     if pipeline is None:
-        print("Loading Z-Image-Turbo pipeline...")
-        pipeline = DiffusionPipeline.from_pretrained(
-            MODEL_PATH,
-            torch_dtype=torch.float16,
-            device_map="auto"
+        import os
+        # Prefer local path on network volume (faster, persistent)
+        if os.path.exists(MODEL_LOCAL_PATH):
+            print(f"Loading Z-Image-Turbo pipeline from local path: {MODEL_LOCAL_PATH}")
+            model_path = MODEL_LOCAL_PATH
+        else:
+            print(f"Local model not found, loading from HuggingFace: {MODEL_REPO}")
+            model_path = MODEL_REPO
+        
+        # Z-Image-Turbo uses ZImagePipeline with bfloat16 for optimal performance
+        pipeline = ZImagePipeline.from_pretrained(
+            model_path,
+            torch_dtype=torch.bfloat16,
+            low_cpu_mem_usage=False,
         )
+        pipeline.to("cuda")
         print("Pipeline loaded successfully")
     return pipeline
 
@@ -73,11 +84,13 @@ def generate_base_image(input_data: Dict[str, Any]) -> Dict[str, Any]:
         else:
             generator.seed()
         
-        # Z-Image-Turbo uses 8-9 steps, no CFG
+        # Z-Image-Turbo: 9 steps (results in 8 DiT forwards), guidance_scale=0.0
         result = pipe(
             prompt=prompt,
-            num_inference_steps=8,  # Z-Image-Turbo optimal steps
-            guidance_scale=1.0,  # No CFG for Z-Image-Turbo
+            height=1024,
+            width=1024,
+            num_inference_steps=9,  # Results in 8 DiT forwards
+            guidance_scale=0.0,  # Turbo models use 0.0
             generator=generator,
         )
         images.append(result.images[0])
@@ -113,8 +126,10 @@ def generate_final(input_data: Dict[str, Any]) -> Dict[str, Any]:
     
     result = pipe(
         prompt=prompt,
-        num_inference_steps=8,
-        guidance_scale=1.0,
+        height=1024,
+        width=1024,
+        num_inference_steps=9,  # Results in 8 DiT forwards
+        guidance_scale=0.0,  # Turbo models use 0.0
         generator=generator,
     )
     

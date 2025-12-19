@@ -7,10 +7,11 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
+# Note: Z-Image-Turbo requires diffusers from source (PRs #12703 and #12715 merged)
 RUN python -m pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir \
       runpod==1.4.0 \
-      diffusers==0.30.3 \
+      git+https://github.com/huggingface/diffusers \
       transformers==4.45.2 \
       accelerate==0.34.2 \
       safetensors==0.4.5 \
