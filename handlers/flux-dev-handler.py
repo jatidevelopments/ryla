@@ -11,8 +11,13 @@ import base64
 import os
 from typing import Dict, List, Any
 
-# Model paths (mounted from network volume)
-MODEL_PATH = "/workspace/models/checkpoints/flux1-schnell.safetensors"
+# Model configuration
+# Use HuggingFace repo ID (will cache to /root/.cache/huggingface/)
+MODEL_REPO = "black-forest-labs/FLUX.1-schnell"
+# Optional: Local model path if downloaded as directory structure
+MODEL_LOCAL_PATH = "/workspace/models/checkpoints/flux1-schnell"
+
+# Supporting model paths (for future use)
 PULID_PATH = "/workspace/models/pulid/pulid_model.safetensors"
 CONTROLNET_PATH = "/workspace/models/controlnet/controlnet-openpose.safetensors"
 IPADAPTER_PATH = "/workspace/models/ipadapter/ip-adapter-faceid.safetensors"
@@ -26,8 +31,17 @@ def load_pipeline():
     global pipeline
     if pipeline is None:
         print("Loading FLUX.1-schnell pipeline...")
+        # Try local path first (if model was downloaded as directory structure)
+        if os.path.exists(MODEL_LOCAL_PATH) and os.path.isdir(MODEL_LOCAL_PATH):
+            print(f"Loading from local path: {MODEL_LOCAL_PATH}")
+            model_path = MODEL_LOCAL_PATH
+        else:
+            # Use HuggingFace repo (will download/cache automatically)
+            print(f"Loading from HuggingFace repo: {MODEL_REPO}")
+            model_path = MODEL_REPO
+        
         pipeline = FluxPipeline.from_pretrained(
-            MODEL_PATH,
+            model_path,
             torch_dtype=torch.float16,
             device_map="auto"
         )
