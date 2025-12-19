@@ -113,7 +113,7 @@ Create network volume: ryla-models-dream-companion, 200GB, US-OR-1
 **Via ComfyUI Pod**:
 1. SSH into pod or use ComfyUI Manager
 2. Download models to Network Volume (mounted at `/workspace/models` or similar):
-   - Flux Dev: `models/checkpoints/flux1-dev.safetensors`
+   - FLUX.1-schnell: `models/checkpoints/flux1-schnell.safetensors`
    - PuLID: `models/pulid/pulid_model.safetensors`
    - ControlNet: `models/controlnet/controlnet-openpose.safetensors`
    - IPAdapter FaceID: `models/ipadapter/ip-adapter-faceid.safetensors`

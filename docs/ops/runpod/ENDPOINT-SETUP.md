@@ -15,8 +15,8 @@ These are also recorded in `docs/ops/runpod/RESOURCES.md`.
 
 Our handlers expect models at:
 
-- `/workspace/models/checkpoints/flux1-dev.safetensors`
-- `/workspace/models/checkpoints/z-image-turbo.safetensors`
+- `/workspace/models/checkpoints/flux1-schnell.safetensors` (required)
+- Z-Image-Turbo: Loaded from HuggingFace repo `Tongyi-MAI/Z-Image-Turbo` (no local file needed)
 
 We already have a network volume:
 
@@ -45,8 +45,8 @@ For our setup, the network volume mount path is **defined by the template** and 
 
 Because the volume is mounted at `/workspace`, our handlers look for models under:
 
-- `/workspace/models/checkpoints/flux1-dev.safetensors`
-- `/workspace/models/checkpoints/z-image-turbo.safetensors`
+- `/workspace/models/checkpoints/flux1-schnell.safetensors` (required)
+- Z-Image-Turbo: Loaded from HuggingFace repo `Tongyi-MAI/Z-Image-Turbo` (no local file needed)
 
 So you need to create `/workspace/models/checkpoints/` on the **network volume** and place the files there.
 

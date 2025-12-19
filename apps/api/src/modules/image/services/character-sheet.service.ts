@@ -83,8 +83,8 @@ export class CharacterSheetService {
         negativePrompt,
         variation,
         input.nsfwEnabled
-          ? 'flux1-dev-uncensored.safetensors'
-          : 'flux1-dev.safetensors',
+          ? 'flux1-schnell-uncensored.safetensors'
+          : 'flux1-schnell.safetensors',
         1024, // width
         1024, // height
         25, // steps (higher for better quality)

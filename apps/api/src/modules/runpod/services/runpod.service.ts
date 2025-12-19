@@ -6,7 +6,7 @@ export interface BaseImageGenerationInput {
   prompt: string;
   nsfw: boolean;
   seed?: number;
-  useZImage?: boolean; // Use Z-Image-Turbo instead of Flux Dev
+  useZImage?: boolean; // Use Z-Image-Turbo instead of Flux 2 Dev
 }
 
 export interface FaceSwapInput {
@@ -21,7 +21,7 @@ export interface FinalGenerationInput {
   loraPath: string;
   nsfw: boolean;
   seed?: number;
-  useZImage?: boolean; // Use Z-Image-Turbo instead of Flux Dev
+  useZImage?: boolean; // Use Z-Image-Turbo instead of Flux 2 Dev
 }
 
 export interface CharacterSheetInput {
@@ -99,7 +99,7 @@ export class RunPodService {
 
     if (!endpointId) {
       throw new Error(
-        `Endpoint ID not configured for ${input.useZImage ? 'Z-Image-Turbo' : 'Flux Dev'}`,
+        `Endpoint ID not configured for ${input.useZImage ? 'Z-Image-Turbo' : 'Flux 2 Dev'}`,
       );
     }
 
@@ -116,7 +116,7 @@ export class RunPodService {
    */
   async generateFaceSwap(input: FaceSwapInput): Promise<string> {
     if (!this.fluxEndpointId) {
-      throw new Error('Flux Dev endpoint ID not configured');
+      throw new Error('Flux 2 Dev endpoint ID not configured');
     }
 
     return this.runJob(this.fluxEndpointId, {
@@ -138,7 +138,7 @@ export class RunPodService {
 
     if (!endpointId) {
       throw new Error(
-        `Endpoint ID not configured for ${input.useZImage ? 'Z-Image-Turbo' : 'Flux Dev'}`,
+        `Endpoint ID not configured for ${input.useZImage ? 'Z-Image-Turbo' : 'Flux 2 Dev'}`,
       );
     }
 
@@ -158,7 +158,7 @@ export class RunPodService {
     input: CharacterSheetInput,
   ): Promise<string> {
     if (!this.fluxEndpointId) {
-      throw new Error('Flux Dev endpoint ID not configured');
+      throw new Error('Flux 2 Dev endpoint ID not configured');
     }
 
     return this.runJob(this.fluxEndpointId, {

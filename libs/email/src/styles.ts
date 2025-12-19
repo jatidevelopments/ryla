@@ -8,21 +8,21 @@ export const colors = {
   // Dark theme (primary)
   background: '#0a0a0f',
   foreground: '#fafafa',
-  
+
   // Light theme (email-safe)
   backgroundLight: '#ffffff',
   foregroundLight: '#0a0a0f',
-  
+
   // Grays
   muted: '#18181b',
   mutedForeground: '#a1a1aa',
   border: 'rgba(255, 255, 255, 0.1)',
   borderLight: '#e4e4e7',
-  
+
   // Accents (minimal use)
   accent: '#27272a',
   accentForeground: '#fafafa',
-  
+
   // Status (only when needed)
   success: '#22c55e',
   error: '#ef4444',

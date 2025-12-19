@@ -52,7 +52,7 @@
 ```bash
 cd checkpoints
 # Download from HuggingFace or CivitAI
-wget -O flux1-dev.safetensors <URL>
+wget -O flux1-schnell.safetensors <URL>
 ```
 
 **Download Z-Image-Turbo**:
@@ -250,7 +250,7 @@ smiling, professional photography
 ## Model Download URLs
 
 ### Flux Dev
-- **HuggingFace**: `black-forest-labs/FLUX.1-dev`
+- **HuggingFace**: `black-forest-labs/FLUX.1-schnell`
 - **CivitAI**: Search "flux dev uncensored" for NSFW version
 
 ### Z-Image-Turbo
@@ -322,7 +322,7 @@ smiling, professional photography
 
 - [ComfyUI Documentation](https://github.com/comfyanonymous/ComfyUI)
 - [RunPod ComfyUI Guide](https://docs.runpod.io/tutorials/pods/comfyui)
-- [Flux Dev Model](https://huggingface.co/black-forest-labs/FLUX.1-dev)
+- [FLUX.1-schnell Model](https://huggingface.co/black-forest-labs/FLUX.1-schnell)
 - [Z-Image-Turbo Model](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo)
 
 ---

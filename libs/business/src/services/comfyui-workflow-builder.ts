@@ -42,7 +42,7 @@ export class ComfyUIWorkflowBuilder {
   }
 
   /**
-   * Add a CheckpointLoaderSimple node (loads base model like Flux Dev)
+   * Add a CheckpointLoaderSimple node (loads base model like Flux 2 Dev)
    */
   addCheckpointLoader(modelName: string): string {
     const nodeId = this.getNextNodeId();
@@ -283,7 +283,7 @@ export class ComfyUIWorkflowBuilder {
 export function createBaseImageWorkflow(
   prompt: string,
   negativePrompt: string,
-  modelName = 'flux1-dev.safetensors',
+  modelName = 'flux1-schnell.safetensors',
   width = 1024,
   height = 1024,
   steps = 20,
@@ -343,7 +343,7 @@ export function createCharacterSheetWorkflow(
     expression?: string;
     lighting?: string;
   },
-  modelName = 'flux1-dev.safetensors',
+  modelName = 'flux1-schnell.safetensors',
   width = 1024,
   height = 1024,
   steps = 25,
@@ -417,7 +417,7 @@ export function createFaceSwapWorkflow(
   baseImagePath: string,
   prompt: string,
   negativePrompt: string,
-  modelName = 'flux1-dev.safetensors',
+  modelName = 'flux1-schnell.safetensors',
   width = 1024,
   height = 1024,
   steps = 20,

@@ -20,6 +20,7 @@
     "docker:down": "docker compose down",
     "docker:logs": "docker compose logs -f",
     "compress:images": "python3 scripts/compress-slider-images.py",
+    "extract:comfyui-models": "tsx scripts/extract-comfyui-models-playwright.ts",
     "email:dev": "pnpm nx dev email",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe",
     "deploy:landing": "flyctl deploy --config apps/landing/fly.toml --dockerfile apps/landing/Dockerfile --build-arg NEXT_PUBLIC_SITE_URL=\"https://www.ryla.ai\" --build-arg NEXT_PUBLIC_CDN_URL=\"https://rylaai.b-cdn.net\" --build-arg NEXT_PUBLIC_DEBUG_CDN=\"true\"",
