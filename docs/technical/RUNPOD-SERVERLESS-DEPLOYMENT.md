@@ -114,7 +114,7 @@ docker push your-registry/ryla-z-image-turbo-handler:latest
 2. Download models:
    ```bash
    # Flux Dev
-   wget -O /workspace/models/checkpoints/flux1-dev.safetensors <URL>
+   wget -O /workspace/models/checkpoints/flux1-schnell.safetensors <URL>
    
    # Z-Image-Turbo
    wget -O /workspace/models/checkpoints/z-image-turbo.safetensors <URL>
@@ -284,7 +284,7 @@ const jobId = await runpodService.generateCharacterSheet({
 
 - [RunPod Serverless Docs](https://docs.runpod.io/serverless)
 - [RunPod Python SDK](https://github.com/runpod/runpod-python)
-- [Flux Dev Model](https://huggingface.co/black-forest-labs/FLUX.1-dev)
+- [FLUX.1-schnell Model](https://huggingface.co/black-forest-labs/FLUX.1-schnell)
 - [Z-Image-Turbo Model](https://huggingface.co/Tongyi-MAI/Z-Image-Turbo)
 
 ---

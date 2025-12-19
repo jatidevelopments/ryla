@@ -25,7 +25,7 @@
 ```
 
 **Models to Download**:
-- Flux Dev (uncensored): `flux1-dev.safetensors`
+- FLUX.1-schnell (uncensored): `flux1-schnell.safetensors`
 - PuLID: `pulid_model.safetensors`
 - ControlNet models: `controlnet-openpose.safetensors`
 - IPAdapter FaceID: `ip-adapter-faceid.safetensors`
@@ -93,7 +93,7 @@
 - SSH into ComfyUI Pod
 - Download models to correct folders:
   ```
-  models/checkpoints/flux1-dev.safetensors
+  models/checkpoints/flux1-schnell.safetensors
   models/pulid/pulid_model.safetensors
   models/controlnet/controlnet-openpose.safetensors
   ```
@@ -125,7 +125,7 @@
 ### Model Download URLs
 
 **Flux Dev (Uncensored)**:
-- HuggingFace: `black-forest-labs/FLUX.1-dev`
+- HuggingFace: `black-forest-labs/FLUX.1-schnell`
 - Or CivitAI for uncensored variants
 
 **PuLID**:

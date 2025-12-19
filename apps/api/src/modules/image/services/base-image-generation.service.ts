@@ -133,8 +133,8 @@ export class BaseImageGenerationService {
   ) {
     // Model selection (uncensored if NSFW enabled)
     const modelName = nsfwEnabled
-      ? 'flux1-dev-uncensored.safetensors'
-      : 'flux1-dev.safetensors';
+      ? 'flux1-schnell-uncensored.safetensors'
+      : 'flux1-schnell.safetensors';
 
     // Use helper function from workflow builder
     return createBaseImageWorkflow(

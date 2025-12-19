@@ -32,7 +32,7 @@ export const loraTypeEnum = pgEnum('lora_type', [
  * LoRA training configuration type
  */
 export interface LoraTrainingConfig {
-  baseModel: string; // e.g., 'flux-dev', 'sdxl'
+  baseModel: string; // e.g., 'flux1-schnell', 'sdxl'
   triggerWord: string; // Word to trigger the LoRA
   steps: number; // Training steps (e.g., 700 for face)
   learningRate: number; // e.g., 0.0001
@@ -68,7 +68,7 @@ export const loraModels = pgTable(
 
     // Training details
     triggerWord: text('trigger_word'), // Word to trigger the LoRA in prompts
-    baseModel: text('base_model'), // Base model used (e.g., 'flux-dev')
+    baseModel: text('base_model'), // Base model used (e.g., 'flux1-schnell')
 
     // External service tracking
     externalJobId: text('external_job_id'), // RunPod/Replicate job ID

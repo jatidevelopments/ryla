@@ -62,7 +62,10 @@ export function WelcomeEmail({
           <Text style={baseStyles.footer}>
             © {new Date().getFullYear()} {brand.name}
             <br />
-            <Link href={brand.website} style={{ color: colors.mutedForeground }}>
+            <Link
+              href={brand.website}
+              style={{ color: colors.mutedForeground }}
+            >
               ryla.ai
             </Link>
           </Text>

@@ -1,5 +1,5 @@
 """
-RunPod Serverless Handler for Flux Dev
+RunPod Serverless Handler for FLUX.1-schnell
 Handles base image generation, face swap, final generation, and character sheets
 """
 import runpod
@@ -12,7 +12,7 @@ import os
 from typing import Dict, List, Any
 
 # Model paths (mounted from network volume)
-MODEL_PATH = "/workspace/models/checkpoints/flux1-dev.safetensors"
+MODEL_PATH = "/workspace/models/checkpoints/flux1-schnell.safetensors"
 PULID_PATH = "/workspace/models/pulid/pulid_model.safetensors"
 CONTROLNET_PATH = "/workspace/models/controlnet/controlnet-openpose.safetensors"
 IPADAPTER_PATH = "/workspace/models/ipadapter/ip-adapter-faceid.safetensors"
@@ -22,10 +22,10 @@ pipeline = None
 
 
 def load_pipeline():
-    """Load Flux Dev pipeline (cached between requests)"""
+    """Load FLUX.1-schnell pipeline (cached between requests)"""
     global pipeline
     if pipeline is None:
-        print("Loading Flux Dev pipeline...")
+        print("Loading FLUX.1-schnell pipeline...")
         pipeline = FluxPipeline.from_pretrained(
             MODEL_PATH,
             torch_dtype=torch.float16,
