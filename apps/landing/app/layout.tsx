@@ -30,19 +30,28 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'RYLA — Create Hyper-Realistic AI Influencers That Earn 24/7',
+    default: 'RYLA — AI Influencer Generator | Create AI Girls & Videos',
     template: '%s | RYLA',
   },
   description:
-    'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more. Build your AI influencer empire with one click. Starting at $29/month. Free trial available.',
+    'Create AI influencers with our AI influencer generator. Generate hyper-realistic AI girls and videos for TikTok, Instagram, and OnlyFans. The #1 AI generator for virtual influencers with perfect character consistency. AI video generator included. Free trial.',
   keywords: [
+    // Narrow keywords (high intent)
     'AI influencer',
-    'AI creator',
+    'AI influencers',
+    'AI influencer generator',
+    'create AI influencer',
+    'AI OnlyFans',
+    'AI girl',
+    'AI girls',
+    // Broad keywords
+    'AI generator',
+    'AI video generator',
+    // Supporting keywords
     'virtual influencer',
     'AI content generator',
     'hyper-realistic AI',
     'character consistency',
-    'AI video generation',
     'TikTok AI',
     'Instagram AI',
     'passive income',
@@ -70,24 +79,24 @@ export const metadata: Metadata = {
     locale: 'en_US',
     url: SITE_URL,
     siteName: 'RYLA',
-    title: 'RYLA — Create Hyper-Realistic AI Influencers That Earn 24/7',
+    title: 'RYLA — AI Influencer Generator | Create AI Girls & Videos',
     description:
-      'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more. Build your AI influencer empire with one click.',
+      'Create AI influencers with our AI generator. Generate hyper-realistic AI girls, videos, and content for TikTok, Instagram, and OnlyFans. The best AI video generator for virtual influencers.',
     images: [
       {
         url: '/share-ryla.jpg',
         width: 1200,
         height: 630,
-        alt: 'RYLA — Create Hyper-Realistic AI Influencers That Earn 24/7',
+        alt: 'RYLA — AI Influencer Generator | Create AI Girls & Videos',
         type: 'image/jpeg',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'RYLA — Create Hyper-Realistic AI Influencers That Earn 24/7',
+    title: 'RYLA — AI Influencer Generator | Create AI Girls & Videos',
     description:
-      'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more. Build your AI influencer empire with one click.',
+      'Create AI influencers with our AI generator. Generate hyper-realistic AI girls, videos, and content for TikTok, Instagram, and OnlyFans. The best AI video generator for virtual influencers.',
     images: ['/share-ryla.jpg'],
     creator: '@RylaAI',
     site: '@RylaAI',

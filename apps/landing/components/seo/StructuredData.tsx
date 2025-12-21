@@ -14,7 +14,7 @@ export function StructuredData() {
     url: SITE_URL,
     logo: `${SITE_URL}/logos/Ryla_Logo_white.png`,
     description:
-      'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more.',
+      'RYLA is the #1 AI influencer generator. Create AI influencers, AI girls, and AI videos for TikTok, Instagram, and OnlyFans. The best AI generator for virtual influencers.',
     sameAs: [
       'https://twitter.com/RylaAI',
       // Add other social media links when available
@@ -32,7 +32,7 @@ export function StructuredData() {
     name: 'RYLA',
     url: SITE_URL,
     description:
-      'Create hyper-realistic AI influencers with perfect character consistency. Generate images, videos, and content for TikTok, Instagram, and more.',
+      'Create AI influencers with our AI influencer generator. Generate AI girls and AI videos for TikTok, Instagram, and OnlyFans. The best AI generator for virtual influencers.',
     potentialAction: {
       '@type': 'SearchAction',
       target: {
@@ -57,15 +57,18 @@ export function StructuredData() {
       url: `${SITE_URL}`,
     },
     description:
-      'AI influencer creation platform with hyper-realistic character consistency, image and video generation, and content scheduling. Create AI influencers that earn 24/7 with perfect character consistency across all content.',
+      'RYLA is the #1 AI influencer generator. Create AI influencers and AI girls with our AI generator. Generate AI videos for TikTok, Instagram, and OnlyFans. The best AI video generator with perfect character consistency.',
     featureList: [
-      'Hyper-realistic AI influencer generation',
+      'AI influencer generator',
+      'Create AI influencers',
+      'AI girl generation',
+      'AI video generator',
       '100% character consistency',
-      'Image and video generation',
+      'Hyper-realistic AI girls',
       'Lipsync video creation',
-      'Content scheduling',
+      'TikTok & Instagram ready',
+      'OnlyFans content creation',
       'Multi-platform integration',
-      'Earnings tracking',
     ],
     screenshot: `${SITE_URL}/share-ryla.jpg`,
     aggregateRating: {
@@ -74,11 +77,11 @@ export function StructuredData() {
       reviewCount: '150',
     },
     // Additional fields for ChatGPT Search optimization
-    applicationSubCategory: 'AI Content Creation',
+    applicationSubCategory: 'AI Influencer Generator',
     downloadUrl: `${SITE_URL}`,
     softwareVersion: '1.0',
     releaseNotes:
-      'Create hyper-realistic AI influencers with perfect character consistency',
+      'Create hyper-realistic AI influencers and AI girls with our AI generator. AI video generator included.',
   };
 
   return (

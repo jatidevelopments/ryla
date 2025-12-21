@@ -81,15 +81,19 @@ export function HeroSection() {
       <div className="absolute bottom-0 left-0 right-0 overflow-hidden border-t border-white/5 bg-black/30 backdrop-blur-sm">
         <VelocityScroll defaultVelocity={1.5} className="py-4">
           <span className="text-sm md:text-base lg:text-lg font-medium text-white/25 mx-6">
-            Hyper-realistic
+            AI Influencer Generator
             <span className="text-purple-500/60 mx-3">•</span>
           </span>
           <span className="text-sm md:text-base lg:text-lg font-medium text-white/25 mx-6">
-            Consistent
+            AI Video Generator
             <span className="text-purple-500/60 mx-3">•</span>
           </span>
           <span className="text-sm md:text-base lg:text-lg font-medium text-white/25 mx-6">
-            Ready to monetize
+            Create AI Girls
+            <span className="text-purple-500/60 mx-3">•</span>
+          </span>
+          <span className="text-sm md:text-base lg:text-lg font-medium text-white/25 mx-6">
+            Hyper-Realistic
             <span className="text-purple-500/60 mx-3">•</span>
           </span>
           <span className="text-sm md:text-base lg:text-lg font-medium text-white/25 mx-6">
