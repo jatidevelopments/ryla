@@ -3,8 +3,18 @@
 > **URL**: https://www.youtube.com/watch?v=-u9VLMVwDXM  
 > **Video ID**: -u9VLMVwDXM  
 > **Date Added**: 2025-12-17  
+> **Date Updated**: 2025-12-21  
 > **Duration**: 10:12  
 > **Channel**: (unknown)
+
+## Assets Extracted
+
+| File | Description |
+|------|-------------|
+| `download_zimage_danrisi_models_script.sh` | Model download script (~21 GB total) |
+| `Z-Image_Danrisi_modified_loaders.json` | ComfyUI workflow with optimized samplers |
+| `analysis.md` | Technical analysis and RYLA implications |
+| `transcript.md` | Full video transcript |
 
 ## Summary
 

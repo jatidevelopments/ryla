@@ -1,31 +1,56 @@
-# Docker Build Instructions
+# Docker Images for RYLA
 
-## Building Docker Images
+## Active Images
 
-### From Project Root
+### comfyui-worker ✅ (Recommended)
+
+Universal ComfyUI serverless worker - runs any ComfyUI workflow via API.
 
 ```bash
-# Build Flux Dev handler
-docker build -f docker/flux-dev-handler/Dockerfile -t ryla-flux-dev-handler:latest .
+# Build
+docker build -t ghcr.io/jatidevelopments/ryla-comfyui-worker:latest \
+  -f docker/comfyui-worker/Dockerfile .
 
-# Build Z-Image-Turbo handler
+# Push
+docker push ghcr.io/jatidevelopments/ryla-comfyui-worker:latest
+```
+
+**Features:**
+- Runs any ComfyUI workflow (Z-Image, FLUX, etc.)
+- Pre-installed custom nodes: res4lyf, controlaltai-nodes
+- Models loaded from network volume at `/runpod-volume/models/`
+- Scales to zero when idle
+
+**Usage:**
+1. Build and push the image
+2. Create RunPod serverless endpoint with this image
+3. Attach network volume with models
+4. Send workflow JSON via API → get images back
+
+---
+
+## Deprecated Images
+
+These Python handlers are no longer needed since we use ComfyUI worker:
+
+### flux-dev-handler ❌ (Deprecated)
+
+```bash
+# Old - do not use
+docker build -f docker/flux-dev-handler/Dockerfile -t ryla-flux-dev-handler:latest .
+```
+
+### z-image-turbo-handler ❌ (Deprecated)
+
+```bash
+# Old - do not use
 docker build -f docker/z-image-turbo-handler/Dockerfile -t ryla-z-image-turbo-handler:latest .
 ```
 
-### Push to Registry
+---
 
-```bash
-# Tag for your registry (replace with your registry)
-docker tag ryla-flux-dev-handler:latest your-registry/ryla-flux-dev-handler:latest
-docker push your-registry/ryla-flux-dev-handler:latest
+## Build Notes
 
-docker tag ryla-z-image-turbo-handler:latest your-registry/ryla-z-image-turbo-handler:latest
-docker push your-registry/ryla-z-image-turbo-handler:latest
-```
-
-## Notes
-
-- Build from project root to ensure handlers/ directory is accessible
-- Dockerfiles use `COPY ../../handlers/` to reference handlers from root
-- Images include all necessary dependencies for Flux Dev and Z-Image-Turbo
-
+- Build from project root to ensure correct context
+- ComfyUI worker is based on `runpod/worker-comfyui:5.6.0-base`
+- Models are NOT baked into images - loaded from network volume
