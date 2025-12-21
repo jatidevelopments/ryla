@@ -55,7 +55,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-flux-dev-handler:latest
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-flux-dev-handler:${{ github.sha }}
 
-      - name: Build & push z-image-turbo handler
+      - name: Build & push z-image-turbo handler (deprecated)
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -65,5 +65,16 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-z-image-turbo-handler:latest
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-z-image-turbo-handler:${{ github.sha }}
+
+      - name: Build & push ComfyUI worker (recommended)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/comfyui-worker/Dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/ryla-comfyui-worker:latest
+            ghcr.io/${{ github.repository_owner }}/ryla-comfyui-worker:${{ github.sha }}
 
 
