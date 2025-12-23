@@ -1,5 +1,5 @@
 // Database models and schemas
-// Re-export from apps/api/src/database/schemas for shared use across monorepo
+// Re-export from schema for shared use across monorepo
 
-export * from '../../../../apps/api/src/database/schemas';
+export * from '../schema';
 

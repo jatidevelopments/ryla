@@ -1,0 +1,150 @@
+{
+  "last_node_id": 15,
+  "last_link_id": 20,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "UNETLoader",
+      "pos": [100, 100],
+      "size": [300, 100],
+      "properties": {},
+      "widgets_values": ["z_image_turbo_bf16.safetensors", "default"]
+    },
+    {
+      "id": 2,
+      "type": "CLIPLoader",
+      "pos": [100, 250],
+      "size": [300, 100],
+      "properties": {},
+      "widgets_values": ["qwen_3_4b.safetensors", "lumina2", "default"]
+    },
+    {
+      "id": 3,
+      "type": "VAELoader",
+      "pos": [100, 400],
+      "size": [300, 80],
+      "properties": {},
+      "widgets_values": ["z-image-turbo-vae.safetensors"]
+    },
+    {
+      "id": 4,
+      "type": "PulidFluxModelLoader",
+      "pos": [100, 520],
+      "size": [300, 80],
+      "properties": {},
+      "widgets_values": ["pulid_flux_v0.9.1.safetensors"]
+    },
+    {
+      "id": 5,
+      "type": "PulidFluxInsightFaceLoader",
+      "pos": [100, 640],
+      "size": [300, 80],
+      "properties": {},
+      "widgets_values": ["CPU"]
+    },
+    {
+      "id": 6,
+      "type": "PulidFluxEvaClipLoader",
+      "pos": [100, 760],
+      "size": [300, 80],
+      "properties": {}
+    },
+    {
+      "id": 7,
+      "type": "LoadImage",
+      "pos": [450, 520],
+      "size": [300, 300],
+      "properties": {},
+      "widgets_values": ["example.png", "image"]
+    },
+    {
+      "id": 8,
+      "type": "ApplyPulidFlux",
+      "pos": [500, 100],
+      "size": [300, 200],
+      "properties": {},
+      "widgets_values": [0.8, 0.0, 1.0]
+    },
+    {
+      "id": 9,
+      "type": "CLIPTextEncode",
+      "pos": [850, 100],
+      "size": [300, 120],
+      "properties": {},
+      "widgets_values": ["A beautiful woman in a coffee shop, natural lighting, high quality, detailed"]
+    },
+    {
+      "id": 10,
+      "type": "CLIPTextEncode",
+      "pos": [850, 260],
+      "size": [300, 100],
+      "properties": {},
+      "widgets_values": ["blurry, deformed, ugly, bad anatomy"]
+    },
+    {
+      "id": 11,
+      "type": "ConditioningZeroOut",
+      "pos": [850, 400],
+      "size": [200, 80],
+      "properties": {}
+    },
+    {
+      "id": 12,
+      "type": "EmptySD3LatentImage",
+      "pos": [850, 520],
+      "size": [200, 120],
+      "properties": {},
+      "widgets_values": [1024, 1024, 1]
+    },
+    {
+      "id": 13,
+      "type": "KSampler",
+      "pos": [1200, 100],
+      "size": [300, 300],
+      "properties": {},
+      "widgets_values": [42, "fixed", 20, 1.0, "euler", "normal", 1.0]
+    },
+    {
+      "id": 14,
+      "type": "VAEDecode",
+      "pos": [1200, 450],
+      "size": [200, 80],
+      "properties": {}
+    },
+    {
+      "id": 15,
+      "type": "SaveImage",
+      "pos": [1200, 580],
+      "size": [300, 300],
+      "properties": {},
+      "widgets_values": ["pulid_test"]
+    }
+  ],
+  "links": [
+    [1, 1, 0, 8, 0, "MODEL"],
+    [2, 4, 0, 8, 1, "PULID"],
+    [3, 6, 0, 8, 2, "EVA_CLIP"],
+    [4, 5, 0, 8, 3, "FACE_ANALYSIS"],
+    [5, 7, 0, 8, 4, "IMAGE"],
+    [6, 2, 0, 9, 0, "CLIP"],
+    [7, 2, 0, 10, 0, "CLIP"],
+    [8, 10, 0, 11, 0, "CONDITIONING"],
+    [9, 8, 0, 13, 0, "MODEL"],
+    [10, 9, 0, 13, 1, "CONDITIONING"],
+    [11, 11, 0, 13, 2, "CONDITIONING"],
+    [12, 12, 0, 13, 3, "LATENT"],
+    [13, 13, 0, 14, 0, "LATENT"],
+    [14, 3, 0, 14, 1, "VAE"],
+    [15, 14, 0, 15, 0, "IMAGE"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.8,
+      "offset": [0, 0]
+    }
+  },
+  "version": 0.4
+}
+

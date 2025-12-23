@@ -4,6 +4,7 @@ import './globals.css';
 import { AppShell } from '../components/app-shell';
 import { StructuredData } from '../components/seo/StructuredData';
 import { TRPCProvider } from '../lib/trpc';
+import { AuthProvider } from '../lib/auth-context';
 
 // DM Sans - Clean, modern, geometric sans-serif (unified with landing)
 const dmSans = DM_Sans({
@@ -113,7 +114,9 @@ export default function RootLayout({
       >
         <StructuredData />
         <TRPCProvider>
-          <AppShell>{children}</AppShell>
+          <AuthProvider>
+            <AppShell>{children}</AppShell>
+          </AuthProvider>
         </TRPCProvider>
       </body>
     </html>

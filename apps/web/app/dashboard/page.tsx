@@ -11,9 +11,20 @@ import {
   GradientBackground,
 } from '@ryla/ui';
 import { InfluencerCard } from '../../components/influencer-card';
+import { ProtectedRoute } from '../../components/protected-route';
+import { useAuth } from '../../lib/auth-context';
 import Link from 'next/link';
 
 export default function DashboardPage() {
+  return (
+    <ProtectedRoute>
+      <DashboardContent />
+    </ProtectedRoute>
+  );
+}
+
+function DashboardContent() {
+  const { user } = useAuth();
   const influencers = useAllInfluencers();
   const hasInfluencers = influencers.length > 0;
 
@@ -36,7 +47,7 @@ export default function DashboardPage() {
         <div className="mb-8 flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-              My AI Influencers
+              {user ? `Welcome, ${user.name.split(' ')[0]}` : 'My AI Influencers'}
             </h1>
             <p className="mt-1 text-[var(--text-secondary)]">
               {hasInfluencers
@@ -47,8 +58,8 @@ export default function DashboardPage() {
             </p>
           </div>
           {hasInfluencers && (
-            <RylaButton asChild variant="primary" size="lg">
-              <Link href="/wizard/step-0" className="flex items-center gap-2">
+            <RylaButton asChild variant="glassy" size="lg">
+              <Link href="/wizard/step-0">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
@@ -66,8 +77,8 @@ export default function DashboardPage() {
 
       {/* Content */}
       {hasInfluencers ? (
-        <StaggerChildren staggerDelay={100}>
-          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+        <StaggerChildren staggerDelay={80}>
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
             {influencers.map((influencer) => (
               <InfluencerCard key={influencer.id} influencer={influencer} />
             ))}
@@ -138,3 +149,4 @@ export default function DashboardPage() {
     </PageContainer>
   );
 }
+

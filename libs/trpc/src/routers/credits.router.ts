@@ -8,25 +8,193 @@
 import { z } from 'zod';
 import { eq, desc, sql } from 'drizzle-orm';
 
-import { userCredits, creditTransactions } from '@ryla/data';
+import {
+  userCredits,
+  creditTransactions,
+  generationJobs,
+  PLAN_CREDIT_LIMITS,
+} from '@ryla/data';
 
 import { router, protectedProcedure } from '../trpc';
 
+// Low balance threshold (show warning when credits <= this value)
+const LOW_BALANCE_THRESHOLD = 10;
+
 export const creditsRouter = router({
   /**
-   * Get current credit balance
+   * Get current credit balance with low balance warning
    */
   getBalance: protectedProcedure.query(async ({ ctx }) => {
     const credits = await ctx.db.query.userCredits.findFirst({
       where: eq(userCredits.userId, ctx.user.id),
     });
 
+    const balance = credits?.balance ?? 0;
+    const isLowBalance = balance > 0 && balance <= LOW_BALANCE_THRESHOLD;
+    const isZeroBalance = balance === 0;
+
     return {
-      balance: credits?.balance ?? 0,
+      balance,
       totalEarned: credits?.totalEarned ?? 0,
       totalSpent: credits?.totalSpent ?? 0,
+      isLowBalance,
+      isZeroBalance,
+      lowBalanceThreshold: LOW_BALANCE_THRESHOLD,
+      // Track if warning was already shown (to avoid spam)
+      lowBalanceWarningShown: credits?.lowBalanceWarningShown ?? null,
     };
   }),
+
+  /**
+   * Mark low balance warning as shown (to avoid repeated warnings)
+   */
+  dismissLowBalanceWarning: protectedProcedure.mutation(async ({ ctx }) => {
+    await ctx.db
+      .update(userCredits)
+      .set({
+        lowBalanceWarningShown: new Date(),
+        updatedAt: new Date(),
+      })
+      .where(eq(userCredits.userId, ctx.user.id));
+
+    return { success: true };
+  }),
+
+  /**
+   * Refund credits for a failed generation job
+   * This is called when a generation fails after credits were deducted
+   */
+  refundFailedJob: protectedProcedure
+    .input(
+      z.object({
+        jobId: z.string().uuid(),
+        reason: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Find the job
+      const job = await ctx.db.query.generationJobs.findFirst({
+        where: eq(generationJobs.id, input.jobId),
+      });
+
+      if (!job) {
+        return { success: false, message: 'Job not found' };
+      }
+
+      // Only refund if job belongs to user and failed
+      if (job.userId !== ctx.user.id) {
+        return { success: false, message: 'Unauthorized' };
+      }
+
+      if (job.status !== 'failed') {
+        return { success: false, message: 'Job is not failed' };
+      }
+
+      const creditsToRefund = job.creditsUsed ?? 0;
+      if (creditsToRefund === 0) {
+        return { success: false, message: 'No credits to refund' };
+      }
+
+      // Get current balance
+      const credits = await ctx.db.query.userCredits.findFirst({
+        where: eq(userCredits.userId, ctx.user.id),
+      });
+
+      const newBalance = (credits?.balance ?? 0) + creditsToRefund;
+
+      // Refund credits
+      await ctx.db
+        .update(userCredits)
+        .set({
+          balance: newBalance,
+          totalSpent: Math.max(0, (credits?.totalSpent ?? 0) - creditsToRefund),
+          updatedAt: new Date(),
+        })
+        .where(eq(userCredits.userId, ctx.user.id));
+
+      // Record refund transaction
+      await ctx.db.insert(creditTransactions).values({
+        userId: ctx.user.id,
+        type: 'refund',
+        amount: creditsToRefund,
+        balanceAfter: newBalance,
+        referenceType: 'generation_job',
+        referenceId: job.id,
+        description: input.reason || 'Failed generation refund',
+      });
+
+      return {
+        success: true,
+        refunded: creditsToRefund,
+        newBalance,
+      };
+    }),
+
+  /**
+   * Add credits (for subscription grants, purchases, bonuses)
+   * Note: In production, this should be an internal/admin procedure
+   */
+  addCredits: protectedProcedure
+    .input(
+      z.object({
+        amount: z.number().positive(),
+        type: z.enum(['subscription_grant', 'purchase', 'bonus', 'admin_adjustment']),
+        description: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Get or create user credits
+      let credits = await ctx.db.query.userCredits.findFirst({
+        where: eq(userCredits.userId, ctx.user.id),
+      });
+
+      if (!credits) {
+        // Create credits record if it doesn't exist
+        const [newCredits] = await ctx.db
+          .insert(userCredits)
+          .values({
+            userId: ctx.user.id,
+            balance: 0,
+            totalEarned: 0,
+            totalSpent: 0,
+          })
+          .returning();
+        credits = newCredits;
+      }
+
+      const newBalance = (credits?.balance ?? 0) + input.amount;
+      const newTotalEarned = (credits?.totalEarned ?? 0) + input.amount;
+
+      // Update balance
+      await ctx.db
+        .update(userCredits)
+        .set({
+          balance: newBalance,
+          totalEarned: newTotalEarned,
+          // Reset low balance warning when credits are added
+          lowBalanceWarningShown: null,
+          updatedAt: new Date(),
+        })
+        .where(eq(userCredits.userId, ctx.user.id));
+
+      // Record transaction
+      await ctx.db.insert(creditTransactions).values({
+        userId: ctx.user.id,
+        type: input.type,
+        amount: input.amount,
+        balanceAfter: newBalance,
+        description:
+          input.description ||
+          `${input.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}`,
+      });
+
+      return {
+        success: true,
+        added: input.amount,
+        newBalance,
+        totalEarned: newTotalEarned,
+      };
+    }),
 
   /**
    * Get credit transaction history

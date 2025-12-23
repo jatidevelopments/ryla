@@ -1,28 +1,52 @@
-import { Controller, Get, Post, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  Post,
+  Param,
+  UseGuards,
+  Inject,
+  ForbiddenException,
+  ParseUUIDPipe,
+} from '@nestjs/common';
+import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { IJwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { ImageGalleryService } from './services/image-gallery.service';
 
 @ApiTags('Image Gallery')
 @Controller('image-gallery')
+@UseGuards(JwtAccessGuard)
+@ApiBearerAuth()
 export class ImageGalleryController {
-  constructor(private readonly imageGalleryService: ImageGalleryService) {}
+  constructor(
+    @Inject(ImageGalleryService)
+    private readonly imageGalleryService: ImageGalleryService,
+  ) {}
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessGuard)
   @Get('characters/:characterId/images')
-  public async getImages(@Param('characterId') characterId: number, @CurrentUser() user: any) {
-    // TODO: Implement
-    throw new Error('Not implemented');
+  @ApiOperation({ summary: 'Get images for a character (must own character)' })
+  public async getImages(
+    @Param('characterId', new ParseUUIDPipe()) characterId: string,
+    @CurrentUser() user: IJwtPayload,
+  ) {
+    // Verify ownership - service should check character.userId === user.userId
+    const images = await this.imageGalleryService.getCharacterImages(
+      characterId,
+      user.userId,
+    );
+    return { images };
   }
 
-  @ApiBearerAuth()
-  @UseGuards(JwtAccessGuard)
   @Post('images/:imageId/like')
-  public async likeImage(@Param('imageId') imageId: number, @CurrentUser() user: any) {
-    // TODO: Implement
-    throw new Error('Not implemented');
+  @ApiOperation({ summary: 'Like an image (must own image)' })
+  public async likeImage(
+    @Param('imageId', new ParseUUIDPipe()) imageId: string,
+    @CurrentUser() user: IJwtPayload,
+  ) {
+    // Service should verify image ownership before liking
+    await this.imageGalleryService.likeImage(imageId, user.userId);
+    return { success: true };
   }
 }
 

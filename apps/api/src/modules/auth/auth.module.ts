@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+import { Config } from '../../config/config.type';
 import { RedisModule } from '../redis/redis.module';
-import { UserModule } from '../user/user.module';
 import { MailModule } from '../mail/mail.module';
 import { AuthController } from './auth.controller';
 import { AuthService } from './services/auth.service';
@@ -13,25 +14,37 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
-    JwtModule.register({}),
+    ConfigModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<Config>) => {
+        const jwtConfig = configService.get('jwt');
+        return {
+          secret: jwtConfig?.accessSecret || 'secret',
+          signOptions: {
+            expiresIn: jwtConfig?.accessExpiresIn || 3600,
+          },
+        };
+      },
+    }),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     RedisModule,
-    UserModule,
     MailModule,
   ],
   controllers: [AuthController],
   providers: [
-    AuthService,
     TokenService,
     AuthCacheService,
+    AuthService,
     JwtStrategy,
   ],
   exports: [
-    AuthService,
     TokenService,
     AuthCacheService,
+    AuthService,
     PassportModule,
   ],
 })
-export class AuthModule {}
+export class AuthModule { }
 

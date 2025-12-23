@@ -7,10 +7,13 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
+  Inject,
+  ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
+import { IJwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { CharacterService } from './services/character.service';
 import { BaseImageGenerationService } from '../image/services/base-image-generation.service';
 import { CharacterSheetService } from '../image/services/character-sheet.service';
@@ -23,18 +26,19 @@ import { GenerateCharacterSheetDto } from './dto/generate-character-sheet.dto';
 @ApiBearerAuth()
 export class CharacterController {
   constructor(
-    private readonly characterService: CharacterService,
-    private readonly baseImageGenerationService: BaseImageGenerationService,
-    private readonly characterSheetService: CharacterSheetService,
+    @Inject(CharacterService) private readonly characterService: CharacterService,
+    @Inject(BaseImageGenerationService) private readonly baseImageGenerationService: BaseImageGenerationService,
+    @Inject(CharacterSheetService) private readonly characterSheetService: CharacterSheetService,
   ) {}
 
   @Post('generate-base-images')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Generate 3 base image options from wizard config' })
   async generateBaseImages(
-    @CurrentUser() user: any,
+    @CurrentUser() user: IJwtPayload,
     @Body() dto: GenerateBaseImagesDto,
   ) {
+    // TODO: Store job in DB with userId for full ownership tracking
     const result = await this.baseImageGenerationService.generateBaseImages({
       appearance: dto.appearance,
       identity: dto.identity,
@@ -43,6 +47,7 @@ export class CharacterController {
 
     return {
       jobId: result.jobId,
+      userId: user.userId, // Include for client-side tracking
       status: 'queued',
       message: 'Base image generation started',
     };
@@ -51,10 +56,12 @@ export class CharacterController {
   @Get('base-images/:jobId')
   @ApiOperation({ summary: 'Get base image generation results' })
   async getBaseImageResults(
-    @CurrentUser() user: any,
+    @CurrentUser() user: IJwtPayload,
     @Param('jobId') jobId: string,
   ) {
-    const results = await this.baseImageGenerationService.getJobResults(jobId);
+    // TODO: Verify job ownership via DB lookup when jobs are persisted
+    // Pass userId for proper S3 storage organization
+    const results = await this.baseImageGenerationService.getJobResults(jobId, user.userId);
 
     return {
       status: results.status,
@@ -70,9 +77,11 @@ export class CharacterController {
       'This runs in the background after character creation. User can generate images with face swap while this processes.',
   })
   async generateCharacterSheet(
-    @CurrentUser() user: any,
+    @CurrentUser() user: IJwtPayload,
     @Body() dto: GenerateCharacterSheetDto,
   ) {
+    // TODO: Verify user owns the character before generating sheet
+    // TODO: Store job in DB with userId for ownership tracking
     const result = await this.characterSheetService.generateCharacterSheet({
       baseImageUrl: dto.baseImageUrl,
       characterId: dto.characterId,
@@ -81,6 +90,7 @@ export class CharacterController {
 
     return {
       jobId: result.jobId,
+      userId: user.userId,
       status: 'queued',
       message: 'Character sheet generation started',
       variations: result.variations,
@@ -90,10 +100,12 @@ export class CharacterController {
   @Get('character-sheet/:jobId')
   @ApiOperation({ summary: 'Get character sheet generation results' })
   async getCharacterSheetResults(
-    @CurrentUser() user: any,
+    @CurrentUser() user: IJwtPayload,
     @Param('jobId') jobId: string,
   ) {
-    const results = await this.characterSheetService.getJobResults(jobId);
+    // TODO: Verify job ownership via DB lookup when jobs are persisted
+    // Pass userId for proper S3 storage organization
+    const results = await this.characterSheetService.getJobResults(jobId, user.userId);
 
     return {
       status: results.status,

@@ -10,7 +10,7 @@
   --radius: 0.625rem;
 
   /* Override with RYLA purple theme (matching landing) */
-  --background: #0a0a0b;
+  --background: #121214;
   --foreground: #ffffff;
   --card: #111113;
   --card-foreground: #ffffff;
@@ -46,7 +46,7 @@
   --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
 
   /* Legacy color mappings for backwards compatibility */
-  --color-black: #0a0a0b;
+  --color-black: #121214;
   --color-black-2: #111113;
   --color-smooth-gray: #1a1a1d;
   --color-pink: #ec4899;
@@ -87,7 +87,7 @@
 }
 
 .dark {
-  --background: #0a0a0b;
+  --background: #121214;
   --foreground: #ffffff;
   --card: #111113;
   --card-foreground: #ffffff;

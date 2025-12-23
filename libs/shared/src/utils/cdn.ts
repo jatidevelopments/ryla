@@ -6,11 +6,11 @@
  */
 
 const CDN_URL = typeof process !== 'undefined' 
-  ? process.env.NEXT_PUBLIC_CDN_URL?.replace(/\/$/, "")
+  ? process.env['NEXT_PUBLIC_CDN_URL']?.replace(/\/$/, "")
   : undefined;
 
 const DEBUG_CDN = typeof process !== 'undefined' && (
-  process.env.NEXT_PUBLIC_DEBUG_CDN === "true" || 
+  process.env['NEXT_PUBLIC_DEBUG_CDN'] === "true" || 
   (typeof window !== "undefined" && (window as any).__DEBUG_CDN__)
 );
 

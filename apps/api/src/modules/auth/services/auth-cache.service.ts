@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { Config, JwtConfig } from '../../../config/config.type';
@@ -9,9 +9,12 @@ export class AuthCacheService {
   private jwtConfig: JwtConfig;
 
   constructor(
-    private readonly redisService: RedisService,
-    private readonly configService: ConfigService<Config>,
+    @Inject(forwardRef(() => RedisService)) private readonly redisService: RedisService,
+    @Inject(ConfigService) private readonly configService: ConfigService<Config>,
   ) {
+    if (!this.configService) {
+      throw new Error('ConfigService is not available');
+    }
     const config = this.configService.get<JwtConfig>('jwt');
     if (!config) {
       throw new Error('JWT config not found');
@@ -20,7 +23,7 @@ export class AuthCacheService {
   }
 
   public async saveToken(
-    userId: number,
+    userId: string,
     deviceId: string,
     token: string,
   ): Promise<void> {
@@ -31,7 +34,7 @@ export class AuthCacheService {
   }
 
   public async isAccessTokenExist(
-    userId: number,
+    userId: string,
     deviceId: string,
     token: string,
   ): Promise<boolean> {
@@ -40,19 +43,19 @@ export class AuthCacheService {
     return storedToken === token;
   }
 
-  public async deleteToken(userId: number, deviceId: string): Promise<void> {
+  public async deleteToken(userId: string, deviceId: string): Promise<void> {
     const key = this.getKey(userId, deviceId);
     await this.redisService.deleteByKey(key);
   }
 
-  public async deleteAllUserTokens(userId: number): Promise<void> {
+  public async deleteAllUserTokens(userId: string): Promise<void> {
     const keys = await this.redisService.keys(this.getKey(userId, '*'));
     if (keys.length > 0) {
       await this.redisService.deleteByKeys(keys);
     }
   }
 
-  private getKey(userId: number, deviceId: string): string {
+  private getKey(userId: string, deviceId: string): string {
     return `access-token:${userId}:${deviceId}`;
   }
 }

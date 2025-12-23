@@ -1,6 +1,40 @@
-# Docker Images for RYLA
+# Docker for RYLA
 
-## Active Images
+## Local Development Services
+
+Start all local services (PostgreSQL, Redis, MinIO):
+
+```bash
+docker compose up -d
+```
+
+### MinIO (S3-Compatible Storage)
+
+MinIO provides local S3-compatible storage for image files.
+
+**Ports:**
+- `9000` - S3 API endpoint
+- `9001` - Web console (http://localhost:9001)
+
+**Credentials:**
+- User: `ryla_minio`
+- Password: `ryla_minio_secret`
+
+**Bucket:** `ryla-images` (auto-created)
+
+**Environment Variables for API:**
+```bash
+AWS_S3_ENDPOINT=http://localhost:9000
+AWS_S3_ACCESS_KEY=ryla_minio
+AWS_S3_SECRET_KEY=ryla_minio_secret
+AWS_S3_BUCKET_NAME=ryla-images
+AWS_S3_REGION=us-east-1
+AWS_S3_FORCE_PATH_STYLE=true
+```
+
+---
+
+## Docker Images
 
 ### comfyui-worker ✅ (Recommended)
 

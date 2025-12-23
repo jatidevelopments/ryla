@@ -1,8 +1,6 @@
 # Local development infrastructure
 # Usage: docker compose up -d
 
-version: "3.8"
-
 services:
   # PostgreSQL database for local development
   postgres:
@@ -40,6 +38,41 @@ services:
       timeout: 5s
       retries: 5
 
+  # MinIO for local S3-compatible storage
+  minio:
+    image: minio/minio:latest
+    container_name: ryla-minio
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ryla_minio
+      MINIO_ROOT_PASSWORD: ryla_minio_secret
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO setup: creates default bucket on startup
+  minio-init:
+    image: minio/mc:latest
+    container_name: ryla-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 ryla_minio ryla_minio_secret;
+      mc mb local/ryla-images --ignore-existing;
+      mc anonymous set download local/ryla-images;
+      echo 'Bucket ryla-images created and configured';
+      "
+
   # pgAdmin for database management (optional)
   pgadmin:
     image: dpage/pgadmin4:latest
@@ -60,4 +93,6 @@ volumes:
   postgres_data:
     driver: local
   redis_data:
+    driver: local
+  minio_data:
     driver: local

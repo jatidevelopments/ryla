@@ -6,8 +6,17 @@ import { useParams, notFound } from 'next/navigation';
 import { useInfluencer, useLikedPosts } from '@ryla/business';
 import { PageContainer, Button, Checkbox } from '@ryla/ui';
 import { LikedPostRow } from '../../../../components/liked-post-row';
+import { ProtectedRoute } from '../../../../components/protected-route';
 
 export default function LikedPostsPage() {
+  return (
+    <ProtectedRoute>
+      <LikedPostsContent />
+    </ProtectedRoute>
+  );
+}
+
+function LikedPostsContent() {
   const params = useParams();
   const influencerId = params.id as string;
 

@@ -103,10 +103,56 @@ export class GenerateBaseImagesDto {
   @IsInt()
   seed?: number;
 
-  @ApiProperty({ required: false, default: false, description: 'Use Z-Image-Turbo endpoint' })
+  @ApiProperty({
+    required: false,
+    default: false,
+    description: 'Use Z-Image-Turbo endpoint (deprecated - use workflowId instead)',
+    deprecated: true,
+  })
   @IsOptional()
   @IsBoolean()
   useZImage?: boolean;
+
+  @ApiProperty({
+    required: false,
+    enum: ['z-image-danrisi', 'z-image-simple'],
+    description: 'ComfyUI workflow to use for generation. z-image-danrisi is optimized, z-image-simple is fallback.',
+  })
+  @IsOptional()
+  @IsIn(['z-image-danrisi', 'z-image-simple'])
+  workflowId?: 'z-image-danrisi' | 'z-image-simple';
+
+  @ApiProperty({
+    required: false,
+    description: 'Prompt template ID from the prompt library (e.g., "portrait-selfie-casual")',
+  })
+  @IsOptional()
+  @IsString()
+  templateId?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Scene path from categories (e.g., "indoor.cafe", "outdoor.beach")',
+  })
+  @IsOptional()
+  @IsString()
+  scene?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Lighting path from categories (e.g., "natural.goldenHour", "studio.softbox")',
+  })
+  @IsOptional()
+  @IsString()
+  lighting?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Expression path from categories (e.g., "positive.smile", "neutral.relaxed")',
+  })
+  @IsOptional()
+  @IsString()
+  expression?: string;
 }
 
 

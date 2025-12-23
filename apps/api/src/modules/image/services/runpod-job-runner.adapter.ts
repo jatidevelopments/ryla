@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { RunPodService } from '../../runpod/services/runpod.service';
 import type { RunPodJobRunner, RunPodJobStatus } from '@ryla/business';
 
 @Injectable()
 export class RunPodJobRunnerAdapter implements RunPodJobRunner {
-  constructor(private readonly runpodService: RunPodService) {}
+  constructor(
+    @Inject(forwardRef(() => RunPodService)) private readonly runpodService: RunPodService,
+  ) {}
 
   async submitBaseImages(input: {
     prompt: string;

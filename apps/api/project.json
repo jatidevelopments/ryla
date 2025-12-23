@@ -16,10 +16,10 @@
       }
     },
     "serve": {
-      "executor": "@nx/js:node",
+      "executor": "nx:run-commands",
       "options": {
-        "buildTarget": "api:build",
-        "watch": true
+        "command": "NODE_ENV=development tsx --tsconfig apps/api/tsconfig.app.json --watch apps/api/src/main.ts",
+        "cwd": "{workspaceRoot}"
       }
     }
   }

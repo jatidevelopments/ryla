@@ -3,5 +3,17 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "sourceRoot": "libs/trpc/src",
   "projectType": "library",
-  "tags": ["type:lib", "scope:shared"]
+  "tags": ["type:lib", "scope:shared"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/trpc",
+        "main": "libs/trpc/src/index.ts",
+        "tsConfig": "libs/trpc/tsconfig.json",
+        "assets": []
+      }
+    }
+  }
 }

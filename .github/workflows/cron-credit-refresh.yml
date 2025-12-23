@@ -1,0 +1,67 @@
+# Daily Credit Refresh Cron Job
+#
+# Refreshes monthly credits for subscriptions whose billing period has ended.
+# Runs daily at midnight UTC.
+#
+# Required Secrets:
+#   - CRON_SECRET: The secret token for authenticating cron requests
+#   - API_BASE_URL: The base URL of the API (e.g., https://end.ryla.ai)
+
+name: Credit Refresh Cron
+
+on:
+  schedule:
+    # Run daily at midnight UTC
+    - cron: '0 0 * * *'
+  
+  # Allow manual trigger for testing
+  workflow_dispatch:
+
+jobs:
+  refresh-credits:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger Credit Refresh
+        run: |
+          echo "Triggering credit refresh at $(date -u)"
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" -X POST \
+            "${{ secrets.API_BASE_URL }}/cron/credits/refresh" \
+            -H "Authorization: Bearer ${{ secrets.CRON_SECRET }}" \
+            -H "Content-Type: application/json")
+          
+          # Extract HTTP status code (last line)
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          # Extract response body (all lines except last)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "HTTP Status: $HTTP_CODE"
+          echo "Response: $BODY"
+          
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "❌ Credit refresh failed with status $HTTP_CODE"
+            exit 1
+          fi
+          
+          # Parse and log results
+          PROCESSED=$(echo "$BODY" | jq -r '.processedCount // 0')
+          SUCCESS=$(echo "$BODY" | jq -r '.successCount // 0')
+          ERRORS=$(echo "$BODY" | jq -r '.errorCount // 0')
+          
+          echo "✅ Credit refresh completed"
+          echo "   Processed: $PROCESSED"
+          echo "   Successful: $SUCCESS"
+          echo "   Errors: $ERRORS"
+          
+          if [ "$ERRORS" != "0" ]; then
+            echo "⚠️ Some refreshes failed. Check API logs for details."
+            # Don't fail the job for partial failures
+          fi
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "Credit refresh cron job failed!"
+          # TODO: Add Slack/Discord notification here if needed
+

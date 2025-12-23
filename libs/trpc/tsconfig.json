@@ -9,8 +9,10 @@
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
-    "outDir": "../../dist/libs/trpc"
+    "outDir": "../../dist/libs/trpc",
+    "composite": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"],
+  "references": [{ "path": "../data" }, { "path": "../shared" }]
 }

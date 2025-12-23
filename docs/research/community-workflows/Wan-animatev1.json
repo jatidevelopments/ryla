@@ -1,0 +1,5177 @@
+{
+  "id": "8b7a9a57-2303-4ef5-9fc2-bf41713bd1fc",
+  "revision": 0,
+  "last_node_id": 180,
+  "last_link_id": 314,
+  "nodes": [
+    {
+      "id": 153,
+      "type": "SetNode",
+      "pos": [
+        -1548.88037109375,
+        -2490.176513671875
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 36,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "link": 263
+        }
+      ],
+      "outputs": [
+        {
+          "label": "*",
+          "name": "*",
+          "type": "*"
+        }
+      ],
+      "title": "Set_width",
+      "properties": {
+        "previousName": "width",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "width"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 155,
+      "type": "GetNode",
+      "pos": [
+        839.2445068359375,
+        -151.7150421142578
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 0,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            265
+          ]
+        }
+      ],
+      "title": "Get_width",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "width"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 156,
+      "type": "GetNode",
+      "pos": [
+        839.2445068359375,
+        -101.90116119384766
+      ],
+      "size": [
+        210,
+        50
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 1,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            266
+          ]
+        }
+      ],
+      "title": "Get_height",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "height"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 154,
+      "type": "SetNode",
+      "pos": [
+        -1561.570556640625,
+        -2191.950927734375
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 30,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "link": 264
+        }
+      ],
+      "outputs": [
+        {
+          "label": "*",
+          "name": "*",
+          "type": "*"
+        }
+      ],
+      "title": "Set_height",
+      "properties": {
+        "previousName": "height",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "height"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 158,
+      "type": "GetNode",
+      "pos": [
+        839.2445068359375,
+        -54.97463607788086
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 2,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "links": [
+            268
+          ]
+        }
+      ],
+      "title": "Get_frame_count",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "frame_count"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 143,
+      "type": "GetNode",
+      "pos": [
+        839.2445068359375,
+        -197.3696746826172
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 3,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": []
+        }
+      ],
+      "title": "Get_mask",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "mask"
+      ],
+      "color": "#1c5715",
+      "bgcolor": "#1f401b"
+    },
+    {
+      "id": 104,
+      "type": "Sam2Segmentation",
+      "pos": [
+        65.93153381347656,
+        -2794.896240234375
+      ],
+      "size": [
+        272.087890625,
+        182
+      ],
+      "flags": {},
+      "order": 45,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "sam2_model",
+          "name": "sam2_model",
+          "type": "SAM2MODEL",
+          "link": 185
+        },
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 274
+        },
+        {
+          "label": "coordinates_positive",
+          "name": "coordinates_positive",
+          "shape": 7,
+          "type": "STRING",
+          "link": 210
+        },
+        {
+          "label": "coordinates_negative",
+          "name": "coordinates_negative",
+          "shape": 7,
+          "type": "STRING"
+        },
+        {
+          "label": "bboxes",
+          "name": "bboxes",
+          "shape": 7,
+          "type": "BBOX"
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK"
+        },
+        {
+          "label": "keep_model_loaded",
+          "name": "keep_model_loaded",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "keep_model_loaded"
+          }
+        },
+        {
+          "label": "individual_objects",
+          "name": "individual_objects",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "individual_objects"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            187
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-segment-anything-2",
+        "ver": "c59676b008a76237002926f684d0ca3a9b29ac54",
+        "Node name for S&R": "Sam2Segmentation",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        false,
+        false
+      ]
+    },
+    {
+      "id": 102,
+      "type": "DownloadAndLoadSAM2Model",
+      "pos": [
+        -337.26507568359375,
+        -2798.417236328125
+      ],
+      "size": [
+        270,
+        130
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "COMBO",
+          "widget": {
+            "name": "model"
+          }
+        },
+        {
+          "label": "segmentor",
+          "name": "segmentor",
+          "type": "COMBO",
+          "widget": {
+            "name": "segmentor"
+          }
+        },
+        {
+          "label": "device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          }
+        },
+        {
+          "label": "precision",
+          "name": "precision",
+          "type": "COMBO",
+          "widget": {
+            "name": "precision"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "sam2_model",
+          "name": "sam2_model",
+          "type": "SAM2MODEL",
+          "links": [
+            185
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-segment-anything-2",
+        "ver": "c59676b008a76237002926f684d0ca3a9b29ac54",
+        "Node name for S&R": "DownloadAndLoadSAM2Model",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "sam2_hiera_base_plus.safetensors",
+        "video",
+        "cuda",
+        "fp16"
+      ]
+    },
+    {
+      "id": 157,
+      "type": "SetNode",
+      "pos": [
+        -550.9445190429688,
+        -3657.02099609375
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 33,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "link": 267
+        }
+      ],
+      "outputs": [
+        {
+          "label": "*",
+          "name": "*",
+          "type": "*"
+        }
+      ],
+      "title": "Set_frame_count",
+      "properties": {
+        "previousName": "frame_count",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "frame_count"
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 144,
+      "type": "SetNode",
+      "pos": [
+        -544.8431396484375,
+        -3733.956298828125
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 31,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "link": 248
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            273,
+            274
+          ]
+        }
+      ],
+      "title": "Set_input_video",
+      "properties": {
+        "previousName": "input_video",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "input_video"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 152,
+      "type": "PixelPerfectResolution",
+      "pos": [
+        -311.1593322753906,
+        -1577.993408203125
+      ],
+      "size": [
+        291.71484375,
+        106
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 41,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "original_image",
+          "name": "original_image",
+          "type": "IMAGE",
+          "link": 277
+        },
+        {
+          "label": "image_gen_width",
+          "name": "image_gen_width",
+          "type": "INT",
+          "widget": {
+            "name": "image_gen_width"
+          },
+          "link": 260
+        },
+        {
+          "label": "image_gen_height",
+          "name": "image_gen_height",
+          "type": "INT",
+          "widget": {
+            "name": "image_gen_height"
+          },
+          "link": 261
+        },
+        {
+          "label": "resize_mode",
+          "name": "resize_mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "resize_mode"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "RESOLUTION (INT)",
+          "name": "RESOLUTION (INT)",
+          "type": "INT",
+          "links": [
+            262
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "cc6b232f4a47f0cdf70f4e1bfa24b74bd0d75bf1",
+        "Node name for S&R": "PixelPerfectResolution",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {
+            "image_gen_height": true,
+            "image_gen_width": true
+          },
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        512,
+        512,
+        "Just Resize"
+      ]
+    },
+    {
+      "id": 128,
+      "type": "SetNode",
+      "pos": [
+        -837.5716552734375,
+        -1617.045654296875
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 42,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "link": 231
+        }
+      ],
+      "outputs": [
+        {
+          "label": "*",
+          "name": "*",
+          "type": "*"
+        }
+      ],
+      "title": "Set_reference_image",
+      "properties": {
+        "previousName": "reference_image",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "reference_image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 147,
+      "type": "Reroute",
+      "pos": [
+        -388.029296875,
+        -1801.8837890625
+      ],
+      "size": [
+        75,
+        26
+      ],
+      "flags": {},
+      "order": 32,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "",
+          "name": "",
+          "type": "*",
+          "link": 252
+        }
+      ],
+      "outputs": [
+        {
+          "label": "",
+          "name": "",
+          "type": "IMAGE",
+          "links": [
+            253,
+            254,
+            277
+          ]
+        }
+      ],
+      "properties": {
+        "showOutputText": false,
+        "horizontal": false,
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      }
+    },
+    {
+      "id": 120,
+      "type": "FaceMaskFromPoseKeypoints",
+      "pos": [
+        -16.19053840637207,
+        -1425.648681640625
+      ],
+      "size": [
+        306.0855407714844,
+        82
+      ],
+      "flags": {},
+      "order": 50,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "pose_kps",
+          "name": "pose_kps",
+          "type": "POSE_KEYPOINT",
+          "link": 219
+        },
+        {
+          "label": "person_index",
+          "name": "person_index",
+          "type": "INT",
+          "widget": {
+            "name": "person_index"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            228
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "2bdd81a10b03c14443c79bdf3b783b1feb3d1fa3",
+        "Node name for S&R": "FaceMaskFromPoseKeypoints",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        0
+      ]
+    },
+    {
+      "id": 139,
+      "type": "SetNode",
+      "pos": [
+        335.95703125,
+        -1690.017822265625
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 49,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "link": 242
+        }
+      ],
+      "outputs": [
+        {
+          "label": "*",
+          "name": "*",
+          "type": "*"
+        }
+      ],
+      "title": "Set_pose_images",
+      "properties": {
+        "previousName": "pose_images",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "pose_images"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 96,
+      "type": "ImageCropByMaskAndResize",
+      "pos": [
+        350.61248779296875,
+        -1616.07763671875
+      ],
+      "size": [
+        306.0923767089844,
+        170
+      ],
+      "flags": {},
+      "order": 53,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 254
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 228
+        },
+        {
+          "label": "base_resolution",
+          "name": "base_resolution",
+          "type": "INT",
+          "widget": {
+            "name": "base_resolution"
+          }
+        },
+        {
+          "label": "padding",
+          "name": "padding",
+          "type": "INT",
+          "widget": {
+            "name": "padding"
+          }
+        },
+        {
+          "label": "min_crop_resolution",
+          "name": "min_crop_resolution",
+          "type": "INT",
+          "widget": {
+            "name": "min_crop_resolution"
+          }
+        },
+        {
+          "label": "max_crop_resolution",
+          "name": "max_crop_resolution",
+          "type": "INT",
+          "widget": {
+            "name": "max_crop_resolution"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            237
+          ]
+        },
+        {
+          "label": "masks",
+          "name": "masks",
+          "type": "MASK"
+        },
+        {
+          "label": "bbox",
+          "name": "bbox",
+          "type": "BBOX"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "c2712d778158eb63bbad2344f61b8d448645431d",
+        "Node name for S&R": "ImageCropByMaskAndResize",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        512,
+        0,
+        128,
+        512
+      ]
+    },
+    {
+      "id": 135,
+      "type": "SetNode",
+      "pos": [
+        506.7708435058594,
+        -1389.1231689453125
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 56,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "link": 237
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            238
+          ]
+        }
+      ],
+      "title": "Set_face_images",
+      "properties": {
+        "previousName": "face_images",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "face_images"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 142,
+      "type": "SetNode",
+      "pos": [
+        1064.5701904296875,
+        -2751.333984375
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 55,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "link": 245
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            246
+          ]
+        }
+      ],
+      "title": "Set_mask",
+      "properties": {
+        "previousName": "mask",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "mask"
+      ],
+      "color": "#1c5715",
+      "bgcolor": "#1f401b"
+    },
+    {
+      "id": 99,
+      "type": "DrawMaskOnImage",
+      "pos": [
+        1200.4114990234375,
+        -2759.72216796875
+      ],
+      "size": [
+        270,
+        78
+      ],
+      "flags": {},
+      "order": 59,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 250
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 246
+        },
+        {
+          "label": "color",
+          "name": "color",
+          "type": "STRING",
+          "widget": {
+            "name": "color"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            233
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "623b5913dc7f240fd8b26422e99f8849a21c5473",
+        "Node name for S&R": "DrawMaskOnImage",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "0, 0, 0"
+      ]
+    },
+    {
+      "id": 146,
+      "type": "GetNode",
+      "pos": [
+        1064.810302734375,
+        -2811.410400390625
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            250
+          ]
+        }
+      ],
+      "title": "Get_input_video",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "input_video"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 127,
+      "type": "Note",
+      "pos": [
+        981.2437744140625,
+        -2675.091552734375
+      ],
+      "size": [
+        210,
+        88
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "These are new nodes in KJNodes"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 130,
+      "type": "SetNode",
+      "pos": [
+        1271.982421875,
+        -2838.784423828125
+      ],
+      "size": [
+        211.05747985839844,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 61,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "link": 233
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            251
+          ]
+        }
+      ],
+      "title": "Set_background_image",
+      "properties": {
+        "previousName": "background_image",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "background_image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 112,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        736.973388671875,
+        -1793.3670654296875
+      ],
+      "size": [
+        395.6411437988281,
+        653.2084350585938
+      ],
+      "flags": {},
+      "order": 60,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 238
+        },
+        {
+          "label": "audio",
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO"
+        },
+        {
+          "label": "meta_batch",
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager"
+        },
+        {
+          "label": "vae",
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE"
+        },
+        {
+          "label": "frame_rate",
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          }
+        },
+        {
+          "label": "loop_count",
+          "name": "loop_count",
+          "type": "INT",
+          "widget": {
+            "name": "loop_count"
+          }
+        },
+        {
+          "label": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          }
+        },
+        {
+          "label": "format",
+          "name": "format",
+          "type": "COMBO",
+          "widget": {
+            "name": "format"
+          }
+        },
+        {
+          "label": "pingpong",
+          "name": "pingpong",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "pingpong"
+          }
+        },
+        {
+          "label": "save_output",
+          "name": "save_output",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "save_output"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Filenames",
+          "name": "Filenames",
+          "type": "VHS_FILENAMES"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "8e4d79471bf1952154768e8435a9300077b534fa",
+        "Node name for S&R": "VHS_VideoCombine",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "WanVideo2_1_T2V",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": false,
+        "videopreview": {
+          "paused": false,
+          "hidden": false,
+          "params": {
+            "filename": "WanVideo2_1_T2V_00003.mp4",
+            "workflow": "WanVideo2_1_T2V_00003.png",
+            "fullpath": "/home/klaus-1/ai-workspace/comfy/temp/WanVideo2_1_T2V_00003.mp4",
+            "format": "video/h264-mp4",
+            "subfolder": "",
+            "type": "temp",
+            "frame_rate": 16
+          }
+        }
+      }
+    },
+    {
+      "id": 163,
+      "type": "GetNode",
+      "pos": [
+        1090.755859375,
+        -452.4495849609375
+      ],
+      "size": [
+        210,
+        34
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "WANVAE",
+          "name": "WANVAE",
+          "type": "WANVAE",
+          "links": [
+            280
+          ]
+        }
+      ],
+      "title": "Get_VAE",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "VAE"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 71,
+      "type": "CLIPVisionLoader",
+      "pos": [
+        -1004.4947509765625,
+        -186.4078826904297
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip_name",
+          "name": "clip_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "clip_name"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "CLIP_VISION",
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "links": [
+            97
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "CLIPVisionLoader",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "clip_vision_h.safetensors"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 70,
+      "type": "WanVideoClipVisionEncode",
+      "pos": [
+        508.54974365234375,
+        -290.390869140625
+      ],
+      "size": [
+        280.9771423339844,
+        262
+      ],
+      "flags": {},
+      "order": 27,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "clip_vision",
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "link": 97
+        },
+        {
+          "label": "image_1",
+          "name": "image_1",
+          "type": "IMAGE",
+          "link": 235
+        },
+        {
+          "label": "image_2",
+          "name": "image_2",
+          "shape": 7,
+          "type": "IMAGE"
+        },
+        {
+          "label": "negative_image",
+          "name": "negative_image",
+          "shape": 7,
+          "type": "IMAGE"
+        },
+        {
+          "label": "strength_1",
+          "name": "strength_1",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_1"
+          }
+        },
+        {
+          "label": "strength_2",
+          "name": "strength_2",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_2"
+          }
+        },
+        {
+          "label": "crop",
+          "name": "crop",
+          "type": "COMBO",
+          "widget": {
+            "name": "crop"
+          }
+        },
+        {
+          "label": "combine_embeds",
+          "name": "combine_embeds",
+          "type": "COMBO",
+          "widget": {
+            "name": "combine_embeds"
+          }
+        },
+        {
+          "label": "force_offload",
+          "name": "force_offload",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "force_offload"
+          }
+        },
+        {
+          "label": "tiles",
+          "name": "tiles",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "tiles"
+          }
+        },
+        {
+          "label": "ratio",
+          "name": "ratio",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "ratio"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "image_embeds",
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_CLIPEMBEDS",
+          "links": [
+            96
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "2bdd81a10b03c14443c79bdf3b783b1feb3d1fa3",
+        "Node name for S&R": "WanVideoClipVisionEncode",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        1,
+        1,
+        "center",
+        "average",
+        true,
+        0,
+        0.5
+      ],
+      "color": "#233",
+      "bgcolor": "#355"
+    },
+    {
+      "id": 133,
+      "type": "GetNode",
+      "pos": [
+        514.5181274414062,
+        -366.3446350097656
+      ],
+      "size": [
+        210,
+        50
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 9,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            235,
+            282
+          ]
+        }
+      ],
+      "title": "Get_reference_image",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "reference_image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 141,
+      "type": "GetNode",
+      "pos": [
+        840.1184692382812,
+        -377.10418701171875
+      ],
+      "size": [
+        210,
+        34
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 10,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            295
+          ]
+        }
+      ],
+      "title": "Get_pose_images",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "pose_images"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 35,
+      "type": "WanVideoTorchCompileSettings",
+      "pos": [
+        -1638.0140380859375,
+        -850.6221313476562
+      ],
+      "size": [
+        390.5999755859375,
+        202
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "backend",
+          "name": "backend",
+          "type": "COMBO",
+          "widget": {
+            "name": "backend"
+          }
+        },
+        {
+          "label": "fullgraph",
+          "name": "fullgraph",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "fullgraph"
+          }
+        },
+        {
+          "label": "mode",
+          "name": "mode",
+          "type": "COMBO",
+          "widget": {
+            "name": "mode"
+          }
+        },
+        {
+          "label": "dynamic",
+          "name": "dynamic",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "dynamic"
+          }
+        },
+        {
+          "label": "dynamo_cache_size_limit",
+          "name": "dynamo_cache_size_limit",
+          "type": "INT",
+          "widget": {
+            "name": "dynamo_cache_size_limit"
+          }
+        },
+        {
+          "label": "compile_transformer_blocks_only",
+          "name": "compile_transformer_blocks_only",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "compile_transformer_blocks_only"
+          }
+        },
+        {
+          "label": "dynamo_recompile_limit",
+          "name": "dynamo_recompile_limit",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "dynamo_recompile_limit"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "torch_compile_args",
+          "name": "torch_compile_args",
+          "type": "WANCOMPILEARGS",
+          "slot_index": 0,
+          "links": [
+            100
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoTorchCompileSettings",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "inductor",
+        false,
+        "default",
+        false,
+        64,
+        true,
+        128
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 161,
+      "type": "SetNode",
+      "pos": [
+        -751.2538452148438,
+        -298.3697509765625
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 29,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "WANVAE",
+          "name": "WANVAE",
+          "type": "WANVAE",
+          "link": 278
+        }
+      ],
+      "outputs": [
+        {
+          "label": "*",
+          "name": "*",
+          "type": "*"
+        }
+      ],
+      "title": "Set_VAE",
+      "properties": {
+        "previousName": "VAE",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "VAE"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 162,
+      "type": "GetNode",
+      "pos": [
+        2003.236328125,
+        -507.4252014160156
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "WANVAE",
+          "name": "WANVAE",
+          "type": "WANVAE",
+          "links": [
+            279
+          ]
+        }
+      ],
+      "title": "Get_VAE",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "VAE"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 51,
+      "type": "WanVideoBlockSwap",
+      "pos": [
+        -512.7796020507812,
+        -249.57748413085938
+      ],
+      "size": [
+        281.404296875,
+        202
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "blocks_to_swap",
+          "name": "blocks_to_swap",
+          "type": "INT",
+          "widget": {
+            "name": "blocks_to_swap"
+          }
+        },
+        {
+          "label": "offload_img_emb",
+          "name": "offload_img_emb",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "offload_img_emb"
+          }
+        },
+        {
+          "label": "offload_txt_emb",
+          "name": "offload_txt_emb",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "offload_txt_emb"
+          }
+        },
+        {
+          "label": "use_non_blocking",
+          "name": "use_non_blocking",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "use_non_blocking"
+          }
+        },
+        {
+          "label": "vace_blocks_to_swap",
+          "name": "vace_blocks_to_swap",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "vace_blocks_to_swap"
+          }
+        },
+        {
+          "label": "prefetch_blocks",
+          "name": "prefetch_blocks",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "prefetch_blocks"
+          }
+        },
+        {
+          "label": "block_swap_debug",
+          "name": "block_swap_debug",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "block_swap_debug"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "block_swap_args",
+          "name": "block_swap_args",
+          "type": "BLOCKSWAPARGS",
+          "links": [
+            64
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoBlockSwap",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        25,
+        false,
+        false,
+        true,
+        0,
+        1,
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 50,
+      "type": "WanVideoSetBlockSwap",
+      "pos": [
+        -192.057373046875,
+        -363.11090087890625
+      ],
+      "size": [
+        201.76815795898438,
+        46
+      ],
+      "flags": {},
+      "order": 44,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "link": 62
+        },
+        {
+          "label": "block_swap_args",
+          "name": "block_swap_args",
+          "shape": 7,
+          "type": "BLOCKSWAPARGS",
+          "link": 64
+        }
+      ],
+      "outputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "links": [
+            63
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoSetBlockSwap",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 48,
+      "type": "WanVideoSetLoRAs",
+      "pos": [
+        -497.01580810546875,
+        -361.6855773925781
+      ],
+      "size": [
+        174.53378295898438,
+        46
+      ],
+      "flags": {},
+      "order": 39,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "link": 59
+        },
+        {
+          "label": "lora",
+          "name": "lora",
+          "shape": 7,
+          "type": "WANVIDLORA",
+          "link": 289
+        }
+      ],
+      "outputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "links": [
+            62
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoSetLoRAs",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 164,
+      "type": "MarkdownNote",
+      "pos": [
+        -1683.265380859375,
+        -454.3368835449219
+      ],
+      "size": [
+        541.7905883789062,
+        240.68362426757812
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "Markdown Note: Model Links",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Model links:\n\n[https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/tree/main/Wan22Animate](https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/tree/main/Wan22Animate)\n\nLoRA:\n\n[https://huggingface.co/Kijai/WanVideo_comfy/tree/main/Lightx2v](https://huggingface.co/Kijai/WanVideo_comfy/tree/main/Lightx2v)\n\n[https://huggingface.co/Kijai/WanVideo_comfy/blob/main/WanAnimate_relight_lora_fp16.safetensors](https://huggingface.co/Kijai/WanVideo_comfy/blob/main/WanAnimate_relight_lora_fp16.safetensors)\n\nText encoder:\n\n[https://huggingface.co/Kijai/WanVideo_comfy/blob/main/umt5-xxl-enc-bf16.safetensors](https://huggingface.co/Kijai/WanVideo_comfy/blob/main/umt5-xxl-enc-bf16.safetensors)\n\nVAE:\n\n[https://huggingface.co/Kijai/WanVideo_comfy/blob/main/Wan2_1_VAE_bf16.safetensors](https://huggingface.co/Kijai/WanVideo_comfy/blob/main/Wan2_1_VAE_bf16.safetensors)"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 172,
+      "type": "Bjornulf_ShowInt",
+      "pos": [
+        -524.9894409179688,
+        -3495.298095703125
+      ],
+      "size": [
+        140,
+        76
+      ],
+      "flags": {},
+      "order": 34,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "link": 290
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "bjornulf_custom_nodes",
+        "ver": "1.1.8",
+        "Node name for S&R": "Bjornulf_ShowInt",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "207"
+      ]
+    },
+    {
+      "id": 75,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        1708.29150390625,
+        -3723.073486328125
+      ],
+      "size": [
+        743.6680297851562,
+        1634.52099609375
+      ],
+      "flags": {},
+      "order": 62,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 251
+        },
+        {
+          "label": "audio",
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO"
+        },
+        {
+          "label": "meta_batch",
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager"
+        },
+        {
+          "label": "vae",
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE"
+        },
+        {
+          "label": "frame_rate",
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          }
+        },
+        {
+          "label": "loop_count",
+          "name": "loop_count",
+          "type": "INT",
+          "widget": {
+            "name": "loop_count"
+          }
+        },
+        {
+          "label": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          }
+        },
+        {
+          "label": "format",
+          "name": "format",
+          "type": "COMBO",
+          "widget": {
+            "name": "format"
+          }
+        },
+        {
+          "label": "pingpong",
+          "name": "pingpong",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "pingpong"
+          }
+        },
+        {
+          "label": "save_output",
+          "name": "save_output",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "save_output"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Filenames",
+          "name": "Filenames",
+          "type": "VHS_FILENAMES"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "8e4d79471bf1952154768e8435a9300077b534fa",
+        "Node name for S&R": "VHS_VideoCombine",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "WanVideo2_1_T2V",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": false,
+        "videopreview": {
+          "paused": false,
+          "hidden": false,
+          "params": {
+            "filename": "WanVideo2_1_T2V_00002.mp4",
+            "workflow": "WanVideo2_1_T2V_00002.png",
+            "fullpath": "/home/klaus-1/ai-workspace/comfy/temp/WanVideo2_1_T2V_00002.mp4",
+            "format": "video/h264-mp4",
+            "subfolder": "",
+            "type": "temp",
+            "frame_rate": 16
+          }
+        }
+      }
+    },
+    {
+      "id": 57,
+      "type": "LoadImage",
+      "pos": [
+        -1494.461181640625,
+        -1645.7747802734375
+      ],
+      "size": [
+        274.080078125,
+        314
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "COMBO",
+          "widget": {
+            "name": "image"
+          }
+        },
+        {
+          "label": "upload",
+          "name": "upload",
+          "type": "IMAGEUPLOAD",
+          "widget": {
+            "name": "upload"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            82
+          ]
+        },
+        {
+          "label": "MASK",
+          "name": "MASK",
+          "type": "MASK"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.57",
+        "Node name for S&R": "LoadImage",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Qwen_00026_.png",
+        "image"
+      ]
+    },
+    {
+      "id": 38,
+      "type": "WanVideoVAELoader",
+      "pos": [
+        -1061.71875,
+        -440.96533203125
+      ],
+      "size": [
+        416.25482177734375,
+        82
+      ],
+      "flags": {},
+      "order": 16,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "compile_args",
+          "name": "compile_args",
+          "shape": 7,
+          "type": "WANCOMPILEARGS"
+        },
+        {
+          "label": "model_name",
+          "name": "model_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_name"
+          }
+        },
+        {
+          "label": "precision",
+          "name": "precision",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "precision"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "vae",
+          "name": "vae",
+          "type": "WANVAE",
+          "slot_index": 0,
+          "links": [
+            278
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoVAELoader",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "Wan2_1_VAE_fp32.safetensors",
+        "fp32"
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 171,
+      "type": "WanVideoLoraSelectMulti",
+      "pos": [
+        -488.4440612792969,
+        -873.2754516601562
+      ],
+      "size": [
+        583.3719482421875,
+        342
+      ],
+      "flags": {},
+      "order": 17,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "prev_lora",
+          "name": "prev_lora",
+          "shape": 7,
+          "type": "WANVIDLORA"
+        },
+        {
+          "label": "blocks",
+          "name": "blocks",
+          "shape": 7,
+          "type": "SELECTEDBLOCKS"
+        },
+        {
+          "label": "lora_0",
+          "name": "lora_0",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_0"
+          }
+        },
+        {
+          "label": "strength_0",
+          "name": "strength_0",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_0"
+          }
+        },
+        {
+          "label": "lora_1",
+          "name": "lora_1",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_1"
+          }
+        },
+        {
+          "label": "strength_1",
+          "name": "strength_1",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_1"
+          }
+        },
+        {
+          "label": "lora_2",
+          "name": "lora_2",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_2"
+          }
+        },
+        {
+          "label": "strength_2",
+          "name": "strength_2",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_2"
+          }
+        },
+        {
+          "label": "lora_3",
+          "name": "lora_3",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_3"
+          }
+        },
+        {
+          "label": "strength_3",
+          "name": "strength_3",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_3"
+          }
+        },
+        {
+          "label": "lora_4",
+          "name": "lora_4",
+          "type": "COMBO",
+          "widget": {
+            "name": "lora_4"
+          }
+        },
+        {
+          "label": "strength_4",
+          "name": "strength_4",
+          "type": "FLOAT",
+          "widget": {
+            "name": "strength_4"
+          }
+        },
+        {
+          "label": "low_mem_load",
+          "name": "low_mem_load",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "low_mem_load"
+          }
+        },
+        {
+          "label": "merge_loras",
+          "name": "merge_loras",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "merge_loras"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "lora",
+          "name": "lora",
+          "type": "WANVIDLORA",
+          "links": [
+            289
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "b2c8cf969fcf60a38884ea2c29af177ae1f28b29",
+        "Node name for S&R": "WanVideoLoraSelectMulti",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "WanAnimate_relight_lora_fp16.safetensors",
+        1,
+        "lightx2v_I2V_14B_480p_cfg_step_distill_rank64_bf16.safetensors",
+        1.2,
+        "none",
+        1,
+        "none",
+        1,
+        "none",
+        1,
+        false,
+        false
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 148,
+      "type": "SetNode",
+      "pos": [
+        -511.8263854980469,
+        -3590.668701171875
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 35,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "AUDIO",
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "link": 255
+        }
+      ],
+      "outputs": [
+        {
+          "label": "*",
+          "name": "*",
+          "type": "*"
+        }
+      ],
+      "title": "Set_input_audio",
+      "properties": {
+        "previousName": "input_audio",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "input_audio"
+      ]
+    },
+    {
+      "id": 149,
+      "type": "GetNode",
+      "pos": [
+        2323.189453125,
+        -971.5873413085938
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 18,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "AUDIO",
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            310
+          ]
+        }
+      ],
+      "title": "Get_input_audio",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "input_audio"
+      ]
+    },
+    {
+      "id": 64,
+      "type": "ImageResizeKJv2",
+      "pos": [
+        -1150.337158203125,
+        -1641.8170166015625
+      ],
+      "size": [
+        270,
+        336
+      ],
+      "flags": {},
+      "order": 37,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 82
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK"
+        },
+        {
+          "label": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 286
+        },
+        {
+          "label": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 287
+        },
+        {
+          "label": "upscale_method",
+          "name": "upscale_method",
+          "type": "COMBO",
+          "widget": {
+            "name": "upscale_method"
+          }
+        },
+        {
+          "label": "keep_proportion",
+          "name": "keep_proportion",
+          "type": "COMBO",
+          "widget": {
+            "name": "keep_proportion"
+          }
+        },
+        {
+          "label": "pad_color",
+          "name": "pad_color",
+          "type": "STRING",
+          "widget": {
+            "name": "pad_color"
+          }
+        },
+        {
+          "label": "crop_position",
+          "name": "crop_position",
+          "type": "COMBO",
+          "widget": {
+            "name": "crop_position"
+          }
+        },
+        {
+          "label": "divisible_by",
+          "name": "divisible_by",
+          "type": "INT",
+          "widget": {
+            "name": "divisible_by"
+          }
+        },
+        {
+          "label": "device",
+          "name": "device",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            231,
+            294
+          ]
+        },
+        {
+          "label": "width",
+          "name": "width",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "label": "height",
+          "name": "height",
+          "type": "INT",
+          "links": []
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "type": "MASK"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "468fcc86f0b29e79a8510e8239eb15714d6747a6",
+        "Node name for S&R": "ImageResizeKJv2",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {
+            "width": true,
+            "height": true
+          },
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        832,
+        480,
+        "lanczos",
+        "crop",
+        "0, 0, 0",
+        "top",
+        16,
+        "cpu",
+        "<tr><td>Output: </td><td><b>1</b> x <b>432</b> x <b>768 | 3.80MB</b></td></tr>"
+      ]
+    },
+    {
+      "id": 28,
+      "type": "WanVideoDecode",
+      "pos": [
+        2004.9820556640625,
+        -425.4451599121094
+      ],
+      "size": [
+        280.3896179199219,
+        198
+      ],
+      "flags": {},
+      "order": 51,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae",
+          "name": "vae",
+          "type": "WANVAE",
+          "link": 279
+        },
+        {
+          "label": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "link": 33
+        },
+        {
+          "label": "enable_vae_tiling",
+          "name": "enable_vae_tiling",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "enable_vae_tiling"
+          }
+        },
+        {
+          "label": "tile_x",
+          "name": "tile_x",
+          "type": "INT",
+          "widget": {
+            "name": "tile_x"
+          }
+        },
+        {
+          "label": "tile_y",
+          "name": "tile_y",
+          "type": "INT",
+          "widget": {
+            "name": "tile_y"
+          }
+        },
+        {
+          "label": "tile_stride_x",
+          "name": "tile_stride_x",
+          "type": "INT",
+          "widget": {
+            "name": "tile_stride_x"
+          }
+        },
+        {
+          "label": "tile_stride_y",
+          "name": "tile_stride_y",
+          "type": "INT",
+          "widget": {
+            "name": "tile_stride_y"
+          }
+        },
+        {
+          "label": "normalization",
+          "name": "normalization",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "normalization"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            299
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoDecode",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        false,
+        272,
+        272,
+        144,
+        128,
+        "default"
+      ]
+    },
+    {
+      "id": 177,
+      "type": "Bjornulf_ShowInt",
+      "pos": [
+        2328.0029296875,
+        -476.5390930175781
+      ],
+      "size": [
+        140,
+        76
+      ],
+      "flags": {},
+      "order": 58,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "INT",
+          "name": "INT",
+          "type": "INT",
+          "link": 301
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "bjornulf_custom_nodes",
+        "ver": "1.1.8",
+        "Node name for S&R": "Bjornulf_ShowInt",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "386"
+      ]
+    },
+    {
+      "id": 73,
+      "type": "DWPreprocessor",
+      "pos": [
+        -82.09307098388672,
+        -1719.3780517578125
+      ],
+      "size": [
+        371.1239013671875,
+        222
+      ],
+      "flags": {},
+      "order": 46,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 253
+        },
+        {
+          "label": "detect_hand",
+          "name": "detect_hand",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "detect_hand"
+          }
+        },
+        {
+          "label": "detect_body",
+          "name": "detect_body",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "detect_body"
+          }
+        },
+        {
+          "label": "detect_face",
+          "name": "detect_face",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "detect_face"
+          }
+        },
+        {
+          "label": "resolution",
+          "name": "resolution",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "resolution"
+          },
+          "link": 262
+        },
+        {
+          "label": "bbox_detector",
+          "name": "bbox_detector",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "bbox_detector"
+          }
+        },
+        {
+          "label": "pose_estimator",
+          "name": "pose_estimator",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "pose_estimator"
+          }
+        },
+        {
+          "label": "scale_stick_for_xinsr_cn",
+          "name": "scale_stick_for_xinsr_cn",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "scale_stick_for_xinsr_cn"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            242
+          ]
+        },
+        {
+          "label": "POSE_KEYPOINT",
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": [
+            219
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui_controlnet_aux",
+        "ver": "1d7cdce8cb771fbc39a432a6338168c12a338ef4",
+        "Node name for S&R": "DWPreprocessor",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {
+            "resolution": true
+          },
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "enable",
+        "enable",
+        "disable",
+        960,
+        "yolox_l.torchscript.pt",
+        "dw-ll_ucoco_384_bs5.torchscript.pt",
+        "disable"
+      ]
+    },
+    {
+      "id": 131,
+      "type": "GetNode",
+      "pos": [
+        825.0308837890625,
+        -249.5767822265625
+      ],
+      "size": [
+        210,
+        60
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 19,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": []
+        }
+      ],
+      "title": "Get_background_image",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "background_image"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 138,
+      "type": "GetNode",
+      "pos": [
+        832.5830688476562,
+        -303.9676818847656
+      ],
+      "size": [
+        210,
+        34
+      ],
+      "flags": {
+        "collapsed": true
+      },
+      "order": 20,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            240
+          ]
+        }
+      ],
+      "title": "Get_face_images",
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "face_images"
+      ],
+      "color": "#2a363b",
+      "bgcolor": "#3f5159"
+    },
+    {
+      "id": 107,
+      "type": "PointsEditor",
+      "pos": [
+        -210.90611267089844,
+        -4486.91064453125
+      ],
+      "size": [
+        477,
+        1068
+      ],
+      "flags": {},
+      "order": 40,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "bg_image",
+          "name": "bg_image",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 273
+        },
+        {
+          "label": "points_store",
+          "name": "points_store",
+          "type": "STRING",
+          "widget": {
+            "name": "points_store"
+          }
+        },
+        {
+          "label": "coordinates",
+          "name": "coordinates",
+          "type": "STRING",
+          "widget": {
+            "name": "coordinates"
+          }
+        },
+        {
+          "label": "neg_coordinates",
+          "name": "neg_coordinates",
+          "type": "STRING",
+          "widget": {
+            "name": "neg_coordinates"
+          }
+        },
+        {
+          "label": "bbox_store",
+          "name": "bbox_store",
+          "type": "STRING",
+          "widget": {
+            "name": "bbox_store"
+          }
+        },
+        {
+          "label": "bboxes",
+          "name": "bboxes",
+          "type": "STRING",
+          "widget": {
+            "name": "bboxes"
+          }
+        },
+        {
+          "label": "bbox_format",
+          "name": "bbox_format",
+          "type": "COMBO",
+          "widget": {
+            "name": "bbox_format"
+          }
+        },
+        {
+          "label": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "label": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          }
+        },
+        {
+          "label": "normalize",
+          "name": "normalize",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "normalize"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "positive_coords",
+          "name": "positive_coords",
+          "type": "STRING",
+          "links": [
+            210
+          ]
+        },
+        {
+          "label": "negative_coords",
+          "name": "negative_coords",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "label": "bbox",
+          "name": "bbox",
+          "type": "BBOX",
+          "links": []
+        },
+        {
+          "label": "bbox_mask",
+          "name": "bbox_mask",
+          "type": "MASK"
+        },
+        {
+          "label": "cropped_image",
+          "name": "cropped_image",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "623b5913dc7f240fd8b26422e99f8849a21c5473",
+        "Node name for S&R": "PointsEditor",
+        "neg_points": "PointsEditor",
+        "imgData": {
+          "name": "bg_image",
+          "base64": [
+            "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"
+          ]
+        },
+        "points": "PointsEditor",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "{\"positive\":[{\"x\":211.1132498401124,\"y\":316.66987476016857},{\"x\":242.1593159930701,\"y\":620.9213230591541}],\"negative\":[{\"x\":0,\"y\":0}]}",
+        "[{\"x\":211.1132498401124,\"y\":316.66987476016857},{\"x\":242.1593159930701,\"y\":620.9213230591541}]",
+        "[{\"x\":0,\"y\":0}]",
+        "[{}]",
+        "[{}]",
+        "xyxy",
+        432,
+        768,
+        false,
+        "",
+        null
+      ]
+    },
+    {
+      "id": 180,
+      "type": "Label (rgthree)",
+      "pos": [
+        -1388.1900634765625,
+        -4963.662109375
+      ],
+      "size": [
+        2771.77734375,
+        120
+      ],
+      "flags": {
+        "allow_interaction": true
+      },
+      "order": 21,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "title": "工作流配套视频：B站、YouTube搜索“电磁波Studio”",
+      "properties": {
+        "fontSize": 120,
+        "fontFamily": "Arial",
+        "fontColor": "#ffffff",
+        "textAlign": "left",
+        "backgroundColor": "transparent",
+        "padding": 0,
+        "borderRadius": 0,
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "color": "#fff0",
+      "bgcolor": "#fff0"
+    },
+    {
+      "id": 176,
+      "type": "GetImageSizeAndCount",
+      "pos": [
+        2149.234130859375,
+        -649.8576049804688
+      ],
+      "size": [
+        277.20001220703125,
+        86
+      ],
+      "flags": {},
+      "order": 54,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "link": 299
+        }
+      ],
+      "outputs": [
+        {
+          "label": "image",
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 0,
+          "links": [
+            311
+          ]
+        },
+        {
+          "label": "432 width",
+          "name": "width",
+          "type": "INT"
+        },
+        {
+          "label": "768 height",
+          "name": "height",
+          "type": "INT"
+        },
+        {
+          "label": "386 count",
+          "name": "count",
+          "type": "INT",
+          "links": [
+            301
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "36f6fdd7d4c393675ac622bd300ef667ee65d8b8",
+        "Node name for S&R": "GetImageSizeAndCount",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 151,
+      "type": "INTConstant",
+      "pos": [
+        -1648.6280517578125,
+        -2298.50390625
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 22,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "value",
+          "name": "value",
+          "type": "INT",
+          "widget": {
+            "name": "value"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "value",
+          "name": "value",
+          "type": "INT",
+          "links": [
+            261,
+            264,
+            287
+          ]
+        }
+      ],
+      "title": "Height",
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "37659859825cea55940a58110525795ce5deb8be",
+        "Node name for S&R": "INTConstant",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        768
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 63,
+      "type": "VHS_LoadVideo",
+      "pos": [
+        -899.0469360351562,
+        -3711.713134765625
+      ],
+      "size": [
+        315.8014221191406,
+        850.0360107421875
+      ],
+      "flags": {},
+      "order": 23,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "meta_batch",
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager"
+        },
+        {
+          "label": "vae",
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE"
+        },
+        {
+          "label": "video",
+          "name": "video",
+          "type": "COMBO",
+          "widget": {
+            "name": "video"
+          }
+        },
+        {
+          "label": "force_rate",
+          "name": "force_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "force_rate"
+          }
+        },
+        {
+          "label": "frame_load_cap",
+          "name": "frame_load_cap",
+          "type": "INT",
+          "widget": {
+            "name": "frame_load_cap"
+          }
+        },
+        {
+          "label": "skip_first_frames",
+          "name": "skip_first_frames",
+          "type": "INT",
+          "widget": {
+            "name": "skip_first_frames"
+          }
+        },
+        {
+          "label": "select_every_nth",
+          "name": "select_every_nth",
+          "type": "INT",
+          "widget": {
+            "name": "select_every_nth"
+          }
+        },
+        {
+          "label": "format",
+          "name": "format",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "format"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "IMAGE",
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            248,
+            252
+          ]
+        },
+        {
+          "label": "frame_count",
+          "name": "frame_count",
+          "type": "INT",
+          "links": [
+            267,
+            290
+          ]
+        },
+        {
+          "label": "audio",
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            255
+          ]
+        },
+        {
+          "label": "video_info",
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "8e4d79471bf1952154768e8435a9300077b534fa",
+        "Node name for S&R": "VHS_LoadVideo",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {
+            "custom_height": true,
+            "custom_width": true
+          },
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": {
+        "video": "snapinst.to_1pqtl_9wzk2WBmJEZ0KH7FDI3x5o4r&XuAGYsn8jy_vV6C.mp4",
+        "force_rate": 16,
+        "custom_width": 432,
+        "custom_height": 768,
+        "frame_load_cap": 0,
+        "skip_first_frames": 0,
+        "select_every_nth": 1,
+        "format": "AnimateDiff",
+        "choose video to upload": "image",
+        "videopreview": {
+          "paused": false,
+          "hidden": false,
+          "params": {
+            "custom_height": 768,
+            "filename": "snapinst.to_1pqtl_9wzk2WBmJEZ0KH7FDI3x5o4r&XuAGYsn8jy_vV6C.mp4",
+            "force_rate": 16,
+            "custom_width": 432,
+            "select_every_nth": 1,
+            "frame_load_cap": 0,
+            "format": "video/mp4",
+            "skip_first_frames": 0,
+            "type": "input"
+          },
+          "muted": true
+        }
+      }
+    },
+    {
+      "id": 65,
+      "type": "WanVideoTextEncodeCached",
+      "pos": [
+        517.677490234375,
+        164.3956298828125
+      ],
+      "size": [
+        488.4488220214844,
+        362.56817626953125
+      ],
+      "flags": {},
+      "order": 24,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "extender_args",
+          "name": "extender_args",
+          "shape": 7,
+          "type": "WANVIDEOPROMPTEXTENDER_ARGS"
+        },
+        {
+          "label": "model_name",
+          "name": "model_name",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_name"
+          }
+        },
+        {
+          "label": "precision",
+          "name": "precision",
+          "type": "COMBO",
+          "widget": {
+            "name": "precision"
+          }
+        },
+        {
+          "label": "positive_prompt",
+          "name": "positive_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "positive_prompt"
+          }
+        },
+        {
+          "label": "negative_prompt",
+          "name": "negative_prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "negative_prompt"
+          }
+        },
+        {
+          "label": "quantization",
+          "name": "quantization",
+          "type": "COMBO",
+          "widget": {
+            "name": "quantization"
+          }
+        },
+        {
+          "label": "use_disk_cache",
+          "name": "use_disk_cache",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "use_disk_cache"
+          }
+        },
+        {
+          "label": "device",
+          "name": "device",
+          "type": "COMBO",
+          "widget": {
+            "name": "device"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "text_embeds",
+          "name": "text_embeds",
+          "type": "WANVIDEOTEXTEMBEDS",
+          "links": [
+            281
+          ]
+        },
+        {
+          "label": "negative_text_embeds",
+          "name": "negative_text_embeds",
+          "type": "WANVIDEOTEXTEMBEDS"
+        },
+        {
+          "label": "positive_prompt",
+          "name": "positive_prompt",
+          "type": "STRING"
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "761b1d191e50d589465e31dc0d40ff7c59b1b7b0",
+        "Node name for S&R": "WanVideoTextEncodeCached",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "umt5-xxl-enc-bf16.safetensors",
+        "bf16",
+        "hyperrealistic, a girl sings a song",
+        "色调艳丽，过曝，静态，细节模糊不清，字幕，风格，作品，画作，画面，静止，整体发灰，最差质量，低质量，JPEG压缩残留，丑陋的，残缺的，多余的手指，画得不好的手部，画得不好的脸部，畸形的，毁容的，形态畸形的肢体，手指融合，静止不动的画面，杂乱的背景，三条腿，背景人很多，倒着走",
+        "disabled",
+        false,
+        "gpu"
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 175,
+      "type": "PreviewImage",
+      "pos": [
+        -826.055908203125,
+        -1549.6455078125
+      ],
+      "size": [
+        140,
+        246
+      ],
+      "flags": {},
+      "order": 43,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 294
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "PreviewImage",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 150,
+      "type": "INTConstant",
+      "pos": [
+        -1634.3839111328125,
+        -2414.990234375
+      ],
+      "size": [
+        210,
+        58
+      ],
+      "flags": {},
+      "order": 25,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "value",
+          "name": "value",
+          "type": "INT",
+          "widget": {
+            "name": "value"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "value",
+          "name": "value",
+          "type": "INT",
+          "links": [
+            260,
+            263,
+            286
+          ]
+        }
+      ],
+      "title": "Width",
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "37659859825cea55940a58110525795ce5deb8be",
+        "Node name for S&R": "INTConstant",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        432
+      ],
+      "color": "#1b4669",
+      "bgcolor": "#29699c"
+    },
+    {
+      "id": 100,
+      "type": "GrowMask",
+      "pos": [
+        421.0043029785156,
+        -2787.704345703125
+      ],
+      "size": [
+        270,
+        82
+      ],
+      "flags": {
+        "collapsed": false
+      },
+      "order": 48,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "link": 187
+        },
+        {
+          "label": "expand",
+          "name": "expand",
+          "type": "INT",
+          "widget": {
+            "name": "expand"
+          }
+        },
+        {
+          "label": "tapered_corners",
+          "name": "tapered_corners",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "tapered_corners"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "MASK",
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            198
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfy-core",
+        "ver": "0.3.59",
+        "Node name for S&R": "GrowMask",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        25,
+        true
+      ]
+    },
+    {
+      "id": 108,
+      "type": "BlockifyMask",
+      "pos": [
+        772.239013671875,
+        -2783.46484375
+      ],
+      "size": [
+        270,
+        58
+      ],
+      "flags": {},
+      "order": 52,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "masks",
+          "name": "masks",
+          "type": "MASK",
+          "link": 198
+        },
+        {
+          "label": "block_size",
+          "name": "block_size",
+          "type": "INT",
+          "widget": {
+            "name": "block_size"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "mask",
+          "name": "mask",
+          "type": "MASK",
+          "links": [
+            245
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-kjnodes",
+        "ver": "00da1910634fbf314d407608efb281ae6f7f1ba2",
+        "Node name for S&R": "BlockifyMask",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        64
+      ]
+    },
+    {
+      "id": 22,
+      "type": "WanVideoModelLoader",
+      "pos": [
+        -1192.9228515625,
+        -849.8587036132812
+      ],
+      "size": [
+        601.9249267578125,
+        294
+      ],
+      "flags": {},
+      "order": 28,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "compile_args",
+          "name": "compile_args",
+          "shape": 7,
+          "type": "WANCOMPILEARGS",
+          "link": 100
+        },
+        {
+          "label": "block_swap_args",
+          "name": "block_swap_args",
+          "shape": 7,
+          "type": "BLOCKSWAPARGS"
+        },
+        {
+          "label": "lora",
+          "name": "lora",
+          "shape": 7,
+          "type": "WANVIDLORA"
+        },
+        {
+          "label": "vram_management_args",
+          "name": "vram_management_args",
+          "shape": 7,
+          "type": "VRAM_MANAGEMENTARGS"
+        },
+        {
+          "label": "extra_model",
+          "name": "extra_model",
+          "shape": 7,
+          "type": "VACEPATH"
+        },
+        {
+          "label": "fantasytalking_model",
+          "name": "fantasytalking_model",
+          "shape": 7,
+          "type": "FANTASYTALKINGMODEL"
+        },
+        {
+          "label": "multitalk_model",
+          "name": "multitalk_model",
+          "shape": 7,
+          "type": "MULTITALKMODEL"
+        },
+        {
+          "label": "fantasyportrait_model",
+          "name": "fantasyportrait_model",
+          "shape": 7,
+          "type": "FANTASYPORTRAITMODEL"
+        },
+        {
+          "label": "model",
+          "name": "model",
+          "type": "COMBO",
+          "widget": {
+            "name": "model"
+          }
+        },
+        {
+          "label": "base_precision",
+          "name": "base_precision",
+          "type": "COMBO",
+          "widget": {
+            "name": "base_precision"
+          }
+        },
+        {
+          "label": "quantization",
+          "name": "quantization",
+          "type": "COMBO",
+          "widget": {
+            "name": "quantization"
+          }
+        },
+        {
+          "label": "load_device",
+          "name": "load_device",
+          "type": "COMBO",
+          "widget": {
+            "name": "load_device"
+          }
+        },
+        {
+          "label": "attention_mode",
+          "name": "attention_mode",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "attention_mode"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "slot_index": 0,
+          "links": [
+            59
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoModelLoader",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "wan2.2_animate_14B_bf16.safetensors",
+        "fp16_fast",
+        "disabled",
+        "offload_device",
+        "sageattn"
+      ],
+      "color": "#223",
+      "bgcolor": "#335"
+    },
+    {
+      "id": 169,
+      "type": "Note",
+      "pos": [
+        802.1256103515625,
+        -809.209228515625
+      ],
+      "size": [
+        484.7705383300781,
+        194.427978515625
+      ],
+      "flags": {},
+      "order": 26,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [],
+      "properties": {
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        "You can use either context options, or the original long gen method.\n\nWhen using context options, set num_frames and frame_window_size to be equal'\n\nOtherwise set frame_window_size to something the model is capbable of doing normally, original default is 77, 81 seems to work too.\n\nOriginal method is probably better for motion etc, and is faster, but the benefit of context windows is that it doesn't degrade over time on long clips."
+      ],
+      "color": "#432",
+      "bgcolor": "#653"
+    },
+    {
+      "id": 27,
+      "type": "WanVideoSampler",
+      "pos": [
+        1626.8492431640625,
+        -523.2383422851562
+      ],
+      "size": [
+        315,
+        1452.4444580078125
+      ],
+      "flags": {},
+      "order": 47,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "model",
+          "name": "model",
+          "type": "WANVIDEOMODEL",
+          "link": 63
+        },
+        {
+          "label": "image_embeds",
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "link": 84
+        },
+        {
+          "label": "text_embeds",
+          "name": "text_embeds",
+          "shape": 7,
+          "type": "WANVIDEOTEXTEMBEDS",
+          "link": 281
+        },
+        {
+          "label": "samples",
+          "name": "samples",
+          "shape": 7,
+          "type": "LATENT"
+        },
+        {
+          "label": "feta_args",
+          "name": "feta_args",
+          "shape": 7,
+          "type": "FETAARGS"
+        },
+        {
+          "label": "context_options",
+          "name": "context_options",
+          "shape": 7,
+          "type": "WANVIDCONTEXT"
+        },
+        {
+          "label": "cache_args",
+          "name": "cache_args",
+          "shape": 7,
+          "type": "CACHEARGS"
+        },
+        {
+          "label": "flowedit_args",
+          "name": "flowedit_args",
+          "shape": 7,
+          "type": "FLOWEDITARGS"
+        },
+        {
+          "label": "slg_args",
+          "name": "slg_args",
+          "shape": 7,
+          "type": "SLGARGS"
+        },
+        {
+          "label": "loop_args",
+          "name": "loop_args",
+          "shape": 7,
+          "type": "LOOPARGS"
+        },
+        {
+          "label": "experimental_args",
+          "name": "experimental_args",
+          "shape": 7,
+          "type": "EXPERIMENTALARGS"
+        },
+        {
+          "label": "sigmas",
+          "name": "sigmas",
+          "shape": 7,
+          "type": "SIGMAS"
+        },
+        {
+          "label": "unianimate_poses",
+          "name": "unianimate_poses",
+          "shape": 7,
+          "type": "UNIANIMATE_POSE"
+        },
+        {
+          "label": "fantasytalking_embeds",
+          "name": "fantasytalking_embeds",
+          "shape": 7,
+          "type": "FANTASYTALKING_EMBEDS"
+        },
+        {
+          "label": "uni3c_embeds",
+          "name": "uni3c_embeds",
+          "shape": 7,
+          "type": "UNI3C_EMBEDS"
+        },
+        {
+          "label": "multitalk_embeds",
+          "name": "multitalk_embeds",
+          "shape": 7,
+          "type": "MULTITALK_EMBEDS"
+        },
+        {
+          "label": "freeinit_args",
+          "name": "freeinit_args",
+          "shape": 7,
+          "type": "FREEINITARGS"
+        },
+        {
+          "label": "steps",
+          "name": "steps",
+          "type": "INT",
+          "widget": {
+            "name": "steps"
+          }
+        },
+        {
+          "label": "cfg",
+          "name": "cfg",
+          "type": "FLOAT",
+          "widget": {
+            "name": "cfg"
+          }
+        },
+        {
+          "label": "shift",
+          "name": "shift",
+          "type": "FLOAT",
+          "widget": {
+            "name": "shift"
+          }
+        },
+        {
+          "label": "seed",
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          }
+        },
+        {
+          "label": "force_offload",
+          "name": "force_offload",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "force_offload"
+          }
+        },
+        {
+          "label": "scheduler",
+          "name": "scheduler",
+          "type": "COMBO",
+          "widget": {
+            "name": "scheduler"
+          }
+        },
+        {
+          "label": "riflex_freq_index",
+          "name": "riflex_freq_index",
+          "type": "INT",
+          "widget": {
+            "name": "riflex_freq_index"
+          }
+        },
+        {
+          "label": "denoise_strength",
+          "name": "denoise_strength",
+          "shape": 7,
+          "type": "FLOAT",
+          "widget": {
+            "name": "denoise_strength"
+          }
+        },
+        {
+          "label": "batched_cfg",
+          "name": "batched_cfg",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "batched_cfg"
+          }
+        },
+        {
+          "label": "rope_function",
+          "name": "rope_function",
+          "shape": 7,
+          "type": "COMBO",
+          "widget": {
+            "name": "rope_function"
+          }
+        },
+        {
+          "label": "start_step",
+          "name": "start_step",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "start_step"
+          }
+        },
+        {
+          "label": "end_step",
+          "name": "end_step",
+          "shape": 7,
+          "type": "INT",
+          "widget": {
+            "name": "end_step"
+          }
+        },
+        {
+          "label": "add_noise_to_samples",
+          "name": "add_noise_to_samples",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "add_noise_to_samples"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "samples",
+          "name": "samples",
+          "type": "LATENT",
+          "slot_index": 0,
+          "links": [
+            33
+          ]
+        },
+        {
+          "label": "denoised_samples",
+          "name": "denoised_samples",
+          "type": "LATENT"
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "e5ef9752a7e846b232fc05fd993327a2e870a788",
+        "Node name for S&R": "WanVideoSampler",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        6,
+        1,
+        5,
+        67,
+        "fixed",
+        true,
+        "dpm++_sde",
+        0,
+        1,
+        "",
+        "comfy",
+        0,
+        -1,
+        false
+      ]
+    },
+    {
+      "id": 62,
+      "type": "WanVideoAnimateEmbeds",
+      "pos": [
+        1086.8922119140625,
+        -380.2015380859375
+      ],
+      "size": [
+        274.2164001464844,
+        370
+      ],
+      "flags": {},
+      "order": 38,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "vae",
+          "name": "vae",
+          "type": "WANVAE",
+          "link": 280
+        },
+        {
+          "label": "clip_embeds",
+          "name": "clip_embeds",
+          "shape": 7,
+          "type": "WANVIDIMAGE_CLIPEMBEDS",
+          "link": 96
+        },
+        {
+          "label": "ref_images",
+          "name": "ref_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 282
+        },
+        {
+          "label": "pose_images",
+          "name": "pose_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 295
+        },
+        {
+          "label": "face_images",
+          "name": "face_images",
+          "shape": 7,
+          "type": "IMAGE",
+          "link": 240
+        },
+        {
+          "label": "bg_images",
+          "name": "bg_images",
+          "shape": 7,
+          "type": "IMAGE"
+        },
+        {
+          "label": "mask",
+          "name": "mask",
+          "shape": 7,
+          "type": "MASK"
+        },
+        {
+          "label": "width",
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "link": 265
+        },
+        {
+          "label": "height",
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "link": 266
+        },
+        {
+          "label": "num_frames",
+          "name": "num_frames",
+          "type": "INT",
+          "widget": {
+            "name": "num_frames"
+          },
+          "link": 268
+        },
+        {
+          "label": "force_offload",
+          "name": "force_offload",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "force_offload"
+          }
+        },
+        {
+          "label": "frame_window_size",
+          "name": "frame_window_size",
+          "type": "INT",
+          "widget": {
+            "name": "frame_window_size"
+          }
+        },
+        {
+          "label": "colormatch",
+          "name": "colormatch",
+          "type": "COMBO",
+          "widget": {
+            "name": "colormatch"
+          }
+        },
+        {
+          "label": "pose_strength",
+          "name": "pose_strength",
+          "type": "FLOAT",
+          "widget": {
+            "name": "pose_strength"
+          }
+        },
+        {
+          "label": "face_strength",
+          "name": "face_strength",
+          "type": "FLOAT",
+          "widget": {
+            "name": "face_strength"
+          }
+        },
+        {
+          "label": "tiled_vae",
+          "name": "tiled_vae",
+          "shape": 7,
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "tiled_vae"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "image_embeds",
+          "name": "image_embeds",
+          "type": "WANVIDIMAGE_EMBEDS",
+          "links": [
+            84
+          ]
+        }
+      ],
+      "properties": {
+        "cnr_id": "ComfyUI-WanVideoWrapper",
+        "ver": "761b1d191e50d589465e31dc0d40ff7c59b1b7b0",
+        "Node name for S&R": "WanVideoAnimateEmbeds",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {
+            "width": true,
+            "num_frames": true,
+            "height": true
+          },
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": [
+        832,
+        480,
+        501,
+        false,
+        195,
+        "disabled",
+        1,
+        0.35,
+        false
+      ],
+      "color": "#322",
+      "bgcolor": "#533"
+    },
+    {
+      "id": 179,
+      "type": "VHS_VideoCombine",
+      "pos": [
+        2556.97900390625,
+        -1022.172119140625
+      ],
+      "size": [
+        220.5830078125,
+        704.592041015625
+      ],
+      "flags": {},
+      "order": 57,
+      "mode": 0,
+      "inputs": [
+        {
+          "label": "images",
+          "name": "images",
+          "type": "IMAGE",
+          "link": 311
+        },
+        {
+          "label": "audio",
+          "name": "audio",
+          "shape": 7,
+          "type": "AUDIO",
+          "link": 310
+        },
+        {
+          "label": "meta_batch",
+          "name": "meta_batch",
+          "shape": 7,
+          "type": "VHS_BatchManager"
+        },
+        {
+          "label": "vae",
+          "name": "vae",
+          "shape": 7,
+          "type": "VAE"
+        },
+        {
+          "label": "frame_rate",
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          }
+        },
+        {
+          "label": "loop_count",
+          "name": "loop_count",
+          "type": "INT",
+          "widget": {
+            "name": "loop_count"
+          }
+        },
+        {
+          "label": "filename_prefix",
+          "name": "filename_prefix",
+          "type": "STRING",
+          "widget": {
+            "name": "filename_prefix"
+          }
+        },
+        {
+          "label": "format",
+          "name": "format",
+          "type": "COMBO",
+          "widget": {
+            "name": "format"
+          }
+        },
+        {
+          "label": "pingpong",
+          "name": "pingpong",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "pingpong"
+          }
+        },
+        {
+          "label": "save_output",
+          "name": "save_output",
+          "type": "BOOLEAN",
+          "widget": {
+            "name": "save_output"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "label": "Filenames",
+          "name": "Filenames",
+          "type": "VHS_FILENAMES"
+        }
+      ],
+      "properties": {
+        "cnr_id": "comfyui-videohelpersuite",
+        "ver": "0edce8ef7ce173ac97a3ed3d6f4636029d1a4530",
+        "Node name for S&R": "VHS_VideoCombine",
+        "ue_properties": {
+          "version": "7.1",
+          "widget_ue_connectable": {},
+          "input_ue_unconnectable": {}
+        }
+      },
+      "widgets_values": {
+        "frame_rate": 16,
+        "loop_count": 0,
+        "filename_prefix": "AnimateDiff",
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "crf": 19,
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "pingpong": false,
+        "save_output": true,
+        "videopreview": {
+          "paused": false,
+          "hidden": false,
+          "params": {
+            "filename": "AnimateDiff_00015-audio.mp4",
+            "workflow": "AnimateDiff_00015.png",
+            "fullpath": "/home/klaus-1/ai-workspace/outputs_shared/AnimateDiff_00015-audio.mp4",
+            "format": "video/h264-mp4",
+            "subfolder": "",
+            "type": "output",
+            "frame_rate": 24
+          }
+        }
+      }
+    }
+  ],
+  "links": [
+    [
+      33,
+      27,
+      0,
+      28,
+      1,
+      "LATENT"
+    ],
+    [
+      59,
+      22,
+      0,
+      48,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      62,
+      48,
+      0,
+      50,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      63,
+      50,
+      0,
+      27,
+      0,
+      "WANVIDEOMODEL"
+    ],
+    [
+      64,
+      51,
+      0,
+      50,
+      1,
+      "BLOCKSWAPARGS"
+    ],
+    [
+      82,
+      57,
+      0,
+      64,
+      0,
+      "IMAGE"
+    ],
+    [
+      84,
+      62,
+      0,
+      27,
+      1,
+      "WANVIDIMAGE_EMBEDS"
+    ],
+    [
+      96,
+      70,
+      0,
+      62,
+      1,
+      "WANVIDIMAGE_CLIPEMBEDS"
+    ],
+    [
+      97,
+      71,
+      0,
+      70,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      100,
+      35,
+      0,
+      22,
+      0,
+      "WANCOMPILEARGS"
+    ],
+    [
+      185,
+      102,
+      0,
+      104,
+      0,
+      "SAM2MODEL"
+    ],
+    [
+      187,
+      104,
+      0,
+      100,
+      0,
+      "MASK"
+    ],
+    [
+      198,
+      100,
+      0,
+      108,
+      0,
+      "MASK"
+    ],
+    [
+      210,
+      107,
+      0,
+      104,
+      2,
+      "STRING"
+    ],
+    [
+      219,
+      73,
+      1,
+      120,
+      0,
+      "POSE_KEYPOINT"
+    ],
+    [
+      228,
+      120,
+      0,
+      96,
+      1,
+      "MASK"
+    ],
+    [
+      231,
+      64,
+      0,
+      128,
+      0,
+      "*"
+    ],
+    [
+      233,
+      99,
+      0,
+      130,
+      0,
+      "*"
+    ],
+    [
+      235,
+      133,
+      0,
+      70,
+      1,
+      "IMAGE"
+    ],
+    [
+      237,
+      96,
+      0,
+      135,
+      0,
+      "*"
+    ],
+    [
+      238,
+      135,
+      0,
+      112,
+      0,
+      "IMAGE"
+    ],
+    [
+      240,
+      138,
+      0,
+      62,
+      4,
+      "IMAGE"
+    ],
+    [
+      242,
+      73,
+      0,
+      139,
+      0,
+      "IMAGE"
+    ],
+    [
+      245,
+      108,
+      0,
+      142,
+      0,
+      "*"
+    ],
+    [
+      246,
+      142,
+      0,
+      99,
+      1,
+      "MASK"
+    ],
+    [
+      248,
+      63,
+      0,
+      144,
+      0,
+      "*"
+    ],
+    [
+      250,
+      146,
+      0,
+      99,
+      0,
+      "IMAGE"
+    ],
+    [
+      251,
+      130,
+      0,
+      75,
+      0,
+      "IMAGE"
+    ],
+    [
+      252,
+      63,
+      0,
+      147,
+      0,
+      "*"
+    ],
+    [
+      253,
+      147,
+      0,
+      73,
+      0,
+      "IMAGE"
+    ],
+    [
+      254,
+      147,
+      0,
+      96,
+      0,
+      "IMAGE"
+    ],
+    [
+      255,
+      63,
+      2,
+      148,
+      0,
+      "*"
+    ],
+    [
+      260,
+      150,
+      0,
+      152,
+      1,
+      "INT"
+    ],
+    [
+      261,
+      151,
+      0,
+      152,
+      2,
+      "INT"
+    ],
+    [
+      262,
+      152,
+      0,
+      73,
+      4,
+      "INT"
+    ],
+    [
+      263,
+      150,
+      0,
+      153,
+      0,
+      "*"
+    ],
+    [
+      264,
+      151,
+      0,
+      154,
+      0,
+      "*"
+    ],
+    [
+      265,
+      155,
+      0,
+      62,
+      7,
+      "INT"
+    ],
+    [
+      266,
+      156,
+      0,
+      62,
+      8,
+      "INT"
+    ],
+    [
+      267,
+      63,
+      1,
+      157,
+      0,
+      "*"
+    ],
+    [
+      268,
+      158,
+      0,
+      62,
+      9,
+      "INT"
+    ],
+    [
+      273,
+      144,
+      0,
+      107,
+      0,
+      "IMAGE"
+    ],
+    [
+      274,
+      144,
+      0,
+      104,
+      1,
+      "IMAGE"
+    ],
+    [
+      277,
+      147,
+      0,
+      152,
+      0,
+      "IMAGE"
+    ],
+    [
+      278,
+      38,
+      0,
+      161,
+      0,
+      "*"
+    ],
+    [
+      279,
+      162,
+      0,
+      28,
+      0,
+      "WANVAE"
+    ],
+    [
+      280,
+      163,
+      0,
+      62,
+      0,
+      "WANVAE"
+    ],
+    [
+      281,
+      65,
+      0,
+      27,
+      2,
+      "WANVIDEOTEXTEMBEDS"
+    ],
+    [
+      282,
+      133,
+      0,
+      62,
+      2,
+      "IMAGE"
+    ],
+    [
+      286,
+      150,
+      0,
+      64,
+      2,
+      "INT"
+    ],
+    [
+      287,
+      151,
+      0,
+      64,
+      3,
+      "INT"
+    ],
+    [
+      289,
+      171,
+      0,
+      48,
+      1,
+      "WANVIDLORA"
+    ],
+    [
+      290,
+      63,
+      1,
+      172,
+      0,
+      "INT"
+    ],
+    [
+      294,
+      64,
+      0,
+      175,
+      0,
+      "IMAGE"
+    ],
+    [
+      295,
+      141,
+      0,
+      62,
+      3,
+      "IMAGE"
+    ],
+    [
+      299,
+      28,
+      0,
+      176,
+      0,
+      "IMAGE"
+    ],
+    [
+      301,
+      176,
+      3,
+      177,
+      0,
+      "INT"
+    ],
+    [
+      310,
+      149,
+      0,
+      179,
+      1,
+      "AUDIO"
+    ],
+    [
+      311,
+      176,
+      0,
+      179,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "groups": [
+    {
+      "id": 1,
+      "title": "Reference Image",
+      "bounding": [
+        -1587.3319091796875,
+        -1799.568115234375,
+        990.079833984375,
+        724.450439453125
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 2,
+      "title": "Face Images",
+      "bounding": [
+        -434.9107666015625,
+        -1922.5238037109375,
+        1687.06396484375,
+        824.740478515625
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 3,
+      "title": "Background Masking",
+      "bounding": [
+        -1249.1854248046875,
+        -3829.492919921875,
+        3011.00830078125,
+        1249.1099853515625
+      ],
+      "color": "#3f789e",
+      "font_size": 24,
+      "flags": {}
+    },
+    {
+      "id": 4,
+      "title": "Models",
+      "bounding": [
+        -1716.375244140625,
+        -996.8324584960938,
+        2156.392578125,
+        1012.5536499023438
+      ],
+      "color": "#88A",
+      "font_size": 24,
+      "flags": {}
+    }
+  ],
+  "config": {},
+  "extra": {
+    "ds": {
+      "scale": 0.40909090909092377,
+      "offset": [
+        2715.6598619790957,
+        2371.3754757519155
+      ]
+    },
+    "frontendVersion": "1.26.13",
+    "VHS_KeepIntermediate": true,
+    "links_added_by_ue": [],
+    "VHS_MetadataImage": true,
+    "ue_links": [],
+    "0246.VERSION": [
+      0,
+      0,
+      4
+    ],
+    "VHS_latentpreviewrate": 0,
+    "VHS_latentpreview": false,
+    "node_versions": {
+      "ComfyUI-WanVideoWrapper": "5a2383621a05825d0d0437781afcb8552d9590fd",
+      "ComfyUI-VideoHelperSuite": "0a75c7958fe320efcb052f1d9f8451fd20c730a8",
+      "ComfyUI-KJNodes": "a5bd3c86c8ed6b83c55c2d0e7a59515b15a0137f"
+    }
+  },
+  "version": 0.4
+}

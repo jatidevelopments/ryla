@@ -2,8 +2,24 @@
 
 import { PageContainer, Button, Label, Switch } from "@ryla/ui";
 import Link from "next/link";
+import { ProtectedRoute } from "../../components/protected-route";
+import { useAuth } from "../../lib/auth-context";
 
 export default function SettingsPage() {
+  return (
+    <ProtectedRoute>
+      <SettingsContent />
+    </ProtectedRoute>
+  );
+}
+
+function SettingsContent() {
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+  };
+
   return (
     <PageContainer>
       <div className="mb-6">
@@ -17,8 +33,22 @@ export default function SettingsPage() {
         <div className="space-y-4 rounded-lg border border-white/10 bg-white/5 p-4">
           <div className="flex items-center justify-between">
             <div>
+              <Label className="text-white">Name</Label>
+              <p className="text-sm text-white/60">{user?.name || 'Not set'}</p>
+            </div>
+            <Button variant="outline" size="sm">Change</Button>
+          </div>
+          <div className="flex items-center justify-between border-t border-white/10 pt-4">
+            <div>
+              <Label className="text-white">Username</Label>
+              <p className="text-sm text-white/60">@{user?.publicName || 'Not set'}</p>
+            </div>
+            <Button variant="outline" size="sm">Change</Button>
+          </div>
+          <div className="flex items-center justify-between border-t border-white/10 pt-4">
+            <div>
               <Label className="text-white">Email</Label>
-              <p className="text-sm text-white/60">user@example.com</p>
+              <p className="text-sm text-white/60">{user?.email || 'Not set'}</p>
             </div>
             <Button variant="outline" size="sm">Change</Button>
           </div>
@@ -39,22 +69,22 @@ export default function SettingsPage() {
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <Label className="text-white">Pro Plan</Label>
-                <span className="rounded-full bg-[#b99cff]/20 px-2 py-0.5 text-xs font-medium text-[#b99cff]">
+                <Label className="text-white">Free Plan</Label>
+                <span className="rounded-full bg-[var(--text-muted)]/20 px-2 py-0.5 text-xs font-medium text-[var(--text-muted)]">
                   Active
                 </span>
               </div>
-              <p className="text-sm text-white/60">$29/month • Renews Jan 15, 2025</p>
+              <p className="text-sm text-white/60">Upgrade for more features</p>
             </div>
-            <Button variant="outline" size="sm">Manage</Button>
+            <Button variant="outline" size="sm">Upgrade</Button>
           </div>
           <div className="mt-4 border-t border-white/10 pt-4">
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/60">Credits remaining</span>
-              <span className="font-semibold text-white">250 / 500</span>
+              <span className="font-semibold text-white">0 / 0</span>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full w-1/2 rounded-full bg-gradient-to-r from-[#d5b9ff] to-[#b99cff]" />
+              <div className="h-full w-0 rounded-full bg-gradient-to-r from-[#d5b9ff] to-[#b99cff]" />
             </div>
           </div>
         </div>
@@ -132,10 +162,13 @@ export default function SettingsPage() {
       </section>
 
       {/* Logout */}
-      <Button variant="outline" className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10">
+      <Button 
+        variant="outline" 
+        className="w-full border-red-500/50 text-red-400 hover:bg-red-500/10"
+        onClick={handleLogout}
+      >
         Log Out
       </Button>
     </PageContainer>
   );
 }
-

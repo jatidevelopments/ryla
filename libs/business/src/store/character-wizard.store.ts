@@ -322,3 +322,71 @@ export const useWizardProgress = () => {
   return Math.round((step / steps.length) * 100);
 };
 
+/**
+ * Helper: Check if current step is valid and can proceed
+ * This hook subscribes to form data changes so it re-renders when validation state changes
+ */
+export const useCanProceed = () => {
+  const step = useCharacterWizardStore((s) => s.step);
+  const form = useCharacterWizardStore((s) => s.form);
+  const steps = useCharacterWizardStore((s) => s.steps);
+
+  // Find current step definition
+  const currentStep = steps.find((s) => s.id === step);
+
+  // If no step definition, check step 0 (creation method selection)
+  if (!currentStep) {
+    return step === 0 ? !!form.creationMethod : false;
+  }
+
+  // Step 0: Creation Method (if no method selected yet)
+  if (step === 0 || !form.creationMethod) {
+    return !!form.creationMethod;
+  }
+
+  // Validation based on creation method
+  if (form.creationMethod === 'ai') {
+    switch (step) {
+      case 1: // AI Description
+        return !!form.aiDescription?.trim();
+      case 2: // AI Generation (loader, always valid)
+        return true;
+      case 3: // AI Review (always valid if reached)
+        return true;
+      case 4: // Generate
+        return true;
+      default:
+        return false;
+    }
+  } else if (form.creationMethod === 'custom') {
+    switch (step) {
+      case 1: // Custom Prompts
+        return !!form.customAppearancePrompt?.trim() && !!form.customIdentityPrompt?.trim();
+      case 2: // Custom Review (always valid if reached)
+        return true;
+      case 3: // Generate
+        return true;
+      default:
+        return false;
+    }
+  } else {
+    // Presets flow
+    switch (step) {
+      case 1: // Style
+        return !!form.gender && !!form.style;
+      case 2: // General
+        return !!form.ethnicity && form.age >= 18 && form.age <= 65;
+      case 3: // Face
+        return !!form.hairStyle && !!form.hairColor && !!form.eyeColor;
+      case 4: // Body
+        return !!form.bodyType;
+      case 5: // Identity
+        return !!form.outfit; // Other identity fields optional
+      case 6: // Generate (always valid if reached)
+        return true;
+      default:
+        return false;
+    }
+  }
+};
+

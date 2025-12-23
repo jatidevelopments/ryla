@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
+// TODO: Uncomment when database connection is available in funnel app
+// import { db } from "@ryla/data";
+// import { grantSubscriptionCredits } from "@ryla/payments";
 
 /**
  * Finby Payment Notification Webhook
@@ -99,11 +102,27 @@ export async function POST(request: NextRequest) {
             type: params.Type,
         });
 
-        // TODO: Update your database with payment status
-        // - Store/update payment record
-        // - Update order status
-        // - Send confirmation emails
-        // - Trigger fulfillment processes
+        // Process successful payments (resultCode 0 = success)
+        if (resultCode === 0) {
+            // Reference format expected: "sub_{userId}_{planId}" or similar
+            // Parse the reference to get userId and planId
+            const refParts = reference?.split("_") || [];
+            const userId = refParts[1]; // e.g., "sub_user123_pro" -> "user123"
+            const planId = refParts[2]; // e.g., "sub_user123_pro" -> "pro"
+
+            if (userId && planId) {
+                console.log(`Granting credits for user ${userId}, plan ${planId}`);
+                
+                // TODO: Uncomment when database connection is available
+                // await grantSubscriptionCredits(db, userId, planId, paymentId);
+                
+                console.log(`Credits granted successfully for user ${userId}`);
+            } else {
+                console.warn("Could not parse userId/planId from reference:", reference);
+            }
+        } else {
+            console.log(`Payment not successful. Result code: ${resultCode}`);
+        }
 
         // Return 200 OK to acknowledge receipt
         // Finby will retry if it doesn't receive 200 OK

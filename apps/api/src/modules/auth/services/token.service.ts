@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 
@@ -14,8 +14,8 @@ export class TokenService {
   private readonly jwtConfig: JwtConfig;
 
   constructor(
-    private readonly jwtService: JwtService,
-    private readonly configService: ConfigService<Config>,
+    @Inject(forwardRef(() => JwtService)) private readonly jwtService: JwtService,
+    @Inject(ConfigService) private readonly configService: ConfigService<Config>,
   ) {
     const config = this.configService.get<JwtConfig>('jwt');
     if (!config) {

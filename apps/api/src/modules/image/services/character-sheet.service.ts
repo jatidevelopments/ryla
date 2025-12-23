@@ -1,7 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RunPodService } from '../../runpod/services/runpod.service';
 import { createCharacterSheetWorkflow } from '@ryla/business';
+import { ImageStorageService } from './image-storage.service';
 
 export interface CharacterSheetGenerationInput {
   baseImageUrl: string;
@@ -32,6 +33,7 @@ export interface CharacterSheetGenerationResult {
  */
 @Injectable()
 export class CharacterSheetService {
+  private readonly logger = new Logger(CharacterSheetService.name);
   private readonly runpodEndpointId: string;
 
   // Predefined variations for character sheet generation
@@ -49,10 +51,11 @@ export class CharacterSheetService {
   ];
 
   constructor(
-    private readonly runpodService: RunPodService,
-    private readonly configService: ConfigService,
+    @Inject(forwardRef(() => RunPodService)) private readonly runpodService: RunPodService,
+    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(forwardRef(() => ImageStorageService))
+    private readonly imageStorage: ImageStorageService,
   ) {
-    // TODO: Get from config or environment
     this.runpodEndpointId =
       this.configService.get<string>('RUNPOD_ENDPOINT_CHARACTER_SHEET') ||
       this.configService.get<string>('RUNPOD_ENDPOINT_IMAGE_GENERATION') ||
@@ -110,20 +113,78 @@ export class CharacterSheetService {
 
   /**
    * Check job status and get results
+   * When complete, uploads images to S3/MinIO and returns permanent URLs
+   *
+   * @param jobId RunPod job ID
+   * @param userId User ID for storage organization (optional, uses 'anonymous' if not provided)
    */
-  async getJobResults(jobId: string) {
+  async getJobResults(jobId: string, userId?: string) {
     const status = await this.runpodService.getJobStatus(jobId);
 
     if (status.status === 'COMPLETED' && status.output) {
-      // Parse output and return image URLs
-      // Format depends on RunPod endpoint response
+      // Parse output - could be base64 images or URLs depending on handler
+      const output = status.output as { images?: string[]; variations?: CharacterSheetVariation[] };
+      const base64Images = output.images || [];
+
+      if (base64Images.length === 0) {
+        return {
+          status: 'completed',
+          images: [],
+        };
+      }
+
+      // Check if images are base64 (need upload) or URLs (already hosted)
+      const isBase64 = base64Images[0]?.startsWith('data:');
+
+      if (isBase64) {
+        try {
+          // Upload base64 images to MinIO/S3 storage with proper folder structure
+          const { images: storedImages } = await this.imageStorage.uploadImages(
+            base64Images,
+            {
+              userId: userId || 'anonymous',
+              category: 'character-sheets',
+              jobId,
+            },
+          );
+
+          this.logger.log(`Uploaded ${storedImages.length} character sheet images for job ${jobId}`);
+
+          return {
+            status: 'completed',
+            images: storedImages.map((img, idx) => ({
+              id: `${jobId}-${idx}`,
+              url: img.url,
+              thumbnailUrl: img.thumbnailUrl,
+              s3Key: img.key,
+              variation: output.variations?.[idx],
+            })),
+          };
+        } catch (error) {
+          this.logger.error(`Failed to upload character sheet images: ${error}`);
+          // Fall back to base64 if storage fails
+          return {
+            status: 'completed',
+            images: base64Images.map((img, idx) => ({
+              id: `${jobId}-${idx}`,
+              url: img,
+              thumbnailUrl: img,
+              variation: output.variations?.[idx],
+            })),
+            warning: 'Images stored as base64 - storage upload failed',
+          };
+        }
+      }
+
+      // Images are already URLs
       return {
         status: 'completed',
-        images: status.output as Array<{
-          url: string;
-          thumbnailUrl: string;
-          variation: CharacterSheetVariation;
-        }>,
+        images: base64Images.map((url, idx) => ({
+          id: `${jobId}-${idx}`,
+          url,
+          thumbnailUrl: url,
+          variation: output.variations?.[idx],
+        })),
       };
     }
 

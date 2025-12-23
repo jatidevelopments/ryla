@@ -1,41 +1,55 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@ryla/ui";
-import { PostCard } from "./post-card";
-import type { Post } from "@ryla/shared";
+import * as React from 'react';
+import { cn } from '@ryla/ui';
+import { PostCard } from './post-card';
+import type { Post } from '@ryla/shared';
+import { ImageIcon, Plus, Sparkles } from 'lucide-react';
+import Link from 'next/link';
 
 export interface PostGridProps {
   posts: Post[];
   onExport?: (post: Post) => void;
   emptyMessage?: string;
+  emptyAction?: {
+    label: string;
+    href: string;
+  };
   className?: string;
 }
 
 export function PostGrid({
   posts,
   onExport,
-  emptyMessage = "No posts yet",
+  emptyMessage = 'No posts yet',
+  emptyAction,
   className,
 }: PostGridProps) {
   if (posts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-12 text-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          strokeWidth={1}
-          stroke="currentColor"
-          className="mb-3 h-12 w-12 text-white/20"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-          />
-        </svg>
-        <p className="text-sm text-white/40">{emptyMessage}</p>
+      <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+        {/* Empty state illustration */}
+        <div className="relative mb-6">
+          <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 rounded-full blur-2xl" />
+          <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-default)]">
+            <ImageIcon className="h-8 w-8 text-[var(--text-muted)]" />
+          </div>
+        </div>
+
+        <p className="text-sm text-[var(--text-secondary)] mb-1">{emptyMessage}</p>
+        <p className="text-xs text-[var(--text-muted)] mb-6">
+          Start creating to see your content here
+        </p>
+
+        {emptyAction && (
+          <Link
+            href={emptyAction.href}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-[var(--purple-500)]/25 transition-all hover:shadow-xl hover:shadow-[var(--purple-500)]/30 hover:scale-105"
+          >
+            <Plus className="h-4 w-4" />
+            {emptyAction.label}
+          </Link>
+        )}
       </div>
     );
   }
@@ -43,14 +57,19 @@ export function PostGrid({
   return (
     <div
       className={cn(
-        "grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4",
+        'grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6',
         className
       )}
     >
-      {posts.map((post) => (
-        <PostCard key={post.id} post={post} onExport={onExport} />
+      {posts.map((post, index) => (
+        <div
+          key={post.id}
+          className="animate-in fade-in slide-in-from-bottom-4 duration-300"
+          style={{ animationDelay: `${index * 50}ms` }}
+        >
+          <PostCard post={post} onExport={onExport} />
+        </div>
       ))}
     </div>
   );
 }
-

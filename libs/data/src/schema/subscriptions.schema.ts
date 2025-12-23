@@ -18,8 +18,9 @@ export const subscriptionStatusEnum = pgEnum('subscription_status', [
 
 export const subscriptionTierEnum = pgEnum('subscription_tier', [
   'free',
-  'creator',
+  'starter',
   'pro',
+  'unlimited',
 ]);
 
 export const subscriptions = pgTable('subscriptions', {

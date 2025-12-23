@@ -17,10 +17,10 @@ const rylaButtonVariants = cva(
   [
     'inline-flex items-center justify-center gap-2',
     'whitespace-nowrap font-semibold',
-    'transition-all duration-150 ease-in-out',
+    'transition-all duration-200 ease-out',
     'disabled:pointer-events-none disabled:opacity-50',
     'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-500)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]',
-    '[&_svg]:pointer-events-none [&_svg]:size-5 [&_svg]:shrink-0',
+    '[&_svg]:pointer-events-none [&_svg]:shrink-0',
   ],
   {
     variants: {
@@ -63,13 +63,52 @@ const rylaButtonVariants = cva(
           'hover:after:translate-x-[200%]',
           'after:transition-transform after:duration-700',
         ],
+        // Modern glassy purple button with glassmorphism effect
+        glassy: [
+          'relative overflow-hidden',
+          'bg-gradient-to-r from-purple-500 via-purple-600 to-pink-500',
+          'backdrop-blur-xl',
+          'text-white font-semibold',
+          'border border-white/30',
+          'shadow-lg shadow-purple-500/40',
+          // Inner glow/shine effect at top
+          'before:absolute before:inset-0 before:rounded-[inherit]',
+          'before:bg-gradient-to-b before:from-white/30 before:via-white/5 before:to-transparent',
+          'before:pointer-events-none',
+          // Outer glow
+          'ring-1 ring-purple-400/20',
+          // Hover states
+          'hover:shadow-xl hover:shadow-purple-500/50',
+          'hover:border-white/40',
+          'hover:brightness-110',
+          'hover:scale-[1.02]',
+          'active:scale-[0.98]',
+        ],
+        // Outline glassy variant
+        'glassy-outline': [
+          'relative overflow-hidden',
+          'bg-white/10 backdrop-blur-xl',
+          'text-white font-medium',
+          'border border-white/25',
+          'shadow-lg shadow-purple-500/10',
+          // Inner subtle glow
+          'before:absolute before:inset-0 before:rounded-[inherit]',
+          'before:bg-gradient-to-b before:from-white/15 before:to-transparent',
+          'before:pointer-events-none',
+          // Hover states
+          'hover:bg-white/15',
+          'hover:border-purple-400/40',
+          'hover:text-white',
+          'hover:shadow-xl hover:shadow-purple-500/20',
+          'active:scale-[0.98]',
+        ],
       },
       size: {
-        sm: 'h-9 px-5 text-sm rounded-full',
-        default: 'h-11 px-7 text-base rounded-full',
-        lg: 'h-12 px-8 text-base rounded-full',
-        xl: 'h-14 px-10 text-lg rounded-full',
-        icon: 'h-11 w-11 rounded-full',
+        sm: 'h-9 px-4 text-sm rounded-full gap-1.5 [&_svg]:size-4',
+        default: 'h-10 px-5 text-sm rounded-full gap-1.5 [&_svg]:size-4',
+        lg: 'h-11 px-5 text-sm rounded-full gap-1.5 [&_svg]:size-4',
+        xl: 'h-12 px-6 text-base rounded-full gap-2 [&_svg]:size-5',
+        icon: 'h-10 w-10 rounded-full',
       },
     },
     defaultVariants: {
