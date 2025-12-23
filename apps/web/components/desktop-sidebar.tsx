@@ -15,6 +15,8 @@ import {
   useSidebar,
 } from '@ryla/ui';
 import { cn } from '@ryla/ui';
+import { CreditsBadge } from './credits';
+import { useSubscription } from '../lib/hooks';
 
 // Icons
 const UsersIcon = ({ className }: { className?: string }) => (
@@ -173,6 +175,7 @@ const secondaryItems = [
 export function DesktopSidebar() {
   const pathname = usePathname();
   const { open, setOpen, openMobile, isMobile, setOpenMobile } = useSidebar();
+  const { isPro } = useSubscription();
   const isExpanded = isMobile ? openMobile : open;
 
   const handleLinkClick = () => {
@@ -189,23 +192,20 @@ export function DesktopSidebar() {
 
   return (
     <Sidebar>
-      {/* Header with Logo */}
-      <SidebarHeader className="px-5 py-5 border-b border-white/5">
-        <div className="flex items-center justify-between">
+      {/* Header with Logo - h-16 to match main content header */}
+      <SidebarHeader className="!p-0 h-16 border-b border-white/5 overflow-hidden">
+        <div className="flex items-center justify-between w-full h-full px-5">
           <Link
             href="/dashboard"
             onClick={handleLinkClick}
-            className="flex items-center"
+            className="flex items-center overflow-hidden"
           >
             <Image
               src="/logos/Ryla_Logo_white.png"
               alt="RYLA"
               width={100}
               height={32}
-              className={cn(
-                'transition-all duration-300',
-                isExpanded ? 'h-8 w-auto' : 'h-7 w-auto'
-              )}
+              className="h-8 w-auto shrink-0"
             />
           </Link>
 
@@ -213,7 +213,7 @@ export function DesktopSidebar() {
           {!isMobile && isExpanded && (
             <button
               onClick={toggleSidebar}
-              className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-[var(--text-muted)] hover:text-white hover:bg-white/10 transition-all"
+              className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-[var(--text-muted)] hover:text-white hover:bg-white/10 transition-all shrink-0"
             >
               <ChevronLeftIcon />
             </button>
@@ -303,40 +303,31 @@ export function DesktopSidebar() {
           </button>
         )}
 
-        {/* Premium CTA */}
-        <button
-          className={cn(
-            'w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
-            'bg-gradient-to-r from-[var(--purple-600)]/15 to-[var(--pink-500)]/15',
-            'hover:from-[var(--purple-600)]/25 hover:to-[var(--pink-500)]/25',
-            'border border-white/5 hover:border-white/10',
-            !isExpanded && 'justify-center px-0'
-          )}
-        >
-          <SparklesIcon className="text-[var(--purple-400)] shrink-0" />
-          {isExpanded && (
-            <span className="bg-gradient-to-r from-[var(--purple-400)] to-[var(--pink-400)] bg-clip-text text-transparent font-semibold">
-              Upgrade to Pro
-            </span>
-          )}
-        </button>
+        {/* Premium CTA - Only show for non-Pro users */}
+        {!isPro && (
+          <Link
+            href="/pricing"
+            onClick={handleLinkClick}
+            className={cn(
+              'w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
+              'bg-gradient-to-r from-[var(--purple-600)]/15 to-[var(--pink-500)]/15',
+              'hover:from-[var(--purple-600)]/25 hover:to-[var(--pink-500)]/25',
+              'border border-white/5 hover:border-white/10',
+              !isExpanded && 'justify-center px-0'
+            )}
+          >
+            <SparklesIcon className="text-[var(--purple-400)] shrink-0" />
+            {isExpanded && (
+              <span className="bg-gradient-to-r from-[var(--purple-400)] to-[var(--pink-400)] bg-clip-text text-transparent font-semibold">
+                Upgrade to Pro
+              </span>
+            )}
+          </Link>
+        )}
 
-        {/* Credits display */}
+        {/* Credits display - Real balance from API */}
         {isExpanded && (
-          <div className="mt-3 flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--purple-700)]/80 to-[var(--purple-800)]/80 border border-[var(--purple-500)]/30 px-3 py-1.5">
-            <div className="flex h-5 w-5 items-center justify-center rounded bg-[var(--purple-500)]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-3.5 w-3.5 text-white"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.21z" />
-              </svg>
-            </div>
-            <span className="text-sm font-bold text-white">250</span>
-            <span className="text-xs text-white/60">credits</span>
-          </div>
+          <CreditsBadge size="md" className="mt-3" />
         )}
 
         {/* Legal links - only when expanded */}

@@ -35,11 +35,15 @@ export default (): Config => ({
     ) || 3600,
   },
   aws: {
-    region: process.env.AWS_S3_REGION || '',
+    region: process.env.AWS_S3_REGION || 'us-east-1',
     accessKeyId: process.env.AWS_S3_ACCESS_KEY || '',
     secretAccessKey: process.env.AWS_S3_SECRET_KEY || '',
-    bucketName: process.env.AWS_S3_BUCKET_NAME || '',
+    bucketName: process.env.AWS_S3_BUCKET_NAME || 'ryla-images',
     urlTtl: Number(process.env.AWS_S3_URL_TTL) || 3600,
+    // Custom S3 endpoint for MinIO or other S3-compatible storage
+    endpoint: process.env.AWS_S3_ENDPOINT || undefined,
+    // Force path style for MinIO (bucket in path instead of subdomain)
+    forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true',
   },
   google: {
     clientID: process.env.GOOGLE_CLIENT_ID || '',

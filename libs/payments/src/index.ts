@@ -26,3 +26,13 @@ export { paymentsConfig, getPaymentsConfig } from './config';
 // Webhook handlers
 export { createStripeWebhookHandler } from './webhooks/stripe.webhook';
 export { createFinbyWebhookHandler } from './webhooks/finby.webhook';
+
+// Credits
+export {
+  grantCredits,
+  grantSubscriptionCredits,
+  getCreditsForPlan,
+  PLAN_CREDITS,
+  type CreditGrantParams,
+  type CreditGrantResult,
+} from './credits';

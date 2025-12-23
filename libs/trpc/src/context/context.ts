@@ -16,9 +16,9 @@ import { createDrizzleDb, users, type DrizzleDb } from '@ryla/data';
  * JWT payload structure (matches NestJS API)
  */
 export interface JwtPayload {
-  userId: string; // UUID in our schema
+  userId: string; // User UUID (NestJS API uses 'userId')
   email: string;
-  role: 'user' | 'admin';
+  role?: string;
   deviceId?: string;
   iat?: number;
   exp?: number;
@@ -77,10 +77,12 @@ function getDbConfig() {
  * Verify JWT token and return payload
  */
 function verifyToken(token: string): JwtPayload | null {
-  const secret = process.env['JWT_ACCESS_SECRET'];
+  // Use env var or fallback to 'secret' for local development
+  // IMPORTANT: In production, JWT_ACCESS_SECRET MUST be set
+  const secret = process.env['JWT_ACCESS_SECRET'] || 'secret';
 
-  if (!secret) {
-    console.error('[tRPC Context] JWT_ACCESS_SECRET not configured');
+  if (process.env['NODE_ENV'] === 'production' && !process.env['JWT_ACCESS_SECRET']) {
+    console.error('[tRPC Context] JWT_ACCESS_SECRET not configured in production!');
     return null;
   }
 

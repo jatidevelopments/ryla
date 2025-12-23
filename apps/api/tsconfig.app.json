@@ -11,6 +11,8 @@
     "sourceMap": true,
     "outDir": "../../dist/apps/api",
     "baseUrl": "../..",
+    "jsx": "react",
+    "skipLibCheck": true,
     "paths": {
       "@ryla/shared": ["libs/shared/src/index.ts"],
       "@ryla/business": ["libs/business/src/index.ts"],
@@ -23,5 +25,11 @@
     }
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"]
+  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
+  "references": [
+    { "path": "../../libs/shared" },
+    { "path": "../../libs/data" },
+    { "path": "../../libs/business" },
+    { "path": "../../libs/trpc" }
+  ]
 }

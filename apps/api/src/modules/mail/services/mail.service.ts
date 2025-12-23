@@ -1,19 +1,14 @@
-import { HttpService } from '@nestjs/axios';
-import { Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { firstValueFrom } from 'rxjs';
 
 import { Config, BrevoConfig } from '../../../config/config.type';
-import { RedisService } from '../../redis/services/redis.service';
 
 @Injectable()
 export class MailService {
   private readonly logger = new Logger(MailService.name);
 
   constructor(
-    private readonly httpService: HttpService,
-    private readonly configService: ConfigService<Config>,
-    private readonly redisService: RedisService,
+    @Inject(ConfigService) private readonly configService: ConfigService<Config>,
   ) {}
 
   /**
@@ -32,30 +27,30 @@ export class MailService {
     }
 
     try {
-      const response = await firstValueFrom(
-        this.httpService.post(
-          `${brevoConfig.apiUrl}/v3/smtp/email`,
-          {
-            sender: {
-              name: 'RYLA',
-              email: 'noreply@ryla.ai', // TODO: Configure from env
-            },
-            to: [{ email: to }],
-            subject,
-            htmlContent,
-            textContent: textContent || this.stripHtml(htmlContent),
+      const response = await fetch(`${brevoConfig.apiUrl}/v3/smtp/email`, {
+        method: 'POST',
+        headers: {
+          'api-key': brevoConfig.apiKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          sender: {
+            name: 'RYLA',
+            email: 'noreply@ryla.ai',
           },
-          {
-            headers: {
-              'api-key': brevoConfig.apiKey,
-              'Content-Type': 'application/json',
-            },
-          },
-        ),
-      );
+          to: [{ email: to }],
+          subject,
+          htmlContent,
+          textContent: textContent || this.stripHtml(htmlContent),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${await response.text()}`);
+      }
 
       this.logger.log(`Email sent to ${to}: ${subject}`);
-      return (response.data as any);
+      return await response.json();
     } catch (error: any) {
       this.logger.error(`Failed to send email to ${to}: ${error.message}`);
       throw error;

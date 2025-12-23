@@ -3,7 +3,6 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import { useShallow } from 'zustand/react/shallow';
 import type { AIInfluencer, Post, InfluencerStore } from '@ryla/shared';
-import { mockInfluencers, mockPosts } from '@ryla/shared';
 
 /**
  * Store for managing AI Influencers and their posts
@@ -12,9 +11,9 @@ import { mockInfluencers, mockPosts } from '@ryla/shared';
 export const useInfluencerStore = create<InfluencerStore>()(
   persist(
     immer((set, get) => ({
-      // Initial state with mock data
-      influencers: mockInfluencers,
-      posts: mockPosts,
+      // Initial state - empty (user creates their own influencers)
+      influencers: [],
+      posts: [],
 
       // Influencer actions
       addInfluencer: (influencer: AIInfluencer) => {
@@ -151,6 +150,23 @@ export const useLikedPosts = (influencerId: string) => {
     useShallow((state) =>
       state.posts
         .filter((p) => p.influencerId === influencerId && p.isLiked)
+        .sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )
+    )
+  );
+};
+
+/**
+ * Hook to get all images for an influencer (gallery view)
+ * Images are the same as posts but displayed in gallery format
+ */
+export const useInfluencerImages = (influencerId: string) => {
+  return useInfluencerStore(
+    useShallow((state) =>
+      state.posts
+        .filter((p) => p.influencerId === influencerId)
         .sort(
           (a, b) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()

@@ -1,7 +1,22 @@
-import { Injectable } from '@nestjs/common';
+/**
+ * Base Image Generation Service
+ *
+ * Generates character base images using the ComfyUI pod and workflow factory.
+ * Integrates with the prompt library for character DNA-based prompt building.
+ *
+ * @see ADR-003: Use Dedicated ComfyUI Pod Over Serverless
+ */
+
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { RunPodService } from '../../runpod/services/runpod.service';
-import { createBaseImageWorkflow } from '@ryla/business';
+import {
+  PromptBuilder,
+  CharacterDNA,
+  WorkflowId,
+  getRecommendedWorkflow,
+} from '@ryla/business';
+import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
+import { ImageStorageService } from './image-storage.service';
 
 export interface BaseImageGenerationInput {
   appearance: {
@@ -22,6 +37,8 @@ export interface BaseImageGenerationInput {
     bio?: string;
   };
   nsfwEnabled: boolean;
+  workflowId?: WorkflowId;
+  seed?: number;
 }
 
 export interface BaseImageGenerationResult {
@@ -31,142 +48,200 @@ export interface BaseImageGenerationResult {
     thumbnailUrl: string;
   }>;
   jobId: string;
+  workflowUsed: WorkflowId;
 }
 
 @Injectable()
 export class BaseImageGenerationService {
-  private readonly runpodEndpointId: string;
+  private readonly logger = new Logger(BaseImageGenerationService.name);
 
   constructor(
-    private readonly runpodService: RunPodService,
-    private readonly configService: ConfigService,
-  ) {
-    // TODO: Get from config or environment
-    this.runpodEndpointId =
-      this.configService.get<string>('RUNPOD_ENDPOINT_IMAGE_GENERATION') || '';
-  }
+    @Inject(forwardRef(() => ComfyUIJobRunnerAdapter))
+    private readonly comfyuiAdapter: ComfyUIJobRunnerAdapter,
+    @Inject(ConfigService) private readonly configService: ConfigService,
+    @Inject(forwardRef(() => ImageStorageService))
+    private readonly imageStorage: ImageStorageService,
+  ) {}
 
   /**
-   * Generate 3 base image options from wizard config
+   * Generate base image(s) from wizard config using ComfyUI pod
    */
   async generateBaseImages(
     input: BaseImageGenerationInput,
   ): Promise<BaseImageGenerationResult> {
-    // Build prompt from wizard config
-    const prompt = this.buildPrompt(input);
-    const negativePrompt = this.buildNegativePrompt(input);
+    // Ensure ComfyUI is available
+    if (!this.comfyuiAdapter.isAvailable()) {
+      throw new Error(
+        'ComfyUI pod not available. Check COMFYUI_POD_URL configuration.',
+      );
+    }
 
-    // Build ComfyUI workflow for base image generation
-    const workflow = this.buildBaseImageWorkflow(
-      prompt,
-      negativePrompt,
-      input.nsfwEnabled,
-    );
+    // Convert wizard config to CharacterDNA
+    const characterDNA = this.wizardConfigToCharacterDNA(input);
 
-    // Execute on RunPod serverless endpoint
-    const jobId = await this.runpodService.runJob(
-      this.runpodEndpointId,
-      {
-        workflow,
-        count: 3, // Generate 3 variations
-      },
-    );
+    // Build prompt using PromptBuilder with character DNA
+    const builtPrompt = new PromptBuilder()
+      .withCharacter(characterDNA)
+      .withTemplate('portrait-selfie-casual') // Default template for base images
+      .withOutfit(input.identity.defaultOutfit)
+      .withLighting('natural.soft')
+      .withExpression('positive.confident')
+      .withStylePreset('quality')
+      .build();
+
+    this.logger.debug(`Generated prompt: ${builtPrompt.prompt.substring(0, 100)}...`);
+
+    // Select workflow (use recommended or specified)
+    const workflowId = input.workflowId || this.comfyuiAdapter.getRecommendedWorkflow();
+
+    // Submit to ComfyUI pod
+    const jobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
+      prompt: builtPrompt.prompt,
+      negativePrompt: builtPrompt.negativePrompt,
+      nsfw: input.nsfwEnabled,
+      seed: input.seed,
+      width: 1024,
+      height: 1024,
+      workflowId,
+    });
+
+    this.logger.log(`Job ${jobId} submitted with workflow: ${workflowId}`);
 
     // Return job ID - caller will poll for results
     return {
       images: [], // Will be populated when job completes
       jobId,
+      workflowUsed: workflowId,
     };
   }
 
   /**
-   * Build prompt from wizard config
+   * Generate image directly from CharacterDNA (for API use)
    */
-  private buildPrompt(input: BaseImageGenerationInput): string {
+  async generateFromCharacterDNA(input: {
+    character: CharacterDNA;
+    templateId?: string;
+    scene?: string;
+    outfit?: string;
+    lighting?: string;
+    expression?: string;
+    nsfw?: boolean;
+    seed?: number;
+    workflowId?: WorkflowId;
+  }): Promise<{ jobId: string; workflowUsed: WorkflowId }> {
+    if (!this.comfyuiAdapter.isAvailable()) {
+      throw new Error('ComfyUI pod not available.');
+    }
+
+    const jobId = await this.comfyuiAdapter.generateFromCharacterDNA(input);
+    const workflowUsed = input.workflowId || this.comfyuiAdapter.getRecommendedWorkflow();
+
+    return { jobId, workflowUsed };
+  }
+
+  /**
+   * Convert wizard appearance/identity config to CharacterDNA
+   * Maps the wizard's detailed config to the simpler CharacterDNA format
+   */
+  private wizardConfigToCharacterDNA(input: BaseImageGenerationInput): CharacterDNA {
     const { appearance, identity } = input;
 
-    const style = appearance.style === 'realistic' ? 'Photo' : 'Anime illustration';
-    const gender = appearance.gender === 'female' ? 'woman' : 'man';
-    const age = appearance.age;
-    const ethnicity = appearance.ethnicity;
-    const hair = `${appearance.hairColor} ${appearance.hairStyle} hair`;
-    const eyes = `${appearance.eyeColor} eyes`;
-    const body = `${appearance.bodyType} body type`;
-    const outfit = identity.defaultOutfit;
+    // Build descriptive strings from detailed config
+    const hairDesc = `${appearance.hairColor} ${appearance.hairStyle} hair`;
+    const eyesDesc = `${appearance.eyeColor} eyes`;
+    const skinDesc = appearance.ethnicity.toLowerCase().includes('asian')
+      ? 'fair smooth skin'
+      : 'smooth skin with natural complexion';
 
-    let prompt = `${style} of a ${age} year old ${ethnicity} ${gender}, `;
-    prompt += `${hair}, ${eyes}, ${body}, `;
-    prompt += `wearing ${outfit}, `;
-    prompt += `professional photography, high quality, detailed, `;
-    prompt += `8k, best quality, masterpiece`;
-
-    // Add archetype influence
-    if (identity.archetype) {
-      prompt += `, ${identity.archetype} style`;
-    }
-
-    // Add personality traits
-    if (identity.personalityTraits.length > 0) {
-      prompt += `, ${identity.personalityTraits.join(', ')}`;
-    }
-
-    return prompt;
-  }
-
-  /**
-   * Build negative prompt
-   */
-  private buildNegativePrompt(input: BaseImageGenerationInput): string {
-    return `deformed, blurry, bad anatomy, disfigured, poorly drawn face, 
-      mutation, mutated, extra limb, ugly, poorly drawn hands, 
-      bad fingers, extra fingers, missing fingers, low quality, 
-      worst quality, jpeg artifacts, watermark, signature`;
-  }
-
-  /**
-   * Build ComfyUI workflow JSON for base image generation
-   */
-  private buildBaseImageWorkflow(
-    prompt: string,
-    negativePrompt: string,
-    nsfwEnabled: boolean,
-  ) {
-    // Model selection (uncensored if NSFW enabled)
-    const modelName = nsfwEnabled
-      ? 'flux1-schnell-uncensored.safetensors'
-      : 'flux1-schnell.safetensors';
-
-    // Use helper function from workflow builder
-    return createBaseImageWorkflow(
-      prompt,
-      negativePrompt,
-      modelName,
-      1024, // width
-      1024, // height
-      20, // steps
-      7.0, // cfg
-      -1 // seed (random)
-    );
+    return {
+      name: 'Character',
+      age: `${appearance.age}-year-old`,
+      ethnicity: appearance.ethnicity,
+      hair: hairDesc,
+      eyes: eyesDesc,
+      skin: skinDesc,
+      bodyType: appearance.bodyType,
+      facialFeatures: identity.personalityTraits.length > 0
+        ? identity.personalityTraits.join(', ')
+        : undefined,
+      style: `${identity.archetype} ${appearance.style}`,
+    };
   }
 
   /**
    * Check job status and get results
+   * When complete, uploads images to S3/MinIO and returns permanent URLs
+   *
+   * @param jobId ComfyUI prompt ID
+   * @param userId User ID for storage organization (optional, uses 'anonymous' if not provided)
    */
-  async getJobResults(jobId: string) {
-    const status = await this.runpodService.getJobStatus(jobId);
+  async getJobResults(jobId: string, userId?: string) {
+    const status = await this.comfyuiAdapter.getJobStatus(jobId);
 
     if (status.status === 'COMPLETED' && status.output) {
-      // Parse output and return image URLs
-      // Format depends on RunPod endpoint response
-      return {
-        status: 'completed',
-        images: status.output as Array<{ url: string; thumbnailUrl: string }>,
-      };
+      const output = status.output as { images?: string[] };
+      const base64Images = output.images || [];
+
+      if (base64Images.length === 0) {
+        return {
+          status: 'completed',
+          images: [],
+        };
+      }
+
+      try {
+        // Upload base64 images to MinIO/S3 storage with proper folder structure
+        const { images: storedImages } = await this.imageStorage.uploadImages(
+          base64Images,
+          {
+            userId: userId || 'anonymous',
+            category: 'base-images',
+            jobId,
+            // characterId will be set later when character is created
+          },
+        );
+
+        this.logger.log(`Uploaded ${storedImages.length} images to storage for job ${jobId}`);
+
+        return {
+          status: 'completed',
+          images: storedImages.map((img, idx) => ({
+            id: `${jobId}-${idx}`,
+            url: img.url,
+            thumbnailUrl: img.thumbnailUrl,
+            s3Key: img.key,
+          })),
+        };
+      } catch (error) {
+        this.logger.error(`Failed to upload images to storage: ${error}`);
+        // Fall back to base64 if storage fails
+        return {
+          status: 'completed',
+          images: base64Images.map((img, idx) => ({
+            id: `${jobId}-${idx}`,
+            url: img, // Base64 data URL as fallback
+            thumbnailUrl: img,
+          })),
+          warning: 'Images stored as base64 - storage upload failed',
+        };
+      }
     }
 
     return {
       status: status.status.toLowerCase(),
       images: [],
+      error: status.error,
+    };
+  }
+
+  /**
+   * Health check for the image generation service
+   */
+  async healthCheck(): Promise<{ available: boolean; recommendedWorkflow?: WorkflowId }> {
+    const available = await this.comfyuiAdapter.healthCheck();
+    return {
+      available,
+      recommendedWorkflow: available ? this.comfyuiAdapter.getRecommendedWorkflow() : undefined,
     };
   }
 }

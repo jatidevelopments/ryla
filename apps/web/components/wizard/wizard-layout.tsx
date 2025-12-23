@@ -1,15 +1,14 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import {
   useCharacterWizardStore,
   useWizardProgress,
   useCurrentStep,
+  useCanProceed,
 } from '@ryla/business';
-import { cn, Progress, Button } from '@ryla/ui';
+import { cn } from '@ryla/ui';
 
 interface WizardLayoutProps {
   children: React.ReactNode;
@@ -21,16 +20,16 @@ export function WizardLayout({ children }: WizardLayoutProps) {
   const steps = useCharacterWizardStore((s) => s.steps);
   const nextStep = useCharacterWizardStore((s) => s.nextStep);
   const prevStep = useCharacterWizardStore((s) => s.prevStep);
-  const canProceed = useCharacterWizardStore((s) => s.canProceed);
   const resetForm = useCharacterWizardStore((s) => s.resetForm);
   const progress = useWizardProgress();
   const currentStep = useCurrentStep();
+  const canProceed = useCanProceed(); // Use derived hook that subscribes to form changes
 
   const isFirstStep = step === 0 || step === 1;
   const isLastStep = step === steps.length;
 
   const handleNext = () => {
-    if (canProceed()) {
+    if (canProceed) {
       if (isLastStep) {
         router.push(`/wizard/step-${step + 1}`);
       } else {
@@ -56,10 +55,10 @@ export function WizardLayout({ children }: WizardLayoutProps) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#161619]">
-      {/* Header with Logo */}
-      <header className="sticky top-0 z-50 bg-[#161619]/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-16 max-w-[500px] items-center justify-between px-4">
+    <div className="flex flex-col">
+      {/* Wizard Header - Navigation within main app */}
+      <div className="sticky top-0 z-40 bg-[#121214]/95 backdrop-blur-sm border-b border-white/5">
+        <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-4">
           {/* Back Button */}
           <button
             onClick={step === 0 ? handleCancel : handleBack}
@@ -84,16 +83,12 @@ export function WizardLayout({ children }: WizardLayoutProps) {
             </span>
           </button>
 
-          {/* Logo */}
-          <Link href="/dashboard" className="flex items-center">
-            <Image
-              src="/logos/Ryla_Logo_white.png"
-              alt="RYLA"
-              width={80}
-              height={28}
-              className="h-7 w-auto"
-            />
-          </Link>
+          {/* Title */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium text-white/90">
+              {step === 0 ? 'Create Influencer' : currentStep?.title || 'Create Influencer'}
+            </span>
+          </div>
 
           {/* Step indicator */}
           <div className="text-right min-w-[60px]">
@@ -104,69 +99,64 @@ export function WizardLayout({ children }: WizardLayoutProps) {
             )}
           </div>
         </div>
-      </header>
+
+        {/* Progress bar - only show when not on step 0 */}
+        {step > 0 && steps.length > 0 && (
+          <div className="h-1 w-full bg-white/5">
+            <div
+              className="h-full bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
+      </div>
 
       {/* Content */}
-      <main className="flex-1 flex flex-col">
-        <div className="mx-auto w-full max-w-[500px] flex-1 flex flex-col px-4 pt-4 pb-32">
-          {/* Progress bar - only show when not on step 0 */}
-          {step > 0 && steps.length > 0 && (
-            <div className="mb-8">
-              <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
-                <div
-                  className="h-full bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] rounded-full transition-all duration-500"
-                  style={{ width: `${progress}%` }}
-                />
+      <div className="flex-1 flex flex-col">
+        <div className="mx-auto w-full max-w-2xl flex-1 flex flex-col px-4 py-6">
+          {children}
+
+          {/* Continue Button - flows at the bottom of content */}
+          {step > 0 && (
+            <div className="mt-8 pb-6">
+              <button
+                onClick={handleNext}
+                disabled={!canProceed}
+                className={cn(
+                  'w-full h-12 rounded-xl font-bold text-base transition-all duration-200 relative overflow-hidden',
+                  canProceed
+                    ? 'bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40'
+                    : 'bg-white/10 text-white/40 cursor-not-allowed'
+                )}
+              >
+                {/* Shimmer effect */}
+                {canProceed && (
+                  <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                )}
+                <span className="relative z-10">
+                  {isLastStep ? 'Generate' : 'Continue'}
+                </span>
+              </button>
+              {/* Step dots */}
+              <div className="flex justify-center gap-1.5 mt-3">
+                {steps.map((s) => (
+                  <div
+                    key={s.id}
+                    className={cn(
+                      'h-1.5 rounded-full transition-all duration-300',
+                      s.id < step
+                        ? 'w-1.5 bg-[#7c3aed]'
+                        : s.id === step
+                        ? 'w-6 bg-white'
+                        : 'w-1.5 bg-white/20'
+                    )}
+                  />
+                ))}
               </div>
             </div>
           )}
-
-          {/* Step content */}
-          {children}
         </div>
-      </main>
-
-      {/* Fixed Footer with Continue Button */}
-      {step > 0 && (
-        <footer className="fixed bottom-0 left-0 right-0 z-50 bg-[#161619] border-t border-white/5">
-          <div className="mx-auto max-w-[500px] p-4">
-            <button
-              onClick={handleNext}
-              disabled={!canProceed()}
-              className={cn(
-                'w-full h-12 rounded-xl font-bold text-base transition-all duration-200 relative overflow-hidden',
-                canProceed()
-                  ? 'bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40'
-                  : 'bg-white/10 text-white/40 cursor-not-allowed'
-              )}
-            >
-              {/* Shimmer effect */}
-              {canProceed() && (
-                <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
-              )}
-              <span className="relative z-10">
-                {isLastStep ? 'Generate' : 'Continue'}
-              </span>
-            </button>
-            {/* Step dots */}
-            <div className="flex justify-center gap-1.5 mt-3">
-              {steps.map((s) => (
-                <div
-                  key={s.id}
-                  className={cn(
-                    'h-1.5 rounded-full transition-all duration-300',
-                    s.id < step
-                      ? 'w-1.5 bg-[#7c3aed]'
-                      : s.id === step
-                      ? 'w-6 bg-white'
-                      : 'w-1.5 bg-white/20'
-                  )}
-                />
-              ))}
-            </div>
-          </div>
-        </footer>
-      )}
+      </div>
     </div>
   );
 }

@@ -1,12 +1,18 @@
 // import './instrument';
 
+// Load dotenv FIRST before any other imports
 import { config } from 'dotenv';
-import { resolve } from 'path';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
+
+// Get __dirname equivalent for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirnameLocal = dirname(__filename);
+
+// Load .env file from apps/api directory - MUST be before other imports
+config({ path: resolve(__dirnameLocal, '../.env') });
+
 import chalk from 'chalk';
-
-// Load .env file from apps/api directory
-config({ path: resolve(__dirname, '../.env') });
-
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
@@ -24,91 +30,99 @@ import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
 import { AppModule } from './modules/app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  try {
+    const app = await NestFactory.create(AppModule, {
+      logger: ['error', 'warn', 'log'],
+      abortOnError: false,
+      bufferLogs: false,
+    });
 
-  // Configure Socket.IO adapter with CORS
-  const ioAdapter = new IoAdapter(app);
-  app.useWebSocketAdapter(ioAdapter);
+    // Configure Socket.IO adapter with CORS
+    const ioAdapter = new IoAdapter(app);
+    app.useWebSocketAdapter(ioAdapter);
 
-  const configService = app.get(ConfigService);
-  const appConfig = configService.get('app');
-  const swaggerConfig = configService.get('swagger');
+    const configService = app.get(ConfigService);
+    const appConfig = configService.get('app');
+    const swaggerConfig = configService.get('swagger');
 
-  const swaggerPassword = swaggerConfig.password || 'password';
-  app.use(
-    ['/docs', '/docs-json'],
-    basicAuth({
-      challenge: true,
-      users: { admin: swaggerPassword },
-    }),
-  );
+    if (!appConfig) {
+      throw new Error('App config not found');
+    }
+    const swaggerPassword = swaggerConfig.password || 'password';
+    app.use(
+      ['/docs', '/docs-json'],
+      basicAuth({
+        challenge: true,
+        users: { admin: swaggerPassword },
+      }),
+    );
 
-  app.use(
-    '/webhooks-secure-func',
-    bodyParser.raw({ type: 'application/json' }),
-  );
-  app.use(bodyParser.json({ limit: '50mb' }));
-  app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+    app.use(
+      '/webhooks-secure-func',
+      bodyParser.raw({ type: 'application/json' }),
+    );
+    app.use(bodyParser.json({ limit: '50mb' }));
+    app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 
-  // Enable cookie parsing
-  app.use(cookieParser());
+    // Enable cookie parsing
+    app.use(cookieParser());
 
-  app.useGlobalInterceptors(new LoggingInterceptor());
+    app.useGlobalInterceptors(new LoggingInterceptor());
 
-  const config = new DocumentBuilder()
-    .setTitle('RYLA Nest Backend')
-    .setDescription(
-      "Robust backend boilerplate designed for scalability, flexibility, and ease of development.",
-    )
-    .setVersion('1.0.0')
-    .addBearerAuth({
-      type: 'http',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      in: 'header',
-    })
-    .build();
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerHelper.setDefaultResponses(document);
+    const config = new DocumentBuilder()
+      .setTitle('RYLA Nest Backend')
+      .setDescription(
+        "Robust backend boilerplate designed for scalability, flexibility, and ease of development.",
+      )
+      .setVersion('1.0.0')
+      .addBearerAuth({
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        in: 'header',
+      })
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerHelper.setDefaultResponses(document);
 
-  SwaggerModule.setup('docs', app, document, {
-    swaggerOptions: {
-      docExpansion: 'none',
-      defaultModelRendering: 3,
-      persistAuthorization: true,
-    },
-  });
+    SwaggerModule.setup('docs', app, document, {
+      swaggerOptions: {
+        docExpansion: 'none',
+        defaultModelRendering: 3,
+        persistAuthorization: true,
+      },
+    });
 
-  app.useGlobalPipes(
-    new ValidationPipe({
-      transform: true,
-      forbidNonWhitelisted: true,
-      whitelist: true,
-    }),
-  );
+    app.useGlobalPipes(
+      new ValidationPipe({
+        transform: true,
+        forbidNonWhitelisted: true,
+        whitelist: true,
+      }),
+    );
 
-  app.enableCors({
-    origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
-      return callback(null, true);
-    },
-    methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'Accept',
-      'Origin',
-      'X-Requested-With',
-      'X-Forwarded-For',
-    ],
-    credentials: true,
-    preflightContinue: false,
-    optionsSuccessStatus: 204,
-    maxAge: 3600,
-  });
+    app.enableCors({
+      origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+        return callback(null, true);
+      },
+      methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',
+      allowedHeaders: [
+        'Content-Type',
+        'Authorization',
+        'Accept',
+        'Origin',
+        'X-Requested-With',
+        'X-Forwarded-For',
+      ],
+      credentials: true,
+      preflightContinue: false,
+      optionsSuccessStatus: 204,
+      maxAge: 3600,
+    });
 
-  const defaultPort = appConfig.port || 3001;
+    const defaultPort = appConfig.port || 3001;
+    await app.listen(defaultPort);
 
-  await app.listen(defaultPort, () => {
     console.log('');
     console.log(
       chalk.green.bold('🚀 ') +
@@ -126,6 +140,26 @@ async function bootstrap() {
       chalk.gray('admin / admin'),
     );
     console.log('');
-  });
+  } catch (error) {
+    console.error('Error during bootstrap:', error);
+    throw error;
+  }
 }
-void bootstrap();
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+  process.exit(1);
+});
+
+bootstrap().catch((error) => {
+  console.error('Failed to start application:', error);
+  console.error('Error stack:', error.stack);
+  process.exit(1);
+});

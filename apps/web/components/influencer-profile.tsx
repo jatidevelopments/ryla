@@ -3,85 +3,95 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Button } from '@ryla/ui';
+import { RylaButton } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
+import {
+  ArrowLeft,
+  Plus,
+  Sparkles,
+  Heart,
+  Images,
+  LayoutGrid,
+} from 'lucide-react';
 
 export interface InfluencerProfileProps {
   influencer: AIInfluencer;
 }
 
+function getInitials(name: string): string {
+  return name
+    .split(' ')
+    .map((n) => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+}
+
 export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
+  const [imageError, setImageError] = React.useState(false);
+  const hasValidImage = influencer.avatar && !imageError;
+
   return (
-    <div className="border-b border-white/5 bg-gradient-to-br from-[#1a1a1d] via-[#16161a] to-[#121214] pb-8 pt-4">
+    <div className="relative border-b border-[var(--border-default)] overflow-hidden">
+      {/* Subtle background gradient */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/5 via-transparent to-[var(--pink-500)]/5" />
+
       {/* Back navigation */}
-      <div className="px-6 py-4">
+      <div className="relative px-6 py-4">
         <Link
           href="/dashboard"
-          className="inline-flex items-center gap-2 text-sm text-white/70 transition-colors hover:text-white"
+          className="group inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-4 w-4"
-          >
-            <path
-              fillRule="evenodd"
-              d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
-              clipRule="evenodd"
-            />
-          </svg>
-          All Influencers
+          <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+          <span>Back to Dashboard</span>
         </Link>
       </div>
 
       {/* Profile header */}
-      <div className="flex flex-col px-6 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
+      <div className="relative flex flex-col px-6 pb-8 sm:flex-row sm:items-start sm:justify-between sm:gap-8">
         {/* Left: Avatar and Info */}
         <div className="flex flex-col items-center text-center sm:flex-row sm:items-start sm:text-left sm:flex-1">
-          {/* Avatar */}
-          <div className="relative mb-4 h-24 w-24 overflow-hidden rounded-xl border border-white/10 bg-white/5 sm:mb-0 sm:mr-8">
-            {influencer.avatar ? (
-              <Image
-                src={influencer.avatar}
-                alt={influencer.name}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="h-10 w-10 text-white/40"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            )}
+          {/* Avatar with glow effect */}
+          <div className="relative mb-5 sm:mb-0 sm:mr-6 shrink-0">
+            <div className="absolute -inset-1 bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] rounded-2xl opacity-20 blur-md" />
+            <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-subtle)] shadow-xl">
+              {hasValidImage ? (
+                <Image
+                  src={influencer.avatar}
+                  alt={influencer.name}
+                  fill
+                  className="object-cover"
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-gradient-to-br from-[var(--purple-600)]/80 via-[var(--purple-500)]/60 to-[var(--pink-500)]/70">
+                  <span className="text-3xl font-bold text-white/90 tracking-tight">
+                    {getInitials(influencer.name)}
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Info */}
-          <div className="flex-1">
-            <h1 className="text-2xl font-bold text-white mb-1">
+          <div className="flex-1 min-w-0">
+            <h1 className="text-2xl font-bold text-[var(--text-primary)] mb-1 truncate">
               {influencer.name}
             </h1>
-            <p className="text-sm text-white/60 mb-3">{influencer.handle}</p>
+            <p className="text-sm text-[var(--text-muted)] mb-4">
+              {influencer.handle}
+            </p>
 
             {/* Tags */}
             <div className="flex flex-wrap justify-center gap-2 sm:justify-start mb-4">
-              <span className="rounded-lg bg-gradient-to-r from-[var(--purple-600)]/15 to-[var(--pink-500)]/15 border border-[var(--purple-500)]/20 px-3 py-1 text-xs font-medium text-[var(--purple-300)] capitalize">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--purple-500)]/20 px-3 py-1.5 text-xs font-medium text-[var(--purple-400)] capitalize">
+                <Sparkles className="h-3 w-3" />
                 {influencer.archetype.replace(/-/g, ' ')}
               </span>
               {influencer.personalityTraits.slice(0, 3).map((trait) => (
                 <span
                   key={trait}
-                  className="rounded-lg bg-white/5 border border-white/10 px-3 py-1 text-xs text-white/60 capitalize"
+                  className="rounded-full bg-[var(--bg-subtle)] border border-[var(--border-default)] px-3 py-1.5 text-xs text-[var(--text-secondary)] capitalize transition-colors hover:border-[var(--border-hover)]"
                 >
                   {trait}
                 </span>
@@ -89,71 +99,69 @@ export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
             </div>
 
             {/* Bio */}
-            <p className="text-sm text-white/70">{influencer.bio}</p>
+            {influencer.bio && (
+              <p className="text-sm text-[var(--text-secondary)] leading-relaxed max-w-xl">
+                {influencer.bio}
+              </p>
+            )}
           </div>
         </div>
 
         {/* Right: Stats and Actions */}
         <div className="flex flex-col items-center mt-6 sm:mt-0 sm:items-end sm:min-w-[280px]">
-          {/* Stats */}
-          <div className="flex gap-6 mb-6">
-            <div className="text-center">
-              <div className="text-lg font-semibold text-white">
+          {/* Stats Card */}
+          <div className="flex gap-1 p-1 mb-6 bg-[var(--bg-subtle)] rounded-xl border border-[var(--border-default)]">
+            <div className="flex flex-col items-center px-5 py-3 rounded-lg transition-colors hover:bg-[var(--bg-surface)]">
+              <div className="flex items-center gap-1.5 text-lg font-semibold text-[var(--text-primary)]">
+                <LayoutGrid className="h-4 w-4 text-[var(--purple-400)]" />
                 {influencer.postCount}
               </div>
-              <div className="text-xs text-white/50 mt-0.5">Posts</div>
+              <div className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">
+                Posts
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-lg font-semibold text-white">
+            <div className="w-px bg-[var(--border-default)]" />
+            <div className="flex flex-col items-center px-5 py-3 rounded-lg transition-colors hover:bg-[var(--bg-surface)]">
+              <div className="flex items-center gap-1.5 text-lg font-semibold text-[var(--text-primary)]">
+                <Images className="h-4 w-4 text-[var(--purple-400)]" />
                 {influencer.imageCount}
               </div>
-              <div className="text-xs text-white/50 mt-0.5">Images</div>
+              <div className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">
+                Images
+              </div>
             </div>
-            <div className="text-center">
-              <div className="text-lg font-semibold text-white">
+            <div className="w-px bg-[var(--border-default)]" />
+            <div className="flex flex-col items-center px-5 py-3 rounded-lg transition-colors hover:bg-[var(--bg-surface)]">
+              <div className="flex items-center gap-1.5 text-lg font-semibold text-[var(--text-primary)]">
+                <Heart className="h-4 w-4 text-[var(--pink-400)] fill-[var(--pink-400)]" />
                 {influencer.likedCount}
               </div>
-              <div className="text-xs text-white/50 mt-0.5">Shortlisted</div>
+              <div className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] mt-0.5">
+                Liked
+              </div>
             </div>
           </div>
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Button
-              asChild
-              size="sm"
-              className="bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] hover:from-[var(--purple-400)] hover:to-[var(--pink-400)] rounded-lg px-4 h-9"
-            >
-              <Link href={`/influencer/${influencer.id}/studio`}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="mr-1.5 h-4 w-4"
-                >
-                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-                </svg>
+            <RylaButton asChild variant="gradient" size="sm">
+              <Link
+                href={`/influencer/${influencer.id}/studio`}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
                 New Post
               </Link>
-            </Button>
-            <Button
-              asChild
-              size="sm"
-              variant="outline"
-              className="rounded-lg px-4 h-9 border-white/10 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white"
-            >
-              <Link href={`/influencer/${influencer.id}/studio`}>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="mr-1.5 h-4 w-4"
-                >
-                  <path d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" />
-                </svg>
-                Generate More
+            </RylaButton>
+            <RylaButton asChild variant="glassy-outline" size="sm">
+              <Link
+                href={`/studio?influencer=${influencer.id}`}
+                className="gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Generate
               </Link>
-            </Button>
+            </RylaButton>
           </div>
         </div>
       </div>

@@ -5,11 +5,21 @@ import { useRouter } from 'next/navigation';
 import { useCharacterWizardStore, useInfluencerStore } from '@ryla/business';
 import { Switch, cn } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
+import {
+  generateBaseImagesAndWait,
+  type JobStatus,
+  type GeneratedImage,
+} from '../../lib/api/character';
+import { useCredits } from '../../lib/hooks/use-credits';
+import { ZeroCreditsModal } from '../credits';
 
 /**
  * Step 6: Generate
  * Preview settings and create the AI influencer
  */
+// Credit costs for generation
+const BASE_IMAGE_CREDITS = 5; // Cost for initial character generation
+
 export function StepGenerate() {
   const router = useRouter();
   const form = useCharacterWizardStore((s) => s.form);
@@ -19,56 +29,129 @@ export function StepGenerate() {
   const resetForm = useCharacterWizardStore((s) => s.resetForm);
   const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
 
+  // Credit management
+  const { balance, isLoading: isLoadingCredits, refetch: refetchCredits } = useCredits();
+  const [showCreditModal, setShowCreditModal] = React.useState(false);
+
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [generationStatus, setGenerationStatus] = React.useState<string>('');
+  const [error, setError] = React.useState<string | null>(null);
+
+  // Calculate cost based on quality mode
+  const creditCost = form.qualityMode === 'hq' ? BASE_IMAGE_CREDITS * 2 : BASE_IMAGE_CREDITS;
+  const hasEnoughCredits = balance >= creditCost;
 
   const handleGenerate = async () => {
+    // Check credits before starting
+    if (!hasEnoughCredits) {
+      setShowCreditModal(true);
+      return;
+    }
+
     setIsGenerating(true);
     setStatus('generating');
+    setError(null);
+    setGenerationStatus('Starting generation...');
 
-    // Simulate generation delay
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    try {
+      // Build the input for the API from wizard form data
+      const input = {
+        appearance: {
+          gender: form.gender || 'female',
+          style: form.style || 'realistic',
+          ethnicity: form.ethnicity || 'caucasian',
+          age: form.age,
+          hairStyle: form.hairStyle || 'long-straight',
+          hairColor: form.hairColor || 'brown',
+          eyeColor: form.eyeColor || 'brown',
+          bodyType: form.bodyType || 'slim',
+          breastSize: form.breastSize || undefined,
+        },
+        identity: {
+          defaultOutfit: form.outfit || 'casual',
+          archetype: form.archetype || 'girl-next-door',
+          personalityTraits:
+            form.personalityTraits.length > 0
+              ? form.personalityTraits
+              : ['friendly'],
+          bio: form.bio,
+        },
+        nsfwEnabled: form.nsfwEnabled,
+      };
 
-    // Create new influencer
-    const newId = `influencer-${Date.now()}`;
-    const handle = `@${(form.name || 'unnamed')
-      .toLowerCase()
-      .replace(/\s+/g, '.')}`;
+      // Call the backend API and wait for completion
+      const images = await generateBaseImagesAndWait(
+        input,
+        (status: JobStatus) => {
+          switch (status) {
+            case 'queued':
+              setGenerationStatus('Queued for processing...');
+              break;
+            case 'in_progress':
+              setGenerationStatus('Generating your influencer...');
+              break;
+            case 'completed':
+              setGenerationStatus('Complete!');
+              break;
+            default:
+              setGenerationStatus('Processing...');
+          }
+        }
+      );
 
-    const newInfluencer: AIInfluencer = {
-      id: newId,
-      name: form.name || 'Unnamed',
-      handle,
-      bio: form.bio || 'New AI influencer ✨',
-      avatar: '',
-      gender: form.gender || 'female',
-      style: form.style || 'realistic',
-      ethnicity: form.ethnicity || 'caucasian',
-      age: form.age,
-      hairStyle: form.hairStyle || 'long-straight',
-      hairColor: form.hairColor || 'brown',
-      eyeColor: form.eyeColor || 'brown',
-      bodyType: form.bodyType || 'slim',
-      breastSize: form.breastSize || undefined,
-      archetype: form.archetype || 'girl-next-door',
-      personalityTraits:
-        form.personalityTraits.length > 0
-          ? form.personalityTraits
-          : ['friendly'],
-      outfit: form.outfit || 'casual',
-      nsfwEnabled: form.nsfwEnabled,
-      postCount: 0,
-      imageCount: 0,
-      likedCount: 0,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
+      // Create new influencer with generated images
+      const newId = `influencer-${Date.now()}`;
+      const handle = `@${(form.name || 'unnamed')
+        .toLowerCase()
+        .replace(/\s+/g, '.')}`;
 
-    addInfluencer(newInfluencer);
-    setCharacterId(newId);
-    setStatus('completed');
-    resetForm();
+      // Extract the URL from the first generated image for avatar
+      const avatarUrl = images[0]?.url || '';
 
-    router.push(`/influencer/${newId}/studio`);
+      const newInfluencer: AIInfluencer = {
+        id: newId,
+        name: form.name || 'Unnamed',
+        handle,
+        bio: form.bio || 'New AI influencer ✨',
+        avatar: avatarUrl, // Use first generated image as avatar
+        gender: form.gender || 'female',
+        style: form.style || 'realistic',
+        ethnicity: form.ethnicity || 'caucasian',
+        age: form.age,
+        hairStyle: form.hairStyle || 'long-straight',
+        hairColor: form.hairColor || 'brown',
+        eyeColor: form.eyeColor || 'brown',
+        bodyType: form.bodyType || 'slim',
+        breastSize: form.breastSize || undefined,
+        archetype: form.archetype || 'girl-next-door',
+        personalityTraits:
+          form.personalityTraits.length > 0
+            ? form.personalityTraits
+            : ['friendly'],
+        outfit: form.outfit || 'casual',
+        nsfwEnabled: form.nsfwEnabled,
+        postCount: 0,
+        imageCount: images.length,
+        likedCount: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+
+      addInfluencer(newInfluencer);
+      setCharacterId(newId);
+      setStatus('completed');
+      resetForm();
+
+      // Refetch credits to update balance after generation
+      refetchCredits();
+
+      router.push(`/influencer/${newId}/studio`);
+    } catch (err) {
+      console.error('Generation failed:', err);
+      setError(err instanceof Error ? err.message : 'Generation failed');
+      setIsGenerating(false);
+      setStatus('error');
+    }
   };
 
   // Build summary items
@@ -111,7 +194,37 @@ export function StepGenerate() {
         <h2 className="text-xl font-bold text-white mb-2">
           Creating Your Influencer
         </h2>
-        <p className="text-white/60 text-sm">This will only take a moment...</p>
+        <p className="text-white/60 text-sm">{generationStatus || 'This may take a minute...'}</p>
+      </div>
+    );
+  }
+
+  // Error state
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <div className="w-16 h-16 mb-6 rounded-full bg-red-500/20 flex items-center justify-center">
+          <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-red-400">
+            <path
+              d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        <h2 className="text-xl font-bold text-white mb-2">Generation Failed</h2>
+        <p className="text-white/60 text-sm mb-6 text-center max-w-xs">{error}</p>
+        <button
+          onClick={() => {
+            setError(null);
+            setIsGenerating(false);
+          }}
+          className="px-6 py-2.5 rounded-lg bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-colors"
+        >
+          Try Again
+        </button>
       </div>
     );
   }
@@ -209,28 +322,86 @@ export function StepGenerate() {
         </div>
       </div>
 
-      {/* Generate Button */}
+      {/* Credit Balance & Generate Button */}
       <div className="w-full">
+        {/* Credit info */}
+        <div className="flex items-center justify-between mb-3 px-1">
+          <div className="flex items-center gap-2">
+            <span className="text-white/60 text-sm">Cost:</span>
+            <span className={cn(
+              "font-semibold text-sm",
+              hasEnoughCredits ? "text-white" : "text-red-400"
+            )}>
+              {creditCost} credits
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-white/60 text-sm">Balance:</span>
+            <span className={cn(
+              "font-semibold text-sm",
+              hasEnoughCredits ? "text-green-400" : "text-red-400"
+            )}>
+              {isLoadingCredits ? '...' : balance}
+            </span>
+          </div>
+        </div>
+
         <button
           onClick={handleGenerate}
-          className="w-full h-14 rounded-xl font-bold text-base bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] text-white shadow-lg shadow-purple-500/30 hover:shadow-purple-500/50 transition-all relative overflow-hidden group"
+          disabled={isLoadingCredits}
+          className={cn(
+            "w-full h-14 rounded-xl font-bold text-base shadow-lg transition-all relative overflow-hidden group",
+            hasEnoughCredits
+              ? "bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] text-white shadow-purple-500/30 hover:shadow-purple-500/50"
+              : "bg-gradient-to-r from-red-500/80 to-red-600/80 text-white shadow-red-500/30 hover:shadow-red-500/50"
+          )}
         >
           <div className="absolute inset-0 w-[200%] -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 pointer-events-none" />
           <span className="relative z-10 flex items-center justify-center gap-2">
-            <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
-              <path
-                d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-            Create AI Influencer
+            {hasEnoughCredits ? (
+              <>
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+                  <path
+                    d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Create AI Influencer
+              </>
+            ) : (
+              <>
+                <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5">
+                  <path
+                    d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+                Insufficient Credits
+              </>
+            )}
           </span>
         </button>
-        <p className="text-white/40 text-xs text-center mt-3">Uses 5 credits</p>
+        
+        {!hasEnoughCredits && (
+          <p className="text-red-400/80 text-xs text-center mt-3">
+            You need {creditCost - balance} more credits to generate
+          </p>
+        )}
       </div>
+
+      {/* Zero Credits Modal */}
+      <ZeroCreditsModal
+        isOpen={showCreditModal}
+        onClose={() => setShowCreditModal(false)}
+        creditsNeeded={creditCost}
+        currentBalance={balance}
+      />
     </div>
   );
 }

@@ -14,24 +14,33 @@ import { RedisModule } from '../redis/redis.module';
     // Asynchronously configure the ThrottlerModule.
     ThrottlerModule.forRootAsync({
       imports: [RedisModule], // Import RedisModule to use the Redis client.
-      inject: [ConfigService, REDIS_CLIENT], // Inject ConfigService and the Redis client.
+      inject: [ConfigService, REDIS_CLIENT],
       useFactory: async (_: ConfigService, redisClient: Redis) => {
-        // Retrieve throttler configuration from the application's config service.
-        return {
-          // Only include throttlers used with standard @Throttle() decorator
-          // CustomThrottlerGuard uses @CustomThrottleConfig instead
+        let storage;
+        try {
+          storage = new ThrottlerStorageRedisService(redisClient);
+        } catch (error) {
+          console.error('[Throttler] Failed to create Redis storage:', error);
+          storage = undefined;
+        }
+
+        const config = {
           throttlers: [
             {
               name: 'default',
               ...DEFAULT_THROTTLE,
             },
           ],
-          // Use Redis for storing throttler data, allowing for distributed rate limiting.
-          storage: new ThrottlerStorageRedisService(redisClient),
         };
+
+        if (storage) {
+          (config as any).storage = storage;
+        }
+
+        return config;
       },
     } as ThrottlerAsyncOptions),
   ],
 })
-export class ThrottlerConfigModule {}
+export class ThrottlerConfigModule { }
 

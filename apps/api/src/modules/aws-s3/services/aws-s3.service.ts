@@ -8,7 +8,7 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-import { Injectable, ServiceUnavailableException } from '@nestjs/common';
+import { Injectable, Logger, Optional, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
 import { AwsConfig, Config } from '../../../config/config.type';
@@ -17,23 +17,90 @@ import { ContentType } from '../enums/content-type.enum';
 
 @Injectable()
 export class AwsS3Service {
-  private readonly awsConfig: AwsConfig;
-  private readonly s3Client: S3Client;
+  private readonly logger = new Logger(AwsS3Service.name);
+  private awsConfig!: AwsConfig;
+  private s3Client!: S3Client;
+  private isConfigured = false;
+  private initialized = false;
 
-  constructor(private readonly configService: ConfigService<Config>) {
-    const config = this.configService.get<AwsConfig>('aws');
-    if (!config) {
-      throw new Error('AWS config not found');
+  constructor(@Optional() private readonly configService: ConfigService<Config> | null) {
+    // Defer initialization to first use to avoid race condition with ConfigModule
+  }
+
+  /**
+   * Lazy initialization to avoid race condition with ConfigModule
+   * Called on first use of the service
+   */
+  private ensureInitialized(): void {
+    if (this.initialized) return;
+    this.initialized = true;
+
+    // Read directly from process.env to avoid ConfigService timing issues
+    const accessKeyId = process.env['AWS_S3_ACCESS_KEY'] || '';
+    const secretAccessKey = process.env['AWS_S3_SECRET_KEY'] || '';
+    const region = process.env['AWS_S3_REGION'] || 'us-east-1';
+    const bucketName = process.env['AWS_S3_BUCKET_NAME'] || 'ryla-images';
+    const urlTtl = Number(process.env['AWS_S3_URL_TTL']) || 3600;
+    const endpoint = process.env['AWS_S3_ENDPOINT'] || undefined;
+    const forcePathStyle = process.env['AWS_S3_FORCE_PATH_STYLE'] === 'true';
+
+    this.logger.log(
+      `Initializing S3: accessKeyId=${accessKeyId ? 'SET' : 'EMPTY'}, endpoint=${endpoint || 'AWS default'}`,
+    );
+
+    if (!accessKeyId || !secretAccessKey) {
+      this.logger.warn('S3 not configured - missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
+      this.awsConfig = {
+        region: '',
+        accessKeyId: '',
+        secretAccessKey: '',
+        bucketName: '',
+        urlTtl: 3600,
+      };
+      this.s3Client = new S3Client({
+        region: 'us-east-1',
+        credentials: { accessKeyId: 'dummy', secretAccessKey: 'dummy' },
+      });
+      this.isConfigured = false;
+      return;
     }
-    this.awsConfig = config;
 
-    this.s3Client = new S3Client({
+    this.awsConfig = {
+      region,
+      accessKeyId,
+      secretAccessKey,
+      bucketName,
+      urlTtl,
+      endpoint,
+      forcePathStyle,
+    };
+    this.isConfigured = true;
+
+    // Build S3 client options
+    const s3Options: {
+      region: string;
+      credentials: { accessKeyId: string; secretAccessKey: string };
+      endpoint?: string;
+      forcePathStyle?: boolean;
+    } = {
       region: this.awsConfig.region,
       credentials: {
         accessKeyId: this.awsConfig.accessKeyId,
         secretAccessKey: this.awsConfig.secretAccessKey,
       },
-    });
+    };
+
+    // Add custom endpoint for MinIO/S3-compatible storage
+    if (this.awsConfig.endpoint) {
+      s3Options.endpoint = this.awsConfig.endpoint;
+      s3Options.forcePathStyle = this.awsConfig.forcePathStyle ?? true;
+    }
+
+    this.s3Client = new S3Client(s3Options);
+
+    this.logger.log(
+      `S3 configured: bucket=${this.awsConfig.bucketName}, endpoint=${this.awsConfig.endpoint || 'AWS default'}`,
+    );
   }
 
   public async uploadFile(
@@ -41,12 +108,25 @@ export class AwsS3Service {
     itemType: ContentType,
     itemId: number,
   ): Promise<string> {
+    this.ensureInitialized();
+
+    if (!this.isConfigured) {
+      this.logger.error('S3 not configured! Missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
+      throw new ServiceUnavailableException(
+        'S3 storage not configured. Check AWS_S3_ACCESS_KEY and AWS_S3_SECRET_KEY environment variables.',
+      );
+    }
+
     try {
       const filePath = this.buildPath(itemType, itemId, file.file_name);
-      
+
       // Determine content type based on file extension
       const contentType = this.getContentTypeFromFileName(file.file_name);
-      
+
+      this.logger.debug(
+        `Uploading to S3: bucket=${this.awsConfig.bucketName}, key=${filePath}, size=${file.file_data.length}`,
+      );
+
       await this.s3Client.send(
         new PutObjectCommand({
           Bucket: this.awsConfig.bucketName,
@@ -55,13 +135,61 @@ export class AwsS3Service {
           ContentType: contentType,
         }),
       );
+
+      this.logger.debug(`Upload successful: ${filePath}`);
       return filePath;
     } catch (error: any) {
-      throw new ServiceUnavailableException('Failed to save file, try again');
+      this.logger.error(`S3 upload failed: ${error.message}`, error.stack);
+      this.logger.error(
+        `S3 config: bucket=${this.awsConfig.bucketName}, endpoint=${this.awsConfig.endpoint}, region=${this.awsConfig.region}`,
+      );
+      throw new ServiceUnavailableException(`Failed to save file: ${error.message}`);
+    }
+  }
+
+  /**
+   * Upload a file directly with a full key path
+   * Use this for organized folder structures
+   */
+  public async uploadFileDirect(
+    key: string,
+    data: Buffer,
+    contentType: string,
+  ): Promise<string> {
+    this.ensureInitialized();
+
+    if (!this.isConfigured) {
+      this.logger.error('S3 not configured! Missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
+      throw new ServiceUnavailableException(
+        'S3 storage not configured. Check AWS_S3_ACCESS_KEY and AWS_S3_SECRET_KEY environment variables.',
+      );
+    }
+
+    try {
+      this.logger.debug(
+        `Uploading to S3: bucket=${this.awsConfig.bucketName}, key=${key}, size=${data.length}`,
+      );
+
+      await this.s3Client.send(
+        new PutObjectCommand({
+          Bucket: this.awsConfig.bucketName,
+          Key: key,
+          Body: data,
+          ContentType: contentType,
+        }),
+      );
+
+      this.logger.debug(`Upload successful: ${key}`);
+      return key;
+    } catch (error: any) {
+      this.logger.error(`S3 upload failed: ${error.message}`, error.stack);
+      throw new ServiceUnavailableException(`Failed to save file: ${error.message}`);
     }
   }
 
   public async getFileUrl(filePath: string): Promise<string> {
+    this.ensureInitialized();
+
     try {
       const command = new GetObjectCommand({
         Bucket: this.awsConfig.bucketName,
@@ -78,6 +206,8 @@ export class AwsS3Service {
   }
 
   public async getFileBase64(filePath: string): Promise<string> {
+    this.ensureInitialized();
+
     try {
       // Create command to get object from S3 bucket
       const command = new GetObjectCommand({
@@ -117,6 +247,8 @@ export class AwsS3Service {
   }
 
   public async deleteFile(filePath: string): Promise<void> {
+    this.ensureInitialized();
+
     try {
       await this.s3Client.send(
         new DeleteObjectCommand({
@@ -145,7 +277,7 @@ export class AwsS3Service {
    */
   private getContentTypeFromFileName(fileName: string): string {
     const ext = path.extname(fileName).toLowerCase();
-    
+
     const mimeTypes: Record<string, string> = {
       '.jpg': 'image/jpeg',
       '.jpeg': 'image/jpeg',
@@ -157,7 +289,7 @@ export class AwsS3Service {
       '.avi': 'video/x-msvideo',
       '.webm': 'video/webm',
     };
-    
+
     return mimeTypes[ext] || 'application/octet-stream';
   }
 }

@@ -3,6 +3,17 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "libs/business/src",
-  "tags": ["type:lib", "scope:business"]
+  "tags": ["type:lib", "scope:business"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/business",
+        "main": "libs/business/src/index.ts",
+        "tsConfig": "libs/business/tsconfig.json",
+        "assets": []
+      }
+    }
+  }
 }
-

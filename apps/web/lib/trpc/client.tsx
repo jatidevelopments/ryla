@@ -5,36 +5,34 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink } from '@trpc/client';
 import superjson from 'superjson';
 
-import { trpc } from '@ryla/trpc';
+// Import only client-side code to avoid bundling server code
+import { trpc } from '@ryla/trpc/client';
 
-/**
- * Auth token storage key
- * Uses same key as NestJS API expects
- */
-const AUTH_TOKEN_KEY = 'ryla_access_token';
+// Re-export auth utilities for convenience
+import { getAccessToken, setTokens, clearTokens } from '../auth';
 
 /**
  * Get auth token from storage
+ * @deprecated Use getAccessToken from '../auth' instead
  */
 export function getAuthToken(): string | null {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem(AUTH_TOKEN_KEY);
+  return getAccessToken();
 }
 
 /**
  * Set auth token in storage
+ * @deprecated Use setTokens from '../auth' instead
  */
 export function setAuthToken(token: string): void {
-  if (typeof window === 'undefined') return;
-  localStorage.setItem(AUTH_TOKEN_KEY, token);
+  setTokens({ accessToken: token, refreshToken: '' });
 }
 
 /**
  * Clear auth token from storage
+ * @deprecated Use clearTokens from '../auth' instead
  */
 export function clearAuthToken(): void {
-  if (typeof window === 'undefined') return;
-  localStorage.removeItem(AUTH_TOKEN_KEY);
+  clearTokens();
 }
 
 /**

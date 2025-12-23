@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
-// import { SentryModule } from '@sentry/nestjs/setup';
 
 import { GlobalExceptionFilter } from '../common/http/global-exception.filter';
 import configuration from '../config/configuration';
@@ -17,28 +16,34 @@ import { AwsS3Module } from './aws-s3/aws-s3.module';
 import { ImageModule } from './image/image.module';
 import { ImageGalleryModule } from './image-gallery/image-gallery.module';
 import { NotificationModule } from './notification/notification.module';
+import { CronModule } from './cron/cron.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
       isGlobal: true,
+      // Load .env from the api app directory (apps/api/.env)
+      envFilePath: [
+        '.env',
+        '.env.local',
+        'apps/api/.env',
+        'apps/api/.env.local',
+      ],
     }),
-    // BullModule.forRootAsync(...),
-    // SentryModule.forRoot(),
     DrizzleModule,
     RedisModule,
-    ThrottlerConfigModule,
     HealthModule,
     AwsS3Module,
+    MailModule,
     AuthModule,
     UserModule,
     CharacterModule,
     ImageModule,
     ImageGalleryModule,
-    MailModule,
     NotificationModule,
-    // Add other modules here
+    CronModule,
+    ThrottlerConfigModule,
   ],
   providers: [
     {

@@ -6,18 +6,9 @@
  * Production execution uses the same logic but implemented in Python on RunPod.
  */
 
-export interface ComfyUINode {
-  inputs: Record<string, unknown>;
-  class_type: string;
-  _meta?: {
-    title?: string;
-    [key: string]: unknown;
-  };
-}
-
-export interface ComfyUIWorkflow {
-  [nodeId: string]: ComfyUINode;
-}
+// Re-export types from workflows for backward compatibility
+import type { ComfyUINode, ComfyUIWorkflow } from '../workflows/types';
+export type { ComfyUINode, ComfyUIWorkflow };
 
 /**
  * Builder class for creating ComfyUI workflows programmatically

@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -11,7 +13,48 @@ import {
   FadeInUp,
 } from '@ryla/ui';
 
+import { login } from '../../lib/auth';
+import { useAuth } from '../../lib/auth-context';
+
 export default function LoginPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const { refreshUser } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const { isAuthenticated: isAuthenticatedContext, isLoading: authLoading } = useAuth();
+
+  // Redirect if already logged in (use context, not just token check)
+  useEffect(() => {
+    if (!authLoading && isAuthenticatedContext) {
+      const returnUrl = searchParams.get('returnUrl') || '/dashboard';
+      router.push(returnUrl);
+    }
+  }, [authLoading, isAuthenticatedContext, router, searchParams]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await login({ email, password });
+      // Refresh auth context
+      await refreshUser();
+      // Redirect to returnUrl or dashboard
+      const returnUrl = searchParams.get('returnUrl') || '/dashboard';
+      router.push(returnUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center p-4 overflow-hidden">
       {/* Background image */}
@@ -58,7 +101,13 @@ export default function LoginPage() {
                 Welcome Back
               </h2>
 
-              <form className="space-y-5">
+              {error && (
+                <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+                  {error}
+                </div>
+              )}
+
+              <form onSubmit={handleSubmit} className="space-y-5">
                 <div>
                   <Label
                     htmlFor="email"
@@ -70,6 +119,10 @@ export default function LoginPage() {
                     id="email"
                     type="email"
                     placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={isLoading}
                     className="h-12 rounded-xl bg-[var(--bg-primary)] border-[var(--border-default)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20"
                   />
                 </div>
@@ -85,6 +138,10 @@ export default function LoginPage() {
                     id="password"
                     type="password"
                     placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={isLoading}
                     className="h-12 rounded-xl bg-[var(--bg-primary)] border-[var(--border-default)] text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20"
                   />
                 </div>
@@ -93,25 +150,29 @@ export default function LoginPage() {
                   <label className="flex items-center gap-2 text-[var(--text-secondary)] cursor-pointer">
                     <input
                       type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      disabled={isLoading}
                       className="rounded-md border-[var(--border-default)] bg-[var(--bg-primary)] text-[var(--purple-500)] focus:ring-[var(--purple-500)]/20"
                     />
                     Remember me
                   </label>
-                  <a
-                    href="#"
+                  <Link
+                    href="/forgot-password"
                     className="text-[var(--purple-400)] hover:text-[var(--purple-300)] transition-colors"
                   >
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
 
                 <RylaButton
                   type="submit"
-                  variant="gradient"
+                  variant="glassy"
                   size="lg"
-                  className="w-full rounded-xl"
+                  className="w-full h-12 rounded-xl"
+                  disabled={isLoading}
                 >
-                  Sign In
+                  {isLoading ? 'Signing In...' : 'Sign In'}
                 </RylaButton>
               </form>
 
@@ -125,6 +186,7 @@ export default function LoginPage() {
 
               <Button
                 variant="outline"
+                disabled={isLoading}
                 className="w-full h-12 rounded-xl border-[var(--border-default)] bg-[var(--bg-primary)] hover:bg-[var(--bg-hover)] hover:border-[var(--border-hover)] text-[var(--text-primary)]"
               >
                 <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
@@ -156,7 +218,7 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-sm text-[var(--text-secondary)]">
             Don&apos;t have an account?{' '}
             <Link
-              href="/wizard/step-0"
+              href="/register"
               className="text-[var(--purple-400)] hover:text-[var(--purple-300)] font-medium transition-colors"
             >
               Get started for free

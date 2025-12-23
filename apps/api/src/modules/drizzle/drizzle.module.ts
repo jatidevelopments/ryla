@@ -16,7 +16,19 @@ import * as schema from '@ryla/data/schema';
       useFactory: (configService: ConfigService<Config>) => {
         const config = configService.get<PostgresConfig>('postgres');
         if (!config) {
-          throw new Error('Postgres config not found');
+          console.warn('Postgres config not found, creating pool with defaults');
+          // Create pool but don't connect immediately
+          const pool = new Pool({
+            host: 'localhost',
+            port: 5432,
+            user: 'postgres',
+            password: 'postgres',
+            database: 'ryla',
+            max: 20,
+            connectionTimeoutMillis: 5000,
+            idleTimeoutMillis: 30000,
+          });
+          return drizzle(pool, { schema });
         }
 
         const pool = new Pool({

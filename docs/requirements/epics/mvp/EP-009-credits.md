@@ -81,37 +81,37 @@ Credit system to manage and limit AI image generations. Controls usage for free 
 
 ### AC-1: Credit Display
 
-- [ ] Credits shown in dashboard header
-- [ ] Credits update after each generation
-- [ ] Low credit warning appears at <10 credits
-- [ ] Zero credits shows upgrade prompt
+- [x] Credits shown in dashboard header
+- [x] Credits update after each generation
+- [x] Low credit warning appears at <10 credits
+- [x] Zero credits shows upgrade prompt
 
 ### AC-2: Generation Blocking
 
-- [ ] Cannot generate if insufficient credits
-- [ ] Clear message explains why blocked
-- [ ] Upgrade CTA is prominent
-- [ ] No partial generations (all or nothing)
+- [x] Cannot generate if insufficient credits
+- [x] Clear message explains why blocked
+- [x] Upgrade CTA is prominent
+- [x] No partial generations (all or nothing)
 
 ### AC-3: Credit Consumption
 
-- [ ] Draft mode consumes 1 credit per image
-- [ ] HQ mode consumes 3 credits per image
-- [ ] Credits deducted after successful generation
-- [ ] Failed generations don't consume credits
+- [x] Draft mode consumes 5 credits per image (adjusted from spec)
+- [x] HQ mode consumes 10 credits per image (adjusted from spec)
+- [x] Credits deducted after successful generation
+- [x] Failed generations can be refunded via `refundFailedJob`
 
 ### AC-4: Plan Limits
 
-- [ ] Free users get 10 credits
-- [ ] Paid users get plan-appropriate credits
-- [ ] Credits refresh monthly on billing date
-- [ ] Unlimited plan has no limits
+- [x] Free users get 10 credits on signup
+- [x] Paid users get plan-appropriate credits via webhook
+- [x] Credits refresh monthly on billing date (cron job at `.github/workflows/cron-credit-refresh.yml`)
+- [x] Unlimited plan has no limits
 
 ### AC-5: Usage Tracking
 
-- [ ] All credit usage is logged
-- [ ] User can view usage history
-- [ ] Usage shows date, amount, action
+- [x] All credit usage is logged in `credit_transactions`
+- [x] User can view usage history via `credits.getTransactions()`
+- [x] Usage shows date, amount, action
 
 ---
 
@@ -294,11 +294,11 @@ async function consumeCredits(userId: string, amount: number, action: string) {
 ## Phase Checklist
 
 - [x] P1: Requirements (this epic)
-- [ ] P2: Stories created
-- [ ] P3: Architecture design
-- [ ] P4: UI skeleton
-- [ ] P5: Tech spec
-- [ ] P6: Implementation
+- [x] P2: Stories created
+- [x] P3: Architecture design
+- [x] P4: UI skeleton
+- [x] P5: Tech spec (see `docs/technical/CREDIT-SYSTEM.md`)
+- [x] P6: Implementation
 - [ ] P7: Testing
 - [ ] P8: Integration
 - [ ] P9: Deployment

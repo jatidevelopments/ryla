@@ -173,6 +173,10 @@ export type AwsConfig = {
   secretAccessKey: string;
   bucketName: string;
   urlTtl: number;
+  /** Custom S3 endpoint for MinIO or other S3-compatible storage */
+  endpoint?: string;
+  /** Force path style for S3 (required for MinIO) */
+  forcePathStyle?: boolean;
 };
 export type FoundationalModelConfig = {
   maxTokens: number;

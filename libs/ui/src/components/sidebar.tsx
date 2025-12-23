@@ -3,8 +3,6 @@
 import * as React from 'react';
 import { cn } from '../lib/utils';
 
-const SIDEBAR_WIDTH = '280px';
-const SIDEBAR_WIDTH_COLLAPSED = '80px';
 const SIDEBAR_COOKIE_NAME = 'ryla_sidebar_state';
 
 type SidebarContextValue = {
@@ -90,17 +88,7 @@ export function SidebarProvider({
 
   return (
     <SidebarContext.Provider value={contextValue}>
-      <div
-        className="flex min-h-screen w-full"
-        style={
-          {
-            '--sidebar-width': SIDEBAR_WIDTH,
-            '--sidebar-width-collapsed': SIDEBAR_WIDTH_COLLAPSED,
-          } as React.CSSProperties
-        }
-      >
-        {children}
-      </div>
+      {children}
     </SidebarContext.Provider>
   );
 }
@@ -126,11 +114,11 @@ export function Sidebar({ children, className, ...props }: SidebarProps) {
         {/* Mobile drawer */}
         <aside
           className={cn(
-            'fixed inset-y-0 left-0 z-50 w-[280px] border-r border-white/10 transform transition-transform duration-300 ease-out',
+            'fixed left-0 top-0 z-50 w-64 transform transition-transform duration-300 ease-out border-r border-white/10',
             openMobile ? 'translate-x-0' : '-translate-x-full',
             className
           )}
-          style={{ backgroundColor: '#121214' }}
+          style={{ backgroundColor: '#121214', height: '100dvh' }}
           {...props}
         >
           {children}
@@ -139,34 +127,19 @@ export function Sidebar({ children, className, ...props }: SidebarProps) {
     );
   }
 
-  // Desktop: Fixed sidebar
+  // Desktop: Fixed sidebar that doesn't scroll with page
   return (
-    <>
-      {/* Gap placeholder - ensures main content is pushed right */}
-      <div
-        className={cn(
-          'hidden md:block shrink-0 transition-all duration-200',
-          open
-            ? 'w-[var(--sidebar-width)]'
-            : 'w-[var(--sidebar-width-collapsed)]'
-        )}
-        aria-hidden="true"
-      />
-      {/* Fixed sidebar */}
-      <aside
-        className={cn(
-          'hidden md:flex flex-col fixed inset-y-0 left-0 z-40 border-r border-white/10 transition-all duration-200',
-          open
-            ? 'w-[var(--sidebar-width)]'
-            : 'w-[var(--sidebar-width-collapsed)]',
-          className
-        )}
-        style={{ backgroundColor: '#121214' }}
-        {...props}
-      >
-        {children}
-      </aside>
-    </>
+    <aside
+      className={cn(
+        'hidden md:flex flex-col fixed left-0 top-0 overflow-hidden transition-all duration-200 bg-[#121214] z-40 border-r border-white/10',
+        open ? 'w-64' : 'w-20',
+        className
+      )}
+      style={{ height: '100dvh' }}
+      {...props}
+    >
+      {children}
+    </aside>
   );
 }
 
@@ -178,7 +151,7 @@ export function SidebarHeader({
   return (
     <div
       className={cn(
-        'flex flex-col gap-2 p-4 border-b border-white/10',
+        'shrink-0 p-4 border-b border-white/10',
         className
       )}
       {...props}
@@ -195,7 +168,7 @@ export function SidebarContent({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('flex-1 overflow-y-auto px-3 py-4', className)}
+      className={cn('flex-1 overflow-hidden px-3 py-4', className)}
       {...props}
     >
       {children}

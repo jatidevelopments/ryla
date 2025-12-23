@@ -8,7 +8,8 @@ export class RedisService {
   constructor(
     @Inject(REDIS_CLIENT)
     private readonly redisClient: Redis,
-  ) {}
+  ) {
+  }
 
   /**
    * Add member to hash set.

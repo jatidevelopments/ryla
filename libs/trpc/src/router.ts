@@ -12,6 +12,7 @@ import {
   generationRouter,
   postRouter,
   creditsRouter,
+  subscriptionRouter,
 } from './routers';
 
 /**
@@ -23,6 +24,7 @@ export const appRouter = router({
   generation: generationRouter,
   post: postRouter,
   credits: creditsRouter,
+  subscription: subscriptionRouter,
 });
 
 /**

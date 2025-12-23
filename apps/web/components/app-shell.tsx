@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { SidebarProvider, BottomNav, SidebarMobileTrigger } from '@ryla/ui';
+import { SidebarProvider, BottomNav, SidebarMobileTrigger, useSidebar } from '@ryla/ui';
 import { DesktopSidebar } from './desktop-sidebar';
+import { CreditsBadge, LowBalanceWarning } from './credits';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -12,49 +13,38 @@ interface AppShellProps {
 }
 
 // Routes that should NOT show the app shell (header/nav)
-const excludedRoutes = ['/login', '/wizard'];
+const excludedRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
 
-export function AppShell({ children }: AppShellProps) {
-  const pathname = usePathname();
-
-  // Check if current route should have the app shell
-  const showShell = !excludedRoutes.some(
-    (route) => pathname === route || pathname.startsWith(route + '/')
-  );
-
-  if (!showShell) {
-    return <>{children}</>;
-  }
+// Inner component that uses sidebar context
+function AppShellContent({ children }: { children: React.ReactNode }) {
+  const { open, isMobile } = useSidebar();
+  
+  // Calculate left offset for main content based on sidebar state (desktop only)
+  // Matches Tailwind: w-64 = 256px, w-20 = 80px
+  const sidebarWidth = isMobile ? 0 : (open ? 256 : 80);
 
   return (
-    <SidebarProvider defaultOpen={true}>
+    <div className="min-h-screen bg-[#121214] overflow-x-hidden">
       {/* Desktop Sidebar */}
       <DesktopSidebar />
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-screen bg-gradient-to-br from-[#1a1a1d] via-[#16161a] to-[#121214]">
+      {/* Main Content - positioned next to fixed sidebar */}
+      <div 
+        className="flex flex-col min-h-screen transition-all duration-200"
+        style={{ 
+          marginLeft: sidebarWidth,
+          width: isMobile ? '100%' : `calc(100% - ${sidebarWidth}px)`
+        }}
+      >
         {/* Desktop Header */}
-        <header className="sticky top-0 z-30 hidden md:flex h-16 items-center justify-between border-b border-white/5 bg-gradient-to-r from-[#1a1a1d] via-[#16161a] to-[#121214] backdrop-blur-md px-6">
+        <header className="sticky top-0 z-30 hidden md:flex h-16 items-center justify-between border-b border-white/5 bg-[#121214]/90 backdrop-blur-md px-6">
           {/* Breadcrumb or page title could go here */}
           <div />
 
           {/* Right side - Credits & Actions */}
           <div className="flex items-center gap-4">
-            {/* Credits Badge */}
-            <div className="flex items-center gap-2 rounded-full bg-gradient-to-r from-[var(--purple-700)]/80 to-[var(--purple-800)]/80 border border-[var(--purple-500)]/30 px-3 py-1.5">
-              <div className="flex h-5 w-5 items-center justify-center rounded bg-[var(--purple-500)]">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  className="h-3.5 w-3.5 text-white"
-                >
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.21z" />
-                </svg>
-              </div>
-              <span className="text-sm font-bold text-white">250</span>
-              <span className="text-xs text-white/60">credits</span>
-            </div>
+            {/* Credits Badge - Real balance from API */}
+            <CreditsBadge size="md" />
 
             {/* Settings */}
             <Link
@@ -78,7 +68,7 @@ export function AppShell({ children }: AppShellProps) {
         </header>
 
         {/* Mobile Header */}
-        <header className="sticky top-0 z-30 flex md:hidden h-14 items-center justify-between border-b border-white/5 bg-gradient-to-r from-[#1a1a1d] via-[#16161a] to-[#121214] backdrop-blur-md px-4">
+        <header className="sticky top-0 z-30 flex md:hidden h-14 items-center justify-between border-b border-white/5 bg-[#121214]/90 backdrop-blur-md px-4">
           <SidebarMobileTrigger />
           <Link href="/dashboard">
             <Image
@@ -89,21 +79,12 @@ export function AppShell({ children }: AppShellProps) {
               className="h-7 w-auto"
             />
           </Link>
-          {/* Credits Badge - Mobile */}
-          <div className="flex items-center gap-1.5 rounded-full bg-gradient-to-r from-[var(--purple-700)]/80 to-[var(--purple-800)]/80 border border-[var(--purple-500)]/30 px-2.5 py-1">
-            <div className="flex h-4 w-4 items-center justify-center rounded bg-[var(--purple-500)]">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-2.5 w-2.5 text-white"
-              >
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.31-8.86c-1.77-.45-2.34-.94-2.34-1.67 0-.84.79-1.43 2.1-1.43 1.38 0 1.9.66 1.94 1.64h1.71c-.05-1.34-.87-2.57-2.49-2.97V5H10.9v1.69c-1.51.32-2.72 1.3-2.72 2.81 0 1.79 1.49 2.69 3.66 3.21 1.95.46 2.34 1.15 2.34 1.87 0 .53-.39 1.39-2.1 1.39-1.6 0-2.23-.72-2.32-1.64H8.04c.1 1.7 1.36 2.66 2.86 2.97V19h2.34v-1.67c1.52-.29 2.72-1.16 2.73-2.77-.01-2.2-1.9-2.96-3.66-3.21z" />
-              </svg>
-            </div>
-            <span className="text-xs font-bold text-white">250</span>
-          </div>
+          {/* Credits Badge - Mobile - Real balance from API */}
+          <CreditsBadge size="sm" showLabel={false} />
         </header>
+
+        {/* Low Balance Warning */}
+        <LowBalanceWarning className="mx-4 mt-4 md:mx-6" />
 
         {/* Page Content */}
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
@@ -111,6 +92,25 @@ export function AppShell({ children }: AppShellProps) {
         {/* Mobile Bottom Nav */}
         <BottomNav />
       </div>
+    </div>
+  );
+}
+
+export function AppShell({ children }: AppShellProps) {
+  const pathname = usePathname();
+
+  // Check if current route should have the app shell
+  const showShell = !excludedRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route + '/')
+  );
+
+  if (!showShell) {
+    return <>{children}</>;
+  }
+
+  return (
+    <SidebarProvider defaultOpen={true}>
+      <AppShellContent>{children}</AppShellContent>
     </SidebarProvider>
   );
 }

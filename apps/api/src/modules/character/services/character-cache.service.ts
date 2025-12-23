@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { RedisService } from '../../redis/services/redis.service';
 
 @Injectable()
 export class CharacterCacheService {
-  constructor(private readonly redisService: RedisService) {}
+  constructor(
+    @Inject(forwardRef(() => RedisService)) private readonly redisService: RedisService,
+  ) {}
 
   // TODO: Implement character caching methods
   public async getCharacterCache(key: string): Promise<string | null> {

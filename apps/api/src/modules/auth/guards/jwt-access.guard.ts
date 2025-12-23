@@ -1,6 +1,7 @@
 import {
   CanActivate,
   ExecutionContext,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -13,9 +14,9 @@ import { TokenService } from '../services/token.service';
 @Injectable()
 export class JwtAccessGuard implements CanActivate {
   constructor(
-    private readonly reflector: Reflector,
-    private readonly tokenService: TokenService,
-    private readonly authCacheService: AuthCacheService,
+    @Inject(Reflector) private readonly reflector: Reflector,
+    @Inject(TokenService) private readonly tokenService: TokenService,
+    @Inject(AuthCacheService) private readonly authCacheService: AuthCacheService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

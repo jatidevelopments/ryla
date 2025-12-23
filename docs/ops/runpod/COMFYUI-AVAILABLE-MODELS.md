@@ -205,3 +205,7 @@ ComfyUI Manager uses a public repository to maintain the model list:
 - **Repository**: https://github.com/Comfy-Org/ComfyUI-Manager
 - **Model List JSON**: https://raw.githubusercontent.com/Comfy-Org/ComfyUI-Manager/main/model-list.json
 - **Database Channels**: The manager supports multiple channels (default, recent, legacy, forked, dev, tutorial) for retrieving model data
+
+
+
+

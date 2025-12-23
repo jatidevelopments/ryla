@@ -1,52 +1,135 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useParams, useRouter, notFound } from "next/navigation";
-import { useInfluencer, useInfluencerStore } from "@ryla/business";
-import { PageContainer, Button } from "@ryla/ui";
-import { StudioPanel, DEFAULT_STUDIO_SETTINGS, StudioSettings } from "../../../../components/studio-panel";
-import type { Post } from "@ryla/shared";
+import * as React from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { useParams, useRouter, notFound } from 'next/navigation';
+import { useInfluencer, useInfluencerStore } from '@ryla/business';
+import { cn, RylaButton, Switch, Label } from '@ryla/ui';
+import {
+  SCENE_OPTIONS,
+  ENVIRONMENT_OPTIONS,
+  OUTFIT_OPTIONS,
+} from '@ryla/shared';
+import { ProtectedRoute } from '../../../../components/protected-route';
+import { ZeroCreditsModal } from '../../../../components/credits';
+import { useCredits } from '../../../../lib/hooks/use-credits';
+import type { Post } from '@ryla/shared';
+import {
+  ArrowLeft,
+  Sparkles,
+  Check,
+  ImageIcon,
+  Zap,
+  Settings2,
+  Palette,
+  MapPin,
+  Shirt,
+  Maximize,
+  Save,
+  Trash2,
+  RefreshCw,
+  ChevronDown,
+  ChevronUp,
+} from 'lucide-react';
 
-// Simulated generation delay (ms)
-const GENERATION_DELAY = 3000;
+interface StudioSettings {
+  scene: string;
+  environment: string;
+  outfit: string | null;
+  aspectRatio: '1:1' | '9:16' | '2:3';
+  qualityMode: 'draft' | 'hq';
+  nsfwEnabled: boolean;
+}
+
+const DEFAULT_SETTINGS: StudioSettings = {
+  scene: 'casual-day',
+  environment: 'studio',
+  outfit: null,
+  aspectRatio: '1:1',
+  qualityMode: 'draft',
+  nsfwEnabled: false,
+};
+
+const ASPECT_RATIOS = [
+  { value: '1:1', label: 'Square', description: '1:1' },
+  { value: '9:16', label: 'Portrait', description: '9:16' },
+  { value: '2:3', label: 'Tall', description: '2:3' },
+] as const;
 
 export default function StudioPage() {
+  return (
+    <ProtectedRoute>
+      <StudioContent />
+    </ProtectedRoute>
+  );
+}
+
+function StudioContent() {
   const params = useParams();
   const router = useRouter();
   const influencerId = params.id as string;
-  
+
   const influencer = useInfluencer(influencerId);
   const addPost = useInfluencerStore((state) => state.addPost);
-  
-  const [settings, setSettings] = React.useState<StudioSettings>(DEFAULT_STUDIO_SETTINGS);
+
+  // Credit management
+  const { balance, refetch: refetchCredits } = useCredits();
+  const [showCreditModal, setShowCreditModal] = React.useState(false);
+
+  // State
+  const [settings, setSettings] = React.useState<StudioSettings>(DEFAULT_SETTINGS);
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generatedPost, setGeneratedPost] = React.useState<Post | null>(null);
-  const [showCaptionPicker, setShowCaptionPicker] = React.useState(false);
-  const [caption, setCaption] = React.useState("");
+  const [caption, setCaption] = React.useState('');
+
+  // Expanded sections
+  const [expandedSections, setExpandedSections] = React.useState({
+    scene: true,
+    environment: true,
+    outfit: true,
+    format: false,
+    advanced: false,
+  });
 
   if (!influencer) {
     notFound();
   }
 
-  const handleSettingsChange = (newSettings: Partial<StudioSettings>) => {
-    setSettings((prev) => ({ ...prev, ...newSettings }));
+  const creditCost = settings.qualityMode === 'hq' ? 10 : 5;
+
+  const toggleSection = (section: keyof typeof expandedSections) => {
+    setExpandedSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const handleSettingChange = <K extends keyof StudioSettings>(
+    key: K,
+    value: StudioSettings[K]
+  ) => {
+    setSettings((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleGenerate = async () => {
+    if (balance < creditCost) {
+      setShowCreditModal(true);
+      return;
+    }
+
     setIsGenerating(true);
     setGeneratedPost(null);
 
-    // Simulate generation
-    await new Promise((resolve) => setTimeout(resolve, GENERATION_DELAY));
+    // Simulate generation delay
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     // Create mock post
     const newPost: Post = {
       id: `post-${Date.now()}`,
       influencerId,
-      imageUrl: "", // Would be filled by actual generation
-      caption: "",
+      imageUrl: '',
+      caption: '',
       isLiked: false,
       scene: settings.scene,
       environment: settings.environment,
@@ -57,171 +140,486 @@ export default function StudioPage() {
 
     // Generate mock caption
     const mockCaptions = [
-      `${settings.scene === 'morning-vibes' ? 'Good morning! ☀️' : ''} Feeling amazing today ✨`,
-      `Just another day being fabulous 💋`,
-      `Who needs a filter when you have this lighting? 📸`,
-      `Living my best life 🌟`,
-      `Confidence is my best accessory 💅`,
+      'Good morning! ☀️ Feeling amazing today ✨',
+      'Just another day being fabulous 💋',
+      'Who needs a filter when you have this lighting? 📸',
+      'Living my best life 🌟',
+      'Confidence is my best accessory 💅',
     ];
-    const generatedCaption = mockCaptions[Math.floor(Math.random() * mockCaptions.length)];
+    const generatedCaption =
+      mockCaptions[Math.floor(Math.random() * mockCaptions.length)];
 
     setGeneratedPost(newPost);
     setCaption(generatedCaption);
     setIsGenerating(false);
-    setShowCaptionPicker(true);
+    refetchCredits();
   };
 
   const handleSavePost = () => {
     if (generatedPost) {
-      const postWithCaption: Post = {
-        ...generatedPost,
-        caption,
-      };
-      addPost(postWithCaption);
+      addPost({ ...generatedPost, caption });
       router.push(`/influencer/${influencerId}`);
     }
   };
 
   const handleDiscard = () => {
     setGeneratedPost(null);
-    setShowCaptionPicker(false);
-    setCaption("");
+    setCaption('');
   };
 
-  // Credit cost calculation
-  const creditCost = settings.qualityMode === 'hq' ? 10 : 5;
+  const handleRegenerate = () => {
+    setGeneratedPost(null);
+    setCaption('');
+    handleGenerate();
+  };
 
   return (
-    <PageContainer maxWidth="md">
+    <div className="flex flex-col min-h-screen">
       {/* Header */}
-      <div className="mb-6">
-        <Link
-          href={`/influencer/${influencerId}`}
-          className="mb-4 inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 20 20"
-            fill="currentColor"
-            className="h-4 w-4"
+      <div className="sticky top-0 z-40 bg-[var(--bg-base)]/95 backdrop-blur-sm border-b border-[var(--border-default)]">
+        <div className="mx-auto flex h-14 max-w-4xl items-center justify-between px-4 lg:px-6">
+          {/* Back Button */}
+          <Link
+            href={`/influencer/${influencerId}`}
+            className="flex items-center gap-2 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)] group"
           >
-            <path
-              fillRule="evenodd"
-              d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z"
-              clipRule="evenodd"
-            />
-          </svg>
-          Back to {influencer.name}
-        </Link>
+            <div className="w-8 h-8 rounded-lg bg-[var(--bg-subtle)] flex items-center justify-center group-hover:bg-[var(--bg-surface)] transition-colors">
+              <ArrowLeft className="h-4 w-4" />
+            </div>
+            <span className="hidden sm:inline">Back to Profile</span>
+          </Link>
 
-        <div className="flex items-center gap-4">
-          {/* Avatar */}
-          <div className="relative h-12 w-12 overflow-hidden rounded-full border border-[#b99cff]">
-            {influencer.avatar ? (
-              <Image
-                src={influencer.avatar}
-                alt={influencer.name}
-                fill
-                className="object-cover"
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#d5b9ff] to-[#b99cff] text-xl">
-                👤
-              </div>
-            )}
+          {/* Title */}
+          <div className="flex items-center gap-3">
+            <div className="relative h-8 w-8 overflow-hidden rounded-full border border-[var(--border-default)]">
+              {influencer.avatar ? (
+                <Image
+                  src={influencer.avatar}
+                  alt={influencer.name}
+                  fill
+                  className="object-cover"
+                />
+              ) : (
+                <div className="flex h-full items-center justify-center bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] text-xs font-bold text-white">
+                  {influencer.name.charAt(0)}
+                </div>
+              )}
+            </div>
+            <div className="text-center sm:text-left">
+              <h1 className="text-sm font-semibold text-[var(--text-primary)]">
+                Content Studio
+              </h1>
+              <p className="text-xs text-[var(--text-muted)] hidden sm:block">
+                {influencer.name}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-xl font-bold text-white">Content Studio</h1>
-            <p className="text-sm text-white/60">Creating for {influencer.name}</p>
+
+          {/* Credits indicator */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-default)] px-3 py-1.5">
+              <Zap className="h-3.5 w-3.5 text-[var(--purple-400)]" />
+              <span className="text-xs font-medium text-[var(--text-secondary)]">
+                {balance}
+              </span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Caption Picker Modal */}
-      {showCaptionPicker && generatedPost && (
-        <div className="mb-6 rounded-xl border border-[#b99cff]/50 bg-[#1a1a1f] p-4">
-          <h3 className="mb-3 text-sm font-medium text-white">
-            ✨ Content Generated! Review your caption:
-          </h3>
-          
-          {/* Preview */}
-          <div className="mb-4 flex gap-4">
-            <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg">
-              <div className="flex h-full items-center justify-center bg-gradient-to-br from-[#d5b9ff]/20 to-[#b99cff]/20 text-white/30">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  strokeWidth={1}
-                  stroke="currentColor"
-                  className="h-8 w-8"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            
-            <div className="flex-1">
-              <textarea
-                value={caption}
-                onChange={(e) => setCaption(e.target.value)}
-                className="h-full w-full resize-none rounded-lg border border-white/10 bg-white/5 p-3 text-sm text-white placeholder-white/40 focus:border-[#b99cff] focus:outline-none"
-                placeholder="Edit your caption..."
-              />
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="flex gap-2">
-            <Button
-              onClick={handleSavePost}
-              className="flex-1 bg-gradient-to-r from-[#d5b9ff] to-[#b99cff]"
+      {/* Content */}
+      <div className="flex-1 flex">
+        <div className="mx-auto w-full max-w-4xl flex flex-col lg:flex-row gap-6 px-4 lg:px-6 py-6">
+          {/* Left: Settings Panel */}
+          <div className="flex-1 lg:max-w-md space-y-4">
+            {/* Scene Section */}
+            <SettingsSection
+              title="Scene"
+              icon={<Palette className="h-4 w-4" />}
+              expanded={expandedSections.scene}
+              onToggle={() => toggleSection('scene')}
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="mr-1.5 h-4 w-4"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-                  clipRule="evenodd"
+              <div className="grid grid-cols-3 gap-2">
+                {SCENE_OPTIONS.map((scene) => (
+                  <OptionChip
+                    key={scene.value}
+                    label={scene.label}
+                    emoji={scene.emoji}
+                    selected={settings.scene === scene.value}
+                    onSelect={() => handleSettingChange('scene', scene.value)}
+                  />
+                ))}
+              </div>
+            </SettingsSection>
+
+            {/* Environment Section */}
+            <SettingsSection
+              title="Environment"
+              icon={<MapPin className="h-4 w-4" />}
+              expanded={expandedSections.environment}
+              onToggle={() => toggleSection('environment')}
+            >
+              <div className="grid grid-cols-3 gap-2">
+                {ENVIRONMENT_OPTIONS.map((env) => (
+                  <OptionChip
+                    key={env.value}
+                    label={env.label}
+                    emoji={env.emoji}
+                    selected={settings.environment === env.value}
+                    onSelect={() => handleSettingChange('environment', env.value)}
+                  />
+                ))}
+              </div>
+            </SettingsSection>
+
+            {/* Outfit Section */}
+            <SettingsSection
+              title="Outfit"
+              icon={<Shirt className="h-4 w-4" />}
+              expanded={expandedSections.outfit}
+              onToggle={() => toggleSection('outfit')}
+            >
+              <div className="flex flex-wrap gap-2">
+                <OptionPill
+                  label="Keep Current"
+                  selected={settings.outfit === null}
+                  onSelect={() => handleSettingChange('outfit', null)}
                 />
-              </svg>
-              Save Post
-            </Button>
-            <Button onClick={handleDiscard} variant="outline">
-              Discard
-            </Button>
+                {OUTFIT_OPTIONS.slice(0, 8).map((outfit) => {
+                  const outfitValue = outfit.label
+                    .toLowerCase()
+                    .replace(/\s+/g, '-');
+                  return (
+                    <OptionPill
+                      key={outfitValue}
+                      label={outfit.label}
+                      selected={settings.outfit === outfitValue}
+                      onSelect={() => handleSettingChange('outfit', outfitValue)}
+                    />
+                  );
+                })}
+              </div>
+            </SettingsSection>
+
+            {/* Format Section */}
+            <SettingsSection
+              title="Format"
+              icon={<Maximize className="h-4 w-4" />}
+              expanded={expandedSections.format}
+              onToggle={() => toggleSection('format')}
+            >
+              <div className="grid grid-cols-3 gap-2">
+                {ASPECT_RATIOS.map((ratio) => (
+                  <button
+                    key={ratio.value}
+                    onClick={() =>
+                      handleSettingChange(
+                        'aspectRatio',
+                        ratio.value as '1:1' | '9:16' | '2:3'
+                      )
+                    }
+                    className={cn(
+                      'flex flex-col items-center rounded-lg border p-3 transition-all duration-200',
+                      settings.aspectRatio === ratio.value
+                        ? 'border-[var(--purple-400)]/50 bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20'
+                        : 'border-[var(--border-default)] bg-[var(--bg-surface)] hover:border-[var(--border-hover)]'
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        'mb-2 rounded border',
+                        ratio.value === '1:1' && 'h-6 w-6',
+                        ratio.value === '9:16' && 'h-8 w-5',
+                        ratio.value === '2:3' && 'h-7 w-5',
+                        settings.aspectRatio === ratio.value
+                          ? 'border-[var(--purple-400)] bg-[var(--purple-500)]/20'
+                          : 'border-[var(--border-default)] bg-[var(--bg-subtle)]'
+                      )}
+                    />
+                    <span className="text-xs font-medium text-[var(--text-secondary)]">
+                      {ratio.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </SettingsSection>
+
+            {/* Advanced Settings Section */}
+            <SettingsSection
+              title="Advanced"
+              icon={<Settings2 className="h-4 w-4" />}
+              expanded={expandedSections.advanced}
+              onToggle={() => toggleSection('advanced')}
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm text-[var(--text-primary)]">
+                      HQ Mode
+                    </Label>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Higher quality, 10 credits
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings.qualityMode === 'hq'}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange('qualityMode', checked ? 'hq' : 'draft')
+                    }
+                  />
+                </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm text-[var(--text-primary)]">
+                      18+ Content
+                    </Label>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Enable mature content
+                    </p>
+                  </div>
+                  <Switch
+                    checked={settings.nsfwEnabled}
+                    onCheckedChange={(checked) =>
+                      handleSettingChange('nsfwEnabled', checked)
+                    }
+                  />
+                </div>
+              </div>
+            </SettingsSection>
+          </div>
+
+          {/* Right: Preview & Actions */}
+          <div className="flex-1 lg:max-w-md flex flex-col">
+            {/* Preview Card */}
+            <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-subtle)] overflow-hidden flex-1 flex flex-col">
+              {/* Preview Area */}
+              <div className="flex-1 flex items-center justify-center p-6 min-h-[280px]">
+                {isGenerating ? (
+                  <div className="text-center">
+                    <div className="relative mb-4 mx-auto">
+                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] rounded-full blur-xl opacity-30 animate-pulse" />
+                      <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)]">
+                        <Sparkles className="h-6 w-6 text-white animate-pulse" />
+                      </div>
+                    </div>
+                    <p className="text-sm font-medium text-[var(--text-primary)]">
+                      Generating...
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      This may take a few seconds
+                    </p>
+                  </div>
+                ) : generatedPost ? (
+                  <div className="w-full">
+                    <div
+                      className={cn(
+                        'relative mx-auto rounded-xl bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--border-default)] overflow-hidden',
+                        settings.aspectRatio === '1:1' &&
+                          'aspect-square max-w-[220px]',
+                        settings.aspectRatio === '9:16' &&
+                          'aspect-[9/16] max-w-[160px]',
+                        settings.aspectRatio === '2:3' &&
+                          'aspect-[2/3] max-w-[180px]'
+                      )}
+                    >
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <ImageIcon className="h-12 w-12 text-[var(--text-muted)]/30" />
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center">
+                    <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-default)]">
+                      <ImageIcon className="h-6 w-6 text-[var(--text-muted)]" />
+                    </div>
+                    <p className="text-sm font-medium text-[var(--text-secondary)]">
+                      Preview will appear here
+                    </p>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      Configure settings and generate
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Caption Editor (when generated) */}
+              {generatedPost && !isGenerating && (
+                <div className="border-t border-[var(--border-default)] p-4">
+                  <label className="text-xs font-medium text-[var(--text-muted)] mb-2 block">
+                    Caption
+                  </label>
+                  <textarea
+                    value={caption}
+                    onChange={(e) => setCaption(e.target.value)}
+                    className="w-full h-20 resize-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--purple-500)] focus:outline-none transition-colors"
+                    placeholder="Edit your caption..."
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Action Buttons */}
+            <div className="mt-4 space-y-3">
+              {generatedPost && !isGenerating ? (
+                <>
+                  <div className="flex gap-3">
+                    <RylaButton
+                      onClick={handleDiscard}
+                      variant="glassy-outline"
+                      size="lg"
+                      className="flex-1"
+                    >
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Discard
+                    </RylaButton>
+                    <RylaButton
+                      onClick={handleRegenerate}
+                      variant="glassy-outline"
+                      size="lg"
+                      className="flex-1"
+                    >
+                      <RefreshCw className="h-4 w-4 mr-2" />
+                      Regenerate
+                    </RylaButton>
+                  </div>
+                  <RylaButton
+                    onClick={handleSavePost}
+                    variant="gradient"
+                    size="lg"
+                    className="w-full"
+                  >
+                    <Save className="h-4 w-4 mr-2" />
+                    Save Post
+                  </RylaButton>
+                </>
+              ) : (
+                <button
+                  onClick={handleGenerate}
+                  disabled={isGenerating}
+                  className="w-full h-14 rounded-xl font-bold text-base transition-all duration-200 relative overflow-hidden bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] text-white shadow-lg shadow-[var(--purple-500)]/25 hover:shadow-[var(--purple-500)]/40 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    <Sparkles className="h-5 w-5" />
+                    {isGenerating
+                      ? 'Generating...'
+                      : `Generate Content (${creditCost} credits)`}
+                  </span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Generating State */}
-      {isGenerating && (
-        <div className="mb-6 flex flex-col items-center justify-center rounded-xl border border-white/10 bg-white/5 py-12">
-          <div className="mb-4 h-16 w-16 animate-pulse rounded-full bg-gradient-to-br from-[#d5b9ff] to-[#b99cff]" />
-          <p className="text-lg font-medium text-white">Generating content...</p>
-          <p className="text-sm text-white/60">This may take a few seconds</p>
-        </div>
-      )}
-
-      {/* Studio Panel */}
-      {!showCaptionPicker && !isGenerating && (
-        <StudioPanel
-          settings={settings}
-          onSettingsChange={handleSettingsChange}
-          onGenerate={handleGenerate}
-          isGenerating={isGenerating}
-          creditCost={creditCost}
-        />
-      )}
-    </PageContainer>
+      {/* Zero Credits Modal */}
+      <ZeroCreditsModal
+        isOpen={showCreditModal}
+        onClose={() => setShowCreditModal(false)}
+        creditsNeeded={creditCost}
+        currentBalance={balance}
+      />
+    </div>
   );
 }
 
+// Settings Section Component
+function SettingsSection({
+  title,
+  icon,
+  expanded,
+  onToggle,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  expanded: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-subtle)] overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--bg-surface)] transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <span className="text-[var(--purple-400)]">{icon}</span>
+          <span className="text-sm font-medium text-[var(--text-primary)]">
+            {title}
+          </span>
+        </div>
+        {expanded ? (
+          <ChevronUp className="h-4 w-4 text-[var(--text-muted)]" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-[var(--text-muted)]" />
+        )}
+      </button>
+      {expanded && (
+        <div className="px-4 pb-4 pt-2 border-t border-[var(--border-default)]">
+          {children}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Option Chip Component
+function OptionChip({
+  label,
+  emoji,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  emoji?: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={cn(
+        'flex flex-col items-center rounded-lg border p-2.5 transition-all duration-200 min-h-[64px]',
+        selected
+          ? 'border-[var(--purple-400)]/50 bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20'
+          : 'border-[var(--border-default)] bg-[var(--bg-surface)] hover:border-[var(--border-hover)]'
+      )}
+    >
+      {emoji && <span className="text-lg mb-1">{emoji}</span>}
+      <span
+        className={cn(
+          'text-xs font-medium text-center',
+          selected ? 'text-[var(--text-primary)]' : 'text-[var(--text-secondary)]'
+        )}
+      >
+        {label}
+      </span>
+    </button>
+  );
+}
+
+// Option Pill Component
+function OptionPill({
+  label,
+  selected,
+  onSelect,
+}: {
+  label: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={cn(
+        'rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200',
+        selected
+          ? 'border-[var(--purple-400)]/50 bg-gradient-to-r from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 text-[var(--text-primary)]'
+          : 'border-[var(--border-default)] bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:border-[var(--border-hover)]'
+      )}
+    >
+      {label}
+    </button>
+  );
+}

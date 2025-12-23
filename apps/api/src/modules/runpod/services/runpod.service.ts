@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { RunPodClient } from '@ryla/business';
 
@@ -32,14 +32,16 @@ export interface CharacterSheetInput {
 
 @Injectable()
 export class RunPodService {
-  private client: RunPodClient;
+  private client: RunPodClient | null = null;
   private fluxEndpointId: string;
   private zImageEndpointId: string;
 
-  constructor(private configService: ConfigService) {
+  constructor(@Inject(ConfigService) private configService: ConfigService) {
     const apiKey = this.configService.get<string>('RUNPOD_API_KEY');
     if (!apiKey) {
-      throw new Error('RUNPOD_API_KEY is required');
+      this.fluxEndpointId = '';
+      this.zImageEndpointId = '';
+      return;
     }
 
     this.client = new RunPodClient({
@@ -57,6 +59,12 @@ export class RunPodService {
    * Execute a job on a serverless endpoint
    */
   async runJob(endpointId: string, input: unknown): Promise<string> {
+    if (!this.client) {
+      throw new Error('RunPod client not initialized. Set RUNPOD_API_KEY environment variable.');
+    }
+    if (!endpointId) {
+      throw new Error('RunPod endpoint ID is required');
+    }
     const job = await this.client.runJob(endpointId, input);
     return job.id;
   }
@@ -65,6 +73,9 @@ export class RunPodService {
    * Get job status
    */
   async getJobStatus(jobId: string) {
+    if (!this.client) {
+      throw new Error('RunPod client not initialized. Set RUNPOD_API_KEY environment variable.');
+    }
     return this.client.getJobStatus(jobId);
   }
 
@@ -72,6 +83,9 @@ export class RunPodService {
    * List all pods
    */
   async listPods() {
+    if (!this.client) {
+      throw new Error('RunPod client not initialized. Set RUNPOD_API_KEY environment variable.');
+    }
     return this.client.listPods();
   }
 
@@ -79,6 +93,9 @@ export class RunPodService {
    * Get pod details
    */
   async getPod(podId: string) {
+    if (!this.client) {
+      throw new Error('RunPod client not initialized. Set RUNPOD_API_KEY environment variable.');
+    }
     return this.client.getPod(podId);
   }
 
@@ -86,6 +103,9 @@ export class RunPodService {
    * List serverless endpoints
    */
   async listEndpoints() {
+    if (!this.client) {
+      throw new Error('RunPod client not initialized. Set RUNPOD_API_KEY environment variable.');
+    }
     return this.client.listEndpoints();
   }
 
