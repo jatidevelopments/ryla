@@ -219,6 +219,17 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   }
 
   /**
+   * Queue a workflow directly (for custom workflows like PuLID)
+   */
+  async queueWorkflow(workflow: any): Promise<string> {
+    this.ensureInitialized();
+    if (!this.client) {
+      throw new Error('ComfyUI client not initialized');
+    }
+    return this.client.queueWorkflow(workflow);
+  }
+
+  /**
    * Check if ComfyUI is available
    */
   isAvailable(): boolean {

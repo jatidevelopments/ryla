@@ -113,7 +113,7 @@ export function StylePicker({
       style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
     >
       <div 
-        className="flex flex-col w-full max-w-3xl max-h-[70vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        className="flex flex-col w-full max-w-5xl max-h-[70vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

@@ -28,8 +28,8 @@ export default function StudioPage() {
 }
 
 function StudioContent() {
-  const influencers = useAllInfluencers();
-  const posts = useInfluencerStore((state) => state.posts);
+  const influencers = useAllInfluencers() || [];
+  const posts = useInfluencerStore((state) => state.posts) || [];
   const toggleLike = useInfluencerStore((state) => state.toggleLike);
   const deletePost = useInfluencerStore((state) => state.deletePost);
 
@@ -50,6 +50,9 @@ function StudioContent() {
 
   // Transform posts to StudioImage format
   const allImages: StudioImage[] = React.useMemo(() => {
+    if (!Array.isArray(posts) || posts.length === 0) {
+      return [];
+    }
     return posts.map((post) => {
       const influencer = influencers.find((i) => i.id === post.influencerId);
       return {
@@ -71,6 +74,9 @@ function StudioContent() {
 
   // Calculate image counts per influencer
   const influencerTabs = React.useMemo(() => {
+    if (!Array.isArray(influencers) || influencers.length === 0) {
+      return [];
+    }
     return influencers.map((influencer) => ({
       id: influencer.id,
       name: influencer.name,
@@ -81,6 +87,9 @@ function StudioContent() {
 
   // Get influencer list for generation bar
   const influencerList = React.useMemo(() => {
+    if (!Array.isArray(influencers) || influencers.length === 0) {
+      return [];
+    }
     return influencers.map((influencer) => ({
       id: influencer.id,
       name: influencer.name,

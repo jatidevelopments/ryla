@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useParams, useRouter, notFound } from 'next/navigation';
-import { useInfluencer, useInfluencerStore } from '@ryla/business';
+import { useInfluencer, useInfluencerStore, useInfluencerImages } from '@ryla/business';
 import { cn, RylaButton, Switch, Label } from '@ryla/ui';
 import {
   SCENE_OPTIONS,
@@ -31,6 +31,8 @@ import {
   RefreshCw,
   ChevronDown,
   ChevronUp,
+  Images,
+  X,
 } from 'lucide-react';
 
 interface StudioSettings {
@@ -72,6 +74,7 @@ function StudioContent() {
 
   const influencer = useInfluencer(influencerId);
   const addPost = useInfluencerStore((state) => state.addPost);
+  const existingImages = useInfluencerImages(influencerId);
 
   // Credit management
   const { balance, refetch: refetchCredits } = useCredits();
@@ -82,9 +85,11 @@ function StudioContent() {
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generatedPost, setGeneratedPost] = React.useState<Post | null>(null);
   const [caption, setCaption] = React.useState('');
+  const [selectedExistingPost, setSelectedExistingPost] = React.useState<Post | null>(null);
 
   // Expanded sections
   const [expandedSections, setExpandedSections] = React.useState({
+    existingImages: true,
     scene: true,
     environment: true,
     outfit: true,
@@ -110,6 +115,24 @@ function StudioContent() {
     value: StudioSettings[K]
   ) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
+  };
+
+  // Handle selecting an existing post to copy its settings
+  const handleSelectExistingPost = (post: Post) => {
+    setSelectedExistingPost(post);
+    // Apply settings from the selected post
+    setSettings((prev) => ({
+      ...prev,
+      scene: post.scene || prev.scene,
+      environment: post.environment || prev.environment,
+      outfit: post.outfit || null,
+      aspectRatio: post.aspectRatio || prev.aspectRatio,
+    }));
+  };
+
+  // Clear the selected existing post
+  const handleClearExistingPost = () => {
+    setSelectedExistingPost(null);
   };
 
   const handleGenerate = async () => {
@@ -232,6 +255,90 @@ function StudioContent() {
         <div className="mx-auto w-full max-w-4xl flex flex-col lg:flex-row gap-6 px-4 lg:px-6 py-6">
           {/* Left: Settings Panel */}
           <div className="flex-1 lg:max-w-md space-y-4">
+            {/* Existing Images Section */}
+            {existingImages.length > 0 && (
+              <SettingsSection
+                title={`Use Existing Image (${existingImages.length})`}
+                icon={<Images className="h-4 w-4" />}
+                expanded={expandedSections.existingImages}
+                onToggle={() => toggleSection('existingImages')}
+              >
+                <div className="space-y-3">
+                  {selectedExistingPost && (
+                    <div className="flex items-center justify-between p-2 rounded-lg bg-gradient-to-r from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--purple-400)]/30">
+                      <div className="flex items-center gap-2">
+                        <div className="relative h-10 w-10 rounded-lg overflow-hidden bg-[var(--bg-surface)] border border-[var(--border-default)]">
+                          {selectedExistingPost.imageUrl ? (
+                            <Image
+                              src={selectedExistingPost.imageUrl}
+                              alt="Selected"
+                              fill
+                              className="object-cover"
+                            />
+                          ) : (
+                            <div className="flex h-full items-center justify-center">
+                              <ImageIcon className="h-4 w-4 text-[var(--text-muted)]" />
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <p className="text-xs font-medium text-[var(--text-primary)]">
+                            Settings copied
+                          </p>
+                          <p className="text-[10px] text-[var(--text-muted)]">
+                            {selectedExistingPost.scene} • {selectedExistingPost.environment}
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleClearExistingPost}
+                        className="p-1.5 rounded-md hover:bg-[var(--bg-surface)] transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5 text-[var(--text-muted)]" />
+                      </button>
+                    </div>
+                  )}
+                  <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin scrollbar-thumb-[var(--border-default)] scrollbar-track-transparent">
+                    {existingImages.map((post) => (
+                      <button
+                        key={post.id}
+                        onClick={() => handleSelectExistingPost(post)}
+                        className={cn(
+                          'relative flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-all duration-200',
+                          selectedExistingPost?.id === post.id
+                            ? 'border-[var(--purple-400)] ring-2 ring-[var(--purple-400)]/30'
+                            : 'border-[var(--border-default)] hover:border-[var(--border-hover)]'
+                        )}
+                      >
+                        {post.imageUrl ? (
+                          <Image
+                            src={post.imageUrl}
+                            alt={post.caption || 'Existing post'}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10">
+                            <ImageIcon className="h-5 w-5 text-[var(--text-muted)]" />
+                          </div>
+                        )}
+                        {selectedExistingPost?.id === post.id && (
+                          <div className="absolute inset-0 flex items-center justify-center bg-[var(--purple-500)]/30">
+                            <div className="w-5 h-5 rounded-full bg-[var(--purple-500)] flex items-center justify-center">
+                              <Check className="h-3 w-3 text-white" />
+                            </div>
+                          </div>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-[10px] text-[var(--text-muted)]">
+                    Select an image to copy its scene, environment & outfit settings
+                  </p>
+                </div>
+              </SettingsSection>
+            )}
+
             {/* Scene Section */}
             <SettingsSection
               title="Scene"

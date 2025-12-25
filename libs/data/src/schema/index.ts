@@ -7,3 +7,5 @@ export * from './generation-jobs.schema';
 export * from './posts.schema';
 export * from './credits.schema';
 export * from './lora-models.schema';
+export * from './prompts.schema';
+export * from './prompt-sets.schema';

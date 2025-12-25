@@ -17,17 +17,34 @@ export interface WizardStep {
   description?: string;
 }
 
-/** Character form data matching the 6-step wizard */
+/** Generated image for base image selection */
+export interface GeneratedImage {
+  id: string;
+  url: string;
+  thumbnailUrl?: string;
+  s3Key?: string;
+  prompt?: string;
+  negativePrompt?: string;
+  seed?: string;
+}
+
+/** Profile picture with position info */
+export interface ProfilePictureImage extends GeneratedImage {
+  positionId: string;
+  positionName: string;
+  isNSFW?: boolean;
+}
+
+/** Character form data matching the wizard */
 export interface CharacterFormData {
   // Step 0: Creation Method
-  creationMethod: 'presets' | 'ai' | 'custom' | null;
+  creationMethod: 'presets' | 'prompt-based' | null;
 
-  // AI Flow Fields
-  aiDescription?: string;
-  aiReferenceImage?: string;
-  aiGeneratedConfig?: any;
+  // Prompt-based Flow Fields
+  promptInput?: string; // Single prompt for character description
+  voiceMemoUrl?: string; // URL to uploaded voice memo (future)
 
-  // Custom Flow Fields
+  // Legacy fields (for migration)
   customAppearancePrompt?: string;
   customIdentityPrompt?: string;
   customImagePrompt?: string;
@@ -72,6 +89,19 @@ export interface CharacterWizardState {
   // Form data
   form: CharacterFormData;
 
+  // Base image selection
+  baseImages: GeneratedImage[]; // 3 generated base images
+  selectedBaseImageId: string | null;
+  baseImageFineTunePrompt: string; // For fine-tuning selected image
+
+  // Profile picture set
+  profilePictureSet: {
+    jobId: string | null;
+    images: ProfilePictureImage[];
+    generating: boolean;
+    setId?: 'classic-influencer' | 'professional-model' | 'natural-beauty';
+  };
+
   // Generated character ID (after creation)
   characterId: string | null;
 
@@ -81,12 +111,26 @@ export interface CharacterWizardState {
   prevStep: () => void;
   setStatus: (status: CharacterWizardState['status']) => void;
   setCharacterId: (id: string | null) => void;
-  updateSteps: (method: 'presets' | 'ai' | 'custom') => void;
+  updateSteps: (method: 'presets' | 'prompt-based') => void;
 
   // Form actions
   setField: <K extends keyof CharacterFormData>(field: K, value: CharacterFormData[K]) => void;
   setFormData: (data: Partial<CharacterFormData>) => void;
   resetForm: () => void;
+
+  // Base image actions
+  setBaseImages: (images: GeneratedImage[]) => void;
+  selectBaseImage: (imageId: string) => void;
+  setBaseImageFineTunePrompt: (prompt: string) => void;
+  replaceBaseImage: (imageId: string, newImage: GeneratedImage) => void;
+
+  // Profile picture set actions
+  setProfilePictureSetGenerating: (generating: boolean) => void;
+  setProfilePictureSetJobId: (jobId: string | null) => void;
+  setProfilePictureSetImages: (images: ProfilePictureImage[]) => void;
+  addProfilePicture: (image: ProfilePictureImage) => void;
+  removeProfilePicture: (imageId: string) => void;
+  updateProfilePicture: (imageId: string, updates: Partial<ProfilePictureImage>) => void;
 
   // Validation
   isStepValid: (step: number) => boolean;
@@ -100,29 +144,25 @@ const PRESETS_STEPS: WizardStep[] = [
   { id: 3, title: 'Face', description: 'Design hair and eyes' },
   { id: 4, title: 'Body', description: 'Define body type' },
   { id: 5, title: 'Identity', description: 'Add personality and outfit' },
-  { id: 6, title: 'Generate', description: 'Preview and create' },
+  { id: 6, title: 'Base Image', description: 'Select your character face' },
+  { id: 7, title: 'Profile Pictures', description: 'Generate profile set' },
+  { id: 8, title: 'Finalize', description: 'Review and create' },
 ];
 
-const AI_STEPS: WizardStep[] = [
-  { id: 1, title: 'AI Description', description: 'Describe your influencer' },
-  { id: 2, title: 'AI Generation', description: 'AI is creating...' },
-  { id: 3, title: 'Review & Edit', description: 'Review AI-generated config' },
-  { id: 4, title: 'Generate', description: 'Preview and create' },
-];
-
-const CUSTOM_STEPS: WizardStep[] = [
-  { id: 1, title: 'Custom Prompts', description: 'Enter custom prompts' },
-  { id: 2, title: 'Review', description: 'Review your prompts' },
-  { id: 3, title: 'Generate', description: 'Preview and create' },
+const PROMPT_BASED_STEPS: WizardStep[] = [
+  { id: 1, title: 'Prompt Input', description: 'Describe your character' },
+  { id: 2, title: 'Base Image', description: 'Select your character face' },
+  { id: 3, title: 'Profile Pictures', description: 'Generate profile set' },
+  { id: 4, title: 'Finalize', description: 'Review and create' },
 ];
 
 /** Default form values */
 const DEFAULT_FORM: CharacterFormData = {
   // Step 0
   creationMethod: null,
-  aiDescription: undefined,
-  aiReferenceImage: undefined,
-  aiGeneratedConfig: undefined,
+  promptInput: undefined,
+  voiceMemoUrl: undefined,
+  // Legacy fields
   customAppearancePrompt: undefined,
   customIdentityPrompt: undefined,
   customImagePrompt: undefined,
@@ -161,6 +201,14 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
       status: 'idle',
       form: { ...DEFAULT_FORM },
       characterId: null,
+      baseImages: [],
+      selectedBaseImageId: null,
+      baseImageFineTunePrompt: '',
+      profilePictureSet: {
+        jobId: null,
+        images: [],
+        generating: false,
+      },
 
       // Navigation actions
       setStep: (step) =>
@@ -192,17 +240,79 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           state.characterId = id;
         }),
 
-      updateSteps: (method: 'presets' | 'ai' | 'custom') =>
+      updateSteps: (method: 'presets' | 'prompt-based') =>
         set((state) => {
-          if (method === 'ai') {
-            state.steps = AI_STEPS;
-          } else if (method === 'custom') {
-            state.steps = CUSTOM_STEPS;
+          if (method === 'prompt-based') {
+            state.steps = PROMPT_BASED_STEPS;
           } else {
             state.steps = PRESETS_STEPS;
           }
           // Reset to step 1 of the selected flow
           state.step = 1;
+        }),
+
+      // Base image actions
+      setBaseImages: (images) =>
+        set((state) => {
+          state.baseImages = images;
+        }),
+
+      selectBaseImage: (imageId) =>
+        set((state) => {
+          state.selectedBaseImageId = imageId;
+        }),
+
+      setBaseImageFineTunePrompt: (prompt) =>
+        set((state) => {
+          state.baseImageFineTunePrompt = prompt;
+        }),
+
+      replaceBaseImage: (imageId, newImage) =>
+        set((state) => {
+          const index = state.baseImages.findIndex((img) => img.id === imageId);
+          if (index !== -1) {
+            state.baseImages[index] = newImage;
+          }
+          // If this was the selected image, update selection
+          if (state.selectedBaseImageId === imageId) {
+            state.selectedBaseImageId = newImage.id;
+          }
+        }),
+
+      // Profile picture set actions
+      setProfilePictureSetGenerating: (generating) =>
+        set((state) => {
+          state.profilePictureSet.generating = generating;
+        }),
+
+      setProfilePictureSetJobId: (jobId) =>
+        set((state) => {
+          state.profilePictureSet.jobId = jobId;
+        }),
+
+      setProfilePictureSetImages: (images) =>
+        set((state) => {
+          state.profilePictureSet.images = images;
+        }),
+
+      addProfilePicture: (image) =>
+        set((state) => {
+          state.profilePictureSet.images.push(image);
+        }),
+
+      removeProfilePicture: (imageId) =>
+        set((state) => {
+          state.profilePictureSet.images = state.profilePictureSet.images.filter(
+            (img) => img.id !== imageId
+          );
+        }),
+
+      updateProfilePicture: (imageId, updates) =>
+        set((state) => {
+          const index = state.profilePictureSet.images.findIndex((img) => img.id === imageId);
+          if (index !== -1) {
+            Object.assign(state.profilePictureSet.images[index], updates);
+          }
         }),
 
       // Form actions
@@ -230,6 +340,14 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           state.status = 'idle';
           state.form = { ...DEFAULT_FORM };
           state.characterId = null;
+          state.baseImages = [];
+          state.selectedBaseImageId = null;
+          state.baseImageFineTunePrompt = '';
+          state.profilePictureSet = {
+            jobId: null,
+            images: [],
+            generating: false,
+          };
         }),
 
       // Validation
@@ -245,26 +363,15 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
         }
 
         // Validation based on creation method
-        if (form.creationMethod === 'ai') {
+        if (form.creationMethod === 'prompt-based') {
           switch (step) {
-            case 1: // AI Description
-              return !!form.aiDescription?.trim();
-            case 2: // AI Generation (loader, always valid)
+            case 1: // Prompt Input
+              return !!form.promptInput?.trim();
+            case 2: // Base Image Selection
+              return !!get().selectedBaseImageId;
+            case 3: // Profile Pictures (always valid if reached)
               return true;
-            case 3: // AI Review (always valid if reached)
-              return true;
-            case 4: // Generate
-              return true;
-            default:
-              return false;
-          }
-        } else if (form.creationMethod === 'custom') {
-          switch (step) {
-            case 1: // Custom Prompts
-              return !!form.customAppearancePrompt?.trim() && !!form.customIdentityPrompt?.trim();
-            case 2: // Custom Review (always valid if reached)
-              return true;
-            case 3: // Generate
+            case 4: // Finalize
               return true;
             default:
               return false;
@@ -282,7 +389,11 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
               return !!form.bodyType;
             case 5: // Identity
               return !!form.outfit; // Other identity fields optional
-            case 6: // Generate (always valid if reached)
+            case 6: // Base Image Selection
+              return !!get().selectedBaseImageId;
+            case 7: // Profile Pictures (always valid if reached)
+              return true;
+            case 8: // Finalize
               return true;
             default:
               return false;
@@ -303,6 +414,10 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
         status: state.status,
         form: state.form,
         characterId: state.characterId,
+        baseImages: state.baseImages,
+        selectedBaseImageId: state.selectedBaseImageId,
+        baseImageFineTunePrompt: state.baseImageFineTunePrompt,
+        profilePictureSet: state.profilePictureSet,
       }),
     }
   )
@@ -330,6 +445,7 @@ export const useCanProceed = () => {
   const step = useCharacterWizardStore((s) => s.step);
   const form = useCharacterWizardStore((s) => s.form);
   const steps = useCharacterWizardStore((s) => s.steps);
+  const selectedBaseImageId = useCharacterWizardStore((s) => s.selectedBaseImageId);
 
   // Find current step definition
   const currentStep = steps.find((s) => s.id === step);
@@ -345,26 +461,15 @@ export const useCanProceed = () => {
   }
 
   // Validation based on creation method
-  if (form.creationMethod === 'ai') {
+  if (form.creationMethod === 'prompt-based') {
     switch (step) {
-      case 1: // AI Description
-        return !!form.aiDescription?.trim();
-      case 2: // AI Generation (loader, always valid)
+      case 1: // Prompt Input
+        return !!form.promptInput?.trim();
+      case 2: // Base Image Selection
+        return !!selectedBaseImageId;
+      case 3: // Profile Pictures (always valid if reached)
         return true;
-      case 3: // AI Review (always valid if reached)
-        return true;
-      case 4: // Generate
-        return true;
-      default:
-        return false;
-    }
-  } else if (form.creationMethod === 'custom') {
-    switch (step) {
-      case 1: // Custom Prompts
-        return !!form.customAppearancePrompt?.trim() && !!form.customIdentityPrompt?.trim();
-      case 2: // Custom Review (always valid if reached)
-        return true;
-      case 3: // Generate
+      case 4: // Finalize
         return true;
       default:
         return false;
@@ -382,7 +487,11 @@ export const useCanProceed = () => {
         return !!form.bodyType;
       case 5: // Identity
         return !!form.outfit; // Other identity fields optional
-      case 6: // Generate (always valid if reached)
+      case 6: // Base Image Selection
+        return !!selectedBaseImageId;
+      case 7: // Profile Pictures (always valid if reached)
+        return true;
+      case 8: // Finalize
         return true;
       default:
         return false;

@@ -47,8 +47,9 @@ export interface BaseImageGenerationResult {
     url: string;
     thumbnailUrl: string;
   }>;
-  jobId: string;
+  jobId: string; // Primary job ID (first of 3)
   workflowUsed: WorkflowId;
+  allJobIds?: string[]; // All 3 job IDs for batch polling
 }
 
 @Injectable()
@@ -65,6 +66,7 @@ export class BaseImageGenerationService {
 
   /**
    * Generate base image(s) from wizard config using ComfyUI pod
+   * Generates 3 images with different seeds for variety
    */
   async generateBaseImages(
     input: BaseImageGenerationInput,
@@ -94,24 +96,34 @@ export class BaseImageGenerationService {
     // Select workflow (use recommended or specified)
     const workflowId = input.workflowId || this.comfyuiAdapter.getRecommendedWorkflow();
 
-    // Submit to ComfyUI pod
-    const jobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
-      prompt: builtPrompt.prompt,
-      negativePrompt: builtPrompt.negativePrompt,
-      nsfw: input.nsfwEnabled,
-      seed: input.seed,
-      width: 1024,
-      height: 1024,
-      workflowId,
-    });
+    // Generate 3 images with different seeds for variety
+    const baseSeed = input.seed || Math.floor(Math.random() * 1000000);
+    const jobIds: string[] = [];
 
-    this.logger.log(`Job ${jobId} submitted with workflow: ${workflowId}`);
+    for (let i = 0; i < 3; i++) {
+      // Use different seeds for each image to create variation
+      const seed = baseSeed + i;
+      
+      const jobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
+        prompt: builtPrompt.prompt,
+        negativePrompt: builtPrompt.negativePrompt,
+        nsfw: input.nsfwEnabled,
+        seed,
+        width: 1024,
+        height: 1024,
+        workflowId,
+      });
 
-    // Return job ID - caller will poll for results
+      jobIds.push(jobId);
+      this.logger.log(`Job ${jobId} submitted (${i + 1}/3) with workflow: ${workflowId}, seed: ${seed}`);
+    }
+
+    // Return first job ID as primary, but include all job IDs
     return {
-      images: [], // Will be populated when job completes
-      jobId,
+      images: [], // Will be populated when jobs complete
+      jobId: jobIds[0], // Primary job ID
       workflowUsed: workflowId,
+      allJobIds: jobIds, // All 3 job IDs for batch polling
     };
   }
 
@@ -169,7 +181,7 @@ export class BaseImageGenerationService {
   }
 
   /**
-   * Check job status and get results
+   * Check job status and get results for a single job
    * When complete, uploads images to S3/MinIO and returns permanent URLs
    *
    * @param jobId ComfyUI prompt ID
@@ -231,6 +243,91 @@ export class BaseImageGenerationService {
       status: status.status.toLowerCase(),
       images: [],
       error: status.error,
+    };
+  }
+
+  /**
+   * Get results for multiple jobs (batch polling)
+   * Used for base image generation where we generate 3 images
+   *
+   * @param jobIds Array of ComfyUI prompt IDs
+   * @param userId User ID for storage organization
+   */
+  async getBatchJobResults(jobIds: string[], userId?: string) {
+    const allImages: Array<{
+      id: string;
+      url: string;
+      thumbnailUrl: string;
+      s3Key?: string;
+    }> = [];
+
+    let allCompleted = true;
+    let hasError = false;
+    let errorMessage: string | undefined;
+    let anyInProgress = false;
+
+    // Poll all jobs in parallel
+    const results = await Promise.allSettled(
+      jobIds.map((jobId) => this.getJobResults(jobId, userId))
+    );
+
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
+      const jobId = jobIds[i];
+
+      if (result.status === 'fulfilled') {
+        const jobResult = result.value;
+        if (jobResult.status === 'completed' && jobResult.images) {
+          allImages.push(...jobResult.images);
+        } else if (jobResult.status === 'in_progress' || jobResult.status === 'queued') {
+          allCompleted = false;
+          anyInProgress = true;
+        } else if (jobResult.status !== 'completed') {
+          allCompleted = false;
+          if (jobResult.error) {
+            hasError = true;
+            errorMessage = jobResult.error;
+          }
+        }
+      } else {
+        // Promise rejected
+        allCompleted = false;
+        hasError = true;
+        errorMessage = result.reason?.message || `Job ${jobId} failed`;
+        this.logger.error(`Job ${jobId} failed: ${result.reason}`);
+      }
+    }
+
+    if (hasError && allImages.length === 0) {
+      return {
+        status: 'failed',
+        images: [],
+        error: errorMessage || 'One or more jobs failed',
+      };
+    }
+
+    // Return status based on completion
+    if (allCompleted && allImages.length >= jobIds.length) {
+      return {
+        status: 'completed',
+        images: allImages,
+      };
+    }
+
+    // If we have some images but not all, return partial
+    if (allImages.length > 0) {
+      return {
+        status: anyInProgress ? 'in_progress' : 'partial',
+        images: allImages,
+        error: hasError ? errorMessage : undefined,
+      };
+    }
+
+    // No images yet, still in progress
+    return {
+      status: anyInProgress ? 'in_progress' : 'queued',
+      images: [],
+      error: hasError ? errorMessage : undefined,
     };
   }
 

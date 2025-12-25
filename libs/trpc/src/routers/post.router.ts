@@ -10,6 +10,7 @@ import { eq, and, desc, sql } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 
 import { posts, characters } from '@ryla/data';
+import { PostPromptTrackingService } from '@ryla/business/services/post-prompt-tracking.service';
 
 import { router, protectedProcedure } from '../trpc';
 
@@ -74,6 +75,137 @@ export const postRouter = router({
         total: Number(countResult?.count ?? 0),
         limit,
         offset,
+      };
+    }),
+
+  /**
+   * Create a new post from generated image
+   * Includes prompt tracking for analytics
+   */
+  create: protectedProcedure
+    .input(
+      z.object({
+        characterId: z.string().uuid(),
+        jobId: z.string().uuid().optional(),
+        promptId: z.string().uuid().optional(), // Prompt template ID
+        imageUrl: z.string().url(),
+        thumbnailUrl: z.string().url().optional(),
+        s3Key: z.string(),
+        width: z.number().int().positive(),
+        height: z.number().int().positive(),
+        scene: z.enum([
+          'professional_portrait',
+          'candid_lifestyle',
+          'fashion_editorial',
+          'fitness_motivation',
+          'morning_vibes',
+          'night_out',
+          'cozy_home',
+          'beach_day',
+        ]),
+        environment: z.enum([
+          'beach',
+          'home_bedroom',
+          'home_living_room',
+          'office',
+          'cafe',
+          'urban_street',
+          'studio',
+        ]),
+        outfit: z.string(),
+        aspectRatio: z.enum(['1:1', '9:16', '2:3']).default('9:16'),
+        qualityMode: z.enum(['draft', 'hq']).default('draft'),
+        nsfw: z.boolean().default(false),
+        prompt: z.string().optional(), // Full prompt text
+        negativePrompt: z.string().optional(),
+        seed: z.string().optional(),
+        caption: z.string().optional(),
+        // Tracking data
+        generationTimeMs: z.number().int().optional(),
+        success: z.boolean().default(true),
+        errorMessage: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Verify character ownership
+      const character = await ctx.db.query.characters.findFirst({
+        where: and(
+          eq(characters.id, input.characterId),
+          eq(characters.userId, ctx.user.id)
+        ),
+        columns: { id: true },
+      });
+
+      if (!character) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Character not found',
+        });
+      }
+
+      // Create post
+      const [post] = await ctx.db
+        .insert(posts)
+        .values({
+          characterId: input.characterId,
+          userId: ctx.user.id,
+          jobId: input.jobId,
+          promptId: input.promptId,
+          imageUrl: input.imageUrl,
+          thumbnailUrl: input.thumbnailUrl,
+          s3Key: input.s3Key,
+          width: input.width,
+          height: input.height,
+          caption: input.caption,
+          scene: input.scene,
+          environment: input.environment,
+          outfit: input.outfit,
+          aspectRatio: input.aspectRatio,
+          qualityMode: input.qualityMode,
+          nsfw: input.nsfw,
+          prompt: input.prompt,
+          negativePrompt: input.negativePrompt,
+          seed: input.seed,
+        })
+        .returning();
+
+      // Track prompt usage if promptId provided
+      if (input.promptId) {
+        try {
+          const trackingService = new PostPromptTrackingService(ctx.db);
+          await trackingService.trackPostCreation({
+            postId: post.id,
+            userId: post.userId,
+            characterId: post.characterId,
+            jobId: post.jobId || undefined,
+            promptId: input.promptId,
+            scene: post.scene,
+            environment: post.environment,
+            outfit: post.outfit,
+            prompt: post.prompt || undefined,
+            negativePrompt: post.negativePrompt || undefined,
+            success: input.success,
+            generationTimeMs: input.generationTimeMs,
+            errorMessage: input.errorMessage,
+          });
+        } catch (error) {
+          // Log error but don't fail post creation
+          console.error('Failed to track prompt usage:', error);
+        }
+      }
+
+      // Update character post count
+      await ctx.db
+        .update(characters)
+        .set({
+          postCount: sql`CAST(COALESCE(${characters.postCount}, '0') AS INTEGER) + 1`,
+          updatedAt: new Date(),
+        })
+        .where(eq(characters.id, input.characterId));
+
+      return {
+        success: true,
+        post,
       };
     }),
 

@@ -19,4 +19,5 @@ export * from './templates';
 export * from './character-dna';
 export * from './categories';
 export * from './builder';
+export * from './profile-picture-sets';
 

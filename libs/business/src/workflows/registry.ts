@@ -17,7 +17,6 @@ import {
 import {
   zImagePuLIDDefinition,
   buildZImagePuLIDWorkflow,
-  PuLIDWorkflowBuildOptions,
   PULID_REQUIRED_MODELS,
 } from './z-image-pulid';
 
@@ -44,8 +43,8 @@ export const workflowBuilders: Record<
   'z-image-pulid': buildZImagePuLIDWorkflow as (options: WorkflowBuildOptions) => ComfyUIWorkflow,
 };
 
-/** Export PuLID-specific types and constants */
-export { PuLIDWorkflowBuildOptions, PULID_REQUIRED_MODELS };
+/** Export PuLID-specific constants */
+export { PULID_REQUIRED_MODELS };
 
 /**
  * Get a workflow definition by ID

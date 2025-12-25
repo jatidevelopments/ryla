@@ -9,6 +9,7 @@ import {
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
+import { promptSets } from './prompt-sets.schema';
 
 export const characterStatusEnum = pgEnum('character_status', [
   'draft', // Initial state, not yet generated
@@ -73,6 +74,22 @@ export const characters = pgTable(
     // Base image (from wizard)
     baseImageId: uuid('base_image_id'), // Reference to selected base image
     baseImageUrl: text('base_image_url'), // URL to selected base image
+
+    // Profile picture set
+    profilePictureSetId: uuid('profile_picture_set_id').references(
+      () => promptSets.id,
+      { onDelete: 'set null' }
+    ), // Reference to prompt_sets table
+    profilePictureImages: jsonb('profile_picture_images').$type<Array<{
+      id: string;
+      url: string;
+      thumbnailUrl?: string;
+      positionId: string;
+      positionName: string;
+      prompt?: string;
+      negativePrompt?: string;
+      isNSFW?: boolean;
+    }>>(), // Array of profile picture image data
 
     // LoRA training status
     loraStatus: text('lora_status'), // 'pending', 'generating_sheets', 'training', 'ready', 'failed'
