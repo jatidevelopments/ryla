@@ -26,31 +26,12 @@ const creationMethods = [
     ),
   },
   {
-    id: 'ai',
-    value: 'ai' as const,
-    label: 'Create with AI',
-    description: 'Describe what you want, AI creates it',
+    id: 'prompt-based',
+    value: 'prompt-based' as const,
+    label: 'Create with Prompt',
+    description: 'Describe your character in your own words (voice memo coming soon)',
     bestFor: 'Quick start',
     gradient: 'from-cyan-500 to-blue-600',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
-        <path
-          d="M9.75 3.104v5.714a2.25 2.25 0 01-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 014.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0112 15a9.065 9.065 0 00-6.23-.693L5 14.5m14.8.8l1.402 5.607a1.5 1.5 0 01-1.066 1.838l-.455.109a1.5 1.5 0 01-1.838-1.066l-.352-1.406M5 14.5l-1.402 5.607a1.5 1.5 0 001.066 1.838l.455.109a1.5 1.5 0 001.838-1.066l.352-1.406M12 21a3 3 0 100-6 3 3 0 000 6z"
-          stroke="currentColor"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
-  },
-  {
-    id: 'custom',
-    value: 'custom' as const,
-    label: 'Custom Prompts',
-    description: 'Full control with detailed text prompts',
-    bestFor: 'Advanced',
-    gradient: 'from-orange-500 to-red-500',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
         <path
@@ -76,7 +57,7 @@ export function StepCreationMethod() {
   const updateSteps = useCharacterWizardStore((s) => s.updateSteps);
   const nextStep = useCharacterWizardStore((s) => s.nextStep);
 
-  const handleMethodSelect = (method: 'presets' | 'ai' | 'custom') => {
+  const handleMethodSelect = (method: 'presets' | 'prompt-based') => {
     setField('creationMethod', method);
     updateSteps(method);
     nextStep();

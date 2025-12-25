@@ -4,3 +4,4 @@ export { generationRouter } from './generation.router';
 export { postRouter } from './post.router';
 export { creditsRouter } from './credits.router';
 export { subscriptionRouter } from './subscription.router';
+export { promptsRouter } from './prompts.router';

@@ -11,6 +11,7 @@ import { StorageTestController } from './storage-test.controller';
 import { ImageService } from './services/image.service';
 import { BaseImageGenerationService } from './services/base-image-generation.service';
 import { CharacterSheetService } from './services/character-sheet.service';
+import { ProfilePictureSetService } from './services/profile-picture-set.service';
 import { RunPodJobRunnerAdapter } from './services/runpod-job-runner.adapter';
 import { ComfyUIJobRunnerAdapter } from './services/comfyui-job-runner.adapter';
 import { ImageStorageService } from './services/image-storage.service';
@@ -39,6 +40,7 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
     ImageService,
     BaseImageGenerationService,
     CharacterSheetService,
+    ProfilePictureSetService,
     RunPodJobRunnerAdapter,
     ComfyUIJobRunnerAdapter,
     ImageStorageService,
@@ -75,6 +77,7 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
     ImageService,
     BaseImageGenerationService,
     CharacterSheetService,
+    ProfilePictureSetService,
     ImageGenerationService,
     ImageStorageService,
     ComfyUIJobRunnerAdapter,

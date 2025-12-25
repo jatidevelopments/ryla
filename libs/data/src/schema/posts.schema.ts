@@ -12,6 +12,7 @@ import { relations } from 'drizzle-orm';
 import { characters } from './characters.schema';
 import { users } from './users.schema';
 import { generationJobs } from './generation-jobs.schema';
+import { prompts } from './prompts.schema';
 
 // Scene presets for Content Studio (EP-005)
 export const scenePresetEnum = pgEnum('scene_preset', [
@@ -59,6 +60,9 @@ export const posts = pgTable(
     jobId: uuid('job_id').references(() => generationJobs.id, {
       onDelete: 'set null',
     }),
+    promptId: uuid('prompt_id').references(() => prompts.id, {
+      onDelete: 'set null',
+    }), // Reference to prompt template used
 
     // Image data
     imageUrl: text('image_url').notNull(), // Full-size image URL
@@ -111,6 +115,10 @@ export const postsRelations = relations(posts, ({ one }) => ({
   job: one(generationJobs, {
     fields: [posts.jobId],
     references: [generationJobs.id],
+  }),
+  prompt: one(prompts, {
+    fields: [posts.promptId],
+    references: [prompts.id],
   }),
 }));
 

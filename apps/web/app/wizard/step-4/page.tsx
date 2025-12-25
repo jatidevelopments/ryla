@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { StepBody } from '../../../components/wizard/step-body';
-import { StepGenerate } from '../../../components/wizard/step-generate';
+import { StepFinalize } from '../../../components/wizard/step-finalize';
 
 export default function WizardStep4() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -13,11 +13,12 @@ export default function WizardStep4() {
     setStep(4);
   }, [setStep]);
 
-  // For AI and Custom flows, step 4 is the generate step
-  if (creationMethod === 'ai' || creationMethod === 'custom') {
-    return <StepGenerate />;
+  // Render different step based on creation method
+  if (creationMethod === 'prompt-based') {
+    // Prompt-based: step 4 is finalize
+    return <StepFinalize />;
+  } else {
+    // Presets flow: step 4 is Body
+    return <StepBody />;
   }
-
-  // Default to presets flow
-  return <StepBody />;
 }

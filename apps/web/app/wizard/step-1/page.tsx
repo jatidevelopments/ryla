@@ -3,8 +3,7 @@
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { StepStyle } from '../../../components/wizard/step-style';
-import { StepAIDescription } from '../../../components/wizard/step-ai-description';
-import { StepCustomPrompts } from '../../../components/wizard/step-custom-prompts';
+import { StepPromptInput } from '../../../components/wizard/step-prompt-input';
 
 export default function WizardStep1() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -15,10 +14,8 @@ export default function WizardStep1() {
   }, [setStep]);
 
   // Render different step based on creation method
-  if (creationMethod === 'ai') {
-    return <StepAIDescription />;
-  } else if (creationMethod === 'custom') {
-    return <StepCustomPrompts />;
+  if (creationMethod === 'prompt-based') {
+    return <StepPromptInput />;
   } else {
     // Default to presets flow
     return <StepStyle />;

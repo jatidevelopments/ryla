@@ -17,6 +17,7 @@ import { ImageModule } from './image/image.module';
 import { ImageGalleryModule } from './image-gallery/image-gallery.module';
 import { NotificationModule } from './notification/notification.module';
 import { CronModule } from './cron/cron.module';
+import { PromptsModule } from './prompts/prompts.module';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { CronModule } from './cron/cron.module';
     ImageGalleryModule,
     NotificationModule,
     CronModule,
+    PromptsModule,
     ThrottlerConfigModule,
   ],
   providers: [

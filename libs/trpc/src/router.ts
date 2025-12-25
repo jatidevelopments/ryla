@@ -13,6 +13,7 @@ import {
   postRouter,
   creditsRouter,
   subscriptionRouter,
+  promptsRouter,
 } from './routers';
 
 /**
@@ -25,6 +26,7 @@ export const appRouter = router({
   post: postRouter,
   credits: creditsRouter,
   subscription: subscriptionRouter,
+  prompts: promptsRouter,
 });
 
 /**

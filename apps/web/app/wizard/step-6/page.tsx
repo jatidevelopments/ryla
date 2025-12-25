@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useCharacterWizardStore } from "@ryla/business";
-import { StepGenerate } from "../../../components/wizard/step-generate";
+import { useEffect } from 'react';
+import { useCharacterWizardStore } from '@ryla/business';
+import { StepBaseImageSelection } from '../../../components/wizard/step-base-image-selection';
 
 export default function WizardStep6() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -11,6 +11,6 @@ export default function WizardStep6() {
     setStep(6);
   }, [setStep]);
 
-  return <StepGenerate />;
+  return <StepBaseImageSelection />;
 }
 

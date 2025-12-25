@@ -4,4 +4,5 @@ export * from './comfyui-pod-client';
 export * from './comfyui-job-runner';
 export * from './runpod-client';
 export * from './image-generation.service';
+export * from './post-prompt-tracking.service';
 

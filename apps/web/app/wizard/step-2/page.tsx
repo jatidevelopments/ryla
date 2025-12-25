@@ -3,8 +3,7 @@
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { StepGeneral } from '../../../components/wizard/step-general';
-import { StepAIGeneration } from '../../../components/wizard/step-ai-generation';
-import { StepCustomReview } from '../../../components/wizard/step-custom-review';
+import { StepBaseImageSelection } from '../../../components/wizard/step-base-image-selection';
 
 export default function WizardStep2() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -15,12 +14,11 @@ export default function WizardStep2() {
   }, [setStep]);
 
   // Render different step based on creation method
-  if (creationMethod === 'ai') {
-    return <StepAIGeneration />;
-  } else if (creationMethod === 'custom') {
-    return <StepCustomReview />;
+  if (creationMethod === 'prompt-based') {
+    // Prompt-based: step 2 is base image selection
+    return <StepBaseImageSelection />;
   } else {
-    // Default to presets flow
+    // Presets flow: step 2 is General
     return <StepGeneral />;
   }
 }

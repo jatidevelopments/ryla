@@ -149,11 +149,12 @@ export class ImageController {
   @ApiOperation({ summary: 'Get available image generation workflows' })
   public async getWorkflows() {
     return {
-      available: ['z-image-danrisi', 'z-image-simple'],
+      available: ['z-image-danrisi', 'z-image-simple', 'z-image-pulid'],
       recommended: this.comfyuiAdapter.getRecommendedWorkflow(),
       descriptions: {
         'z-image-danrisi': 'Optimized workflow with custom samplers (faster, better quality)',
         'z-image-simple': 'Fallback workflow using built-in ComfyUI nodes',
+        'z-image-pulid': 'PuLID workflow for face consistency with reference image',
       },
     };
   }
