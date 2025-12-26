@@ -4,13 +4,14 @@ Unified payment abstraction layer supporting multiple payment providers with a c
 
 ## Features
 
-- ✅ **Multiple Providers**: Stripe, Finby, PayPal (with TrustPay & Shift4 planned)
+- ✅ **Multiple Providers**: Stripe, Finby, PayPal, TrustPay, Shift4
 - ✅ **Subscriptions & One-Time Payments**: Support for both payment types
 - ✅ **Unified API**: Same interface across all providers
 - ✅ **Type-Safe**: Full TypeScript support
 - ✅ **Webhook Handling**: Built-in webhook parsing and verification
 - ✅ **Customer Management**: Optional customer creation and retrieval
 - ✅ **Payment Status**: Query payment status across providers
+- ✅ **Chargeback Handling**: Chargeback event support across all providers
 
 ## Installation
 
@@ -186,15 +187,121 @@ const paymentSession = await paypal.createCheckoutSession({
 - ✅ Webhook verification
 - ✅ Access token caching
 
-### TrustPay ⚠️
+### TrustPay ✅
 
-**Status**: Planned (not yet implemented)  
-**Will Support**: Subscriptions & One-Time Payments
+**Status**: Fully implemented  
+**Supports**: Subscriptions & One-Time Payments
 
-### Shift4 ⚠️
+```typescript
+const trustpay = createPaymentProvider('trustpay', {
+  url: process.env.TRUSTPAY_API_URL!,
+  tokenUrl: process.env.TRUSTPAY_TOKEN_URL!,
+  tpUsername: process.env.TRUSTPAY_USERNAME!,
+  tpSecret: process.env.TRUSTPAY_SECRET!,
+});
 
-**Status**: Planned (not yet implemented)  
-**Will Support**: Subscriptions & One-Time Payments
+// Subscription checkout
+const subscriptionSession = await trustpay.createCheckoutSession({
+  priceId: 'plan_xxx',
+  userId: 'user_123',
+  email: 'user@example.com',
+  mode: 'subscription',
+  amount: 2999, // in cents
+  currency: 'EUR',
+  successUrl: '/success',
+  cancelUrl: '/cancel',
+});
+
+// One-time payment
+const paymentSession = await trustpay.createCheckoutSession({
+  priceId: 'product_xxx',
+  userId: 'user_123',
+  email: 'user@example.com',
+  amount: 2999,
+  currency: 'EUR',
+  successUrl: '/success',
+  cancelUrl: '/cancel',
+});
+
+// Recurring payment using card token
+const recurring = await trustpay.createRecurringPayment({
+  cardToken: 'token_xxx',
+  amount: 2999,
+  currency: 'EUR',
+  customerId: 'customer_xxx',
+});
+
+// Recover failed recurring payment
+const recovery = await trustpay.recoverRecurringPayment({
+  paymentId: 'payment_xxx',
+  retryAttempt: 1,
+  cardToken: 'token_xxx',
+});
+```
+
+**Features:**
+- ✅ Subscriptions & One-time payments
+- ✅ Card tokenization for recurring payments
+- ✅ Server-initiated payments
+- ✅ Recurring payment recovery with retry logic
+- ✅ Customer management
+- ✅ Payment status checking
+- ✅ Webhook handling (multiple types)
+- ✅ Chargeback handling
+
+### Shift4 ✅
+
+**Status**: Fully implemented  
+**Supports**: Subscriptions & One-Time Payments
+
+```typescript
+const shift4 = createPaymentProvider('shift4', {
+  apiUrl: process.env.SHIFT4_API_URL!,
+  secretKey: process.env.SHIFT4_SECRET_KEY!,
+  publishableKey: process.env.SHIFT4_PUBLISHABLE_KEY!,
+  webhookSecret: process.env.SHIFT4_WEBHOOK_SECRET!,
+  tosUrl: process.env.SHIFT4_TOS_URL, // Optional
+});
+
+// Subscription checkout
+const subscriptionSession = await shift4.createCheckoutSession({
+  priceId: 'plan_xxx',
+  userId: 'user_123',
+  email: 'user@example.com',
+  mode: 'subscription',
+  successUrl: '/success',
+  cancelUrl: '/cancel',
+});
+
+// One-time charge checkout
+const chargeSession = await shift4.createCheckoutSession({
+  priceId: 'product_xxx',
+  userId: 'user_123',
+  email: 'user@example.com',
+  amount: 2999, // in cents
+  currency: 'USD',
+  successUrl: '/success',
+  cancelUrl: '/cancel',
+});
+
+// Charge using payment token
+const charge = await shift4.createChargeFromToken({
+  token: 'token_xxx',
+  amount: 2999,
+  currency: 'USD',
+  customerId: 'customer_xxx',
+});
+```
+
+**Features:**
+- ✅ Subscriptions & One-time payments
+- ✅ Customer creation and management
+- ✅ Signed checkout requests (HMAC SHA256)
+- ✅ Token-based payments
+- ✅ Subscription management
+- ✅ Payment status checking
+- ✅ Webhook verification
+- ✅ Chargeback handling
 
 ## Core API
 
