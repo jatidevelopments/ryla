@@ -29,8 +29,11 @@ export class StripeProvider implements PaymentProvider {
   // ===========================================================================
 
   async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession> {
+    // Default to subscription mode for backward compatibility
+    const mode = params.mode || 'subscription';
+    
     const session = await this.stripe.checkout.sessions.create({
-      mode: 'subscription',
+      mode: mode as 'subscription' | 'payment',
       payment_method_types: ['card'],
       line_items: [
         {

@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
-import { generateFinbyReference } from "@/lib/finbyReference";
+import { createPaymentProvider } from "@ryla/payments";
 
 /**
  * Finby Payment Setup API Route
  * 
- * Generates a Finby payment gateway URL with proper signature.
+ * Generates a Finby payment gateway URL with proper signature using @ryla/payments library.
  * Based on Finby API documentation: https://doc.finby.eu
  */
 
 interface FinbySetupPayload {
     productId: number;
     email: string;
+    userId?: string;
     cardHolder?: string;
     billingStreet?: string;
     billingCity?: string;
@@ -21,12 +21,6 @@ interface FinbySetupPayload {
     cancelUrl?: string;
     errorUrl?: string;
     notificationUrl?: string;
-}
-
-function generateSignature(secretKey: string, data: string): string {
-    const hmac = crypto.createHmac("sha256", secretKey);
-    hmac.update(data);
-    return hmac.digest("hex").toUpperCase();
 }
 
 export async function POST(request: NextRequest) {
@@ -66,68 +60,41 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Convert amount from cents to decimal (products store amount in cents)
-        const amount = product.amount / 100;
-        const currency = product.currency || "EUR";
-        const paymentType = 0; // 0 = Purchase
-
-        // Generate unique reference with RYLAFL prefix to ensure refunds only work for funnel payments
-        const reference = generateFinbyReference();
-
-        // Build signature data for card payments
-        // Format: AccountId/Amount/Currency/Reference/PaymentType/BillingCity/BillingCountry/BillingPostcode/BillingStreet/CardHolder/Email
-        const billingCity = body.billingCity || "Unknown";
-        const billingCountry = body.billingCountry || "US";
-        const billingPostcode = body.billingPostcode || "00000";
-        const billingStreet = body.billingStreet || "Unknown";
-        const cardHolder = body.cardHolder || body.email.split("@")[0];
-        const email = body.email;
-
-        const sigData = `${projectId}/${amount.toFixed(2)}/${currency}/${reference}/${paymentType}/${billingCity}/${billingCountry}/${billingPostcode}/${billingStreet}/${cardHolder}/${email}`;
-        const signature = generateSignature(secretKey, sigData);
-
-        // Build Finby payment URL
-        const baseUrl = "https://amapi.finby.eu/mapi5/Card/PayPopup";
-        const params = new URLSearchParams({
-            AccountId: projectId,
-            Amount: amount.toFixed(2),
-            Currency: currency,
-            Reference: reference,
-            PaymentType: paymentType.toString(),
-            Signature: signature,
-            BillingCity: billingCity,
-            BillingCountry: billingCountry,
-            BillingPostcode: billingPostcode,
-            BillingStreet: billingStreet,
-            CardHolder: cardHolder,
-            Email: email,
-        });
-
         // Add test mode indicator if enabled (for Finby testing)
         if (isTestMode) {
             console.log("🧪 TEST MODE: Using test payment credentials");
         }
 
-        // Add optional URLs
-        if (body.returnUrl) {
-            params.append("ReturnUrl", body.returnUrl);
-        }
-        if (body.cancelUrl) {
-            params.append("CancelUrl", body.cancelUrl);
-        }
-        if (body.errorUrl) {
-            params.append("ErrorUrl", body.errorUrl);
-        }
-        if (body.notificationUrl) {
-            params.append("NotificationUrl", body.notificationUrl);
-        }
+        // Create Finby payment provider using API v3 (popup-based)
+        const finby = createPaymentProvider('finby', {
+            projectId,
+            secretKey,
+            apiVersion: 'v3',
+        });
 
-        const paymentUrl = `${baseUrl}?${params.toString()}`;
+        // Create checkout session using the library
+        const session = await finby.createCheckoutSession({
+            priceId: product.id.toString(), // Using product ID as price ID for v3
+            userId: body.userId || body.email, // Use email as fallback userId
+            email: body.email,
+            productId: body.productId,
+            amount: product.amount, // Amount in cents
+            currency: product.currency || "EUR",
+            successUrl: body.returnUrl || "/payment-callback",
+            cancelUrl: body.cancelUrl || "/payment-callback",
+            errorUrl: body.errorUrl,
+            notificationUrl: body.notificationUrl,
+            cardHolder: body.cardHolder,
+            billingStreet: body.billingStreet,
+            billingCity: body.billingCity,
+            billingPostcode: body.billingPostcode,
+            billingCountry: body.billingCountry,
+        });
 
         return NextResponse.json({
-            paymentUrl,
-            reference,
-            transactionId: reference, // Using reference as transaction ID for now
+            paymentUrl: session.url,
+            reference: session.reference,
+            transactionId: session.transactionId || session.reference,
         });
     } catch (error: any) {
         console.error("Finby setup payment error:", error);

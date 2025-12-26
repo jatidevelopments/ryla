@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Verify reference belongs to this funnel (must start with RYLAFL prefix)
-        const { isFunnelReference } = await import("@/lib/finbyReference");
+        const { isFunnelReference } = await import("@ryla/payments");
         if (!isFunnelReference(body.reference)) {
             console.error("❌ Refund blocked: Reference does not belong to this funnel", {
                 reference: body.reference,
