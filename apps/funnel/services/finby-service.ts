@@ -3,14 +3,20 @@ import axios from "@/lib/axios";
 // Use Next.js API routes if backend API is not available
 const USE_NEXTJS_API = typeof window !== "undefined";
 
+/**
+ * Finby service - now uses @ryla/payments library via API routes
+ * The actual implementation is in apps/funnel/app/api/finby/setup-payment/route.ts
+ */
 export const finbyService = {
     /**
      * Setup payment and get the payment gateway URL
-     * Uses Next.js API routes if available, otherwise falls back to backend API
+     * Uses Next.js API routes (which now use @ryla/payments library)
+     * Falls back to backend API if available
      */
     setupPayment: async (data: FinbySetupPayload): Promise<FinbySetupResponse> => {
         if (USE_NEXTJS_API) {
             // Use Next.js API route (relative path)
+            // This route now uses @ryla/payments library internally
             const response = await fetch("/api/finby/setup-payment", {
                 method: "POST",
                 headers: {
