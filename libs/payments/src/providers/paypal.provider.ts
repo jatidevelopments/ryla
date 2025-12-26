@@ -479,6 +479,21 @@ export class PayPalProvider implements PaymentProvider {
           },
         };
 
+      case 'CUSTOMER.DISPUTE.CREATED':
+      case 'CUSTOMER.DISPUTE.RESOLVED':
+        return {
+          ...baseEvent,
+          type: 'chargeback.created',
+          data: {
+            chargeId: event.resource.disputed_transactions?.[0]?.transaction_id || event.resource.id,
+            subscriptionId: event.resource.disputed_transactions?.[0]?.seller_transaction_id,
+            customerId: event.resource.disputed_transactions?.[0]?.seller_protection?.status || '',
+            amount: parseFloat(event.resource.dispute_amount?.value || '0') * 100,
+            currency: event.resource.dispute_amount?.currency_code || 'USD',
+            reason: event.resource.reason || event.resource.dispute_life_cycle_stage,
+          },
+        };
+
       default:
         throw new Error(`Unhandled PayPal event type: ${event.event_type}`);
     }

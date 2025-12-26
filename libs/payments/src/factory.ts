@@ -10,6 +10,8 @@ import type {
 import { StripeProvider } from './providers/stripe.provider';
 import { FinbyProvider } from './providers/finby.provider';
 import { PayPalProvider } from './providers/paypal.provider';
+import { TrustPayProvider } from './providers/trustpay.provider';
+import { Shift4Provider } from './providers/shift4.provider';
 
 type ConfigForProvider<T extends PaymentProviderType> = T extends 'stripe'
   ? StripeConfig
@@ -60,9 +62,9 @@ export function createPaymentProvider<T extends PaymentProviderType>(
     case 'paypal':
       return new PayPalProvider(config as PayPalConfig);
     case 'trustpay':
-      throw new Error('TrustPay provider not yet implemented');
+      return new TrustPayProvider(config as TrustPayConfig);
     case 'shift4':
-      throw new Error('Shift4 provider not yet implemented');
+      return new Shift4Provider(config as Shift4Config);
     default:
       throw new Error(`Unknown payment provider: ${type}`);
   }

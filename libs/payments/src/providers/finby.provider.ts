@@ -515,6 +515,21 @@ export class FinbyProvider implements PaymentProvider {
           },
         };
 
+      case 'chargeback.created':
+      case 'chargeback':
+        return {
+          ...baseEvent,
+          type: 'chargeback.created',
+          data: {
+            chargeId: event.data.charge_id || event.data.payment_id || '',
+            subscriptionId: event.data.subscription_id,
+            customerId: event.data.customer_id,
+            amount: event.data.amount || 0,
+            currency: event.data.currency || 'eur',
+            reason: event.data.reason || event.data.chargeback_reason,
+          },
+        };
+
       default:
         throw new Error(`Unhandled Finby event type: ${event.type}`);
     }

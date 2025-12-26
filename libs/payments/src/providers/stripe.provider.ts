@@ -271,6 +271,22 @@ export class StripeProvider implements PaymentProvider {
         };
       }
 
+      case 'charge.dispute.created': {
+        const dispute = event.data.object as Stripe.Dispute;
+        const charge = dispute.charge as Stripe.Charge;
+        return {
+          ...baseEvent,
+          type: 'chargeback.created',
+          data: {
+            chargeId: typeof charge === 'string' ? charge : charge.id,
+            customerId: typeof charge === 'string' ? '' : (charge.customer as string || ''),
+            amount: dispute.amount,
+            currency: dispute.currency,
+            reason: dispute.reason || dispute.evidence?.summary,
+          },
+        };
+      }
+
       default:
         throw new Error(`Unhandled Stripe event type: ${event.type}`);
     }
