@@ -10,6 +10,7 @@ React Email templates and utilities for transactional emails.
 - **SubscriptionConfirmationEmail** - Payment confirmation
 - **SubscriptionCancelledEmail** - Subscription cancelled
 - **GenerationCompleteEmail** - AI generation finished
+- **BugReportNotificationEmail** - Sent to team when a bug is reported
 
 ## Usage
 
@@ -55,13 +56,19 @@ Then open http://localhost:3333 to preview templates.
 Set environment variables:
 
 ```env
-# SMTP Configuration
-EMAIL_SERVER_HOST=smtp.gmail.com
-EMAIL_SERVER_PORT=465
-EMAIL_SERVER_USER=your@email.com
-EMAIL_SERVER_PASSWORD=your-app-password
+# Resend Configuration
+RESEND_API_KEY=re_xxxxxxxxxxxx
 EMAIL_FROM="RYLA <noreply@ryla.ai>"
+
+# Bug Report Notifications
+BUG_REPORT_NOTIFICATION_EMAIL=team@ryla.ai
 ```
+
+**Setup Steps:**
+1. Create a Resend account at https://resend.com
+2. Get your API key from https://resend.com/api-keys
+3. Verify your domain (ryla.ai) in the Resend dashboard
+4. Set `RESEND_API_KEY` in your environment variables
 
 ## Adding New Templates
 

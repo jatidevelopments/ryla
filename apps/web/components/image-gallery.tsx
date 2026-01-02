@@ -26,6 +26,7 @@ export interface ImageGalleryProps {
     href: string;
   };
   className?: string;
+  onLike?: (imageId: string) => void | Promise<void>;
 }
 
 export function ImageGallery({
@@ -34,13 +35,18 @@ export function ImageGallery({
   emptyMessage = 'No images yet',
   emptyAction,
   className,
+  onLike: onLikeProp,
 }: ImageGalleryProps) {
   const toggleLike = useInfluencerStore((state) => state.toggleLike);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
 
-  const handleLike = (e: React.MouseEvent, imageId: string) => {
+  const handleLike = async (e: React.MouseEvent, imageId: string) => {
     e.stopPropagation();
-    toggleLike(imageId);
+    if (onLikeProp) {
+      await onLikeProp(imageId);
+    } else {
+      toggleLike(imageId);
+    }
   };
 
   const handleDownload = async (e: React.MouseEvent, image: Post) => {
@@ -210,7 +216,10 @@ export function ImageGallery({
             {/* Action buttons */}
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-3">
               <button
-                onClick={(e) => handleLike(e, images[selectedIndex].id)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleLike(e, images[selectedIndex].id);
+                }}
                 className={cn(
                   'flex h-12 w-12 items-center justify-center rounded-full transition-all',
                   images[selectedIndex].isLiked

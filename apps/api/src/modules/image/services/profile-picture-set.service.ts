@@ -6,6 +6,7 @@
  */
 
 import { forwardRef, Inject, Injectable, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import {
   getProfilePictureSet,
   buildProfilePicturePrompt,
@@ -14,6 +15,8 @@ import {
   buildZImagePuLIDWorkflow,
   WorkflowId,
 } from '@ryla/business';
+import * as schema from '@ryla/data/schema';
+import { GenerationJobsRepository, ImagesRepository } from '@ryla/data';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
 import { ImageStorageService } from './image-storage.service';
 
@@ -59,8 +62,12 @@ export class ProfilePictureSetService {
   private readonly logger = new Logger(ProfilePictureSetService.name);
   private readonly comfyuiAdapter: ComfyUIJobRunnerAdapter;
   private readonly imageStorage: ImageStorageService;
+  private readonly generationJobsRepo: GenerationJobsRepository;
+  private readonly imagesRepo: ImagesRepository;
 
   constructor(
+    @Inject('DRIZZLE_DB')
+    db: NodePgDatabase<typeof schema>,
     @Inject(forwardRef(() => ComfyUIJobRunnerAdapter))
     comfyuiAdapter: ComfyUIJobRunnerAdapter,
     @Inject(forwardRef(() => ImageStorageService))
@@ -68,6 +75,8 @@ export class ProfilePictureSetService {
   ) {
     this.comfyuiAdapter = comfyuiAdapter;
     this.imageStorage = imageStorage;
+    this.generationJobsRepo = new GenerationJobsRepository(db);
+    this.imagesRepo = new ImagesRepository(db);
   }
 
   /**
@@ -174,6 +183,9 @@ export class ProfilePictureSetService {
 
     // Submit all workflows in parallel to ComfyUI for simultaneous generation
     const jobIds: string[] = [];
+    // Always use input.userId (which should be the authenticated user's ID from the controller)
+    // Fallback to 'anonymous' only if not provided (shouldn't happen in normal flow)
+    const userId = input.userId || 'anonymous';
     try {
       // Queue all workflows simultaneously using Promise.all
       const queuePromises = workflows.map((workflow) => {
@@ -182,6 +194,48 @@ export class ProfilePictureSetService {
 
       const queuedJobIds = await Promise.all(queuePromises);
       jobIds.push(...queuedJobIds);
+
+      // Create generation job entries for each profile picture job
+      // This allows us to track characterId and save images to the database later
+      // IMPORTANT: userId must match the authenticated user's ID used in getJobResult
+      for (let i = 0; i < queuedJobIds.length; i++) {
+        const externalJobId = queuedJobIds[i];
+        const imageData = allImages[i];
+        const { width, height } = this.getDimensionsForPosition(
+          imageData.position,
+          input.width,
+          input.height,
+          defaultSize,
+        );
+
+        await this.generationJobsRepo.createJob({
+          userId, // This should be the authenticated user's ID
+          characterId: input.characterId || undefined,
+          type: 'character_sheet_generation', // Profile pictures are a type of character sheet
+          status: 'queued',
+          input: {
+            prompt: imageData.prompt,
+            negativePrompt: imageData.negativePrompt,
+            seed: undefined,
+            width,
+            height,
+            steps,
+            nsfw: imageData.isNSFW,
+            // Store position metadata for reference
+            scene: undefined,
+            environment: undefined,
+            outfit: undefined,
+            aspectRatio: imageData.position.aspectRatio === '1:1' ? '1:1' :
+              imageData.position.aspectRatio === '4:5' ? '2:3' : '9:16',
+            qualityMode: generationMode === 'fast' ? 'draft' : 'hq',
+          },
+          imageCount: 1,
+          completedCount: 0,
+          externalJobId,
+          externalProvider: 'comfyui',
+          startedAt: new Date(),
+        });
+      }
 
       this.logger.log(
         `Queued ${jobIds.length} workflows in parallel for profile picture generation (mode=${generationMode}, steps=${steps})`,
@@ -378,8 +432,17 @@ export class ProfilePictureSetService {
   /**
    * Get results for a single profile picture job
    * Used for progressive loading - returns image as soon as it's ready
+   * Saves images to database with characterId for proper association
    */
   async getJobResult(jobId: string, userId?: string) {
+    // Look up the generation job to get characterId and metadata
+    const trackedJob = userId
+      ? await this.generationJobsRepo.getByExternalJobId({
+        externalJobId: jobId,
+        userId,
+      })
+      : null;
+
     const status = await this.comfyuiAdapter.getJobStatus(jobId);
 
     if (status.status === 'COMPLETED' && status.output) {
@@ -387,6 +450,14 @@ export class ProfilePictureSetService {
       const base64Images = output.images || [];
 
       if (base64Images.length === 0) {
+        // Update job status even if no images
+        if (trackedJob) {
+          await this.generationJobsRepo.updateById(trackedJob.id, {
+            status: 'completed',
+            completedAt: new Date(),
+            output: { imageUrls: [], thumbnailUrls: [], s3Keys: [], imageIds: [] },
+          });
+        }
         return {
           status: 'completed',
           images: [],
@@ -394,29 +465,90 @@ export class ProfilePictureSetService {
       }
 
       try {
+        const actualUserId = userId || trackedJob?.userId || 'anonymous';
+        const characterId = trackedJob?.characterId || null;
+
         // Upload base64 images to MinIO/S3 storage
         const { images: storedImages } = await this.imageStorage.uploadImages(
           base64Images,
           {
-            userId: userId || 'anonymous',
+            userId: actualUserId,
             category: 'profile-pictures',
             jobId,
+            characterId: characterId || undefined,
           },
         );
 
         this.logger.log(`Uploaded ${storedImages.length} profile picture(s) for job ${jobId}`);
 
+        // Save images to database with characterId for proper association
+        const createdImages = [];
+        for (let i = 0; i < storedImages.length; i++) {
+          const img = storedImages[i];
+          const jobInput = trackedJob?.input as schema.GenerationInput | undefined;
+
+          const imageRow = await this.imagesRepo.createImage({
+            characterId: characterId || null,
+            userId: actualUserId,
+            s3Key: img.key,
+            s3Url: img.url,
+            thumbnailKey: null, // StoredImage doesn't have thumbnailKey, only thumbnailUrl
+            thumbnailUrl: img.thumbnailUrl,
+            prompt: jobInput?.prompt ?? null,
+            negativePrompt: jobInput?.negativePrompt ?? null,
+            seed: jobInput?.seed ?? null,
+            width: jobInput?.width ?? null,
+            height: jobInput?.height ?? null,
+            status: 'completed',
+            scene: (jobInput?.scene as any) ?? null,
+            environment: (jobInput?.environment as any) ?? null,
+            outfit: jobInput?.outfit ?? null,
+            aspectRatio: jobInput?.aspectRatio ?? null,
+            qualityMode: jobInput?.qualityMode ?? null,
+            nsfw: Boolean(jobInput?.nsfw),
+            sourceImageId: null,
+            editType: null,
+            editMaskS3Key: null,
+          });
+          createdImages.push(imageRow);
+        }
+
+        // Update generation job with completed status and image IDs
+        if (trackedJob) {
+          await this.generationJobsRepo.updateById(trackedJob.id, {
+            status: 'completed',
+            completedAt: new Date(),
+            completedCount: storedImages.length,
+            output: {
+              imageUrls: storedImages.map((i) => i.url),
+              thumbnailUrls: storedImages.map((i) => i.thumbnailUrl),
+              s3Keys: storedImages.map((i) => i.key),
+              imageIds: createdImages.map((r) => r.id),
+            } as Record<string, unknown>,
+          });
+        }
+
         return {
           status: 'completed',
-          images: storedImages.map((img, idx) => ({
-            id: `${jobId}-${idx}`,
-            url: img.url,
-            thumbnailUrl: img.thumbnailUrl,
-            s3Key: img.key,
+          images: createdImages.map((row) => ({
+            id: row.id,
+            url: row.s3Url || storedImages[0]?.url || '',
+            thumbnailUrl: row.thumbnailUrl || storedImages[0]?.thumbnailUrl || '',
+            s3Key: row.s3Key || storedImages[0]?.key,
           })),
         };
       } catch (error) {
-        this.logger.error(`Failed to upload images to storage: ${error}`);
+        this.logger.error(`Failed to upload/save images: ${error}`);
+
+        // Update job status to failed if we have a tracked job
+        if (trackedJob) {
+          await this.generationJobsRepo.updateById(trackedJob.id, {
+            status: 'failed',
+            completedAt: new Date(),
+            error: error instanceof Error ? error.message : 'Failed to save images',
+          });
+        }
+
         // Fall back to base64 if storage fails
         return {
           status: 'completed',
@@ -427,6 +559,25 @@ export class ProfilePictureSetService {
           })),
           warning: 'Images stored as base64 - storage upload failed',
         };
+      }
+    }
+
+    // Update job status for non-completed states
+    if (trackedJob) {
+      const mapped =
+        status.status === 'IN_QUEUE'
+          ? 'queued'
+          : status.status === 'IN_PROGRESS'
+            ? 'processing'
+            : status.status === 'FAILED'
+              ? 'failed'
+              : 'processing';
+
+      if (trackedJob.status !== mapped) {
+        await this.generationJobsRepo.updateById(trackedJob.id, {
+          status: mapped,
+          error: status.error,
+        });
       }
     }
 

@@ -228,10 +228,12 @@ export class CharacterController {
       );
     }
 
+    // Always use authenticated user's ID for profile picture generation
+    // This ensures generation jobs can be looked up correctly in getJobResult
     const result = await this.profilePictureSetService.generateProfilePictureSet({
       baseImageUrl: dto.baseImageUrl,
       characterId: dto.characterId,
-      userId: dto.userId || user.userId,
+      userId: user.userId, // Always use authenticated user's ID
       setId: dto.setId,
       nsfwEnabled: dto.nsfwEnabled,
       generationMode: dto.generationMode,

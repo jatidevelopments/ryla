@@ -6,10 +6,10 @@
  */
 
 import { z } from 'zod';
-import { eq, and, isNull, desc, sql, ne, or } from 'drizzle-orm';
+import { eq, and, isNull, desc, sql, ne, or, inArray } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 
-import { characters, NotificationsRepository, type CharacterConfig } from '@ryla/data';
+import { characters, images, NotificationsRepository, type CharacterConfig } from '@ryla/data';
 import type { NotificationType } from '@ryla/data/schema';
 
 import { router, protectedProcedure } from '../trpc';
@@ -88,6 +88,51 @@ export const characterRouter = router({
         },
       });
 
+      // Get image counts for all characters in one query
+      const characterIds = items.map((char) => char.id);
+      const imageCountsMap: Record<string, number> = {};
+      
+      // Initialize all characters with 0 count
+      for (const char of items) {
+        imageCountsMap[char.id] = 0;
+      }
+      
+      if (characterIds.length > 0) {
+        try {
+          const imageCounts = await ctx.db
+            .select({
+              characterId: images.characterId,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(images)
+            .where(
+              and(
+                inArray(images.characterId, characterIds),
+                eq(images.userId, ctx.user.id),
+                isNull(images.deletedAt),
+                eq(images.status, 'completed')
+              )
+            )
+            .groupBy(images.characterId);
+
+          // Build map of characterId -> count
+          for (const row of imageCounts) {
+            if (row.characterId) {
+              imageCountsMap[row.characterId] = Number(row.count);
+            }
+          }
+        } catch (error) {
+          // Log error but don't fail the entire query
+          console.error('Failed to fetch image counts:', error);
+        }
+      }
+
+      // Add image counts to items
+      const itemsWithCounts = items.map((item) => ({
+        ...item,
+        imageCount: imageCountsMap[item.id] ?? 0,
+      }));
+
       // Get total count
       const [countResult] = await ctx.db
         .select({ count: sql<number>`count(*)` })
@@ -95,7 +140,7 @@ export const characterRouter = router({
         .where(and(...conditions));
 
       return {
-        items,
+        items: itemsWithCounts,
         total: Number(countResult?.count ?? 0),
         limit,
         offset,
@@ -123,7 +168,29 @@ export const characterRouter = router({
         });
       }
 
-      return character;
+      // Get image count for this character
+      let imageCount = 0;
+      try {
+        const [countResult] = await ctx.db
+          .select({ count: sql<number>`count(*)::int` })
+          .from(images)
+          .where(
+            and(
+              eq(images.characterId, input.id),
+              eq(images.userId, ctx.user.id),
+              isNull(images.deletedAt),
+              eq(images.status, 'completed')
+            )
+          );
+        imageCount = Number(countResult?.count ?? 0);
+      } catch (error) {
+        console.error('Failed to fetch image count:', error);
+      }
+
+      return {
+        ...character,
+        imageCount,
+      };
     }),
 
   /**

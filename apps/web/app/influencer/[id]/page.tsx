@@ -6,7 +6,6 @@ import {
   useInfluencer,
   useInfluencerPosts,
   useLikedPosts,
-  useInfluencerImages,
   useInfluencerStore,
 } from '@ryla/business';
 import {
@@ -23,6 +22,8 @@ import { ImageGallery } from '../../../components/image-gallery';
 import { ProtectedRoute } from '../../../components/protected-route';
 import { LayoutGrid, Images, Heart } from 'lucide-react';
 import { trpc } from '../../../lib/trpc';
+import { getCharacterImages, likeImage } from '../../../lib/api/studio';
+import type { Post } from '@ryla/shared';
 
 export default function InfluencerProfilePage() {
   return (
@@ -38,14 +39,90 @@ function InfluencerProfileContent() {
 
   const influencer = useInfluencer(influencerId);
   const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
+  const updateInfluencer = useInfluencerStore((s) => s.updateInfluencer);
   const { data: character, isLoading } = trpc.character.getById.useQuery(
     { id: influencerId },
     { enabled: !influencer }
   );
   const allPosts = useInfluencerPosts(influencerId);
   const likedPosts = useLikedPosts(influencerId);
-  const allImages = useInfluencerImages(influencerId);
+  
+  // Fetch images from database instead of local store
+  const [dbImages, setDbImages] = React.useState<Post[]>([]);
+  const [isLoadingImages, setIsLoadingImages] = React.useState(true);
+  
+  // Get image count from character query (includes imageCount) or fallback to images length
+  const imageCount = React.useMemo(() => {
+    if ((character as any)?.imageCount !== undefined) {
+      return (character as any).imageCount;
+    }
+    return dbImages.length;
+  }, [character, dbImages.length]);
+  
+  const loadImages = React.useCallback(async () => {
+    if (!influencerId) return;
+    
+    try {
+      setIsLoadingImages(true);
+      const rows = await getCharacterImages(influencerId);
+      // Convert ApiImageRow[] to Post[]
+      const converted: Post[] = rows.map((row) => ({
+        id: row.id,
+        influencerId: row.characterId || influencerId,
+        imageUrl: row.s3Url || '',
+        caption: row.prompt || '',
+        isLiked: Boolean(row.liked),
+        scene: row.scene || undefined,
+        environment: row.environment || undefined,
+        outfit: row.outfit || undefined,
+        aspectRatio: (row.aspectRatio || '9:16') as '1:1' | '9:16' | '2:3',
+        createdAt: row.createdAt || new Date().toISOString(),
+      }));
+      setDbImages(converted);
+      
+      // Update influencer imageCount in store
+      if (influencer) {
+        updateInfluencer(influencerId, { imageCount: converted.length });
+      }
+    } catch (error) {
+      console.error('Failed to load images:', error);
+      setDbImages([]);
+    } finally {
+      setIsLoadingImages(false);
+    }
+  }, [influencerId, influencer, updateInfluencer]);
+  
+  // Load images on mount and when influencerId changes
+  React.useEffect(() => {
+    loadImages();
+  }, [loadImages]);
+  
+  // Refresh images when page comes into focus (e.g., returning from studio)
+  React.useEffect(() => {
+    const handleFocus = () => {
+      loadImages();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [loadImages]);
+  
+  const allImages = dbImages;
   const likedImages = allImages.filter((img) => img.isLiked);
+  
+  // Handle like toggle - sync with database
+  const handleImageLike = async (imageId: string) => {
+    try {
+      const result = await likeImage(imageId);
+      // Update local state
+      setDbImages((prev) =>
+        prev.map((img) =>
+          img.id === imageId ? { ...img, isLiked: result.liked } : img
+        )
+      );
+    } catch (error) {
+      console.error('Failed to toggle like:', error);
+    }
+  };
 
   React.useEffect(() => {
     if (!influencer && character) {
@@ -70,13 +147,13 @@ function InfluencerProfileContent() {
         nsfwEnabled: character.config?.nsfwEnabled || false,
         profilePictureSetId: character.config?.profilePictureSetId || undefined,
         postCount: parseInt(character.postCount || '0', 10),
-        imageCount: 0,
+        imageCount: imageCount, // Use fetched count from images
         likedCount: parseInt(character.likedCount || '0', 10),
         createdAt: character.createdAt?.toISOString() || new Date().toISOString(),
         updatedAt: character.updatedAt?.toISOString() || new Date().toISOString(),
       });
     }
-  }, [addInfluencer, character, influencer]);
+  }, [addInfluencer, character, influencer, imageCount]);
 
   if (!influencer && isLoading) {
     return null;
@@ -167,15 +244,22 @@ function InfluencerProfileContent() {
 
           {/* Gallery Content */}
           <TabsContent value="gallery" className="mt-0">
-            <ImageGallery
-              images={allImages}
-              influencerId={influencerId}
-              emptyMessage="No images generated yet"
-              emptyAction={{
-                label: 'Generate Images',
-                href: `/influencer/${influencerId}/studio`,
-              }}
-            />
+            {isLoadingImages ? (
+              <div className="flex items-center justify-center py-16">
+                <div className="text-sm text-[var(--text-muted)]">Loading images...</div>
+              </div>
+            ) : (
+              <ImageGallery
+                images={allImages}
+                influencerId={influencerId}
+                emptyMessage="No images generated yet"
+                emptyAction={{
+                  label: 'Generate Images',
+                  href: `/influencer/${influencerId}/studio`,
+                }}
+                onLike={handleImageLike}
+              />
+            )}
           </TabsContent>
 
           {/* Liked Content */}
@@ -200,6 +284,7 @@ function InfluencerProfileContent() {
                     <ImageGallery
                       images={likedImages}
                       influencerId={influencerId}
+                      onLike={handleImageLike}
                     />
                   </div>
                 )}

@@ -1,8 +1,9 @@
 # ZenCreator Tools Analysis
 
-**Date:** January 2, 2025  
+**Date:** January 17, 2025  
 **Source:** https://app.zencreator.pro/tools/  
-**Account:** hellajerble@gmail.com
+**Account:** hellajerble@gmail.com  
+**Last Updated:** Comprehensive analysis with all tools, models, features, and templates
 
 ## Overview
 
@@ -28,8 +29,8 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 - **End Frame:** Optional end frame for some models (Kling 2.1, WAN, Seedance Pro)
 - **Audio File:** Optional audio file for WAN + Audio model
 - **Prompt:** Optional text description of desired video
-- **Resolution:** Configurable (default: 720p, dropdown suggests other options available)
-- **Duration:** Configurable (default: 5 seconds, dropdown suggests other options available)
+- **Resolution:** Configurable (default: 720p)
+- **Duration:** Configurable (default: 5 seconds)
 - **Template Library:** 
   - Pre-built video templates available
   - "Task" and "Library" tabs for template selection
@@ -37,6 +38,7 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
   - Each template has a "Try Template" button and "Copy ID" functionality
 - **Credit Cost:** 4 credits per video
 - **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available for most models
 
 #### Video Template Examples Found:
 1. Woman is dancing
@@ -77,32 +79,84 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 - **URL:** Available via tools page
 
 ### 4. PhotoShoot
-- **Description:** Generates professional photo shoot style images
-- **Use Case:** Creating high-quality portrait and fashion photography
-- **URL:** Available via tools page
+- **Description:** Generates professional photo shoot style images across multiple categories
+- **Use Case:** Creating high-quality portrait and fashion photography with consistent face/body
+- **URL:** `/tools/photo-shoot`
+- **Credit Cost:** 3 credits per image
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+
+#### PhotoShoot Features:
+- **Face Image Upload:** Required - Upload a single face image
+- **Body Image Upload:** Required - Upload a single body image
+- **Aspect Ratio:** Configurable (default: 3:4)
+- **Resize Options:**
+  - Width: Default 2880px (adjustable)
+  - Height: Default 3840px (adjustable)
+- **Gender Selection:** Male/Female (radio buttons)
+- **PhotoShoot Categories:** Select number of images per category (0 to skip)
+  - **SFW Categories:**
+    - Lingerie (45 prompts)
+    - Fashion (50 prompts)
+    - Business (50 prompts)
+    - Lifestyle (49 prompts)
+    - Bikini (50 prompts)
+    - Beach & Pool (49 prompts)
+    - Portrait (60 prompts)
+    - Selfie (100 prompts)
+    - Travel (50 prompts)
+    - Party (50 prompts)
+    - Casual (50 prompts)
+    - Fitness (50 prompts)
+    - Romantic (50 prompts)
+    - New Year's Eve/Christmas (25 prompts)
+  - **18+ Categories:**
+    - New Year's Eve/Christmas 18+ (9 prompts)
+    - Pure Nude 18+ (30 prompts)
+    - Tease 18+ (30 prompts)
+    - Sensual Touch 18+ (30 prompts)
+    - BDSM aesthetics 18+ (30 prompts)
+    - Hentai Style 18+ (30 prompts)
+    - Stockings 18+ (30 prompts)
+    - Cosplay 18+ (28 prompts)
+    - Corsets 18+ (30 prompts)
+    - Latex 18+ (30 prompts)
+    - Fishnet 18+ (30 prompts)
+    - Outdoor Public Tease 18+ (30 prompts)
+    - Oil 18+ (30 prompts)
+    - Leather 18+ (30 prompts)
+    - See-through 18+ (30 prompts)
+- **Template Library:** 
+  - Pre-built templates available
+  - "Task" and "Library" tabs for template selection
+  - Each category has multiple prompt templates
+  - Random prompt template selected for each image with unique seed
+- **Personas Integration:** Can select from saved personas for face/body images
 
 ### 5. Text-To-Image
 - **Description:** Generates images from text prompts
 - **URL:** `/tools/generator-by-prompt`
 - **Models Available:**
-  - **General - 4K** (default)
-  - **SDXL - 1K**
-  - **WAN - 1K**
-  - **Nano Banana Pro - 2K**
+  - **General - SFW/NSFW - 4K** (default)
+  - **SDXL - 1K** (likely available)
+  - **WAN - 1K** (likely available)
+  - **Nano Banana Pro - 2K** (likely available)
 
 #### Text-To-Image Features:
 - **Prompt Input:** Required text prompt field
-- **Negative Prompt:** Optional negative prompt to exclude elements
+- **Negative Prompt:** Optional negative prompt to exclude elements (collapsible section)
 - **Aspect Ratio:** Configurable (default: 1:1)
 - **Resize Options:**
   - Width: Default 1024px (adjustable)
   - Height: Default 1024px (adjustable)
-- **Number of Images:** Configurable (default: 10, max appears to be 10)
+- **Number of Images:** Configurable (default: 10)
 - **Template Library:** 
   - Pre-built templates available
   - "Task" and "Library" tabs for template selection
   - Templates include detailed prompts for specific styles
   - Each template has a "Try Template" button and "Copy ID" functionality
+- **Credit Cost:** 1 credit per image
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
 #### Template Examples Found:
 1. Editorial studio photo of an adult woman in black minimal two-piece lingerie set, sitting on floor in relaxed pose
@@ -116,19 +170,73 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 9. Ultra-realistic 8K photo, gorgeous 23-year-old girl with perfect hourglass body standing in luxury bedroom in front of full-length mirror
 
 ### 6. Image-To-Image
-- **Description:** Transforms existing images based on prompts
-- **Use Case:** Style transfer and image modification
-- **URL:** Available via tools page
+- **Description:** Transforms existing images based on prompts and reference images
+- **Use Case:** Style transfer, image modification, pose preservation, face swapping
+- **URL:** `/tools/generator-by-ref`
+- **Models Available:**
+  - **General SFW/NSFW**
+    - Universal model
+    - 4K output
+    - Built-in face swap (if a face is selected)
+    - Keeps the original pose
+    - Background swap support
+  - **SDXL SFW/NSFW** (default)
+    - Ideal for photos with people
+    - Allows tuning LoRAs for body shape & proportions
+    - Struggles with complex poses
+
+#### Image-To-Image Features:
+- **Reference Upload:** Upload reference images (up to 1000 files)
+- **Prompt Input:** Text description of desired transformation
+- **Mode Toggle:** Quality vs Fast mode (switch)
+- **Number of Images:** Configurable (default: 4 images, disabled when Fast mode is on)
+- **Advanced Settings:** Collapsible advanced options available
+- **Template Library:** 
+  - Pre-built templates available
+  - "Task" and "Library" tabs for template selection
+  - Templates include examples showing Ref, Face, and Output
+  - Template examples:
+    - General - Keep Pose Off
+    - General - Keep Pose On
+    - Ref + Plus Size - 1K
+    - Ref + Large Breast and Hourglass - 1K
+    - Ref (without LoRAs) - 1K
+  - "Show 18+ templates" toggle available
+- **Credit Cost:** 1 credit per image
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
 ### 7. Upscaler
-- **Description:** Enhances image resolution and quality
-- **Use Case:** Improving low-resolution images
-- **URL:** Available via tools page
+- **Description:** Enhances image resolution and quality using AI upscaling
+- **Use Case:** Improving low-resolution images to high-resolution
+- **URL:** `/tools/upscaler`
+- **Version Available:**
+  - **Natural Clarity 16MP** (default, likely has other versions)
+
+#### Upscaler Features:
+- **Image Upload:** Upload images to upscale (up to 1000 files)
+- **Version Selection:** Choose upscaling version/model
+- **Creativity Slider:** Adjustable creativity parameter (default: 0.5)
+- **Megapixels:** Configurable output resolution (default: 16 MP)
+- **Credit Cost:** 1 credit per image
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
 ### 8. Head & Face Swap
-- **Description:** Swaps faces or heads between images
-- **Use Case:** Face replacement in photos
-- **URL:** Available via tools page
+- **Description:** Swaps faces or heads between images and videos with full hair preservation
+- **Use Case:** Face/head replacement in photos and videos with realistic lighting adaptation
+- **URL:** `/tools/face-swapping`
+- **Model Available:**
+  - **Only Face - SFW/NSFW** (default, likely has "Full Head" option)
+
+#### Head & Face Swap Features:
+- **Source Face Upload:** Upload a single face image to use as the source
+- **Target Images/Videos Upload:** Upload images or videos to swap faces (up to 1000 files)
+- **Personas Integration:** Can select from saved personas for source face
+- **Batch Processing:** Supports processing 100+ images
+- **Credit Cost:** 1 credit per image
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
 ### 9. Face Generator
 - **Description:** Generates new faces from scratch with customizable attributes
@@ -136,10 +244,10 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 - **URL:** `/tools/face-generator`
 
 #### Face Generator Features:
-- **Surprise Me Button:** Random face generation
-- **Gender Selection:** Male/Female (required)
+- **Surprise Me Button:** Random face generation with random parameters
+- **Gender Selection:** Male/Female buttons (required)
 - **Age Selection:** Dropdown selector (required)
-- **Ethnicity Selection:** Dropdown selector (required)
+- **Ethnicity Selection:** Dropdown selector labeled "Ethnos" (required)
 - **Body Type:** Optional dropdown selector
 - **Eye Color:** Optional dropdown selector
 - **Hair Color:** Optional dropdown selector
@@ -152,8 +260,9 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
   - "Task" and "Library" tabs for template selection
   - Multiple template examples visible
   - Each template has a "Try Template" button
-- **Credit Cost:** 1 credit per image
+- **Credit Cost:** 1 credit per image (Total: 4 credits for 4 images)
 - **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW Only:** No NSFW option available for Face Generator
 
 ### 10. Carousel
 - **Description:** Creates carousel-style content (likely for social media)
@@ -264,22 +373,22 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 ## Summary of Detailed Analysis
 
 ### Tools Fully Analyzed ✅
-1. **Text-To-Image** - Complete analysis with 4 models, features, and 9 template examples
-2. **Image-To-Video** - Complete analysis with 7 models, features, and 12 video template examples
-3. **Video-To-Video** - Complete analysis with model, features, and template examples
+1. **Image-To-Video** - Complete analysis with 7 models, features, resolution/duration options, and template examples
+2. **Video-To-Video** - Complete analysis with model, features, and template examples
+3. **Text-To-Image** - Complete analysis with models, features, aspect ratio/resize options, and template examples
+4. **PhotoShoot** - Complete analysis with 28 categories (14 SFW + 14 18+), face/body upload, gender selection, and prompt counts
+5. **Image-To-Image** - Complete analysis with 2 models (General and SDXL), features, mode toggle, and template examples
+6. **Upscaler** - Complete analysis with version options, creativity slider, megapixel settings
+7. **Head & Face Swap** - Complete analysis with model, batch processing capabilities, personas integration
+8. **Face Generator** - Complete analysis with all customization parameters, surprise me feature, template library
 
-### Tools Identified (Require Login for Full Details) ⚠️
-4. **PhotoShoot** - Professional photo shoot style image generation
-5. **Image-To-Image** - Style transfer and image modification
-6. **Upscaler** - Image resolution enhancement
-7. **Head & Face Swap** - Face/head replacement between images
-8. **Face Generator** - Generate new faces from scratch
+### Tools Identified (Basic Information Available) ⚠️
 9. **Carousel** - Multi-image carousel creation for social media
 10. **Editor & Combiner** - Image/video editing and combination
-11. **Collab** - Collaboration features
-12. **Lip Sync** - Audio-synchronized lip movement
+11. **Collabs** - Collaboration features (multi-person generation)
+12. **Lipsync** - Audio-synchronized lip movement for videos
 
-**Note:** Tools 4-12 were identified from the main tools page but require login or different access patterns for detailed feature analysis. The analysis above covers the three most important tools (Text-To-Image, Image-To-Video, Video-To-Video) in full detail with models, features, templates, and credit costs.
+**Note:** Tools 9-12 were identified from the main tools page. Carousel, Editor & Combiner, Collabs, and Lipsync require further exploration for complete feature analysis. The analysis above covers 8 major tools in full detail with models, features, templates, credit costs, and all available options.
 
 ## Key Findings
 
@@ -290,9 +399,14 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 
 ### Credit System
 - **Text-To-Image:** 1 credit per image
+- **Image-To-Image:** 1 credit per image
 - **Image-To-Video:** 4 credits per video
 - **Video-To-Video:** 7 credits per video
-- **Free Tier:** First 30 credits include watermark
+- **PhotoShoot:** 3 credits per image
+- **Upscaler:** 1 credit per image
+- **Head & Face Swap:** 1 credit per image
+- **Face Generator:** 1 credit per image
+- **Free Tier:** First 30 credits include watermark (applies to all tools)
 
 ### Template System
 - Extensive template library for both images and videos

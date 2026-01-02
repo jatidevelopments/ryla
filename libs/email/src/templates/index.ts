@@ -15,3 +15,6 @@ export type { SubscriptionCancelledEmailProps } from './subscription-cancelled-e
 
 export { GenerationCompleteEmail } from './generation-complete-email';
 export type { GenerationCompleteEmailProps } from './generation-complete-email';
+
+export { BugReportNotificationEmail } from './bug-report-notification-email';
+export type { BugReportNotificationEmailProps } from './bug-report-notification-email';

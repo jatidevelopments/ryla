@@ -21,6 +21,14 @@ export interface AIModel {
   isPro?: boolean;
 }
 
+// Import model registry helpers
+import { 
+  getAllModels, 
+  getModelsForStudioMode,
+  type ModelDefinition,
+  type UIModelId 
+} from '@ryla/shared';
+
 export interface VisualStyle {
   id: string;
   name: string;
@@ -70,6 +78,26 @@ export interface LightingSetting {
   type: LightingType;
 }
 
+export type StudioMode = 'creating' | 'editing' | 'upscaling' | 'variations';
+export type ContentType = 'image' | 'video';
+
+export interface Pose {
+  id: string;
+  name: string;
+  icon: string;
+  prompt: string;
+  category: 'standing' | 'sitting' | 'lying' | 'action';
+  isAdult?: boolean;
+  thumbnail?: string; // Path to thumbnail image
+}
+
+export interface SelectedObject {
+  id: string;
+  imageUrl: string;
+  thumbnailUrl?: string;
+  name?: string;
+}
+
 export interface GenerationSettings {
   prompt: string;
   influencerId: string | null;
@@ -81,6 +109,10 @@ export interface GenerationSettings {
   lightingId: string | null;
   promptEnhance: boolean;
   batchSize: number;
+  mode: StudioMode;
+  contentType: ContentType;
+  poseId: string | null;
+  objects: SelectedObject[]; // Up to 3 objects for composition
 }
 
 export const DEFAULT_GENERATION_SETTINGS: GenerationSettings = {
@@ -94,6 +126,10 @@ export const DEFAULT_GENERATION_SETTINGS: GenerationSettings = {
   lightingId: null,
   promptEnhance: true,
   batchSize: 1,
+  mode: 'creating',
+  contentType: 'image',
+  poseId: null,
+  objects: [],
 };
 
 import type { PlatformId } from '@ryla/shared';
@@ -164,19 +200,39 @@ export const QUALITY_OPTIONS: QualityOption[] = [
   { value: '4k', label: '4k', description: 'Ultra High Definition', credits: 80 },
 ];
 
-export const AI_MODELS: AIModel[] = [
-  { id: 'ryla-soul', name: 'RYLA Soul', description: 'Ultra-Realistic Fashion Visuals', icon: 'soul', isUnlimited: true },
-  { id: 'ryla-face-swap', name: 'RYLA Face Swap', description: 'Seamless Face Swapping', icon: 'face-swap', isUnlimited: true },
-  { id: 'ryla-character', name: 'RYLA Character', description: 'Seamless Character Swapping', icon: 'character', isUnlimited: true },
-  { id: 'flux-dev', name: 'FLUX.2 Pro', description: 'Speed-Optimized Detail', icon: 'flux', isUnlimited: true },
-  { id: 'flux-flex', name: 'FLUX.2 Flex', description: 'Next-Gen Image Generation', icon: 'flux' },
-  { id: 'flux-max', name: 'FLUX.2 Max', description: 'Ultimate Precision And Speed', icon: 'flux' },
-  { id: 'z-image', name: 'Z-Image', description: 'Instant Lifelike Portraits', icon: 'zimage', isUnlimited: true },
-  { id: 'seedream-45', name: 'Seedream 4.5', description: "ByteDance's Next-Gen 4K Model", icon: 'bytedance' },
-  { id: 'seedream-40', name: 'Seedream 4.0', description: "ByteDance's Advanced Editing", icon: 'bytedance', isUnlimited: true },
-  { id: 'gpt-image', name: 'GPT Image', description: 'Versatile Text-To-Image AI', icon: 'openai', isUnlimited: true },
-  { id: 'reve', name: 'Reve', description: 'Advanced Image Editing Model', icon: 'reve', isUnlimited: true },
-];
+/**
+ * Convert ModelDefinition to AIModel for UI compatibility
+ */
+function modelDefinitionToAIModel(model: ModelDefinition): AIModel {
+  return {
+    id: model.uiId,
+    name: model.name,
+    description: model.description,
+    icon: model.icon as AIModel['icon'],
+    isUnlimited: model.isUnlimited,
+    isPro: model.isPro,
+  };
+}
+
+/**
+ * Get all available models (for backward compatibility)
+ */
+export function getAllAIModels(): AIModel[] {
+  return getAllModels().map(modelDefinitionToAIModel);
+}
+
+/**
+ * Get models filtered by Studio mode
+ */
+export function getAIModelsForMode(mode: StudioMode): AIModel[] {
+  return getModelsForStudioMode(mode).map(modelDefinitionToAIModel);
+}
+
+/**
+ * @deprecated Use getAllAIModels() or getAIModelsForMode() instead
+ * Kept for backward compatibility
+ */
+export const AI_MODELS: AIModel[] = getAllAIModels();
 
 export const STYLE_CATEGORIES: { id: StyleCategory; label: string }[] = [
   { id: 'all', label: 'All' },
@@ -190,11 +246,7 @@ export const STYLE_CATEGORIES: { id: StyleCategory; label: string }[] = [
   { id: 'artistic', label: 'Graphic Art' },
 ];
 
-// MVP stability: these thumbnail assets aren't present in `apps/web/public` yet.
-// Use a known-good placeholder to avoid 404s and /_not-found compilation loops.
-const PLACEHOLDER_THUMBNAIL = '/logos/logo.svg';
-
-const VISUAL_STYLES_RAW: VisualStyle[] = [
+export const VISUAL_STYLES: VisualStyle[] = [
   { id: 'general', name: 'General', thumbnail: '/styles/general.webp', category: 'all' },
   { id: 'iphone', name: 'iPhone', thumbnail: '/styles/iphone.webp', category: 'camera' },
   { id: 'realistic', name: 'Realistic', thumbnail: '/styles/realistic.webp', category: 'all' },
@@ -217,11 +269,6 @@ const VISUAL_STYLES_RAW: VisualStyle[] = [
   { id: 'retro-film', name: 'Retro Film', thumbnail: '/styles/retro-film.webp', category: 'camera' },
 ];
 
-export const VISUAL_STYLES: VisualStyle[] = VISUAL_STYLES_RAW.map((s) => ({
-  ...s,
-  thumbnail: PLACEHOLDER_THUMBNAIL,
-}));
-
 export const SCENE_CATEGORIES: { id: SceneCategory; label: string }[] = [
   { id: 'outdoor', label: 'Outdoor' },
   { id: 'indoor', label: 'Indoor' },
@@ -231,7 +278,7 @@ export const SCENE_CATEGORIES: { id: SceneCategory; label: string }[] = [
   { id: 'fantasy', label: 'Fantasy' },
 ];
 
-const SCENES_RAW: Scene[] = [
+export const SCENES: Scene[] = [
   { id: 'beach-sunset', name: 'Beach Sunset', thumbnail: '/scenes/beach-sunset.webp', category: 'nature' },
   { id: 'city-rooftop', name: 'City Rooftop', thumbnail: '/scenes/city-rooftop.webp', category: 'urban' },
   { id: 'cozy-cafe', name: 'Cozy Café', thumbnail: '/scenes/cozy-cafe.webp', category: 'indoor' },
@@ -248,12 +295,7 @@ const SCENES_RAW: Scene[] = [
   { id: 'enchanted-forest', name: 'Enchanted Forest', thumbnail: '/scenes/enchanted-forest.webp', category: 'fantasy' },
 ];
 
-export const SCENES: Scene[] = SCENES_RAW.map((s) => ({
-  ...s,
-  thumbnail: PLACEHOLDER_THUMBNAIL,
-}));
-
-const LIGHTING_SETTINGS_RAW: LightingSetting[] = [
+export const LIGHTING_SETTINGS: LightingSetting[] = [
   { id: 'natural-daylight', name: 'Natural Daylight', thumbnail: '/lighting/natural-daylight.webp', type: 'natural' },
   { id: 'golden-hour', name: 'Golden Hour', thumbnail: '/lighting/golden-hour.webp', type: 'golden-hour' },
   { id: 'blue-hour', name: 'Blue Hour', thumbnail: '/lighting/blue-hour.webp', type: 'natural' },
@@ -266,8 +308,47 @@ const LIGHTING_SETTINGS_RAW: LightingSetting[] = [
   { id: 'backlit-silhouette', name: 'Backlit Silhouette', thumbnail: '/lighting/backlit-silhouette.webp', type: 'dramatic' },
 ];
 
-export const LIGHTING_SETTINGS: LightingSetting[] = LIGHTING_SETTINGS_RAW.map((s) => ({
-  ...s,
-  thumbnail: PLACEHOLDER_THUMBNAIL,
-}));
+// Pose definitions
+export const SFW_POSES: Pose[] = [
+  // Standing poses
+  { id: 'standing-casual', name: 'Casual', icon: '👤', prompt: 'relaxed casual standing pose', category: 'standing', thumbnail: '/poses/standing-casual.webp' },
+  { id: 'standing-confident', name: 'Confident', icon: '💪', prompt: 'confident power stance', category: 'standing', thumbnail: '/poses/standing-confident.webp' },
+  { id: 'standing-walking', name: 'Walking', icon: '🚶', prompt: 'natural walking mid-stride', category: 'standing', thumbnail: '/poses/standing-walking.webp' },
+  { id: 'standing-leaning', name: 'Leaning', icon: '🧍', prompt: 'casually leaning against wall', category: 'standing', thumbnail: '/poses/standing-leaning.webp' },
+  // Sitting poses
+  { id: 'sitting-relaxed', name: 'Relaxed', icon: '🪑', prompt: 'relaxed sitting position', category: 'sitting', thumbnail: '/poses/sitting-relaxed.webp' },
+  { id: 'sitting-cross', name: 'Cross-legged', icon: '🧘', prompt: 'sitting cross-legged', category: 'sitting', thumbnail: '/poses/sitting-cross.webp' },
+  { id: 'sitting-perched', name: 'Perched', icon: '✨', prompt: 'perched on edge elegantly', category: 'sitting', thumbnail: '/poses/sitting-perched.webp' },
+  { id: 'sitting-lounging', name: 'Lounging', icon: '🛋️', prompt: 'lounging comfortably', category: 'sitting', thumbnail: '/poses/sitting-lounging.webp' },
+  // Action poses
+  { id: 'action-dancing', name: 'Dancing', icon: '💃', prompt: 'dynamic dancing movement', category: 'action', thumbnail: '/poses/action-dancing.webp' },
+  { id: 'action-stretching', name: 'Stretching', icon: '🤸', prompt: 'graceful stretching pose', category: 'action', thumbnail: '/poses/action-stretching.webp' },
+  { id: 'action-exercising', name: 'Exercising', icon: '🏋️', prompt: 'active workout pose', category: 'action', thumbnail: '/poses/action-exercising.webp' },
+  { id: 'action-playing', name: 'Playing', icon: '🎮', prompt: 'playful action pose', category: 'action', thumbnail: '/poses/action-playing.webp' },
+];
+
+export const ADULT_POSES: Pose[] = [
+  // Standing poses
+  { id: 'adult-standing-seductive', name: 'Seductive', icon: '🔥', prompt: 'seductive standing pose', category: 'standing', isAdult: true, thumbnail: '/poses/adult-standing-seductive.webp' },
+  { id: 'adult-standing-alluring', name: 'Alluring', icon: '💋', prompt: 'alluring confident pose', category: 'standing', isAdult: true, thumbnail: '/poses/adult-standing-alluring.webp' },
+  { id: 'adult-standing-sensual', name: 'Sensual', icon: '🌹', prompt: 'sensual standing pose', category: 'standing', isAdult: true, thumbnail: '/poses/adult-standing-sensual.webp' },
+  // Sitting poses
+  { id: 'adult-sitting-sensual', name: 'Sensual', icon: '🌹', prompt: 'sensual sitting position', category: 'sitting', isAdult: true, thumbnail: '/poses/adult-sitting-sensual.webp' },
+  { id: 'adult-sitting-suggestive', name: 'Suggestive', icon: '✨', prompt: 'suggestive perched pose', category: 'sitting', isAdult: true, thumbnail: '/poses/adult-sitting-suggestive.webp' },
+  { id: 'adult-sitting-elegant', name: 'Elegant', icon: '💫', prompt: 'elegant sensual sitting pose', category: 'sitting', isAdult: true, thumbnail: '/poses/adult-sitting-elegant.webp' },
+  // Lying poses
+  { id: 'adult-lying-elegant', name: 'Elegant', icon: '🛏️', prompt: 'elegant reclining pose', category: 'lying', isAdult: true, thumbnail: '/poses/adult-lying-elegant.webp' },
+  { id: 'adult-lying-alluring', name: 'Alluring', icon: '💫', prompt: 'alluring reclining pose', category: 'lying', isAdult: true, thumbnail: '/poses/adult-lying-alluring.webp' },
+  { id: 'adult-lying-sensual', name: 'Sensual', icon: '🌹', prompt: 'sensual reclining pose', category: 'lying', isAdult: true, thumbnail: '/poses/adult-lying-sensual.webp' },
+];
+
+export const ALL_POSES: Pose[] = [...SFW_POSES, ...ADULT_POSES];
+
+export const POSE_CATEGORIES = [
+  { id: 'all', label: 'All' },
+  { id: 'standing', label: 'Standing' },
+  { id: 'sitting', label: 'Sitting' },
+  { id: 'lying', label: 'Lying' },
+  { id: 'action', label: 'Action' },
+] as const;
 

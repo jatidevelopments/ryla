@@ -25,6 +25,7 @@ function DashboardContent() {
   const { data: charactersData, isLoading } = trpc.character.list.useQuery();
   
   // Map Character data to AIInfluencer format for compatibility
+  // imageCount is now included in the character list response
   const influencers = (charactersData?.items || []).map((char) => ({
     id: char.id,
     name: char.name,
@@ -46,7 +47,7 @@ function DashboardContent() {
     nsfwEnabled: char.config?.nsfwEnabled || false,
     profilePictureSetId: char.config?.profilePictureSetId || undefined,
     postCount: parseInt(char.postCount || '0', 10),
-    imageCount: 0, // TODO: Calculate from images table
+    imageCount: (char as any).imageCount ?? 0, // imageCount is now included from backend
     likedCount: parseInt(char.likedCount || '0', 10),
     createdAt: char.createdAt?.toISOString() || new Date().toISOString(),
     updatedAt: char.createdAt?.toISOString() || new Date().toISOString(),

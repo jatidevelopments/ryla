@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { cn, Button, RylaButton } from '@ryla/ui';
+import { cn, Button } from '@ryla/ui';
 import type { StudioImage } from './studio-image-card';
 
 interface StudioDetailPanelProps {
@@ -12,7 +12,6 @@ interface StudioDetailPanelProps {
   onLike?: (imageId: string) => void;
   onDelete?: (imageId: string) => void;
   onDownload?: (image: StudioImage) => void;
-  editHref?: string;
   className?: string;
 }
 
@@ -22,7 +21,6 @@ export function StudioDetailPanel({
   onLike,
   onDelete,
   onDownload,
-  editHref,
   className,
 }: StudioDetailPanelProps) {
   const [copied, setCopied] = React.useState(false);
@@ -243,26 +241,6 @@ export function StudioDetailPanel({
           </Button>
         </div>
 
-        {/* Edit (deep link to per-influencer Studio) */}
-        {editHref && (
-          <div className="px-4 pb-4 border-b border-[var(--border-default)]">
-            <Link
-              href={editHref}
-              className="flex items-center justify-center gap-2 w-full rounded-xl bg-[var(--purple-500)] text-white font-semibold text-sm py-3.5 hover:bg-[var(--purple-400)] transition-colors shadow-lg shadow-[var(--purple-500)]/20"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-                className="h-4 w-4"
-              >
-                <path d="M13.586 3.586a2 2 0 112.828 2.828l-9.5 9.5a1 1 0 01-.415.257l-3.5 1a1 1 0 01-1.236-1.236l1-3.5a1 1 0 01.257-.415l9.566-9.434z" />
-              </svg>
-              Edit in Studio
-            </Link>
-          </div>
-        )}
-
         {/* Delete Confirmation */}
         {showDeleteConfirm && (
           <div className="mx-4 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4">
@@ -447,18 +425,6 @@ export function StudioDetailPanel({
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Footer - Generate More CTA */}
-      <div className="border-t border-[var(--border-default)] p-4 bg-[var(--bg-elevated)]">
-        <RylaButton asChild variant="gradient" className="w-full">
-          <Link href={`/influencer/${image.influencerId}/studio`}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="mr-2 h-4 w-4">
-              <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684z" />
-            </svg>
-            Generate More
-          </Link>
-        </RylaButton>
       </div>
     </div>
   );

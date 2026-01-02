@@ -4,7 +4,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import { cn, Button } from '@ryla/ui';
 import type { GenerationSettings, AspectRatio, Quality, AIModel, VisualStyle, Scene, LightingSetting } from './types';
-import { DEFAULT_GENERATION_SETTINGS, AI_MODELS, ASPECT_RATIOS, QUALITY_OPTIONS } from './types';
+import { DEFAULT_GENERATION_SETTINGS, getAIModelsForMode, ASPECT_RATIOS, QUALITY_OPTIONS } from './types';
 import { AspectRatioPicker } from './aspect-ratio-picker';
 import { QualityPicker } from './quality-picker';
 import { ModelPicker } from './model-picker';
@@ -12,6 +12,12 @@ import { CharacterPicker } from './character-picker';
 import { StylePicker } from './style-picker';
 import { Tooltip } from '../../ui/tooltip';
 import { useLocalStorage } from '../../../lib/hooks/use-local-storage';
+import type { StudioImage } from '../studio-image-card';
+import { ModeSelector, getModeBorderColor } from './mode-selector';
+import { PosePicker } from './pose-picker';
+import { ObjectPicker } from './object-picker';
+import { ALL_POSES } from './types';
+import type { StudioMode, ContentType, SelectedObject } from './types';
 
 interface Influencer {
   id: string;
@@ -25,6 +31,14 @@ interface StudioGenerationBarProps {
   onGenerate: (settings: GenerationSettings) => void;
   isGenerating?: boolean;
   creditsAvailable?: number;
+  selectedImage?: StudioImage | null;
+  onClearSelectedImage?: () => void;
+  mode: StudioMode;
+  contentType: ContentType;
+  onModeChange: (mode: StudioMode) => void;
+  onContentTypeChange: (type: ContentType) => void;
+  nsfwEnabled: boolean;
+  availableImages?: StudioImage[]; // Images available for object selection
   className?: string;
 }
 
@@ -34,10 +48,32 @@ export function StudioGenerationBar({
   onGenerate,
   isGenerating = false,
   creditsAvailable = 250,
+  selectedImage = null,
+  onClearSelectedImage,
+  mode,
+  contentType,
+  onModeChange,
+  onContentTypeChange,
+  nsfwEnabled,
+  availableImages = [],
   className,
 }: StudioGenerationBarProps) {
-  // Load settings from localStorage (excluding prompt and influencerId which are context-specific)
-  const [persistedSettings, setPersistedSettings] = useLocalStorage<Omit<GenerationSettings, 'prompt' | 'influencerId'>>(
+  // Auto-switch to editing mode when image is selected
+  React.useEffect(() => {
+    if (selectedImage && mode === 'creating') {
+      onModeChange('editing');
+    }
+  }, [selectedImage, mode, onModeChange]);
+
+  // Clear objects when switching away from editing mode
+  React.useEffect(() => {
+    if (mode !== 'editing' && settings.objects.length > 0) {
+      updateSetting('objects', []);
+    }
+  }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Load settings from localStorage (excluding prompt, influencerId, mode, contentType, and objects which are context-specific)
+  const [persistedSettings, setPersistedSettings] = useLocalStorage<Omit<GenerationSettings, 'prompt' | 'influencerId' | 'mode' | 'contentType' | 'objects'>>(
     'ryla-studio-generation-settings',
     {
       aspectRatio: DEFAULT_GENERATION_SETTINGS.aspectRatio,
@@ -48,6 +84,7 @@ export function StudioGenerationBar({
       lightingId: DEFAULT_GENERATION_SETTINGS.lightingId,
       promptEnhance: DEFAULT_GENERATION_SETTINGS.promptEnhance,
       batchSize: DEFAULT_GENERATION_SETTINGS.batchSize,
+      poseId: DEFAULT_GENERATION_SETTINGS.poseId,
     }
   );
 
@@ -55,6 +92,9 @@ export function StudioGenerationBar({
     ...persistedSettings,
     prompt: '', // Always start with empty prompt
     influencerId: selectedInfluencer?.id || null,
+    mode,
+    contentType,
+    objects: [], // Always start with empty objects
   }));
 
   // Picker states
@@ -63,6 +103,8 @@ export function StudioGenerationBar({
   const [showQualityPicker, setShowQualityPicker] = React.useState(false);
   const [showCharacterPicker, setShowCharacterPicker] = React.useState(false);
   const [showStylePicker, setShowStylePicker] = React.useState(false);
+  const [showPosePicker, setShowPosePicker] = React.useState(false);
+  const [showObjectPicker, setShowObjectPicker] = React.useState(false);
 
   // Button refs for picker positioning
   const modelButtonRef = React.useRef<HTMLButtonElement>(null);
@@ -84,24 +126,66 @@ export function StudioGenerationBar({
       ...persistedSettings,
       prompt: prev.prompt, // Keep current prompt
       influencerId: prev.influencerId, // Keep current influencer
+      mode, // Sync mode
+      contentType, // Sync content type
+      objects: prev.objects, // Keep current objects
     }));
-  }, [persistedSettings]);
+  }, [persistedSettings, mode, contentType]);
 
-  const selectedModel = AI_MODELS.find(m => m.id === settings.modelId) || AI_MODELS[0];
+  // Get models filtered by current mode
+  const availableModels = React.useMemo(() => {
+    return getAIModelsForMode(mode);
+  }, [mode]);
+
+  // Reset modelId if current selection is not available for the mode
+  React.useEffect(() => {
+    const isCurrentModelAvailable = availableModels.some(m => m.id === settings.modelId);
+    if (!isCurrentModelAvailable && availableModels.length > 0) {
+      setSettings(prev => {
+        const updated = { ...prev, modelId: availableModels[0].id };
+        setPersistedSettings(prevPersisted => ({
+          ...prevPersisted,
+          modelId: availableModels[0].id,
+        }));
+        return updated;
+      });
+    }
+  }, [mode, availableModels, settings.modelId]);
+
+  const selectedModel = availableModels.find(m => m.id === settings.modelId) || availableModels[0];
   const selectedQuality = QUALITY_OPTIONS.find(q => q.value === settings.quality) || QUALITY_OPTIONS[0];
   const creditsCost = selectedQuality.credits * settings.batchSize;
+  const selectedPose = settings.poseId ? ALL_POSES.find(p => p.id === settings.poseId) : null;
+  const modeBorderColor = getModeBorderColor(mode);
+
+  // Build prompt with pose if selected
+  const buildPrompt = (basePrompt: string): string => {
+    if (selectedPose && basePrompt.trim()) {
+      return `${basePrompt}, ${selectedPose.prompt}`;
+    }
+    return basePrompt;
+  };
 
   const handleGenerate = () => {
-    if (!settings.influencerId || !settings.prompt.trim()) return;
-    onGenerate(settings);
+    if (!settings.influencerId) return;
+    
+    // Validation based on mode
+    if (mode === 'creating' && !settings.prompt.trim()) return;
+    if ((mode === 'editing' || mode === 'upscaling') && !selectedImage) return;
+    
+    const finalSettings = {
+      ...settings,
+      prompt: buildPrompt(settings.prompt),
+    };
+    onGenerate(finalSettings);
   };
 
   const updateSetting = <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => {
     setSettings(prev => {
       const updated = { ...prev, [key]: value };
       
-      // Persist to localStorage (excluding prompt and influencerId)
-      if (key !== 'prompt' && key !== 'influencerId') {
+      // Persist to localStorage (excluding prompt, influencerId, mode, contentType, objects)
+      if (key !== 'prompt' && key !== 'influencerId' && key !== 'mode' && key !== 'contentType' && key !== 'objects') {
         setPersistedSettings(prevPersisted => ({
           ...prevPersisted,
           [key]: value,
@@ -112,18 +196,139 @@ export function StudioGenerationBar({
     });
   };
 
-  const canGenerate = settings.influencerId && settings.prompt.trim() && creditsAvailable >= creditsCost;
+  // Validation based on mode
+  const canGenerate = React.useMemo(() => {
+    if (!settings.influencerId || creditsAvailable < creditsCost) return false;
+    
+    if (mode === 'creating') {
+      return settings.prompt.trim().length > 0;
+    }
+    
+    if (mode === 'editing' || mode === 'upscaling') {
+      return selectedImage !== null;
+    }
+    
+    return false;
+  }, [settings.influencerId, settings.prompt, mode, selectedImage, creditsAvailable, creditsCost]);
+
+  // Get button label based on mode
+  const getButtonLabel = () => {
+    switch (mode) {
+      case 'creating':
+        return 'Generate';
+      case 'editing':
+        return 'Edit';
+      case 'upscaling':
+        return 'Upscale';
+      case 'variations':
+        return 'Create Variations';
+      default:
+        return 'Generate';
+    }
+  };
 
   return (
-    <div className={cn('mx-4 mb-4 lg:mx-6 lg:mb-6 rounded-2xl bg-[var(--bg-elevated)]/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40', className)}>
+    <div className={cn('mx-4 mb-4 lg:mx-6 lg:mb-6', className)}>
+      {/* Mode Selector */}
+      <ModeSelector
+        mode={mode}
+        contentType={contentType}
+        onModeChange={onModeChange}
+        onContentTypeChange={onContentTypeChange}
+        hasSelectedImage={!!selectedImage}
+        creditsAvailable={creditsAvailable}
+      />
+      
+      {/* Generation Bar */}
+      <div 
+        className="rounded-2xl bg-[var(--bg-elevated)]/95 backdrop-blur-xl border-2 shadow-2xl shadow-black/40 transition-colors"
+        style={{ borderColor: mode === 'creating' ? '#3b82f6' : mode === 'editing' ? '#a855f7' : mode === 'upscaling' ? '#22c55e' : '#f97316' }}
+      >
       {/* Prompt Input Row */}
       <div className="flex items-center gap-3 px-5 py-4">
-        {/* Upload Button */}
-        <button className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-            <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-          </svg>
-        </button>
+        {/* Upload Button / Selected Image in Editing Mode */}
+        {selectedImage ? (
+          <div className="flex items-center gap-2">
+            {/* Main Selected Image */}
+            <div className="relative group">
+              <div className="relative h-11 w-11 rounded-xl overflow-hidden border-2 border-[var(--purple-500)] ring-1 ring-[var(--purple-500)]/50">
+                <Image
+                  src={selectedImage.thumbnailUrl || selectedImage.imageUrl}
+                  alt="Selected image"
+                  fill
+                  className="object-cover"
+                  unoptimized
+                />
+                {/* Editing mode indicator */}
+                <div className="absolute inset-0 bg-[var(--purple-500)]/20 flex items-center justify-center">
+                  <div className="absolute top-0.5 right-0.5 h-2.5 w-2.5 rounded-full bg-[var(--purple-500)] ring-1 ring-white/50" />
+                </div>
+              </div>
+              {/* Clear button on hover */}
+              {onClearSelectedImage && (
+                <button
+                  onClick={onClearSelectedImage}
+                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
+                  title="Clear selection"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                  </svg>
+                </button>
+              )}
+            </div>
+
+            {/* Selected Objects (up to 3) */}
+            {mode === 'editing' && (
+              <div className="flex items-center gap-1.5">
+                {settings.objects.slice(0, 3).map((obj, index) => (
+                  <div key={obj.id} className="relative group">
+                    <div className="relative h-11 w-11 rounded-xl overflow-hidden border-2 border-[var(--purple-400)]/50">
+                      <Image
+                        src={obj.thumbnailUrl || obj.imageUrl}
+                        alt={obj.name || `Object ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        unoptimized
+                      />
+                    </div>
+                    {/* Remove button on hover */}
+                    <button
+                      onClick={() => {
+                        updateSetting('objects', settings.objects.filter(o => o.id !== obj.id));
+                      }}
+                      className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
+                      title="Remove object"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-2.5 w-2.5">
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                
+                {/* Add Object Button */}
+                {settings.objects.length < 3 && (
+                  <button
+                    onClick={() => setShowObjectPicker(true)}
+                    className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all border-2 border-dashed border-white/20"
+                    title="Add object"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                      <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <button className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+              <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+            </svg>
+          </button>
+        )}
 
         {/* Prompt Input */}
         <div className="flex-1 relative">
@@ -131,8 +336,20 @@ export function StudioGenerationBar({
             type="text"
             value={settings.prompt}
             onChange={(e) => updateSetting('prompt', e.target.value)}
-            placeholder="Upload image as a prompt or Describe the scene you imagine"
-            className="w-full h-11 bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none"
+            disabled={mode === 'upscaling'}
+            placeholder={
+              mode === 'upscaling' 
+                ? "Upscaling doesn't require a prompt..."
+                : mode === 'editing'
+                ? "Edit the prompt or describe changes..."
+                : mode === 'creating'
+                ? "Upload image as a prompt or Describe the scene you imagine"
+                : "Describe what you want to generate..."
+            }
+            className={cn(
+              "w-full h-11 bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none transition-all",
+              mode === 'upscaling' && "opacity-50 cursor-not-allowed"
+            )}
           />
         </div>
 
@@ -194,7 +411,7 @@ export function StudioGenerationBar({
           )}
         >
           <>
-            Generate
+            {getButtonLabel()}
             <span className="flex items-center gap-0.5 text-xs opacity-80">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
                 <path d="M10.75 10.818v2.614A3.13 3.13 0 0011.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 00-1.138-.432zM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 00-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.202.592.037.051.08.102.128.152z" />
@@ -225,7 +442,7 @@ export function StudioGenerationBar({
           </Tooltip>
           {showModelPicker && (
             <ModelPicker
-              models={AI_MODELS}
+              models={availableModels}
               selectedModelId={settings.modelId}
               onSelect={(id) => {
                 updateSetting('modelId', id);
@@ -343,6 +560,24 @@ export function StudioGenerationBar({
           </div>
         </Tooltip>
 
+        {/* Pose Picker Button */}
+        <Tooltip content="Pose: Select a pose to add to your prompt. Different poses available based on content settings.">
+          <button
+            onClick={() => setShowPosePicker(true)}
+            className={cn(
+              'flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-all',
+              selectedPose
+                ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
+            )}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
+              <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM3 18a7 7 0 0114 0v1H3v-1zm7-4a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" />
+            </svg>
+            <span>{selectedPose ? selectedPose.name : 'Pose'}</span>
+          </button>
+        </Tooltip>
+
         {/* Visual Styles Button */}
         <Tooltip content="Styles & Scenes: Apply visual styles, backgrounds, and lighting to customize your generated images.">
           <button
@@ -359,11 +594,25 @@ export function StudioGenerationBar({
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* Credits Display */}
-        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
-          <span>Credits:</span>
-          <span className="font-bold text-[var(--text-primary)]">{creditsAvailable}</span>
-        </div>
+        {/* 18+ Adult Content Indicator */}
+        <Tooltip 
+          content={nsfwEnabled 
+            ? "18+ Adult Content: Enabled. Adult content features are available for this influencer. You can change this in the influencer settings."
+            : "18+ Adult Content: Disabled. Adult content features are not available for this influencer. Enable this in the influencer settings to access adult poses and content."
+          }
+        >
+          <div className={cn(
+            'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-help',
+            nsfwEnabled
+              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+              : 'bg-white/5 text-[var(--text-muted)] border border-white/10 opacity-60'
+          )}>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+              <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+            </svg>
+            <span>18+ Adult Content</span>
+          </div>
+        </Tooltip>
       </div>
 
       {/* Character Picker Modal */}
@@ -391,6 +640,39 @@ export function StudioGenerationBar({
           onClose={() => setShowStylePicker(false)}
         />
       )}
+
+      {/* Pose Picker Modal */}
+      {showPosePicker && (
+        <PosePicker
+          selectedPoseId={settings.poseId}
+          onPoseSelect={(id) => updateSetting('poseId', id)}
+          onClose={() => setShowPosePicker(false)}
+          nsfwEnabled={nsfwEnabled}
+        />
+      )}
+
+      {/* Object Picker Modal */}
+      {showObjectPicker && mode === 'editing' && (
+        <ObjectPicker
+          availableImages={availableImages.filter(img => img.id !== selectedImage?.id)}
+          selectedObjectIds={settings.objects.map(obj => obj.id)}
+          onObjectSelect={(image) => {
+            const newObject: SelectedObject = {
+              id: image.id,
+              imageUrl: image.imageUrl,
+              thumbnailUrl: image.thumbnailUrl,
+              name: image.prompt || image.influencerName,
+            };
+            updateSetting('objects', [...settings.objects, newObject]);
+          }}
+          onObjectRemove={(imageId) => {
+            updateSetting('objects', settings.objects.filter(obj => obj.id !== imageId));
+          }}
+          onClose={() => setShowObjectPicker(false)}
+          maxObjects={3}
+        />
+      )}
+      </div>
     </div>
   );
 }
