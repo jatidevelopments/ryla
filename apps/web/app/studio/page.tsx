@@ -26,6 +26,8 @@ import {
 import {
   StudioGenerationBar,
   type GenerationSettings,
+  type StudioMode,
+  type ContentType,
 } from '../../components/studio/generation';
 import { trpc } from '../../lib/trpc';
 import { useCredits } from '../../lib/hooks';
@@ -85,6 +87,10 @@ function StudioContent() {
   // Detail panel state with localStorage persistence
   const [selectedImage, setSelectedImage] = React.useState<StudioImage | null>(null);
   const [showPanel, setShowPanel] = useLocalStorage('ryla-gallery-show-panel', true);
+
+  // Mode state
+  const [mode, setMode] = useLocalStorage<StudioMode>('ryla-studio-mode', 'creating');
+  const [contentType, setContentType] = useLocalStorage<ContentType>('ryla-studio-content-type', 'image');
 
   // Generation state - track active generation jobs
   const [activeGenerations, setActiveGenerations] = React.useState<Set<string>>(new Set());
@@ -187,6 +193,13 @@ function StudioContent() {
     return influencerList[0] || null;
   }, [selectedInfluencerId, influencerList]);
 
+  // Get NSFW enabled status from selected influencer
+  const nsfwEnabled = React.useMemo(() => {
+    if (!selectedInfluencerId) return false;
+    const influencer = validInfluencers.find(i => i.id === selectedInfluencerId);
+    return influencer?.nsfwEnabled || false;
+  }, [selectedInfluencerId, validInfluencers]);
+
   // Filter images
   const filteredImages = React.useMemo(() => {
     let result = [...allImages];
@@ -242,6 +255,10 @@ function StudioContent() {
     setSelectedImage(image);
     if (image) {
       setShowPanel(true);
+      // Auto-select the influencer associated with the image
+      if (image.influencerId && image.influencerId !== selectedInfluencerId) {
+        setSelectedInfluencerId(image.influencerId);
+      }
     }
   };
 
@@ -509,11 +526,6 @@ function StudioContent() {
             onLike={handleLike}
             onDelete={handleDelete}
             onDownload={handleDownload}
-            editHref={
-              selectedImage
-                ? `/influencer/${encodeURIComponent(selectedImage.influencerId)}/studio?imageId=${encodeURIComponent(selectedImage.id)}`
-                : undefined
-            }
             className="hidden w-[380px] flex-shrink-0 lg:flex"
           />
         )}
@@ -527,6 +539,22 @@ function StudioContent() {
           onGenerate={handleGenerate}
           isGenerating={activeGenerations.size > 0}
           creditsAvailable={creditsBalance}
+          selectedImage={selectedImage}
+          onClearSelectedImage={() => {
+            setSelectedImage(null);
+            setShowPanel(false);
+            // Switch back to creating mode when clearing selection
+            // Objects will be cleared automatically when mode changes
+            if (mode !== 'creating') {
+              setMode('creating');
+            }
+          }}
+          mode={mode}
+          contentType={contentType}
+          onModeChange={setMode}
+          onContentTypeChange={setContentType}
+          nsfwEnabled={nsfwEnabled}
+          availableImages={allImages}
         />
       </FadeInUp>
     </div>

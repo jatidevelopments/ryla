@@ -13,6 +13,11 @@ import {
 import { generateProfilePictureSetAndWait } from '../../lib/api/character';
 
 export function ProfilePicturesPanel({ influencer }: { influencer: AIInfluencer }) {
+  // Guard against undefined influencer
+  if (!influencer) {
+    return null;
+  }
+  
   const state = useProfilePictures(influencer.id);
   const ensure = useProfilePicturesStore((s) => s.ensure);
   const start = useProfilePicturesStore((s) => s.start);

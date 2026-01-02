@@ -30,6 +30,12 @@ function getInitials(name: string): string {
 
 export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
   const [imageError, setImageError] = React.useState(false);
+  
+  // Guard against undefined influencer
+  if (!influencer) {
+    return null;
+  }
+  
   const hasValidImage = influencer.avatar && !imageError;
 
   return (

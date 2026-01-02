@@ -1,9 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsBoolean, IsIn, IsInt, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
+import { getAllFalBackendModelIds } from '@ryla/shared';
 import { getAllFalModelIds, type FalFluxModelId } from '../../services/fal-image.service';
 
-// Get all valid model IDs for validation
-const ALL_FAL_MODEL_IDS = getAllFalModelIds();
+// Get all valid model IDs for validation from registry (single source of truth)
+// Fallback to service function for backward compatibility
+const ALL_FAL_MODEL_IDS = (() => {
+  try {
+    const registryIds = getAllFalBackendModelIds();
+    // Merge with service IDs to ensure we don't miss any
+    const serviceIds = getAllFalModelIds();
+    return Array.from(new Set([...registryIds, ...serviceIds]));
+  } catch {
+    // Fallback if registry not available
+    return getAllFalModelIds();
+  }
+})();
 
 export class GenerateStudioImagesDto {
   @ApiProperty({

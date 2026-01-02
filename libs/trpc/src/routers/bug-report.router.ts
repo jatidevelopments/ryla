@@ -21,9 +21,11 @@ function createS3Client() {
   const secretAccessKey = process.env.AWS_S3_SECRET_KEY;
   const endpoint = process.env.AWS_S3_ENDPOINT;
   const region = process.env.AWS_S3_REGION || 'us-east-1';
-  const bucketName = process.env.AWS_S3_BUCKET_NAME;
+  // Use the main bucket (ryla-images) - bug reports are stored in bug-reports/ prefix
+  const bucketName = process.env.AWS_S3_BUCKET_NAME || 'ryla-images';
 
-  if (!accessKeyId || !secretAccessKey || !bucketName) {
+  if (!accessKeyId || !secretAccessKey) {
+    console.error('S3 credentials not configured');
     return null;
   }
 
@@ -35,6 +37,7 @@ function createS3Client() {
         accessKeyId,
         secretAccessKey,
       },
+      forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true', // For MinIO
     }),
     bucketName,
   };
@@ -50,9 +53,14 @@ async function uploadScreenshot(base64DataUrl: string): Promise<string | null> {
 
     // Parse base64 data URL
     const base64Data = base64DataUrl.split(',')[1];
+    if (!base64Data) {
+      console.error('Invalid base64 data URL format');
+      return null;
+    }
     const buffer = Buffer.from(base64Data, 'base64');
 
     // Generate unique filename
+    // Store in bug-reports/ prefix within the main bucket
     const timestamp = Date.now();
     const randomId = Math.random().toString(36).substring(2, 9);
     const filename = `bug-reports/${timestamp}-${randomId}.png`;
@@ -76,8 +84,15 @@ async function uploadScreenshot(base64DataUrl: string): Promise<string | null> {
     const url = await getSignedUrl(s3.client, command, { expiresIn: 31536000 }); // 1 year
 
     return url;
-  } catch (error) {
-    console.error('Failed to upload screenshot:', error);
+  } catch (error: any) {
+    // Provide more helpful error messages
+    if (error?.Code === 'NoSuchBucket') {
+      console.error(
+        `S3 bucket '${error.BucketName}' does not exist. Please create it or set AWS_S3_BUCKET_NAME to an existing bucket (e.g., 'ryla-images').`
+      );
+    } else {
+      console.error('Failed to upload screenshot:', error);
+    }
     return null;
   }
 }
@@ -160,7 +175,7 @@ export const bugReportRouter = router({
         }
       }
 
-      // Create bug report via service
+      // Create bug report via service (email notification is handled in the service)
       try {
         const bugReportService = new BugReportService(ctx.db);
         const bugReport = await bugReportService.create({

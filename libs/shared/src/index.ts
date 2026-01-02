@@ -19,6 +19,9 @@ export * from './errors';
 // Credits (pricing, costs, plans)
 export * from './credits';
 
+// Models (registry, definitions, pricing)
+export * from './models';
+
 // Mocks (for development)
 export * from './mocks';
 

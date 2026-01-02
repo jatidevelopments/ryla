@@ -1,5 +1,5 @@
-import * as nodemailer from 'nodemailer';
-import type { Transporter } from 'nodemailer';
+import { Resend } from 'resend';
+import * as React from 'react';
 import type { ReactElement, ComponentType } from 'react';
 import { renderEmail, renderEmailText } from './utils';
 
@@ -8,13 +8,7 @@ import { renderEmail, renderEmailText } from './utils';
 // ============================================================================
 
 export interface EmailConfig {
-  host: string;
-  port: number;
-  secure?: boolean;
-  auth: {
-    user: string;
-    pass: string;
-  };
+  apiKey: string;
   from: string;
 }
 
@@ -37,14 +31,15 @@ export interface EmailSender {
 // ============================================================================
 
 function getDefaultConfig(): EmailConfig {
+  const apiKey = process.env['RESEND_API_KEY'];
+  if (!apiKey) {
+    throw new Error(
+      'RESEND_API_KEY environment variable is required. Please set it in your .env file.',
+    );
+  }
+
   return {
-    host: process.env['EMAIL_SERVER_HOST'] || 'smtp.gmail.com',
-    port: Number(process.env['EMAIL_SERVER_PORT']) || 465,
-    secure: true,
-    auth: {
-      user: process.env['EMAIL_SERVER_USER'] || '',
-      pass: process.env['EMAIL_SERVER_PASSWORD'] || '',
-    },
+    apiKey,
     from: process.env['EMAIL_FROM'] || 'RYLA <noreply@ryla.ai>',
   };
 }
@@ -57,12 +52,7 @@ function getDefaultConfig(): EmailConfig {
  * Create an email sender with custom configuration
  */
 export function createEmailSender(config: EmailConfig): EmailSender {
-  const transporter: Transporter = nodemailer.createTransport({
-    host: config.host,
-    port: config.port,
-    secure: config.secure ?? config.port === 465,
-    auth: config.auth,
-  });
+  const resend = new Resend(config.apiKey);
 
   return {
     async send<P>(options: SendEmailOptions<P>): Promise<{ messageId: string }> {
@@ -75,26 +65,37 @@ export function createEmailSender(config: EmailConfig): EmailSender {
         renderEmailText(element),
       ]);
 
-      const result = await transporter.sendMail({
+      // Resend supports arrays for to, cc, bcc
+      const to = Array.isArray(options.to) ? options.to : [options.to];
+      const cc = options.cc
+        ? Array.isArray(options.cc)
+          ? options.cc
+          : [options.cc]
+        : undefined;
+      const bcc = options.bcc
+        ? Array.isArray(options.bcc)
+          ? options.bcc
+          : [options.bcc]
+        : undefined;
+
+      const result = await resend.emails.send({
         from: config.from,
-        to: Array.isArray(options.to) ? options.to.join(', ') : options.to,
-        cc: options.cc
-          ? Array.isArray(options.cc)
-            ? options.cc.join(', ')
-            : options.cc
-          : undefined,
-        bcc: options.bcc
-          ? Array.isArray(options.bcc)
-            ? options.bcc.join(', ')
-            : options.bcc
-          : undefined,
+        to,
+        cc,
+        bcc,
         replyTo: options.replyTo,
         subject: options.subject,
         html,
         text,
       });
 
-      return { messageId: result.messageId };
+      if (result.error) {
+        throw new Error(
+          `Failed to send email: ${result.error.message || 'Unknown error'}`,
+        );
+      }
+
+      return { messageId: result.data?.id || '' };
     },
   };
 }
