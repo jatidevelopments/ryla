@@ -3,18 +3,25 @@
 import * as React from 'react';
 import { cn } from '@ryla/ui';
 
+import { AspectRatioPicker } from './generation/aspect-ratio-picker';
+import { ASPECT_RATIOS } from './generation/types';
+import type { AspectRatio } from './generation/types';
+
 export type ViewMode = 'grid' | 'large' | 'masonry';
-export type AspectRatioFilter = 'all' | '1:1' | '9:16' | '2:3';
+export type AspectRatioFilter = AspectRatio | 'all';
 export type StatusFilter = 'all' | 'completed' | 'generating' | 'failed';
+export type LikedFilter = 'all' | 'liked' | 'not-liked';
 export type SortBy = 'newest' | 'oldest';
 
 interface StudioToolbarProps {
   viewMode: ViewMode;
   onViewModeChange: (mode: ViewMode) => void;
-  aspectRatio: AspectRatioFilter;
-  onAspectRatioChange: (ratio: AspectRatioFilter) => void;
+  aspectRatios: AspectRatio[];
+  onAspectRatioChange: (ratios: AspectRatio[]) => void;
   status: StatusFilter;
   onStatusChange: (status: StatusFilter) => void;
+  liked: LikedFilter;
+  onLikedChange: (liked: LikedFilter) => void;
   sortBy: SortBy;
   onSortByChange: (sort: SortBy) => void;
   selectedCount: number;
@@ -25,31 +32,47 @@ interface StudioToolbarProps {
 export function StudioToolbar({
   viewMode,
   onViewModeChange,
-  aspectRatio,
+  aspectRatios,
   onAspectRatioChange,
   status,
   onStatusChange,
+  liked,
+  onLikedChange,
   sortBy,
   onSortByChange,
   selectedCount,
   onClearSelection,
   className,
 }: StudioToolbarProps) {
+  const [showAspectRatioPicker, setShowAspectRatioPicker] = React.useState(false);
+  const aspectRatioButtonRef = React.useRef<HTMLButtonElement>(null);
+
+  // Get display label for aspect ratio filter
+  const getAspectRatioLabel = () => {
+    if (aspectRatios.length === 0) {
+      return 'All';
+    }
+    if (aspectRatios.length === 1) {
+      return aspectRatios[0];
+    }
+    return `${aspectRatios.length} selected`;
+  };
+
   return (
-    <div className={cn('flex flex-wrap items-center justify-between gap-3 px-4 py-3 bg-[#111113] border-b border-white/10', className)}>
+    <div className={cn('flex flex-wrap items-center justify-between gap-3 px-4 lg:px-6 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-default)]', className)}>
       {/* Left - Filter Pills */}
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-3">
         {/* Status Filter */}
-        <div className="flex rounded-lg border border-white/10 bg-white/5 p-0.5">
+        <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] p-1">
           {(['all', 'completed', 'generating', 'failed'] as const).map((s) => (
             <button
               key={s}
               onClick={() => onStatusChange(s)}
               className={cn(
-                'rounded-md px-3 py-1.5 text-xs font-medium transition-all',
+                'rounded-lg px-3 py-1.5 text-xs font-medium transition-all',
                 status === s
-                  ? 'bg-[var(--purple-500)] text-white'
-                  : 'text-white/50 hover:text-white'
+                  ? 'bg-[var(--purple-500)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
               )}
             >
               {s === 'all' ? 'All' : s === 'completed' ? '✓ Done' : s === 'generating' ? '⟳ Gen' : '✕ Failed'}
@@ -57,35 +80,70 @@ export function StudioToolbar({
           ))}
         </div>
 
-        {/* Aspect Ratio Filter */}
-        <div className="flex rounded-lg border border-white/10 bg-white/5 p-0.5">
-          {(['all', '1:1', '9:16', '2:3'] as const).map((ratio) => (
+        {/* Aspect Ratio Filter - Dropdown */}
+        <div className="relative">
+          <button
+            ref={aspectRatioButtonRef}
+            onClick={() => setShowAspectRatioPicker(!showAspectRatioPicker)}
+            className={cn(
+              'flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-all',
+              aspectRatios.length > 0
+                ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10 border border-[var(--border-default)]'
+            )}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
+              <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+            </svg>
+            <span>{getAspectRatioLabel()}</span>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--text-muted)]">
+              <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
+            </svg>
+          </button>
+          {showAspectRatioPicker && (
+            <AspectRatioPicker
+              ratios={ASPECT_RATIOS}
+              selectedRatio={aspectRatios[0] || '9:16'}
+              selectedRatios={aspectRatios}
+              multiple={true}
+              onSelect={() => {}} // Not used in multiple mode
+              onSelectMultiple={(ratios) => {
+                onAspectRatioChange(ratios);
+              }}
+              onClose={() => setShowAspectRatioPicker(false)}
+              anchorRef={aspectRatioButtonRef}
+            />
+          )}
+        </div>
+
+        {/* Liked Filter */}
+        <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] p-1">
+          {(['all', 'liked', 'not-liked'] as const).map((l) => (
             <button
-              key={ratio}
-              onClick={() => onAspectRatioChange(ratio)}
+              key={l}
+              onClick={() => onLikedChange(l)}
               className={cn(
-                'rounded-md px-3 py-1.5 text-xs font-medium transition-all flex items-center gap-1',
-                aspectRatio === ratio
-                  ? 'bg-[var(--purple-500)] text-white'
-                  : 'text-white/50 hover:text-white'
+                'rounded-lg px-3 py-1.5 text-xs font-medium transition-all flex items-center gap-1.5',
+                liked === l
+                  ? 'bg-[var(--purple-500)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
               )}
             >
-              {ratio === 'all' ? (
+              {l === 'all' ? (
                 'All'
-              ) : ratio === '1:1' ? (
+              ) : l === 'liked' ? (
                 <>
-                  <div className="h-3 w-3 border border-current rounded-sm" />
-                  1:1
-                </>
-              ) : ratio === '9:16' ? (
-                <>
-                  <div className="h-4 w-2.5 border border-current rounded-sm" />
-                  9:16
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                    <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+                  </svg>
+                  Liked
                 </>
               ) : (
                 <>
-                  <div className="h-4 w-3 border border-current rounded-sm" />
-                  2:3
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth={1.5} className="h-3.5 w-3.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+                  </svg>
+                  Not Liked
                 </>
               )}
             </button>
@@ -94,13 +152,13 @@ export function StudioToolbar({
 
         {/* Selection info */}
         {selectedCount > 0 && (
-          <div className="flex items-center gap-2 rounded-lg bg-[var(--purple-500)]/20 border border-[var(--purple-500)]/50 px-3 py-1.5">
-            <span className="text-xs font-medium text-white">
+          <div className="flex items-center gap-2 rounded-xl bg-[var(--purple-500)]/20 border border-[var(--purple-500)]/50 px-3 py-2">
+            <span className="text-xs font-medium text-[var(--text-primary)]">
               {selectedCount} selected
             </span>
             <button
               onClick={onClearSelection}
-              className="text-xs text-white/50 hover:text-white"
+              className="text-xs text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
             >
               Clear
             </button>
@@ -112,11 +170,11 @@ export function StudioToolbar({
       <div className="flex items-center gap-3">
         {/* Sort */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-white/40">Sort:</span>
+          <span className="text-xs text-[var(--text-muted)]">Sort:</span>
           <select
             value={sortBy}
             onChange={(e) => onSortByChange(e.target.value as SortBy)}
-            className="rounded-lg border border-white/10 bg-white/5 px-2 py-1.5 text-xs text-white focus:border-[var(--purple-500)] focus:outline-none focus:ring-1 focus:ring-[var(--purple-500)]"
+            className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] px-3 py-2 text-xs text-[var(--text-primary)] focus:border-[var(--purple-500)] focus:outline-none focus:ring-1 focus:ring-[var(--purple-500)]"
           >
             <option value="newest">Newest</option>
             <option value="oldest">Oldest</option>
@@ -124,17 +182,17 @@ export function StudioToolbar({
         </div>
 
         {/* Divider */}
-        <div className="h-5 w-px bg-white/10" />
+        <div className="h-5 w-px bg-[var(--border-default)]" />
 
         {/* View Mode Toggle */}
-        <div className="flex rounded-lg border border-white/10 bg-white/5 p-0.5">
+        <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] p-1">
           <button
             onClick={() => onViewModeChange('grid')}
             className={cn(
-              'rounded-md p-1.5 transition-all',
+              'rounded-lg p-2 transition-all',
               viewMode === 'grid'
-                ? 'bg-[var(--purple-500)] text-white'
-                : 'text-white/50 hover:text-white'
+                ? 'bg-[var(--purple-500)] text-white shadow-sm'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
             )}
             title="Grid View"
           >
@@ -145,10 +203,10 @@ export function StudioToolbar({
           <button
             onClick={() => onViewModeChange('masonry')}
             className={cn(
-              'rounded-md p-1.5 transition-all',
+              'rounded-lg p-2 transition-all',
               viewMode === 'masonry'
-                ? 'bg-[var(--purple-500)] text-white'
-                : 'text-white/50 hover:text-white'
+                ? 'bg-[var(--purple-500)] text-white shadow-sm'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
             )}
             title="Masonry View"
           >
@@ -162,10 +220,10 @@ export function StudioToolbar({
           <button
             onClick={() => onViewModeChange('large')}
             className={cn(
-              'rounded-md p-1.5 transition-all',
+              'rounded-lg p-2 transition-all',
               viewMode === 'large'
-                ? 'bg-[var(--purple-500)] text-white'
-                : 'text-white/50 hover:text-white'
+                ? 'bg-[var(--purple-500)] text-white shadow-sm'
+                : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
             )}
             title="Large View"
           >

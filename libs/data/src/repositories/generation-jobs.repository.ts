@@ -1,5 +1,5 @@
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 
 import * as schema from '../schema';
 
@@ -21,6 +21,16 @@ export class GenerationJobsRepository {
   async getById(id: string) {
     return this.db.query.generationJobs.findFirst({
       where: eq(schema.generationJobs.id, id),
+    });
+  }
+
+  async getByExternalJobId(input: { externalJobId: string; userId: string }) {
+    return this.db.query.generationJobs.findFirst({
+      where: and(
+        eq(schema.generationJobs.externalJobId, input.externalJobId),
+        eq(schema.generationJobs.userId, input.userId),
+      ),
+      orderBy: (t, { desc }) => [desc(t.createdAt)],
     });
   }
 

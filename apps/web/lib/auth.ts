@@ -183,6 +183,48 @@ export async function logout(): Promise<void> {
 }
 
 /**
+ * Logout all devices/sessions for current user (server-side token invalidation)
+ * Clears local tokens and ends the current session.
+ */
+export async function logoutAllDevices(): Promise<void> {
+  const token = getAccessToken();
+
+  if (token) {
+    try {
+      await fetch(`${API_BASE_URL}/auth/logout-all`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch {
+      // Ignore errors - we'll clear tokens anyway
+    }
+  }
+
+  clearTokens();
+}
+
+/**
+ * Delete current user account.
+ * Uses REST endpoint from the NestJS API.
+ */
+export async function deleteAccount(): Promise<void> {
+  const response = await authFetch(`${API_BASE_URL}/user/account`, {
+    method: 'DELETE',
+  });
+
+  // Nest returns 204 No Content
+  if (!(response.status === 204 || response.ok)) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || 'Account deletion failed');
+  }
+
+  clearTokens();
+}
+
+/**
  * Get current user profile
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {

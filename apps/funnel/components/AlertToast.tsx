@@ -17,12 +17,14 @@ interface ToastProps {
     };
 }
 
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
 export enum toastType {
     default = "default",
     success = "success",
     warning = "warning",
     error = "error",
 }
+/* eslint-enable no-unused-vars, @typescript-eslint/no-unused-vars */
 
 /** I recommend abstracting the toast function
  *  so that you can call it without having to use toast.custom everytime. */

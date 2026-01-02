@@ -13,10 +13,10 @@ import {
   PromptBuilder,
   CharacterDNA,
   WorkflowId,
-  getRecommendedWorkflow,
 } from '@ryla/business';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
 import { ImageStorageService } from './image-storage.service';
+import { FalImageService, type FalFluxModelId } from './fal-image.service';
 
 export interface BaseImageGenerationInput {
   appearance: {
@@ -39,6 +39,10 @@ export interface BaseImageGenerationInput {
   nsfwEnabled: boolean;
   workflowId?: WorkflowId;
   seed?: number;
+  steps?: number;
+  cfg?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface BaseImageGenerationResult {
@@ -55,6 +59,10 @@ export interface BaseImageGenerationResult {
 @Injectable()
 export class BaseImageGenerationService {
   private readonly logger = new Logger(BaseImageGenerationService.name);
+  private readonly externalResults = new Map<
+    string,
+    { status: 'queued' | 'in_progress' | 'completed' | 'failed'; images: any[]; error?: string; createdAt: number }
+  >();
 
   constructor(
     @Inject(forwardRef(() => ComfyUIJobRunnerAdapter))
@@ -62,6 +70,8 @@ export class BaseImageGenerationService {
     @Inject(ConfigService) private readonly configService: ConfigService,
     @Inject(forwardRef(() => ImageStorageService))
     private readonly imageStorage: ImageStorageService,
+    @Inject(forwardRef(() => FalImageService))
+    private readonly fal: FalImageService,
   ) {}
 
   /**
@@ -96,34 +106,105 @@ export class BaseImageGenerationService {
     // Select workflow (use recommended or specified)
     const workflowId = input.workflowId || this.comfyuiAdapter.getRecommendedWorkflow();
 
-    // Generate 3 images with different seeds for variety
-    const baseSeed = input.seed || Math.floor(Math.random() * 1000000);
-    const jobIds: string[] = [];
+    // Speed-first defaults (override per request if needed)
+    const width = input.width ?? 1024;
+    const height = input.height ?? 1024;
+    const steps = input.steps ?? 9;
+    const cfg = input.cfg ?? 1.0;
 
-    for (let i = 0; i < 3; i++) {
-      // Use different seeds for each image to create variation
-      const seed = baseSeed + i;
-      
-      const jobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
+    const baseSeed = input.seed || Math.floor(Math.random() * 1000000);
+
+    // Hybrid strategy (SFW only): Fal Schnell + Fal Dev + internal ComfyUI workflow (Danrisi recommended).
+    // If Fal is not configured or errors, we fall back to internal-only.
+    const shouldUseFal = !input.nsfwEnabled && this.fal.isConfigured();
+
+    if (shouldUseFal) {
+      const falModels: FalFluxModelId[] = ['fal-ai/flux/schnell', 'fal-ai/flux/dev'];
+      const falJobIds = falModels.map((m) => this.createExternalJobId(`fal:${m}`));
+
+      // Initialize entries as in_progress so polling can start immediately.
+      falJobIds.forEach((id) => {
+        this.externalResults.set(id, {
+          status: 'in_progress',
+          images: [],
+          createdAt: Date.now(),
+        });
+      });
+
+      // Kick off Fal work in background.
+      falJobIds.forEach((jobId, idx) => {
+        const modelId = falModels[idx];
+        const seed = baseSeed + idx;
+        void this.runFalBaseImageJob({
+          jobId,
+          modelId,
+          prompt: builtPrompt.prompt,
+          negativePrompt: builtPrompt.negativePrompt,
+          width,
+          height,
+          seed,
+          userId: 'anonymous',
+        });
+      });
+
+      // Internal ComfyUI job for the 3rd image.
+      const internalSeed = baseSeed + 2;
+      const internalJobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
         prompt: builtPrompt.prompt,
         negativePrompt: builtPrompt.negativePrompt,
         nsfw: input.nsfwEnabled,
-        seed,
-        width: 1024,
-        height: 1024,
+        seed: internalSeed,
+        width,
+        height,
+        steps,
+        cfg,
         workflowId,
       });
 
-      jobIds.push(jobId);
-      this.logger.log(`Job ${jobId} submitted (${i + 1}/3) with workflow: ${workflowId}, seed: ${seed}`);
+      const allJobIds = [...falJobIds, internalJobId];
+      this.logger.log(
+        `Base images queued (hybrid): fal(${falModels.join(', ')}) + comfyui(${workflowId}) jobIds=${allJobIds.join(', ')}`,
+      );
+
+      return {
+        images: [],
+        jobId: allJobIds[0],
+        workflowUsed: workflowId,
+        allJobIds,
+      };
     }
 
-    // Return first job ID as primary, but include all job IDs
+    // Internal-only fallback (3 ComfyUI jobs)
+    const jobs = Array.from({ length: 3 }).map((_, i) => {
+      const seed = baseSeed + i;
+      return {
+        seed,
+        promise: this.comfyuiAdapter.submitBaseImageWithWorkflow({
+          prompt: builtPrompt.prompt,
+          negativePrompt: builtPrompt.negativePrompt,
+          nsfw: input.nsfwEnabled,
+          seed,
+          width,
+          height,
+          steps,
+          cfg,
+          workflowId,
+        }),
+      };
+    });
+
+    const jobIds = await Promise.all(jobs.map((j) => j.promise));
+    jobIds.forEach((jobId, idx) => {
+      this.logger.log(
+        `Job ${jobId} submitted (${idx + 1}/3) with workflow: ${workflowId}, seed: ${jobs[idx].seed}, steps: ${steps}, size: ${width}x${height}`,
+      );
+    });
+
     return {
-      images: [], // Will be populated when jobs complete
-      jobId: jobIds[0], // Primary job ID
+      images: [],
+      jobId: jobIds[0],
       workflowUsed: workflowId,
-      allJobIds: jobIds, // All 3 job IDs for batch polling
+      allJobIds: jobIds,
     };
   }
 
@@ -188,11 +269,25 @@ export class BaseImageGenerationService {
    * @param userId User ID for storage organization (optional, uses 'anonymous' if not provided)
    */
   async getJobResults(jobId: string, userId?: string) {
+    this.gcExternalResults();
+
+    // External Fal job result (in-memory)
+    if (jobId.startsWith('fal_job_')) {
+      const record = this.externalResults.get(jobId);
+      if (!record) {
+        return { status: 'failed', images: [], error: 'External job not found (expired)' };
+      }
+      return { status: record.status, images: record.images, error: record.error };
+    }
+
     const status = await this.comfyuiAdapter.getJobStatus(jobId);
 
     if (status.status === 'COMPLETED' && status.output) {
       const output = status.output as { images?: string[] };
-      const base64Images = output.images || [];
+      // Base-image generation expects exactly 1 image per job.
+      // Some ComfyUI workflows can output multiple images for a single prompt (e.g., batch size > 1).
+      // Clamp to 1 to ensure we always return exactly 3 images total (one per model/job).
+      const base64Images = (output.images || []).slice(0, 1);
 
       if (base64Images.length === 0) {
         return {
@@ -244,6 +339,78 @@ export class BaseImageGenerationService {
       images: [],
       error: status.error,
     };
+  }
+
+  private createExternalJobId(prefix: string): string {
+    // Keep it URL-safe, but deterministic-ish for debugging.
+    const id = `${prefix}:${Math.random().toString(36).slice(2, 10)}:${Date.now().toString(36)}`;
+    return `fal_job_${Buffer.from(id).toString('base64url')}`;
+  }
+
+  private async runFalBaseImageJob(params: {
+    jobId: string;
+    modelId: FalFluxModelId;
+    prompt: string;
+    negativePrompt?: string;
+    width: number;
+    height: number;
+    seed?: number;
+    userId: string;
+  }) {
+    const { jobId, modelId, prompt, negativePrompt, width, height, seed, userId } = params;
+    try {
+      this.logger.log(`Fal base image started jobId=${jobId} model=${modelId}`);
+      const out = await this.fal.runFlux(modelId, {
+        prompt,
+        negativePrompt,
+        width,
+        height,
+        seed,
+        numImages: 1,
+      });
+
+      // Download -> base64 data URL -> upload to our storage for stable URLs.
+      const base64 = await this.fal.downloadToBase64DataUrl(out.imageUrls[0]);
+      const { images: stored } = await this.imageStorage.uploadImages([base64], {
+        userId,
+        category: 'base-images',
+        jobId,
+      });
+
+      const img = stored[0];
+      this.externalResults.set(jobId, {
+        status: 'completed',
+        images: [
+          {
+            id: `${jobId}-0`,
+            url: img.url,
+            thumbnailUrl: img.thumbnailUrl,
+            s3Key: img.key,
+          },
+        ],
+        createdAt: Date.now(),
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Fal generation failed';
+      this.logger.warn(`Fal base image failed jobId=${jobId} model=${modelId}: ${message}`);
+      this.externalResults.set(jobId, {
+        status: 'failed',
+        images: [],
+        error: message,
+        createdAt: Date.now(),
+      });
+    }
+  }
+
+  private gcExternalResults() {
+    // Avoid unbounded memory growth; keep entries for 30 minutes.
+    const ttlMs = 30 * 60 * 1000;
+    const now = Date.now();
+    for (const [key, value] of this.externalResults.entries()) {
+      if (now - value.createdAt > ttlMs) {
+        this.externalResults.delete(key);
+      }
+    }
   }
 
   /**

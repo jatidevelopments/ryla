@@ -1,11 +1,13 @@
 "use client";
 
-import { useLocale } from "next-intl";
+// Temporarily disabled to fix React 18 compatibility
+// import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 
 export function useCurrentLocale() {
-    const nextIntlLocale = useLocale();
+    // const nextIntlLocale = useLocale();
+    const nextIntlLocale = "en"; // Default to English
     const searchParams = useSearchParams();
     const urlLocale = searchParams?.get("lang") || null;
 

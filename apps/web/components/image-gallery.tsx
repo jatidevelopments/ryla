@@ -10,7 +10,6 @@ import {
   Heart,
   Download,
   ImageIcon,
-  Plus,
   Sparkles,
   X,
   ZoomIn,
@@ -31,7 +30,7 @@ export interface ImageGalleryProps {
 
 export function ImageGallery({
   images,
-  influencerId,
+  influencerId: _influencerId, // eslint-disable-line @typescript-eslint/no-unused-vars
   emptyMessage = 'No images yet',
   emptyAction,
   className,
@@ -64,25 +63,33 @@ export function ImageGallery({
 
   const openLightbox = (index: number) => {
     setSelectedIndex(index);
-    document.body.style.overflow = 'hidden';
   };
 
   const closeLightbox = () => {
     setSelectedIndex(null);
-    document.body.style.overflow = 'unset';
   };
 
-  const goToPrevious = () => {
+  // Handle body overflow when lightbox is open
+  React.useEffect(() => {
+    if (selectedIndex !== null) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [selectedIndex]);
+
+  const goToPrevious = React.useCallback(() => {
     if (selectedIndex !== null && selectedIndex > 0) {
       setSelectedIndex(selectedIndex - 1);
     }
-  };
+  }, [selectedIndex]);
 
-  const goToNext = () => {
+  const goToNext = React.useCallback(() => {
     if (selectedIndex !== null && selectedIndex < images.length - 1) {
       setSelectedIndex(selectedIndex + 1);
     }
-  };
+  }, [selectedIndex, images.length]);
 
   // Handle keyboard navigation
   React.useEffect(() => {
@@ -94,7 +101,7 @@ export function ImageGallery({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [selectedIndex]);
+  }, [selectedIndex, goToPrevious, goToNext, closeLightbox]);
 
   if (images.length === 0) {
     return (
@@ -256,6 +263,16 @@ interface GalleryImageProps {
 }
 
 function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps) {
+  // Event handlers that use the event parameter
+  const handleLike = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onLike(e);
+  };
+
+  const handleDownload = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onDownload(e);
+  };
   const [isHovered, setIsHovered] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
 
@@ -310,7 +327,7 @@ function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps)
         >
           {/* Like button */}
           <button
-            onClick={onLike}
+            onClick={handleLike}
             className={cn(
               'flex h-9 w-9 items-center justify-center rounded-full transition-all',
               image.isLiked
@@ -330,7 +347,7 @@ function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps)
             </div>
             {/* Download button */}
             <button
-              onClick={onDownload}
+              onClick={handleDownload}
               className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
             >
               <Download className="h-4 w-4" />

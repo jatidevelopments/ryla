@@ -172,9 +172,36 @@ const ImageIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const BugIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.5}
+    className={cn('h-5 w-5', className)}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 12.75c.414 0 .75-.336.75-.75V9a.75.75 0 00-1.5 0v3c0 .414.336.75.75.75zM12 15a.75.75 0 100 1.5.75.75 0 000-1.5zM9.75 9.75a.75.75 0 00-1.5 0v.75a.75.75 0 001.5 0v-.75zM15.75 9.75a.75.75 0 011.5 0v.75a.75.75 0 01-1.5 0v-.75zM9.75 12.75a.75.75 0 00-1.5 0v.75a.75.75 0 001.5 0v-.75zM15.75 12.75a.75.75 0 011.5 0v.75a.75.75 0 01-1.5 0v-.75zM12 3a9 9 0 00-9 9v.75c0 2.485 2.015 4.5 4.5 4.5h9c2.485 0 4.5-2.015 4.5-4.5V12a9 9 0 00-9-9z"
+    />
+  </svg>
+);
+
+export interface UserProfile {
+  name: string;
+  avatarUrl?: string;
+  tier: 'free' | 'starter' | 'pro' | 'unlimited';
+}
+
 export interface BottomNavProps extends React.HTMLAttributes<HTMLElement> {
   /** Force visibility even on excluded routes */
   forceVisible?: boolean;
+  /** User profile data for the profile nav item */
+  userProfile?: UserProfile;
+  /** Callback when "Report Bug" is clicked */
+  onReportBugClick?: () => void;
 }
 
 const menuItems = [
@@ -200,10 +227,19 @@ const menuItems = [
   },
   {
     id: 4,
-    title: 'Settings',
+    title: 'Profile',
     url: '/settings',
     icon: SettingsIcon,
     activeIcon: SettingsIconFilled,
+    isProfile: true,
+  },
+  {
+    id: 5,
+    title: 'Report Bug',
+    url: '',
+    icon: BugIcon,
+    activeIcon: BugIcon,
+    isAction: true, // Indicates this is an action button, not a link
   },
 ];
 
@@ -222,8 +258,35 @@ const addMenuItems = [
   },
 ];
 
+// Helper to get tier badge styling
+const getTierBadgeStyle = (tier: UserProfile['tier']) => {
+  switch (tier) {
+    case 'pro':
+    case 'unlimited':
+      return 'bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] text-white';
+    case 'starter':
+      return 'bg-[var(--purple-500)]/20 text-[var(--purple-400)]';
+    default:
+      return 'bg-white/10 text-white/60';
+  }
+};
+
+// Helper to get tier display name
+const getTierDisplayName = (tier: UserProfile['tier']) => {
+  switch (tier) {
+    case 'pro':
+      return 'Pro';
+    case 'unlimited':
+      return 'Pro+';
+    case 'starter':
+      return 'Starter';
+    default:
+      return 'Free';
+  }
+};
+
 const BottomNav = React.forwardRef<HTMLElement, BottomNavProps>(
-  ({ className, forceVisible = false, ...props }, ref) => {
+  ({ className, forceVisible = false, userProfile, onReportBugClick, ...props }, ref) => {
     const pathname = usePathname();
     const [showAddMenu, setShowAddMenu] = React.useState(false);
 
@@ -328,9 +391,79 @@ const BottomNav = React.forwardRef<HTMLElement, BottomNavProps>(
 
               if (!item.icon) return null;
 
+              // Profile item - show user avatar with tier badge
+              if ((item as { isProfile?: boolean }).isProfile && userProfile) {
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.url}
+                    className={cn(
+                      'flex flex-col items-center justify-center transition-all duration-300',
+                      showAddMenu
+                        ? 'opacity-0 pointer-events-none'
+                        : 'opacity-100',
+                      isActive
+                        ? 'text-white'
+                        : 'text-white/50 hover:text-white/70'
+                    )}
+                  >
+                    <div className="relative mb-1">
+                      {/* Avatar */}
+                      <div className="h-7 w-7 rounded-full overflow-hidden bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] flex items-center justify-center ring-2 ring-white/20">
+                        {userProfile.avatarUrl ? (
+                          <img
+                            src={userProfile.avatarUrl}
+                            alt={userProfile.name}
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <span className="text-xs font-bold text-white">
+                            {userProfile.name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                      {/* Tier badge - positioned at bottom-right */}
+                      <div 
+                        className={cn(
+                          'absolute -bottom-0.5 -right-1 px-1 py-0.5 rounded text-[8px] font-bold uppercase tracking-wide',
+                          getTierBadgeStyle(userProfile.tier)
+                        )}
+                      >
+                        {getTierDisplayName(userProfile.tier)}
+                      </div>
+                    </div>
+                    <span className="text-[10px] font-medium max-w-[60px] truncate">
+                      {userProfile.name.split('-')[0] || userProfile.name.substring(0, 8)}
+                    </span>
+                  </Link>
+                );
+              }
+
               // Extract icon after null check for TypeScript
               const itemIcon = item.icon;
               const Icon = isActive ? item.activeIcon || itemIcon : itemIcon;
+
+              // Action button (Report Bug)
+              if ((item as { isAction?: boolean }).isAction) {
+                return (
+                  <button
+                    key={item.id}
+                    onClick={onReportBugClick}
+                    className={cn(
+                      'flex flex-col items-center justify-center transition-all duration-300',
+                      showAddMenu
+                        ? 'opacity-0 pointer-events-none'
+                        : 'opacity-100',
+                      'text-white/50 hover:text-white/70'
+                    )}
+                  >
+                    <div className="mb-1">
+                      <Icon />
+                    </div>
+                    <span className="text-[11px] font-medium">{item.title}</span>
+                  </button>
+                );
+              }
 
               return (
                 <Link

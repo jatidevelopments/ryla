@@ -9,7 +9,8 @@ import type {
 } from './types';
 import { StripeProvider } from './providers/stripe.provider';
 import { FinbyProvider } from './providers/finby.provider';
-import { PayPalProvider } from './providers/paypal.provider';
+// PayPalProvider requires @paypal/checkout-server-sdk - use dynamic import
+// import { PayPalProvider } from './providers/paypal.provider';
 import { TrustPayProvider } from './providers/trustpay.provider';
 import { Shift4Provider } from './providers/shift4.provider';
 
@@ -60,7 +61,8 @@ export function createPaymentProvider<T extends PaymentProviderType>(
     case 'finby':
       return new FinbyProvider(config as FinbyConfig);
     case 'paypal':
-      return new PayPalProvider(config as PayPalConfig);
+      // Dynamic import to avoid build-time dependency on @paypal/checkout-server-sdk
+      throw new Error('PayPal provider requires @paypal/checkout-server-sdk. Please install it and use dynamic import.');
     case 'trustpay':
       return new TrustPayProvider(config as TrustPayConfig);
     case 'shift4':

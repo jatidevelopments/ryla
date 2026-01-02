@@ -21,7 +21,7 @@ import { voicesMap } from "@/constants/voices-map";
 import { analyticsService } from "@/services/analytics-service";
 import { AnalyticsEventTypeEnum } from "@/utils/enums/analytics-event-types";
 import { reportEmailVerified, reportSignUp } from "@/lib/gtag";
-import { trackLead } from "@/lib/fbPixel";
+import { trackFacebookLead } from "@ryla/analytics";
 import { useUtmStore } from "@/store/states/utm";
 
 const signUpSchema = z.object({
@@ -126,7 +126,7 @@ export function useSignUpForm(posthog?: any) {
         signUp(payload, {
             onSuccess: (response) => {
                 // Facebook Pixel - Lead event
-                trackLead();
+                trackFacebookLead();
 
                 // Google Ads conversions (DISABLED)
                 // reportSignUp();
@@ -172,6 +172,20 @@ export function useSignUpForm(posthog?: any) {
                     }
                 } catch (e) {
                     console.warn("PostHog sign up tracking failed", e);
+                }
+
+                // TikTok — CompleteRegistration + Identify (fire and forget)
+                if (typeof window !== "undefined") {
+                    (async () => {
+                        try {
+                            const { trackTikTokCompleteRegistration, identifyTikTok, hashSHA256 } = await import("@ryla/analytics");
+                            trackTikTokCompleteRegistration();
+                            const hashedEmail = await hashSHA256(values.email);
+                            identifyTikTok({ email: hashedEmail });
+                        } catch (e) {
+                            console.warn("TikTok sign up tracking failed", e);
+                        }
+                    })();
                 }
 
                 setUserId(response.userId);

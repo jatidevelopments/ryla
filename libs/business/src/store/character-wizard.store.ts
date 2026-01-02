@@ -77,6 +77,9 @@ export interface CharacterFormData {
   nsfwEnabled: boolean;
   aspectRatio: '1:1' | '9:16' | '2:3';
   qualityMode: 'draft' | 'hq';
+  
+  // Profile picture set selection (null = skip)
+  selectedProfilePictureSetId: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
 }
 
 /** Store state interface */
@@ -145,16 +148,78 @@ const PRESETS_STEPS: WizardStep[] = [
   { id: 4, title: 'Body', description: 'Define body type' },
   { id: 5, title: 'Identity', description: 'Add personality and outfit' },
   { id: 6, title: 'Base Image', description: 'Select your character face' },
-  { id: 7, title: 'Profile Pictures', description: 'Generate profile set' },
-  { id: 8, title: 'Finalize', description: 'Review and create' },
+  { id: 7, title: 'Finalize', description: 'Review and create' },
 ];
 
 const PROMPT_BASED_STEPS: WizardStep[] = [
   { id: 1, title: 'Prompt Input', description: 'Describe your character' },
   { id: 2, title: 'Base Image', description: 'Select your character face' },
-  { id: 3, title: 'Profile Pictures', description: 'Generate profile set' },
-  { id: 4, title: 'Finalize', description: 'Review and create' },
+  { id: 3, title: 'Finalize', description: 'Review and create' },
 ];
+
+/**
+ * Reset form fields and state for steps from a given step onwards
+ * This is called when going back in the wizard to clear invalidated data
+ */
+function resetStepsFrom(
+  state: CharacterWizardState,
+  fromStep: number
+): void {
+  const { form, creationMethod } = state;
+
+  if (creationMethod === 'prompt-based') {
+    // Prompt-based flow
+    if (fromStep <= 1) {
+      // Reset prompt input
+      form.promptInput = undefined;
+    }
+    if (fromStep <= 2) {
+      // Reset base image selection
+      state.baseImages = [];
+      state.selectedBaseImageId = null;
+      state.baseImageFineTunePrompt = '';
+    }
+    // Profile pictures are generated after creation on the profile page.
+  } else if (creationMethod === 'presets') {
+    // Presets flow
+    if (fromStep <= 1) {
+      // Reset style
+      form.gender = null;
+      form.style = null;
+    }
+    if (fromStep <= 2) {
+      // Reset general
+      form.ethnicity = null;
+      form.age = 25; // Reset to default
+    }
+    if (fromStep <= 3) {
+      // Reset face
+      form.hairStyle = null;
+      form.hairColor = null;
+      form.eyeColor = null;
+    }
+    if (fromStep <= 4) {
+      // Reset body
+      form.bodyType = null;
+      form.breastSize = null;
+    }
+    if (fromStep <= 5) {
+      // Reset identity
+      form.name = '';
+      form.outfit = null;
+      form.archetype = null;
+      form.personalityTraits = [];
+      form.bio = '';
+    }
+    if (fromStep <= 6) {
+      // Reset base image selection
+      state.baseImages = [];
+      state.selectedBaseImageId = null;
+      state.baseImageFineTunePrompt = '';
+    }
+    // Profile pictures are generated after creation on the profile page.
+  }
+}
 
 /** Default form values */
 const DEFAULT_FORM: CharacterFormData = {
@@ -189,6 +254,8 @@ const DEFAULT_FORM: CharacterFormData = {
   nsfwEnabled: false,
   aspectRatio: '9:16',
   qualityMode: 'draft',
+  // Profile picture set (null = skip by default)
+  selectedProfilePictureSetId: null,
 };
 
 /** Create the store with persistence */
@@ -197,7 +264,7 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
     immer((set, get) => ({
       // Initial state
       step: 0, // Start at step 0 (creation method selection)
-      steps: [], // Will be set when creation method is selected
+      steps: [], // Will be set when creation method is selected (or restored on rehydration)
       status: 'idle',
       form: { ...DEFAULT_FORM },
       characterId: null,
@@ -213,6 +280,10 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
       // Navigation actions
       setStep: (step) =>
         set((state) => {
+          // If going to an earlier step, reset all steps from that step onwards
+          if (step < state.step) {
+            resetStepsFrom(state, step);
+          }
           state.step = step;
         }),
 
@@ -226,7 +297,10 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
       prevStep: () =>
         set((state) => {
           if (state.step > 0) {
-            state.step -= 1;
+            const targetStep = state.step - 1;
+            // Reset all steps from targetStep onwards (including targetStep)
+            resetStepsFrom(state, targetStep);
+            state.step = targetStep;
           }
         }),
 
@@ -369,9 +443,7 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
               return !!form.promptInput?.trim();
             case 2: // Base Image Selection
               return !!get().selectedBaseImageId;
-            case 3: // Profile Pictures (always valid if reached)
-              return true;
-            case 4: // Finalize
+            case 3: // Finalize
               return true;
             default:
               return false;
@@ -391,9 +463,7 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
               return !!form.outfit; // Other identity fields optional
             case 6: // Base Image Selection
               return !!get().selectedBaseImageId;
-            case 7: // Profile Pictures (always valid if reached)
-              return true;
-            case 8: // Finalize
+            case 7: // Finalize
               return true;
             default:
               return false;
@@ -419,6 +489,16 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
         baseImageFineTunePrompt: state.baseImageFineTunePrompt,
         profilePictureSet: state.profilePictureSet,
       }),
+      onRehydrateStorage: () => (state) => {
+        // Restore steps array based on creationMethod when rehydrating from localStorage
+        if (state && state.form.creationMethod && state.steps.length === 0) {
+          if (state.form.creationMethod === 'prompt-based') {
+            state.steps = PROMPT_BASED_STEPS;
+          } else if (state.form.creationMethod === 'presets') {
+            state.steps = PRESETS_STEPS;
+          }
+        }
+      },
     }
   )
 );
@@ -427,13 +507,15 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
 export const useCurrentStep = () => {
   const step = useCharacterWizardStore((s) => s.step);
   const steps = useCharacterWizardStore((s) => s.steps);
-  return steps.find((s) => s.id === step) || steps[0];
+  if (steps.length === 0) return null; // Return null if steps not initialized
+  return steps.find((s) => s.id === step) || steps[0] || null;
 };
 
 /** Helper: Get progress percentage */
 export const useWizardProgress = () => {
   const step = useCharacterWizardStore((s) => s.step);
   const steps = useCharacterWizardStore((s) => s.steps);
+  if (steps.length === 0) return 0; // Return 0 if steps not initialized yet
   return Math.round((step / steps.length) * 100);
 };
 
@@ -467,9 +549,7 @@ export const useCanProceed = () => {
         return !!form.promptInput?.trim();
       case 2: // Base Image Selection
         return !!selectedBaseImageId;
-      case 3: // Profile Pictures (always valid if reached)
-        return true;
-      case 4: // Finalize
+      case 3: // Finalize
         return true;
       default:
         return false;
@@ -489,9 +569,7 @@ export const useCanProceed = () => {
         return !!form.outfit; // Other identity fields optional
       case 6: // Base Image Selection
         return !!selectedBaseImageId;
-      case 7: // Profile Pictures (always valid if reached)
-        return true;
-      case 8: // Finalize
+      case 7: // Finalize
         return true;
       default:
         return false;

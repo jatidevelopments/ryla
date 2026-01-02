@@ -137,6 +137,12 @@ export const userRouter = router({
       privacy: {
         profilePublic: settings.privacy?.profilePublic ?? true,
       },
+      generation: {
+        defaultQuality: settings.generation?.defaultQuality ?? false,
+      },
+      content: {
+        nsfwDefault: settings.content?.nsfwDefault ?? false,
+      },
     };
   }),
 
@@ -155,6 +161,16 @@ export const userRouter = router({
         privacy: z
           .object({
             profilePublic: z.boolean().optional(),
+          })
+          .optional(),
+        generation: z
+          .object({
+            defaultQuality: z.boolean().optional(),
+          })
+          .optional(),
+        content: z
+          .object({
+            nsfwDefault: z.boolean().optional(),
           })
           .optional(),
       })
@@ -178,6 +194,14 @@ export const userRouter = router({
         privacy: {
           ...currentSettings.privacy,
           ...input.privacy,
+        },
+        generation: {
+          ...currentSettings.generation,
+          ...input.generation,
+        },
+        content: {
+          ...currentSettings.content,
+          ...input.content,
         },
       };
 

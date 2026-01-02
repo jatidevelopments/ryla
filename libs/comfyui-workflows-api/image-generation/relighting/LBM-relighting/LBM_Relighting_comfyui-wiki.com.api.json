@@ -1,0 +1,175 @@
+{
+  "2031": {
+    "inputs": {
+      "rembg_session": [
+        "2042",
+        0
+      ],
+      "image": [
+        "2041",
+        0
+      ]
+    },
+    "class_type": "ImageRemoveBackground+",
+    "_meta": {
+      "title": "ImageRemoveBackground+"
+    }
+  },
+  "2035": {
+    "inputs": {
+      "x": 0,
+      "y": 0,
+      "resize_source": false,
+      "destination": [
+        "2040",
+        0
+      ],
+      "source": [
+        "2041",
+        0
+      ],
+      "mask": [
+        "2031",
+        1
+      ]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {
+      "title": "ImageCompositeMasked"
+    }
+  },
+  "2036": {
+    "inputs": {
+      "model": [
+        "2046",
+        0
+      ],
+      "image": [
+        "2035",
+        0
+      ]
+    },
+    "class_type": "LBMSampler",
+    "_meta": {
+      "title": "LBMSampler"
+    }
+  },
+  "2040": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "keep_proportion": "crop",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 8,
+      "image": [
+        "2044",
+        0
+      ],
+      "width": [
+        "2041",
+        1
+      ],
+      "height": [
+        "2041",
+        2
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "2041": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "keep_proportion": "pad_edge",
+      "pad_color": "0, 0, 0",
+      "crop_position": "center",
+      "divisible_by": 8,
+      "image": [
+        "2045",
+        0
+      ],
+      "width": [
+        "2049",
+        0
+      ],
+      "height": [
+        "2049",
+        1
+      ]
+    },
+    "class_type": "ImageResizeKJv2",
+    "_meta": {
+      "title": "Resize Image v2"
+    }
+  },
+  "2042": {
+    "inputs": {},
+    "class_type": "TransparentBGSession+",
+    "_meta": {
+      "title": "TransparentBGSession+"
+    }
+  },
+  "2044": {
+    "inputs": {
+      "image": "blindbox.webp"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "2045": {
+    "inputs": {
+      "image": "panda (1).webp"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "2046": {
+    "inputs": {},
+    "class_type": "LoadLBMModel",
+    "_meta": {
+      "title": "LoadLBMModel"
+    }
+  },
+  "2048": {
+    "inputs": {
+      "images": [
+        "2036",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  },
+  "2049": {
+    "inputs": {
+      "image": [
+        "2044",
+        0
+      ]
+    },
+    "class_type": "GetImageSize+",
+    "_meta": {
+      "title": "GetImageSize+"
+    }
+  },
+  "2063": {
+    "inputs": {
+      "images": [
+        "2031",
+        0
+      ]
+    },
+    "class_type": "PreviewImage",
+    "_meta": {
+      "title": "Preview Image"
+    }
+  }
+}

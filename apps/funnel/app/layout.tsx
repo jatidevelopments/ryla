@@ -9,16 +9,19 @@ import MainContentWrapper from '@/components/layouts/MainContentWrapper';
 import './globals.css';
 import './app.css';
 import { SPRITE_URL } from '@/constants/sprite';
-import { ClientPosthogProvider } from './posthog-provider';
 import { Suspense } from 'react';
-import PostHogPageView from '@/components/PostHogPageView';
+import { 
+  ClientPostHogProvider, 
+  PostHogPageView,
+  TikTokProvider, 
+  TikTokPageView,
+  FacebookProvider
+} from '@ryla/analytics';
 import { withCdn } from '@/lib/cdn';
 import { CdnDebug } from '@/components/CdnDebug';
 import { FbPixelDebug } from '@/components/FbPixelDebug';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://goviral.ryla.ai';
-const HERO_VIDEO_PATH = '/video/ai_influencer_video_1.mp4';
-const HERO_VIDEO_URL = withCdn(HERO_VIDEO_PATH);
 const OG_IMAGE_URL = withCdn('/share-ryla.jpg');
 
 const jakartaSans = Plus_Jakarta_Sans({
@@ -172,19 +175,24 @@ export default function RootLayout({
         className={`${jakartaSans.className} antialiased`}
       >
         <Providers>
-          <ClientPosthogProvider>
-            <CdnDebug />
-            <FbPixelDebug />
-            <Suspense fallback={null}>
-              <PostHogPageView />
-            </Suspense>
+          <ClientPostHogProvider>
+            <TikTokProvider>
+              <FacebookProvider>
+                <CdnDebug />
+                <FbPixelDebug />
+                <Suspense fallback={null}>
+                  <PostHogPageView />
+                  <TikTokPageView />
+                </Suspense>
 
-            <div className="min-h-dvh w-full flex flex-col">
-              <MainContentWrapper>{children}</MainContentWrapper>
-            </div>
+                <div className="min-h-dvh w-full flex flex-col">
+                  <MainContentWrapper>{children}</MainContentWrapper>
+                </div>
 
-            <Toaster richColors position="bottom-right" />
-          </ClientPosthogProvider>
+                <Toaster richColors position="bottom-right" />
+              </FacebookProvider>
+            </TikTokProvider>
+          </ClientPostHogProvider>
         </Providers>
 
         {/* finby Payment Scripts */}
@@ -199,77 +207,7 @@ export default function RootLayout({
           strategy="beforeInteractive"
         />
 
-        {/* Facebook Pixel Script - High-level initialization */}
-        <Script id="facebook-pixel" strategy="afterInteractive">
-          {`
-                        (function() {
-                            // GUARD 1: Prevent entire script from executing twice
-                            if (window.__fbPixelsScriptExecuted) {
-                                return;
-                            }
-                            window.__fbPixelsScriptExecuted = true;
-                            
-                            // Load Facebook Pixel script
-                            !function(f,b,e,v,n,t,s)
-                            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                            n.queue=[];t=b.createElement(e);t.async=!0;
-                            t.src=v;s=b.getElementsByTagName(e)[0];
-                            s.parentNode.insertBefore(t,s)}(window, document,'script',
-                            'https://connect.facebook.net/en_US/fbevents.js');
-                            
-                            // Initialize pixel after script loads
-                            (function() {
-                                // GUARD 2: Prevent init from running twice
-                                if (window.__fbPixelsInitStarted) {
-                                    return;
-                                }
-                                window.__fbPixelsInitStarted = true;
-                                
-                                var pixelId = '2633023407061165';
-                                
-                                // GUARD 3: Validate pixel ID is numeric
-                                if (!/^[0-9]+$/.test(pixelId)) {
-                                    console.error('[FB Pixel] Invalid pixel ID:', pixelId);
-                                    return;
-                                }
-                                
-                                function initPixel() {
-                                    if (typeof window.fbq !== 'function') {
-                                        setTimeout(initPixel, 50);
-                                        return;
-                                    }
-                                    
-                                    // GUARD 4: Prevent fbq('init') from being called again
-                                    if (window.__fbPixelInitialized) {
-                                        return;
-                                    }
-                                    
-                                    window.fbq('init', pixelId);
-                                    window.__fbPixelInitialized = true;
-                                    
-                                    // GUARD 5: Prevent PageView from being tracked multiple times
-                                    if (!window.__fbPageViewTracked) {
-                                        window.fbq('track', 'PageView');
-                                        window.__fbPageViewTracked = true;
-                                    }
-                                }
-                                
-                                // Start initialization
-                                initPixel();
-                            })();
-                        })();
-                    `}
-        </Script>
-        <noscript>
-          <img
-            height="1"
-            width="1"
-            style={{ display: 'none' }}
-            src="https://www.facebook.com/tr?id=2633023407061165&ev=PageView&noscript=1"
-          />
-        </noscript>
+        {/* Facebook Pixel is now loaded via FacebookProvider component */}
       </body>
     </html>
   );

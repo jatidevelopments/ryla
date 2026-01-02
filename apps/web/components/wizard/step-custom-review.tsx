@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 
 /**
@@ -10,12 +11,18 @@ import { useCharacterWizardStore } from '@ryla/business';
  */
 export function StepCustomReview() {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const form = useCharacterWizardStore((s) => s.form);
   const nextStep = useCharacterWizardStore((s) => s.nextStep);
 
   const handleContinue = () => {
+    // Update store state immediately for instant UI feedback
     nextStep();
-    router.push('/wizard/step-3');
+    
+    // Navigate in a transition to make it feel instant
+    startTransition(() => {
+      router.push('/wizard/step-3');
+    });
   };
 
   return (
@@ -89,7 +96,8 @@ export function StepCustomReview() {
       {/* Continue button */}
       <button
         onClick={handleContinue}
-        className="w-full h-12 rounded-xl font-bold text-base bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all relative overflow-hidden group"
+        disabled={isPending}
+        className="w-full h-12 rounded-xl font-bold text-base bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/30 hover:shadow-orange-500/50 transition-all relative overflow-hidden group disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <div className="absolute inset-0 w-[200%] -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 pointer-events-none" />
         <span className="relative z-10 flex items-center justify-center gap-2">

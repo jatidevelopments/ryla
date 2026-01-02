@@ -12,6 +12,7 @@ import {
   Heart,
   Images,
   LayoutGrid,
+  Settings,
 } from 'lucide-react';
 
 export interface InfluencerProfileProps {
@@ -160,6 +161,15 @@ export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
               >
                 <Sparkles className="h-4 w-4" />
                 Generate
+              </Link>
+            </RylaButton>
+            <RylaButton asChild variant="glassy-outline" size="sm">
+              <Link
+                href={`/influencer/${influencer.id}/settings`}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
               </Link>
             </RylaButton>
           </div>

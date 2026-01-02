@@ -8,6 +8,34 @@
       "when": 1766681046846,
       "tag": "0000_ambiguous_talisman",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1767114664291,
+      "tag": "0001_known_human_robot",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1767128141955,
+      "tag": "0002_image_likes_soft_delete",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1767294843926,
+      "tag": "0003_outstanding_leopardon",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1767362423804,
+      "tag": "0004_wealthy_excalibur",
+      "breakpoints": true
     }
   ]
 }

@@ -52,6 +52,9 @@ export interface CharacterConfig {
   // NSFW settings
   nsfwEnabled?: boolean;
 
+  // Profile picture set selection (string ID, not UUID)
+  profilePictureSetId?: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
+
   // Legacy/compatibility
   ageRange?: string;
   outfitStyle?: string;

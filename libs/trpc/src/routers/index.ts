@@ -5,3 +5,6 @@ export { postRouter } from './post.router';
 export { creditsRouter } from './credits.router';
 export { subscriptionRouter } from './subscription.router';
 export { promptsRouter } from './prompts.router';
+export { activityRouter } from './activity.router';
+export { notificationsRouter } from './notifications.router';
+export { bugReportRouter } from './bug-report.router';

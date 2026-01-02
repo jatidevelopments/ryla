@@ -1,0 +1,21 @@
+{
+  "extends": "../apps/api/tsconfig.app.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2021",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "**/*.ts",
+    "../apps/api/src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+
+
+

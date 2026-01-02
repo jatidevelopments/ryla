@@ -3,17 +3,20 @@
 import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { useParams, useRouter, notFound } from 'next/navigation';
-import { useInfluencer, useInfluencerStore, useInfluencerImages } from '@ryla/business';
-import { cn, RylaButton, Switch, Label } from '@ryla/ui';
+import { useParams, useRouter, useSearchParams, notFound } from 'next/navigation';
+import { useInfluencer, useInfluencerStore } from '@ryla/business';
+import { cn, RylaButton, Switch, Label, PlatformBadgeGroup } from '@ryla/ui';
+import { getPlatformsForAspectRatio } from '@ryla/shared';
 import {
   SCENE_OPTIONS,
   ENVIRONMENT_OPTIONS,
   OUTFIT_OPTIONS,
+  FEATURE_CREDITS,
 } from '@ryla/shared';
 import { ProtectedRoute } from '../../../../components/protected-route';
 import { ZeroCreditsModal } from '../../../../components/credits';
 import { useCredits } from '../../../../lib/hooks/use-credits';
+import { useLocalStorage } from '../../../../lib/hooks/use-local-storage';
 import type { Post } from '@ryla/shared';
 import {
   ArrowLeft,
@@ -34,6 +37,16 @@ import {
   Images,
   X,
 } from 'lucide-react';
+import {
+  deleteImage,
+  generateStudioImages,
+  getCharacterImages,
+  getComfyUIResults,
+  inpaintEdit,
+  likeImage,
+} from '../../../../lib/api';
+import { InpaintEditModal } from '../../../../components/studio/inpaint-edit-modal';
+import { trpc } from '../../../../lib/trpc';
 
 interface StudioSettings {
   scene: string;
@@ -42,21 +55,40 @@ interface StudioSettings {
   aspectRatio: '1:1' | '9:16' | '2:3';
   qualityMode: 'draft' | 'hq';
   nsfwEnabled: boolean;
+  modelProvider: 'comfyui' | 'fal';
+  modelId: 'fal-ai/flux/schnell' | 'fal-ai/flux/dev';
 }
 
 const DEFAULT_SETTINGS: StudioSettings = {
-  scene: 'casual-day',
+  scene: 'candid-lifestyle',
   environment: 'studio',
   outfit: null,
   aspectRatio: '1:1',
   qualityMode: 'draft',
   nsfwEnabled: false,
+  modelProvider: 'comfyui',
+  modelId: 'fal-ai/flux/schnell',
 };
 
 const ASPECT_RATIOS = [
-  { value: '1:1', label: 'Square', description: '1:1' },
-  { value: '9:16', label: 'Portrait', description: '9:16' },
-  { value: '2:3', label: 'Tall', description: '2:3' },
+  { 
+    value: '1:1', 
+    label: 'Square', 
+    description: '1:1',
+    platforms: getPlatformsForAspectRatio('1:1').map(p => p.id),
+  },
+  { 
+    value: '9:16', 
+    label: 'Portrait', 
+    description: '9:16',
+    platforms: getPlatformsForAspectRatio('9:16').map(p => p.id),
+  },
+  { 
+    value: '2:3', 
+    label: 'Tall', 
+    description: '2:3',
+    platforms: getPlatformsForAspectRatio('2:3').map(p => p.id),
+  },
 ] as const;
 
 export default function StudioPage() {
@@ -70,25 +102,37 @@ export default function StudioPage() {
 function StudioContent() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const influencerId = params.id as string;
 
   const influencer = useInfluencer(influencerId);
+  const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
+  const { data: character, isLoading } = trpc.character.getById.useQuery(
+    { id: influencerId },
+    { enabled: !influencer }
+  );
   const addPost = useInfluencerStore((state) => state.addPost);
-  const existingImages = useInfluencerImages(influencerId);
+  const [existingImages, setExistingImages] = React.useState<Post[]>([]);
+  const preselectImageId = searchParams.get('imageId');
 
   // Credit management
+  const utils = trpc.useUtils();
   const { balance, refetch: refetchCredits } = useCredits();
   const [showCreditModal, setShowCreditModal] = React.useState(false);
 
-  // State
-  const [settings, setSettings] = React.useState<StudioSettings>(DEFAULT_SETTINGS);
+  // State with localStorage persistence
+  const [settings, setSettings] = useLocalStorage<StudioSettings>(
+    'ryla-studio-settings',
+    DEFAULT_SETTINGS
+  );
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generatedPost, setGeneratedPost] = React.useState<Post | null>(null);
   const [caption, setCaption] = React.useState('');
   const [selectedExistingPost, setSelectedExistingPost] = React.useState<Post | null>(null);
+  const [isEditOpen, setIsEditOpen] = React.useState(false);
 
-  // Expanded sections
-  const [expandedSections, setExpandedSections] = React.useState({
+  // Expanded sections with localStorage persistence
+  const [expandedSections, setExpandedSections] = useLocalStorage('ryla-studio-expanded-sections', {
     existingImages: true,
     scene: true,
     environment: true,
@@ -97,11 +141,100 @@ function StudioContent() {
     advanced: false,
   });
 
-  if (!influencer) {
+  React.useEffect(() => {
+    if (!influencer && character) {
+      addInfluencer({
+        id: character.id,
+        name: character.name,
+        handle: character.handle || `@${character.name.toLowerCase().replace(/\s+/g, '.')}`,
+        bio: character.config?.bio || 'New AI influencer ✨',
+        avatar: character.baseImageUrl || null,
+        gender: character.config?.gender || 'female',
+        style: character.config?.style || 'realistic',
+        ethnicity: character.config?.ethnicity || 'caucasian',
+        age: character.config?.age || 25,
+        hairStyle: character.config?.hairStyle || 'long-straight',
+        hairColor: character.config?.hairColor || 'brown',
+        eyeColor: character.config?.eyeColor || 'brown',
+        bodyType: character.config?.bodyType || 'slim',
+        breastSize: character.config?.breastSize,
+        archetype: character.config?.archetype || 'girl-next-door',
+        personalityTraits: character.config?.personalityTraits || [],
+        outfit: character.config?.defaultOutfit || 'casual',
+        nsfwEnabled: character.config?.nsfwEnabled || false,
+        profilePictureSetId: character.config?.profilePictureSetId || undefined,
+        postCount: parseInt(character.postCount || '0', 10),
+        imageCount: 0,
+        likedCount: parseInt(character.likedCount || '0', 10),
+        createdAt: character.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: character.updatedAt?.toISOString() || new Date().toISOString(),
+      });
+    }
+  }, [addInfluencer, character, influencer]);
+
+  // Update settings when influencer NSFW setting changes
+  React.useEffect(() => {
+    if (influencer) {
+      setSettings((prev) => {
+        const newNsfwEnabled = influencer.nsfwEnabled || false;
+        return {
+          ...prev,
+          nsfwEnabled: newNsfwEnabled,
+          // When NSFW is enabled, force comfyui provider (supports adult models)
+          modelProvider: newNsfwEnabled ? 'comfyui' : prev.modelProvider,
+        };
+      });
+    }
+  }, [influencer?.nsfwEnabled, influencer]);
+
+  if (!influencer && isLoading) {
+    return null;
+  }
+
+  if (!influencer && !character) {
     notFound();
   }
 
-  const creditCost = settings.qualityMode === 'hq' ? 10 : 5;
+  const refreshExistingImages = React.useCallback(async () => {
+    const rows = await getCharacterImages(influencerId);
+    const mapped: Post[] = rows.map((row) => ({
+      id: row.id,
+      influencerId,
+      imageUrl: row.s3Url || '',
+      caption: '',
+      isLiked: Boolean(row.liked),
+      scene: row.scene || undefined,
+      environment: row.environment || undefined,
+      outfit: row.outfit || influencer.outfit,
+      aspectRatio: (row.aspectRatio || '9:16') as Post['aspectRatio'],
+      createdAt: row.createdAt || new Date().toISOString(),
+    }));
+    setExistingImages(mapped);
+  }, [influencerId, influencer.outfit]);
+
+  React.useEffect(() => {
+    refreshExistingImages().catch((err) => console.error('Failed to load images:', err));
+  }, [refreshExistingImages]);
+
+  React.useEffect(() => {
+    if (!preselectImageId || existingImages.length === 0) return;
+    const match = existingImages.find((img) => img.id === preselectImageId);
+    if (match) {
+      setSelectedExistingPost(match);
+      setSettings((prev) => ({
+        ...prev,
+        scene: match.scene || prev.scene,
+        environment: match.environment || prev.environment,
+        outfit: match.outfit || null,
+        aspectRatio: match.aspectRatio || prev.aspectRatio,
+      }));
+    }
+  }, [preselectImageId, existingImages]);
+
+  // Credit costs from shared pricing (studio_standard for HQ, studio_fast for draft)
+  const creditCost = settings.qualityMode === 'hq' 
+    ? FEATURE_CREDITS.studio_standard.credits  // 50 credits
+    : FEATURE_CREDITS.studio_fast.credits;      // 20 credits
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -141,17 +274,50 @@ function StudioContent() {
       return;
     }
 
+    // Hard invariant: wizard-created influencers must always have a base image.
+    // If legacy data slips through, fail fast instead of generating inconsistent results.
+    if (!influencer.avatar) {
+      throw new Error('Missing base image for this influencer. Please re-run the wizard base image step.');
+    }
+
     setIsGenerating(true);
     setGeneratedPost(null);
+    setCaption(''); // captions are Phase 2+ (kept empty in MVP)
 
-    // Simulate generation delay
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    try {
+      // NOTE: influencerId in web is the same as characterId in API/DB
+      const start = await generateStudioImages({
+        characterId: influencerId,
+        scene: settings.scene,
+        environment: settings.environment,
+        outfit: settings.outfit || influencer.outfit,
+        aspectRatio: settings.aspectRatio,
+        qualityMode: settings.qualityMode,
+        count: 1,
+        nsfw: settings.nsfwEnabled,
+        modelProvider: settings.nsfwEnabled ? 'comfyui' : settings.modelProvider,
+        modelId:
+          settings.nsfwEnabled || settings.modelProvider !== 'fal'
+            ? undefined
+            : settings.modelId,
+      });
 
-    // Create mock post
+      const promptId = start.jobs[0]?.promptId;
+      if (!promptId) {
+        throw new Error('Generation did not return a promptId');
+      }
+
+      // Poll until complete (simple MVP polling)
+      let attempts = 0;
+      while (attempts < 120) {
+        attempts++;
+        const res = await getComfyUIResults(promptId);
+        if (res.status === 'completed' && res.images?.[0]?.url) {
+          const img = res.images[0];
     const newPost: Post = {
-      id: `post-${Date.now()}`,
+            id: img.id,
       influencerId,
-      imageUrl: '',
+            imageUrl: img.url,
       caption: '',
       isLiked: false,
       scene: settings.scene,
@@ -160,27 +326,30 @@ function StudioContent() {
       aspectRatio: settings.aspectRatio,
       createdAt: new Date().toISOString(),
     };
-
-    // Generate mock caption
-    const mockCaptions = [
-      'Good morning! ☀️ Feeling amazing today ✨',
-      'Just another day being fabulous 💋',
-      'Who needs a filter when you have this lighting? 📸',
-      'Living my best life 🌟',
-      'Confidence is my best accessory 💅',
-    ];
-    const generatedCaption =
-      mockCaptions[Math.floor(Math.random() * mockCaptions.length)];
-
     setGeneratedPost(newPost);
-    setCaption(generatedCaption);
+          await refreshExistingImages();
+          break;
+        }
+        if (res.status === 'failed') {
+          throw new Error(res.error || 'Generation failed');
+        }
+        await new Promise((r) => setTimeout(r, 1500));
+      }
+    } finally {
     setIsGenerating(false);
     refetchCredits();
+    // Invalidate activity feed to show new generation + credit usage
+    utils.activity.list.invalidate();
+    utils.activity.summary.invalidate();
+    // Invalidate notifications (generation complete)
+    utils.notifications.list.invalidate();
+    }
   };
 
   const handleSavePost = () => {
     if (generatedPost) {
-      addPost({ ...generatedPost, caption });
+      // Treat store "Post" as a view-model for a saved image asset (captions are Phase 2+)
+      addPost({ ...generatedPost, caption: '' });
       router.push(`/influencer/${influencerId}`);
     }
   };
@@ -290,12 +459,21 @@ function StudioContent() {
                           </p>
                         </div>
                       </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => setIsEditOpen(true)}
+                          disabled={!selectedExistingPost.imageUrl}
+                          className="px-2 py-1 text-[10px] rounded-md border border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--bg-surface)] disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Edit
+                        </button>
                       <button
                         onClick={handleClearExistingPost}
                         className="p-1.5 rounded-md hover:bg-[var(--bg-surface)] transition-colors"
                       >
                         <X className="h-3.5 w-3.5 text-[var(--text-muted)]" />
                       </button>
+                      </div>
                     </div>
                   )}
                   <div className="flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-thin scrollbar-thumb-[var(--border-default)] scrollbar-track-transparent">
@@ -443,9 +621,19 @@ function StudioContent() {
                           : 'border-[var(--border-default)] bg-[var(--bg-subtle)]'
                       )}
                     />
-                    <span className="text-xs font-medium text-[var(--text-secondary)]">
+                    <span className="text-xs font-medium text-[var(--text-secondary)] mb-1">
                       {ratio.label}
                     </span>
+                    {/* Platform badges */}
+                    {ratio.platforms && ratio.platforms.length > 0 && (
+                      <div className="flex justify-center mt-1">
+                        <PlatformBadgeGroup
+                          platformIds={ratio.platforms}
+                          size="sm"
+                          maxVisible={3}
+                        />
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>
@@ -459,13 +647,41 @@ function StudioContent() {
               onToggle={() => toggleSection('advanced')}
             >
               <div className="space-y-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div>
+                    <Label className="text-sm text-[var(--text-primary)]">
+                      Model
+                    </Label>
+                    <p className="text-xs text-[var(--text-muted)]">
+                      NSFW always uses on-server
+                    </p>
+                  </div>
+                  <select
+                    className="h-9 min-w-[200px] rounded-md border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 text-sm text-[var(--text-primary)]"
+                    value={settings.modelProvider === 'comfyui' ? 'comfyui' : settings.modelId}
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      if (v === 'comfyui') {
+                        handleSettingChange('modelProvider', 'comfyui');
+                      } else if (v === 'fal-ai/flux/schnell' || v === 'fal-ai/flux/dev') {
+                        handleSettingChange('modelProvider', 'fal');
+                        handleSettingChange('modelId', v);
+                      }
+                    }}
+                    disabled={settings.nsfwEnabled}
+                  >
+                    <option value="comfyui">On-server (ComfyUI)</option>
+                    <option value="fal-ai/flux/schnell">Fal: FLUX Schnell</option>
+                    <option value="fal-ai/flux/dev">Fal: FLUX Dev</option>
+                  </select>
+                </div>
                 <div className="flex items-center justify-between">
                   <div>
                     <Label className="text-sm text-[var(--text-primary)]">
                       HQ Mode
                     </Label>
                     <p className="text-xs text-[var(--text-muted)]">
-                      Higher quality, 10 credits
+                      Higher quality, {FEATURE_CREDITS.studio_standard.credits} credits
                     </p>
                   </div>
                   <Switch
@@ -502,19 +718,28 @@ function StudioContent() {
               {/* Preview Area */}
               <div className="flex-1 flex items-center justify-center p-6 min-h-[280px]">
                 {isGenerating ? (
-                  <div className="text-center">
-                    <div className="relative mb-4 mx-auto">
-                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] rounded-full blur-xl opacity-30 animate-pulse" />
-                      <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)]">
-                        <Sparkles className="h-6 w-6 text-white animate-pulse" />
+                  <div className="text-center space-y-4">
+                    <div className="relative mx-auto w-12 h-12">
+                      {/* Subtle glow background */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 rounded-full blur-md" />
+                      {/* Spinner ring */}
+                      <div className="relative w-full h-full">
+                        <div className="absolute inset-0 rounded-full border-2 border-[var(--purple-500)]/20" />
+                        <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-[var(--purple-500)] animate-spin" />
+                        {/* Center icon */}
+                        <div className="absolute inset-0 flex items-center justify-center">
+                          <Sparkles className="h-5 w-5 text-[var(--purple-400)]" />
+                        </div>
                       </div>
                     </div>
-                    <p className="text-sm font-medium text-[var(--text-primary)]">
-                      Generating...
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)]">
-                      This may take a few seconds
-                    </p>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium text-[var(--text-primary)]">
+                        Generating...
+                      </p>
+                      <p className="text-xs text-[var(--text-muted)]">
+                        This may take a few seconds
+                      </p>
+                    </div>
                   </div>
                 ) : generatedPost ? (
                   <div className="w-full">
@@ -549,20 +774,7 @@ function StudioContent() {
                 )}
               </div>
 
-              {/* Caption Editor (when generated) */}
-              {generatedPost && !isGenerating && (
-                <div className="border-t border-[var(--border-default)] p-4">
-                  <label className="text-xs font-medium text-[var(--text-muted)] mb-2 block">
-                    Caption
-                  </label>
-                  <textarea
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                    className="w-full h-20 resize-none rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 text-sm text-[var(--text-primary)] placeholder-[var(--text-muted)] focus:border-[var(--purple-500)] focus:outline-none transition-colors"
-                    placeholder="Edit your caption..."
-                  />
-                </div>
-              )}
+              {/* Captions are Phase 2+ (intentionally omitted in MVP) */}
             </div>
 
             {/* Action Buttons */}
@@ -596,7 +808,7 @@ function StudioContent() {
                     className="w-full"
                   >
                     <Save className="h-4 w-4 mr-2" />
-                    Save Post
+                    Save Image
                   </RylaButton>
                 </>
               ) : (
@@ -620,6 +832,52 @@ function StudioContent() {
       </div>
 
       {/* Zero Credits Modal */}
+      <InpaintEditModal
+        open={isEditOpen}
+        imageUrl={selectedExistingPost?.imageUrl || ''}
+        onClose={() => setIsEditOpen(false)}
+        onApply={async ({ maskedImageBase64Png, prompt }) => {
+          if (!selectedExistingPost) return;
+          if (!prompt.trim()) return;
+
+          const start = await inpaintEdit({
+            characterId: influencerId,
+            sourceImageId: selectedExistingPost.id,
+            prompt,
+            maskedImageBase64Png,
+          });
+
+          let attempts = 0;
+          while (attempts < 120) {
+            attempts++;
+            const res = await getComfyUIResults(start.promptId);
+            if (res.status === 'completed' && res.images?.[0]?.url) {
+              const img = res.images[0];
+              const edited: Post = {
+                id: img.id,
+                influencerId,
+                imageUrl: img.url,
+                caption: '',
+                isLiked: false,
+                scene: selectedExistingPost.scene,
+                environment: selectedExistingPost.environment,
+                outfit: selectedExistingPost.outfit,
+                aspectRatio: selectedExistingPost.aspectRatio,
+                createdAt: new Date().toISOString(),
+              };
+              setGeneratedPost(edited);
+              setCaption('');
+              setIsEditOpen(false);
+              break;
+            }
+            if (res.status === 'failed') {
+              throw new Error(res.error || 'Edit failed');
+            }
+            await new Promise((r) => setTimeout(r, 1500));
+          }
+        }}
+      />
+
       <ZeroCreditsModal
         isOpen={showCreditModal}
         onClose={() => setShowCreditModal(false)}

@@ -3,8 +3,10 @@ import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '../components/app-shell';
 import { StructuredData } from '../components/seo/StructuredData';
+import { ConsoleLogBufferInit } from '../components/console-log-buffer-init';
 import { TRPCProvider } from '../lib/trpc';
 import { AuthProvider } from '../lib/auth-context';
+import { MobileBlocker } from '../components/mobile-blocker';
 
 // DM Sans - Clean, modern, geometric sans-serif (unified with landing)
 const dmSans = DM_Sans({
@@ -113,9 +115,12 @@ export default function RootLayout({
         className={`${dmSans.variable} ${jetBrainsMono.variable} font-sans bg-(--bg-primary) text-white min-h-screen antialiased`}
       >
         <StructuredData />
+        <ConsoleLogBufferInit />
         <TRPCProvider>
           <AuthProvider>
-            <AppShell>{children}</AppShell>
+            <MobileBlocker>
+              <AppShell>{children}</AppShell>
+            </MobileBlocker>
           </AuthProvider>
         </TRPCProvider>
       </body>

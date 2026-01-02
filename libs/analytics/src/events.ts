@@ -40,3 +40,11 @@ export const ERROR_EVENTS = {
   API: 'error.api',
 } as const;
 
+// Activity events (EP-016)
+export const ACTIVITY_EVENTS = {
+  VIEWED: 'activity_viewed',
+  FILTER_CHANGED: 'activity_filter_changed',
+  ITEM_CLICKED: 'activity_item_clicked',
+  LOAD_MORE: 'activity_load_more',
+} as const;
+

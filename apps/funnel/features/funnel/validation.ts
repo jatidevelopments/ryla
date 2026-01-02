@@ -83,7 +83,7 @@ export const funnelV3Schema = z.object({
     creation_method: z.enum(["presets", "ai", "custom"], {
         required_error: "Please, select a creation method",
         invalid_type_error: "Please, select a valid creation method"
-    }),
+    }).optional(),
     upload_own_image: z.boolean().optional(),
     uploaded_image: z.string().optional(),
 

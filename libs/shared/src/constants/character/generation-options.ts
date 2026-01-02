@@ -3,12 +3,16 @@
  * Defines aspect ratios and quality modes
  */
 
+import type { PlatformId } from '../platforms';
+
 export interface AspectRatioOption {
   label: string;
   value: string;
   width: number;
   height: number;
-  useCase: string;
+  useCase: string; // Legacy field, kept for backward compatibility
+  platforms: PlatformId[]; // Supported platforms for this aspect ratio
+  primaryPlatform?: PlatformId; // Main platform for this format
 }
 
 export interface QualityModeOption {
@@ -26,6 +30,8 @@ export const ASPECT_RATIO_OPTIONS: AspectRatioOption[] = [
     width: 1024,
     height: 1024,
     useCase: 'Instagram feed, profile pics',
+    platforms: ['instagram', 'pinterest', 'onlyfans', 'fanvue', 'twitter', 'facebook'],
+    primaryPlatform: 'instagram',
   },
   {
     label: '9:16',
@@ -33,6 +39,8 @@ export const ASPECT_RATIO_OPTIONS: AspectRatioOption[] = [
     width: 768,
     height: 1365,
     useCase: 'Stories, TikTok, Reels',
+    platforms: ['tiktok', 'instagram', 'youtube', 'onlyfans', 'fanvue'],
+    primaryPlatform: 'tiktok',
   },
   {
     label: '2:3',
@@ -40,6 +48,8 @@ export const ASPECT_RATIO_OPTIONS: AspectRatioOption[] = [
     width: 819,
     height: 1228,
     useCase: 'Pinterest, OnlyFans',
+    platforms: ['pinterest', 'onlyfans', 'fanvue'],
+    primaryPlatform: 'pinterest',
   },
 ];
 

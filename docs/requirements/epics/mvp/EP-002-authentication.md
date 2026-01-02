@@ -1,4 +1,4 @@
-# [EPIC] EP-002: User Authentication
+# [EPIC] EP-002: User Authentication & Settings
 
 ## Overview
 
@@ -136,10 +136,14 @@ User authentication system enabling signup, login, session management, and age v
 
 - [ ] Settings page accessible from dashboard header
 - [ ] User can view their email and account info
-- [ ] User can change password (with current password)
+- [ ] User can update profile fields (name + public name) and changes persist after refresh
+- [ ] User settings (preferences) persist per user in DB (stored in `users.settings` as JSON)
+- [ ] Subscription state and credits shown are accurate (not hardcoded)
+- [ ] User can logout current device
+- [ ] User can logout all devices
 - [ ] User can request account deletion
 - [ ] Delete requires typing confirmation phrase
-- [ ] Delete removes all user data
+- [ ] Delete removes all user data (or explicitly documents what remains and why)
 
 ---
 
@@ -199,6 +203,14 @@ User authentication system enabling signup, login, session management, and age v
 **So that** I can enable adult content generation
 
 **AC**: AC-5
+
+### ST-154: Manage Account Settings
+
+**As a** signed-in user  
+**I want to** view and manage my account settings and preferences  
+**So that** my account is secure and the app behaves the way I expect
+
+**AC**: AC-7
 
 ---
 

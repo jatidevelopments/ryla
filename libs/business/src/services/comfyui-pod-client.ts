@@ -152,6 +152,20 @@ export class ComfyUIPodClient {
       }
     }
 
+    // Treat "completed with no images" as a failure for our generation workflows.
+    // This prevents the client from polling forever when ComfyUI reports completion
+    // but the workflow errored internally / produced no outputs.
+    if (images.length === 0) {
+      const msg = item.status.messages
+        .map(([type, data]) => `${type}: ${JSON.stringify(data)}`)
+        .join('; ');
+      return {
+        promptId,
+        status: 'failed',
+        error: msg || 'Workflow completed but produced no images',
+      };
+    }
+
     return { promptId, status: 'completed', images };
   }
 
@@ -251,6 +265,34 @@ export class ComfyUIPodClient {
   }
 
   /**
+   * Upload an image to ComfyUI's input folder
+   * @param imageBuffer - Image buffer (PNG/JPEG)
+   * @param filename - Filename for the uploaded image
+   * @returns The filename as stored in ComfyUI (may differ from input)
+   */
+  async uploadImage(imageBuffer: Buffer, filename: string): Promise<string> {
+    const formData = new FormData();
+    // Node's Buffer type can be incompatible with BlobPart typing in TS.
+    // Convert to Uint8Array for a stable BlobPart.
+    formData.append('image', new Blob([new Uint8Array(imageBuffer)], { type: 'image/png' }), filename);
+    formData.append('subfolder', '');
+    formData.append('type', 'input');
+
+    const response = await fetch(`${this.baseUrl}/upload/image`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`ComfyUI upload error: ${response.status} - ${error}`);
+    }
+
+    const result = (await response.json()) as { name: string };
+    return result.name;
+  }
+
+  /**
    * Get available models on the pod
    */
   async getModels(): Promise<{
@@ -261,19 +303,19 @@ export class ComfyUIPodClient {
     textEncoders: string[];
   }> {
     const response = await fetch(`${this.baseUrl}/object_info/CheckpointLoaderSimple`);
-    
+
     if (!response.ok) {
       throw new Error(`Failed to get models: ${response.statusText}`);
     }
-    
+
     const data = await response.json();
     const checkpoints = data.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
-    
+
     // Get LoRAs
     const loraResponse = await fetch(`${this.baseUrl}/object_info/LoraLoader`);
     const loraData = await loraResponse.json();
     const loras = loraData.LoraLoader?.input?.required?.lora_name?.[0] || [];
-    
+
     // Get VAEs
     const vaeResponse = await fetch(`${this.baseUrl}/object_info/VAELoader`);
     const vaeData = await vaeResponse.json();
@@ -288,7 +330,7 @@ export class ComfyUIPodClient {
     const clipResponse = await fetch(`${this.baseUrl}/object_info/CLIPLoader`);
     const clipData = await clipResponse.json();
     const textEncoders = clipData.CLIPLoader?.input?.required?.clip_name?.[0] || [];
-    
+
     return { checkpoints, loras, vaes, diffusion, textEncoders };
   }
 }

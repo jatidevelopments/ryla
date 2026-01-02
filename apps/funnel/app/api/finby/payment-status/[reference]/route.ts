@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 
+// Force dynamic rendering to avoid React 19 cache issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 /**
  * Finby Payment Status API Route
  * 

@@ -1,0 +1,219 @@
+{
+  "1": {
+    "inputs": {},
+    "class_type": "HyVideoModelLoader",
+    "_meta": {
+      "title": "HyVideoModelLoader"
+    }
+  },
+  "5": {
+    "inputs": {
+      "vae": [
+        "94",
+        0
+      ],
+      "samples": [
+        "90",
+        0
+      ]
+    },
+    "class_type": "HyVideoDecode",
+    "_meta": {
+      "title": "HyVideoDecode"
+    }
+  },
+  "7": {
+    "inputs": {},
+    "class_type": "HyVideoVAELoader",
+    "_meta": {
+      "title": "HyVideoVAELoader"
+    }
+  },
+  "16": {
+    "inputs": {},
+    "class_type": "DownloadAndLoadHyVideoTextEncoder",
+    "_meta": {
+      "title": "DownloadAndLoadHyVideoTextEncoder"
+    }
+  },
+  "43": {
+    "inputs": {
+      "vae": [
+        "94",
+        0
+      ],
+      "image": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "HyVideoEncode",
+    "_meta": {
+      "title": "HyVideoEncode"
+    }
+  },
+  "52": {
+    "inputs": {
+      "inputcount": 2,
+      "direction": "right",
+      "match_image_size": false,
+      "image_1": [
+        "93",
+        0
+      ],
+      "image_2": [
+        "85",
+        0
+      ]
+    },
+    "class_type": "ImageConcatMulti",
+    "_meta": {
+      "title": "Image Concatenate Multi"
+    }
+  },
+  "72": {
+    "inputs": {
+      "image": "anya.jpg"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "73": {
+    "inputs": {
+      "image": [
+        "72",
+        0
+      ]
+    },
+    "class_type": "HyVideoGetClosestBucketSize",
+    "_meta": {
+      "title": "HyVideoGetClosestBucketSize"
+    }
+  },
+  "77": {
+    "inputs": {
+      "text_encoders": [
+        "16",
+        0
+      ],
+      "image": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "HyVideoI2VEncode",
+    "_meta": {
+      "title": "HyVideoI2VEncode"
+    }
+  },
+  "85": {
+    "inputs": {
+      "image": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "GetImageSizeAndCount",
+    "_meta": {
+      "title": "Get Image Size & Count"
+    }
+  },
+  "87": {
+    "inputs": {
+      "image": [
+        "89",
+        0
+      ]
+    },
+    "class_type": "GetImageSizeAndCount",
+    "_meta": {
+      "title": "Get Image Size & Count"
+    }
+  },
+  "89": {
+    "inputs": {
+      "upscale_method": "lanczos",
+      "crop": "disabled",
+      "image": [
+        "72",
+        0
+      ],
+      "width": [
+        "73",
+        0
+      ],
+      "height": [
+        "73",
+        1
+      ]
+    },
+    "class_type": "ImageScale",
+    "_meta": {
+      "title": "Upscale Image"
+    }
+  },
+  "90": {
+    "inputs": {
+      "samples": 129,
+      "stg_args": 30,
+      "context_options": 6,
+      "feta_args": 17.000000000000004,
+      "model": [
+        "1",
+        0
+      ],
+      "hyvid_embeds": [
+        "77",
+        0
+      ],
+      "image_cond_latents": [
+        "43",
+        0
+      ],
+      "teacache_args": [
+        "95",
+        0
+      ],
+      "width": [
+        "87",
+        1
+      ],
+      "height": [
+        "87",
+        2
+      ]
+    },
+    "class_type": "HyVideoSampler",
+    "_meta": {
+      "title": "HyVideoSampler"
+    }
+  },
+  "93": {
+    "inputs": {},
+    "class_type": "GetNode",
+    "_meta": {
+      "title": "Get_InputImage"
+    }
+  },
+  "94": {
+    "inputs": {
+      "": [
+        "7",
+        0
+      ]
+    },
+    "class_type": "Reroute",
+    "_meta": {
+      "title": "Reroute"
+    }
+  },
+  "95": {
+    "inputs": {},
+    "class_type": "HyVideoTeaCache",
+    "_meta": {
+      "title": "HyVideoTeaCache"
+    }
+  }
+}

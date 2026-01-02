@@ -6,6 +6,7 @@ import { RedisModule } from '../redis/redis.module';
 import { RunPodModule } from '../runpod/runpod.module';
 import { DrizzleModule } from '../drizzle/drizzle.module';
 import { ImageGalleryModule } from '../image-gallery/image-gallery.module';
+import { CreditsModule } from '../credits/credits.module';
 import { ImageController } from './image.controller';
 import { StorageTestController } from './storage-test.controller';
 import { ImageService } from './services/image.service';
@@ -15,6 +16,10 @@ import { ProfilePictureSetService } from './services/profile-picture-set.service
 import { RunPodJobRunnerAdapter } from './services/runpod-job-runner.adapter';
 import { ComfyUIJobRunnerAdapter } from './services/comfyui-job-runner.adapter';
 import { ImageStorageService } from './services/image-storage.service';
+import { InpaintEditService } from './services/inpaint-edit.service';
+import { StudioGenerationService } from './services/studio-generation.service';
+import { ComfyUIResultsService } from './services/comfyui-results.service';
+import { FalImageService } from './services/fal-image.service';
 import { GenerationJobsRepository } from '@ryla/data';
 import { ImageGenerationService } from '@ryla/business';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
@@ -34,13 +39,18 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
     RunPodModule,
     DrizzleModule,
     forwardRef(() => ImageGalleryModule),
+    CreditsModule,
   ],
   controllers: [ImageController, StorageTestController],
   providers: [
     ImageService,
     BaseImageGenerationService,
+    FalImageService,
     CharacterSheetService,
     ProfilePictureSetService,
+    InpaintEditService,
+    StudioGenerationService,
+    ComfyUIResultsService,
     RunPodJobRunnerAdapter,
     ComfyUIJobRunnerAdapter,
     ImageStorageService,
@@ -76,6 +86,7 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
   exports: [
     ImageService,
     BaseImageGenerationService,
+    FalImageService,
     CharacterSheetService,
     ProfilePictureSetService,
     ImageGenerationService,

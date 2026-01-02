@@ -1,7 +1,7 @@
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
 "use client";
 
 import { createContext, useContext, PropsWithChildren } from "react";
-
 export type StepperProps = {
     value: number;
     onChange: (stepIndex: number) => void;
@@ -15,6 +15,7 @@ export type StepperProps = {
         completed?: string;
     };
 };
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 export const StepperContext = createContext<StepperProps | null>(null);
 

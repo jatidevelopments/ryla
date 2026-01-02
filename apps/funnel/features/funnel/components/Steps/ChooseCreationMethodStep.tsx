@@ -9,11 +9,19 @@ import StepWrapper from '@/components/layouts/StepWrapper';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { safePostHogCapture } from '@/lib/analytics/posthog-utils';
-import { trackViewContent } from '@/lib/fbPixel';
+import { trackFacebookViewContent } from '@ryla/analytics';
 import { FunnelSchema } from '@/features/funnel/hooks/useFunnelForm';
 import ImageCard from '@/components/ImageCard';
 
-const creationMethods = [
+const creationMethods: Array<{
+  id: string;
+  value: 'custom' | 'presets' | 'ai';
+  label: string;
+  description: string;
+  bestFor: string;
+  icon: string;
+  gradient: string;
+}> = [
   {
     id: 'presets',
     value: 'presets',
@@ -52,14 +60,14 @@ export function ChooseCreationMethodStep() {
 
   useEffect(() => {
     if (typeof window === 'undefined' || viewContentTrackedRef.current) return;
-    trackViewContent({
+    trackFacebookViewContent({
       step: 'Choose Creation Method',
       step_index: 0,
     });
     viewContentTrackedRef.current = true;
   }, []);
 
-  const handleMethodSelect = (method: string) => {
+  const handleMethodSelect = (method: 'custom' | 'presets' | 'ai') => {
     form.setValue('creation_method', method, { shouldValidate: true });
 
     safePostHogCapture('creation_method_selected', {

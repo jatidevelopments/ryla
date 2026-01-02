@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { safePostHogCapture } from "@/lib/analytics/posthog-utils";
 import { useFormContext } from "react-hook-form";
 import { FunnelSchema } from "@/features/funnel/hooks/useFunnelForm";
-import { trackPurchase } from "@/lib/fbPixel";
+import { trackFacebookPurchase } from "@ryla/analytics";
 import { products } from "@/constants/products";
 import { finbyService } from "@/services/finby-service";
 import { getOrCreateSessionId, updateSessionWaitlist } from "@/services/session-service";
@@ -43,7 +43,7 @@ export function AllSpotsReservedStep() {
                                 const purchaseCurrency = statusResponse.currency || "USD";
                                 
                                 // Fire Facebook Pixel Purchase event
-                                trackPurchase(purchaseAmount, purchaseCurrency, result.reference);
+                                trackFacebookPurchase(purchaseAmount, purchaseCurrency, result.reference);
                                 purchaseTrackedRef.current = true;
                                 
                                 console.log("✅ Purchase event tracked from AllSpotsReservedStep:", {
@@ -56,7 +56,7 @@ export function AllSpotsReservedStep() {
                                 // Fallback: track with default product if status check fails
                                 const defaultProduct = products[0];
                                 if (defaultProduct && result.reference) {
-                                    trackPurchase(defaultProduct.amount / 100, defaultProduct.currency || "USD", result.reference);
+                                    trackFacebookPurchase(defaultProduct.amount / 100, defaultProduct.currency || "USD", result.reference);
                                     purchaseTrackedRef.current = true;
                                 }
                             }

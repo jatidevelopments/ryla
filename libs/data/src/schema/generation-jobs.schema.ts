@@ -48,6 +48,11 @@ export interface GenerationInput {
   width?: number;
   height?: number;
   steps?: number;
+  // For image edits (e.g., inpaint)
+  sourceImageId?: string;
+  editType?: 'inpaint';
+  // Optional: store mask key for debugging/replay
+  editMaskS3Key?: string;
   // For LoRA training
   trainingImages?: string[];
   triggerWord?: string;

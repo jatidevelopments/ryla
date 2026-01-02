@@ -77,6 +77,7 @@ Multiple platforms and communities exist for sharing ComfyUI workflows, with sig
 - **Use Case**: Quick access to tested workflows
 - **URL**: https://github.com/comfyui-wiki/workflows
 - **Download**: Clone repo or download individual JSON files
+- **Status**: ✅ **Cloned in RYLA repo at `libs/comfyui-workflows/`**
 
 **Comfy Workflows** (comfyworkflows.com)
 - **Purpose**: Community workflow sharing platform
@@ -238,9 +239,10 @@ See `docs/research/community-workflows/ANALYSIS.md` for full details.
 ### For MVP (EP-005)
 
 1. **Primary Source**: Continue using existing workflows (Z-Image-Turbo, 1GIRL V3)
-2. **Discovery**: Monitor SeaArt and OpenArt for new NSFW workflows
-3. **LoRA Integration**: Use Civitai for LoRA model discovery
-4. **Community**: Join ComfyUI Discord for real-time support
+2. **Local Library**: ✅ ComfyUI Wiki workflows available at `libs/comfyui-workflows/`
+3. **Discovery**: Monitor SeaArt and OpenArt for new NSFW workflows
+4. **LoRA Integration**: Use Civitai for LoRA model discovery
+5. **Community**: Join ComfyUI Discord for real-time support
 
 ### For Future Phases
 
@@ -422,14 +424,17 @@ docs/research/community-workflows/
 ## Next Steps
 
 1. **Immediate**: 
+   - ✅ ComfyUI Wiki workflows cloned at `libs/comfyui-workflows/`
    - Bookmark key platforms (Comfy Workflows, SeaArt, OpenArt, GitHub repos)
-   - Download workflows from ComfyUI Wiki Workflows repository
+   - Browse local workflow library for useful patterns
 2. **Short-term**: 
    - Join ComfyUI Discord for community access
-   - Set up local workflow library structure
+   - Test workflows from local library in ComfyUI
+   - Document useful workflows for RYLA integration
 3. **Medium-term**: 
    - Build workflow discovery process into development workflow
-   - Create script to download workflows from GitHub repos
+   - Convert useful workflows to TypeScript in `libs/business/src/workflows/`
+   - Set up git submodule for workflow library (optional)
 4. **Long-term**: 
    - Consider contributing workflows back to community
    - Build internal workflow management system
@@ -439,6 +444,8 @@ docs/research/community-workflows/
 ## Related Documents
 
 - `docs/research/community-workflows/ANALYSIS.md` - Analysis of Instara workflows
+- `docs/research/comfyui-workflows-library/COMFYUI-WIKI-WORKFLOWS-ANALYSIS.md` - **Analysis of ComfyUI Wiki workflows for RYLA MVP**
+- `docs/research/comfyui-workflows-library/QUICK-REFERENCE.md` - Quick reference guide
 - `docs/technical/COMFYUI-RUNPOD-IMPLEMENTATION-PLAN.md` - Implementation details
 - `docs/ops/runpod/COMFYUI-WORKER-SETUP.md` - RunPod setup guide
 

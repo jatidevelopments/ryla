@@ -118,10 +118,13 @@ export function buildZImagePuLIDWorkflow(
     },
 
     // ============ REFERENCE IMAGE ============
+    // Use LoadImage with base64 data URL (ComfyUI supports data: URLs)
+    // Alternative: If ETN_LoadImageBase64 is not available, use standard LoadImage
+    // with a file path after uploading the image to ComfyUI's input folder
     '23': {
-      class_type: 'ETN_LoadImageBase64',
+      class_type: 'LoadImage',
       inputs: {
-        image: referenceImage,
+        image: referenceImage, // Can be base64 data URL or file path
       },
       _meta: { title: 'Load Reference Image' },
     },
@@ -131,7 +134,7 @@ export function buildZImagePuLIDWorkflow(
       class_type: 'ApplyPulidFlux',
       inputs: {
         model: ['1', 0],
-        pulid: ['20', 0],
+        pulid_flux: ['20', 0], // Correct input name (not 'pulid')
         eva_clip: ['22', 0],
         face_analysis: ['21', 0],
         image: ['23', 0],
@@ -140,6 +143,18 @@ export function buildZImagePuLIDWorkflow(
         end_at: pulidEnd,
       },
       _meta: { title: 'Apply PuLID' },
+    },
+
+    // ============ PULID COMPATIBILITY PATCH ============
+    // Required for compatibility with newer sampler wrappers.
+    // Without this, some environments error with:
+    // "pulid_outer_sample_wrappers_with_override() got an unexpected keyword argument 'latent_shapes'"
+    '28': {
+      class_type: 'FixPulidFluxPatch',
+      inputs: {
+        model: ['24', 0],
+      },
+      _meta: { title: 'Fix PuLID Flux Patch' },
     },
 
     // ============ PROMPT ENCODING ============
@@ -182,7 +197,7 @@ export function buildZImagePuLIDWorkflow(
     '8': {
       class_type: 'BetaSamplingScheduler',
       inputs: {
-        model: ['24', 0], // Use PuLID-modified model
+        model: ['28', 0], // Use patched PuLID-modified model
         steps,
         alpha: 0.4,
         beta: 0.4,
@@ -211,7 +226,7 @@ export function buildZImagePuLIDWorkflow(
         seed,
         sampler_mode: 'standard',
         bongmath: true,
-        model: ['24', 0], // Use PuLID-modified model
+        model: ['28', 0], // Use patched PuLID-modified model
         positive: ['4', 0],
         negative: ['6', 0],
         latent_image: ['7', 0],
@@ -244,7 +259,7 @@ export function buildZImagePuLIDWorkflow(
     workflow['30'] = {
       class_type: 'LoraLoader',
       inputs: {
-        model: ['24', 0], // After PuLID
+        model: ['28', 0], // After PuLID + patch
         clip: ['2', 0],
         lora_name: lora.name,
         strength_model: lora.strength,
@@ -282,7 +297,8 @@ export const zImagePuLIDDefinition: WorkflowDefinition = {
     'PulidFluxInsightFaceLoader',
     'PulidFluxEvaClipLoader',
     'ApplyPulidFlux',
-    'ETN_LoadImageBase64', // For loading reference images
+    'FixPulidFluxPatch',
+    'LoadImage', // For loading reference images (standard ComfyUI node)
     // Also requires res4lyf nodes
     'ClownsharKSampler_Beta',
     'Sigmas Rescale',

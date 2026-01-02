@@ -9,14 +9,13 @@ import {
   SidebarHeader,
   SidebarContent,
   SidebarFooter,
-  SidebarMenu,
-  SidebarMenuItem,
-  SidebarMenuButton,
   useSidebar,
 } from '@ryla/ui';
 import { cn } from '@ryla/ui';
 import { CreditsBadge } from './credits';
 import { useSubscription } from '../lib/hooks';
+import { useAuth } from '../lib/auth-context';
+import { BugReportModal } from './bug-report';
 
 // Icons
 const UsersIcon = ({ className }: { className?: string }) => (
@@ -70,7 +69,7 @@ const PhotoIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const CogIcon = ({ className }: { className?: string }) => (
+const ClockIcon = ({ className }: { className?: string }) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 24 24"
@@ -82,12 +81,7 @@ const CogIcon = ({ className }: { className?: string }) => (
     <path
       strokeLinecap="round"
       strokeLinejoin="round"
-      d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"
-    />
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+      d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"
     />
   </svg>
 );
@@ -141,6 +135,23 @@ const ChevronRightIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const BugIcon = ({ className }: { className?: string }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={1.5}
+    className={cn('h-5 w-5 shrink-0', className)}
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M12 12.75c1.148 0 2.278.08 3.383.237 1.037.146 1.866.966 1.866 2.013 0 3.728-2.35 6.75-5.25 6.75S6.75 18.728 6.75 15c0-1.046.83-1.867 1.866-2.013A24.204 24.204 0 0112 12.75zm0 0c2.883 0 5.647.508 8.207 1.44a23.91 23.91 0 01-1.152 6.06M12 12.75c-2.883 0-5.647.508-8.208 1.44.125 2.104.52 4.136 1.153 6.06M12 12.75a2.25 2.25 0 002.248-2.354M12 12.75a2.25 2.25 0 01-2.248-2.354M12 8.25c.995 0 1.971-.08 2.922-.236.403-.066.74-.358.795-.762a3.778 3.778 0 00-.399-2.25M12 8.25c-.995 0-1.97-.08-2.922-.236-.402-.066-.74-.358-.795-.762a3.734 3.734 0 01.4-2.253M12 8.25a2.25 2.25 0 00-2.248 2.146M12 8.25a2.25 2.25 0 012.248 2.146M8.683 5a6.032 6.032 0 01-1.155-1.002c.07-.63.27-1.222.574-1.747m.581 2.749A3.75 3.75 0 0112 3.75a3.75 3.75 0 013.317 1.998m-.581-2.749A4.49 4.49 0 0116.472 2.2M9.268 5.249c.256.424.564.815.918 1.163m5.647-.412a6.032 6.032 0 001.155-1.002 4.49 4.49 0 00-.574-1.747M14.732 5.25a5.99 5.99 0 01-.918 1.163"
+    />
+  </svg>
+);
+
 const menuItems = [
   {
     title: 'My Influencers',
@@ -161,22 +172,51 @@ const menuItems = [
     icon: PhotoIcon,
     isActive: (pathname: string) => pathname.startsWith('/studio'),
   },
-];
-
-const secondaryItems = [
   {
-    title: 'Settings',
-    url: '/settings',
-    icon: CogIcon,
-    isActive: (pathname: string) => pathname === '/settings',
+    title: 'Activity',
+    url: '/activity',
+    icon: ClockIcon,
+    isActive: (pathname: string) => pathname === '/activity',
   },
 ];
+
+// Helper to get tier badge styling
+type SubscriptionTier = 'free' | 'starter' | 'pro' | 'unlimited';
+
+const getTierBadgeStyle = (tier: SubscriptionTier) => {
+  switch (tier) {
+    case 'pro':
+    case 'unlimited':
+      return 'bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] text-white';
+    case 'starter':
+      return 'bg-[var(--purple-500)]/20 text-[var(--purple-400)]';
+    default:
+      return 'bg-white/10 text-white/60';
+  }
+};
+
+// Helper to get tier display name
+const getTierDisplayName = (tier: SubscriptionTier) => {
+  switch (tier) {
+    case 'pro':
+      return 'Pro';
+    case 'unlimited':
+      return 'Pro+';
+    case 'starter':
+      return 'Starter';
+    default:
+      return 'Free';
+  }
+};
 
 export function DesktopSidebar() {
   const pathname = usePathname();
   const { open, setOpen, openMobile, isMobile, setOpenMobile } = useSidebar();
-  const { isPro } = useSubscription();
+  const { isPro, tier } = useSubscription();
+  const { user } = useAuth();
   const isExpanded = isMobile ? openMobile : open;
+  const isSettingsActive = pathname === '/settings';
+  const [isBugReportOpen, setIsBugReportOpen] = React.useState(false);
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -222,7 +262,7 @@ export function DesktopSidebar() {
       </SidebarHeader>
 
       {/* Main Navigation */}
-      <SidebarContent className="px-4 py-4">
+      <SidebarContent className="px-4 py-4 flex flex-col">
         <div className="space-y-1.5">
           {menuItems.map((item) => {
             const isActive = item.isActive(pathname || '');
@@ -258,36 +298,19 @@ export function DesktopSidebar() {
           })}
         </div>
 
-        {/* Divider */}
-        <div className="my-6 border-t border-white/5" />
-
-        {/* Secondary Navigation */}
-        <div className="space-y-1.5">
-          {secondaryItems.map((item) => {
-            const isActive = item.isActive(pathname || '');
-            return (
-              <Link
-                key={item.title}
-                href={item.url}
-                onClick={handleLinkClick}
-                className={cn(
-                  'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200',
-                  isActive
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-white/70 hover:bg-white/5 hover:text-white',
-                  !isExpanded && 'justify-center px-0'
-                )}
-              >
-                <item.icon
-                  className={cn(
-                    'transition-colors shrink-0',
-                    isActive ? 'text-[var(--purple-400)]' : 'text-white/70'
-                  )}
-                />
-                {isExpanded && <span className="truncate">{item.title}</span>}
-              </Link>
-            );
-          })}
+        {/* Report Bug - navigation item style */}
+        <div className="mt-auto pt-4">
+          <button
+            onClick={() => setIsBugReportOpen(true)}
+            className={cn(
+              'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 w-full',
+              'text-white/70 hover:bg-white/5 hover:text-white',
+              !isExpanded && 'justify-center px-0'
+            )}
+          >
+            <BugIcon className="text-white/70 shrink-0" />
+            {isExpanded && <span className="truncate">Report Bug</span>}
+          </button>
         </div>
       </SidebarContent>
 
@@ -330,6 +353,62 @@ export function DesktopSidebar() {
           <CreditsBadge size="md" className="mt-3" />
         )}
 
+        {/* User Profile Card - Links to Settings */}
+        <Link
+          href="/settings"
+          onClick={handleLinkClick}
+          className={cn(
+            'flex items-center gap-3 rounded-xl px-3 py-3 mt-3 transition-all duration-200',
+            isSettingsActive
+              ? 'bg-white/10 shadow-sm'
+              : 'hover:bg-white/5',
+            !isExpanded && 'justify-center px-0'
+          )}
+        >
+          {/* Avatar */}
+          <div className="relative shrink-0">
+            <div className={cn(
+              'rounded-full overflow-hidden bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] flex items-center justify-center',
+              isExpanded ? 'h-10 w-10' : 'h-8 w-8'
+            )}>
+              <span className={cn(
+                'font-bold text-white',
+                isExpanded ? 'text-sm' : 'text-xs'
+              )}>
+                {user?.publicName?.charAt(0).toUpperCase() || user?.name?.charAt(0).toUpperCase() || 'U'}
+              </span>
+            </div>
+          </div>
+
+          {/* Name and Tier - Only when expanded */}
+          {isExpanded && (
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-white truncate max-w-[120px]">
+                  {user?.publicName || user?.name || 'User'}
+                </span>
+                <span className={cn(
+                  'px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide shrink-0',
+                  getTierBadgeStyle(tier as SubscriptionTier)
+                )}>
+                  {getTierDisplayName(tier as SubscriptionTier)}
+                </span>
+              </div>
+              <span className="text-xs text-white/50">Settings</span>
+            </div>
+          )}
+
+          {/* Chevron - Only when expanded */}
+          {isExpanded && (
+            <ChevronRightIcon className="text-white/30 shrink-0" />
+          )}
+        </Link>
+
+        {/* Divider before legal links */}
+        {isExpanded && (
+          <div className="mt-4 border-t border-white/5" />
+        )}
+
         {/* Legal links - only when expanded */}
         {isExpanded && (
           <div className="mt-4 flex justify-center gap-3 text-[11px] text-white/50">
@@ -349,6 +428,13 @@ export function DesktopSidebar() {
           </div>
         )}
       </SidebarFooter>
+
+      {/* Bug Report Modal */}
+      <BugReportModal
+        isOpen={isBugReportOpen}
+        onClose={() => setIsBugReportOpen(false)}
+        userEmail={user?.email}
+      />
     </Sidebar>
   );
 }

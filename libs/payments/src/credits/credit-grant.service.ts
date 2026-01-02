@@ -79,9 +79,13 @@ export async function grantCredits(
 ): Promise<CreditGrantResult> {
   try {
     // Get current balance
-    let credits: UserCredits | undefined = await db.query.userCredits?.findFirst({
-      where: eq(userCredits.userId, params.userId),
-    });
+    // Type assertion needed because Drizzle schema type may not be fully inferred
+    const dbQuery = (db as any).query;
+    let credits: UserCredits | undefined = dbQuery?.userCredits?.findFirst
+      ? await dbQuery.userCredits.findFirst({
+          where: eq(userCredits.userId, params.userId),
+        })
+      : undefined;
 
     const previousBalance = credits?.balance ?? 0;
 

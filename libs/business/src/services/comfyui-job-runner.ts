@@ -34,6 +34,8 @@ export interface BaseImageInput {
   seed?: number;
   width?: number;
   height?: number;
+  steps?: number;
+  cfg?: number;
   workflowId?: WorkflowId;
 }
 
@@ -101,6 +103,8 @@ export class ComfyUIJobRunner implements RunPodJobRunner {
       negativePrompt,
       width: input.width ?? 1024,
       height: input.height ?? 1024,
+      steps: input.steps,
+      cfg: input.cfg,
       seed: input.seed ?? Math.floor(Math.random() * 1000000),
       filenamePrefix: 'ryla_gen',
     });

@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { cn, Input } from '@ryla/ui';
 import {
@@ -105,21 +106,27 @@ export function StylePicker({
     },
   ];
 
-  return (
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-8 md:p-12"
-      style={{ backgroundColor: 'rgba(0, 0, 0, 0.8)', backdropFilter: 'blur(8px)' }}
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8"
     >
       <div 
         className="flex flex-col w-full max-w-5xl max-h-[70vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center gap-6 px-5 py-4 border-b border-white/10">
+        <div className="flex items-center gap-4 px-6 py-4 border-b border-white/10">
           {/* Tabs */}
-          <nav className="flex items-center gap-1">
+          <nav className="flex items-center gap-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -128,7 +135,7 @@ export function StylePicker({
                   setSearch('');
                 }}
                 className={cn(
-                  'flex items-center gap-2.5 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
+                  'flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
                   activeTab === tab.id
                     ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/25'
                     : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -144,7 +151,7 @@ export function StylePicker({
           <div className="flex-1" />
 
           {/* Search & Close */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             <div className="relative">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40">
                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
@@ -170,13 +177,13 @@ export function StylePicker({
 
         {/* Category Filters */}
         {activeTab === 'styles' && (
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 overflow-x-auto scroll-hidden">
+          <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5 overflow-x-auto scroll-hidden">
             {STYLE_CATEGORIES.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => setStyleCategory(cat.id)}
                 className={cn(
-                  'px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all',
+                  'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
                   styleCategory === cat.id
                     ? 'bg-white text-black'
                     : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
@@ -189,11 +196,11 @@ export function StylePicker({
         )}
 
         {activeTab === 'scenes' && (
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 overflow-x-auto scroll-hidden">
+          <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5 overflow-x-auto scroll-hidden">
             <button
               onClick={() => setSceneCategory('all')}
               className={cn(
-                'px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all',
+                'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
                 sceneCategory === 'all'
                   ? 'bg-white text-black'
                   : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
@@ -206,7 +213,7 @@ export function StylePicker({
                 key={cat.id}
                 onClick={() => setSceneCategory(cat.id)}
                 className={cn(
-                  'px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all',
+                  'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
                   sceneCategory === cat.id
                     ? 'bg-white text-black'
                     : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
@@ -401,7 +408,8 @@ export function StylePicker({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

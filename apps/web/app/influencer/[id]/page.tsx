@@ -1,11 +1,13 @@
 'use client';
 
+import * as React from 'react';
 import { useParams, notFound } from 'next/navigation';
 import {
   useInfluencer,
   useInfluencerPosts,
   useLikedPosts,
   useInfluencerImages,
+  useInfluencerStore,
 } from '@ryla/business';
 import {
   PageContainer,
@@ -15,10 +17,12 @@ import {
   TabsContent,
 } from '@ryla/ui';
 import { InfluencerProfile } from '../../../components/influencer-profile';
+import { ProfilePicturesPanel } from '../../../components/profile-pictures/profile-pictures-panel';
 import { PostGrid } from '../../../components/post-grid';
 import { ImageGallery } from '../../../components/image-gallery';
 import { ProtectedRoute } from '../../../components/protected-route';
 import { LayoutGrid, Images, Heart } from 'lucide-react';
+import { trpc } from '../../../lib/trpc';
 
 export default function InfluencerProfilePage() {
   return (
@@ -33,12 +37,52 @@ function InfluencerProfileContent() {
   const influencerId = params.id as string;
 
   const influencer = useInfluencer(influencerId);
+  const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
+  const { data: character, isLoading } = trpc.character.getById.useQuery(
+    { id: influencerId },
+    { enabled: !influencer }
+  );
   const allPosts = useInfluencerPosts(influencerId);
   const likedPosts = useLikedPosts(influencerId);
   const allImages = useInfluencerImages(influencerId);
   const likedImages = allImages.filter((img) => img.isLiked);
 
-  if (!influencer) {
+  React.useEffect(() => {
+    if (!influencer && character) {
+      addInfluencer({
+        id: character.id,
+        name: character.name,
+        handle: character.handle || `@${character.name.toLowerCase().replace(/\s+/g, '.')}`,
+        bio: character.config?.bio || 'New AI influencer ✨',
+        avatar: character.baseImageUrl || null,
+        gender: character.config?.gender || 'female',
+        style: character.config?.style || 'realistic',
+        ethnicity: character.config?.ethnicity || 'caucasian',
+        age: character.config?.age || 25,
+        hairStyle: character.config?.hairStyle || 'long-straight',
+        hairColor: character.config?.hairColor || 'brown',
+        eyeColor: character.config?.eyeColor || 'brown',
+        bodyType: character.config?.bodyType || 'slim',
+        breastSize: character.config?.breastSize,
+        archetype: character.config?.archetype || 'girl-next-door',
+        personalityTraits: character.config?.personalityTraits || [],
+        outfit: character.config?.defaultOutfit || 'casual',
+        nsfwEnabled: character.config?.nsfwEnabled || false,
+        profilePictureSetId: character.config?.profilePictureSetId || undefined,
+        postCount: parseInt(character.postCount || '0', 10),
+        imageCount: 0,
+        likedCount: parseInt(character.likedCount || '0', 10),
+        createdAt: character.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: character.updatedAt?.toISOString() || new Date().toISOString(),
+      });
+    }
+  }, [addInfluencer, character, influencer]);
+
+  if (!influencer && isLoading) {
+    return null;
+  }
+
+  if (!influencer && !character) {
     notFound();
   }
 
@@ -56,6 +100,7 @@ function InfluencerProfileContent() {
     <>
       {/* Profile Header */}
       <InfluencerProfile influencer={influencer} />
+      <ProfilePicturesPanel influencer={influencer} />
 
       {/* Content */}
       <PageContainer>

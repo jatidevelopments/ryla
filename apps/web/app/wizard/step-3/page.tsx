@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { StepFace } from '../../../components/wizard/step-face';
 import { StepProfilePictures } from '../../../components/wizard/step-profile-pictures';
+import { StepFinalize } from '../../../components/wizard/step-finalize';
 
 export default function WizardStep3() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -15,8 +16,8 @@ export default function WizardStep3() {
 
   // Render different step based on creation method
   if (creationMethod === 'prompt-based') {
-    // Prompt-based: step 3 is profile pictures
-    return <StepProfilePictures />;
+    // Prompt-based: step 3 is finalize (profile pictures generate post-create on profile page)
+    return <StepFinalize />;
   } else {
     // Presets flow: step 3 is Face
     return <StepFace />;

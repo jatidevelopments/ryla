@@ -1,0 +1,50 @@
+{
+  "defaults": {
+    "baseImages": {
+      "count": 3,
+      "width": 1024,
+      "height": 1024,
+      "steps": 9,
+      "cfg": 1.0
+    },
+    "profilePictures": {
+      "setId": "classic-influencer",
+      "nsfwEnabled": false,
+      "fast": {
+        "width": 768,
+        "steps": 9,
+        "cfg": 1.0
+      },
+      "consistent": {
+        "width": 1024,
+        "steps": 20,
+        "cfg": 1.0
+      }
+    }
+  },
+  "verticals": [
+    {
+      "id": "classicInfluencer",
+      "name": "Classic Influencer",
+      "characterDnaTemplate": "classicInfluencer",
+      "promptTemplate": "portrait-selfie-casual",
+      "profileSetId": "classic-influencer"
+    },
+    {
+      "id": "fitnessEnthusiast",
+      "name": "Fitness Enthusiast",
+      "characterDnaTemplate": "fitnessInfluencer",
+      "promptTemplate": "portrait-selfie-casual",
+      "profileSetId": "classic-influencer"
+    },
+    {
+      "id": "bossBabe",
+      "name": "Professional / Boss",
+      "characterDnaTemplate": "bossBabe",
+      "promptTemplate": "portrait-selfie-casual",
+      "profileSetId": "professional-model"
+    }
+  ]
+}
+
+

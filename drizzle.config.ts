@@ -1,8 +1,19 @@
 import 'dotenv/config';
 import { defineConfig } from 'drizzle-kit';
 
-const isLocal =
-  (process.env.POSTGRES_ENVIRONMENT || process.env.NODE_ENV) === 'local';
+const postgresEnvironment = process.env.POSTGRES_ENVIRONMENT || process.env.NODE_ENV;
+const isLocal = postgresEnvironment === 'local';
+
+function parseBoolEnv(value: string | undefined): boolean | undefined {
+  if (value == null) return undefined;
+  if (value === 'true' || value === '1') return true;
+  if (value === 'false' || value === '0') return false;
+  return undefined;
+}
+
+function isLocalHost(host: string): boolean {
+  return host === 'localhost' || host === '127.0.0.1';
+}
 
 export default defineConfig({
   // Schema lives in libs/data for sharing across apps
@@ -19,7 +30,15 @@ export default defineConfig({
     user: process.env.POSTGRES_USER || 'ryla',
     password: process.env.POSTGRES_PASSWORD || 'ryla_local_dev',
     database: process.env.POSTGRES_DB || 'ryla',
-    ssl: isLocal ? false : { rejectUnauthorized: false },
+    // Local Docker Postgres typically does NOT support SSL.
+    // Allow explicit override via POSTGRES_SSL=true/false, otherwise:
+    // - disable SSL for localhost/127.0.0.1 or when POSTGRES_ENVIRONMENT=local
+    // - enable SSL for remote hosts (e.g., Supabase)
+    ssl:
+      parseBoolEnv(process.env.POSTGRES_SSL) ??
+      (isLocal || isLocalHost(process.env.POSTGRES_HOST || 'localhost')
+        ? false
+        : { rejectUnauthorized: false }),
   },
 
   // Verbose logging during migrations

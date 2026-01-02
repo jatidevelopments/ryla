@@ -11,17 +11,18 @@
 
 **ComfyUI Wiki Workflows** - Curated collection:
 ```bash
-# Clone entire repository
-git clone https://github.com/comfyui-wiki/workflows.git
+# Already cloned in RYLA repo
+cd libs/comfyui-workflows
 
-# Navigate to workflows
-cd workflows
+# Browse workflow categories
+ls -la
 
-# Browse JSON files
-ls *.json
+# Example: View Flux workflows
+ls flux/text_to_image/
 ```
 
-**Location**: All workflow JSONs are in the root directory, ready to use.
+**Location**: `libs/comfyui-workflows/` in RYLA repository  
+**Status**: ✅ Already cloned and available locally
 
 ---
 

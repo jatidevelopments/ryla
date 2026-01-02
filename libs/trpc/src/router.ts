@@ -14,6 +14,9 @@ import {
   creditsRouter,
   subscriptionRouter,
   promptsRouter,
+  activityRouter,
+  notificationsRouter,
+  bugReportRouter,
 } from './routers';
 
 /**
@@ -27,6 +30,9 @@ export const appRouter = router({
   credits: creditsRouter,
   subscription: subscriptionRouter,
   prompts: promptsRouter,
+  activity: activityRouter,
+  notifications: notificationsRouter,
+  bugReport: bugReportRouter,
 });
 
 /**

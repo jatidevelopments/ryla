@@ -1,7 +1,8 @@
 // Providers
 export { StripeProvider } from './providers/stripe.provider';
 export { FinbyProvider } from './providers/finby.provider';
-export { PayPalProvider } from './providers/paypal.provider';
+// PayPalProvider requires @paypal/checkout-server-sdk - export only if needed
+// export { PayPalProvider } from './providers/paypal.provider';
 export { TrustPayProvider } from './providers/trustpay.provider';
 export { Shift4Provider } from './providers/shift4.provider';
 

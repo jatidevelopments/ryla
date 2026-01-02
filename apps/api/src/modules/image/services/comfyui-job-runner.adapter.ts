@@ -102,6 +102,8 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
     seed?: number;
     width?: number;
     height?: number;
+    steps?: number;
+    cfg?: number;
     workflowId?: WorkflowId;
   }): Promise<string> {
     this.ensureInitialized();
@@ -227,6 +229,17 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       throw new Error('ComfyUI client not initialized');
     }
     return this.client.queueWorkflow(workflow);
+  }
+
+  /**
+   * Upload an image to ComfyUI's input folder
+   */
+  async uploadImage(imageBuffer: Buffer, filename: string): Promise<string> {
+    this.ensureInitialized();
+    if (!this.client) {
+      throw new Error('ComfyUI client not initialized');
+    }
+    return this.client.uploadImage(imageBuffer, filename);
   }
 
   /**

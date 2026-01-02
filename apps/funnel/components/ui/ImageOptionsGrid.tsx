@@ -1,5 +1,6 @@
 "use client";
 
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
 import { ReactNode } from "react";
 import { calculateGridLayout, getGridColumnsClass } from "@/utils/layout/calculateGridLayout";
 import { cn } from "@/lib/utils";
@@ -16,12 +17,14 @@ export interface ImageOption {
     disabledReason?: string;
 }
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 interface ImageOptionsGridProps {
     options: ImageOption[];
     renderOption: (option: ImageOption, index: number) => ReactNode;
     className?: string;
     gap?: "sm" | "md" | "lg";
 }
+/* eslint-enable @typescript-eslint/no-unused-vars */
 
 /**
  * Reusable image options grid component that automatically calculates

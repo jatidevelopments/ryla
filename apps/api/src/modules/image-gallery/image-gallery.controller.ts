@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   Post,
+  Delete,
   Param,
   UseGuards,
   Inject,
@@ -45,7 +46,17 @@ export class ImageGalleryController {
     @CurrentUser() user: IJwtPayload,
   ) {
     // Service should verify image ownership before liking
-    await this.imageGalleryService.likeImage(imageId, user.userId);
+    const liked = await this.imageGalleryService.likeImage(imageId, user.userId);
+    return { success: true, liked };
+  }
+
+  @Delete('images/:imageId')
+  @ApiOperation({ summary: 'Delete an image (soft delete; must own image)' })
+  public async deleteImage(
+    @Param('imageId', new ParseUUIDPipe()) imageId: string,
+    @CurrentUser() user: IJwtPayload,
+  ) {
+    await this.imageGalleryService.deleteImage(imageId, user.userId);
     return { success: true };
   }
 }

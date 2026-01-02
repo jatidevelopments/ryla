@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import {
   useCharacterWizardStore,
   useWizardProgress,
@@ -16,8 +17,11 @@ interface WizardLayoutProps {
 
 export function WizardLayout({ children }: WizardLayoutProps) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const step = useCharacterWizardStore((s) => s.step);
   const steps = useCharacterWizardStore((s) => s.steps);
+  const form = useCharacterWizardStore((s) => s.form);
+  const updateSteps = useCharacterWizardStore((s) => s.updateSteps);
   const nextStep = useCharacterWizardStore((s) => s.nextStep);
   const prevStep = useCharacterWizardStore((s) => s.prevStep);
   const resetForm = useCharacterWizardStore((s) => s.resetForm);
@@ -25,28 +29,48 @@ export function WizardLayout({ children }: WizardLayoutProps) {
   const currentStep = useCurrentStep();
   const canProceed = useCanProceed(); // Use derived hook that subscribes to form changes
 
+  // Initialize steps on mount if they're missing (e.g., after page reload)
+  React.useEffect(() => {
+    if (form.creationMethod && steps.length === 0) {
+      updateSteps(form.creationMethod);
+    }
+  }, [form.creationMethod, steps.length, updateSteps]);
+
   const isFirstStep = step === 0 || step === 1;
   const isLastStep = step === steps.length;
 
   const handleNext = () => {
     if (canProceed) {
-      if (isLastStep) {
-        router.push(`/wizard/step-${step + 1}`);
-      } else {
+      // Calculate next step number before updating store
+      const nextStepNumber = step + 1;
+      
+      // Update store state immediately for instant UI feedback
+      if (!isLastStep) {
         nextStep();
-        router.push(`/wizard/step-${step + 1}`);
       }
+      
+      // Navigate in a transition to make it feel instant
+      startTransition(() => {
+        router.push(`/wizard/step-${nextStepNumber}`);
+      });
     }
   };
 
   const handleBack = () => {
-    if (step === 1) {
-      // Go back to creation method selection
-      router.push('/wizard/step-0');
-    } else if (step > 1) {
+    // Update store state immediately for instant UI feedback
+    if (step > 1) {
       prevStep();
-      router.push(`/wizard/step-${step - 1}`);
     }
+    
+    // Navigate in a transition to make it feel instant
+    startTransition(() => {
+      if (step === 1) {
+        // Go back to creation method selection
+        router.push('/wizard/step-0');
+      } else if (step > 1) {
+        router.push(`/wizard/step-${step - 1}`);
+      }
+    });
   };
 
   const handleCancel = () => {
@@ -117,14 +141,15 @@ export function WizardLayout({ children }: WizardLayoutProps) {
           {children}
 
           {/* Continue Button - flows at the bottom of content */}
-          {step > 0 && (
+          {/* Hide on last step since step-finalize has its own "Create Character" button */}
+          {step > 0 && !isLastStep && (
             <div className="mt-8 pb-6">
               <button
                 onClick={handleNext}
-                disabled={!canProceed}
+                disabled={!canProceed || isPending}
                 className={cn(
                   'w-full h-12 rounded-xl font-bold text-base transition-all duration-200 relative overflow-hidden',
-                  canProceed
+                  canProceed && !isPending
                     ? 'bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40'
                     : 'bg-white/10 text-white/40 cursor-not-allowed'
                 )}
@@ -133,9 +158,7 @@ export function WizardLayout({ children }: WizardLayoutProps) {
                 {canProceed && (
                   <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
                 )}
-                <span className="relative z-10">
-                  {isLastStep ? 'Generate' : 'Continue'}
-                </span>
+                <span className="relative z-10">Continue</span>
               </button>
               {/* Step dots */}
               <div className="flex justify-center gap-1.5 mt-3">

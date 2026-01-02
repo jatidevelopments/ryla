@@ -4,7 +4,7 @@ import { useRef, useEffect } from "react";
 const activeAudios: Array<HTMLAudioElement> = [];
 
 const usePlayAudio = (audioUrl: string) => {
-    const audioRef = useRef<HTMLAudioElement>(null);
+    const audioRef = useRef<HTMLAudioElement | null>(null);
 
     useEffect(() => {
         if (typeof window !== "undefined" && !audioRef.current) {

@@ -96,20 +96,72 @@ export const DEFAULT_GENERATION_SETTINGS: GenerationSettings = {
   batchSize: 1,
 };
 
-export const ASPECT_RATIOS: { value: AspectRatio; label: string; icon: 'square' | 'portrait' | 'landscape' }[] = [
-  { value: '9:16', label: '9:16', icon: 'portrait' },
-  { value: '3:4', label: '3:4', icon: 'portrait' },
-  { value: '2:3', label: '2:3', icon: 'portrait' },
-  { value: '1:1', label: '1:1', icon: 'square' },
-  { value: '4:3', label: '4:3', icon: 'landscape' },
-  { value: '16:9', label: '16:9', icon: 'landscape' },
-  { value: '3:2', label: '3:2', icon: 'landscape' },
+import type { PlatformId } from '@ryla/shared';
+import { getPlatformsForAspectRatio } from '@ryla/shared';
+
+export interface AspectRatioOption {
+  value: AspectRatio;
+  label: string;
+  icon: 'square' | 'portrait' | 'landscape';
+  platforms?: PlatformId[]; // Supported platforms for this aspect ratio
+}
+
+export const ASPECT_RATIOS: AspectRatioOption[] = [
+  { 
+    value: '9:16', 
+    label: '9:16', 
+    icon: 'portrait',
+    platforms: getPlatformsForAspectRatio('9:16').map(p => p.id),
+  },
+  { 
+    value: '3:4', 
+    label: '3:4', 
+    icon: 'portrait',
+    platforms: getPlatformsForAspectRatio('3:4').map(p => p.id),
+  },
+  { 
+    value: '2:3', 
+    label: '2:3', 
+    icon: 'portrait',
+    platforms: getPlatformsForAspectRatio('2:3').map(p => p.id),
+  },
+  { 
+    value: '1:1', 
+    label: '1:1', 
+    icon: 'square',
+    platforms: getPlatformsForAspectRatio('1:1').map(p => p.id),
+  },
+  { 
+    value: '4:3', 
+    label: '4:3', 
+    icon: 'landscape',
+    platforms: getPlatformsForAspectRatio('4:3').map(p => p.id),
+  },
+  { 
+    value: '16:9', 
+    label: '16:9', 
+    icon: 'landscape',
+    platforms: getPlatformsForAspectRatio('16:9').map(p => p.id),
+  },
+  { 
+    value: '3:2', 
+    label: '3:2', 
+    icon: 'landscape',
+    platforms: getPlatformsForAspectRatio('3:2').map(p => p.id),
+  },
 ];
 
+/**
+ * Quality options with credit costs (×10 scale)
+ * Based on @ryla/shared credit pricing:
+ * - studio_fast: 20 credits (1.5k)
+ * - studio_standard: 50 credits (2k)
+ * - studio_batch: 80 credits for 4 images (~20 each for 4k single)
+ */
 export const QUALITY_OPTIONS: QualityOption[] = [
-  { value: '1.5k', label: '1.5k', description: 'Fastest and Cheapest', credits: 0.25 },
-  { value: '2k', label: '2k', description: 'Best Visual Fidelity', credits: 0.5 },
-  { value: '4k', label: '4k', description: 'Ultra High Definition', credits: 1 },
+  { value: '1.5k', label: '1.5k', description: 'Fastest and Cheapest', credits: 20 },
+  { value: '2k', label: '2k', description: 'Best Visual Fidelity', credits: 50 },
+  { value: '4k', label: '4k', description: 'Ultra High Definition', credits: 80 },
 ];
 
 export const AI_MODELS: AIModel[] = [
@@ -138,7 +190,11 @@ export const STYLE_CATEGORIES: { id: StyleCategory; label: string }[] = [
   { id: 'artistic', label: 'Graphic Art' },
 ];
 
-export const VISUAL_STYLES: VisualStyle[] = [
+// MVP stability: these thumbnail assets aren't present in `apps/web/public` yet.
+// Use a known-good placeholder to avoid 404s and /_not-found compilation loops.
+const PLACEHOLDER_THUMBNAIL = '/logos/logo.svg';
+
+const VISUAL_STYLES_RAW: VisualStyle[] = [
   { id: 'general', name: 'General', thumbnail: '/styles/general.webp', category: 'all' },
   { id: 'iphone', name: 'iPhone', thumbnail: '/styles/iphone.webp', category: 'camera' },
   { id: 'realistic', name: 'Realistic', thumbnail: '/styles/realistic.webp', category: 'all' },
@@ -161,6 +217,11 @@ export const VISUAL_STYLES: VisualStyle[] = [
   { id: 'retro-film', name: 'Retro Film', thumbnail: '/styles/retro-film.webp', category: 'camera' },
 ];
 
+export const VISUAL_STYLES: VisualStyle[] = VISUAL_STYLES_RAW.map((s) => ({
+  ...s,
+  thumbnail: PLACEHOLDER_THUMBNAIL,
+}));
+
 export const SCENE_CATEGORIES: { id: SceneCategory; label: string }[] = [
   { id: 'outdoor', label: 'Outdoor' },
   { id: 'indoor', label: 'Indoor' },
@@ -170,7 +231,7 @@ export const SCENE_CATEGORIES: { id: SceneCategory; label: string }[] = [
   { id: 'fantasy', label: 'Fantasy' },
 ];
 
-export const SCENES: Scene[] = [
+const SCENES_RAW: Scene[] = [
   { id: 'beach-sunset', name: 'Beach Sunset', thumbnail: '/scenes/beach-sunset.webp', category: 'nature' },
   { id: 'city-rooftop', name: 'City Rooftop', thumbnail: '/scenes/city-rooftop.webp', category: 'urban' },
   { id: 'cozy-cafe', name: 'Cozy Café', thumbnail: '/scenes/cozy-cafe.webp', category: 'indoor' },
@@ -187,7 +248,12 @@ export const SCENES: Scene[] = [
   { id: 'enchanted-forest', name: 'Enchanted Forest', thumbnail: '/scenes/enchanted-forest.webp', category: 'fantasy' },
 ];
 
-export const LIGHTING_SETTINGS: LightingSetting[] = [
+export const SCENES: Scene[] = SCENES_RAW.map((s) => ({
+  ...s,
+  thumbnail: PLACEHOLDER_THUMBNAIL,
+}));
+
+const LIGHTING_SETTINGS_RAW: LightingSetting[] = [
   { id: 'natural-daylight', name: 'Natural Daylight', thumbnail: '/lighting/natural-daylight.webp', type: 'natural' },
   { id: 'golden-hour', name: 'Golden Hour', thumbnail: '/lighting/golden-hour.webp', type: 'golden-hour' },
   { id: 'blue-hour', name: 'Blue Hour', thumbnail: '/lighting/blue-hour.webp', type: 'natural' },
@@ -199,4 +265,9 @@ export const LIGHTING_SETTINGS: LightingSetting[] = [
   { id: 'cinematic-moody', name: 'Cinematic Moody', thumbnail: '/lighting/cinematic-moody.webp', type: 'cinematic' },
   { id: 'backlit-silhouette', name: 'Backlit Silhouette', thumbnail: '/lighting/backlit-silhouette.webp', type: 'dramatic' },
 ];
+
+export const LIGHTING_SETTINGS: LightingSetting[] = LIGHTING_SETTINGS_RAW.map((s) => ({
+  ...s,
+  thumbnail: PLACEHOLDER_THUMBNAIL,
+}));
 

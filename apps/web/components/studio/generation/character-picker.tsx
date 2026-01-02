@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn, Input } from '@ryla/ui';
@@ -37,11 +38,18 @@ export function CharacterPicker({
     inf.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  return (
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
+
+  return createPortal(
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md"
     >
       <div className="w-full max-w-2xl max-h-[80vh] bg-[#1a1a1d] rounded-2xl border border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Header */}
@@ -78,15 +86,17 @@ export function CharacterPicker({
             <Link
               href="/wizard/step-0"
               onClick={onClose}
-              className="group flex flex-col items-center justify-center aspect-[3/4] rounded-xl bg-white/5 border border-dashed border-white/20 hover:border-[var(--purple-500)]/50 hover:bg-[var(--purple-500)]/5 transition-all"
+              className="group flex flex-col items-center justify-center aspect-[3/4] rounded-xl bg-white/5 border border-dashed border-white/20 hover:border-[var(--purple-500)]/50 hover:bg-[var(--purple-500)]/5 transition-all p-4"
             >
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 group-hover:bg-[var(--purple-500)]/20 transition-colors mb-3">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 group-hover:bg-[var(--purple-500)]/20 transition-colors mb-4">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-7 w-7 text-white/50 group-hover:text-[var(--purple-400)]">
                   <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
                 </svg>
               </div>
-              <span className="text-sm font-medium text-white">Create new</span>
-              <span className="text-xs text-white/40">Build your own AI character</span>
+              <div className="flex flex-col items-center gap-1.5">
+                <span className="text-sm font-medium text-white text-center">Create new</span>
+                <span className="text-xs text-white/40 text-center leading-tight">Build your own AI character</span>
+              </div>
             </Link>
 
             {/* Influencer Cards */}
@@ -106,6 +116,7 @@ export function CharacterPicker({
                     src={influencer.avatar}
                     alt={influencer.name}
                     fill
+                    unoptimized
                     className="object-cover"
                   />
                 ) : (
@@ -150,7 +161,8 @@ export function CharacterPicker({
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

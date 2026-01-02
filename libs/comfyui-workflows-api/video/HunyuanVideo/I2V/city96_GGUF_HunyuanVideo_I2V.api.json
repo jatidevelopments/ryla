@@ -1,0 +1,247 @@
+{
+  "78": {
+    "inputs": {},
+    "class_type": "UnetLoaderGGUF",
+    "_meta": {
+      "title": "UnetLoaderGGUF"
+    }
+  },
+  "85": {
+    "inputs": {
+      "clip_name1": "clip_l.safetensors",
+      "clip_name2": "llava_llama3_fp16.safetensors",
+      "type": "hunyuan_video",
+      "device": "default"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {
+      "title": "DualCLIPLoader"
+    }
+  },
+  "87": {
+    "inputs": {
+      "tile_size": 256,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8,
+      "samples": [
+        "90",
+        0
+      ],
+      "vae": [
+        "98",
+        0
+      ]
+    },
+    "class_type": "VAEDecodeTiled",
+    "_meta": {
+      "title": "VAE Decode (Tiled)"
+    }
+  },
+  "89": {
+    "inputs": {
+      "width": 512,
+      "height": 512,
+      "length": 49,
+      "batch_size": 1,
+      "positive": [
+        "97",
+        0
+      ],
+      "vae": [
+        "98",
+        0
+      ],
+      "start_image": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "HunyuanImageToVideo",
+    "_meta": {
+      "title": "HunyuanImageToVideo"
+    }
+  },
+  "90": {
+    "inputs": {
+      "noise": [
+        "104",
+        0
+      ],
+      "guider": [
+        "102",
+        0
+      ],
+      "sampler": [
+        "103",
+        0
+      ],
+      "sigmas": [
+        "91",
+        0
+      ],
+      "latent_image": [
+        "89",
+        1
+      ]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {
+      "title": "SamplerCustomAdvanced"
+    }
+  },
+  "91": {
+    "inputs": {
+      "scheduler": "simple",
+      "steps": 20,
+      "denoise": 1,
+      "model": [
+        "78",
+        0
+      ]
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {
+      "title": "BasicScheduler"
+    }
+  },
+  "92": {
+    "inputs": {
+      "clip_name": "llava_llama3_vision.safetensors"
+    },
+    "class_type": "CLIPVisionLoader",
+    "_meta": {
+      "title": "Load CLIP Vision"
+    }
+  },
+  "93": {
+    "inputs": {
+      "crop": "none",
+      "clip_vision": [
+        "92",
+        0
+      ],
+      "image": [
+        "96",
+        0
+      ]
+    },
+    "class_type": "CLIPVisionEncode",
+    "_meta": {
+      "title": "CLIP Vision Encode"
+    }
+  },
+  "95": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "fps": 24,
+      "lossless": false,
+      "quality": 80,
+      "method": "default",
+      "images": [
+        "87",
+        0
+      ]
+    },
+    "class_type": "SaveAnimatedWEBP",
+    "_meta": {
+      "title": "SaveAnimatedWEBP"
+    }
+  },
+  "96": {
+    "inputs": {
+      "image": "Comfy_HunyuanVideo_I2V_input.png"
+    },
+    "class_type": "LoadImage",
+    "_meta": {
+      "title": "Load Image"
+    }
+  },
+  "97": {
+    "inputs": {
+      "prompt": "Futuristic robot dancing ballet, dynamic motion, fast motion, fast shot, moving scene",
+      "image_interleave": true,
+      "clip": [
+        "85",
+        0
+      ],
+      "clip_vision_output": [
+        "93",
+        0
+      ]
+    },
+    "class_type": "TextEncodeHunyuanVideo_ImageToVideo",
+    "_meta": {
+      "title": "TextEncodeHunyuanVideo_ImageToVideo"
+    }
+  },
+  "98": {
+    "inputs": {
+      "vae_name": "hunyuan_video_vae_bf16.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {
+      "title": "Load VAE"
+    }
+  },
+  "100": {
+    "inputs": {
+      "shift": 7,
+      "model": [
+        "78",
+        0
+      ]
+    },
+    "class_type": "ModelSamplingSD3",
+    "_meta": {
+      "title": "ModelSamplingSD3"
+    }
+  },
+  "101": {
+    "inputs": {
+      "guidance": 6,
+      "conditioning": [
+        "89",
+        0
+      ]
+    },
+    "class_type": "FluxGuidance",
+    "_meta": {
+      "title": "FluxGuidance"
+    }
+  },
+  "102": {
+    "inputs": {
+      "model": [
+        "100",
+        0
+      ],
+      "conditioning": [
+        "101",
+        0
+      ]
+    },
+    "class_type": "BasicGuider",
+    "_meta": {
+      "title": "BasicGuider"
+    }
+  },
+  "103": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {
+      "title": "KSamplerSelect"
+    }
+  },
+  "104": {
+    "inputs": {
+      "noise_seed": 1
+    },
+    "class_type": "RandomNoise",
+    "_meta": {
+      "title": "RandomNoise"
+    }
+  }
+}

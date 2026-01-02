@@ -84,6 +84,11 @@ export function useAddCredits() {
       // Invalidate credits query to refetch balance
       utils.credits.getBalance.invalidate();
       utils.credits.getTransactions.invalidate();
+      // Invalidate activity feed to show new transaction
+      utils.activity.list.invalidate();
+      utils.activity.summary.invalidate();
+      // Invalidate notifications (low balance warning may be created)
+      utils.notifications.list.invalidate();
     },
   });
 }
@@ -99,6 +104,11 @@ export function useRefundFailedJob() {
       // Invalidate credits query to refetch balance
       utils.credits.getBalance.invalidate();
       utils.credits.getTransactions.invalidate();
+      // Invalidate activity feed to show refund
+      utils.activity.list.invalidate();
+      utils.activity.summary.invalidate();
+      // Invalidate notifications (refund notification created)
+      utils.notifications.list.invalidate();
     },
   });
 }

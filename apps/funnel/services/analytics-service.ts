@@ -1,6 +1,14 @@
 "use client";
 import mixpanel from "mixpanel-browser";
 import { SignUpEventProps, PaymentEventProps } from "@/utils/types/analytics";
+import { 
+    trackTikTokEvent, 
+    trackTikTokPurchase, 
+    trackTikTokCompleteRegistration,
+    trackTikTokStartTrial,
+    identifyTikTok,
+    hashSHA256
+} from "@ryla/analytics";
 
 const FUNNEL_NAME = process.env.NEXT_PUBLIC_FUNNEL_NAME || "funnel-adult-v3";
 const FUNNEL_TYPE = process.env.NEXT_PUBLIC_FUNNEL_TYPE || "hard_paywall";
@@ -82,6 +90,25 @@ class AnalyticsService {
         //     }
         // } catch {}
         console.log("[Mixpanel disabled] trackSignUpEvent:", eventName, props);
+
+        // Track to TikTok
+        if (this.isTrackingEnabled()) {
+            try {
+                // Map signup events to TikTok CompleteRegistration
+                trackTikTokCompleteRegistration({
+                    value: (props as any).amount || 0,
+                    currency: (props as any).currency || "USD",
+                });
+
+                // Identify user if email is available
+                if ((props as any).email) {
+                    const hashedEmail = await hashSHA256((props as any).email);
+                    identifyTikTok({ email: hashedEmail });
+                }
+            } catch (error) {
+                console.warn("[TikTok] Failed to track signup event:", error);
+            }
+        }
     }
 
     async trackPaymentEvent(eventName: string, props: PaymentEventProps): Promise<void> {
@@ -97,9 +124,31 @@ class AnalyticsService {
         // console.log("[Mixpanel payment]", eventName, payload);
         // mixpanel.track(eventName, payload);
         console.log("[Mixpanel disabled] trackPaymentEvent:", eventName, props);
+
+        // Track to TikTok
+        if (this.isTrackingEnabled()) {
+            try {
+                // Map payment events to TikTok Purchase
+                if (eventName.includes("payment") || eventName.includes("purchase")) {
+                    trackTikTokPurchase({
+                        value: props.value || (props as any).amount || 0,
+                        currency: props.currency || "USD",
+                        content_id: String(props.product_id) || (props as any).plan_id,
+                        content_name: props.product_name || (props as any).plan_name || "Subscription",
+                    });
+                } else if (eventName.includes("trial")) {
+                    trackTikTokStartTrial({
+                        value: props.value || (props as any).amount || 0,
+                        currency: props.currency || "USD",
+                    });
+                }
+            } catch (error) {
+                console.warn("[TikTok] Failed to track payment event:", error);
+            }
+        }
     }
 
-    identify(userId: string) {
+    async identify(userId: string) {
         // Mixpanel disabled - tracking moved to PostHog
         // if (!this.isInitialized) return;
         // console.log("[Mixpanel identify]", userId);
@@ -109,6 +158,16 @@ class AnalyticsService {
         //     (mixpanel as any).people?.set?.(userId, getFunnelProps());
         // } catch {}
         console.log("[Mixpanel disabled] identify:", userId);
+
+        // Identify user in TikTok
+        if (this.isTrackingEnabled()) {
+            try {
+                const hashedUserId = await hashSHA256(userId);
+                identifyTikTok({ external_id: hashedUserId });
+            } catch (error) {
+                console.warn("[TikTok] Failed to identify user:", error);
+            }
+        }
     }
 
     setUserProperties(userId: string, properties: Record<string, any>) {
@@ -130,6 +189,18 @@ class AnalyticsService {
         // console.log("[Mixpanel track]", eventName, payload);
         // mixpanel.track(eventName, payload);
         console.log("[Mixpanel disabled] track:", eventName, properties);
+
+        // Track to TikTok using event mapping
+        if (this.isTrackingEnabled()) {
+            try {
+                trackTikTokEvent(eventName, {
+                    ...getFunnelProps(),
+                    ...properties,
+                });
+            } catch (error) {
+                console.warn("[TikTok] Failed to track event:", error);
+            }
+        }
     }
 }
 

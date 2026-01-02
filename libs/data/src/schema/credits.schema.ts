@@ -119,16 +119,17 @@ export type NewCreditTransaction = typeof creditTransactions.$inferInsert;
 export type CreditTransactionType =
   (typeof creditTransactionTypeEnum.enumValues)[number];
 
-// Credit costs per quality mode (from EP-009)
-export const CREDIT_COSTS = {
-  draft: 1,
-  hq: 3,
-} as const;
-
-// Plan limits (from MVP-SCOPE.md)
-export const PLAN_CREDIT_LIMITS = {
-  free: 10, // One-time
-  starter: 100, // Per month
-  pro: 300, // Per month
-  unlimited: Infinity, // Unlimited
-} as const;
+/**
+ * Re-export credit costs and plan limits from @ryla/shared
+ * This is the single source of truth for all credit pricing
+ *
+ * @see libs/shared/src/credits/pricing.ts
+ * @see docs/technical/CREDIT-COST-MARGIN-ANALYSIS.md
+ */
+export {
+  CREDIT_COSTS,
+  PLAN_CREDIT_LIMITS,
+  FEATURE_CREDITS,
+  PLAN_CREDITS,
+  getFeatureCost,
+} from '@ryla/shared';

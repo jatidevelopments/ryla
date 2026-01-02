@@ -22,7 +22,7 @@ import { analyticsService } from "@/services/analytics-service";
 import { finbyService } from "@/services/finby-service";
 import { AnalyticsEventTypeEnum } from "@/utils/enums/analytics-event-types";
 import { reportPurchase } from "@/lib/gtag";
-import { trackPurchase, trackAddToCart } from "@/lib/fbPixel";
+import { trackFacebookPurchase, trackFacebookAddToCart } from "@ryla/analytics";
 import { getStepIndexByName } from "@/features/funnel/config/steps";
 
 export function usePaymentForm(posthog?: any) {
@@ -52,7 +52,7 @@ export function usePaymentForm(posthog?: any) {
     useEffect(() => {
         if (!product || !isFinbyReady || addToCartTrackedRef.current) return;
 
-        trackAddToCart({
+        trackFacebookAddToCart({
             content_ids: [String(product.id)],
             content_name: product.name,
             value: product.amount / 100,
@@ -386,7 +386,7 @@ export function usePaymentForm(posthog?: any) {
                                     setIsPopupOpen(false);
 
                                     // FACEBOOK PIXEL TRACKING — Purchase
-                                    trackPurchase(product.amount / 100, "USD", response.reference);
+                                    trackFacebookPurchase(product.amount / 100, "USD", response.reference);
 
                                     // GOOGLE ADS — Purchase (DISABLED)
                                     // reportPurchase(response.reference, {
@@ -414,6 +414,19 @@ export function usePaymentForm(posthog?: any) {
                                             product_name: product.name,
                                             user_id: userId,
                                         });
+                                    }
+
+                                    // TikTok — Purchase
+                                    try {
+                                        const { trackTikTokPurchase } = await import("@ryla/analytics");
+                                        trackTikTokPurchase({
+                                            value: product.amount / 100,
+                                            currency: "USD",
+                                            content_id: String(product.id),
+                                            content_name: product.name,
+                                        });
+                                    } catch (e) {
+                                        console.warn("TikTok purchase tracking failed", e);
                                     }
 
                                     // Mixpanel (DISABLED - tracking moved to PostHog)

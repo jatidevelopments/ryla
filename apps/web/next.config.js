@@ -3,6 +3,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business'],
+  // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
   images: {
     remotePatterns: [
       {
@@ -36,6 +37,7 @@ const nextConfig = {
         dns: false,
         child_process: false,
         'pg-native': false,
+        pg: false, // Explicitly exclude pg
         path: false,
         os: false,
         stream: false,
@@ -52,9 +54,16 @@ const nextConfig = {
       // Ignore server-only packages on client side
       config.plugins.push(
         new webpack.IgnorePlugin({
-          checkResource(resource) {
+          checkResource(resource, context) {
             // Ignore pg and related packages
-            return resource === 'pg' || resource === 'pg-native';
+            if (resource === 'pg' || resource === 'pg-native') {
+              return true;
+            }
+            // Also ignore pg when imported from drizzle-orm
+            if (context && context.includes('drizzle-orm') && resource.includes('pg')) {
+              return true;
+            }
+            return false;
           },
         })
       );
@@ -71,6 +80,14 @@ const nextConfig = {
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /drizzle-orm\/node-postgres\/session/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+
+      // Replace pg module with empty module on client side
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^pg$/,
           require.resolve('./lib/trpc/empty-module.js')
         )
       );

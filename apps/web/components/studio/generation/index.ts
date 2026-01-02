@@ -5,4 +5,5 @@ export * from './quality-picker';
 export * from './model-picker';
 export * from './character-picker';
 export * from './style-picker';
+export * from './liked-filter-picker';
 

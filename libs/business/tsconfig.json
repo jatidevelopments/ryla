@@ -10,7 +10,8 @@
     "noFallthroughCasesInSwitch": true,
     "declaration": true,
     "outDir": "../../dist/libs/business",
-    "composite": true
+    "composite": true,
+    "rootDir": "../../"
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"],

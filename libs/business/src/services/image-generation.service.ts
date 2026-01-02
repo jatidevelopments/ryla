@@ -1,4 +1,5 @@
-import type { GenerationJobsRepository, NewGenerationJobRow } from '@ryla/data';
+import type { GenerationJobsRepository, NewGenerationJobRow, NotificationsRepository } from '@ryla/data';
+import type { NotificationType } from '@ryla/data/schema';
 
 export interface RunPodJobStatus {
   status: 'IN_QUEUE' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | string;
@@ -62,7 +63,8 @@ export interface StartBaseImagesInput {
 export class ImageGenerationService {
   constructor(
     private readonly generationJobsRepo: GenerationJobsRepository,
-    private readonly runpod: RunPodJobRunner
+    private readonly runpod: RunPodJobRunner,
+    private readonly notificationsRepo?: NotificationsRepository
   ) { }
 
   async startBaseImages(input: StartBaseImagesInput) {
@@ -186,6 +188,7 @@ export class ImageGenerationService {
       return job;
     }
 
+    const previousStatus = job.status;
     const status = await this.runpod.getJobStatus(job.externalJobId);
     const mapped = this.mapRunPodStatus(status.status);
 
@@ -202,6 +205,39 @@ export class ImageGenerationService {
     }
 
     const updated = await this.generationJobsRepo.updateById(jobId, patch);
+
+    // Create notifications on status transition (only if notificationsRepo is available)
+    if (this.notificationsRepo && previousStatus !== mapped) {
+      if (mapped === 'completed' && previousStatus !== 'completed') {
+        const jobType = job.type === 'character_generation' ? 'character generation' : 'image generation';
+        await this.notificationsRepo.create({
+          userId: job.userId,
+          type: 'generation.completed' as NotificationType,
+          title: 'Generation complete',
+          body: `Your ${jobType} is ready!`,
+          href: job.characterId ? `/influencer/${job.characterId}/studio` : '/activity',
+          metadata: {
+            generationJobId: job.id,
+            characterId: job.characterId,
+            type: job.type,
+          },
+        });
+      } else if (mapped === 'failed' && previousStatus !== 'failed') {
+        await this.notificationsRepo.create({
+          userId: job.userId,
+          type: 'generation.failed' as NotificationType,
+          title: 'Generation failed',
+          body: status.error ?? 'Your generation failed. Please try again.',
+          href: '/activity',
+          metadata: {
+            generationJobId: job.id,
+            characterId: job.characterId,
+            error: status.error,
+          },
+        });
+      }
+    }
+
     return updated;
   }
 

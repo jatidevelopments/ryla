@@ -20,6 +20,7 @@ import { VIDEO_CONTENT_OPTIONS } from "@/constants/video-content-options";
 import { type StepInfo } from "@/features/funnel/config/steps";
 import { useOrderedSteps } from "@/hooks/useOrderedSteps";
 
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
 function StepItem({
     step,
     isCurrent,
@@ -36,9 +37,10 @@ function StepItem({
     form: ReturnType<typeof useFormContext<FunnelSchema>> | null;
     formatFormValue: (step: StepInfo, formData: FunnelSchema | null) => string | null;
     getStepTypeBadge: (type?: string) => React.ReactNode;
-    isExpanded: boolean;
     handleStepClick: (stepIndex: number) => void;
+    isExpanded: boolean;
 }) {
+/* eslint-enable no-unused-vars, @typescript-eslint/no-unused-vars */
     return (
         <div className="relative w-full">
             <button

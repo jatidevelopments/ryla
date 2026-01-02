@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { ArrowLeft, CreditCard, Shield, Lock, Check } from 'lucide-react';
 import { cn } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
@@ -10,7 +9,7 @@ import { PlanCard } from '../../components/pricing';
 import { SUBSCRIPTION_PLANS } from '../../constants/pricing';
 
 export default function PricingPage() {
-  const router = useRouter();
+  const utils = trpc.useUtils();
   const [isYearly, setIsYearly] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -29,6 +28,12 @@ export default function PricingPage() {
       // Refetch data
       refetchSubscription();
       refetchCredits();
+
+      // Invalidate activity feed to show subscription credit grant
+      utils.activity.list.invalidate();
+      utils.activity.summary.invalidate();
+      // Invalidate notifications (subscription created notification)
+      utils.notifications.list.invalidate();
       
       // Show success message
       setSuccessMessage(

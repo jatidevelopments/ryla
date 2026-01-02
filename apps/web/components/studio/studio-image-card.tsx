@@ -65,16 +65,16 @@ export function StudioImageCard({
     <div
       onClick={handleClick}
       className={cn(
-        'group relative cursor-pointer overflow-hidden rounded-xl transition-all duration-300',
+        'group relative cursor-pointer overflow-hidden rounded-2xl transition-all duration-300 border border-transparent',
         isSelected
-          ? 'ring-2 ring-[var(--purple-500)] ring-offset-2 ring-offset-[#0a0a0b] scale-[1.02]'
-          : 'hover:ring-1 hover:ring-white/20',
-        size === 'large' && 'rounded-2xl',
+          ? 'ring-2 ring-[var(--purple-500)] ring-offset-2 ring-offset-[var(--bg-base)] scale-[1.02] border-[var(--purple-500)]/50'
+          : 'hover:ring-1 hover:ring-[var(--purple-500)]/30 hover:border-[var(--border-default)]',
+        size === 'large' && 'rounded-3xl',
         className
       )}
     >
       {/* Image Container */}
-      <div className={cn('relative w-full bg-[#1a1a1d]', aspectClass)}>
+      <div className={cn('relative w-full bg-[var(--bg-elevated)]', aspectClass)}>
         {image.status === 'generating' ? (
           // Generating state - animated gradient
           <div className="absolute inset-0 overflow-hidden">
