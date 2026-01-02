@@ -3,10 +3,16 @@
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
 import { SidebarProvider, BottomNav, SidebarMobileTrigger, useSidebar } from '@ryla/ui';
+import type { UserProfile } from '@ryla/ui';
 import { DesktopSidebar } from './desktop-sidebar';
 import { CreditsBadge, LowBalanceWarning } from './credits';
+import { NotificationsMenu } from './notifications/notifications-menu';
+import { BugReportModal } from './bug-report';
+import { useAuth } from '../lib/auth-context';
+import { useSubscription } from '../lib/hooks';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Toaster } from 'sonner';
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -18,13 +24,24 @@ const excludedRoutes = ['/login', '/register', '/forgot-password', '/reset-passw
 // Inner component that uses sidebar context
 function AppShellContent({ children }: { children: React.ReactNode }) {
   const { open, isMobile } = useSidebar();
+  const { user } = useAuth();
+  const { tier } = useSubscription();
+  const [bugReportModalOpen, setBugReportModalOpen] = React.useState(false);
   
   // Calculate left offset for main content based on sidebar state (desktop only)
   // Matches Tailwind: w-64 = 256px, w-20 = 80px
   const sidebarWidth = isMobile ? 0 : (open ? 256 : 80);
 
+  // Build user profile for bottom nav
+  const userProfile: UserProfile | undefined = user ? {
+    name: user.publicName || user.name || 'User',
+    avatarUrl: undefined, // TODO: Add avatar support when available
+    tier: tier as UserProfile['tier'],
+  } : undefined;
+
   return (
     <div className="min-h-screen bg-[#121214] overflow-x-hidden">
+      <Toaster richColors position="top-right" />
       {/* Desktop Sidebar */}
       <DesktopSidebar />
 
@@ -45,6 +62,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-4">
             {/* Credits Badge - Real balance from API */}
             <CreditsBadge size="md" />
+
+            {/* Notifications */}
+            <NotificationsMenu />
 
             {/* Settings */}
             <Link
@@ -79,8 +99,12 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               className="h-7 w-auto"
             />
           </Link>
-          {/* Credits Badge - Mobile - Real balance from API */}
-          <CreditsBadge size="sm" showLabel={false} />
+          <div className="flex items-center gap-2">
+            {/* Notifications */}
+            <NotificationsMenu />
+            {/* Credits Badge - Mobile - Real balance from API */}
+            <CreditsBadge size="sm" showLabel={false} />
+          </div>
         </header>
 
         {/* Low Balance Warning */}
@@ -90,7 +114,17 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
 
         {/* Mobile Bottom Nav */}
-        <BottomNav />
+        <BottomNav
+          userProfile={userProfile}
+          onReportBugClick={() => setBugReportModalOpen(true)}
+        />
+
+        {/* Bug Report Modal */}
+        <BugReportModal
+          isOpen={bugReportModalOpen}
+          onClose={() => setBugReportModalOpen(false)}
+          userEmail={user?.email}
+        />
       </div>
     </div>
   );

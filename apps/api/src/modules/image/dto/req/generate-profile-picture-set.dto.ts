@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsBoolean, IsOptional, IsUUID, IsIn } from 'class-validator';
+import { IsString, IsBoolean, IsOptional, IsUUID, IsIn, IsNumber } from 'class-validator';
 
 export class GenerateProfilePictureSetDto {
   @ApiProperty({ description: 'URL of the selected base image' })
@@ -26,5 +26,44 @@ export class GenerateProfilePictureSetDto {
   @IsOptional()
   @IsUUID()
   userId?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Generation mode: fast (speed-first) or consistent (face consistency, slower)',
+    enum: ['fast', 'consistent'],
+    default: 'fast',
+  })
+  @IsOptional()
+  @IsIn(['fast', 'consistent'])
+  generationMode?: 'fast' | 'consistent';
+
+  @ApiProperty({
+    required: false,
+    description: 'Optional workflow override (defaults to recommended workflow on the pod)',
+    enum: ['z-image-danrisi', 'z-image-simple', 'z-image-pulid'],
+  })
+  @IsOptional()
+  @IsIn(['z-image-danrisi', 'z-image-simple', 'z-image-pulid'])
+  workflowId?: 'z-image-danrisi' | 'z-image-simple' | 'z-image-pulid';
+
+  @ApiProperty({ required: false, description: 'Optional inference steps (speed knob)' })
+  @IsOptional()
+  @IsNumber()
+  steps?: number;
+
+  @ApiProperty({ required: false, description: 'Optional CFG scale (guidance)' })
+  @IsOptional()
+  @IsNumber()
+  cfg?: number;
+
+  @ApiProperty({ required: false, description: 'Optional width override' })
+  @IsOptional()
+  @IsNumber()
+  width?: number;
+
+  @ApiProperty({ required: false, description: 'Optional height override' })
+  @IsOptional()
+  @IsNumber()
+  height?: number;
 }
 

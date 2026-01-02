@@ -521,12 +521,12 @@ export class FinbyProvider implements PaymentProvider {
           ...baseEvent,
           type: 'chargeback.created',
           data: {
-            chargeId: event.data.charge_id || event.data.payment_id || '',
+            chargeId: (event.data as any).charge_id || (event.data as any).payment_id || '',
             subscriptionId: event.data.subscription_id,
             customerId: event.data.customer_id,
             amount: event.data.amount || 0,
             currency: event.data.currency || 'eur',
-            reason: event.data.reason || event.data.chargeback_reason,
+            reason: (event.data as any).reason || (event.data as any).chargeback_reason,
           },
         };
 

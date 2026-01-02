@@ -6,10 +6,11 @@
  */
 
 import { z } from 'zod';
-import { eq, and, isNull, desc, sql } from 'drizzle-orm';
+import { eq, and, isNull, desc, sql, ne, or } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 
-import { characters, type CharacterConfig } from '@ryla/data';
+import { characters, NotificationsRepository, type CharacterConfig } from '@ryla/data';
+import type { NotificationType } from '@ryla/data/schema';
 
 import { router, protectedProcedure } from '../trpc';
 
@@ -30,6 +31,7 @@ const characterConfigSchema = z.object({
   bio: z.string().max(500).optional(),
   handle: z.string().max(50).optional(),
   nsfwEnabled: z.boolean().optional(),
+  profilePictureSetId: z.enum(['classic-influencer', 'professional-model', 'natural-beauty']).nullable().optional(),
 });
 
 export const characterRouter = router({
@@ -132,6 +134,7 @@ export const characterRouter = router({
       z.object({
         name: z.string().min(1).max(100),
         config: characterConfigSchema,
+        baseImageUrl: z.string().url(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -142,9 +145,25 @@ export const characterRouter = router({
           name: input.name,
           handle: input.config.handle,
           config: input.config as CharacterConfig,
+          baseImageUrl: input.baseImageUrl,
           status: 'draft',
         })
         .returning();
+
+      // Create notification
+      const notificationsRepo = new NotificationsRepository(ctx.db);
+      await notificationsRepo.create({
+        userId: ctx.user.id,
+        type: 'character.created' as NotificationType,
+        title: 'Character created!',
+        body: `${input.name} is ready. Start generating images!`,
+        href: `/influencer/${character.id}`,
+        metadata: { 
+          characterId: character.id, 
+          characterName: input.name,
+          baseImageUrl: input.baseImageUrl,
+        },
+      });
 
       return character;
     }),
@@ -162,7 +181,7 @@ export const characterRouter = router({
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const { id, config, ...rest } = input;
+      const { id, config, handle, ...rest } = input;
 
       // Verify ownership
       const existing = await ctx.db.query.characters.findFirst({
@@ -171,7 +190,7 @@ export const characterRouter = router({
           eq(characters.userId, ctx.user.id),
           isNull(characters.deletedAt)
         ),
-        columns: { id: true, config: true },
+        columns: { id: true, config: true, handle: true },
       });
 
       if (!existing) {
@@ -181,11 +200,38 @@ export const characterRouter = router({
         });
       }
 
+      // Validate handle uniqueness if provided
+      if (handle !== undefined && handle !== existing.handle) {
+        const cleanHandle = handle.trim().toLowerCase();
+        
+        // Check if handle is already taken by another character of this user
+        const existingWithHandle = await ctx.db.query.characters.findFirst({
+          where: and(
+            eq(characters.userId, ctx.user.id),
+            eq(characters.handle, cleanHandle),
+            ne(characters.id, id),
+            isNull(characters.deletedAt)
+          ),
+          columns: { id: true },
+        });
+
+        if (existingWithHandle) {
+          throw new TRPCError({
+            code: 'CONFLICT',
+            message: 'This handle is already taken. Please choose another.',
+          });
+        }
+      }
+
       // Merge config if provided
       const updateData: Record<string, unknown> = {
         ...rest,
         updatedAt: new Date(),
       };
+
+      if (handle !== undefined) {
+        updateData['handle'] = handle.trim().toLowerCase();
+      }
 
       if (config) {
         updateData['config'] = {

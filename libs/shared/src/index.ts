@@ -16,6 +16,9 @@ export * from './validators';
 // Errors
 export * from './errors';
 
+// Credits (pricing, costs, plans)
+export * from './credits';
+
 // Mocks (for development)
 export * from './mocks';
 

@@ -9,3 +9,5 @@ export * from './credits.schema';
 export * from './lora-models.schema';
 export * from './prompts.schema';
 export * from './prompt-sets.schema';
+export * from './notifications.schema';
+export * from './bug-reports.schema';

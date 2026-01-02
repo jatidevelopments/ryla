@@ -3,6 +3,7 @@
 import { Check, Sparkles, Crown, Zap } from 'lucide-react';
 import { cn, Button } from '@ryla/ui';
 import type { SubscriptionPlan } from '../../constants/pricing';
+import { FEATURE_CREDITS } from '../../constants/pricing';
 
 interface PlanCardProps {
   plan: SubscriptionPlan;
@@ -97,7 +98,7 @@ export function PlanCard({
         </div>
         {plan.monthlyCredits !== Infinity && (
           <p className="text-xs text-white/40 mt-1">
-            ~{Math.floor(plan.monthlyCredits / 5)} draft or ~{Math.floor(plan.monthlyCredits / 10)} HQ generations
+            ~{Math.floor(plan.monthlyCredits / FEATURE_CREDITS.studio_fast.credits)} quick or ~{Math.floor(plan.monthlyCredits / FEATURE_CREDITS.studio_standard.credits)} HQ generations
           </p>
         )}
       </div>

@@ -11,6 +11,7 @@ import { ModelPicker } from './model-picker';
 import { CharacterPicker } from './character-picker';
 import { StylePicker } from './style-picker';
 import { Tooltip } from '../../ui/tooltip';
+import { useLocalStorage } from '../../../lib/hooks/use-local-storage';
 
 interface Influencer {
   id: string;
@@ -35,10 +36,26 @@ export function StudioGenerationBar({
   creditsAvailable = 250,
   className,
 }: StudioGenerationBarProps) {
-  const [settings, setSettings] = React.useState<GenerationSettings>({
-    ...DEFAULT_GENERATION_SETTINGS,
+  // Load settings from localStorage (excluding prompt and influencerId which are context-specific)
+  const [persistedSettings, setPersistedSettings] = useLocalStorage<Omit<GenerationSettings, 'prompt' | 'influencerId'>>(
+    'ryla-studio-generation-settings',
+    {
+      aspectRatio: DEFAULT_GENERATION_SETTINGS.aspectRatio,
+      quality: DEFAULT_GENERATION_SETTINGS.quality,
+      modelId: DEFAULT_GENERATION_SETTINGS.modelId,
+      styleId: DEFAULT_GENERATION_SETTINGS.styleId,
+      sceneId: DEFAULT_GENERATION_SETTINGS.sceneId,
+      lightingId: DEFAULT_GENERATION_SETTINGS.lightingId,
+      promptEnhance: DEFAULT_GENERATION_SETTINGS.promptEnhance,
+      batchSize: DEFAULT_GENERATION_SETTINGS.batchSize,
+    }
+  );
+
+  const [settings, setSettings] = React.useState<GenerationSettings>(() => ({
+    ...persistedSettings,
+    prompt: '', // Always start with empty prompt
     influencerId: selectedInfluencer?.id || null,
-  });
+  }));
 
   // Picker states
   const [showModelPicker, setShowModelPicker] = React.useState(false);
@@ -60,6 +77,16 @@ export function StudioGenerationBar({
     }));
   }, [selectedInfluencer]);
 
+  // Sync persisted settings when they change externally
+  React.useEffect(() => {
+    setSettings(prev => ({
+      ...prev,
+      ...persistedSettings,
+      prompt: prev.prompt, // Keep current prompt
+      influencerId: prev.influencerId, // Keep current influencer
+    }));
+  }, [persistedSettings]);
+
   const selectedModel = AI_MODELS.find(m => m.id === settings.modelId) || AI_MODELS[0];
   const selectedQuality = QUALITY_OPTIONS.find(q => q.value === settings.quality) || QUALITY_OPTIONS[0];
   const creditsCost = selectedQuality.credits * settings.batchSize;
@@ -70,17 +97,29 @@ export function StudioGenerationBar({
   };
 
   const updateSetting = <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => {
-    setSettings(prev => ({ ...prev, [key]: value }));
+    setSettings(prev => {
+      const updated = { ...prev, [key]: value };
+      
+      // Persist to localStorage (excluding prompt and influencerId)
+      if (key !== 'prompt' && key !== 'influencerId') {
+        setPersistedSettings(prevPersisted => ({
+          ...prevPersisted,
+          [key]: value,
+        }));
+      }
+      
+      return updated;
+    });
   };
 
-  const canGenerate = settings.influencerId && settings.prompt.trim() && !isGenerating && creditsAvailable >= creditsCost;
+  const canGenerate = settings.influencerId && settings.prompt.trim() && creditsAvailable >= creditsCost;
 
   return (
-    <div className={cn('border-t border-white/10 bg-[#0d0d0f]', className)}>
+    <div className={cn('mx-4 mb-4 lg:mx-6 lg:mb-6 rounded-2xl bg-[var(--bg-elevated)]/95 backdrop-blur-xl border border-white/10 shadow-2xl shadow-black/40', className)}>
       {/* Prompt Input Row */}
-      <div className="flex items-center gap-3 px-4 py-3 border-b border-white/5">
+      <div className="flex items-center gap-3 px-5 py-4">
         {/* Upload Button */}
-        <button className="flex items-center justify-center h-10 w-10 rounded-xl bg-white/5 border border-white/10 text-white/50 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all">
+        <button className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
             <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
           </svg>
@@ -93,7 +132,7 @@ export function StudioGenerationBar({
             value={settings.prompt}
             onChange={(e) => updateSetting('prompt', e.target.value)}
             placeholder="Upload image as a prompt or Describe the scene you imagine"
-            className="w-full h-10 bg-transparent text-white placeholder:text-white/40 text-sm focus:outline-none"
+            className="w-full h-11 bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none"
           />
         </div>
 
@@ -114,7 +153,13 @@ export function StudioGenerationBar({
               )}
             >
               {inf.avatar ? (
-                <Image src={inf.avatar} alt={inf.name} fill className="object-cover" />
+                <Image
+                  src={inf.avatar}
+                  alt={inf.name}
+                  fill
+                  unoptimized
+                  className="object-cover"
+                />
               ) : (
                 <div className="w-full h-full bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] flex items-center justify-center text-white text-xs font-bold">
                   {inf.name.charAt(0)}
@@ -131,7 +176,7 @@ export function StudioGenerationBar({
           {/* More Characters Button */}
           <button
             onClick={() => setShowCharacterPicker(true)}
-            className="h-10 px-3 rounded-lg bg-white/5 border border-white/10 text-white/60 text-xs font-medium hover:bg-white/10 hover:text-white transition-all"
+            className="h-11 px-4 rounded-xl bg-white/5 text-[var(--text-secondary)] text-xs font-medium hover:bg-white/10 hover:text-[var(--text-primary)] transition-all"
           >
             More...
           </button>
@@ -142,45 +187,38 @@ export function StudioGenerationBar({
           onClick={handleGenerate}
           disabled={!canGenerate}
           className={cn(
-            'h-12 px-6 rounded-xl font-bold text-sm flex items-center gap-2 transition-all',
+            'h-12 px-8 rounded-xl font-bold text-sm flex items-center gap-2.5 transition-all',
             canGenerate
-              ? 'bg-[var(--purple-500)] text-white hover:bg-[var(--purple-400)] shadow-lg shadow-[var(--purple-500)]/20'
-              : 'bg-white/10 text-white/40 cursor-not-allowed'
+              ? 'bg-gradient-to-r from-[var(--purple-500)] to-[var(--purple-600)] text-white hover:from-[var(--purple-400)] hover:to-[var(--purple-500)] shadow-lg shadow-[var(--purple-500)]/25'
+              : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed'
           )}
         >
-          {isGenerating ? (
-            <>
-              <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-              Generating...
-            </>
-          ) : (
-            <>
-              Generate
-              <span className="flex items-center gap-0.5 text-xs opacity-80">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
-                  <path d="M10.75 10.818v2.614A3.13 3.13 0 0011.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 00-1.138-.432zM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 00-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.202.592.037.051.08.102.128.152z" />
-                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-6a.75.75 0 01.75.75v.316a3.78 3.78 0 011.653.713c.426.33.744.74.925 1.2a.75.75 0 01-1.395.55 1.35 1.35 0 00-.447-.563 2.187 2.187 0 00-.736-.363V9.3c.698.093 1.383.32 1.959.696.787.514 1.29 1.27 1.29 2.13 0 .86-.504 1.616-1.29 2.13-.576.377-1.261.603-1.96.696v.299a.75.75 0 11-1.5 0v-.3c-.697-.092-1.382-.318-1.958-.695-.482-.315-.857-.717-1.078-1.188a.75.75 0 111.359-.636c.08.173.245.376.54.569.313.205.706.353 1.138.432v-2.748a3.782 3.782 0 01-1.653-.713C6.9 9.433 6.5 8.681 6.5 7.875c0-.805.4-1.558 1.088-2.046.44-.312.978-.53 1.662-.622V4.75A.75.75 0 0110 4z" clipRule="evenodd" />
-                </svg>
-                {creditsCost.toFixed(2)}
-              </span>
-            </>
-          )}
+          <>
+            Generate
+            <span className="flex items-center gap-0.5 text-xs opacity-80">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                <path d="M10.75 10.818v2.614A3.13 3.13 0 0011.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 00-1.138-.432zM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 00-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.202.592.037.051.08.102.128.152z" />
+                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-6a.75.75 0 01.75.75v.316a3.78 3.78 0 011.653.713c.426.33.744.74.925 1.2a.75.75 0 01-1.395.55 1.35 1.35 0 00-.447-.563 2.187 2.187 0 00-.736-.363V9.3c.698.093 1.383.32 1.959.696.787.514 1.29 1.27 1.29 2.13 0 .86-.504 1.616-1.29 2.13-.576.377-1.261.603-1.96.696v.299a.75.75 0 11-1.5 0v-.3c-.697-.092-1.382-.318-1.958-.695-.482-.315-.857-.717-1.078-1.188a.75.75 0 111.359-.636c.08.173.245.376.54.569.313.205.706.353 1.138.432v-2.748a3.782 3.782 0 01-1.653-.713C6.9 9.433 6.5 8.681 6.5 7.875c0-.805.4-1.558 1.088-2.046.44-.312.978-.53 1.662-.622V4.75A.75.75 0 0110 4z" clipRule="evenodd" />
+              </svg>
+              {creditsCost.toFixed(2)}
+            </span>
+          </>
         </button>
       </div>
 
       {/* Controls Row */}
-      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scroll-hidden">
+      <div className="flex items-center gap-2 px-5 py-3 border-t border-white/5 overflow-x-auto scroll-hidden">
         {/* Model Selector */}
         <div className="relative">
           <Tooltip content="AI Model: Choose the AI model for generation. Different models offer unique styles and quality levels.">
             <button
               ref={modelButtonRef}
               onClick={() => setShowModelPicker(!showModelPicker)}
-              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 hover:border-white/20 transition-all"
+              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all"
             >
               <ModelIcon model={selectedModel} className="h-4 w-4 text-[var(--purple-400)]" />
               <span>{selectedModel.name.replace('RYLA ', '')}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-white/40">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--text-muted)]">
                 <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </button>
@@ -200,7 +238,7 @@ export function StudioGenerationBar({
         </div>
 
         {/* Divider */}
-        <div className="h-5 w-px bg-white/10" />
+        <div className="h-4 w-px bg-white/10" />
 
         {/* Aspect Ratio */}
         <div className="relative">
@@ -208,7 +246,7 @@ export function StudioGenerationBar({
             <button
               ref={aspectRatioButtonRef}
               onClick={() => setShowAspectRatioPicker(!showAspectRatioPicker)}
-              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 hover:border-white/20 transition-all"
+              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all"
             >
               <AspectRatioIcon ratio={settings.aspectRatio} className="h-4 w-4" />
               <span>{settings.aspectRatio}</span>
@@ -218,6 +256,7 @@ export function StudioGenerationBar({
             <AspectRatioPicker
               ratios={ASPECT_RATIOS}
               selectedRatio={settings.aspectRatio}
+              placement="top"
               onSelect={(ratio) => {
                 updateSetting('aspectRatio', ratio);
                 setShowAspectRatioPicker(false);
@@ -234,9 +273,9 @@ export function StudioGenerationBar({
             <button
               ref={qualityButtonRef}
               onClick={() => setShowQualityPicker(!showQualityPicker)}
-              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 border border-white/10 text-white text-sm font-medium hover:bg-white/10 hover:border-white/20 transition-all"
+              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-white/50">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
                 <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
               </svg>
               <span>{settings.quality}</span>
@@ -261,10 +300,10 @@ export function StudioGenerationBar({
           <button
             onClick={() => updateSetting('promptEnhance', !settings.promptEnhance)}
             className={cn(
-              'flex items-center gap-2 h-9 px-3 rounded-lg border text-sm font-medium transition-all',
+              'flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-all',
               settings.promptEnhance
-                ? 'bg-[var(--purple-500)]/20 border-[var(--purple-500)]/50 text-white'
-                : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:bg-white/10'
+                ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)]'
+                : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
             )}
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
@@ -275,27 +314,27 @@ export function StudioGenerationBar({
         </Tooltip>
 
         {/* Divider */}
-        <div className="h-5 w-px bg-white/10" />
+        <div className="h-4 w-px bg-white/10" />
 
         {/* Batch Size */}
         <Tooltip content="Batch Size: Generate multiple images at once. Higher batch = more credits used per generation.">
-          <div className="flex items-center gap-1 h-9 px-2 rounded-lg bg-white/5 border border-white/10">
+          <div className="flex items-center gap-1 h-9 px-1.5 rounded-lg bg-white/5">
             <button
               onClick={() => updateSetting('batchSize', Math.max(1, settings.batchSize - 1))}
               disabled={settings.batchSize <= 1}
-              className="p-1 text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded hover:bg-white/10"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                 <path fillRule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clipRule="evenodd" />
               </svg>
             </button>
-            <span className="min-w-[40px] text-center text-sm font-medium text-white">
+            <span className="min-w-[36px] text-center text-sm font-medium text-[var(--text-primary)]">
               {settings.batchSize}/4
             </span>
             <button
               onClick={() => updateSetting('batchSize', Math.min(4, settings.batchSize + 1))}
               disabled={settings.batchSize >= 4}
-              className="p-1 text-white/50 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded hover:bg-white/10"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                 <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
@@ -308,7 +347,7 @@ export function StudioGenerationBar({
         <Tooltip content="Styles & Scenes: Apply visual styles, backgrounds, and lighting to customize your generated images.">
           <button
             onClick={() => setShowStylePicker(true)}
-            className="flex items-center gap-2 h-9 px-3 rounded-lg bg-gradient-to-r from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/30 text-white text-sm font-medium hover:from-[var(--purple-500)]/30 hover:to-[var(--pink-500)]/30 transition-all"
+            className="flex items-center gap-2 h-9 px-3 rounded-lg bg-[var(--purple-500)]/15 text-[var(--text-primary)] text-sm font-medium hover:bg-[var(--purple-500)]/25 transition-all"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
               <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
@@ -321,9 +360,9 @@ export function StudioGenerationBar({
         <div className="flex-1" />
 
         {/* Credits Display */}
-        <div className="flex items-center gap-2 text-sm text-white/50">
+        <div className="flex items-center gap-2 text-sm text-[var(--text-muted)]">
           <span>Credits:</span>
-          <span className="font-bold text-white">{creditsAvailable}</span>
+          <span className="font-bold text-[var(--text-primary)]">{creditsAvailable}</span>
         </div>
       </div>
 

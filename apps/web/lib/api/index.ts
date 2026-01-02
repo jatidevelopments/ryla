@@ -3,4 +3,5 @@
  */
 
 export * from './character';
+export * from './studio';
 

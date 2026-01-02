@@ -1,18 +1,15 @@
 'use client';
 
-import { useAllInfluencers } from '@ryla/business';
 import {
   PageContainer,
-  EmptyState,
-  Button,
   RylaButton,
   FadeInUp,
   StaggerChildren,
-  GradientBackground,
 } from '@ryla/ui';
 import { InfluencerCard } from '../../components/influencer-card';
 import { ProtectedRoute } from '../../components/protected-route';
 import { useAuth } from '../../lib/auth-context';
+import { trpc } from '../../lib/trpc';
 import Link from 'next/link';
 
 export default function DashboardPage() {
@@ -25,7 +22,36 @@ export default function DashboardPage() {
 
 function DashboardContent() {
   const { user } = useAuth();
-  const influencers = useAllInfluencers();
+  const { data: charactersData, isLoading } = trpc.character.list.useQuery();
+  
+  // Map Character data to AIInfluencer format for compatibility
+  const influencers = (charactersData?.items || []).map((char) => ({
+    id: char.id,
+    name: char.name,
+    handle: char.handle || `@${char.name.toLowerCase().replace(/\s+/g, '.')}`,
+    bio: char.config?.bio || 'New AI influencer ✨',
+    avatar: char.baseImageUrl || null,
+    gender: char.config?.gender || 'female',
+    style: char.config?.style || 'realistic',
+    ethnicity: char.config?.ethnicity || 'caucasian',
+    age: char.config?.age || 25,
+    hairStyle: char.config?.hairStyle || 'long-straight',
+    hairColor: char.config?.hairColor || 'brown',
+    eyeColor: char.config?.eyeColor || 'brown',
+    bodyType: char.config?.bodyType || 'slim',
+    breastSize: char.config?.breastSize,
+    archetype: char.config?.archetype || 'girl-next-door',
+    personalityTraits: char.config?.personalityTraits || [],
+    outfit: char.config?.defaultOutfit || 'casual',
+    nsfwEnabled: char.config?.nsfwEnabled || false,
+    profilePictureSetId: char.config?.profilePictureSetId || undefined,
+    postCount: parseInt(char.postCount || '0', 10),
+    imageCount: 0, // TODO: Calculate from images table
+    likedCount: parseInt(char.likedCount || '0', 10),
+    createdAt: char.createdAt?.toISOString() || new Date().toISOString(),
+    updatedAt: char.createdAt?.toISOString() || new Date().toISOString(),
+  }));
+  
   const hasInfluencers = influencers.length > 0;
 
   return (
@@ -76,7 +102,13 @@ function DashboardContent() {
       </FadeInUp>
 
       {/* Content */}
-      {hasInfluencers ? (
+      {isLoading ? (
+        <FadeInUp delay={200}>
+          <div className="relative rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-12 text-center">
+            <p className="text-[var(--text-secondary)]">Loading influencers...</p>
+          </div>
+        </FadeInUp>
+      ) : hasInfluencers ? (
         <StaggerChildren staggerDelay={80}>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
             {influencers.map((influencer) => (

@@ -33,7 +33,7 @@ function srcToId(src?: string) {
         .replace(/^\/?images\//, "")
         .replace(/^\/?public\//, "")
         .replace(/\.[^.]+$/, "")
-        .replace(/[\/\\]/g, "-");
+        .replace(/[/\\]/g, "-");
 }
 
 export default function SpriteIcon(props: Props) {

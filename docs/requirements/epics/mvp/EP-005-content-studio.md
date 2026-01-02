@@ -2,9 +2,11 @@
 
 ## Overview
 
-The Content Studio is where users generate content for their AI Influencers. It combines scene presets, environment presets, and outfit options to create varied, consistent images with AI-generated captions.
+The Content Studio is where users generate images for their AI Influencers. It combines scene presets, environment presets, and outfit options to create varied, consistent images.
 
-> ⚠️ **Scope**: This epic covers content generation. AI Influencer creation is EP-001. Caption generation is EP-014.
+> ⚠️ **Scope**: This epic covers **image generation**. AI Influencer creation is EP-001.
+>
+> **MVP constraint**: “Posts” (image + caption as an export-ready entity) and caption generation (EP-014) are **Phase 2+**, not MVP.
 
 ---
 
@@ -15,7 +17,8 @@ The Content Studio is where users generate content for their AI Influencers. It 
 | **Content Studio** | The workspace for generating content for an AI Influencer |
 | **Scene Preset** | A pre-defined scenario (e.g., "beach photoshoot", "morning vibes") |
 | **Environment Preset** | A location setting (e.g., beach, bedroom, office) |
-| **Post** | An image + caption, ready for export |
+| **Image Asset (MVP)** | A generated image saved to the user’s gallery/library with generation metadata |
+| **Post (Phase 2+)** | An image + caption, ready for export |
 
 ---
 
@@ -23,11 +26,11 @@ The Content Studio is where users generate content for their AI Influencers. It 
 
 **Target Metric**: C - Core Value
 
-**Hypothesis**: When users can easily generate varied content using scene and environment presets, they will create more posts and find value in the product.
+**Hypothesis**: When users can easily generate varied images using scene and environment presets, they will create more images and find value in the product.
 
 **Success Criteria**:
 - Generation success rate: **>95%**
-- Time to first post: **<30 seconds**
+- Time to first image: **<30 seconds**
 - Face consistency score: **>85%** (visual similarity)
 - Pack generation: **<2 minutes** (5 images)
 - Studio opens per user: **>5/week**
@@ -178,6 +181,18 @@ The Content Studio is where users generate content for their AI Influencers. It 
 - Organize by user/influencer
 - Return accessible URLs
 
+### F12: Image Editing (Inpainting) — MVP
+
+Allow users to select an existing **image asset** and edit it by describing a change (e.g., “add a nano banana on the table”) and applying an **inpainting mask**.
+
+- Source image is selected from the user’s gallery/library
+- User supplies:
+  - edit prompt (what to add/change)
+  - optional negative prompt
+  - mask (drawn in UI; white=edit, black=keep)
+- Backend runs an inpaint workflow (ComfyUI Flux Fill / inpaint) and returns a new edited image asset
+- The original image remains unchanged; the edited asset links back to the source (lineage)
+
 ---
 
 ## Prompt Engineering
@@ -288,6 +303,7 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 - [ ] Progress indicator shows status
 - [ ] Images appear as they complete
 - [ ] Error handling with retry option
+- [ ] Each completed image is saved as an **image asset** with structured metadata (scene, environment, outfit, aspect ratio, quality, nsfw)
 
 ### AC-7: Face Consistency
 
@@ -304,6 +320,18 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 - [ ] All images maintain face consistency
 - [ ] Progress reported (X of Y complete)
 - [ ] Partial success handled
+
+### AC-9: Image Editing (Inpaint)
+
+- [ ] User can select an existing image asset and open an “Edit” flow
+- [ ] User can enter an edit prompt (e.g., “add a nano banana”)
+- [ ] User can create/clear a mask (simple brush is sufficient for MVP)
+- [ ] Clicking “Apply Edit” starts an inpaint job
+- [ ] Progress indicator shown while job runs
+- [ ] On success, a **new image asset** is created and shown in the gallery (source image unchanged)
+- [ ] On failure, user sees an error and can retry (prompt/mask preserved)
+- [ ] Edited image asset preserves the source’s structured metadata by default (scene, environment, outfit, aspect ratio, quality, nsfw)
+- [ ] (Nice-to-have) Persist the edit mask for debugging/replay (store `editMaskS3Key`)
 
 ---
 
@@ -325,6 +353,10 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 | `lora_training_completed` | LoRA ready | `influencer_id`, `training_duration_ms`, `training_cost_cents` |
 | `lora_mode_activated` | System switches to LoRA | `influencer_id`, `time_since_creation_ms` |
 | `hd_mode_unlocked_notification` | User sees HD mode notification | `influencer_id`, `time_since_creation_ms` |
+| `image_edit_opened` | User opens edit/inpaint for an image | `influencer_id`, `image_id` |
+| `inpaint_started` | User starts an inpaint edit | `influencer_id`, `image_id`, `mask_coverage_pct` |
+| `inpaint_completed` | Inpaint finished successfully | `influencer_id`, `image_id`, `duration_ms` |
+| `inpaint_failed` | Inpaint failed | `influencer_id`, `image_id`, `error_type` |
 
 ### Key Metrics
 
@@ -334,6 +366,74 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 4. **Scene Distribution**: Which scenes are most popular
 5. **Environment Distribution**: Which environments are most used
 6. **Outfit Change Rate**: % of generations with outfit change
+
+---
+
+## User Stories
+
+### ST-023: Open Content Studio
+
+**As a** user with an AI Influencer  
+**I want to** open the Content Studio for that AI Influencer  
+**So that** I can generate new content for them
+
+**AC**: AC-1
+
+### ST-024: Choose a Scene Preset
+
+**As a** user in the Content Studio  
+**I want to** select a scene preset  
+**So that** the generated image matches the scenario I’m going for
+
+**AC**: AC-2
+
+### ST-025: Choose an Environment Preset
+
+**As a** user in the Content Studio  
+**I want to** select an environment preset  
+**So that** the generated image has the right location/backdrop
+
+**AC**: AC-3
+
+### ST-026: Change Outfit for a Single Generation
+
+**As a** user generating content  
+**I want to** optionally change the outfit for a single generation  
+**So that** I get variety without changing my AI Influencer’s default outfit
+
+**AC**: AC-4
+
+### ST-027: Configure Generation Options
+
+**As a** user generating content  
+**I want to** choose aspect ratio, quality, count, and NSFW settings  
+**So that** I can control output format and cost
+
+**AC**: AC-5
+
+### ST-028: Generate a Pack with Progress + Retry
+
+**As a** user generating content  
+**I want to** generate 1–10 images and see progress and errors  
+**So that** I can reliably create content at scale
+
+**AC**: AC-6, AC-8
+
+### ST-029: Maintain Face Consistency (Auto Face Swap → LoRA)
+
+**As a** user generating content over time  
+**I want to** always get consistent faces across sessions  
+**So that** my AI Influencer stays recognizable
+
+**AC**: AC-7
+
+### ST-030: Edit an Image via Inpainting
+
+**As a** user refining an image  
+**I want to** select an image and apply an edit prompt to a masked region  
+**So that** I can add/remove elements (e.g., “add a nano banana”) without regenerating from scratch
+
+**AC**: AC-9
 
 ---
 
@@ -378,12 +478,12 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 11. Worker: Download generated image
 12. Worker: Upload to Supabase Storage
 13. Worker: Generate thumbnail
-14. Worker: Trigger caption generation (EP-014)
+14. Worker: (Phase 2+) Trigger caption generation (EP-014) if/when “posts” are introduced
 15. Worker: Update job status
 16. Worker: Repeat for each image in pack
 17. Worker: Mark job complete
 18. Frontend: Poll for status, show progress
-19. Frontend: Display completed images with captions
+19. Frontend: Display completed images (MVP)
 ```
 
 ### Background Workflow (Character Creation)
@@ -532,7 +632,7 @@ GET /api/generate/:job_id
     status: 'queued' | 'processing' | 'completed' | 'failed',
     progress: { completed: 3, total: 5 },
     mode: 'face_swap' | 'lora',
-    posts: [{ id, image_url, thumbnail_url, caption }],
+    images: [{ id, image_url, thumbnail_url }],
     error?: string
   }
 
@@ -688,6 +788,9 @@ CREATE INDEX idx_posts_liked ON posts(influencer_id, liked);
 
 ## Non-Goals (Phase 2+)
 
+- **Posts (image + caption as a first-class entity)** - keep MVP as image assets only
+- **Caption generation** (EP-014) and caption editing flows
+- Platform-specific export workflows tied to “posts”
 - **Image Sequences** - Multi-scene stories (morning routine, etc.)
 - **Full Wardrobe System** - Owned items, unlocking clothes
 - **Custom Environments** - User-defined locations
@@ -698,7 +801,7 @@ CREATE INDEX idx_posts_liked ON posts(influencer_id, liked);
 - Custom model fine-tuning (beyond LoRA)
 - Multiple model selection UI
 - Advanced NSFW controls (beyond toggle)
-- Image editing/inpainting
+- Advanced image editing beyond basic inpainting (layers, multi-step pipelines, heavy tooling)
 - Upscaling (Phase 2)
 - Face repair/enhancement
 - Multiple LoRA models per character
@@ -710,7 +813,7 @@ CREATE INDEX idx_posts_liked ON posts(influencer_id, liked);
 
 - AI Influencer persistence (EP-001) - **Must include base_image_id**
 - User authentication (EP-002)
-- Caption generation (EP-014)
+- Caption generation (EP-014) (Phase 2+)
 - Credits system (EP-009)
 - RunPod account and API key
 - RunPod serverless endpoints configured

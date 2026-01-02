@@ -6,7 +6,11 @@ import { useFunnelStore } from "@/store/states/funnel";
 import { FinbyResultCodes } from "@/utils/enums/finby-result-codes";
 import { finbyService } from "@/services/finby-service";
 import { products } from "@/constants/products";
-import { trackPurchase } from "@/lib/fbPixel";
+import { trackFacebookPurchase } from "@ryla/analytics";
+
+// Disable static generation for this page
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 /**
  * Payment Callback Page
@@ -81,7 +85,7 @@ export default function PaymentCallbackPage() {
                         const purchaseCurrency = statusResponse.currency || "USD";
                         
                         // Fire Facebook Pixel Purchase event
-                        trackPurchase(purchaseAmount, purchaseCurrency, reference);
+                        trackFacebookPurchase(purchaseAmount, purchaseCurrency, reference);
                         
                         console.log("✅ Purchase event tracked:", {
                             value: purchaseAmount,
@@ -94,7 +98,7 @@ export default function PaymentCallbackPage() {
                     // Fallback: track with default product if status check fails
                     const defaultProduct = products[0];
                     if (defaultProduct && reference) {
-                        trackPurchase(defaultProduct.amount / 100, defaultProduct.currency || "USD", reference);
+                        trackFacebookPurchase(defaultProduct.amount / 100, defaultProduct.currency || "USD", reference);
                     }
                 }
             };

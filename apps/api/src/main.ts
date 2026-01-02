@@ -13,7 +13,7 @@ const __dirnameLocal = dirname(__filename);
 config({ path: resolve(__dirnameLocal, '../.env') });
 
 import chalk from 'chalk';
-import { Logger, ValidationPipe } from '@nestjs/common';
+import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
@@ -102,7 +102,11 @@ async function bootstrap() {
     );
 
     app.enableCors({
-      origin: (origin: string, callback: (err: Error | null, allow?: boolean) => void) => {
+      origin: (
+        _origin: string,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        callback: (_err: Error | null, _allow?: boolean) => void,
+      ) => {
         return callback(null, true);
       },
       methods: 'GET,PUT,PATCH,POST,DELETE,OPTIONS',

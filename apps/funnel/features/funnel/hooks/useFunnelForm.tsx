@@ -119,7 +119,7 @@ export const defaultValues = {
   enable_nsfw: undefined,
 
   // Creation Method
-  creation_method: '' as 'presets' | 'ai' | 'custom' | '',
+  creation_method: undefined as 'presets' | 'ai' | 'custom' | undefined,
   upload_own_image: undefined,
   uploaded_image: undefined,
 

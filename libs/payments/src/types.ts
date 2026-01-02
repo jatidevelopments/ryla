@@ -172,7 +172,7 @@ export interface CheckoutCompletedEvent extends BasePaymentEvent {
 }
 
 export interface SubscriptionEvent extends BasePaymentEvent {
-  type: 'subscription.created' | 'subscription.updated' | 'subscription.cancelled' | 'subscription.renewed';
+  type: 'subscription.created' | 'subscription.updated' | 'subscription.cancelled' | 'subscription.renewed' | 'subscription.activated' | 'subscription.suspended';
   data: {
     subscriptionId: string;
     customerId: string;

@@ -282,7 +282,7 @@ export class StripeProvider implements PaymentProvider {
             customerId: typeof charge === 'string' ? '' : (charge.customer as string || ''),
             amount: dispute.amount,
             currency: dispute.currency,
-            reason: dispute.reason || dispute.evidence?.summary,
+            reason: dispute.reason || (dispute.evidence as any)?.summary,
           },
         };
       }

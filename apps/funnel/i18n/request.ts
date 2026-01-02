@@ -1,16 +1,16 @@
-import { getRequestConfig } from "next-intl/server";
-import { hasLocale } from "next-intl";
+// Temporarily disabled to fix React 18 compatibility
+// import { getRequestConfig } from "next-intl/server";
+// import { hasLocale } from "next-intl";
 import { routing } from "./routing";
 
-export default getRequestConfig(async ({ requestLocale }) => {
-    // Get locale from cookie instead of URL segment
+// Mock implementation for now
+type Locale = typeof routing.locales[number];
+export default async function getRequestConfig({ requestLocale }: { requestLocale: Promise<string> }) {
     const locale = await requestLocale;
-
-    // Validate locale
-    const validLocale = hasLocale(routing.locales, locale) ? locale : routing.defaultLocale;
+    const validLocale: Locale = (routing.locales as readonly string[]).includes(locale) ? (locale as Locale) : routing.defaultLocale;
 
     return {
         locale: validLocale,
         messages: (await import(`@/messages/${validLocale}.json`)).default,
     };
-});
+}

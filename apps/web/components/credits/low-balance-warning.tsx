@@ -34,7 +34,8 @@ export function LowBalanceWarning({ className }: LowBalanceWarningProps) {
       const today = new Date();
       // If shown today, keep it dismissed
       if (shownDate.toDateString() === today.toDateString()) {
-        setDismissed(true);
+        // Use setTimeout to avoid setState in effect
+        setTimeout(() => setDismissed(true), 0);
       }
     }
   }, [lowBalanceWarningShown]);
@@ -108,7 +109,7 @@ export function LowBalanceWarning({ className }: LowBalanceWarningProps) {
                 : 'Upgrade to Pro to continue generating amazing AI content.'
               : isPro
               ? `You have ${balance} credits remaining. Buy more credits to keep creating.`
-              : `You have ${balance} credits remaining. Upgrade to Pro for 300 monthly credits.`}
+              : `You have ${balance} credits remaining. Upgrade to Pro for 8,000 monthly credits.`}
           </p>
 
           {/* Actions */}

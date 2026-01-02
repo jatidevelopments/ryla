@@ -1,4 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+
+// Force dynamic rendering to avoid React 19 cache issues
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { createFinbyV3WebhookHandler } from "@ryla/payments";
 // TODO: Uncomment when database connection is available in funnel app
 // import { db } from "@ryla/data";

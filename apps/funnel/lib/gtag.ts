@@ -1,6 +1,9 @@
 declare global {
     interface Window {
-        gtag?: (...args: any[]) => void;
+        // Use Function type to avoid unused parameter error
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        gtag?: Function;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         dataLayer?: any[];
     }
 }
@@ -17,6 +20,7 @@ const queue: Array<() => void> = [];
 function flushQueue() {
     while (queue.length) queue.shift()?.();
 }
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 function safeGtag(...args: any[]) {
     if (typeof window === "undefined") return;
     if (typeof window.gtag === "function") {
@@ -44,6 +48,7 @@ export function reportPurchase(
     opts?: { value?: number; currency?: string; url?: CallbackUrl; eventId?: string },
 ) {
     const { value, currency, url, eventId } = opts ?? {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const eventPayload: Record<string, any> = {
         send_to: SEND_TO.purchase,
         transaction_id: transactionId ?? "",

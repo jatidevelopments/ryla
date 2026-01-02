@@ -6,7 +6,6 @@ import { StepBaseImageSelection } from '../../../components/wizard/step-base-ima
 
 export default function WizardStepBaseImage() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
-  const creationMethod = useCharacterWizardStore((s) => s.form.creationMethod);
   const steps = useCharacterWizardStore((s) => s.steps);
 
   useEffect(() => {

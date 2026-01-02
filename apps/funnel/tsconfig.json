@@ -26,7 +26,8 @@
       "@ryla/business": ["../../libs/business/src/index.ts"],
       "@ryla/data": ["../../libs/data/src/index.ts"],
       "@ryla/ui": ["../../libs/ui/src/index.ts"],
-      "@ryla/analytics": ["../../libs/analytics/src/index.ts"]
+      "@ryla/analytics": ["../../libs/analytics/src/index.ts"],
+      "@ryla/payments": ["../../libs/payments/src/index.ts"]
     }
   },
   "include": [

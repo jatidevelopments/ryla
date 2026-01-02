@@ -3,11 +3,11 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { useCharacterWizardStore, getProfilePictureSet } from '@ryla/business';
-import { cn } from '@ryla/ui';
+import { cn, Checkbox } from '@ryla/ui';
 import type { ProfilePictureImage } from '@ryla/business';
 import {
   generateProfilePictureSetAndWait,
-  regenerateProfilePicture,
+  regenerateProfilePictureAndWait,
   type JobStatus,
   type GeneratedImage,
 } from '../../lib/api/character';
@@ -15,6 +15,7 @@ import {
 /**
  * Step: Profile Pictures
  * Automatically generate 7-10 profile pictures after base image selection
+ * Shows skeleton loaders and updates images progressively as they complete
  */
 export function StepProfilePictures() {
   const selectedBaseImageId = useCharacterWizardStore((s) => s.selectedBaseImageId);
@@ -27,15 +28,29 @@ export function StepProfilePictures() {
   const setProfilePictureSetImages = useCharacterWizardStore(
     (s) => s.setProfilePictureSetImages
   );
+  const addProfilePicture = useCharacterWizardStore((s) => s.addProfilePicture);
   const removeProfilePicture = useCharacterWizardStore((s) => s.removeProfilePicture);
   const updateProfilePicture = useCharacterWizardStore((s) => s.updateProfilePicture);
+  const setField = useCharacterWizardStore((s) => s.setField);
 
   const [selectedImageId, setSelectedImageId] = React.useState<string | null>(null);
   const [showPromptEditor, setShowPromptEditor] = React.useState<string | null>(null);
   const [editingPrompt, setEditingPrompt] = React.useState<string>('');
+  const [completedCount, setCompletedCount] = React.useState<number>(0);
+  const [error, setError] = React.useState<string | null>(null);
 
-  // Get selected base image
-  const selectedBaseImage = baseImages.find((img) => img.id === selectedBaseImageId);
+  // Get selected base image (defensive check for array)
+  const safeBaseImages = Array.isArray(baseImages) ? baseImages : [];
+  const selectedBaseImage = safeBaseImages.find((img) => img.id === selectedBaseImageId);
+
+  // Get profile picture set to determine expected count
+  const set = React.useMemo(() => getProfilePictureSet('classic-influencer'), []);
+  const expectedRegularCount = set?.positions.length || 7;
+  const expectedNSFWCount = form.nsfwEnabled ? 3 : 0;
+  const totalExpected = expectedRegularCount + expectedNSFWCount;
+
+  // Ensure profilePictureSet.images is always an array (defensive check)
+  const safeProfileImages = Array.isArray(profilePictureSet.images) ? profilePictureSet.images : [];
 
   // Auto-generate on mount if base image selected and not already generating
   React.useEffect(() => {
@@ -43,57 +58,112 @@ export function StepProfilePictures() {
       selectedBaseImageId &&
       selectedBaseImage &&
       !profilePictureSet.generating &&
-      profilePictureSet.images.length === 0
+      safeProfileImages.length === 0
     ) {
       handleGenerateProfilePictures();
     }
-  }, [selectedBaseImageId]);
+  }, [selectedBaseImageId, selectedBaseImage, profilePictureSet.generating, safeProfileImages.length]);
+
+  // Initialize skeleton slots when generation starts
+  React.useEffect(() => {
+    if (profilePictureSet.generating && safeProfileImages.length === 0) {
+      setCompletedCount(0);
+      
+      // Create skeleton slots for all expected images
+      const skeletonImages: ProfilePictureImage[] = [];
+      
+      // Regular positions
+      set?.positions.forEach((position, index) => {
+        skeletonImages.push({
+          id: `skeleton-${position.id}`,
+          url: 'skeleton', // Special marker for skeleton state
+          positionId: position.id,
+          positionName: position.name,
+          isNSFW: false,
+        });
+      });
+
+      // NSFW positions if enabled
+      if (form.nsfwEnabled) {
+        for (let i = 0; i < 3; i++) {
+          skeletonImages.push({
+            id: `skeleton-nsfw-${i}`,
+            url: 'skeleton',
+            positionId: `nsfw-${i + 1}`,
+            positionName: `NSFW ${i + 1}`,
+            isNSFW: true,
+          });
+        }
+      }
+
+      setProfilePictureSetImages(skeletonImages);
+    }
+  }, [profilePictureSet.generating, totalExpected, set, form.nsfwEnabled]);
 
   const handleGenerateProfilePictures = async () => {
     if (!selectedBaseImage) return;
 
     setProfilePictureSetGenerating(true);
+    setCompletedCount(0);
+    setError(null);
 
     try {
-      // Use classic-influencer set by default (can be made configurable)
-      const images = await generateProfilePictureSetAndWait(
+      // Start generation - this returns immediately, images come via callback
+      await generateProfilePictureSetAndWait(
         {
           baseImageUrl: selectedBaseImage.url,
           setId: 'classic-influencer',
           nsfwEnabled: form.nsfwEnabled,
         },
-        (status: JobStatus) => {
-          // Progress updates can be shown here
+        (status: JobStatus, err?: string) => {
+          // Progress updates
+          if (status === 'completed') {
+            setProfilePictureSetGenerating(false);
+          } else if (status === 'failed') {
+            setProfilePictureSetGenerating(false);
+            if (err) setError(err);
+          }
+        },
+        (image: GeneratedImage, positionId: string, positionName: string) => {
+          // Called when each image completes - update progressively
+          const profileImage: ProfilePictureImage = {
+            ...image,
+            positionId,
+            positionName,
+            isNSFW: positionId.startsWith('nsfw-'),
+          };
+
+          // Find and replace the skeleton slot
+          const currentImages = profilePictureSet.images;
+          const skeletonIndex = currentImages.findIndex(
+            (img) => img.positionId === positionId && img.url === 'skeleton'
+          );
+
+          if (skeletonIndex !== -1) {
+            // Replace skeleton with actual image
+            const updatedImages = [...currentImages];
+            updatedImages[skeletonIndex] = profileImage;
+            setProfilePictureSetImages(updatedImages);
+          } else {
+            // Add new image if skeleton not found
+            addProfilePicture(profileImage);
+          }
+
+          setCompletedCount((prev) => {
+            const newCount = prev + 1;
+            // If all images are done, stop generating state
+            if (newCount >= totalExpected) {
+              setProfilePictureSetGenerating(false);
+            }
+            return newCount;
+          });
         }
       );
-
-      // Convert GeneratedImage[] to ProfilePictureImage[]
-      // TODO: API should return position info, for now map by index
-      const set = getProfilePictureSet('classic-influencer');
-      const profileImages: ProfilePictureImage[] = images.map((img, index) => {
-        const position = set?.positions[index] || {
-          id: `position-${index}`,
-          name: `Position ${index + 1}`,
-        };
-        return {
-          ...img,
-          positionId: position.id,
-          positionName: position.name,
-          isNSFW: false,
-        };
-      });
-
-      // Add NSFW images if enabled
-      if (form.nsfwEnabled) {
-        // TODO: Generate NSFW images separately
-        // For now, just mark some as NSFW
-      }
-
-      setProfilePictureSetImages(profileImages);
+      // Don't set generating to false here - let the callback handle it
     } catch (error) {
       console.error('Profile picture generation failed:', error);
-    } finally {
       setProfilePictureSetGenerating(false);
+      setError(error instanceof Error ? error.message : 'Profile picture generation failed');
     }
   };
 
@@ -105,28 +175,34 @@ export function StepProfilePictures() {
   };
 
   const handleRegenerateImage = async (imageId: string) => {
-    const image = profilePictureSet.images.find((img) => img.id === imageId);
+    const image = safeProfileImages.find((img) => img.id === imageId);
     if (!image || !selectedBaseImage) return;
 
+    // Set loading state
     updateProfilePicture(imageId, { url: 'loading' });
 
     try {
-      const result = await regenerateProfilePicture({
-        baseImageUrl: selectedBaseImage.url,
-        positionId: image.positionId,
-        nsfwEnabled: form.nsfwEnabled,
-        setId: 'classic-influencer',
-      });
+      // Regenerate and wait for completion
+      const regeneratedImage = await regenerateProfilePictureAndWait(
+        {
+          baseImageUrl: selectedBaseImage.url,
+          positionId: image.positionId,
+          nsfwEnabled: form.nsfwEnabled,
+          setId: 'classic-influencer',
+        },
+        (status: JobStatus) => {
+          // Progress updates if needed
+        }
+      );
 
-      // Poll for results
-      // TODO: Implement polling or use webhook
-      // For now, just update with placeholder
+      // Update with the new image
       updateProfilePicture(imageId, {
-        url: selectedBaseImage.url, // Placeholder
+        url: regeneratedImage.url,
+        thumbnailUrl: regeneratedImage.thumbnailUrl,
       });
     } catch (error) {
       console.error('Regeneration failed:', error);
-      // Revert loading state
+      // Revert to original image on error
       updateProfilePicture(imageId, { url: image.url });
     }
   };
@@ -140,32 +216,45 @@ export function StepProfilePictures() {
     const image = profilePictureSet.images.find((img) => img.id === imageId);
     if (!image || !selectedBaseImage) return;
 
+    // Update prompt in store
     updateProfilePicture(imageId, { prompt: editingPrompt });
     setShowPromptEditor(null);
 
-    // Regenerate with new prompt
+    // Set loading state
     updateProfilePicture(imageId, { url: 'loading' });
 
     try {
-      const result = await regenerateProfilePicture({
-        baseImageUrl: selectedBaseImage.url,
-        positionId: image.positionId,
-        prompt: editingPrompt,
-        nsfwEnabled: form.nsfwEnabled,
-        setId: 'classic-influencer',
-      });
+      // Regenerate with new prompt and wait for completion
+      const regeneratedImage = await regenerateProfilePictureAndWait(
+        {
+          baseImageUrl: selectedBaseImage.url,
+          positionId: image.positionId,
+          prompt: editingPrompt,
+          nsfwEnabled: form.nsfwEnabled,
+          setId: 'classic-influencer',
+        },
+        (status: JobStatus) => {
+          // Progress updates if needed
+        }
+      );
 
-      // TODO: Poll for results and update image
-      // For now, just revert loading
-      updateProfilePicture(imageId, { url: image.url });
+      // Update with the new image
+      updateProfilePicture(imageId, {
+        url: regeneratedImage.url,
+        thumbnailUrl: regeneratedImage.thumbnailUrl,
+        prompt: editingPrompt, // Keep the updated prompt
+      });
     } catch (error) {
       console.error('Regeneration with new prompt failed:', error);
+      // Revert to original image on error
       updateProfilePicture(imageId, { url: image.url });
     }
   };
 
-  const regularImages = profilePictureSet.images.filter((img) => !img.isNSFW);
-  const nsfwImages = profilePictureSet.images.filter((img) => img.isNSFW);
+  const regularImages = safeProfileImages.filter((img) => !img.isNSFW);
+  const nsfwImages = safeProfileImages.filter((img) => img.isNSFW);
+  const skeletonImages = safeProfileImages.filter((img) => img.url === 'skeleton');
+  const loadingImages = safeProfileImages.filter((img) => img.url === 'loading');
 
   if (!selectedBaseImage) {
     return (
@@ -175,55 +264,75 @@ export function StepProfilePictures() {
     );
   }
 
-  if (profilePictureSet.generating) {
-    return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="relative w-24 h-24 mb-8">
-          <div className="absolute inset-0 rounded-full border-4 border-purple-500/20" />
-          <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 animate-spin" />
-        </div>
-        <h2 className="text-xl font-bold text-white mb-2">
-          Generating Profile Pictures
-        </h2>
-        <p className="text-white/60 text-sm">
-          Creating 7-10 variations with different positions...
-        </p>
-      </div>
-    );
-  }
+  const isGenerating = profilePictureSet.generating || skeletonImages.length > 0;
+  const hasImages = regularImages.length > 0 || nsfwImages.length > 0;
 
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       {/* Header */}
-      <div className="text-center mb-6">
+      <div className="text-center mb-8 w-full">
         <p className="text-white/60 text-sm font-medium mb-2">Profile Picture Set</p>
-        <h1 className="text-white text-2xl font-bold">
+        <h1 className="text-white text-2xl font-bold mb-2">
           Your Character Profile Pictures
         </h1>
-        <p className="text-white/40 text-sm mt-2">
-          {regularImages.length} images generated
-          {form.nsfwEnabled && nsfwImages.length > 0 && ` • ${nsfwImages.length} NSFW images`}
-        </p>
+        {isGenerating ? (
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <div className="w-2 h-2 rounded-full bg-purple-500 animate-pulse" />
+            <p className="text-white/60 text-sm">
+              Generating {completedCount}/{totalExpected} images...
+            </p>
+          </div>
+        ) : (
+          <p className="text-white/40 text-sm mt-2">
+            {regularImages.length} images generated
+            {form.nsfwEnabled && nsfwImages.length > 0 && ` • ${nsfwImages.length} NSFW images`}
+          </p>
+        )}
       </div>
 
-      {/* Regular Images Grid */}
-      {regularImages.length > 0 && (
-        <div className="w-full mb-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {regularImages.map((image) => (
+      {/* NSFW Toggle */}
+      <div className="w-full mb-4">
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div className="flex items-center gap-3">
+            <Checkbox
+              id="nsfw-toggle-profile"
+              checked={form.nsfwEnabled || false}
+              onCheckedChange={(checked) => setField('nsfwEnabled', checked as boolean)}
+            />
+            <label
+              htmlFor="nsfw-toggle-profile"
+              className="text-white/70 text-sm font-medium leading-none cursor-pointer"
+            >
+              Enable NSFW Content
+            </label>
+          </div>
+          <p className="text-white/40 text-xs mt-2 ml-7">
+            When enabled, profile pictures will include 3 adult-themed images
+          </p>
+        </div>
+      </div>
+
+      {/* Images Grid with Skeleton Loaders */}
+      <div className="w-full mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {/* Show all images (including skeletons) */}
+          {safeProfileImages
+            .filter((img) => !img.isNSFW || form.nsfwEnabled)
+            .map((image) => (
               <ProfilePictureCard
                 key={image.id}
                 image={image}
                 isSelected={selectedImageId === image.id}
-                onSelect={() => setSelectedImageId(image.id)}
+                onSelect={() => image.url !== 'skeleton' && image.url !== 'loading' && setSelectedImageId(image.id)}
                 onDelete={() => handleDeleteImage(image.id)}
                 onRegenerate={() => handleRegenerateImage(image.id)}
                 onEditPrompt={() => handleEditPrompt(image)}
+                isSkeleton={image.url === 'skeleton'}
+                isLoading={image.url === 'loading'}
               />
             ))}
-          </div>
         </div>
-      )}
+      </div>
 
       {/* NSFW Images Section */}
       {form.nsfwEnabled && nsfwImages.length > 0 && (
@@ -239,10 +348,12 @@ export function StepProfilePictures() {
                 key={image.id}
                 image={image}
                 isSelected={selectedImageId === image.id}
-                onSelect={() => setSelectedImageId(image.id)}
+                onSelect={() => image.url !== 'skeleton' && image.url !== 'loading' && setSelectedImageId(image.id)}
                 onDelete={() => handleDeleteImage(image.id)}
                 onRegenerate={() => handleRegenerateImage(image.id)}
                 onEditPrompt={() => handleEditPrompt(image)}
+                isSkeleton={image.url === 'skeleton'}
+                isLoading={image.url === 'loading'}
               />
             ))}
           </div>
@@ -263,8 +374,14 @@ export function StepProfilePictures() {
         />
       )}
 
+      {error && (
+        <div className="w-full mt-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+          <p className="text-red-400 text-sm">{error}</p>
+        </div>
+      )}
+
       {/* Empty State */}
-      {regularImages.length === 0 && !profilePictureSet.generating && (
+      {!hasImages && !isGenerating && (
         <div className="w-full text-center py-12">
           <p className="text-white/60 text-sm mb-4">No profile pictures generated yet</p>
           <button
@@ -280,7 +397,7 @@ export function StepProfilePictures() {
 }
 
 /**
- * Profile Picture Card Component
+ * Profile Picture Card Component with Skeleton Loading
  */
 interface ProfilePictureCardProps {
   image: ProfilePictureImage;
@@ -289,6 +406,8 @@ interface ProfilePictureCardProps {
   onDelete: () => void;
   onRegenerate: () => void;
   onEditPrompt: () => void;
+  isSkeleton?: boolean;
+  isLoading?: boolean;
 }
 
 function ProfilePictureCard({
@@ -298,8 +417,33 @@ function ProfilePictureCard({
   onDelete,
   onRegenerate,
   onEditPrompt,
+  isSkeleton = false,
+  isLoading = false,
 }: ProfilePictureCardProps) {
   const [showActions, setShowActions] = React.useState(false);
+
+  if (isSkeleton) {
+    return (
+      <div className="relative rounded-xl overflow-hidden border-2 border-white/10 bg-white/5">
+        <div className="relative aspect-square">
+          {/* Skeleton Animation */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-white/5 to-white/10 animate-pulse">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer" />
+          </div>
+          
+          {/* Position Label Skeleton */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+            <div className="h-3 w-20 bg-white/20 rounded animate-pulse" />
+          </div>
+
+          {/* Loading Indicator */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -307,90 +451,93 @@ function ProfilePictureCard({
         'relative group rounded-xl overflow-hidden border-2 transition-all cursor-pointer',
         isSelected
           ? 'border-purple-400 ring-2 ring-purple-400/30'
-          : 'border-white/10 hover:border-white/20'
+          : 'border-white/10 hover:border-white/20',
+        isLoading && 'opacity-60'
       )}
-      onMouseEnter={() => setShowActions(true)}
+      onMouseEnter={() => !isLoading && setShowActions(true)}
       onMouseLeave={() => setShowActions(false)}
       onClick={onSelect}
     >
       {/* Image */}
       <div className="relative aspect-square bg-white/5">
-        {image.url === 'loading' ? (
-          <div className="absolute inset-0 flex items-center justify-center">
+        {isLoading ? (
+          <div className="absolute inset-0 flex items-center justify-center bg-white/5">
             <div className="w-8 h-8 border-2 border-purple-500/20 border-t-purple-500 rounded-full animate-spin" />
           </div>
         ) : (
-          <Image
-            src={image.url}
-            alt={image.positionName}
-            fill
-            className="object-cover"
-          />
-        )}
+          <>
+            <Image
+              src={image.url}
+              alt={image.positionName}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+            />
 
-        {/* Position Label */}
-        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-          <p className="text-white text-xs font-medium">{image.positionName}</p>
-        </div>
+            {/* Position Label */}
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-2.5">
+              <p className="text-white text-xs font-semibold">{image.positionName}</p>
+            </div>
 
-        {/* Actions Overlay */}
-        {showActions && image.url !== 'loading' && (
-          <div className="absolute inset-0 bg-black/70 flex items-center justify-center gap-2">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onEditPrompt();
-              }}
-              className="px-2 py-1 rounded bg-white/20 text-white text-xs hover:bg-white/30"
-              title="Edit Prompt"
-            >
-              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
-                <path
-                  d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onRegenerate();
-              }}
-              className="px-2 py-1 rounded bg-white/20 text-white text-xs hover:bg-white/30"
-              title="Regenerate"
-            >
-              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
-                <path
-                  d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16M3 21v-5h5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onDelete();
-              }}
-              className="px-2 py-1 rounded bg-red-500/80 text-white text-xs hover:bg-red-500"
-              title="Delete"
-            >
-              <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
-                <path
-                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .56c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </div>
+            {/* Actions Overlay */}
+            {showActions && (
+              <div className="absolute inset-0 bg-black/70 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditPrompt();
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium hover:bg-white/30 transition-colors backdrop-blur-sm"
+                  title="Edit Prompt"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
+                    <path
+                      d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRegenerate();
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium hover:bg-white/30 transition-colors backdrop-blur-sm"
+                  title="Regenerate"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
+                    <path
+                      d="M3 12a9 9 0 019-9 9.75 9.75 0 016.74 2.74L21 8M21 3v5h-5M21 12a9 9 0 01-9 9 9.75 9.75 0 01-6.74-2.74L3 16M3 21v-5h5"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete();
+                  }}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/80 text-white text-xs font-medium hover:bg-red-500 transition-colors backdrop-blur-sm"
+                  title="Delete"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" className="w-4 h-4">
+                    <path
+                      d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .56c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
+                      stroke="currentColor"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>
@@ -463,4 +610,3 @@ function PromptEditorModal({
     </div>
   );
 }
-

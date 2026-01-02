@@ -5,16 +5,17 @@
  * Uses PuLID workflow for face consistency with the selected base image.
  */
 
-import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { forwardRef, Inject, Injectable, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
 import {
   getProfilePictureSet,
   buildProfilePicturePrompt,
-  type ProfilePictureSet,
+  ProfilePictureSet,
+  buildWorkflow,
+  buildZImagePuLIDWorkflow,
+  WorkflowId,
 } from '@ryla/business';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
 import { ImageStorageService } from './image-storage.service';
-import { buildZImagePuLIDWorkflow } from '@ryla/business';
 
 export interface ProfilePictureSetGenerationInput {
   baseImageUrl: string;
@@ -22,10 +23,25 @@ export interface ProfilePictureSetGenerationInput {
   userId?: string;
   setId: 'classic-influencer' | 'professional-model' | 'natural-beauty';
   nsfwEnabled: boolean;
+  generationMode?: 'fast' | 'consistent';
+  workflowId?: WorkflowId;
+  steps?: number;
+  cfg?: number;
+  width?: number;
+  height?: number;
 }
 
 export interface ProfilePictureGenerationResult {
-  jobId: string;
+  jobId: string; // Primary job ID (first of batch)
+  allJobIds: string[]; // All job IDs for batch polling
+  jobPositions: Array<{
+    jobId: string;
+    positionId: string;
+    positionName: string;
+    prompt: string;
+    negativePrompt: string;
+    isNSFW: boolean;
+  }>; // Map job IDs to positions
   images: Array<{
     id: string;
     url: string;
@@ -41,14 +57,18 @@ export interface ProfilePictureGenerationResult {
 @Injectable()
 export class ProfilePictureSetService {
   private readonly logger = new Logger(ProfilePictureSetService.name);
+  private readonly comfyuiAdapter: ComfyUIJobRunnerAdapter;
+  private readonly imageStorage: ImageStorageService;
 
   constructor(
     @Inject(forwardRef(() => ComfyUIJobRunnerAdapter))
-    private readonly comfyuiAdapter: ComfyUIJobRunnerAdapter,
+    comfyuiAdapter: ComfyUIJobRunnerAdapter,
     @Inject(forwardRef(() => ImageStorageService))
-    private readonly imageStorage: ImageStorageService,
-    @Inject(ConfigService) private readonly configService: ConfigService,
-  ) {}
+    imageStorage: ImageStorageService,
+  ) {
+    this.comfyuiAdapter = comfyuiAdapter;
+    this.imageStorage = imageStorage;
+  }
 
   /**
    * Generate profile picture set (7-10 images) from selected base image
@@ -58,7 +78,7 @@ export class ProfilePictureSetService {
   ): Promise<ProfilePictureGenerationResult> {
     // Ensure ComfyUI is available
     if (!this.comfyuiAdapter.isAvailable()) {
-      throw new Error(
+      throw new BadRequestException(
         'ComfyUI pod not available. Check COMFYUI_POD_URL configuration.',
       );
     }
@@ -66,11 +86,11 @@ export class ProfilePictureSetService {
     // Get profile picture set definition
     const set = getProfilePictureSet(input.setId);
     if (!set) {
-      throw new Error(`Profile picture set '${input.setId}' not found`);
+      throw new BadRequestException(`Profile picture set '${input.setId}' not found`);
     }
 
     // Generate regular images (7-10 based on set)
-    const regularImages = set.positions.map((position) => {
+    const regularImages = set.positions.map((position: ProfilePictureSet['positions'][0]) => {
       const { prompt, negativePrompt } = buildProfilePicturePrompt(set, position);
       return {
         position,
@@ -82,59 +102,116 @@ export class ProfilePictureSetService {
 
     // Generate NSFW images if enabled (3 additional)
     const nsfwImages = input.nsfwEnabled
-      ? this.generateNSFWPositions(set).map((position) => {
-          const { prompt, negativePrompt } = buildProfilePicturePrompt(set, position);
-          return {
-            position,
-            prompt,
-            negativePrompt,
-            isNSFW: true,
-          };
-        })
+      ? this.generateNSFWPositions().map((position) => {
+        const { prompt, negativePrompt } = buildProfilePicturePrompt(set, position);
+        return {
+          position,
+          prompt,
+          negativePrompt,
+          isNSFW: true,
+        };
+      })
       : [];
 
     const allImages = [...regularImages, ...nsfwImages];
 
-    // Convert base image URL to base64 for PuLID workflow
-    const referenceImageBase64 = await this.convertImageUrlToBase64(
-      input.baseImageUrl,
-    );
+    const generationMode = input.generationMode ?? 'fast';
 
-    // Generate workflows for each position using PuLID
+    // Only upload reference image when using consistent mode (PuLID).
+    // Uploading adds latency, and fast mode is speed-first.
+    const referenceImageFilename =
+      generationMode === 'consistent'
+        ? await this.uploadReferenceImageToComfyUI(input.baseImageUrl)
+        : null;
+
+    // Speed-first defaults (can be overridden by input)
+    const steps = input.steps ?? (generationMode === 'fast' ? 9 : 20);
+    const cfg = input.cfg ?? 1.0;
+    const defaultSize = generationMode === 'fast' ? 768 : 1024;
+
     const workflows = allImages.map((imageData) => {
+      const { width, height } = this.getDimensionsForPosition(
+        imageData.position,
+        input.width,
+        input.height,
+        defaultSize,
+      );
+
+      // Fast mode: speed-first, no PuLID / no reference image
+      if (generationMode === 'fast') {
+        const workflowId = input.workflowId ?? this.comfyuiAdapter.getRecommendedWorkflow();
+        return buildWorkflow(workflowId, {
+          prompt: imageData.prompt,
+          negativePrompt: imageData.negativePrompt,
+          width,
+          height,
+          steps,
+          cfg,
+          seed: Math.floor(Math.random() * 2 ** 32),
+          filenamePrefix: 'ryla_profile_fast',
+        });
+      }
+
+      // Consistent mode: PuLID (slower), requires reference image uploaded to ComfyUI input
+      if (!referenceImageFilename) {
+        throw new BadRequestException('Reference image is required for consistent mode');
+      }
+
       return buildZImagePuLIDWorkflow({
         prompt: imageData.prompt,
         negativePrompt: imageData.negativePrompt,
-        referenceImage: referenceImageBase64,
-        width: 1024,
-        height: 1024,
-        seed: -1, // Random seed for variety
+        referenceImage: referenceImageFilename,
+        width,
+        height,
+        steps,
+        cfg,
+        seed: Math.floor(Math.random() * 2 ** 32),
         pulidStrength: 0.8,
         pulidStart: 0.0,
         pulidEnd: 0.8,
       });
     });
 
-    // Submit all workflows as batch to ComfyUI
-    // For now, submit sequentially (can be optimized to batch later)
+    // Submit all workflows in parallel to ComfyUI for simultaneous generation
     const jobIds: string[] = [];
-    for (let i = 0; i < workflows.length; i++) {
-      const workflow = workflows[i];
-      const imageData = allImages[i];
-      // Queue the PuLID workflow directly
-      const jobId = await this.comfyuiAdapter.queueWorkflow(workflow);
-      jobIds.push(jobId);
+    try {
+      // Queue all workflows simultaneously using Promise.all
+      const queuePromises = workflows.map((workflow) => {
+        return this.comfyuiAdapter.queueWorkflow(workflow);
+      });
+
+      const queuedJobIds = await Promise.all(queuePromises);
+      jobIds.push(...queuedJobIds);
+
+      this.logger.log(
+        `Queued ${jobIds.length} workflows in parallel for profile picture generation (mode=${generationMode}, steps=${steps})`,
+      );
+    } catch (error) {
+      this.logger.error(`Failed to queue profile picture workflows: ${error}`);
+      throw new InternalServerErrorException(
+        `Failed to queue profile picture generation: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
 
     this.logger.log(
       `Submitted ${workflows.length} profile picture generation jobs (${regularImages.length} regular, ${nsfwImages.length} NSFW)`,
     );
 
-    // Return job IDs - caller will poll for results
-    // For now, return first job ID as main job ID
-    // TODO: Implement batch job tracking
+    // Map job IDs to positions for progressive loading
+    const jobPositions = jobIds.map((jobId, index) => ({
+      jobId,
+      positionId: allImages[index].position.id,
+      positionName: allImages[index].position.name,
+      prompt: allImages[index].prompt,
+      negativePrompt: allImages[index].negativePrompt,
+      isNSFW: allImages[index].isNSFW,
+    }));
+
+    // Return all job IDs with position mapping for progressive loading
     return {
-      jobId: jobIds[0],
+      jobId: jobIds[0], // Primary job ID for backward compatibility
+      allJobIds: jobIds, // All job IDs for batch polling
+      jobPositions, // Map to track which job corresponds to which position
       images: [], // Will be populated when jobs complete
     };
   }
@@ -149,9 +226,15 @@ export class ProfilePictureSetService {
     negativePrompt?: string;
     nsfwEnabled: boolean;
     setId: 'classic-influencer' | 'professional-model' | 'natural-beauty';
+    generationMode?: 'fast' | 'consistent';
+    workflowId?: WorkflowId;
+    steps?: number;
+    cfg?: number;
+    width?: number;
+    height?: number;
   }): Promise<{ jobId: string }> {
     if (!this.comfyuiAdapter.isAvailable()) {
-      throw new Error(
+      throw new BadRequestException(
         'ComfyUI pod not available. Check COMFYUI_POD_URL configuration.',
       );
     }
@@ -159,13 +242,13 @@ export class ProfilePictureSetService {
     // Get profile picture set
     const set = getProfilePictureSet(input.setId);
     if (!set) {
-      throw new Error(`Profile picture set '${input.setId}' not found`);
+      throw new BadRequestException(`Profile picture set '${input.setId}' not found`);
     }
 
     // Find position
-    const position = set.positions.find((p) => p.id === input.positionId);
+    const position = set.positions.find((p: ProfilePictureSet['positions'][0]) => p.id === input.positionId);
     if (!position) {
-      throw new Error(`Position '${input.positionId}' not found in set`);
+      throw new BadRequestException(`Position '${input.positionId}' not found in set`);
     }
 
     // Use provided prompt or build from position
@@ -173,23 +256,46 @@ export class ProfilePictureSetService {
       ? { prompt: input.prompt, negativePrompt: input.negativePrompt || set.negativePrompt }
       : buildProfilePicturePrompt(set, position);
 
-    // Convert base image URL to base64 for PuLID workflow
-    const referenceImageBase64 = await this.convertImageUrlToBase64(
-      input.baseImageUrl,
+    const generationMode = input.generationMode ?? 'fast';
+    const steps = input.steps ?? (generationMode === 'fast' ? 9 : 20);
+    const cfg = input.cfg ?? 1.0;
+    const defaultSize = generationMode === 'fast' ? 768 : 1024;
+    const { width, height } = this.getDimensionsForPosition(
+      position,
+      input.width,
+      input.height,
+      defaultSize,
     );
 
-    // Build PuLID workflow
-    const workflow = buildZImagePuLIDWorkflow({
-      prompt,
-      negativePrompt,
-      referenceImage: referenceImageBase64,
-      width: 1024,
-      height: 1024,
-      seed: -1,
-      pulidStrength: 0.8,
-      pulidStart: 0.0,
-      pulidEnd: 0.8,
-    });
+    let workflow: unknown;
+    if (generationMode === 'fast') {
+      const workflowId = input.workflowId ?? this.comfyuiAdapter.getRecommendedWorkflow();
+      workflow = buildWorkflow(workflowId, {
+        prompt,
+        negativePrompt,
+        width,
+        height,
+        steps,
+        cfg,
+        seed: Math.floor(Math.random() * 2 ** 32),
+        filenamePrefix: 'ryla_profile_fast',
+      });
+    } else {
+      const referenceImageFilename = await this.uploadReferenceImageToComfyUI(input.baseImageUrl);
+      workflow = buildZImagePuLIDWorkflow({
+        prompt,
+        negativePrompt,
+        referenceImage: referenceImageFilename,
+        width,
+        height,
+        steps,
+        cfg,
+        seed: Math.floor(Math.random() * 2 ** 32),
+        pulidStrength: 0.8,
+        pulidStart: 0.0,
+        pulidEnd: 0.8,
+      });
+    }
 
     // Submit workflow
     const jobId = await this.comfyuiAdapter.queueWorkflow(workflow);
@@ -199,12 +305,32 @@ export class ProfilePictureSetService {
     return { jobId };
   }
 
+  private getDimensionsForPosition(
+    position: { aspectRatio?: '1:1' | '4:5' | '9:16' } | undefined,
+    widthOverride: number | undefined,
+    heightOverride: number | undefined,
+    baseSize: number,
+  ): { width: number; height: number } {
+    if (widthOverride && heightOverride) {
+      return { width: widthOverride, height: heightOverride };
+    }
+
+    const ratio = position?.aspectRatio ?? '1:1';
+    switch (ratio) {
+      case '4:5':
+        return { width: baseSize, height: Math.round(baseSize * 5 / 4) };
+      case '9:16':
+        return { width: baseSize, height: Math.round(baseSize * 16 / 9) };
+      case '1:1':
+      default:
+        return { width: baseSize, height: baseSize };
+    }
+  }
+
   /**
    * Generate NSFW positions (3 additional adult images)
    */
-  private generateNSFWPositions(
-    set: ProfilePictureSet,
-  ): Array<{
+  private generateNSFWPositions(): Array<{
     id: string;
     name: string;
     angle: string;
@@ -250,14 +376,72 @@ export class ProfilePictureSetService {
   }
 
   /**
-   * Convert image URL to base64 string for PuLID workflow
+   * Get results for a single profile picture job
+   * Used for progressive loading - returns image as soon as it's ready
    */
-  private async convertImageUrlToBase64(imageUrl: string): Promise<string> {
-    // If already base64, return as is
-    if (imageUrl.startsWith('data:image')) {
-      return imageUrl;
+  async getJobResult(jobId: string, userId?: string) {
+    const status = await this.comfyuiAdapter.getJobStatus(jobId);
+
+    if (status.status === 'COMPLETED' && status.output) {
+      const output = status.output as { images?: string[] };
+      const base64Images = output.images || [];
+
+      if (base64Images.length === 0) {
+        return {
+          status: 'completed',
+          images: [],
+        };
+      }
+
+      try {
+        // Upload base64 images to MinIO/S3 storage
+        const { images: storedImages } = await this.imageStorage.uploadImages(
+          base64Images,
+          {
+            userId: userId || 'anonymous',
+            category: 'profile-pictures',
+            jobId,
+          },
+        );
+
+        this.logger.log(`Uploaded ${storedImages.length} profile picture(s) for job ${jobId}`);
+
+        return {
+          status: 'completed',
+          images: storedImages.map((img, idx) => ({
+            id: `${jobId}-${idx}`,
+            url: img.url,
+            thumbnailUrl: img.thumbnailUrl,
+            s3Key: img.key,
+          })),
+        };
+      } catch (error) {
+        this.logger.error(`Failed to upload images to storage: ${error}`);
+        // Fall back to base64 if storage fails
+        return {
+          status: 'completed',
+          images: base64Images.map((img, idx) => ({
+            id: `${jobId}-${idx}`,
+            url: img, // Base64 data URL as fallback
+            thumbnailUrl: img,
+          })),
+          warning: 'Images stored as base64 - storage upload failed',
+        };
+      }
     }
 
+    return {
+      status: status.status.toLowerCase(),
+      images: [],
+      error: status.error,
+    };
+  }
+
+  /**
+   * Upload reference image to ComfyUI input folder
+   * Returns the filename that can be used with LoadImage node
+   */
+  private async uploadReferenceImageToComfyUI(imageUrl: string): Promise<string> {
     try {
       // Fetch image from URL
       const response = await fetch(imageUrl);
@@ -267,16 +451,20 @@ export class ProfilePictureSetService {
 
       const arrayBuffer = await response.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      const base64 = buffer.toString('base64');
 
-      // Determine MIME type from response or URL
-      const contentType =
-        response.headers.get('content-type') || 'image/png';
-      return `data:${contentType};base64,${base64}`;
+      // Generate a unique filename
+      const timestamp = Date.now();
+      const filename = `pulid-reference-${timestamp}.png`;
+
+      // Upload to ComfyUI input folder
+      const uploadedFilename = await this.comfyuiAdapter.uploadImage(buffer, filename);
+
+      this.logger.log(`Uploaded reference image to ComfyUI: ${uploadedFilename}`);
+      return uploadedFilename;
     } catch (error) {
-      this.logger.error(`Failed to convert image URL to base64: ${error}`);
-      throw new Error(
-        `Failed to convert image URL to base64: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      this.logger.error(`Failed to upload reference image to ComfyUI: ${error}`);
+      throw new BadRequestException(
+        `Failed to upload reference image: ${error instanceof Error ? error.message : 'Unknown error'}`,
       );
     }
   }

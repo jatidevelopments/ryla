@@ -2,7 +2,6 @@
 
 import { Fragment } from 'react';
 import Link from 'next/link';
-import { cn } from '@ryla/ui';
 import { useSubscription } from '../../lib/hooks';
 
 interface ZeroCreditsModalProps {
@@ -83,7 +82,7 @@ export function ZeroCreditsModal({
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="font-semibold text-white">Pro Plan</h4>
-                    <p className="text-sm text-white/60">300 credits/month</p>
+                    <p className="text-sm text-white/60">8,000 credits/month</p>
                   </div>
                   <div className="text-right">
                     <span className="text-2xl font-bold text-white">$49</span>

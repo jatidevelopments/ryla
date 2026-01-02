@@ -24,8 +24,10 @@ import {
   userCredits,
   creditTransactions,
   PLAN_CREDIT_LIMITS,
+  NotificationsRepository,
 } from '@ryla/data';
 import * as schema from '@ryla/data/schema';
+import type { NotificationType } from '@ryla/data/schema';
 
 const BCRYPT_SALT_ROUNDS = 10;
 
@@ -96,6 +98,17 @@ export class AuthService {
       amount: freeCredits,
       balanceAfter: freeCredits,
       description: 'Welcome bonus - free trial credits',
+    });
+
+    // Create welcome notification
+    const notificationsRepo = new NotificationsRepository(this.db);
+    await notificationsRepo.create({
+      userId: user.id,
+      type: 'account.welcome' as NotificationType,
+      title: 'Welcome to RYLA!',
+      body: `You received ${freeCredits} free credits to get started.`,
+      href: '/wizard/step-0',
+      metadata: { freeCredits },
     });
 
     // Generate tokens

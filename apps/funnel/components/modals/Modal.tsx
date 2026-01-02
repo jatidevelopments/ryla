@@ -23,8 +23,7 @@ function ClearState() {
 
     useEffect(() => {
         if (!open) reset();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [open]);
+    }, [open, reset]);
 
     return null;
 }
@@ -47,9 +46,8 @@ export default function Modal({
         (opened: boolean) => {
             setOpenChange(opened);
             if (!opened && onClose) onClose();
-            // eslint-disable-next-line react-hooks/exhaustive-deps
         },
-        [onClose],
+        [onClose, setOpenChange],
     );
 
     return (

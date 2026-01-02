@@ -12,13 +12,15 @@ import {
   userCredits,
   creditTransactions,
   generationJobs,
-  PLAN_CREDIT_LIMITS,
+  NotificationsRepository,
 } from '@ryla/data';
+import type { NotificationType } from '@ryla/data/schema';
 
 import { router, protectedProcedure } from '../trpc';
 
 // Low balance threshold (show warning when credits <= this value)
-const LOW_BALANCE_THRESHOLD = 10;
+// Set to ~5 fast studio generations worth of credits
+const LOW_BALANCE_THRESHOLD = 100;
 
 export const creditsRouter = router({
   /**
@@ -32,6 +34,28 @@ export const creditsRouter = router({
     const balance = credits?.balance ?? 0;
     const isLowBalance = balance > 0 && balance <= LOW_BALANCE_THRESHOLD;
     const isZeroBalance = balance === 0;
+
+    // Create low balance notification if threshold reached and warning not shown
+    if (isLowBalance && !credits?.lowBalanceWarningShown) {
+      const notificationsRepo = new NotificationsRepository(ctx.db);
+      await notificationsRepo.create({
+        userId: ctx.user.id,
+        type: 'credits.low_balance' as NotificationType,
+        title: 'Low credits warning',
+        body: `You have ${balance} credits remaining. Consider purchasing more.`,
+        href: '/buy-credits',
+        metadata: { balance },
+      });
+
+      // Mark warning as shown
+      await ctx.db
+        .update(userCredits)
+        .set({
+          lowBalanceWarningShown: new Date(),
+          updatedAt: new Date(),
+        })
+        .where(eq(userCredits.userId, ctx.user.id));
+    }
 
     return {
       balance,
@@ -121,6 +145,17 @@ export const creditsRouter = router({
         referenceType: 'generation_job',
         referenceId: job.id,
         description: input.reason || 'Failed generation refund',
+      });
+
+      // Create notification
+      const notificationsRepo = new NotificationsRepository(ctx.db);
+      await notificationsRepo.create({
+        userId: ctx.user.id,
+        type: 'credits.refunded' as NotificationType,
+        title: 'Credits refunded',
+        body: `${creditsToRefund} credits refunded for failed generation`,
+        href: '/activity',
+        metadata: { jobId: job.id, refunded: creditsToRefund },
       });
 
       return {

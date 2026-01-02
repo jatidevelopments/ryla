@@ -23,6 +23,8 @@ export interface AIInfluencer {
   outfit: string;
   // Settings
   nsfwEnabled: boolean;
+  // Profile picture set (null = skip)
+  profilePictureSetId?: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
   // Stats
   postCount: number;
   imageCount: number;

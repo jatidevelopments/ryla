@@ -18,8 +18,16 @@ import { IJwtPayload } from '../auth/interfaces/jwt-payload.interface';
 import { GenerateBaseImagesDto } from './dto/req/generate-base-images.dto';
 import { GenerateFaceSwapDto } from './dto/req/generate-face-swap.dto';
 import { GenerateCharacterSheetDto } from './dto/req/generate-character-sheet.dto';
+import { InpaintEditDto } from './dto/req/inpaint-edit.dto';
+import { GenerateStudioImagesDto } from './dto/req/generate-studio-images.dto';
 import { BaseImageGenerationService } from './services/base-image-generation.service';
 import { ComfyUIJobRunnerAdapter } from './services/comfyui-job-runner.adapter';
+import { InpaintEditService } from './services/inpaint-edit.service';
+import { StudioGenerationService } from './services/studio-generation.service';
+import { ComfyUIResultsService } from './services/comfyui-results.service';
+import { CreditManagementService } from '../credits/services/credit-management.service';
+import { calculateFalModelCredits } from './services/fal-image.service';
+import { getFeatureCost, type FeatureId } from '@ryla/shared';
 
 @ApiTags('Images')
 @Controller('image')
@@ -33,6 +41,14 @@ export class ImageController {
     private readonly baseImageService: BaseImageGenerationService,
     @Inject(ComfyUIJobRunnerAdapter)
     private readonly comfyuiAdapter: ComfyUIJobRunnerAdapter,
+    @Inject(InpaintEditService)
+    private readonly inpaintEditService: InpaintEditService,
+    @Inject(StudioGenerationService)
+    private readonly studioGenerationService: StudioGenerationService,
+    @Inject(ComfyUIResultsService)
+    private readonly comfyuiResultsService: ComfyUIResultsService,
+    @Inject(CreditManagementService)
+    private readonly creditService: CreditManagementService,
   ) {}
 
   /**
@@ -89,6 +105,80 @@ export class ImageController {
     });
   }
 
+  @Post('edit/inpaint')
+  @ApiOperation({ summary: 'Edit an existing image asset via inpainting (Flux Fill)' })
+  public async inpaintEdit(@CurrentUser() user: IJwtPayload, @Body() dto: InpaintEditDto) {
+    return this.inpaintEditService.startInpaintEdit({
+      userId: user.userId,
+      characterId: dto.characterId,
+      sourceImageId: dto.sourceImageId,
+      prompt: dto.prompt,
+      negativePrompt: dto.negativePrompt,
+      maskedImageBase64Png: dto.maskedImageBase64Png,
+      seed: dto.seed,
+    });
+  }
+
+  @Post('generate/studio')
+  @ApiOperation({ summary: 'Generate Studio image assets (no posts/captions)' })
+  public async generateStudioImages(
+    @CurrentUser() user: IJwtPayload,
+    @Body() dto: GenerateStudioImagesDto,
+  ) {
+    // Calculate image dimensions
+    const aspectRatioToSize = (ratio: '1:1' | '9:16' | '2:3') => {
+      switch (ratio) {
+        case '1:1':
+          return { width: 1024, height: 1024 };
+        case '9:16':
+          return { width: 832, height: 1472 };
+        case '2:3':
+          return { width: 896, height: 1344 };
+      }
+    };
+    const { width, height } = aspectRatioToSize(dto.aspectRatio);
+
+    // Calculate total credits needed
+    let totalCredits = 0;
+    const provider = dto.nsfw ? 'comfyui' : (dto.modelProvider ?? 'comfyui');
+
+    if (provider === 'fal' && dto.modelId) {
+      // Fal models: dynamic pricing based on model and image size
+      const creditsPerImage = calculateFalModelCredits(dto.modelId, width, height);
+      totalCredits = creditsPerImage * dto.count;
+    } else {
+      // ComfyUI: use fixed feature-based pricing
+      const featureId: FeatureId = dto.qualityMode === 'hq' ? 'studio_standard' : 'studio_fast';
+      totalCredits = getFeatureCost(featureId, dto.count);
+    }
+
+    // Check and deduct credits upfront
+    if (provider === 'fal' && dto.modelId) {
+      // For Fal models, use raw credit deduction since pricing is dynamic
+      await this.creditService.deductCreditsRaw(user.userId, totalCredits, undefined, `Studio generation: ${dto.modelId} (${dto.count} images)`);
+    } else {
+      // For ComfyUI, use feature-based deduction
+      const featureId: FeatureId = dto.qualityMode === 'hq' ? 'studio_standard' : 'studio_fast';
+      await this.creditService.deductCredits(user.userId, featureId, dto.count);
+    }
+
+    return this.studioGenerationService.startStudioGeneration({
+      userId: user.userId,
+      prompt: dto.prompt,
+      characterId: dto.characterId,
+      scene: dto.scene,
+      environment: dto.environment,
+      outfit: dto.outfit,
+      aspectRatio: dto.aspectRatio,
+      qualityMode: dto.qualityMode,
+      count: dto.count,
+      nsfw: dto.nsfw,
+      seed: dto.seed,
+      modelProvider: dto.modelProvider,
+      modelId: dto.modelId,
+    });
+  }
+
   /**
    * Poll job status - only returns job if user owns it.
    * Uses database job tracking for jobs started via ImageGenerationService.
@@ -124,9 +214,7 @@ export class ImageController {
     @CurrentUser() user: IJwtPayload,
     @Param('promptId') promptId: string,
   ) {
-    // Get results and upload to storage
-    const result = await this.baseImageService.getJobResults(promptId, user.userId);
-    return result;
+    return this.comfyuiResultsService.getResults(promptId, user.userId);
   }
 
   /**

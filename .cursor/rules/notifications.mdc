@@ -1,0 +1,201 @@
+---
+description: In-app notifications implementation guidelines
+globs: ["apps/**", "libs/**"]
+alwaysApply: false
+---
+
+# In-App Notifications
+
+## Location
+- **Schema**: `libs/data/src/schema/notifications.schema.ts`
+- **Repository**: `libs/data/src/repositories/notifications.repository.ts`
+- **tRPC Router**: `libs/trpc/src/routers/notifications.router.ts`
+- **UI Component**: `apps/web/components/notifications/notifications-menu.tsx`
+
+## Import
+```typescript
+import { NotificationsRepository } from '@ryla/data';
+import type { NotificationType } from '@ryla/data/schema';
+```
+
+## When to Create Notifications
+
+**ALWAYS create a notification when:**
+- Generation job completes or fails
+- Credits drop to low balance threshold (≤10)
+- Credits are refunded for failed job
+- Character is created
+- Subscription is created/cancelled
+- Monthly credits are refreshed
+- Credits are purchased
+- User signs up (welcome notification)
+
+## Implementation Pattern
+
+```typescript
+// In constructor or service setup
+private readonly notificationsRepo: NotificationsRepository;
+
+constructor(
+  @Inject('DRIZZLE_DB')
+  private readonly db: NodePgDatabase<typeof schema>,
+  // ... other deps
+) {
+  this.notificationsRepo = new NotificationsRepository(this.db);
+}
+
+// When creating notification
+await this.notificationsRepo.create({
+  userId: string, // Required
+  type: string, // e.g., 'generation.completed', 'credits.low_balance'
+  title: string, // Required - short title
+  body: string | null, // Optional - longer description
+  href: string | null, // Optional - deep link (e.g., '/influencer/123/studio')
+  metadata: Record<string, unknown> | null, // Optional - context data
+});
+```
+
+## Notification Types
+
+| Type | When | Title Example | href Example |
+|------|------|---------------|--------------|
+| `generation.completed` | Job completes | "Generation complete" | `/influencer/{id}/studio` |
+| `generation.failed` | Job fails | "Generation failed" | `/activity` |
+| `credits.low_balance` | Balance ≤ 10 | "Low credits warning" | `/buy-credits` |
+| `credits.refunded` | Credits refunded | "Credits refunded" | `/activity` |
+| `credits.subscription_granted` | Monthly refresh | "Monthly credits refreshed" | `/activity` |
+| `credits.purchased` | Credits purchased | "Credits purchased" | `/activity` |
+| `character.created` | Character created | "Character created!" | `/influencer/{id}` |
+| `subscription.created` | Subscription activated | "Subscription activated" | `/settings` |
+| `subscription.cancelled` | Subscription cancelled | "Subscription cancelled" | `/settings` |
+| `account.welcome` | User signs up | "Welcome to RYLA!" | `/wizard/step-0` |
+
+## Status Transition Pattern
+
+**For generation jobs**, check status transitions (not just current status):
+
+```typescript
+const previousStatus = job.status;
+const newStatus = await checkJobStatus();
+
+if (previousStatus !== newStatus) {
+  if (newStatus === 'completed' && previousStatus !== 'completed') {
+    await this.notificationsRepo.create({
+      userId: job.userId,
+      type: 'generation.completed',
+      title: 'Generation complete',
+      body: `Your ${jobType} is ready!`,
+      href: job.characterId ? `/influencer/${job.characterId}/studio` : '/activity',
+      metadata: { generationJobId: job.id, characterId: job.characterId },
+    });
+  } else if (newStatus === 'failed' && previousStatus !== 'failed') {
+    await this.notificationsRepo.create({
+      userId: job.userId,
+      type: 'generation.failed',
+      title: 'Generation failed',
+      body: error ?? 'Your generation failed. Please try again.',
+      href: '/activity',
+      metadata: { generationJobId: job.id, error },
+    });
+  }
+}
+```
+
+## Low Balance Pattern
+
+**Check low balance after credit deduction or in balance query:**
+
+```typescript
+const newBalance = currentBalance - cost;
+
+if (newBalance > 0 && newBalance <= 10 && !credits.lowBalanceWarningShown) {
+  await this.notificationsRepo.create({
+    userId: ctx.user.id,
+    type: 'credits.low_balance',
+    title: 'Low credits warning',
+    body: `You have ${newBalance} credits remaining. Consider purchasing more.`,
+    href: '/buy-credits',
+    metadata: { balance: newBalance },
+  });
+
+  // Mark warning as shown to avoid spam
+  await ctx.db
+    .update(userCredits)
+    .set({ lowBalanceWarningShown: new Date() })
+    .where(eq(userCredits.userId, ctx.user.id));
+}
+```
+
+## Key Locations
+
+| Service | File | Notification Type |
+|---------|------|------------------|
+| Generation completion | `apps/api/src/modules/image/services/comfyui-results.service.ts` | `generation.completed`, `generation.failed` |
+| Generation sync | `libs/business/src/services/image-generation.service.ts` | `generation.completed`, `generation.failed` |
+| Credits low balance | `libs/trpc/src/routers/credits.router.ts` | `credits.low_balance` |
+| Credits low balance | `libs/trpc/src/routers/generation.router.ts` | `credits.low_balance` |
+| Credits refund | `libs/trpc/src/routers/credits.router.ts` | `credits.refunded` |
+| Character created | `libs/trpc/src/routers/character.router.ts` | `character.created` |
+| Subscription created | `libs/trpc/src/routers/subscription.router.ts` | `subscription.created` |
+| Subscription cancelled | `libs/trpc/src/routers/subscription.router.ts` | `subscription.cancelled` |
+| Credits purchased | `libs/trpc/src/routers/subscription.router.ts` | `credits.purchased` |
+| Monthly refresh | `apps/api/src/modules/cron/services/credit-refresh.service.ts` | `credits.subscription_granted` |
+| Welcome | `apps/api/src/modules/auth/services/auth.service.ts` | `account.welcome` |
+
+## UI Integration
+
+Notifications appear in the top-right navbar clock icon (`apps/web/components/app-shell.tsx`). The menu component (`apps/web/components/notifications/notifications-menu.tsx`) automatically:
+- Shows unread badge count
+- Lists recent notifications
+- Handles mark read / mark all read
+- Captures analytics events
+
+## Client-Side Invalidation (CRITICAL)
+
+**When a mutation creates a notification on the server, you MUST invalidate the notifications query on the client to update the UI immediately:**
+
+```typescript
+// In any component/hook that triggers notification-creating mutation
+const utils = trpc.useUtils();
+
+const myMutation = trpc.some.mutation.useMutation({
+  onSuccess: () => {
+    // ALWAYS invalidate notifications when server creates them
+    utils.notifications.list.invalidate();
+    
+    // Also invalidate activity if relevant
+    utils.activity.list.invalidate();
+    utils.activity.summary.invalidate();
+  },
+});
+```
+
+### Locations Requiring Notifications Invalidation
+
+| File | Mutation | Why |
+|------|----------|-----|
+| `apps/web/lib/hooks/use-credits.ts` | `useAddCredits`, `useRefundFailedJob` | Low balance / refund notifications |
+| `apps/web/app/pricing/page.tsx` | `subscription.subscribe` | Subscription created |
+| `apps/web/app/buy-credits/page.tsx` | `subscription.purchaseCredits` | Credits purchased |
+| `apps/web/components/wizard/step-finalize.tsx` | `character.create` | Character created |
+| `apps/web/components/wizard/step-generate.tsx` | `character.create` | Character created + generation |
+| `apps/web/app/studio/page.tsx` | Generation flow | Generation complete |
+| `apps/web/app/influencer/[id]/studio/page.tsx` | Generation flow | Generation complete |
+
+**Same pattern as activity feed**: When an operation creates data that affects the notification count, add `utils.notifications.list.invalidate()` in the `onSuccess` callback or after the async operation completes.
+
+## Testing Checklist
+
+For each notification type:
+- [ ] Notification is created in DB when event occurs
+- [ ] Notification appears in navbar menu
+- [ ] Unread count updates correctly
+- [ ] Clicking notification navigates to correct href (if provided)
+- [ ] Mark read / mark all read works
+- [ ] Analytics events fire (if applicable)
+
+## Reference
+
+- **Epic**: EP-017: In-App Notifications
+- **Checklist**: `docs/requirements/epics/mvp/EP-017-notification-implementation-checklist.md`
+- **Schema**: `libs/data/src/schema/notifications.schema.ts`

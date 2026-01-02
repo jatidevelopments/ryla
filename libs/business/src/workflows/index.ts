@@ -18,5 +18,6 @@ export * from './types';
 export * from './z-image-danrisi';
 export * from './z-image-simple';
 export * from './z-image-pulid';
+export * from './flux-inpaint';
 export * from './registry';
 

@@ -63,6 +63,7 @@ These epics are **NOT in MVP** — planned for Phase 2 or later.
 | EP-034 | Referral System | P2 | Optimize CAC later |
 | EP-035 | Mobile App | P3 | Web-first |
 | EP-036 | i18n (Multi-language) | P2 | English only for MVP |
+| EP-047 | Retention Offer Before Account Deletion | P2 | Requires billing rules + offer mechanics |
 
 > **Note**: EP-009 to EP-014 are now used for MVP epics (Credits, Subscription, Legal, Onboarding, Education, Captions)
 

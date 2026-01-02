@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { OptionImagePlaceholder } from "@/components/ui/OptionImagePlaceholder";
 import SpriteIcon from "@/components/SpriteIcon/SpriteIcon";
 
-interface ImageCardContext {
+interface ImageCardContextValue {
     image: { src: string; alt: string; name?: string };
     isActive?: boolean;
 }
 
-const ImageCardContext = createContext<ImageCardContext | null>(null);
+const ImageCardContext = createContext<ImageCardContextValue | null>(null);
 
 function useImageCardContext() {
     const ctx = useContext(ImageCardContext);
@@ -18,7 +18,7 @@ function useImageCardContext() {
     return ctx;
 }
 
-type Props = ComponentProps<typeof Button> & ImageCardContext;
+type Props = ComponentProps<typeof Button> & ImageCardContextValue;
 
 function ImageCardComponent(props: Props) {
     const { image, isActive = false, children, className, ...rest } = props;

@@ -5,7 +5,7 @@ app = 'funnel-v3-adult'
 primary_region = 'fra'
 
 [build]
-  dockerfile = "apps/funnel/Dockerfile"
+  dockerfile = "Dockerfile"
 
 [http_service]
   internal_port = 3000

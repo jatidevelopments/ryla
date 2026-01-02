@@ -1,0 +1,118 @@
+{
+  "11": {
+    "inputs": {},
+    "class_type": "LoadWanVideoT5TextEncoder",
+    "_meta": {
+      "title": "LoadWanVideoT5TextEncoder"
+    }
+  },
+  "16": {
+    "inputs": {
+      "t5": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "WanVideoTextEncode",
+    "_meta": {
+      "title": "WanVideoTextEncode"
+    }
+  },
+  "22": {
+    "inputs": {
+      "compile_args": "Wan2_1-T2V-1_3B_bf16.safetensorss",
+      "block_swap_args": "fp16",
+      "lora": "disabled",
+      "vram_management_args": "offload_device",
+      "vace_model": "sdpa"
+    },
+    "class_type": "WanVideoModelLoader",
+    "_meta": {
+      "title": "WanVideoModelLoader"
+    }
+  },
+  "27": {
+    "inputs": {
+      "model": [
+        "22",
+        0
+      ],
+      "text_embeds": [
+        "16",
+        0
+      ],
+      "image_embeds": [
+        "37",
+        0
+      ],
+      "context_options": [
+        "43",
+        0
+      ],
+      "teacache_args": [
+        "45",
+        0
+      ]
+    },
+    "class_type": "WanVideoSampler",
+    "_meta": {
+      "title": "WanVideoSampler"
+    }
+  },
+  "28": {
+    "inputs": {
+      "vae": [
+        "38",
+        0
+      ],
+      "samples": [
+        "27",
+        0
+      ]
+    },
+    "class_type": "WanVideoDecode",
+    "_meta": {
+      "title": "WanVideoDecode"
+    }
+  },
+  "37": {
+    "inputs": {},
+    "class_type": "WanVideoEmptyEmbeds",
+    "_meta": {
+      "title": "WanVideoEmptyEmbeds"
+    }
+  },
+  "38": {
+    "inputs": {},
+    "class_type": "WanVideoVAELoader",
+    "_meta": {
+      "title": "WanVideoVAELoader"
+    }
+  },
+  "42": {
+    "inputs": {
+      "image": [
+        "28",
+        0
+      ]
+    },
+    "class_type": "GetImageSizeAndCount",
+    "_meta": {
+      "title": "Get Image Size & Count"
+    }
+  },
+  "43": {
+    "inputs": {},
+    "class_type": "WanVideoContextOptions",
+    "_meta": {
+      "title": "WanVideoContextOptions"
+    }
+  },
+  "45": {
+    "inputs": {},
+    "class_type": "WanVideoTeaCache",
+    "_meta": {
+      "title": "WanVideoTeaCache"
+    }
+  }
+}

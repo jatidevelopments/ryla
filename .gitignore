@@ -32,6 +32,9 @@ out/
 .env.local
 .env.*.local
 
+# Credentials (never commit)
+config/credentials.csv
+
 # Logs
 logs/
 *.log

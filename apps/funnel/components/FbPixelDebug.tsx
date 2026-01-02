@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { getDebugStatus } from "@/lib/fbPixel";
+import { getFacebookDebugStatus } from "@ryla/analytics";
 
 /**
  * Client-side component to log Facebook Pixel configuration status
@@ -11,17 +11,12 @@ export function FbPixelDebug() {
     useEffect(() => {
         if (typeof window === "undefined") return;
 
-        const status = getDebugStatus();
+        const status = getFacebookDebugStatus();
         const DEBUG_ENABLED =
             process.env.NEXT_PUBLIC_DEBUG_FB_PIXEL === "true" || (window as any).__DEBUG_FB_PIXEL__;
 
         console.group("🔵 Facebook Pixel Status");
-        if (status.pixelIds && status.pixelIds.length > 1) {
-            console.log("Pixel IDs:", status.pixelIds.join(", "));
-            console.log("(Primary Pixel ID:", status.pixelId + ")");
-        } else {
-            console.log("Pixel ID:", status.pixelId);
-        }
+        console.log("Pixel ID:", status.pixelId);
         console.log("fbq Available:", status.fbqAvailable ? "✅ Yes" : "❌ No");
         console.log("Debug Mode:", DEBUG_ENABLED ? "✅ Enabled" : "❌ Disabled");
         console.log("Queued Events:", status.queueLength);

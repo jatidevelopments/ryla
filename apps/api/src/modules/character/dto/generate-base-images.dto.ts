@@ -1,4 +1,4 @@
-import { IsObject, IsBoolean, ValidateNested } from 'class-validator';
+import { IsObject, IsBoolean, ValidateNested, IsOptional, IsIn, IsNumber } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class AppearanceDto {
@@ -33,4 +33,37 @@ export class GenerateBaseImagesDto {
 
   @IsBoolean()
   nsfwEnabled!: boolean;
+
+  /**
+   * Optional workflow override (defaults to recommended workflow on the pod)
+   */
+  @IsOptional()
+  @IsIn(['z-image-danrisi', 'z-image-simple', 'z-image-pulid'])
+  workflowId?: 'z-image-danrisi' | 'z-image-simple' | 'z-image-pulid';
+
+  /**
+   * Optional seed for reproducibility
+   */
+  @IsOptional()
+  @IsNumber()
+  seed?: number;
+
+  /**
+   * Optional speed knobs
+   */
+  @IsOptional()
+  @IsNumber()
+  steps?: number;
+
+  @IsOptional()
+  @IsNumber()
+  cfg?: number;
+
+  @IsOptional()
+  @IsNumber()
+  width?: number;
+
+  @IsOptional()
+  @IsNumber()
+  height?: number;
 }

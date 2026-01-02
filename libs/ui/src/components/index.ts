@@ -29,6 +29,7 @@ export * from './spinner';
 // Data display
 export * from './avatar';
 export * from './badge';
+export * from './pagination';
 
 // Overlays
 export * from './dialog';
@@ -55,4 +56,7 @@ export * from './bento-grid';
 export * from './ryla-button';
 export * from './ryla-card';
 export * from './ryla-layout';
+
+// Platform components
+export * from './platform-badge';
 

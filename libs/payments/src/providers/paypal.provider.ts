@@ -1,4 +1,3 @@
-import * as paypal from '@paypal/checkout-server-sdk';
 import type {
   PaymentProvider,
   PayPalConfig,
@@ -17,15 +16,23 @@ import type {
  */
 export class PayPalProvider implements PaymentProvider {
   readonly type = 'paypal' as const;
-  private readonly client: paypal.core.PayPalHttpClient;
+  private readonly client: any; // PayPalHttpClient
   private readonly webhookId: string;
   private readonly baseUrl: string;
   private accessTokenCache?: { token: string; expiresAt: number };
 
   constructor(config: PayPalConfig) {
+    // Lazy load PayPal SDK
+    let paypal: any;
+    try {
+      paypal = require('@paypal/checkout-server-sdk');
+    } catch {
+      throw new Error('@paypal/checkout-server-sdk is not installed. Install it to use PayPalProvider.');
+    }
+    
     this.webhookId = config.webhookId;
     this.baseUrl = config.url;
-    this.client = new paypal.core.PayPalHttpClient(this.getEnvironment(config));
+    this.client = new paypal.core.PayPalHttpClient(this.getEnvironment(config, paypal));
   }
 
   // ===========================================================================
@@ -75,6 +82,14 @@ export class PayPalProvider implements PaymentProvider {
         provider: 'paypal',
       };
     } else {
+      // Lazy load PayPal SDK
+      let paypal: any;
+      try {
+        paypal = require('@paypal/checkout-server-sdk');
+      } catch {
+        throw new Error('@paypal/checkout-server-sdk is not installed.');
+      }
+      
       // Create one-time order
       const request = new paypal.orders.OrdersCreateRequest();
       request.requestBody({
@@ -248,6 +263,14 @@ export class PayPalProvider implements PaymentProvider {
   // ===========================================================================
 
   async refundPayment(captureId: string, amount?: number): Promise<void> {
+    // Lazy load PayPal SDK
+    let paypal: any;
+    try {
+      paypal = require('@paypal/checkout-server-sdk');
+    } catch {
+      throw new Error('@paypal/checkout-server-sdk is not installed.');
+    }
+    
     const accessToken = await this.getAccessToken();
     const request = new paypal.payments.CapturesRefundRequest(captureId);
 
@@ -320,7 +343,7 @@ export class PayPalProvider implements PaymentProvider {
   // Private Helpers
   // ===========================================================================
 
-  private getEnvironment(config: PayPalConfig): paypal.core.Environment {
+  private getEnvironment(config: PayPalConfig, paypal: any): any {
     const isSandbox = config.environment === 'sandbox' || config.url.includes('sandbox');
     if (isSandbox) {
       return new paypal.core.SandboxEnvironment(config.clientId, config.clientSecret);
@@ -334,13 +357,21 @@ export class PayPalProvider implements PaymentProvider {
       return this.accessTokenCache.token;
     }
 
+    // Lazy load PayPal SDK
+    let paypal: any;
+    try {
+      paypal = require('@paypal/checkout-server-sdk');
+    } catch {
+      throw new Error('@paypal/checkout-server-sdk is not installed.');
+    }
+
     // Request new token
     const environment = this.getEnvironment({
       clientId: '',
       clientSecret: '',
       webhookId: this.webhookId,
       url: this.baseUrl,
-    } as PayPalConfig);
+    } as PayPalConfig, paypal);
 
     const request = new paypal.core.AccessTokenRequest(environment);
     const response = await this.client.execute(request);
@@ -411,7 +442,7 @@ export class PayPalProvider implements PaymentProvider {
           data: {
             subscriptionId: event.resource.id,
             customerId: event.resource.subscriber?.payer_id || '',
-            status: this.mapStatus(event.resource.status),
+            status: this.mapStatus(event.resource.status || ''),
             priceId: event.resource.plan_id,
           },
         };
@@ -485,12 +516,12 @@ export class PayPalProvider implements PaymentProvider {
           ...baseEvent,
           type: 'chargeback.created',
           data: {
-            chargeId: event.resource.disputed_transactions?.[0]?.transaction_id || event.resource.id,
-            subscriptionId: event.resource.disputed_transactions?.[0]?.seller_transaction_id,
-            customerId: event.resource.disputed_transactions?.[0]?.seller_protection?.status || '',
-            amount: parseFloat(event.resource.dispute_amount?.value || '0') * 100,
-            currency: event.resource.dispute_amount?.currency_code || 'USD',
-            reason: event.resource.reason || event.resource.dispute_life_cycle_stage,
+            chargeId: ((event.resource as any).disputed_transactions?.[0]?.transaction_id) || event.resource.id,
+            subscriptionId: ((event.resource as any).disputed_transactions?.[0]?.seller_transaction_id),
+            customerId: ((event.resource as any).disputed_transactions?.[0]?.seller_protection?.status) || '',
+            amount: parseFloat(((event.resource as any).dispute_amount?.value) || '0') * 100,
+            currency: ((event.resource as any).dispute_amount?.currency_code) || 'USD',
+            reason: ((event.resource as any).reason) || ((event.resource as any).dispute_life_cycle_stage),
           },
         };
 

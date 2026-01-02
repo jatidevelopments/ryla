@@ -12,8 +12,14 @@ import {
   subscriptions,
   userCredits,
   creditTransactions,
-  PLAN_CREDIT_LIMITS,
+  NotificationsRepository,
 } from '@ryla/data';
+import type { NotificationType } from '@ryla/data/schema';
+import {
+  PLAN_CREDITS as SHARED_PLAN_CREDITS,
+  CREDIT_PACKAGES as SHARED_CREDIT_PACKAGES,
+  getPackageCredits,
+} from '@ryla/shared';
 
 // Simple helper to add months to a date
 function addMonths(date: Date, months: number): Date {
@@ -24,22 +30,18 @@ function addMonths(date: Date, months: number): Date {
 
 import { router, protectedProcedure } from '../trpc';
 
-// Credit amounts for each plan
+// Credit amounts for each plan (from shared source of truth)
 const PLAN_CREDITS: Record<string, number> = {
-  free: 10,
-  starter: 100,
-  pro: 300,
+  free: SHARED_PLAN_CREDITS.free.monthlyCredits,
+  starter: SHARED_PLAN_CREDITS.starter.monthlyCredits,
+  pro: SHARED_PLAN_CREDITS.pro.monthlyCredits,
   unlimited: 999999, // Effectively unlimited
 };
 
-// Credit package definitions (should match frontend constants)
-const CREDIT_PACKAGES: Record<string, number> = {
-  credits_50: 50,
-  credits_150: 150,
-  credits_350: 350,
-  credits_750: 750,
-  credits_1500: 1500,
-};
+// Credit package definitions (from shared source of truth)
+const CREDIT_PACKAGES: Record<string, number> = Object.fromEntries(
+  SHARED_CREDIT_PACKAGES.map((pkg) => [pkg.id, pkg.credits])
+);
 
 export const subscriptionRouter = router({
   /**
@@ -150,6 +152,17 @@ export const subscriptionRouter = router({
           description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} plan subscription (${isYearly ? 'yearly' : 'monthly'})`,
         });
 
+        // Create notification (after transaction commits)
+        const notificationsRepo = new NotificationsRepository(ctx.db);
+        await notificationsRepo.create({
+          userId: ctx.user.id,
+          type: 'subscription.created' as NotificationType,
+          title: 'Subscription activated',
+          body: `Welcome to ${planId.charAt(0).toUpperCase() + planId.slice(1)}! Your monthly credits will refresh automatically.`,
+          href: '/settings',
+          metadata: { tier: planId, creditsGranted: creditsToGrant, isYearly },
+        });
+
         return {
           success: true,
           plan: planId,
@@ -223,6 +236,17 @@ export const subscriptionRouter = router({
           description: `Purchased ${creditsToAdd} credits`,
         });
 
+        // Create notification (after transaction commits)
+        const notificationsRepo = new NotificationsRepository(ctx.db);
+        await notificationsRepo.create({
+          userId: ctx.user.id,
+          type: 'credits.purchased' as NotificationType,
+          title: 'Credits purchased',
+          body: `You purchased ${creditsToAdd} credits`,
+          href: '/activity',
+          metadata: { packageId: input.packageId, creditsPurchased: creditsToAdd },
+        });
+
         return {
           success: true,
           packageId: input.packageId,
@@ -252,6 +276,18 @@ export const subscriptionRouter = router({
         updatedAt: new Date(),
       })
       .where(eq(subscriptions.id, subscription.id));
+
+    // Create notification
+    const notificationsRepo = new NotificationsRepository(ctx.db);
+    const endDate = subscription.currentPeriodEnd?.toISOString() || new Date().toISOString();
+    await notificationsRepo.create({
+      userId: ctx.user.id,
+      type: 'subscription.cancelled' as NotificationType,
+      title: 'Subscription cancelled',
+      body: `Your subscription will end on ${new Date(endDate).toLocaleDateString()}. You'll keep access until then.`,
+      href: '/settings',
+      metadata: { subscriptionId: subscription.id, endDate },
+    });
 
     return {
       success: true,

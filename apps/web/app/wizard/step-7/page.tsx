@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepProfilePictures } from '../../../components/wizard/step-profile-pictures';
+import { StepFinalize } from '../../../components/wizard/step-finalize';
 
 export default function WizardStep7() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -11,6 +11,6 @@ export default function WizardStep7() {
     setStep(7);
   }, [setStep]);
 
-  return <StepProfilePictures />;
+  return <StepFinalize />;
 }
 

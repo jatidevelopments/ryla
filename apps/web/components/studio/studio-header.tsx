@@ -31,18 +31,18 @@ export function StudioHeader({
   className,
 }: StudioHeaderProps) {
   return (
-    <div className={cn('border-b border-white/10 bg-[#0a0a0b]', className)}>
+    <div className={cn('border-b border-[var(--border-default)] bg-[var(--bg-elevated)]', className)}>
       {/* Top Navigation Tabs - Like Higgsfield */}
-      <div className="flex items-center justify-between px-4 py-2">
+      <div className="flex items-center justify-between px-4 py-3">
         {/* Left - Main tabs */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => onSelectInfluencer(null)}
             className={cn(
-              'flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all',
+              'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all',
               !selectedInfluencerId
-                ? 'bg-[var(--purple-500)] text-white'
-                : 'text-white/60 hover:bg-white/5 hover:text-white'
+                ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/20'
+                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
             )}
           >
             <svg
@@ -58,25 +58,25 @@ export function StudioHeader({
               />
             </svg>
             All Images
-            <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs">
+            <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">
               {totalCount}
             </span>
           </button>
 
           {/* Divider */}
-          <div className="mx-2 h-6 w-px bg-white/10" />
+          <div className="mx-3 h-6 w-px bg-[var(--border-default)]" />
 
           {/* Influencer Tabs */}
-          <div className="flex items-center gap-1 overflow-x-auto scroll-hidden">
+          <div className="flex items-center gap-2 overflow-x-auto scroll-hidden">
             {influencers.map((influencer) => (
               <button
                 key={influencer.id}
                 onClick={() => onSelectInfluencer(influencer.id)}
                 className={cn(
-                  'flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all whitespace-nowrap',
+                  'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all whitespace-nowrap',
                   selectedInfluencerId === influencer.id
-                    ? 'bg-[var(--purple-500)]/20 text-white border border-[var(--purple-500)]/50'
-                    : 'text-white/60 hover:bg-white/5 hover:text-white border border-transparent'
+                    ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/50'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent'
                 )}
               >
                 {influencer.avatar ? (
@@ -85,6 +85,7 @@ export function StudioHeader({
                       src={influencer.avatar}
                       alt={influencer.name}
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
@@ -94,7 +95,7 @@ export function StudioHeader({
                   </div>
                 )}
                 <span className="max-w-[100px] truncate">{influencer.name}</span>
-                <span className="rounded-full bg-white/10 px-1.5 py-0.5 text-xs text-white/50">
+                <span className="rounded-full bg-[var(--bg-hover)] px-1.5 py-0.5 text-xs text-[var(--text-muted)]">
                   {influencer.imageCount}
                 </span>
               </button>
@@ -111,7 +112,7 @@ export function StudioHeader({
               viewBox="0 0 24 24"
               strokeWidth={2}
               stroke="currentColor"
-              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
+              className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--text-muted)]"
             >
               <path
                 strokeLinecap="round"
@@ -124,7 +125,7 @@ export function StudioHeader({
               placeholder="Search images..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
-              className="h-9 bg-white/5 border-white/10 pl-10 text-sm placeholder:text-white/40 focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20"
+              className="h-10 bg-[var(--bg-base)] border-[var(--border-default)] pl-10 text-sm placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20 rounded-xl"
             />
           </div>
 

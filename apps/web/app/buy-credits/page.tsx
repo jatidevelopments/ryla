@@ -2,35 +2,33 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Shield, Lock, CreditCard, X, Check } from 'lucide-react';
-import { Button } from '@ryla/ui';
+import { Shield, Lock, CreditCard, X, Check, Zap, Sparkles } from 'lucide-react';
+import { PageContainer, FadeInUp, RylaButton, cn } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
+import { ProtectedRoute } from '../../components/protected-route';
 import { CreditPackageCard } from '../../components/pricing';
-import { CREDIT_PACKAGES, CREDIT_COSTS } from '../../constants/pricing';
+import { CREDIT_PACKAGES } from '../../constants/pricing';
 
-export default function BuyCreditsPage() {
+function BuyCreditsContent() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<typeof CREDIT_PACKAGES[0] | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Get current credits
+  const utils = trpc.useUtils();
   const { data: creditsData, refetch: refetchCredits } = trpc.credits.getBalance.useQuery();
 
-  // Purchase mutation
   const purchaseMutation = trpc.subscription.purchaseCredits.useMutation({
     onSuccess: (data) => {
-      // Refetch credits
       refetchCredits();
-      
-      // Show success message
+      // Invalidate activity feed so it shows the new credit transaction
+      utils.activity.list.invalidate();
+      utils.activity.summary.invalidate();
+      // Invalidate notifications (credits purchased notification)
+      utils.notifications.list.invalidate();
       setSuccessMessage(
-        `🎉 Successfully purchased ${data.creditsPurchased} credits! New balance: ${data.newBalance}`
+        `Successfully purchased ${data.creditsPurchased} credits! New balance: ${data.newBalance}`
       );
-      
-      // Clear message after 5 seconds
       setTimeout(() => setSuccessMessage(null), 5000);
-      
-      // Close modal
       setShowConfirmModal(false);
       setSelectedPackage(null);
     },
@@ -51,167 +49,220 @@ export default function BuyCreditsPage() {
 
   const handleConfirmPurchase = async () => {
     if (!selectedPackage) return;
-    
-    purchaseMutation.mutate({
-      packageId: selectedPackage.id,
-    });
+    purchaseMutation.mutate({ packageId: selectedPackage.id });
   };
 
   return (
-    <div className="w-full px-4 py-6 md:px-6 md:py-8">
-      {/* Back link */}
-      <Link
-        href="/dashboard"
-        className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors mb-6"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Dashboard
-      </Link>
+    <PageContainer className="relative">
+      {/* Background gradient effect */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-40 right-0 h-[500px] w-[500px] opacity-30"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
+        <div
+          className="absolute -bottom-40 left-0 h-[400px] w-[400px] opacity-20"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
+      </div>
 
       {/* Success message */}
       {successMessage && (
-        <div className="mb-6 p-4 rounded-xl bg-green-500/20 border border-green-500/30 animate-in slide-in-from-top-2">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-green-500/30 flex items-center justify-center">
-              <Check className="w-5 h-5 text-green-400" />
+        <FadeInUp>
+          <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20">
+                <Check className="h-5 w-5 text-emerald-400" />
+              </div>
+              <p className="text-emerald-300 font-medium">{successMessage}</p>
             </div>
-            <p className="text-green-300 font-medium">{successMessage}</p>
           </div>
-        </div>
+        </FadeInUp>
       )}
 
       {/* Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">
-          Buy Credits
-        </h1>
-        <p className="text-white/60 text-sm max-w-md mx-auto">
-          Need more credits? Purchase one-time credit packs to fuel your AI creations.
-        </p>
-        {creditsData && (
-          <p className="mt-2 text-purple-400 text-sm">
-            Current balance: <span className="font-semibold">{creditsData.balance} credits</span>
+      <FadeInUp>
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
+              <Sparkles className="h-5 w-5 text-[var(--purple-400)]" />
+            </div>
+            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+              Buy Credits
+            </h1>
+          </div>
+          <p className="text-[var(--text-secondary)]">
+            Purchase one-time credit packs to power your AI creations
           </p>
-        )}
-      </div>
-
-      {/* Credit cost reference */}
-      <div className="flex justify-center gap-6 p-3 rounded-lg bg-white/5 border border-white/10 mb-6 max-w-sm mx-auto">
-        <div className="text-center">
-          <span className="text-white/50 text-xs">Draft Generation</span>
-          <p className="text-white text-sm font-semibold">{CREDIT_COSTS.generation_draft} credits</p>
+          {creditsData && (
+            <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-default)]">
+              <span className="text-sm text-[var(--text-secondary)]">Current balance:</span>
+              <span className="text-sm font-semibold text-[var(--purple-400)]">
+                {creditsData.balance} credits
+              </span>
+            </div>
+          )}
         </div>
-        <div className="w-px bg-white/10" />
-        <div className="text-center">
-          <span className="text-white/50 text-xs">HQ Generation</span>
-          <p className="text-white text-sm font-semibold">{CREDIT_COSTS.generation_hq} credits</p>
-        </div>
-      </div>
+      </FadeInUp>
 
       {/* Credit packages grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 max-w-4xl mx-auto">
-        {CREDIT_PACKAGES.map((pkg) => (
-          <CreditPackageCard
-            key={pkg.id}
-            package_={pkg}
-            onPurchase={handlePurchaseClick}
-            isLoading={purchaseMutation.isPending && selectedPackage?.id === pkg.id}
-          />
-        ))}
-      </div>
+      <FadeInUp delay={100}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
+          {CREDIT_PACKAGES.map((pkg, index) => (
+            <div
+              key={pkg.id}
+              style={{ animationDelay: `${index * 50}ms` }}
+              className="animate-in fade-in slide-in-from-bottom-2"
+            >
+              <CreditPackageCard
+                package_={pkg}
+                onPurchase={handlePurchaseClick}
+                isLoading={purchaseMutation.isPending && selectedPackage?.id === pkg.id}
+              />
+            </div>
+          ))}
+        </div>
+      </FadeInUp>
 
       {/* Subscription upsell */}
-      <div className="max-w-lg mx-auto mb-8">
-        <div className="p-5 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-center">
-          <h3 className="font-semibold text-white mb-1">Save more with a subscription</h3>
-          <p className="text-white/60 text-sm mb-3">
-            Pro plan: 300 credits/month for just $49!
-          </p>
-          <Link
-            href="/pricing"
-            className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white text-sm font-medium transition-all"
-          >
-            View Plans
-          </Link>
+      <FadeInUp delay={200}>
+        <div className="max-w-2xl mx-auto mb-8">
+          <div className="p-6 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] hover:border-[var(--purple-500)]/30 transition-all">
+            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20">
+                <Zap className="h-6 w-6 text-[var(--purple-400)]" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-semibold text-[var(--text-primary)] mb-1">
+                  Want monthly credits?
+                </h3>
+                <p className="text-sm text-[var(--text-secondary)]">
+                  Subscribe and get credits every month at a better price.
+                </p>
+              </div>
+              <RylaButton asChild variant="glassy-outline" size="default">
+                <Link href="/pricing" className="flex items-center gap-2">
+                  View Plans
+                </Link>
+              </RylaButton>
+            </div>
+          </div>
         </div>
-      </div>
+      </FadeInUp>
 
       {/* Trust badges */}
-      <div className="flex flex-wrap justify-center items-center gap-6 p-4 rounded-xl bg-white/5 border border-white/10 max-w-2xl mx-auto">
-        <div className="flex items-center gap-2">
-          <Shield className="w-5 h-5 text-green-400" />
-          <span className="text-xs text-white/70">Secure</span>
+      <FadeInUp delay={300}>
+        <div className="p-5 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] max-w-3xl mx-auto">
+          <div className="flex flex-wrap justify-center items-center gap-6">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-emerald-400" />
+              <span className="text-sm text-[var(--text-secondary)]">Secure Payment</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Lock className="h-5 w-5 text-blue-400" />
+              <span className="text-sm text-[var(--text-secondary)]">Data Protected</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-[var(--purple-400)]" />
+              <span className="text-sm text-[var(--text-secondary)]">Discreet Billing</span>
+            </div>
+            <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-[var(--border-default)]">
+              <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-[var(--text-muted)]">Visa</span>
+              <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-[var(--text-muted)]">Mastercard</span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Lock className="w-5 h-5 text-blue-400" />
-          <span className="text-xs text-white/70">Protected</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <CreditCard className="w-5 h-5 text-purple-400" />
-          <span className="text-xs text-white/70">Discreet</span>
-        </div>
-        <div className="flex items-center gap-2 pl-4 border-l border-white/10">
-          <span className="px-2 py-0.5 rounded bg-white/10 text-xs text-white/60">Visa</span>
-          <span className="px-2 py-0.5 rounded bg-white/10 text-xs text-white/60">MC</span>
-        </div>
-      </div>
+      </FadeInUp>
 
       {/* Confirmation Modal */}
       {showConfirmModal && selectedPackage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="relative w-full max-w-sm rounded-2xl bg-[#1a1a2e] border border-white/10 p-5 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
+          <div
+            className={cn(
+              'relative w-full max-w-md rounded-2xl',
+              'bg-[var(--bg-elevated)] border border-[var(--border-default)]',
+              'p-6 sm:p-8 shadow-2xl',
+              'animate-in fade-in zoom-in-95 duration-200'
+            )}
+          >
             <button
               onClick={() => setShowConfirmModal(false)}
-              className="absolute top-3 right-3 p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              className="absolute top-4 right-4 p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5 transition-colors"
             >
-              <X className="w-4 h-4" />
+              <X className="h-5 w-5" />
             </button>
 
-            <div className="text-center pt-2">
-              <h2 className="text-xl font-bold text-white mb-2">Confirm Purchase</h2>
-              <p className="text-white/60 text-sm mb-4">
-                <span className="text-white font-semibold">{selectedPackage.credits} credits</span>
-                {' '}for{' '}
-                <span className="text-white font-semibold">${selectedPackage.price}</span>
+            <div className="text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
+                <Sparkles className="h-7 w-7 text-[var(--purple-400)]" />
+              </div>
+              
+              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
+                Confirm Purchase
+              </h2>
+              <p className="text-sm text-[var(--text-secondary)] mb-6">
+                You're about to purchase credits
               </p>
 
-              <div className="p-3 rounded-lg bg-white/5 border border-white/10 mb-4 text-sm">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-white/70">Credits</span>
-                  <span className="text-white font-medium">{selectedPackage.credits}</span>
+              {/* Summary card */}
+              <div className="p-5 rounded-xl bg-white/5 border border-[var(--border-default)] mb-5">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-sm text-[var(--text-secondary)]">Credits</span>
+                  <span className="text-2xl font-bold text-[var(--text-primary)]">{selectedPackage.credits}</span>
                 </div>
+                <div className="h-px bg-[var(--border-default)] mb-3" />
                 <div className="flex items-center justify-between">
-                  <span className="text-white/70">Price</span>
-                  <span className="text-white font-medium">${selectedPackage.price}</span>
+                  <span className="text-sm text-[var(--text-secondary)]">Total</span>
+                  <span className="text-3xl font-extrabold text-[var(--text-primary)]">${selectedPackage.price}</span>
                 </div>
               </div>
 
-              <div className="p-3 rounded-lg bg-yellow-500/10 border border-yellow-500/20 mb-4 text-sm">
-                <p className="text-yellow-300 text-xs">
-                  🧪 Test Mode: Credits will be added instantly without payment.
+              {/* Test mode notice */}
+              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-6">
+                <p className="text-amber-300/80 text-xs">
+                  🧪 Test Mode: Credits will be added instantly
                 </p>
               </div>
 
-              <div className="space-y-2">
-                <Button
+              {/* Actions */}
+              <div className="space-y-3">
+                <RylaButton
                   onClick={handleConfirmPurchase}
                   disabled={purchaseMutation.isPending}
-                  className="w-full h-10 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold"
+                  loading={purchaseMutation.isPending}
+                  variant="glassy"
+                  className="w-full"
                 >
-                  {purchaseMutation.isPending ? 'Processing...' : 'Confirm & Add Credits'}
-                </Button>
-                <Button
+                  Confirm Purchase
+                </RylaButton>
+                <RylaButton
                   onClick={() => setShowConfirmModal(false)}
                   variant="ghost"
-                  className="w-full h-10 text-white/70 hover:text-white hover:bg-white/10"
+                  className="w-full text-[var(--text-muted)]"
                 >
                   Cancel
-                </Button>
+                </RylaButton>
               </div>
             </div>
           </div>
         </div>
       )}
-    </div>
+    </PageContainer>
+  );
+}
+
+export default function BuyCreditsPage() {
+  return (
+    <ProtectedRoute>
+      <BuyCreditsContent />
+    </ProtectedRoute>
   );
 }

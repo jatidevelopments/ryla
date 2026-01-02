@@ -10,39 +10,80 @@ jobs:
     name: Deploy to Production
     runs-on: ubuntu-latest
     environment: production
+    strategy:
+      matrix:
+        app:
+          - name: landing
+            config: apps/landing/fly.toml
+            dockerfile: apps/landing/Dockerfile
+            fly_app: ryla-landing
+          - name: funnel
+            config: apps/funnel/fly.toml
+            dockerfile: apps/funnel/Dockerfile
+            fly_app: funnel-v3-adult
+          - name: web
+            config: apps/web/fly.toml
+            dockerfile: apps/web/Dockerfile
+            fly_app: ryla-web
+          # TODO: Add API when Dockerfile and fly.toml are created
+          # - name: api
+          #   config: apps/api/fly.toml
+          #   dockerfile: apps/api/Dockerfile
+          #   fly_app: ryla-api
     steps:
       - uses: actions/checkout@v4
       
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'pnpm'
       
-      - run: npm ci
-      - run: npm run build
+      - name: Install pnpm
+        run: npm install -g pnpm
       
-      # Deploy to Vercel (or your hosting provider)
-      # - name: Deploy to Vercel
-      #   run: npx vercel --prod --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build apps
+        run: pnpm nx build ${{ matrix.app.name }} --configuration=production
+      
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+      
+      - name: Deploy to Fly.io
+        run: |
+          flyctl deploy \
+            --config ${{ matrix.app.config }} \
+            --dockerfile ${{ matrix.app.dockerfile }} \
+            --app ${{ matrix.app.fly_app }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ${{ matrix.app.fly_app }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       
       - name: Notify Slack
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"DEPLOY: production ${{ github.ref_name }} success"}' \
+            --data '{"text":"DEPLOY: production ${{ github.ref_name }} - ${{ matrix.app.name }} success"}' \
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS }}
       
       - name: Notify Slack on Failure
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"ALERT: production deploy failed - ${{ github.ref_name }}"}' \
+            --data '{"text":"ALERT: production deploy failed - ${{ github.ref_name }} - ${{ matrix.app.name }}"}' \
             ${{ secrets.SLACK_WEBHOOK_ALERTS }}
       
       - name: Audit Log
         if: always()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"AUDIT: production deploy by ${{ github.actor }} - status: ${{ job.status }}"}' \
+            --data '{"text":"AUDIT: production deploy by ${{ github.actor }} - ${{ matrix.app.name }} - status: ${{ job.status }} - ref: ${{ github.ref_name }}"}' \
             ${{ secrets.SLACK_WEBHOOK_AUDIT }}
 

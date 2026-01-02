@@ -57,12 +57,6 @@ const Video = React.forwardRef<HTMLVideoElement, VideoProps>(
             className,
             objectFit = "cover",
             aspectRatio,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            loading: _,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            quality: __,
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            priority: ___,
             style,
             ...props
         },

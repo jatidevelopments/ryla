@@ -15,8 +15,10 @@ import {
   creditTransactions,
   characters,
   CREDIT_COSTS,
+  NotificationsRepository,
   type GenerationInput,
 } from '@ryla/data';
+import type { NotificationType } from '@ryla/data/schema';
 
 import { router, protectedProcedure } from '../trpc';
 
@@ -111,6 +113,28 @@ export const generationRouter = router({
         description: `${input.qualityMode.toUpperCase()} generation (${input.imageCount} image${input.imageCount > 1 ? 's' : ''})`,
         qualityMode: input.qualityMode,
       });
+
+      // Check for low balance notification after deduction
+      if (newBalance > 0 && newBalance <= 10 && !credits?.lowBalanceWarningShown) {
+        const notificationsRepo = new NotificationsRepository(ctx.db);
+        await notificationsRepo.create({
+          userId: ctx.user.id,
+          type: 'credits.low_balance' as NotificationType,
+          title: 'Low credits warning',
+          body: `You have ${newBalance} credits remaining. Consider purchasing more.`,
+          href: '/buy-credits',
+          metadata: { balance: newBalance },
+        });
+
+        // Mark warning as shown
+        await ctx.db
+          .update(userCredits)
+          .set({
+            lowBalanceWarningShown: new Date(),
+            updatedAt: new Date(),
+          })
+          .where(eq(userCredits.userId, ctx.user.id));
+      }
 
       // TODO: Queue job to Bull/Redis for processing
 

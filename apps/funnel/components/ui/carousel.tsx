@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
 "use client";
 
 import * as React from "react";
@@ -16,6 +17,7 @@ type CarouselProps = {
     opts?: CarouselOptions;
     plugins?: CarouselPlugin;
     orientation?: "horizontal" | "vertical";
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     setApi?: (api: CarouselApi) => void;
 };
 

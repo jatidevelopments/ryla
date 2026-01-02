@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCharacterWizardStore, useInfluencerStore } from '@ryla/business';
 import { Switch, cn } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
+import { trpc } from '../../lib/trpc';
 import {
   generateBaseImagesAndWait,
   type JobStatus,
@@ -13,12 +14,14 @@ import {
 import { useCredits } from '../../lib/hooks/use-credits';
 import { ZeroCreditsModal } from '../credits';
 
+import { FEATURE_CREDITS } from '../../constants/pricing';
+
 /**
  * Step 6: Generate
  * Preview settings and create the AI influencer
  */
-// Credit costs for generation
-const BASE_IMAGE_CREDITS = 5; // Cost for initial character generation
+// Credit costs for generation - using shared pricing
+const BASE_IMAGE_CREDITS = FEATURE_CREDITS.base_images.credits; // 100 credits for 3 images
 
 export function StepGenerate() {
   const router = useRouter();
@@ -28,6 +31,9 @@ export function StepGenerate() {
   const setCharacterId = useCharacterWizardStore((s) => s.setCharacterId);
   const resetForm = useCharacterWizardStore((s) => s.resetForm);
   const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
+
+  const utils = trpc.useUtils();
+  const createCharacter = trpc.character.create.useMutation();
 
   // Credit management
   const { balance, isLoading: isLoadingCredits, refetch: refetchCredits } = useCredits();
@@ -99,17 +105,42 @@ export function StepGenerate() {
         }
       );
 
-      // Create new influencer with generated images
-      const newId = `influencer-${Date.now()}`;
       const handle = `@${(form.name || 'unnamed')
         .toLowerCase()
         .replace(/\s+/g, '.')}`;
 
-      // Extract the URL from the first generated image for avatar
+      // Extract the URL from the first generated image for avatar / base identity
       const avatarUrl = images[0]?.url || '';
 
+      if (!avatarUrl) {
+        throw new Error('Base image generation returned no images; cannot create character');
+      }
+
+      const character = await createCharacter.mutateAsync({
+        name: form.name || 'Unnamed',
+        baseImageUrl: avatarUrl,
+        config: {
+          gender: form.gender || 'female',
+          style: form.style || 'realistic',
+          ethnicity: form.ethnicity || 'caucasian',
+          age: form.age,
+          hairStyle: form.hairStyle || 'long-straight',
+          hairColor: form.hairColor || 'brown',
+          eyeColor: form.eyeColor || 'brown',
+          bodyType: form.bodyType || 'slim',
+          breastSize: form.breastSize || undefined,
+          defaultOutfit: form.outfit || 'casual',
+          archetype: form.archetype || 'girl-next-door',
+          personalityTraits:
+            form.personalityTraits.length > 0 ? form.personalityTraits : ['friendly'],
+          bio: form.bio,
+          handle,
+          nsfwEnabled: form.nsfwEnabled,
+        },
+      });
+
       const newInfluencer: AIInfluencer = {
-        id: newId,
+        id: character.id,
         name: form.name || 'Unnamed',
         handle,
         bio: form.bio || 'New AI influencer ✨',
@@ -138,14 +169,20 @@ export function StepGenerate() {
       };
 
       addInfluencer(newInfluencer);
-      setCharacterId(newId);
+      setCharacterId(character.id);
       setStatus('completed');
       resetForm();
 
       // Refetch credits to update balance after generation
       refetchCredits();
 
-      router.push(`/influencer/${newId}/studio`);
+      // Invalidate activity feed to show new generation + credit usage
+      utils.activity.list.invalidate();
+      utils.activity.summary.invalidate();
+      // Invalidate notifications (character created + generation complete)
+      utils.notifications.list.invalidate();
+
+      router.push(`/influencer/${character.id}/studio`);
     } catch (err) {
       console.error('Generation failed:', err);
       setError(err instanceof Error ? err.message : 'Generation failed');

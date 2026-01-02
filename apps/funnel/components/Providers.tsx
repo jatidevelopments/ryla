@@ -1,4 +1,5 @@
-import { NextIntlClientProvider } from "next-intl";
+// Temporarily disable next-intl to fix React 18 compatibility
+// import { NextIntlClientProvider } from "next-intl";
 import { QueryProvider } from "@/components/QueryProvider";
 
 interface IProvidersProps {
@@ -7,9 +8,9 @@ interface IProvidersProps {
 
 const Providers = ({ children }: IProvidersProps) => {
     return (
-        <NextIntlClientProvider>
+        // <NextIntlClientProvider>
             <QueryProvider>{children}</QueryProvider>
-        </NextIntlClientProvider>
+        // </NextIntlClientProvider>
     );
 };
 

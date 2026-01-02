@@ -12,6 +12,7 @@ interface StudioDetailPanelProps {
   onLike?: (imageId: string) => void;
   onDelete?: (imageId: string) => void;
   onDownload?: (image: StudioImage) => void;
+  editHref?: string;
   className?: string;
 }
 
@@ -21,6 +22,7 @@ export function StudioDetailPanel({
   onLike,
   onDelete,
   onDownload,
+  editHref,
   className,
 }: StudioDetailPanelProps) {
   const [copied, setCopied] = React.useState(false);
@@ -75,18 +77,18 @@ export function StudioDetailPanel({
     return (
       <div
         className={cn(
-          'flex flex-col items-center justify-center border-l border-white/10 bg-[#0d0d0f] p-8 text-center',
+          'flex flex-col items-center justify-center border-l border-[var(--border-default)] bg-[var(--bg-elevated)] p-8 text-center',
           className
         )}
       >
-        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-white/5">
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--border-default)]">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1}
             stroke="currentColor"
-            className="h-12 w-12 text-white/20"
+            className="h-12 w-12 text-[var(--text-muted)]"
           >
             <path
               strokeLinecap="round"
@@ -95,8 +97,8 @@ export function StudioDetailPanel({
             />
           </svg>
         </div>
-        <p className="text-lg font-semibold text-white/80 mb-2">Select an image</p>
-        <p className="text-sm text-white/40 max-w-[200px]">
+        <p className="text-lg font-semibold text-[var(--text-primary)] mb-2">Select an image</p>
+        <p className="text-sm text-[var(--text-muted)] max-w-[200px]">
           Click on any image to view details and edit options
         </p>
       </div>
@@ -106,23 +108,23 @@ export function StudioDetailPanel({
   return (
     <div
       className={cn(
-        'flex flex-col border-l border-white/10 bg-[#0d0d0f] overflow-hidden',
+        'flex flex-col border-l border-[var(--border-default)] bg-[var(--bg-elevated)] overflow-hidden',
         className
       )}
     >
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3 bg-[#0a0a0b]">
-        <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--purple-500)]/20">
+      <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-4 bg-[var(--bg-elevated)]">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--purple-500)]/20">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
               <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
             </svg>
           </div>
-          <h3 className="font-semibold text-white">Image Details</h3>
+          <h3 className="font-semibold text-[var(--text-primary)]">Image Details</h3>
         </div>
         <button
           onClick={onClose}
-          className="rounded-lg p-1.5 text-white/40 transition-colors hover:bg-white/5 hover:text-white"
+          className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +142,7 @@ export function StudioDetailPanel({
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Image Preview */}
-        <div className="relative aspect-square w-full bg-[#0a0a0b]">
+        <div className="relative aspect-square w-full bg-[var(--bg-base)]">
           {image.imageUrl ? (
             <>
               <Image
@@ -192,15 +194,15 @@ export function StudioDetailPanel({
         </div>
 
         {/* Quick Action Buttons */}
-        <div className="grid grid-cols-3 gap-2 p-4 border-b border-white/10">
+        <div className="grid grid-cols-3 gap-3 p-4 border-b border-[var(--border-default)]">
           <Button
             onClick={() => onLike?.(image.id)}
             variant="outline"
             className={cn(
-              'flex-col gap-1 h-auto py-3',
+              'flex-col gap-1.5 h-auto py-4 rounded-xl transition-all',
               image.isLiked
                 ? 'border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                : 'border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10'
+                : 'border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
             )}
           >
             <svg
@@ -211,12 +213,12 @@ export function StudioDetailPanel({
             >
               <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
             </svg>
-            <span className="text-xs">{image.isLiked ? 'Liked' : 'Like'}</span>
+            <span className="text-xs font-medium">{image.isLiked ? 'Liked' : 'Like'}</span>
           </Button>
           <Button
             onClick={handleDownload}
             variant="outline"
-            className="flex-col gap-1 h-auto py-3 border-white/10 bg-white/5 text-white/70 hover:text-white hover:bg-white/10"
+            className="flex-col gap-1.5 h-auto py-4 rounded-xl border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -227,36 +229,56 @@ export function StudioDetailPanel({
               <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
               <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
             </svg>
-            <span className="text-xs">Download</span>
+            <span className="text-xs font-medium">Download</span>
           </Button>
           <Button
             onClick={() => setShowDeleteConfirm(true)}
             variant="outline"
-            className="flex-col gap-1 h-auto py-3 border-white/10 bg-white/5 text-white/70 hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30"
+            className="flex-col gap-1.5 h-auto py-4 rounded-xl border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
               <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.519.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
             </svg>
-            <span className="text-xs">Delete</span>
+            <span className="text-xs font-medium">Delete</span>
           </Button>
         </div>
+
+        {/* Edit (deep link to per-influencer Studio) */}
+        {editHref && (
+          <div className="px-4 pb-4 border-b border-[var(--border-default)]">
+            <Link
+              href={editHref}
+              className="flex items-center justify-center gap-2 w-full rounded-xl bg-[var(--purple-500)] text-white font-semibold text-sm py-3.5 hover:bg-[var(--purple-400)] transition-colors shadow-lg shadow-[var(--purple-500)]/20"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-4 w-4"
+              >
+                <path d="M13.586 3.586a2 2 0 112.828 2.828l-9.5 9.5a1 1 0 01-.415.257l-3.5 1a1 1 0 01-1.236-1.236l1-3.5a1 1 0 01.257-.415l9.566-9.434z" />
+              </svg>
+              Edit in Studio
+            </Link>
+          </div>
+        )}
 
         {/* Delete Confirmation */}
         {showDeleteConfirm && (
           <div className="mx-4 mb-4 rounded-xl bg-red-500/10 border border-red-500/30 p-4">
-            <p className="text-sm text-white mb-3">Are you sure you want to delete this image?</p>
+            <p className="text-sm text-[var(--text-primary)] mb-3">Are you sure you want to delete this image?</p>
             <div className="flex gap-2">
               <Button
                 onClick={handleDelete}
                 variant="outline"
-                className="flex-1 border-red-500/50 bg-red-500/20 text-red-400 hover:bg-red-500/30"
+                className="flex-1 border-red-500/50 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-xl"
               >
                 Delete
               </Button>
               <Button
                 onClick={() => setShowDeleteConfirm(false)}
                 variant="outline"
-                className="flex-1 border-white/10 bg-white/5"
+                className="flex-1 border-[var(--border-default)] bg-[var(--bg-base)] rounded-xl"
               >
                 Cancel
               </Button>
@@ -265,12 +287,12 @@ export function StudioDetailPanel({
         )}
 
         {/* AI Influencer Connection - Prominent Section */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-[var(--border-default)]">
           <div className="flex items-center gap-2 mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
               <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
             </svg>
-            <h4 className="text-xs font-medium uppercase tracking-wider text-white/50">
+            <h4 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
               AI Influencer
             </h4>
           </div>
@@ -300,8 +322,8 @@ export function StudioDetailPanel({
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <p className="font-semibold text-white truncate">{image.influencerName}</p>
-              <p className="text-sm text-white/50 flex items-center gap-1">
+              <p className="font-semibold text-[var(--text-primary)] truncate">{image.influencerName}</p>
+              <p className="text-sm text-[var(--text-muted)] flex items-center gap-1">
                 <span>View profile</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all">
                   <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
@@ -310,7 +332,7 @@ export function StudioDetailPanel({
             </div>
 
             {/* Arrow */}
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-white/40 group-hover:bg-[var(--purple-500)]/20 group-hover:text-[var(--purple-400)] transition-all">
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--bg-hover)] text-[var(--text-muted)] group-hover:bg-[var(--purple-500)]/20 group-hover:text-[var(--purple-400)] transition-all">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
                 <path fillRule="evenodd" d="M3 10a.75.75 0 01.75-.75h10.638L10.23 5.29a.75.75 0 111.04-1.08l5.5 5.25a.75.75 0 010 1.08l-5.5 5.25a.75.75 0 11-1.04-1.08l4.158-3.96H3.75A.75.75 0 013 10z" clipRule="evenodd" />
               </svg>
@@ -319,12 +341,12 @@ export function StudioDetailPanel({
         </div>
 
         {/* Generation Details */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-[var(--border-default)]">
           <div className="flex items-center gap-2 mb-3">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
               <path d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5z" />
             </svg>
-            <h4 className="text-xs font-medium uppercase tracking-wider text-white/50">
+            <h4 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
               Generation Details
             </h4>
           </div>
@@ -333,8 +355,8 @@ export function StudioDetailPanel({
             {/* Prompt */}
             {image.prompt && (
               <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-xs text-white/40">Prompt</span>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-xs text-[var(--text-muted)]">Prompt</span>
                   <button
                     onClick={handleCopyPrompt}
                     className="flex items-center gap-1 text-xs text-[var(--purple-400)] hover:text-[var(--purple-300)] transition-colors"
@@ -357,7 +379,7 @@ export function StudioDetailPanel({
                     )}
                   </button>
                 </div>
-                <p className="rounded-xl bg-white/5 p-3 text-sm text-white/80 leading-relaxed border border-white/5">
+                <p className="rounded-xl bg-[var(--bg-base)] p-3 text-sm text-[var(--text-secondary)] leading-relaxed border border-[var(--border-default)]">
                   {image.prompt}
                 </p>
               </div>
@@ -370,7 +392,7 @@ export function StudioDetailPanel({
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
                     <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-xs font-medium text-white capitalize">
+                  <span className="text-xs font-medium text-[var(--text-primary)] capitalize">
                     {image.scene.replace(/-/g, ' ')}
                   </span>
                 </div>
@@ -380,7 +402,7 @@ export function StudioDetailPanel({
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--pink-400)]">
                     <path fillRule="evenodd" d="M5.5 17a4.5 4.5 0 01-1.44-8.765 4.5 4.5 0 018.302-3.046 3.5 3.5 0 014.504 4.272A4 4 0 0115 17H5.5zm3.75-2.75a.75.75 0 001.5 0V9.66l1.95 2.1a.75.75 0 101.1-1.02l-3.25-3.5a.75.75 0 00-1.1 0l-3.25 3.5a.75.75 0 101.1 1.02l1.95-2.1v4.59z" clipRule="evenodd" />
                   </svg>
-                  <span className="text-xs font-medium text-white capitalize">
+                  <span className="text-xs font-medium text-[var(--text-primary)] capitalize">
                     {image.environment.replace(/-/g, ' ')}
                   </span>
                 </div>
@@ -392,27 +414,27 @@ export function StudioDetailPanel({
         {/* Metadata */}
         <div className="p-4">
           <div className="flex items-center gap-2 mb-3">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-white/30">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--text-muted)]">
               <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clipRule="evenodd" />
             </svg>
-            <h4 className="text-xs font-medium uppercase tracking-wider text-white/50">
+            <h4 className="text-xs font-medium uppercase tracking-wider text-[var(--text-muted)]">
               Info
             </h4>
           </div>
-          <div className="space-y-2 text-sm">
+          <div className="space-y-3 text-sm">
             <div className="flex justify-between">
-              <span className="text-white/40">Created</span>
-              <span className="text-white/70">{formatDate(image.createdAt)}</span>
+              <span className="text-[var(--text-muted)]">Created</span>
+              <span className="text-[var(--text-secondary)]">{formatDate(image.createdAt)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/40">Aspect Ratio</span>
-              <span className="text-white/70">{image.aspectRatio}</span>
+              <span className="text-[var(--text-muted)]">Aspect Ratio</span>
+              <span className="text-[var(--text-secondary)]">{image.aspectRatio}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/40">Status</span>
+              <span className="text-[var(--text-muted)]">Status</span>
               <span className={cn(
-                "capitalize",
-                image.status === 'completed' && "text-green-400",
+                "capitalize font-medium",
+                image.status === 'completed' && "text-emerald-400",
                 image.status === 'generating' && "text-[var(--purple-400)]",
                 image.status === 'failed' && "text-red-400"
               )}>
@@ -420,15 +442,15 @@ export function StudioDetailPanel({
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-white/40">ID</span>
-              <span className="font-mono text-xs text-white/50">{image.id.slice(0, 12)}...</span>
+              <span className="text-[var(--text-muted)]">ID</span>
+              <span className="font-mono text-xs text-[var(--text-muted)]">{image.id.slice(0, 12)}...</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Footer - Generate More CTA */}
-      <div className="border-t border-white/10 p-4 bg-[#0a0a0b]">
+      <div className="border-t border-[var(--border-default)] p-4 bg-[var(--bg-elevated)]">
         <RylaButton asChild variant="gradient" className="w-full">
           <Link href={`/influencer/${image.influencerId}/studio`}>
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="mr-2 h-4 w-4">

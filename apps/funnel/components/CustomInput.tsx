@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars, @typescript-eslint/no-unused-vars */
 import React, { useEffect } from "react";
 import { clsx } from "clsx";
 import { X } from "lucide-react";
@@ -5,7 +6,7 @@ import { X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 
-interface ICustomInputProps extends React.ComponentProps<"input"> {
+interface ICustomInputProps extends Omit<React.ComponentProps<"input">, "onChange"> {
     value?: string;
     isError?: string;
     icon?: React.ReactNode;
@@ -15,6 +16,7 @@ interface ICustomInputProps extends React.ComponentProps<"input"> {
     invalidateInputState?: (value: boolean) => void;
     isSuccess?: boolean;
 }
+/* eslint-enable no-unused-vars, @typescript-eslint/no-unused-vars */
 
 const CustomInput = (props: ICustomInputProps) => {
     const { icon, isError, resetInput, invalidateInputState, isSuccess, ...rest } = props;

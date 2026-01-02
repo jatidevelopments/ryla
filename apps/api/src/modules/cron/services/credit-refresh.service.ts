@@ -6,7 +6,9 @@ import {
   userCredits,
   creditTransactions,
   PLAN_CREDIT_LIMITS,
+  NotificationsRepository,
 } from '@ryla/data';
+import type { NotificationType } from '@ryla/data/schema';
 
 // Map subscription tiers to plan credit limits
 const TIER_TO_PLAN: Record<string, keyof typeof PLAN_CREDIT_LIMITS> = {
@@ -156,6 +158,17 @@ export class CreditRefreshService {
           updatedAt: new Date(),
         })
         .where(eq(subscriptions.id, subscription.id));
+    });
+
+    // Create notification (after transaction commits)
+    const notificationsRepo = new NotificationsRepository(this.db);
+    await notificationsRepo.create({
+      userId,
+      type: 'credits.subscription_granted' as NotificationType,
+      title: 'Monthly credits refreshed',
+      body: `You received ${creditsToGrant} credits for your ${tier} subscription`,
+      href: '/activity',
+      metadata: { subscriptionId: subscription.id, creditsGranted: creditsToGrant, tier },
     });
 
     this.logger.log(`Successfully refreshed credits for user ${userId}`);

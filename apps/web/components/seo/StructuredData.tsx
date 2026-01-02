@@ -100,9 +100,11 @@ export function StructuredData() {
       priceCurrency: 'USD',
       availability: 'https://schema.org/InStock',
       url: `${SITE_URL}`,
-      priceValidUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-        .toISOString()
-        .split('T')[0],
+      priceValidUntil: (() => {
+        const date = new Date();
+        date.setFullYear(date.getFullYear() + 1);
+        return date.toISOString().split('T')[0];
+      })(),
     },
     aggregateRating: {
       '@type': 'AggregateRating',

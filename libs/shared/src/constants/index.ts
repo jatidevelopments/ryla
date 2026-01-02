@@ -8,3 +8,6 @@ export * from './character';
 // Content Studio options
 export * from './studio';
 
+// Platform definitions
+export * from './platforms';
+

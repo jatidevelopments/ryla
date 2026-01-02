@@ -1,6 +1,6 @@
 # YouTube Research Summary: Text-to-Image Models & Face Swap/LoRA
 
-> **Last Updated**: December 8, 2025
+> **Last Updated**: December 17, 2025
 > **Focus**: Recent research (last 1-2 weeks) on model selection and face swap/LoRA techniques
 
 ---
@@ -10,6 +10,7 @@
 1. **Which text-to-image model to choose?**
 2. **How to implement face swap/LoRA for consistent characters?**
 3. **What are the cost and performance trade-offs?**
+4. **Are LoRAs and ComfyUI still relevant vs API models?**
 
 ---
 
@@ -86,6 +87,37 @@
 - Flux PuLID: $0.02 per generation (45 per dollar)
 - Trained LoRA: Very cheap after training
 - Kling Custom Model: Uses subscription credits
+- API Models (NanoBanana Pro, etc.): 3-15 cents per image
+
+### 4. API Models vs ComfyUI + LoRAs
+
+**API Models (NanoBanana Pro, cDream, etc.)**:
+- ✅ ~90% quality (improving rapidly)
+- ✅ Instant setup, zero learning curve
+- ✅ Costs 3-15 cents per image
+- ❌ Limited customization
+- ❌ Lower NSFW quality (trained on SFW datasets)
+- ❌ Cannot match 100% quality of ComfyUI + LoRAs
+
+**ComfyUI + LoRAs (Open Source)**:
+- ✅ 100% quality
+- ✅ Free after learning curve
+- ✅ Unlimited customization
+- ✅ Best NSFW support
+- ❌ Steep learning curve (months)
+- ❌ Many things can go wrong
+
+**Timeline Evolution**:
+- 6 months ago: LoRAs/ComfyUI essential (100% yes)
+- 1 month ago: Mostly yes, API models = 80% quality
+- Today: API models = 90% quality
+- 2-3 years: API models may make ComfyUI obsolete (except NSFW)
+
+**RYLA Implication**: 
+- ✅ Current ComfyUI + LoRAs architecture validated (ADR-003)
+- ✅ NSFW requirement = API models insufficient
+- ✅ Quality requirement = need 100%, not 90%
+- ⚠️ Plan migration path for 2-3 year timeline
 
 ---
 
@@ -140,6 +172,89 @@ Animate to Video (optional - Kling/Runway)
 4. **[Kling AI Guide](./7WcVWq-fcXc/)** - Video generation workflows
 5. **[PuLID without LoRA](./AvM9IcaGGzQ/)** - Quick prototyping setup
 
+### Architecture & Strategy
+
+6. **[Are LoRAs and ComfyUI Still Relevant?](./d6cPpxnjppU/)** - API models vs open source analysis
+   - **Key Finding**: Validates RYLA's ComfyUI + LoRAs architecture (ADR-003)
+   - **NSFW Limitation**: API models insufficient for NSFW content
+   - **Quality Trade-off**: 90% (API) vs 100% (ComfyUI) - RYLA needs 100%
+   - **Future Outlook**: Plan migration in 2-3 years as API models improve
+
+### Filip AI Influencer Expert Channel (Complete Series)
+
+**Channel**: Filip | AI Influencer Expert  
+**Total Videos**: 15+ comprehensive tutorials  
+**See**: [FILIP-CHANNEL-INDEX.md](./FILIP-CHANNEL-INDEX.md) for complete catalog
+
+**Complete Guides**:
+7. **[ULTIMATE AI Influencer Creation Guide](./_Y5vRHkzxz4/)** - 35:37 complete roadmap
+   - **Key Finding**: Complete validation of RYLA's architecture and workflow
+   - **Coverage**: Basics → Setup → Models → ComfyUI → LoRA → Prompting → NSFW → Video
+   - **RYLA Relevance**: ⭐⭐⭐⭐⭐ Maps directly to EP-005 requirements
+
+8. **[Most Comprehensive LoRA Training Tutorial](./NdO5cljgbX0/)** - 40:25 step-by-step
+   - **Key Finding**: DiffusionPipe with evaluation tool = best quality
+   - **Coverage**: Complete setup, training, checkpoint selection
+   - **RYLA Relevance**: ⭐⭐⭐⭐⭐ LoRA training pipeline implementation
+
+9. **[9K People Discord FAQ](./J-LPUa1mNj8/)** - 19:16 common questions
+   - **Key Finding**: Identifies exact user pain points RYLA must solve
+   - **Coverage**: Setup issues, model confusion, quality problems
+   - **RYLA Relevance**: ⭐⭐⭐⭐ User experience requirements
+
+**Automation & Tools**:
+10. **[Airtable Infinite Content System](./iM_znL1l1hc/)** - 13:37 automation
+    - **Key Finding**: Batch generation essential for scale
+    - **Coverage**: Automated image/video generation pipeline
+    - **RYLA Relevance**: ⭐⭐⭐⭐⭐ Content pipeline automation
+
+11. **[1000 Images Instantly](./QGYpKNiB3qs/)** - 3:02 batch processing
+    - **Key Finding**: ComfyUI batch generation workflow
+    - **RYLA Relevance**: ⭐⭐⭐⭐ Batch API implementation
+
+**Marketing & Monetization**:
+12. **[Instagram Marketing Guide](./YHBP7tWxaP8/)** - 15:22 complete strategy
+    - **Key Finding**: Marketing > Quality (validates RYLA's marketing features)
+    - **Coverage**: Account setup, warm-up, posting, promotions, character bible
+    - **RYLA Relevance**: ⭐⭐⭐⭐⭐ EP-003 & EP-006 user acquisition
+
+13. **[Telegram Funnel ($5K/month)](./vgDtxaQcHsY/)** - 10:18 monetization
+    - **Key Finding**: Telegram as intermediate funnel step
+    - **Coverage**: Broadcast channels, direct sales, strategic asset
+    - **RYLA Relevance**: ⭐⭐⭐⭐ Alternative monetization channels
+
+14. **[Top 7 AI Influencers Analysis](./oV4RkZUJ2Nc/)** - 7:03 success patterns
+    - **Key Finding**: Niche + Consistency + Visual Coherence = Success
+    - **Coverage**: What successful influencers have in common
+    - **RYLA Relevance**: ⭐⭐⭐⭐⭐ Success pattern validation
+
+**Technical Techniques**:
+15. **[Prompt Engineering for Realism](./pQIvxHyuzOE/)** - 5:38 prompt optimization
+    - **Key Finding**: Prompt = 50% of image quality
+    - **RYLA Relevance**: ⭐⭐⭐⭐ Prompt builder enhancement
+
+16. **[Simplified LoRA Training (fal.ai)](./WUWGZt2UwO0/)** - 16:46 alternative method
+    - **Key Finding**: Easier than DiffusionPipe, good results
+    - **RYLA Relevance**: ⭐⭐⭐⭐ Alternative training option
+
+17. **[Why Looks Fake/Plastic](./8xke9Cj7rGU/)** - 9:10 quality fixes
+    - **Key Finding**: Tool selection, prompting, model choice critical
+    - **RYLA Relevance**: ⭐⭐⭐⭐ Quality assurance features
+
+**Video & Voice**:
+18. **[Talking Reels/Lip Sync](./47cTrIYg2AI/)** - 7:06 video features
+    - **Key Finding**: API models faster than local for lip sync
+    - **RYLA Relevance**: ⭐⭐⭐ Video generation features
+
+19. **[Voice Generation](./Ctfp7T9IqoA/)** - 6:21 voice features
+    - **Key Finding**: 11 Labs best for consistent voices
+    - **RYLA Relevance**: ⭐⭐⭐ Voice API integration
+
+**Cost Optimization**:
+20. **[NanoBanana Pro Free](./EFoCZ_YUBzE/)** - 3:09 free tier
+    - **Key Finding**: Google Gemini Pro trial = 1,000 free uses
+    - **RYLA Relevance**: ⭐⭐⭐ Cost awareness
+
 ---
 
 ## 🎯 Next Steps
@@ -181,4 +296,50 @@ See [`../z-image-turbo-model.md`](../z-image-turbo-model.md) for comprehensive r
 See [`./UgFIafj-qu0/metadata.md`](./UgFIafj-qu0/metadata.md) for research on **AI influencer monetization strategies**.
 
 **Key Finding**: Two distinct business models exist: (1) long-term brand building (7-figure potential) and (2) immediate cash flow via affiliate marketing. 90% fail due to character consistency issues - validating RYLA's core value proposition.
+
+### Architecture Validation: ComfyUI vs API Models
+
+See [`./d6cPpxnjppU/analysis.md`](./d6cPpxnjppU/analysis.md) for comprehensive analysis of **API models vs ComfyUI + LoRAs**.
+
+**Key Finding**: Video validates RYLA's current architecture decision (ADR-003). ComfyUI + LoRAs remains essential for:
+- **100% quality requirement** (users pay for images, must pass inspection)
+- **NSFW support** (API models trained on SFW datasets, insufficient quality)
+- **Character consistency** (LoRAs required for consistent characters)
+- **Cost at scale** (ComfyUI cheaper than API models at high volume)
+
+**Strategic Implication**: RYLA is on the correct path for MVP. Plan to monitor API model improvements (Seedream 4.5, cDream v4) and evaluate migration in 2-3 years when API models may reach parity.
+
+### Pain Points & Insights Analysis
+
+**📋 [AI-INFLUENCER-PAINS-AND-INSIGHTS.md](./AI-INFLUENCER-PAINS-AND-INSIGHTS.md)** - Comprehensive extraction of:
+- **Business Pains**: 6 categories (Monetization, Content, Character, Marketing, Cost, Scale)
+- **Technical Pains**: 8 categories (Setup, ComfyUI, Models, LoRA, Quality, Performance, API, Video)
+- **Key Insights**: 8 critical learnings
+- **RYLA Opportunities**: 10 prioritized solutions
+
+**Quick Reference**: [PAINS-QUICK-REFERENCE.md](./PAINS-QUICK-REFERENCE.md) - Table format for quick lookup
+
+### Filip Channel - Comprehensive Research Series
+
+See [FILIP-CHANNEL-INDEX.md](./FILIP-CHANNEL-INDEX.md) for complete catalog of 15+ videos covering:
+- Complete AI influencer creation workflow
+- LoRA training (DiffusionPipe + fal.ai methods)
+- Marketing and monetization strategies
+- Automation and batch processing
+- Quality optimization techniques
+- Video and voice generation
+
+**Key Themes**:
+- **Marketing > Quality**: Best images useless without reach
+- **Automation Critical**: Batch generation essential for scale
+- **Character Story Essential**: Niche and consistency required
+- **Long-Term Game**: Success takes months/years, not weeks
+- **Quality vs Speed**: 90% (API) vs 100% (ComfyUI) trade-off
+
+**RYLA Validation**:
+- ✅ ComfyUI + LoRAs architecture confirmed
+- ✅ Character DNA system aligns with character bible concept
+- ✅ Batch automation essential (Airtable-style pipeline)
+- ✅ Marketing features critical (not just generation)
+- ✅ User pain points identified (onboarding, quality, setup)
 

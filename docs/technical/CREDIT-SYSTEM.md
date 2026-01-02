@@ -2,7 +2,27 @@
 
 ## Overview
 
-The credit system manages AI image generation quotas. Users spend credits to generate content, with costs varying by quality mode. Credits are granted on signup and via subscription purchases.
+The credit system manages AI image generation quotas with feature-based pricing. Users spend credits per feature, with costs defined by the generation type and model used. All pricing is defined in a single source of truth (`@ryla/shared`).
+
+---
+
+## Single Source of Truth
+
+**All credit pricing is defined in:**
+```
+libs/shared/src/credits/pricing.ts
+```
+
+This file exports:
+- `FEATURE_CREDITS` - Cost per feature
+- `PLAN_CREDITS` - Monthly credits per plan
+- `SUBSCRIPTION_PLANS` - Plan definitions with pricing
+- `CREDIT_PACKAGES` - One-time purchase packages
+- Helper functions: `getFeatureCost()`, `hasEnoughCredits()`, etc.
+
+**See also:**
+- `docs/technical/CREDIT-PRICING-PROPOSAL.md` - Pricing strategy
+- `docs/technical/CREDIT-COST-MARGIN-ANALYSIS.md` - Cost/margin analysis
 
 ---
 
@@ -16,15 +36,24 @@ The credit system manages AI image generation quotas. Users spend credits to gen
 │       ↓                                                          │
 │  ZeroCreditsModal  ←  LowBalanceWarning                         │
 └────────────────────────────┬────────────────────────────────────┘
-                             │ tRPC
+                             │ tRPC / REST API
                              ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│                      tRPC Router (libs/trpc)                     │
+│               Backend (apps/api + libs/trpc)                     │
 ├─────────────────────────────────────────────────────────────────┤
-│  credits.getBalance()     - Fetch current balance               │
+│  CreditManagementService   - Check/deduct/refund credits        │
+│  credits.getBalance()      - Fetch current balance              │
 │  credits.getTransactions() - Credit history                      │
-│  credits.refundFailedJob() - Refund failed generations          │
 │  generation.create()       - Deducts credits atomically         │
+└────────────────────────────┬────────────────────────────────────┘
+                             │
+                             ↓
+┌─────────────────────────────────────────────────────────────────┐
+│                  Shared Pricing (@ryla/shared)                   │
+├─────────────────────────────────────────────────────────────────┤
+│  FEATURE_CREDITS           - Cost per feature type              │
+│  PLAN_CREDITS              - Monthly credits per subscription   │
+│  CREDIT_PACKAGES           - One-time purchase options          │
 └────────────────────────────┬────────────────────────────────────┘
                              │
                              ↓
@@ -38,9 +67,103 @@ The credit system manages AI image generation quotas. Users spend credits to gen
 
 ---
 
-## Database Schema
+## Credit Costs (10x Margin Model)
 
-### Tables
+All credit values are multiplied by 10 for psychological impact (100 credits feels better than 10).
+
+### Feature Costs
+
+| Feature | Credits | Description |
+|---------|---------|-------------|
+| `base_images` | 100 | Character creation (3 images) |
+| `profile_set_fast` | 200 | Profile set, speed mode (8 images) |
+| `profile_set_quality` | 300 | Profile set with PuLID (8 images) |
+| `studio_fast` | 20 | Single image, speed mode |
+| `studio_standard` | 50 | Single image, balanced |
+| `studio_batch` | 80 | 4 images in batch |
+| `inpaint` | 30 | Edit existing image |
+| `upscale` | 20 | Enhance resolution |
+| `fal_model` | Dynamic | External API (Fal.ai models - see pricing below) |
+
+### Fal.ai Model Pricing (Dynamic)
+
+Fal.ai models use **dynamic pricing** based on:
+- Model selection (70+ models available)
+- Image dimensions (credits scale with megapixels)
+
+**Pricing Formula:**
+```
+Credits = ceil(USD_Cost × 100)
+```
+
+Where USD cost is calculated as:
+- **Per megapixel models**: `cost_per_MP × (width × height / 1,000,000)`
+- **Per image models**: Fixed cost regardless of size
+
+**Example Costs (for 1024×1024 = 1MP image):**
+
+| Model | USD Cost | Credits | Use Case |
+|-------|----------|---------|----------|
+| `fal-ai/flux/schnell` | $0.003 | **0.3** | Fast generation |
+| `fal-ai/flux-2/flash` | $0.005 | **0.5** | Ultra-fast |
+| `fal-ai/flux-2/turbo` | $0.008 | **0.8** | Fast FLUX 2 |
+| `fal-ai/flux-2` | $0.012 | **1.2** | Standard FLUX 2 |
+| `fal-ai/flux/dev` | $0.025 | **2.5** | High quality |
+| `fal-ai/flux-2-pro` | $0.03 | **3** | Premium quality |
+| `fal-ai/flux-2-max` | $0.07 | **7** | Maximum quality |
+| `fal-ai/flux-pro/v1.1-ultra` | $0.06 | **6** | Ultra premium (per image) |
+| `fal-ai/imagen4/preview` | $0.04 | **4** | Google Imagen 4 (per image) |
+| `fal-ai/gpt-image-1.5` | $0.001 | **0.1** | GPT Image (per image) |
+
+**Full pricing reference:** See `apps/api/src/modules/image/services/fal-image.service.ts` → `FAL_MODEL_PRICING`
+
+**Note:** Credits scale with image size. A 9:16 image (832×1472 = 1.22 MP) costs ~22% more than a 1:1 image (1024×1024 = 1.05 MP).
+
+### Plan Credits
+
+| Plan | Monthly Credits | Price |
+|------|-----------------|-------|
+| Free | 250 (one-time) | $0 |
+| Starter | 3,000/month | $29/mo |
+| Pro | 8,000/month | $49/mo |
+| Unlimited | ∞ | $99/mo |
+
+---
+
+## Key Files
+
+### Shared (Source of Truth)
+
+| File | Purpose |
+|------|---------|
+| `libs/shared/src/credits/pricing.ts` | All credit costs, plans, packages |
+| `libs/shared/src/credits/index.ts` | Exports for @ryla/shared |
+| `apps/api/src/modules/image/services/fal-image.service.ts` | Fal.ai model pricing map (`FAL_MODEL_PRICING`) |
+
+### Backend
+
+| File | Purpose |
+|------|---------|
+| `libs/data/src/schema/credits.schema.ts` | DB schema, re-exports pricing |
+| `libs/trpc/src/routers/credits.router.ts` | tRPC endpoints for credits |
+| `libs/trpc/src/routers/generation.router.ts` | Credit deduction on generation |
+| `apps/api/src/modules/credits/services/credit-management.service.ts` | Credit check/deduct/refund service |
+| `apps/api/src/modules/auth/services/auth.service.ts` | Credit init on signup |
+| `apps/api/src/modules/cron/services/credit-refresh.service.ts` | Monthly credit reset |
+
+### Frontend
+
+| File | Purpose |
+|------|---------|
+| `apps/web/constants/pricing.ts` | Re-exports from @ryla/shared |
+| `apps/web/lib/hooks/use-credits.ts` | React hook for credit data |
+| `apps/web/components/credits/credits-badge.tsx` | Balance display in header |
+| `apps/web/components/credits/low-balance-warning.tsx` | Warning when credits ≤ 100 |
+| `apps/web/components/credits/zero-credits-modal.tsx` | Modal when insufficient |
+
+---
+
+## Database Schema
 
 ```typescript
 // libs/data/src/schema/credits.schema.ts
@@ -51,6 +174,7 @@ The credit system manages AI image generation quotas. Users spend credits to gen
   balance: integer,           // Current available credits
   totalEarned: integer,       // Lifetime credits received
   totalSpent: integer,        // Lifetime credits consumed
+  lowBalanceWarningShown: timestamp,
   createdAt: timestamp,
   updatedAt: timestamp
 }
@@ -63,120 +187,11 @@ The credit system manages AI image generation quotas. Users spend credits to gen
   amount: integer,            // Positive = credit, negative = debit
   balanceAfter: integer,      // Running balance after transaction
   description: text,          // Human-readable description
-  referenceId: text,          // Job ID, payment ID, etc.
-  metadata: jsonb,            // Additional context
+  referenceId: uuid,          // Job ID, payment ID, etc.
+  qualityMode: text,          // Feature ID for analytics
   createdAt: timestamp
 }
 ```
-
-### Migration
-
-```sql
--- apps/api/src/database/migrations/0001_moaning_thunderball.sql
-
-CREATE TYPE credit_transaction_type AS ENUM (
-  'subscription_grant', 'purchase', 'generation', 
-  'refund', 'bonus', 'admin_adjustment'
-);
-
-CREATE TABLE user_credits (
-  user_id UUID PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
-  balance INTEGER NOT NULL DEFAULT 0,
-  total_earned INTEGER NOT NULL DEFAULT 0,
-  total_spent INTEGER NOT NULL DEFAULT 0,
-  created_at TIMESTAMPTZ DEFAULT NOW(),
-  updated_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE TABLE credit_transactions (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-  type credit_transaction_type NOT NULL,
-  amount INTEGER NOT NULL,
-  balance_after INTEGER NOT NULL,
-  description TEXT,
-  reference_id TEXT,
-  metadata JSONB,
-  created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
-CREATE INDEX idx_credit_transactions_user_id ON credit_transactions(user_id);
-CREATE INDEX idx_credit_transactions_created_at ON credit_transactions(created_at DESC);
-```
-
----
-
-## Credit Costs
-
-| Action | Cost |
-|--------|------|
-| Character generation (draft) | 5 credits |
-| Character generation (HQ) | 10 credits |
-| Content generation (draft) | 5 credits |
-| Content generation (HQ) | 10 credits |
-
-Defined in `libs/data/src/schema/credits.schema.ts`:
-
-```typescript
-export const CREDIT_COSTS = {
-  generation_draft: 5,
-  generation_hq: 10,
-} as const;
-```
-
----
-
-## Plan Limits
-
-| Plan | Monthly Credits |
-|------|-----------------|
-| Free (trial) | 10 (one-time on signup) |
-| Starter ($29/mo) | 100 |
-| Pro ($49/mo) | 300 |
-| Unlimited ($99/mo) | Infinity |
-
-Defined in `libs/data/src/schema/credits.schema.ts`:
-
-```typescript
-export const PLAN_CREDIT_LIMITS = {
-  free: 10,
-  starter: 100,
-  pro: 300,
-  unlimited: Infinity,
-} as const;
-```
-
----
-
-## Key Files
-
-### Backend
-
-| File | Purpose |
-|------|---------|
-| `libs/data/src/schema/credits.schema.ts` | DB schema, costs, plan limits |
-| `libs/trpc/src/routers/credits.router.ts` | tRPC endpoints for credits |
-| `libs/trpc/src/routers/generation.router.ts` | Credit deduction on generation |
-| `libs/payments/src/credits/credit-grant.service.ts` | Subscription credit grants |
-| `apps/api/src/modules/auth/services/auth.service.ts` | Credit init on signup |
-| `apps/funnel/app/api/finby/notification/route.ts` | Webhook triggers credit grant |
-
-### Frontend
-
-| File | Purpose |
-|------|---------|
-| `apps/web/lib/hooks/use-credits.ts` | React hook for credit data |
-| `apps/web/components/credits/credits-badge.tsx` | Displays balance in header (clickable → buy-credits) |
-| `apps/web/components/credits/low-balance-warning.tsx` | Warning when credits ≤ 10 |
-| `apps/web/components/credits/zero-credits-modal.tsx` | Modal when insufficient credits |
-| `apps/web/components/app-shell.tsx` | Integrates credit components |
-| `apps/web/components/wizard/step-generate.tsx` | Checks credits before generation |
-| `apps/web/app/influencer/[id]/studio/page.tsx` | Checks credits before generation |
-| `apps/web/app/pricing/page.tsx` | Subscription plans page |
-| `apps/web/app/buy-credits/page.tsx` | One-time credit purchase page |
-| `apps/web/components/pricing/plan-card.tsx` | Subscription plan card component |
-| `apps/web/components/pricing/credit-package-card.tsx` | Credit package card component |
-| `apps/web/constants/pricing.ts` | Pricing constants (plans & packages) |
 
 ---
 
@@ -188,14 +203,14 @@ export const PLAN_CREDIT_LIMITS = {
 // apps/api/src/modules/auth/services/auth.service.ts
 
 async registerUserByEmail(email, password) {
-  // Create user...
   const user = await this.usersRepository.create({ ... });
 
-  // Initialize credits with 10 free credits
-  await this.db.insert(schema.userCredits).values({
+  // Initialize credits with free tier (250 credits)
+  const freeCredits = PLAN_CREDIT_LIMITS.free; // 250
+  await this.db.insert(userCredits).values({
     userId: user.id,
-    balance: PLAN_CREDIT_LIMITS.free,  // 10
-    totalEarned: PLAN_CREDIT_LIMITS.free,
+    balance: freeCredits,
+    totalEarned: freeCredits,
   });
 }
 ```
@@ -203,167 +218,77 @@ async registerUserByEmail(email, password) {
 ### 2. Credit Check & Deduction (Generation)
 
 ```typescript
-// libs/trpc/src/routers/generation.router.ts
+// apps/api/src/modules/credits/services/credit-management.service.ts
 
-create: protectedProcedure.mutation(async ({ ctx, input }) => {
-  const creditCost = input.qualityMode === 'hq' 
-    ? CREDIT_COSTS.generation_hq 
-    : CREDIT_COSTS.generation_draft;
-
-  // Atomic check and deduct
-  await ctx.db.transaction(async (tx) => {
-    const [credits] = await tx
-      .select()
-      .from(userCredits)
-      .where(eq(userCredits.userId, ctx.userId))
-      .for('update');
-
-    if (!credits || credits.balance < creditCost) {
-      throw new TRPCError({ code: 'FORBIDDEN', message: 'Insufficient credits' });
-    }
-
-    // Deduct credits
+async deductCredits(
+  userId: string,
+  featureId: FeatureId,
+  count: number = 1
+): Promise<CreditDeductionResult> {
+  // Check if user has enough credits
+  const { balance, required } = await this.requireCredits(userId, featureId, count);
+  
+  // Atomic deduction with transaction log
+  await this.db.transaction(async (tx) => {
     await tx.update(userCredits)
       .set({
-        balance: credits.balance - creditCost,
-        totalSpent: credits.totalSpent + creditCost,
+        balance: balance - required,
+        totalSpent: sql`${userCredits.totalSpent} + ${required}`,
       })
-      .where(eq(userCredits.userId, ctx.userId));
+      .where(eq(userCredits.userId, userId));
 
-    // Log transaction
-    await tx.insert(creditTransactions).values({
-      userId: ctx.userId,
-      type: 'generation',
-      amount: -creditCost,
-      balanceAfter: credits.balance - creditCost,
-      referenceId: jobId,
-    });
-  });
-
-  // Proceed with generation...
-});
-```
-
-### 3. Subscription Credit Grant (Webhook)
-
-```typescript
-// libs/payments/src/credits/credit-grant.service.ts
-
-async grantSubscriptionCredits(userId: string, planId: string) {
-  const creditsToGrant = PLAN_CREDIT_LIMITS[planId];
-
-  await db.transaction(async (tx) => {
-    // Upsert credits (add to existing balance)
-    const [updated] = await tx
-      .insert(userCredits)
-      .values({ userId, balance: creditsToGrant, totalEarned: creditsToGrant })
-      .onConflictDoUpdate({
-        target: userCredits.userId,
-        set: {
-          balance: sql`${userCredits.balance} + ${creditsToGrant}`,
-          totalEarned: sql`${userCredits.totalEarned} + ${creditsToGrant}`,
-        },
-      })
-      .returning();
-
-    // Log transaction
     await tx.insert(creditTransactions).values({
       userId,
-      type: 'subscription_grant',
-      amount: creditsToGrant,
-      balanceAfter: updated.balance,
-      description: `Monthly credits for ${planId} plan`,
+      type: 'generation',
+      amount: -required,
+      balanceAfter: balance - required,
+      qualityMode: featureId, // Track feature for analytics
     });
   });
 }
 ```
 
-### 4. Failed Generation Refund
+### 3. Character Controller Integration
 
 ```typescript
-// libs/trpc/src/routers/credits.router.ts
+// apps/api/src/modules/character/character.controller.ts
 
-refundFailedJob: protectedProcedure.mutation(async ({ ctx, input }) => {
-  // Find the original transaction for this job
-  const [originalTx] = await ctx.db
-    .select()
-    .from(creditTransactions)
-    .where(
-      and(
-        eq(creditTransactions.referenceId, input.jobId),
-        eq(creditTransactions.type, 'generation'),
-        eq(creditTransactions.userId, ctx.userId),
-      )
-    );
+@Post('generate-profile-picture-set')
+async generateProfilePictureSet(@CurrentUser() user, @Body() dto) {
+  const imageCount = dto.nsfwEnabled ? 10 : 7;
+  const featureId = dto.generationMode === 'consistent' 
+    ? 'profile_set_quality' 
+    : 'profile_set_fast';
 
-  if (!originalTx) throw new TRPCError({ code: 'NOT_FOUND' });
+  // Check and deduct credits upfront
+  const creditResult = await this.creditService.deductCredits(
+    user.userId,
+    featureId,
+    imageCount
+  );
 
-  const refundAmount = Math.abs(originalTx.amount);
-
-  // Add credits back
-  await ctx.db.transaction(async (tx) => {
-    const [updated] = await tx
-      .update(userCredits)
-      .set({
-        balance: sql`${userCredits.balance} + ${refundAmount}`,
-        totalSpent: sql`${userCredits.totalSpent} - ${refundAmount}`,
-      })
-      .where(eq(userCredits.userId, ctx.userId))
-      .returning();
-
-    await tx.insert(creditTransactions).values({
-      userId: ctx.userId,
-      type: 'refund',
-      amount: refundAmount,
-      balanceAfter: updated.balance,
-      referenceId: input.jobId,
-      description: 'Refund for failed generation',
-    });
-  });
-});
-```
-
----
-
-## Frontend Integration
-
-### useCredits Hook
-
-```typescript
-// apps/web/lib/hooks/use-credits.ts
-
-export function useCredits() {
-  const { data, isLoading, error, refetch } = trpc.credits.getBalance.useQuery();
+  // Proceed with generation
+  const result = await this.profilePictureSetService.generateProfilePictureSet(dto);
 
   return {
-    balance: data?.balance ?? 0,
-    totalEarned: data?.totalEarned ?? 0,
-    totalSpent: data?.totalSpent ?? 0,
-    isLoading,
-    error,
-    refetch,
+    ...result,
+    creditsDeducted: creditResult.creditsDeducted,
+    creditBalance: creditResult.balanceAfter,
   };
 }
 ```
 
-### Pre-Generation Check
+### 4. Monthly Credit Refresh
 
 ```typescript
-// apps/web/components/wizard/step-generate.tsx
+// apps/api/src/modules/cron/services/credit-refresh.service.ts
 
-const { balance, refetch } = useCredits();
-const creditCost = qualityMode === 'hq' ? 10 : 5;
+// Credits are RESET, not added (use it or lose it policy)
+const creditsToGrant = PLAN_CREDIT_LIMITS[tier];
+// starter: 3000, pro: 8000
 
-const handleGenerate = async () => {
-  if (balance < creditCost) {
-    setShowCreditModal(true);
-    return;
-  }
-
-  // Proceed with generation...
-  await generateBaseImagesAndWait(input, onStatusChange);
-  refetch(); // Update displayed balance
-};
+// Free tier is skipped (one-time credits on signup)
+// Unlimited tier is skipped (no credit tracking)
 ```
 
 ---
@@ -372,9 +297,9 @@ const handleGenerate = async () => {
 
 | State | Condition | Component |
 |-------|-----------|-----------|
-| Normal | balance > 10 | Green badge in header |
-| Low | balance ≤ 10 | Orange badge + `LowBalanceWarning` banner |
-| Zero | balance < creditCost | Red badge + `ZeroCreditsModal` |
+| Normal | balance > 100 | Green badge in header |
+| Low | balance ≤ 100 | Orange badge + warning banner |
+| Zero | balance < feature cost | Red badge + modal |
 | Loading | isLoading | Skeleton/spinner |
 
 ---
@@ -383,20 +308,19 @@ const handleGenerate = async () => {
 
 ### `credits.getBalance`
 
-Returns current credit balance and lifetime stats.
-
 ```typescript
 // Response
 {
-  balance: 45,
-  totalEarned: 100,
-  totalSpent: 55,
+  balance: 2450,
+  totalEarned: 3000,
+  totalSpent: 550,
+  isLowBalance: false,
+  isZeroBalance: false,
+  lowBalanceThreshold: 100,
 }
 ```
 
 ### `credits.getTransactions`
-
-Returns paginated credit history.
 
 ```typescript
 // Input
@@ -404,152 +328,18 @@ Returns paginated credit history.
 
 // Response
 {
-  transactions: [
-    { id, type: 'generation', amount: -5, balanceAfter: 45, createdAt, ... },
-    ...
+  items: [
+    { id, type: 'generation', amount: -50, balanceAfter: 2450, qualityMode: 'studio_standard', ... },
   ],
   total: 15,
 }
 ```
-
-### `credits.refundFailedJob`
-
-Refunds credits for a failed generation job.
-
-```typescript
-// Input
-{ jobId: 'uuid' }
-
-// Response
-{ success: true, newBalance: 50 }
-```
-
----
-
-## Analytics Events
-
-| Event | Trigger | Properties |
-|-------|---------|------------|
-| `credits_viewed` | Hook mounts | `balance`, `plan` |
-| `credits_consumed` | Generation completes | `amount`, `action`, `balance_after` |
-| `credits_low_warning` | balance ≤ 10 | `balance` |
-| `credits_exhausted` | balance < cost | `balance`, `cost_needed` |
-| `credits_refunded` | Refund processed | `amount`, `job_id` |
-
----
-
-## Testing
-
-### Unit Tests
-
-```typescript
-// Test credit deduction
-it('should deduct credits on generation', async () => {
-  // Setup user with 50 credits
-  // Call generation.create
-  // Expect balance = 45 (for draft) or 40 (for HQ)
-});
-
-// Test insufficient credits
-it('should reject generation with insufficient credits', async () => {
-  // Setup user with 2 credits
-  // Call generation.create with 5-credit cost
-  // Expect FORBIDDEN error
-});
-
-// Test refund
-it('should refund credits for failed jobs', async () => {
-  // Setup user, create failed job
-  // Call credits.refundFailedJob
-  // Expect credits restored
-});
-```
-
----
-
----
-
-## Monthly Credit Refresh (Cron Job)
-
-### Overview
-
-A daily cron job checks for subscriptions whose billing period has ended and refreshes their credits.
-
-### Implementation
-
-| File | Purpose |
-|------|---------|
-| `apps/api/src/modules/cron/services/credit-refresh.service.ts` | Core refresh logic |
-| `apps/api/src/modules/cron/cron.controller.ts` | API endpoint for cron trigger |
-| `apps/api/src/modules/cron/cron.module.ts` | NestJS module |
-| `.github/workflows/cron-credit-refresh.yml` | GitHub Actions scheduled workflow |
-
-### How It Works
-
-1. **GitHub Actions** triggers daily at midnight UTC
-2. Calls `POST /cron/credits/refresh` with `Authorization: Bearer <CRON_SECRET>`
-3. Service queries subscriptions where `currentPeriodEnd <= now()`
-4. For each due subscription:
-   - Resets balance to plan limit (no rollover)
-   - Logs transaction
-   - Updates `currentPeriodEnd` to next month
-5. Returns summary: processed, success, error counts
-
-### API Endpoint
-
-```bash
-# Trigger credit refresh
-curl -X POST https://end.ryla.ai/cron/credits/refresh \
-  -H "Authorization: Bearer $CRON_SECRET"
-
-# Response
-{
-  "success": true,
-  "processedCount": 42,
-  "successCount": 42,
-  "errorCount": 0,
-  "errors": [],
-  "timestamp": "2024-01-15T00:00:00.000Z"
-}
-
-# Manual refresh for specific user
-curl -X POST https://end.ryla.ai/cron/credits/refresh/{userId} \
-  -H "Authorization: Bearer $CRON_SECRET"
-```
-
-### Environment Variables
-
-```bash
-# Required in apps/api/.env
-CRON_SECRET=<random-32-byte-hex>  # openssl rand -hex 32
-
-# Required in GitHub Secrets
-CRON_SECRET=<same-value>
-API_BASE_URL=https://end.ryla.ai
-```
-
-### Credit Refresh Logic
-
-```typescript
-// Credits are RESET, not added (use it or lose it policy)
-balance = PLAN_CREDIT_LIMITS[tier];  // 100 for starter, 300 for pro
-
-// Free tier is skipped (one-time credits on signup)
-// Unlimited tier is skipped (no credit tracking)
-```
-
-### Monitoring
-
-- GitHub Actions shows run history and logs
-- API logs detailed success/error info
-- Failed refreshes are logged with userId for debugging
 
 ---
 
 ## References
 
 - Epic: `docs/requirements/epics/mvp/EP-009-credits.md`
-- Subscription: `docs/requirements/epics/mvp/EP-010-subscription.md`
-- Schema: `libs/data/src/schema/credits.schema.ts`
-- Cron Workflow: `.github/workflows/cron-credit-refresh.yml`
-
+- Pricing Proposal: `docs/technical/CREDIT-PRICING-PROPOSAL.md`
+- Cost Analysis: `docs/technical/CREDIT-COST-MARGIN-ANALYSIS.md`
+- Schema: `libs/shared/src/credits/pricing.ts`

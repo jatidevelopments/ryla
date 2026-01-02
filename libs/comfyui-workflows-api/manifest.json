@@ -1,0 +1,250 @@
+[
+  {
+    "source": "libs/comfyui-workflows/3d/hunyuan3d-2-0/hunyuan3d_wrapper/mutiview.json",
+    "output": "libs/comfyui-workflows-api/3d/hunyuan3d-2-0/hunyuan3d_wrapper/mutiview.api.json",
+    "kind": "3d",
+    "nodeCount": 57,
+    "convertedAt": "2025-12-30T20:54:42.905Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/3d/hunyuan3d-2-0/hunyuan3d_wrapper/single_view.json",
+    "output": "libs/comfyui-workflows-api/3d/hunyuan3d-2-0/hunyuan3d_wrapper/single_view.api.json",
+    "kind": "3d",
+    "nodeCount": 36,
+    "convertedAt": "2025-12-30T20:54:43.011Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/audio/ace-step/v1/ace-step-v1-a2a.json",
+    "output": "libs/comfyui-workflows-api/audio/ace-step/v1/ace-step-v1-a2a.api.json",
+    "kind": "audio",
+    "nodeCount": 13,
+    "convertedAt": "2025-12-30T20:54:43.115Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/audio/ace-step/v1/ace-step-v1-lora.json",
+    "output": "libs/comfyui-workflows-api/audio/ace-step/v1/ace-step-v1-lora.api.json",
+    "kind": "audio",
+    "nodeCount": 13,
+    "convertedAt": "2025-12-30T20:54:43.223Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/audio/ace-step/v1/ace-step-v1-t2a.json",
+    "output": "libs/comfyui-workflows-api/audio/ace-step/v1/ace-step-v1-t2a.api.json",
+    "kind": "audio",
+    "nodeCount": 12,
+    "convertedAt": "2025-12-30T20:54:43.310Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/flux/inpaint/inpaint.json",
+    "output": "libs/comfyui-workflows-api/flux/inpaint/inpaint.api.json",
+    "kind": "image",
+    "nodeCount": 12,
+    "convertedAt": "2025-12-30T20:54:43.416Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/flux/kontext/flux_kontext_dev_gguf.json",
+    "output": "libs/comfyui-workflows-api/flux/kontext/flux_kontext_dev_gguf.api.json",
+    "kind": "image",
+    "nodeCount": 14,
+    "convertedAt": "2025-12-30T20:54:43.508Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/flux/text_to_image/flux_dev_t5fp16.json",
+    "output": "libs/comfyui-workflows-api/flux/text_to_image/flux_dev_t5fp16.api.json",
+    "kind": "image",
+    "nodeCount": 14,
+    "convertedAt": "2025-12-30T20:54:43.597Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/image-generation/hidream-i1/t2i/gguf-hidream-i1.json",
+    "output": "libs/comfyui-workflows-api/image-generation/hidream-i1/t2i/gguf-hidream-i1.api.json",
+    "kind": "image",
+    "nodeCount": 10,
+    "convertedAt": "2025-12-30T20:54:43.760Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/image-generation/hidream-i1/t2i/native-hidream-i1-dev-fp8.json",
+    "output": "libs/comfyui-workflows-api/image-generation/hidream-i1/t2i/native-hidream-i1-dev-fp8.api.json",
+    "kind": "image",
+    "nodeCount": 10,
+    "convertedAt": "2025-12-30T20:54:44.039Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/image-generation/relighting/LBM-relighting/LBM_Relighting_comfyui-wiki.com.json",
+    "output": "libs/comfyui-workflows-api/image-generation/relighting/LBM-relighting/LBM_Relighting_comfyui-wiki.com.api.json",
+    "kind": "image",
+    "nodeCount": 12,
+    "convertedAt": "2025-12-30T20:54:44.215Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/HunyuanVideo/I2V/Comfy_HunyuanVideo_I2V.json",
+    "output": "libs/comfyui-workflows-api/video/HunyuanVideo/I2V/Comfy_HunyuanVideo_I2V.api.json",
+    "kind": "video",
+    "nodeCount": 17,
+    "convertedAt": "2025-12-30T20:54:44.362Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/HunyuanVideo/I2V/Kijai_hyvideo_i2v.json",
+    "output": "libs/comfyui-workflows-api/video/HunyuanVideo/I2V/Kijai_hyvideo_i2v.api.json",
+    "kind": "video",
+    "nodeCount": 16,
+    "convertedAt": "2025-12-30T20:54:44.502Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/HunyuanVideo/I2V/city96_GGUF_HunyuanVideo_I2V.json",
+    "output": "libs/comfyui-workflows-api/video/HunyuanVideo/I2V/city96_GGUF_HunyuanVideo_I2V.api.json",
+    "kind": "video",
+    "nodeCount": 17,
+    "convertedAt": "2025-12-30T20:54:44.628Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/framepack/Kijai_FLF2V_framepack.json",
+    "output": "libs/comfyui-workflows-api/video/framepack/Kijai_FLF2V_framepack.api.json",
+    "kind": "video",
+    "nodeCount": 20,
+    "convertedAt": "2025-12-30T20:54:44.760Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/city96/wan2.1_I2V_gguf_480P.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/city96/wan2.1_I2V_gguf_480P.api.json",
+    "kind": "video",
+    "nodeCount": 13,
+    "convertedAt": "2025-12-30T20:54:44.855Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/city96/wan2.1_I2V_gguf_720P.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/city96/wan2.1_I2V_gguf_720P.api.json",
+    "kind": "video",
+    "nodeCount": 13,
+    "convertedAt": "2025-12-30T20:54:45.236Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/city96/wan2.1_T2V.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/city96/wan2.1_T2V.api.json",
+    "kind": "video",
+    "nodeCount": 10,
+    "convertedAt": "2025-12-30T20:54:45.327Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/kijai/wan2.1_I2V_720P.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/kijai/wan2.1_I2V_720P.api.json",
+    "kind": "video",
+    "nodeCount": 14,
+    "convertedAt": "2025-12-30T20:54:45.425Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/kijai/wan2.1_T2V_2.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/kijai/wan2.1_T2V_2.api.json",
+    "kind": "video",
+    "nodeCount": 10,
+    "convertedAt": "2025-12-30T20:54:45.517Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/kijai/wan2.1_long_T2V.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/kijai/wan2.1_long_T2V.api.json",
+    "kind": "video",
+    "nodeCount": 10,
+    "convertedAt": "2025-12-30T20:54:45.605Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/native/wan2.1_i2v_480P.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/native/wan2.1_i2v_480P.api.json",
+    "kind": "video",
+    "nodeCount": 13,
+    "convertedAt": "2025-12-30T20:54:45.693Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/native/wan2.1_i2v_720P.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/native/wan2.1_i2v_720P.api.json",
+    "kind": "video",
+    "nodeCount": 13,
+    "convertedAt": "2025-12-30T20:54:45.783Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1/native/wan2.1_t2v.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1/native/wan2.1_t2v.api.json",
+    "kind": "video",
+    "nodeCount": 10,
+    "convertedAt": "2025-12-30T20:54:45.869Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1_fun_control/kijai/Wan_fun_control_i2v.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1_fun_control/kijai/Wan_fun_control_i2v.api.json",
+    "kind": "video",
+    "nodeCount": 22,
+    "convertedAt": "2025-12-30T20:54:46.023Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1_fun_control/kijai/Wan_fun_control_t2v.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1_fun_control/kijai/Wan_fun_control_t2v.api.json",
+    "kind": "video",
+    "nodeCount": 17,
+    "convertedAt": "2025-12-30T20:54:46.122Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1_fun_control/native/wan2.1_fun_control.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1_fun_control/native/wan2.1_fun_control.api.json",
+    "kind": "video",
+    "nodeCount": 15,
+    "convertedAt": "2025-12-30T20:54:46.214Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1_fun_control/native/wan2.1_fun_control_with_custom_nodes.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1_fun_control/native/wan2.1_fun_control_with_custom_nodes.api.json",
+    "kind": "video",
+    "nodeCount": 21,
+    "convertedAt": "2025-12-30T20:54:46.307Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1_lora/wan2.1_lora_comfyui_native.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1_lora/wan2.1_lora_comfyui_native.api.json",
+    "kind": "video",
+    "nodeCount": 14,
+    "convertedAt": "2025-12-30T20:54:46.393Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1_lora/wan2.1_lora_gguf_480P.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1_lora/wan2.1_lora_gguf_480P.api.json",
+    "kind": "video",
+    "nodeCount": 14,
+    "convertedAt": "2025-12-30T20:54:46.481Z",
+    "status": "converted"
+  },
+  {
+    "source": "libs/comfyui-workflows/video/wan2.1_lora/wan2.1_lora_kijai_480P.json",
+    "output": "libs/comfyui-workflows-api/video/wan2.1_lora/wan2.1_lora_kijai_480P.api.json",
+    "kind": "video",
+    "nodeCount": 16,
+    "convertedAt": "2025-12-30T20:54:46.576Z",
+    "status": "converted"
+  }
+]

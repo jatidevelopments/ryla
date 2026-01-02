@@ -1,13 +1,15 @@
-import { defineRouting } from "next-intl/routing";
+// Temporarily disabled to fix React 18 compatibility
+// import { defineRouting } from "next-intl/routing";
 import { locales } from "@/i18n/config";
 
-export const routing = defineRouting({
+// Mock routing config
+export const routing = {
     // A list of all locales that are supported
     locales: locales,
 
     // Used when no locale matches
-    defaultLocale: "en",
+    defaultLocale: "en" as const,
 
     // Disable locale prefix in URLs
-    localePrefix: "never",
-});
+    localePrefix: "never" as const,
+};
