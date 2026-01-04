@@ -16,6 +16,7 @@ import { CreditsBadge } from './credits';
 import { useSubscription } from '../lib/hooks';
 import { useAuth } from '../lib/auth-context';
 import { BugReportModal } from './bug-report';
+import { LayoutGrid } from 'lucide-react';
 
 // Icons
 const UsersIcon = ({ className }: { className?: string }) => (
@@ -152,6 +153,10 @@ const BugIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+const TemplatesIcon = ({ className }: { className?: string }) => (
+  <LayoutGrid className={cn('h-5 w-5 shrink-0', className)} />
+);
+
 const menuItems = [
   {
     title: 'My Influencers',
@@ -171,6 +176,12 @@ const menuItems = [
     url: '/studio',
     icon: PhotoIcon,
     isActive: (pathname: string) => pathname.startsWith('/studio'),
+  },
+  {
+    title: 'Templates',
+    url: '/templates',
+    icon: TemplatesIcon,
+    isActive: (pathname: string) => pathname === '/templates' || pathname.startsWith('/templates'),
   },
   {
     title: 'Activity',

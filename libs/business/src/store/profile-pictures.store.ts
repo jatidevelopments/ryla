@@ -24,6 +24,8 @@ export interface ProfilePicturesState {
       setId: 'classic-influencer' | 'professional-model' | 'natural-beauty';
       images: ProfilePictureImage[];
       jobIds?: string[];
+      completedCount?: number;
+      totalCount?: number;
       lastError?: string;
       startedAt?: string;
       completedAt?: string;
@@ -39,8 +41,10 @@ export interface ProfilePicturesState {
     data: {
       setId: 'classic-influencer' | 'professional-model' | 'natural-beauty';
       jobIds: string[];
+      totalCount?: number;
     }
   ) => void;
+  updateProgress: (influencerId: string, completedCount: number) => void;
   upsertImage: (influencerId: string, image: ProfilePictureImage) => void;
   complete: (influencerId: string) => void;
   fail: (influencerId: string, error: string) => void;
@@ -75,10 +79,20 @@ export const useProfilePicturesStore = create<ProfilePicturesState>()(
             setId: data.setId,
             images: state.byInfluencerId[influencerId]?.images ?? [],
             jobIds: data.jobIds,
+            completedCount: 0,
+            totalCount: data.totalCount ?? data.jobIds.length,
             lastError: undefined,
             startedAt: new Date().toISOString(),
             completedAt: undefined,
           };
+        });
+      },
+
+      updateProgress: (influencerId, completedCount) => {
+        set((state) => {
+          const existing = state.byInfluencerId[influencerId];
+          if (!existing) return;
+          existing.completedCount = completedCount;
         });
       },
 
@@ -99,6 +113,11 @@ export const useProfilePicturesStore = create<ProfilePicturesState>()(
 
           if (idx === -1) {
             images.push(image);
+            // Update progress count when new image is added
+            const existing = state.byInfluencerId[influencerId];
+            if (existing && existing.status === 'generating') {
+              existing.completedCount = (existing.completedCount || 0) + 1;
+            }
           } else {
             images[idx] = { ...images[idx], ...image };
           }

@@ -2,15 +2,20 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepFinalize } from '../../../components/wizard/step-finalize';
+import { StepBodyModifications } from '../../../components/wizard/step-body-modifications';
 
 export default function WizardStep7() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
+  const creationMethod = useCharacterWizardStore((s) => s.form.creationMethod);
 
   useEffect(() => {
     setStep(7);
   }, [setStep]);
 
-  return <StepFinalize />;
-}
+  // Only presets flow uses step 7 (Body Modifications)
+  if (creationMethod !== 'presets') {
+    return null;
+  }
 
+  return <StepBodyModifications />;
+}

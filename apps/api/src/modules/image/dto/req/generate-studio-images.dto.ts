@@ -43,27 +43,56 @@ export class GenerateStudioImagesDto {
   @ApiProperty({
     required: false,
     description:
-      'Optional free-form prompt to incorporate into generation. Structured metadata is still persisted separately.',
+      'Optional additional details to add to the prompt. All other components (character, scene, pose, etc.) are built automatically.',
   })
   @IsOptional()
   @IsString()
-  prompt?: string;
+  additionalDetails?: string;
 
   @ApiProperty({ description: 'Character UUID to generate images for' })
   @IsUUID()
   characterId!: string;
 
-  @ApiProperty({ description: 'Scene preset (snake_case)' })
+  @ApiProperty({ description: 'Scene preset (snake_case or kebab-case)' })
   @IsString()
   scene!: string;
 
-  @ApiProperty({ description: 'Environment preset (snake_case)' })
+  @ApiProperty({ description: 'Environment preset (snake_case or kebab-case)' })
   @IsString()
   environment!: string;
 
-  @ApiProperty({ description: 'Outfit label/value' })
+  @ApiProperty({ 
+    description: 'Outfit - can be string (legacy) or JSON object (OutfitComposition)',
+    oneOf: [
+      { type: 'string' },
+      { type: 'object' }
+    ]
+  })
+  outfit!: string | object;
+
+  @ApiProperty({ 
+    required: false,
+    description: 'Pose ID (e.g., "standing-casual", "sitting-elegant")' 
+  })
+  @IsOptional()
   @IsString()
-  outfit!: string;
+  poseId?: string;
+
+  @ApiProperty({ 
+    required: false,
+    description: 'Lighting preset (e.g., "natural.goldenHour", "studio.soft")' 
+  })
+  @IsOptional()
+  @IsString()
+  lighting?: string;
+
+  @ApiProperty({ 
+    required: false,
+    description: 'Expression preset (e.g., "positive.smile", "neutral.calm")' 
+  })
+  @IsOptional()
+  @IsString()
+  expression?: string;
 
   @ApiProperty({ enum: ['1:1', '9:16', '2:3'] })
   @IsIn(['1:1', '9:16', '2:3'])

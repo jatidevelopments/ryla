@@ -14,6 +14,8 @@ import {
   CharacterDNA,
   WorkflowId,
 } from '@ryla/business';
+import { CharacterConfig } from '@ryla/data/schema';
+import { characterConfigToDNA } from './character-config-to-dna';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
 import { ImageStorageService } from './image-storage.service';
 import { FalImageService, type FalFluxModelId } from './fal-image.service';
@@ -24,11 +26,21 @@ export interface BaseImageGenerationInput {
     style: 'realistic' | 'anime';
     ethnicity: string;
     age: number;
+    ageRange?: string;
+    skinColor?: string;
+    eyeColor: string;
+    faceShape?: string;
     hairStyle: string;
     hairColor: string;
-    eyeColor: string;
     bodyType: string;
+    assSize?: string;
     breastSize?: string;
+    breastType?: string;
+    freckles?: string;
+    scars?: string;
+    beautyMarks?: string;
+    piercings?: string;
+    tattoos?: string;
   };
   identity: {
     defaultOutfit: string;
@@ -88,17 +100,59 @@ export class BaseImageGenerationService {
       );
     }
 
-    // Convert wizard config to CharacterDNA
-    const characterDNA = this.wizardConfigToCharacterDNA(input);
+    // Convert wizard config to CharacterConfig, then to CharacterDNA
+    const characterConfig: CharacterConfig = {
+      gender: input.appearance.gender,
+      style: input.appearance.style,
+      ethnicity: input.appearance.ethnicity,
+      age: input.appearance.age,
+      ageRange: input.appearance.ageRange,
+      skinColor: input.appearance.skinColor,
+      eyeColor: input.appearance.eyeColor,
+      faceShape: input.appearance.faceShape,
+      hairStyle: input.appearance.hairStyle,
+      hairColor: input.appearance.hairColor,
+      bodyType: input.appearance.bodyType,
+      assSize: input.appearance.assSize,
+      breastSize: input.appearance.breastSize,
+      breastType: input.appearance.breastType,
+      freckles: input.appearance.freckles,
+      scars: input.appearance.scars,
+      beautyMarks: input.appearance.beautyMarks,
+      piercings: input.appearance.piercings,
+      tattoos: input.appearance.tattoos,
+      defaultOutfit: input.identity.defaultOutfit,
+      archetype: input.identity.archetype,
+      personalityTraits: input.identity.personalityTraits,
+      bio: input.identity.bio,
+      nsfwEnabled: input.nsfwEnabled,
+    };
+
+    // Convert to CharacterDNA using the enhanced converter
+    const characterDNA = characterConfigToDNA(characterConfig, 'Character');
 
     // Build prompt using PromptBuilder with character DNA
+    // Base images are ALWAYS SFW - ensure proper clothing and no nudity
+    // Force outfit to be appropriate (never allow nudity/NSFW for base images)
+    const outfit = input.identity.defaultOutfit || 'casual';
+    const safeOutfit = this.ensureSafeOutfit(outfit);
+    
     const builtPrompt = new PromptBuilder()
       .withCharacter(characterDNA)
       .withTemplate('portrait-selfie-casual') // Default template for base images
-      .withOutfit(input.identity.defaultOutfit)
+      .withOutfit(safeOutfit)
       .withLighting('natural.soft')
       .withExpression('positive.confident')
       .withStylePreset('quality')
+      .addDetails('fully clothed, appropriate attire, professional appearance, modest clothing') // Explicitly add clothing requirement
+      .withNegativePrompt(
+        // Strong SFW negative prompt for base images - always enforce no nudity
+        'nude, naked, topless, bottomless, exposed breasts, nipples, genitals, ' +
+        'see-through clothing, lingerie, underwear visible, revealing clothing, ' +
+        'bikini, swimsuit, intimate wear, sexy clothing, ' +
+        'nsfw, adult content, explicit, sexual content, erotic, ' +
+        'bad anatomy, deformed, blurry, low quality, watermark, signature'
+      )
       .build();
 
     this.logger.debug(`Generated prompt: ${builtPrompt.prompt.substring(0, 100)}...`);
@@ -114,9 +168,11 @@ export class BaseImageGenerationService {
 
     const baseSeed = input.seed || Math.floor(Math.random() * 1000000);
 
+    // Base images are ALWAYS SFW regardless of nsfwEnabled setting
+    // This ensures base images are appropriate for profile pictures and public display
     // Hybrid strategy (SFW only): Fal Schnell + Fal Dev + internal ComfyUI workflow (Danrisi recommended).
     // If Fal is not configured or errors, we fall back to internal-only.
-    const shouldUseFal = !input.nsfwEnabled && this.fal.isConfigured();
+    const shouldUseFal = this.fal.isConfigured(); // Always use Fal for base images (they're always SFW)
 
     if (shouldUseFal) {
       const falModels: FalFluxModelId[] = ['fal-ai/flux/schnell', 'fal-ai/flux/dev'];
@@ -148,11 +204,12 @@ export class BaseImageGenerationService {
       });
 
       // Internal ComfyUI job for the 3rd image.
+      // Base images are ALWAYS SFW (nsfw: false)
       const internalSeed = baseSeed + 2;
       const internalJobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
         prompt: builtPrompt.prompt,
         negativePrompt: builtPrompt.negativePrompt,
-        nsfw: input.nsfwEnabled,
+        nsfw: false, // Base images are always SFW
         seed: internalSeed,
         width,
         height,
@@ -175,6 +232,7 @@ export class BaseImageGenerationService {
     }
 
     // Internal-only fallback (3 ComfyUI jobs)
+    // Base images are ALWAYS SFW (nsfw: false)
     const jobs = Array.from({ length: 3 }).map((_, i) => {
       const seed = baseSeed + i;
       return {
@@ -182,7 +240,7 @@ export class BaseImageGenerationService {
         promise: this.comfyuiAdapter.submitBaseImageWithWorkflow({
           prompt: builtPrompt.prompt,
           negativePrompt: builtPrompt.negativePrompt,
-          nsfw: input.nsfwEnabled,
+          nsfw: false, // Base images are always SFW
           seed,
           width,
           height,
@@ -230,6 +288,34 @@ export class BaseImageGenerationService {
     const workflowUsed = input.workflowId || this.comfyuiAdapter.getRecommendedWorkflow();
 
     return { jobId, workflowUsed };
+  }
+
+  /**
+   * Ensure outfit is safe for base images (always SFW)
+   * Replaces NSFW/intimate outfits with safe alternatives
+   */
+  private ensureSafeOutfit(outfit: string): string {
+    const outfitLower = outfit.toLowerCase();
+    
+    // List of NSFW/intimate outfits that should be replaced
+    const nsfwOutfits = [
+      'nude', 'topless', 'bottomless', 'lingerie', 'bikini', 'swimsuit',
+      'nightgown', 'teddy', 'babydoll', 'bodysuit', 'chemise', 'slip',
+      'see-through', 'wet t-shirt', 'oil covered', 'bed sheets only',
+      'towel wrap', 'open robe', 'peek-a-boo', 'micro bikini',
+      'pasties', 'thong', 'body paint', 'edible outfit', 'bondage',
+      'leather outfit', 'latex', 'corset', 'fishnet', 'garter belt',
+      'thigh highs', 'collar', 'pvc outfit', 'harness', 'cage bra'
+    ];
+    
+    // Check if outfit is NSFW/intimate
+    if (nsfwOutfits.some(nsfw => outfitLower.includes(nsfw))) {
+      // Replace with safe casual outfit
+      this.logger.warn(`Base image generation: Replaced NSFW outfit "${outfit}" with safe "casual" outfit`);
+      return 'casual';
+    }
+    
+    return outfit;
   }
 
   /**

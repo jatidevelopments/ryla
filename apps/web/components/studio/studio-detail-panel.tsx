@@ -5,6 +5,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { cn, Button } from '@ryla/ui';
 import type { StudioImage } from './studio-image-card';
+import { ALL_POSES, SCENES } from './generation/types';
+import { OUTFIT_OPTIONS } from '@ryla/shared';
 
 interface StudioDetailPanelProps {
   image: StudioImage | null;
@@ -363,28 +365,146 @@ export function StudioDetailPanel({
               </div>
             )}
 
-            {/* Scene & Environment Tags */}
-            <div className="flex flex-wrap gap-2">
-              {image.scene && (
-                <div className="flex items-center gap-1.5 rounded-full bg-[var(--purple-500)]/10 border border-[var(--purple-500)]/20 px-3 py-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
-                    <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-xs font-medium text-[var(--text-primary)] capitalize">
-                    {image.scene.replace(/-/g, ' ')}
-                  </span>
-                </div>
-              )}
-              {image.environment && (
-                <div className="flex items-center gap-1.5 rounded-full bg-[var(--pink-500)]/10 border border-[var(--pink-500)]/20 px-3 py-1.5">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--pink-400)]">
-                    <path fillRule="evenodd" d="M5.5 17a4.5 4.5 0 01-1.44-8.765 4.5 4.5 0 018.302-3.046 3.5 3.5 0 014.504 4.272A4 4 0 0115 17H5.5zm3.75-2.75a.75.75 0 001.5 0V9.66l1.95 2.1a.75.75 0 101.1-1.02l-3.25-3.5a.75.75 0 00-1.1 0l-3.25 3.5a.75.75 0 101.1 1.02l1.95-2.1v4.59z" clipRule="evenodd" />
-                  </svg>
-                  <span className="text-xs font-medium text-[var(--text-primary)] capitalize">
-                    {image.environment.replace(/-/g, ' ')}
-                  </span>
-                </div>
-              )}
+            {/* Generation Assets - Pose, Outfit, Scene, Environment */}
+            <div className="space-y-3">
+              {/* Pose */}
+              {image.poseId && (() => {
+                const pose = ALL_POSES.find(p => p.id === image.poseId);
+                const poseThumbnail = pose?.thumbnail || `/poses/${image.poseId}.webp`;
+                return (
+                  <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                    <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                      <Image
+                        src={poseThumbnail}
+                        alt={pose?.name || image.poseId}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          // Fallback to placeholder if image doesn't exist
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-[var(--text-muted)] mb-0.5">Pose</div>
+                      <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                        {pose?.name || image.poseId.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Outfit */}
+              {image.outfit && (() => {
+                let outfitName = '';
+                let outfitThumbnail = '';
+                
+                // Try to parse as OutfitComposition JSON first
+                try {
+                  const parsed = typeof image.outfit === 'string' ? JSON.parse(image.outfit) : image.outfit;
+                  if (parsed && typeof parsed === 'object' && 'pieces' in parsed) {
+                    // It's an OutfitComposition - build name from pieces
+                    const pieces = parsed.pieces || [];
+                    outfitName = pieces.length > 0 
+                      ? pieces.map((p: any) => p.label || p.id).join(' + ')
+                      : 'Custom Outfit';
+                    // Use first piece thumbnail or fallback
+                    outfitThumbnail = pieces[0]?.thumbnail || '/outfits/custom.webp';
+                  } else {
+                    throw new Error('Not a composition');
+                  }
+                } catch {
+                  // It's a legacy string outfit
+                  const outfitId = image.outfit.toLowerCase().replace(/\s+/g, '-');
+                  const outfit = OUTFIT_OPTIONS.find(o => 
+                    o.label.toLowerCase().replace(/\s+/g, '-') === outfitId ||
+                    o.label.toLowerCase() === image.outfit.toLowerCase()
+                  );
+                  outfitName = outfit?.label || image.outfit;
+                  outfitThumbnail = outfit?.thumbnail || `/outfits/${outfitId}.webp`;
+                }
+                
+                return (
+                  <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                    <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                      <Image
+                        src={outfitThumbnail}
+                        alt={outfitName}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-[var(--text-muted)] mb-0.5">Outfit</div>
+                      <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                        {outfitName}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Scene */}
+              {image.scene && (() => {
+                // Convert snake_case to kebab-case for lookup
+                const sceneId = image.scene.replace(/_/g, '-');
+                const scene = SCENES.find(s => s.id === sceneId);
+                const sceneThumbnail = scene?.thumbnail || `/scenes/${sceneId}.webp`;
+                return (
+                  <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                    <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                      <Image
+                        src={sceneThumbnail}
+                        alt={scene?.name || image.scene}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-[var(--text-muted)] mb-0.5">Scene</div>
+                      <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                        {scene?.name || image.scene.replace(/_/g, ' ').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Environment */}
+              {image.environment && (() => {
+                // Convert snake_case to kebab-case
+                const envId = image.environment.replace(/_/g, '-');
+                // Environment presets don't have a separate constant, so we'll use a generic path
+                const envThumbnail = `/environments/${envId}.webp`;
+                return (
+                  <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                    <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                      <Image
+                        src={envThumbnail}
+                        alt={image.environment}
+                        fill
+                        className="object-cover"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs text-[var(--text-muted)] mb-0.5">Environment</div>
+                      <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                        {image.environment.replace(/_/g, ' ').replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -417,6 +537,29 @@ export function StudioDetailPanel({
                 image.status === 'failed' && "text-red-400"
               )}>
                 {image.status}
+              </span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[var(--text-muted)]">Adult Content</span>
+              <span className={cn(
+                "font-medium flex items-center gap-1.5",
+                image.nsfw ? "text-[var(--pink-400)]" : "text-[var(--text-secondary)]"
+              )}>
+                {image.nsfw ? (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                      <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                    </svg>
+                    Enabled
+                  </>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                    </svg>
+                    Disabled
+                  </>
+                )}
               </span>
             </div>
             <div className="flex justify-between">

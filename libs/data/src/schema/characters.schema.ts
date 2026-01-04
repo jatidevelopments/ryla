@@ -29,18 +29,34 @@ export interface CharacterConfig {
   gender?: 'female' | 'male';
   style?: 'realistic' | 'anime';
 
-  // Step 2: General
+  // Step 2: General (Basic Appearance)
   ethnicity?: string;
   age?: number;
+  ageRange?: string; // e.g., "18-25", "26-33"
+  skinColor?: string; // e.g., "light", "medium", "tan", "dark"
 
-  // Step 3: Face
+  // Step 3: Face (Facial Features)
+  eyeColor?: string;
+  faceShape?: string; // e.g., "oval", "round", "square", "heart", "diamond"
+
+  // Step 4: Hair
   hairStyle?: string;
   hairColor?: string;
-  eyeColor?: string;
 
-  // Step 4: Body
+  // Step 5: Body
   bodyType?: string;
+  assSize?: string; // e.g., "small", "medium", "large", "huge"
   breastSize?: string; // Female only
+  breastType?: string; // e.g., "regular", "perky", "saggy", "torpedo"
+
+  // Step 6: Skin Features
+  freckles?: string; // e.g., "none", "light", "medium", "heavy"
+  scars?: string; // e.g., "none", "small", "medium", "large"
+  beautyMarks?: string; // e.g., "none", "single", "multiple"
+
+  // Step 7: Body Modifications
+  piercings?: string; // e.g., "none", "ear", "nose", "lip", "eyebrow", "multiple"
+  tattoos?: string; // e.g., "none", "small", "medium", "large", "full-body"
 
   // Step 5: Identity
   defaultOutfit?: string;
@@ -55,8 +71,11 @@ export interface CharacterConfig {
   // Profile picture set selection (string ID, not UUID)
   profilePictureSetId?: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
 
+  // Step 9: Advanced (removed from wizard but kept for backward compatibility)
+  voice?: string; // e.g., "sultry", "sweet", "confident"
+  videoContentOptions?: string[]; // e.g., ["selfie-posing", "dance-video", "driving-car", "custom"]
+
   // Legacy/compatibility
-  ageRange?: string;
   outfitStyle?: string;
 }
 

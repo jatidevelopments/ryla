@@ -6,6 +6,7 @@
  */
 
 import { authFetch } from '../auth';
+import { OutfitComposition, buildOutfitPrompt } from '@ryla/shared';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
@@ -14,10 +15,13 @@ export type QualityMode = 'draft' | 'hq';
 
 export interface GenerateStudioImagesInput {
   characterId: string;
-  prompt?: string;
+  additionalDetails?: string; // Optional additional details to add to prompt
   scene: string; // kebab-case in web, mapped to snake_case for API
   environment: string; // kebab-case in web, mapped to snake_case for API
-  outfit: string;
+  outfit: string | OutfitComposition; // Supports both legacy string and new composition
+  poseId?: string; // Pose ID (e.g., "standing-casual", "sitting-elegant")
+  lighting?: string; // Lighting preset (e.g., "natural.goldenHour")
+  expression?: string; // Expression preset (e.g., "positive.smile")
   aspectRatio: AspectRatio;
   qualityMode: QualityMode;
   count: number;
@@ -59,15 +63,23 @@ export async function generateStudioImages(input: GenerateStudioImagesInput): Pr
   workflowId: string;
   jobs: Array<{ jobId: string; promptId: string }>;
 }> {
+  // Send outfit as-is (backend will handle both string and object)
+  const outfitPayload = typeof input.outfit === 'string' 
+    ? input.outfit 
+    : input.outfit; // Send object directly, backend will handle it
+  
   const response = await authFetch(`${API_BASE_URL}/image/generate/studio`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       characterId: input.characterId,
-      prompt: input.prompt,
+      additionalDetails: input.additionalDetails,
       scene: presetToSnakeCase(input.scene),
       environment: presetToSnakeCase(input.environment),
-      outfit: input.outfit,
+      outfit: outfitPayload,
+      poseId: input.poseId,
+      lighting: input.lighting,
+      expression: input.expression,
       aspectRatio: input.aspectRatio,
       qualityMode: input.qualityMode,
       count: input.count,
@@ -119,12 +131,14 @@ export interface ApiImageRow {
   thumbnailUrl: string | null;
   prompt: string | null;
   outfit?: string | null;
+  poseId?: string | null;
   scene: string | null;
   environment: string | null;
   aspectRatio: AspectRatio | null;
   status: 'pending' | 'generating' | 'completed' | 'failed' | null;
   createdAt: string | null;
   liked?: boolean | null;
+  nsfw?: boolean | null;
 }
 
 export async function getCharacterImages(characterId: string): Promise<ApiImageRow[]> {

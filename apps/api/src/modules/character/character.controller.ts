@@ -25,6 +25,9 @@ import { GenerateCharacterSheetDto } from './dto/generate-character-sheet.dto';
 import { GenerateProfilePictureSetDto } from '../image/dto/req/generate-profile-picture-set.dto';
 import { RegenerateProfilePictureDto } from '../image/dto/req/regenerate-profile-picture.dto';
 import type { FeatureId } from '@ryla/shared';
+import { eq, and } from 'drizzle-orm';
+import * as schema from '@ryla/data/schema';
+import type { CharacterConfig } from '@ryla/data/schema';
 
 @ApiTags('Characters')
 @Controller('characters')
@@ -32,6 +35,8 @@ import type { FeatureId } from '@ryla/shared';
 @ApiBearerAuth()
 export class CharacterController {
   constructor(
+    @Inject('DRIZZLE_DB')
+    private readonly db: any, // NodePgDatabase<typeof schema>
     @Inject(CharacterService) private readonly characterService: CharacterService,
     @Inject(BaseImageGenerationService) private readonly baseImageGenerationService: BaseImageGenerationService,
     @Inject(CharacterSheetService) private readonly characterSheetService: CharacterSheetService,
@@ -228,12 +233,31 @@ export class CharacterController {
       );
     }
 
+    // Fetch character config if characterId is provided
+    let characterConfig: CharacterConfig | undefined;
+    let characterName: string | undefined;
+    if (dto.characterId) {
+      const character = await this.db.query.characters.findFirst({
+        where: and(
+          eq(schema.characters.id, dto.characterId),
+          eq(schema.characters.userId, user.userId)
+        ),
+        columns: { config: true, name: true },
+      });
+      if (character) {
+        characterConfig = character.config as CharacterConfig;
+        characterName = character.name;
+      }
+    }
+
     // Always use authenticated user's ID for profile picture generation
     // This ensures generation jobs can be looked up correctly in getJobResult
     const result = await this.profilePictureSetService.generateProfilePictureSet({
       baseImageUrl: dto.baseImageUrl,
       characterId: dto.characterId,
       userId: user.userId, // Always use authenticated user's ID
+      characterConfig, // Pass full character config with all wizard options
+      characterName, // Pass character name for DNA
       setId: dto.setId,
       nsfwEnabled: dto.nsfwEnabled,
       generationMode: dto.generationMode,

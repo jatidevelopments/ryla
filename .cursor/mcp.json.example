@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "ryla-api": {
+      "command": "npx",
+      "args": ["tsx", "/Users/admin/Documents/Projects/RYLA/apps/mcp/src/main.ts"],
+      "env": {
+        "RYLA_API_URL": "http://localhost:3001",
+        "RYLA_DEV_TOKEN": "${RYLA_DEV_TOKEN}"
+      }
+    },
     "github": {
       "command": "npx",
       "args": ["-y", "@modelcontextprotocol/server-github"],

@@ -22,7 +22,9 @@
       "@ryla/ui": ["libs/ui/src/index.ts"],
       "@ryla/analytics": ["libs/analytics/src/index.ts"],
       "@ryla/trpc": ["libs/trpc/src/index.ts"],
-      "@ryla/trpc/*": ["libs/trpc/src/*"]
+      "@ryla/trpc/*": ["libs/trpc/src/*"],
+      "@ryla/email": ["libs/email/src/index.ts"],
+      "@ryla/email/*": ["libs/email/src/*"]
     }
   },
   "include": ["src/**/*.ts"],
@@ -31,6 +33,7 @@
     { "path": "../../libs/shared" },
     { "path": "../../libs/data" },
     { "path": "../../libs/business" },
-    { "path": "../../libs/trpc" }
+    { "path": "../../libs/trpc" },
+    { "path": "../../libs/email" }
   ]
 }

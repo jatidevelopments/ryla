@@ -60,3 +60,5 @@ export * from './ryla-layout';
 // Platform components
 export * from './platform-badge';
 
+// Prompt Builder components
+export * from './prompt-builder';

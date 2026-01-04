@@ -2,93 +2,84 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import {
-  HAIR_STYLE_OPTIONS,
-  HAIR_COLOR_OPTIONS,
-  EYE_COLOR_OPTIONS,
-} from '@ryla/shared';
-import { WizardOptionCard } from './wizard-option-card';
+import { EYE_COLOR_OPTIONS } from '@ryla/shared';
+import { WizardImageCard } from './wizard-image-card';
+import { INFLUENCER_FACE_SHAPES } from '../../constants';
+import { getInfluencerImage } from '../../lib/utils/get-influencer-image';
 
 /**
- * Step 3: Face Design
- * Choose hair style, hair color, and eye color
+ * Step 3: Facial Features
+ * Combine: Eye Color + Face Shape
  */
 export function StepFace() {
   const form = useCharacterWizardStore((s) => s.form);
   const setField = useCharacterWizardStore((s) => s.setField);
 
-  // Filter hair styles by gender
-  const filteredHairStyles = HAIR_STYLE_OPTIONS.filter(
-    (option) => !option.gender || option.gender === form.gender
-  );
-
   return (
-    <div className="flex flex-col items-center">
+    <div className="flex flex-col items-center w-full">
       {/* Header */}
       <div className="text-center mb-8">
-        <p className="text-white/60 text-sm font-medium mb-2">Face Design</p>
-        <h1 className="text-white text-2xl font-bold">Hair & Eyes</h1>
+        <p className="text-white/60 text-sm font-medium mb-2">Facial Features</p>
+        <h1 className="text-white text-2xl font-bold">Eyes & Face Shape</h1>
       </div>
 
-      {/* Hair Style */}
-      <div className="w-full mb-5">
-        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-          <p className="text-white/70 text-sm mb-4">Hair Style</p>
-          <div className="grid grid-cols-3 gap-2.5">
-            {filteredHairStyles.map((option) => (
-              <WizardOptionCard
-                key={option.value}
-                label={option.title}
-                selected={form.hairStyle === option.value}
-                onSelect={() => setField('hairStyle', option.value)}
-                size="sm"
-              />
-            ))}
+      <div className="w-full space-y-8">
+        {/* Section 1: Eye Color */}
+        <section>
+          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+            <p className="text-white/70 text-sm mb-4 font-medium">Eye Color</p>
+            <div className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+              {EYE_COLOR_OPTIONS.filter(
+                (opt) =>
+                  !opt.gender ||
+                  opt.gender === form.gender ||
+                  opt.gender === 'all'
+              ).map((option) => {
+                const ethnicityAwareImage = form.ethnicity
+                  ? getInfluencerImage('eye-colors', form.ethnicity, option.value)
+                  : null;
+                return (
+                  <WizardImageCard
+                    key={option.value}
+                    image={{
+                      src: ethnicityAwareImage || option.imageSrc || '',
+                      alt: option.title,
+                      name: option.title,
+                    }}
+                    selected={form.eyeColor === option.value}
+                    onSelect={() => setField('eyeColor', option.value)}
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Hair Color */}
-      <div className="w-full mb-5">
-        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-          <p className="text-white/70 text-sm mb-4">Hair Color</p>
-          <div className="grid grid-cols-4 gap-2.5">
-            {HAIR_COLOR_OPTIONS.map((option) => (
-              <WizardOptionCard
-                key={option.value}
-                label={
-                  option.value.charAt(0).toUpperCase() + option.value.slice(1)
-                }
-                selected={form.hairColor === option.value}
-                onSelect={() => setField('hairColor', option.value)}
-                size="sm"
-              />
-            ))}
+        {/* Section 2: Face Shape */}
+        <section>
+          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+            <p className="text-white/70 text-sm mb-4 font-medium">Face Shape</p>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+              {INFLUENCER_FACE_SHAPES.map((option) => {
+                const ethnicityAwareImage = form.ethnicity
+                  ? getInfluencerImage('face-shapes', form.ethnicity, option.value)
+                  : null;
+                return (
+                  <WizardImageCard
+                    key={option.id}
+                    image={{
+                      ...option.image,
+                      src: ethnicityAwareImage || option.image.src,
+                    }}
+                    selected={form.faceShape === option.value}
+                    onSelect={() => setField('faceShape', option.value)}
+                    aspectRatio="square"
+                  />
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </div>
-
-      {/* Eye Color */}
-      <div className="w-full">
-        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-          <p className="text-white/70 text-sm mb-4">Eye Color</p>
-          <div className="grid grid-cols-4 gap-2.5">
-            {EYE_COLOR_OPTIONS.filter(
-              (opt) =>
-                !opt.gender ||
-                opt.gender === form.gender ||
-                opt.gender === 'all'
-            ).map((option) => (
-              <WizardOptionCard
-                key={option.value}
-                label={option.title}
-                selected={form.eyeColor === option.value}
-                onSelect={() => setField('eyeColor', option.value)}
-                size="sm"
-              />
-            ))}
-          </div>
-        </div>
+        </section>
       </div>
     </div>
   );

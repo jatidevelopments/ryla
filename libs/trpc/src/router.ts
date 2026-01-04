@@ -17,6 +17,8 @@ import {
   activityRouter,
   notificationsRouter,
   bugReportRouter,
+  galleryFavoritesRouter,
+  templatesRouter,
 } from './routers';
 
 /**
@@ -33,6 +35,8 @@ export const appRouter = router({
   activity: activityRouter,
   notifications: notificationsRouter,
   bugReport: bugReportRouter,
+  galleryFavorites: galleryFavoritesRouter,
+  templates: templatesRouter,
 });
 
 /**

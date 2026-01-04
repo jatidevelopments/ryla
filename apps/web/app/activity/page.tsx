@@ -682,7 +682,7 @@ function ActivityContent() {
       });
       // Navigate to studio with the image pre-selected
       // The thumbnailUrl can be passed as a query param or stored
-      router.push(`/influencer/${item.characterId}/studio`);
+      router.push(`/studio?influencer=${item.characterId}`);
     }
   };
 

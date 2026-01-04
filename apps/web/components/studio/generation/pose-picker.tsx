@@ -3,8 +3,9 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
-import { cn, Input } from '@ryla/ui';
+import { cn, Input, Badge } from '@ryla/ui';
 import { ALL_POSES, SFW_POSES, ADULT_POSES, POSE_CATEGORIES, type Pose } from './types';
+import { useGalleryFavorites } from '../../../lib/hooks/use-gallery-favorites';
 
 interface PosePickerProps {
   selectedPoseId: string | null;
@@ -24,7 +25,13 @@ export function PosePicker({
   const [search, setSearch] = React.useState('');
   const [category, setCategory] = React.useState<PoseCategory>('all');
   const [adultOnly, setAdultOnly] = React.useState(false);
+  const [showFavoritesOnly, setShowFavoritesOnly] = React.useState(false);
   const overlayRef = React.useRef<HTMLDivElement>(null);
+  
+  // Favorites hook
+  const { isFavorited, toggleFavorite } = useGalleryFavorites({
+    itemType: 'pose',
+  });
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === overlayRef.current) {
@@ -32,7 +39,7 @@ export function PosePicker({
     }
   };
 
-  // Filter poses based on NSFW, category, and adult filter
+  // Filter poses based on Adult Content, category, adult filter, and favorites
   const availablePoses = React.useMemo(() => {
     let basePoses = nsfwEnabled ? [...SFW_POSES, ...ADULT_POSES] : SFW_POSES;
     
@@ -45,9 +52,24 @@ export function PosePicker({
       const matchesSearch = pose.name.toLowerCase().includes(search.toLowerCase()) ||
                            pose.prompt.toLowerCase().includes(search.toLowerCase());
       const matchesCategory = category === 'all' || pose.category === category;
+      const matchesFavorites = !showFavoritesOnly || isFavorited(pose.id);
+      return matchesSearch && matchesCategory && matchesFavorites;
+    });
+  }, [nsfwEnabled, search, category, adultOnly, showFavoritesOnly, isFavorited]);
+
+  // Count filtered adult poses for disclaimer
+  const filteredAdultPoseCount = React.useMemo(() => {
+    if (nsfwEnabled) return 0;
+    
+    const allAdultPoses = ADULT_POSES.filter(pose => {
+      const matchesSearch = pose.name.toLowerCase().includes(search.toLowerCase()) ||
+                           pose.prompt.toLowerCase().includes(search.toLowerCase());
+      const matchesCategory = category === 'all' || pose.category === category;
       return matchesSearch && matchesCategory;
     });
-  }, [nsfwEnabled, search, category, adultOnly]);
+    
+    return allAdultPoses.length;
+  }, [nsfwEnabled, search, category]);
 
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
@@ -63,7 +85,7 @@ export function PosePicker({
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8"
     >
       <div 
-        className="flex flex-col w-full max-w-5xl max-h-[70vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        className="flex flex-col w-full max-w-7xl max-h-[85vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -83,8 +105,22 @@ export function PosePicker({
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Search & Close */}
+          {/* Search, Favorites Filter & Close */}
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              className={cn(
+                'flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all',
+                showFavoritesOnly
+                  ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/25'
+                  : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+              )}
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={cn('h-4 w-4', showFavoritesOnly && 'fill-current')}>
+                <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+              </svg>
+              <span className="hidden sm:inline">Favorites</span>
+            </button>
             <div className="relative">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40">
                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
@@ -109,41 +145,57 @@ export function PosePicker({
         </div>
 
         {/* Category Filters */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5 overflow-x-auto scroll-hidden">
-          {POSE_CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setCategory(cat.id as PoseCategory)}
-              className={cn(
-                'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
-                category === cat.id
-                  ? 'bg-white text-black'
-                  : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
-              )}
-            >
-              {cat.label}
-            </button>
-          ))}
-          
-          {/* 18+ Filter - Only show if NSFW is enabled */}
-          {nsfwEnabled && (
-            <>
-              <div className="h-6 w-px bg-white/10" />
+        <div className="flex flex-col gap-3 border-b border-white/5">
+          <div className="flex items-center gap-3 px-6 py-5 overflow-x-auto scroll-hidden">
+            {POSE_CATEGORIES.map((cat) => (
               <button
-                onClick={() => setAdultOnly(!adultOnly)}
+                key={cat.id}
+                onClick={() => setCategory(cat.id as PoseCategory)}
                 className={cn(
-                  'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2',
-                  adultOnly
-                    ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                  'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
+                  category === cat.id
+                    ? 'bg-white text-black'
                     : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
                 )}
               >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
-                </svg>
-                <span>18+ Only</span>
+                {cat.label}
               </button>
-            </>
+            ))}
+            
+            {/* 18+ Filter - Only show if Adult Content is enabled */}
+            {nsfwEnabled && (
+              <>
+                <div className="h-6 w-px bg-white/10" />
+                <button
+                  onClick={() => setAdultOnly(!adultOnly)}
+                  className={cn(
+                    'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all flex items-center gap-2',
+                    adultOnly
+                      ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                      : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+                  )}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                  </svg>
+                  <span>18+ Only</span>
+                </button>
+              </>
+            )}
+          </div>
+          
+          {/* Disclaimer when NFSV poses are filtered */}
+          {!nsfwEnabled && filteredAdultPoseCount > 0 && (
+            <div className="px-6 pb-3">
+              <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-orange-400 flex-shrink-0">
+                  <path fillRule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clipRule="evenodd" />
+                </svg>
+                <span className="text-xs text-orange-300">
+                  {filteredAdultPoseCount} adult pose{filteredAdultPoseCount !== 1 ? 's' : ''} filtered because adult content is disabled
+                </span>
+              </div>
+            </div>
           )}
         </div>
 
@@ -174,6 +226,11 @@ export function PosePicker({
                 pose={pose}
                 isSelected={selectedPoseId === pose.id}
                 onSelect={() => onPoseSelect(pose.id)}
+                isFavorited={isFavorited(pose.id)}
+                onToggleFavorite={(e) => {
+                  e.stopPropagation();
+                  toggleFavorite(pose.id);
+                }}
               />
             ))}
           </div>
@@ -220,10 +277,14 @@ function PoseCard({
   pose,
   isSelected,
   onSelect,
+  isFavorited,
+  onToggleFavorite,
 }: {
   pose: Pose;
   isSelected: boolean;
   onSelect: () => void;
+  isFavorited: boolean;
+  onToggleFavorite: (e: React.MouseEvent) => void;
 }) {
   return (
     <div className="break-inside-avoid mb-3">
@@ -267,13 +328,19 @@ function PoseCard({
           
           {/* Adult badge */}
           {pose.isAdult && (
-            <div className="absolute top-2 right-2 px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/50 z-10">
-              <span className="text-[10px] font-bold text-red-400 uppercase">18+</span>
+            <div className="absolute top-2.5 right-2.5 z-10">
+              <Badge 
+                variant="error" 
+                size="default" 
+                className="uppercase font-bold text-xs px-3 py-1.5 bg-red-600/90 text-white border-red-500 shadow-lg shadow-red-500/50"
+              >
+                18+
+              </Badge>
             </div>
           )}
         </div>
 
-        {/* Selection indicator */}
+          {/* Selection indicator */}
         {isSelected && (
           <div className="absolute top-2 left-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--purple-500)]">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-white">
@@ -281,6 +348,21 @@ function PoseCard({
             </svg>
           </div>
         )}
+
+        {/* Like button */}
+        <button
+          onClick={onToggleFavorite}
+          className={cn(
+            'absolute top-2 right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100',
+            isFavorited
+              ? 'bg-[var(--pink-500)] text-white opacity-100'
+              : 'bg-black/50 text-white/60 hover:bg-black/70 hover:text-white'
+          )}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={cn('h-4 w-4', isFavorited && 'fill-current')}>
+            <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+          </svg>
+        </button>
       </button>
     </div>
   );

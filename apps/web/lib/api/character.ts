@@ -17,11 +17,21 @@ export interface AppearanceInput {
   style: 'realistic' | 'anime';
   ethnicity: string;
   age: number;
+  ageRange?: string;
+  skinColor?: string;
+  eyeColor: string;
+  faceShape?: string;
   hairStyle: string;
   hairColor: string;
-  eyeColor: string;
   bodyType: string;
+  assSize?: string;
   breastSize?: string;
+  breastType?: string;
+  freckles?: string;
+  scars?: string;
+  beautyMarks?: string;
+  piercings?: string;
+  tattoos?: string;
 }
 
 export interface IdentityInput {

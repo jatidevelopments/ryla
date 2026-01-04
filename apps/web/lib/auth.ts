@@ -225,6 +225,33 @@ export async function deleteAccount(): Promise<void> {
 }
 
 /**
+ * Check if email exists in the system
+ */
+export async function checkEmailExists(email: string): Promise<boolean> {
+  try {
+    const response = await fetch(
+      `${API_BASE_URL}/auth/check-email?email=${encodeURIComponent(email)}`
+    );
+
+    if (!response.ok) {
+      if (response.status === 400) {
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.message || 'Invalid email format');
+      }
+      throw new Error('Failed to check email');
+    }
+
+    const data = await response.json();
+    return data.exists;
+  } catch (err) {
+    if (err instanceof Error) {
+      throw err;
+    }
+    throw new Error('Failed to check email');
+  }
+}
+
+/**
  * Get current user profile
  */
 export async function getCurrentUser(): Promise<AuthUser | null> {

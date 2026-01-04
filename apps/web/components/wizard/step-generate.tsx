@@ -67,11 +67,21 @@ export function StepGenerate() {
           style: form.style || 'realistic',
           ethnicity: form.ethnicity || 'caucasian',
           age: form.age,
+          ageRange: form.ageRange || undefined,
+          skinColor: form.skinColor || undefined,
+          eyeColor: form.eyeColor || 'brown',
+          faceShape: form.faceShape || undefined,
           hairStyle: form.hairStyle || 'long-straight',
           hairColor: form.hairColor || 'brown',
-          eyeColor: form.eyeColor || 'brown',
           bodyType: form.bodyType || 'slim',
+          assSize: form.assSize || undefined,
           breastSize: form.breastSize || undefined,
+          breastType: form.breastType || undefined,
+          freckles: form.freckles || undefined,
+          scars: form.scars || undefined,
+          beautyMarks: form.beautyMarks || undefined,
+          piercings: form.piercings || undefined,
+          tattoos: form.tattoos || undefined,
         },
         identity: {
           defaultOutfit: form.outfit || 'casual',
@@ -182,7 +192,7 @@ export function StepGenerate() {
       // Invalidate notifications (character created + generation complete)
       utils.notifications.list.invalidate();
 
-      router.push(`/influencer/${character.id}/studio`);
+      router.push(`/studio?influencer=${character.id}`);
     } catch (err) {
       console.error('Generation failed:', err);
       setError(err instanceof Error ? err.message : 'Generation failed');

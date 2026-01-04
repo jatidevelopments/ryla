@@ -14,10 +14,13 @@ import { TokenService } from './token.service';
 import { AuthCacheService } from './auth-cache.service';
 import { RegisterUserByEmailDto } from '../dto/req/register-user-by-email.dto';
 import { LoginUserDto } from '../dto/req/login-user.dto';
+import { ForgotPasswordDto } from '../dto/req/forgot-password.dto';
+import { ResetPasswordDto } from '../dto/req/reset-password.dto';
 import { AuthResponseDto } from '../dto/res/auth-response.dto';
 import { IJwtPayload } from '../interfaces/jwt-payload.interface';
 import { ITokenPair } from '../interfaces/token-pair.interface';
 import { TokenType } from '../enums/token-type.enum';
+import { ActionTokenType } from '../enums/action-token.type';
 import {
   UsersRepository,
   User,
@@ -28,6 +31,7 @@ import {
 } from '@ryla/data';
 import * as schema from '@ryla/data/schema';
 import type { NotificationType } from '@ryla/data/schema';
+import { sendEmail, WelcomeEmail, PasswordResetEmail } from '@ryla/email';
 
 const BCRYPT_SALT_ROUNDS = 10;
 
@@ -110,6 +114,23 @@ export class AuthService {
       href: '/wizard/step-0',
       metadata: { freeCredits },
     });
+
+    // Send welcome email (don't fail registration if email fails)
+    try {
+      const appUrl = process.env['NEXT_PUBLIC_APP_URL'] || 'https://app.ryla.ai';
+      await sendEmail({
+        to: user.email,
+        subject: 'Welcome to RYLA! 🎨',
+        template: WelcomeEmail,
+        props: {
+          userName: user.name,
+          loginUrl: appUrl,
+        },
+      });
+    } catch (error) {
+      // Log but don't fail registration
+      console.error('Failed to send welcome email:', error);
+    }
 
     // Generate tokens
     const deviceId = this.generateDeviceId(userAgent, ip);
@@ -201,6 +222,14 @@ export class AuthService {
   }
 
   /**
+   * Check if email exists in the database
+   */
+  public async checkEmailExists(email: string): Promise<boolean> {
+    const user = await this.usersRepository.findByEmail(email);
+    return !!user;
+  }
+
+  /**
    * Get current user by ID
    */
   public async getCurrentUser(userId: string): Promise<Omit<User, 'password'> | null> {
@@ -213,6 +242,96 @@ export class AuthService {
     // Remove password from response
     const { password: _, ...userWithoutPassword } = user;
     return userWithoutPassword;
+  }
+
+  /**
+   * Request password reset - sends email with reset link
+   */
+  public async requestPasswordReset(dto: ForgotPasswordDto): Promise<void> {
+    const user = await this.usersRepository.findByEmail(dto.email);
+
+    // Don't reveal if email exists (security best practice)
+    if (!user) {
+      return;
+    }
+
+    // Generate reset token
+    // Note: IJwtActionTokenPayload expects userId as number, but we use string UUIDs
+    // The token service will handle the payload structure
+    const token = await this.tokenService.generateActionToken(
+      {
+        userId: user.id as any, // Token service will handle the conversion
+        actionToken: 'password-reset',
+      } as any,
+      ActionTokenType.FORGOT_PASSWORD,
+    );
+
+    // Store token in database
+    const expiresAt = new Date();
+    expiresAt.setHours(expiresAt.getHours() + 1); // 1 hour expiry
+    await this.usersRepository.setPasswordResetToken(user.email, token, expiresAt);
+
+    // Send password reset email
+    try {
+      const appUrl = process.env['NEXT_PUBLIC_APP_URL'] || 'https://app.ryla.ai';
+      const resetUrl = `${appUrl}/reset-password?token=${token}`;
+
+      await sendEmail({
+        to: user.email,
+        subject: 'Reset your RYLA password',
+        template: PasswordResetEmail,
+        props: {
+          resetUrl,
+          userName: user.name,
+          expiresIn: '1 hour',
+        },
+      });
+    } catch (error) {
+      // Log but don't fail the request (security: don't reveal if email exists)
+      console.error('Failed to send password reset email:', error);
+    }
+  }
+
+  /**
+   * Reset password using token
+   */
+  public async resetPassword(dto: ResetPasswordDto): Promise<void> {
+    // Verify token - verifyActionToken returns IJwtPayload which has userId as string
+    let payload: IJwtPayload;
+    try {
+      payload = await this.tokenService.verifyActionToken(
+        dto.token,
+        ActionTokenType.FORGOT_PASSWORD,
+      ) as any; // Token service returns IJwtPayload which has userId
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired reset token');
+    }
+
+    // Find user
+    const user = await this.usersRepository.findById(payload.userId);
+    if (!user) {
+      throw new UnauthorizedException('Invalid reset token');
+    }
+
+    // Verify token matches stored token
+    if (user.passwordResetToken !== dto.token) {
+      throw new UnauthorizedException('Invalid reset token');
+    }
+
+    // Check if token expired
+    if (!user.passwordResetExpiresAt || user.passwordResetExpiresAt < new Date()) {
+      throw new UnauthorizedException('Reset token has expired');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(dto.password, BCRYPT_SALT_ROUNDS);
+
+    // Update password and clear reset token
+    await this.usersRepository.updateById(user.id, {
+      password: hashedPassword,
+      passwordResetToken: null,
+      passwordResetExpiresAt: null,
+    });
   }
 
   /**

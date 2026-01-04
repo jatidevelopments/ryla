@@ -11,6 +11,7 @@ export type ViewMode = 'grid' | 'large' | 'masonry';
 export type AspectRatioFilter = AspectRatio | 'all';
 export type StatusFilter = 'all' | 'completed' | 'generating' | 'failed';
 export type LikedFilter = 'all' | 'liked' | 'not-liked';
+export type AdultFilter = 'all' | 'adult' | 'not-adult';
 export type SortBy = 'newest' | 'oldest';
 
 interface StudioToolbarProps {
@@ -22,6 +23,8 @@ interface StudioToolbarProps {
   onStatusChange: (status: StatusFilter) => void;
   liked: LikedFilter;
   onLikedChange: (liked: LikedFilter) => void;
+  adult: AdultFilter;
+  onAdultChange: (adult: AdultFilter) => void;
   sortBy: SortBy;
   onSortByChange: (sort: SortBy) => void;
   selectedCount: number;
@@ -38,6 +41,8 @@ export function StudioToolbar({
   onStatusChange,
   liked,
   onLikedChange,
+  adult,
+  onAdultChange,
   sortBy,
   onSortByChange,
   selectedCount,
@@ -144,6 +149,40 @@ export function StudioToolbar({
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
                   </svg>
                   Not Liked
+                </>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Adult Content Filter */}
+        <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] p-1">
+          {(['all', 'adult', 'not-adult'] as const).map((a) => (
+            <button
+              key={a}
+              onClick={() => onAdultChange(a)}
+              className={cn(
+                'rounded-lg px-3 py-1.5 text-xs font-medium transition-all flex items-center gap-1.5',
+                adult === a
+                  ? 'bg-[var(--purple-500)] text-white shadow-sm'
+                  : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+              )}
+            >
+              {a === 'all' ? (
+                'All'
+              ) : a === 'adult' ? (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                    <path fillRule="evenodd" d="M13.5 2.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15.5 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM13.5 6.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15.5 8.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM9.5 2.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM11.5 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM9.5 6.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM11.5 8.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM4.394 4.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.394 6.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM4.394 8.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM16.5 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM12 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6z" clipRule="evenodd" />
+                  </svg>
+                  Adult
+                </>
+              ) : (
+                <>
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                    <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  Safe
                 </>
               )}
             </button>

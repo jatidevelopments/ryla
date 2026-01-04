@@ -3,12 +3,14 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { useCharacterWizardStore, useInfluencerStore, profilePictureSets } from '@ryla/business';
-import { Input, cn } from '@ryla/ui';
+import { useCharacterWizardStore, useInfluencerStore, getProfilePictureSet, useProfilePicturesStore } from '@ryla/business';
+import { cn } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
 import { trpc } from '../../lib/trpc';
 import { useCredits } from '../../lib/hooks/use-credits';
 import { ZeroCreditsModal } from '../credits';
+import { generateProfilePictureSetAndWait } from '../../lib/api/character';
+import { ProfilePictureSetSelector } from './profile-picture-set-selector';
 
 /**
  * Step: Finalize
@@ -78,21 +80,40 @@ export function StepFinalize() {
         name: form.name || 'Unnamed',
         baseImageUrl: selectedBaseImage.url,
         config: {
+          // Step 1: Style
           gender: form.gender || 'female',
           style: form.style || 'realistic',
+          // Step 2: Basic Appearance
           ethnicity: form.ethnicity || 'caucasian',
           age: form.age,
+          ageRange: form.ageRange || undefined,
+          skinColor: form.skinColor || undefined,
+          // Step 3: Facial Features
+          eyeColor: form.eyeColor || 'brown',
+          faceShape: form.faceShape || undefined,
+          // Step 4: Hair
           hairStyle: form.hairStyle || 'long-straight',
           hairColor: form.hairColor || 'brown',
-          eyeColor: form.eyeColor || 'brown',
+          // Step 5: Body
           bodyType: form.bodyType || 'slim',
+          assSize: form.assSize || undefined,
           breastSize: form.breastSize || undefined,
+          breastType: form.breastType || undefined,
+          // Step 6: Skin Features
+          freckles: form.freckles || undefined,
+          scars: form.scars || undefined,
+          beautyMarks: form.beautyMarks || undefined,
+          // Step 7: Body Modifications
+          piercings: form.piercings || undefined,
+          tattoos: form.tattoos || undefined,
+          // Step 8: Identity
           defaultOutfit: form.outfit || 'casual',
           archetype: form.archetype || 'girl-next-door',
           personalityTraits:
             form.personalityTraits.length > 0 ? form.personalityTraits : ['friendly'],
           bio: form.bio,
           handle,
+          // Settings
           nsfwEnabled: form.nsfwEnabled,
           // Store selected profile picture set ID (null = skip)
           profilePictureSetId: form.selectedProfilePictureSetId || undefined,
@@ -141,6 +162,63 @@ export function StepFinalize() {
       utils.activity.summary.invalidate();
       // Invalidate notifications (character created notification)
       utils.notifications.list.invalidate();
+
+      // Automatically generate profile pictures if a set was selected
+      // They will appear in the gallery automatically via database
+      if (form.selectedProfilePictureSetId && selectedBaseImage) {
+        // Get the profile picture set to calculate total count
+        const set = getProfilePictureSet(form.selectedProfilePictureSetId);
+        const regularCount = set?.positions.length || 7;
+        const nsfwCount = form.nsfwEnabled ? 3 : 0;
+        const totalCount = regularCount + nsfwCount;
+
+        // Start tracking generation in store
+        const { start, updateProgress, complete, fail, upsertImage } = useProfilePicturesStore.getState();
+        
+        // Generate in background - track progress via store
+        generateProfilePictureSetAndWait(
+          {
+            baseImageUrl: selectedBaseImage.url,
+            characterId: character.id,
+            setId: form.selectedProfilePictureSetId,
+            nsfwEnabled: form.nsfwEnabled,
+            generationMode: 'fast', // Use fast mode (no PuLID) for now
+          },
+          (status, error) => {
+            // Progress callback - update store status
+            if (status === 'completed') {
+              complete(character.id);
+            } else if (status === 'failed') {
+              fail(character.id, error || 'Generation failed');
+            }
+            // Progress count is updated automatically via onImageComplete -> upsertImage
+          },
+          (image, positionId, positionName) => {
+            // Image complete callback - update store
+            upsertImage(character.id, {
+              id: image.id,
+              url: image.url,
+              thumbnailUrl: image.thumbnailUrl,
+              positionId,
+              positionName,
+              prompt: image.prompt,
+              negativePrompt: image.negativePrompt,
+              isNSFW: image.isNSFW,
+            });
+          }
+        ).then(({ jobIds }) => {
+          // Start tracking with job IDs and total count
+          start(character.id, {
+            setId: form.selectedProfilePictureSetId,
+            jobIds: jobIds,
+            totalCount,
+          });
+        }).catch((error) => {
+          console.error('Failed to start profile picture generation:', error);
+          fail(character.id, error instanceof Error ? error.message : 'Failed to start generation');
+          // Don't block navigation - generation happens in background
+        });
+      }
 
       router.push(`/influencer/${character.id}`);
     } catch (err) {
@@ -193,189 +271,38 @@ export function StepFinalize() {
         </div>
       )}
 
-      {/* Character Name */}
+
+      {/* Profile Picture Set Selection */}
       <div className="w-full mb-6">
-        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-          <p className="text-white/70 text-sm mb-3">Character Name</p>
-          <Input
-            value={form.name}
-            onChange={(e) => setField('name', e.target.value)}
-            placeholder="Enter character name"
-            className="bg-white/5 border-white/10 text-white placeholder:text-white/40"
+        <div className="bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <ProfilePictureSetSelector
+            selectedSetId={form.selectedProfilePictureSetId}
+            onSelect={(setId) => setField('selectedProfilePictureSetId', setId as any)}
+            creditCost={PROFILE_SET_CREDITS}
           />
         </div>
       </div>
 
-      {/* Profile Picture Set Selection */}
-      <div className="w-full mb-6">
-        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-6 shadow-lg backdrop-blur-sm">
-          <div className="mb-4">
-            <p className="text-white text-base font-semibold mb-1">Profile Picture Set</p>
-            <p className="text-white/50 text-xs">
-              Choose a preset style. Generated in the background after creation.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-3">
-            {/* Skip option */}
-            <label
-              className={cn(
-                'relative flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer group',
-                form.selectedProfilePictureSetId === null
-                  ? 'border-purple-400 bg-gradient-to-br from-purple-500/20 to-purple-600/10 shadow-lg shadow-purple-500/20'
-                  : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
-              )}
-            >
-              <input
-                type="radio"
-                name="profilePictureSet"
-                value=""
-                checked={form.selectedProfilePictureSetId === null}
-                onChange={() => setField('selectedProfilePictureSetId', null)}
-                className="sr-only"
-              />
-              <div className="flex flex-col items-center text-center">
-                <div
-                  className={cn(
-                    'w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-transform',
-                    form.selectedProfilePictureSetId === null
-                      ? 'bg-purple-500/20 scale-110'
-                      : 'bg-white/5 group-hover:bg-white/10'
-                  )}
-                >
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className={cn(
-                      'w-5 h-5 transition-colors',
-                      form.selectedProfilePictureSetId === null
-                        ? 'text-purple-400'
-                        : 'text-white/40 group-hover:text-white/60'
-                    )}
-                  >
-                    <path
-                      d="M6 18L18 6M6 6l12 12"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </div>
-                <p
-                  className={cn(
-                    'text-sm font-medium mb-1',
-                    form.selectedProfilePictureSetId === null ? 'text-white' : 'text-white/70'
-                  )}
-                >
-                  Skip
-                </p>
-                <p className="text-white/40 text-xs">Generate later</p>
-                {/* Free badge */}
-                <span className="mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">
-                  Free
-                </span>
-              </div>
-              {form.selectedProfilePictureSetId === null && (
-                <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-purple-400 ring-2 ring-purple-400/30" />
-              )}
-            </label>
-
-            {/* Set options */}
-            {profilePictureSets.map((set) => {
-              const isSelected = form.selectedProfilePictureSetId === set.id;
-              const iconColors = {
-                'classic-influencer': 'from-pink-500/20 to-orange-500/20',
-                'professional-model': 'from-blue-500/20 to-indigo-500/20',
-                'natural-beauty': 'from-green-500/20 to-emerald-500/20',
-              };
-              const iconBg = iconColors[set.id as keyof typeof iconColors] || 'from-purple-500/20 to-pink-500/20';
-
-              return (
-                <label
-                  key={set.id}
-                  className={cn(
-                    'relative flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all cursor-pointer group',
-                    isSelected
-                      ? 'border-purple-400 bg-gradient-to-br from-purple-500/20 to-purple-600/10 shadow-lg shadow-purple-500/20'
-                      : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
-                  )}
-                >
-                  <input
-                    type="radio"
-                    name="profilePictureSet"
-                    value={set.id}
-                    checked={isSelected}
-                    onChange={() => setField('selectedProfilePictureSetId', set.id as any)}
-                    className="sr-only"
-                  />
-                  <div className="flex flex-col items-center text-center">
-                    <div
-                      className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center mb-2 transition-transform bg-gradient-to-br',
-                        isSelected ? `${iconBg} scale-110` : `${iconBg} opacity-50 group-hover:opacity-75`
-                      )}
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        className={cn(
-                          'w-5 h-5 transition-colors',
-                          isSelected ? 'text-purple-400' : 'text-white/40 group-hover:text-white/60'
-                        )}
-                      >
-                        <path
-                          d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
-                          stroke="currentColor"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
-                    <p
-                      className={cn(
-                        'text-sm font-medium mb-1',
-                        isSelected ? 'text-white' : 'text-white/70'
-                      )}
-                    >
-                      {set.name.split(' ')[0]}
-                    </p>
-                    <p className="text-white/40 text-xs text-center leading-tight">
-                      {set.description.split(',')[0]}
-                    </p>
-                    {/* Credit cost badge */}
-                    <span className={cn(
-                      "mt-2 inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
-                      isSelected 
-                        ? "bg-purple-500/30 text-purple-300" 
-                        : "bg-white/10 text-white/50"
-                    )}>
-                      +{PROFILE_SET_CREDITS} credits
-                    </span>
-                  </div>
-                  {isSelected && (
-                    <div className="absolute top-2 right-2 w-3 h-3 rounded-full bg-purple-400 ring-2 ring-purple-400/30" />
-                  )}
-                </label>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Settings */}
+      {/* Adult Content Toggle */}
       <div className="w-full mb-5">
-        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm space-y-4">
-          <p className="text-white/70 text-sm">Settings</p>
-
-          {/* NSFW */}
-          <div className="flex items-center justify-between gap-4 py-2">
-            <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <p className="text-white text-sm font-medium">18+ Content</p>
-                {/* Extra credit cost badge - only show when profile set is selected */}
-                {form.selectedProfilePictureSetId !== null && (
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <p className="text-white/70 text-sm mb-4 font-medium">Adult Content</p>
+          <button
+            onClick={() => setField('nsfwEnabled', !form.nsfwEnabled)}
+            className={cn(
+              'w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden group',
+              form.nsfwEnabled
+                ? 'border-purple-400/50 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/20'
+                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+            )}
+          >
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="text-base font-semibold text-white">
+                    Enable Adult Content
+                  </p>
+                  {/* Credit cost badge - always show */}
                   <span className={cn(
                     "inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium",
                     form.nsfwEnabled 
@@ -384,39 +311,33 @@ export function StepFinalize() {
                   )}>
                     +{NSFW_EXTRA_CREDITS} credits
                   </span>
-                )}
+                </div>
+                <p className="text-sm text-white/60">
+                  Allow generation of adult content
+                  {form.nsfwEnabled && (
+                    <span className="block mt-1 text-pink-300/70">
+                      3 extra 18+ profile images will be generated automatically
+                    </span>
+                  )}
+                </p>
               </div>
-              <p className="text-white/40 text-xs">
-                Enable adult content
-                {form.selectedProfilePictureSetId !== null && form.nsfwEnabled && (
-                  <span className="block mt-1 text-pink-300/70">
-                    3 extra 18+ profile images will be generated
-                  </span>
-                )}
-              </p>
-            </div>
-            <div className="flex-shrink-0 flex items-center">
-              <button
-                type="button"
-                role="switch"
-                aria-checked={form.nsfwEnabled || false}
-                onClick={() => setField('nsfwEnabled', !form.nsfwEnabled)}
+              <div
                 className={cn(
-                  "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-transparent",
-                  form.nsfwEnabled 
-                    ? "bg-purple-500" 
-                    : "bg-white/20 border border-white/30"
+                  'w-12 h-6 rounded-full transition-all duration-200 flex items-center flex-shrink-0',
+                  form.nsfwEnabled
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+                    : 'bg-white/20'
                 )}
               >
-                <span
+                <div
                   className={cn(
-                    "inline-block h-4 w-4 transform rounded-full bg-white transition-transform",
-                    form.nsfwEnabled ? "translate-x-6" : "translate-x-1"
+                    'w-5 h-5 rounded-full bg-white transition-transform duration-200 shadow-md',
+                    form.nsfwEnabled ? 'translate-x-6' : 'translate-x-0.5'
                   )}
                 />
-              </button>
+              </div>
             </div>
-          </div>
+          </button>
         </div>
       </div>
 

@@ -1,15 +1,19 @@
-import { BadRequestException, Injectable, Inject, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq } from 'drizzle-orm';
 
 import * as schema from '@ryla/data/schema';
 import { GenerationJobsRepository, ImagesRepository } from '@ryla/data';
-import { buildWorkflow, getRecommendedWorkflow } from '@ryla/business';
+import { buildWorkflow, getRecommendedWorkflow, PromptBuilder } from '@ryla/business';
+import type { OutfitComposition } from '@ryla/shared';
 import { randomUUID } from 'crypto';
 
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
 import { FalImageService, type FalFluxModelId } from './fal-image.service';
 import { ImageStorageService } from './image-storage.service';
+import { characterConfigToDNA } from './character-config-to-dna';
+import { getPosePrompt } from './pose-lookup';
+import { AwsS3Service } from '../../aws-s3/services/aws-s3.service';
 
 function aspectRatioToSize(aspectRatio: '1:1' | '9:16' | '2:3'): { width: number; height: number } {
   switch (aspectRatio) {
@@ -27,6 +31,20 @@ function qualityToParams(qualityMode: 'draft' | 'hq'): { steps: number; cfg: num
   return { steps: 9, cfg: 1.0 };
 }
 
+function asValidEnumOrNull<T extends readonly string[]>(value: unknown, allowed: T): T[number] | null {
+  if (typeof value !== 'string') return null;
+  const trimmed = value.trim();
+  if (trimmed === '') return null;
+  return allowed.includes(trimmed as T[number]) ? (trimmed as T[number]) : null;
+}
+
+function normalizeString(value: unknown): string | undefined {
+  if (!value) return undefined;
+  if (typeof value !== 'string') return undefined;
+  const trimmed = value.trim();
+  return trimmed === '' ? undefined : trimmed;
+}
+
 @Injectable()
 export class StudioGenerationService {
   private readonly generationJobsRepo: GenerationJobsRepository;
@@ -41,6 +59,8 @@ export class StudioGenerationService {
     private readonly fal: FalImageService,
     @Inject(ImageStorageService)
     private readonly imageStorage: ImageStorageService,
+    @Inject(AwsS3Service)
+    private readonly s3Service: AwsS3Service,
   ) {
     this.generationJobsRepo = new GenerationJobsRepository(this.db);
     this.imagesRepo = new ImagesRepository(this.db);
@@ -48,11 +68,14 @@ export class StudioGenerationService {
 
   async startStudioGeneration(input: {
     userId: string;
-    prompt?: string;
+    additionalDetails?: string;
     characterId: string;
     scene: string;
     environment: string;
-    outfit: string;
+    outfit: string | OutfitComposition;
+    poseId?: string;
+    lighting?: string;
+    expression?: string;
     aspectRatio: '1:1' | '9:16' | '2:3';
     qualityMode: 'draft' | 'hq';
     count: number;
@@ -65,24 +88,50 @@ export class StudioGenerationService {
       throw new BadRequestException('count must be between 1 and 10');
     }
 
-    // Verify character ownership
+    // Verify character ownership and fetch character data
     const character = await this.db.query.characters.findFirst({
       where: and(eq(schema.characters.id, input.characterId), eq(schema.characters.userId, input.userId)),
     });
     if (!character) throw new NotFoundException('Character not found');
 
-    // Build a simple prompt (we'll refine prompt engineering later; metadata is stored separately)
-    const userPrompt = input.prompt?.trim();
-    const basePrompt = userPrompt
-      ? `High quality photo of an AI influencer. ${userPrompt}. ` +
-        `Environment: ${input.environment}. Scene: ${input.scene}. Outfit: ${input.outfit}. ` +
-        `Professional photography, detailed, sharp focus`
-      : `High quality photo of an AI influencer, ${input.environment}, ${input.scene}, ` +
-        `wearing ${input.outfit}, professional photography, detailed, sharp focus`;
+    // Convert CharacterConfig to CharacterDNA
+    const characterDNA = characterConfigToDNA(character.config, character.name);
 
-    const negativePrompt = input.nsfw
-      ? 'deformed, blurry, bad anatomy, ugly, low quality'
-      : 'deformed, blurry, bad anatomy, ugly, low quality, nsfw, nude, naked';
+    // Build prompt using PromptBuilder
+    const builder = new PromptBuilder()
+      .withCharacter(characterDNA)
+      .withScene(input.scene)
+      .withOutfit(input.outfit);
+
+    // Add pose if provided
+    // Get pose prompt text and add it directly (pose IDs don't match dot notation format)
+    const posePrompt = getPosePrompt(input.poseId);
+    if (posePrompt) {
+      builder.addDetails(posePrompt);
+    }
+
+    // Add lighting if provided
+    if (input.lighting) {
+      builder.withLighting(input.lighting);
+    }
+
+    // Add expression if provided
+    if (input.expression) {
+      builder.withExpression(input.expression);
+    }
+
+    // Add additional details if provided
+    if (input.additionalDetails?.trim()) {
+      builder.addDetails(input.additionalDetails.trim());
+    }
+
+    // Add quality modifiers
+    builder.withStylePreset('quality');
+
+    // Build the final prompt
+    const builtPrompt = builder.build();
+    const basePrompt = builtPrompt.prompt;
+    const negativePrompt = builtPrompt.negativePrompt;
 
     const { width, height } = aspectRatioToSize(input.aspectRatio);
     const { steps, cfg } = qualityToParams(input.qualityMode);
@@ -120,6 +169,7 @@ export class StudioGenerationService {
               scene: input.scene,
               environment: input.environment,
               outfit: input.outfit,
+              poseId: input.poseId,
               aspectRatio: input.aspectRatio,
               qualityMode: input.qualityMode,
               imageCount: 1,
@@ -241,29 +291,38 @@ export class StudioGenerationService {
       });
 
       const img = stored[0];
-      const row = await this.imagesRepo.createImage({
+      
+      // Validate enum values before inserting
+      const safeScene = asValidEnumOrNull((trackedJob?.input as any)?.scene, schema.scenePresetEnum.enumValues);
+      const safeEnvironment = asValidEnumOrNull((trackedJob?.input as any)?.environment, schema.environmentPresetEnum.enumValues);
+      const safeAspectRatio = asValidEnumOrNull((trackedJob?.input as any)?.aspectRatio, schema.aspectRatioEnum.enumValues);
+      const safeQualityMode = asValidEnumOrNull((trackedJob?.input as any)?.qualityMode, schema.qualityModeEnum.enumValues);
+      
+      // Build image data object, only including fields with values
+      const imageData: any = {
         characterId,
         userId,
         s3Key: img.key,
-        s3Url: img.url,
         thumbnailKey: img.key,
-        thumbnailUrl: img.thumbnailUrl,
-        prompt,
-        negativePrompt,
-        seed: seed?.toString() ?? null,
-        width,
-        height,
-        status: 'completed',
-        scene: (trackedJob?.input as any)?.scene ?? null,
-        environment: (trackedJob?.input as any)?.environment ?? null,
-        outfit: (trackedJob?.input as any)?.outfit ?? null,
-        aspectRatio: (trackedJob?.input as any)?.aspectRatio ?? null,
-        qualityMode: (trackedJob?.input as any)?.qualityMode ?? null,
+        status: 'completed' as const,
         nsfw: false,
-        sourceImageId: null,
-        editType: null,
-        editMaskS3Key: null,
-      });
+      };
+      
+      if (prompt) imageData.prompt = prompt;
+      if (negativePrompt) imageData.negativePrompt = negativePrompt;
+      if (seed) imageData.seed = seed.toString();
+      if (width) imageData.width = width;
+      if (height) imageData.height = height;
+      if (safeScene) imageData.scene = safeScene;
+      if (safeEnvironment) imageData.environment = safeEnvironment;
+      
+      const outfit = normalizeString((trackedJob?.input as any)?.outfit);
+      if (outfit) imageData.outfit = outfit;
+      
+      if (safeAspectRatio) imageData.aspectRatio = safeAspectRatio;
+      if (safeQualityMode) imageData.qualityMode = safeQualityMode;
+      
+      const row = await this.imagesRepo.createImage(imageData);
 
       await this.generationJobsRepo.updateById(jobId, {
         status: 'completed',
@@ -278,6 +337,182 @@ export class StudioGenerationService {
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Fal generation failed';
+      await this.generationJobsRepo.updateById(jobId, {
+        status: 'failed',
+        completedAt: new Date(),
+        error: message,
+      });
+    }
+  }
+
+  /**
+   * Upscale an existing image using Fal.ai upscaling models
+   */
+  async startUpscale(input: {
+    userId: string;
+    imageId: string;
+    modelId?: FalFluxModelId;
+    scale?: number;
+  }) {
+    // Verify image exists and user owns it
+    const sourceImage = await this.imagesRepo.getById(input.imageId);
+    if (!sourceImage) {
+      throw new NotFoundException('Source image not found');
+    }
+
+    if (sourceImage.userId !== input.userId) {
+      throw new ForbiddenException('You do not have access to this image');
+    }
+
+    if (sourceImage.status !== 'completed') {
+      throw new BadRequestException('Source image must be completed before upscaling');
+    }
+
+    // Verify character ownership if image is tied to a character
+    if (sourceImage.characterId) {
+      const character = await this.db.query.characters.findFirst({
+        where: and(
+          eq(schema.characters.id, sourceImage.characterId),
+          eq(schema.characters.userId, input.userId)
+        ),
+      });
+      if (!character) {
+        throw new NotFoundException('Character not found');
+      }
+    }
+
+    // Default to clarity-upscaler if no model specified
+    const modelId: FalFluxModelId = input.modelId ?? 'fal-ai/clarity-upscaler';
+    const scale = input.scale ?? 2;
+
+    // Check if Fal.ai is configured
+    if (!this.fal.isConfigured()) {
+      throw new BadRequestException('Fal.ai is not configured. Upscaling requires Fal.ai API key.');
+    }
+
+    // Get signed URL for the source image
+    const sourceImageUrl = await this.s3Service.getFileUrl(sourceImage.s3Key);
+
+    // Create job record
+    const externalJobId = `fal_upscale_${randomUUID()}`;
+    const job = await this.generationJobsRepo.createJob({
+      userId: input.userId,
+      characterId: sourceImage.characterId,
+      type: 'image_upscale',
+      status: 'processing',
+      input: {
+        sourceImageId: input.imageId,
+        modelId,
+        scale,
+      },
+      imageCount: 1,
+      completedCount: 0,
+      externalJobId,
+      externalProvider: 'fal',
+      startedAt: new Date(),
+    });
+
+    // Run upscaling in background
+    void this.runFalUpscaleJob({
+      jobId: job.id,
+      externalJobId,
+      userId: input.userId,
+      characterId: sourceImage.characterId,
+      sourceImageId: input.imageId,
+      sourceImageUrl,
+      modelId,
+      scale,
+    });
+
+    return { jobId: job.id, promptId: externalJobId };
+  }
+
+  private async runFalUpscaleJob(params: {
+    jobId: string;
+    externalJobId: string;
+    userId: string;
+    characterId: string | null;
+    sourceImageId: string;
+    sourceImageUrl: string;
+    modelId: FalFluxModelId;
+    scale: number;
+  }) {
+    const {
+      jobId,
+      externalJobId,
+      userId,
+      characterId,
+      sourceImageId,
+      sourceImageUrl,
+      modelId,
+      scale,
+    } = params;
+
+    try {
+      const trackedJob = await this.generationJobsRepo.getById(jobId);
+
+      // Call Fal.ai upscaling API
+      const out = await this.fal.runUpscale(modelId, {
+        imageUrl: sourceImageUrl,
+        scale,
+      });
+
+      // Download upscaled image
+      const base64 = await this.fal.downloadToBase64DataUrl(out.imageUrls[0]);
+
+      // Upload upscaled image to storage
+      const { images: stored } = await this.imageStorage.uploadImages([base64], {
+        userId,
+        category: 'gallery',
+        jobId: externalJobId,
+        characterId: characterId ?? undefined,
+      });
+
+      const img = stored[0];
+
+      // Get source image metadata for reference
+      const sourceImage = await this.imagesRepo.getById({ id: sourceImageId, userId });
+
+      // Build image data object for upscaled image
+      const upscaleImageData: any = {
+        characterId,
+        userId,
+        s3Key: img.key,
+        thumbnailKey: img.key,
+        prompt: sourceImage?.prompt ?? 'Upscaled image',
+        status: 'completed' as const,
+        nsfw: sourceImage?.nsfw ?? false,
+        sourceImageId,
+        editType: 'upscale',
+      };
+      
+      if (sourceImage?.negativePrompt) upscaleImageData.negativePrompt = sourceImage.negativePrompt;
+      if (sourceImage?.seed) upscaleImageData.seed = sourceImage.seed;
+      if (sourceImage?.width) upscaleImageData.width = sourceImage.width * scale;
+      if (sourceImage?.height) upscaleImageData.height = sourceImage.height * scale;
+      if (sourceImage?.scene) upscaleImageData.scene = sourceImage.scene;
+      if (sourceImage?.environment) upscaleImageData.environment = sourceImage.environment;
+      if (sourceImage?.outfit) upscaleImageData.outfit = sourceImage.outfit;
+      if (sourceImage?.aspectRatio) upscaleImageData.aspectRatio = sourceImage.aspectRatio;
+      if (sourceImage?.qualityMode) upscaleImageData.qualityMode = sourceImage.qualityMode;
+
+      // Create image record for upscaled image
+      const row = await this.imagesRepo.createImage(upscaleImageData);
+
+      // Update job status
+      await this.generationJobsRepo.updateById(jobId, {
+        status: 'completed',
+        completedAt: new Date(),
+        completedCount: 1,
+        output: {
+          imageUrls: [img.url],
+          thumbnailUrls: [img.thumbnailUrl],
+          s3Keys: [img.key],
+          imageIds: [row.id],
+        } as any,
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Fal upscaling failed';
       await this.generationJobsRepo.updateById(jobId, {
         status: 'failed',
         completedAt: new Date(),

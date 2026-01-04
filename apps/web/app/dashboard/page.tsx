@@ -1,16 +1,19 @@
 'use client';
 
+import { useState } from 'react';
 import {
   PageContainer,
   RylaButton,
   FadeInUp,
   StaggerChildren,
+  Pagination,
 } from '@ryla/ui';
 import { InfluencerCard } from '../../components/influencer-card';
 import { ProtectedRoute } from '../../components/protected-route';
 import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
 import Link from 'next/link';
+import { cn } from '@ryla/ui';
 
 export default function DashboardPage() {
   return (
@@ -22,7 +25,17 @@ export default function DashboardPage() {
 
 function DashboardContent() {
   const { user } = useAuth();
-  const { data: charactersData, isLoading } = trpc.character.list.useQuery();
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
+
+  // Calculate offset for pagination
+  const offset = (currentPage - 1) * itemsPerPage;
+
+  // Fetch characters with pagination
+  const { data: charactersData, isLoading } = trpc.character.list.useQuery({
+    limit: itemsPerPage,
+    offset,
+  });
   
   // Map Character data to AIInfluencer format for compatibility
   // imageCount is now included in the character list response
@@ -53,7 +66,9 @@ function DashboardContent() {
     updatedAt: char.createdAt?.toISOString() || new Date().toISOString(),
   }));
   
-  const hasInfluencers = influencers.length > 0;
+  const totalCount = charactersData?.total ?? 0;
+  const totalPages = Math.ceil(totalCount / itemsPerPage);
+  const hasInfluencers = totalCount > 0;
 
   return (
     <PageContainer className="relative">
@@ -78,26 +93,36 @@ function DashboardContent() {
             </h1>
             <p className="mt-1 text-[var(--text-secondary)]">
               {hasInfluencers
-                ? `${influencers.length} influencer${
-                    influencers.length !== 1 ? 's' : ''
+                ? `${totalCount} influencer${
+                    totalCount !== 1 ? 's' : ''
                   } created`
                 : 'Create your first AI influencer to get started'}
             </p>
           </div>
           {hasInfluencers && (
-            <RylaButton asChild variant="glassy" size="lg">
-              <Link href="/wizard/step-0">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="h-5 w-5"
-                >
-                  <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-                </svg>
-                Create New
-              </Link>
-            </RylaButton>
+            <Link
+              href="/wizard/step-0"
+              className={cn(
+                'inline-flex items-center justify-center gap-2',
+                'h-10 px-5 rounded-full font-bold text-sm',
+                'bg-gradient-to-r from-[#7c3aed] to-[#a855f7] text-white',
+                'shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40',
+                'transition-all duration-200 relative overflow-hidden',
+                'hover:scale-[1.02] active:scale-[0.98]'
+              )}
+            >
+              {/* Shimmer effect */}
+              <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-4 w-4 relative z-10"
+              >
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+              </svg>
+              <span className="relative z-10">Create New</span>
+            </Link>
           )}
         </div>
       </FadeInUp>
@@ -110,13 +135,26 @@ function DashboardContent() {
           </div>
         </FadeInUp>
       ) : hasInfluencers ? (
-        <StaggerChildren staggerDelay={80}>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
-            {influencers.map((influencer) => (
-              <InfluencerCard key={influencer.id} influencer={influencer} />
-            ))}
-          </div>
-        </StaggerChildren>
+        <>
+          <StaggerChildren staggerDelay={80}>
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+              {influencers.map((influencer) => (
+                <InfluencerCard key={influencer.id} influencer={influencer} />
+              ))}
+            </div>
+          </StaggerChildren>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="mt-6 flex justify-center pt-6">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={setCurrentPage}
+              />
+            </div>
+          )}
+        </>
       ) : (
         <FadeInUp delay={200}>
           <div className="relative rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-12 text-center overflow-hidden">

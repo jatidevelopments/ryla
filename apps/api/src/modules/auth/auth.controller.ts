@@ -8,12 +8,16 @@ import {
   HttpStatus,
   Get,
   Inject,
+  Query,
+  BadRequestException,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
+import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 
 import { RegisterUserByEmailDto } from './dto/req/register-user-by-email.dto';
 import { LoginUserDto } from './dto/req/login-user.dto';
+import { ForgotPasswordDto } from './dto/req/forgot-password.dto';
+import { ResetPasswordDto } from './dto/req/reset-password.dto';
 import { AuthResponseDto } from './dto/res/auth-response.dto';
 import { AuthService } from './services/auth.service';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
@@ -92,6 +96,47 @@ export class AuthController {
   public async getCurrentUser(@CurrentUser() user: IJwtPayload) {
     const currentUser = await this.authService.getCurrentUser(user.userId);
     return { user: currentUser };
+  }
+
+  @Post('forgot-password')
+  @SkipAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Request password reset' })
+  public async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {
+    await this.authService.requestPasswordReset(dto);
+    // Always return success (security: don't reveal if email exists)
+    return { message: 'If an account exists with this email, a password reset link has been sent.' };
+  }
+
+  @Post('reset-password')
+  @SkipAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Reset password with token' })
+  public async resetPassword(@Body() dto: ResetPasswordDto): Promise<{ message: string }> {
+    await this.authService.resetPassword(dto);
+    return { message: 'Password has been reset successfully' };
+  }
+
+  @Get('check-email')
+  @SkipAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Check if email exists' })
+  @ApiQuery({ name: 'email', type: String, description: 'Email address to check' })
+  public async checkEmail(
+    @Query('email') email: string,
+  ): Promise<{ exists: boolean }> {
+    if (!email) {
+      throw new BadRequestException('Email parameter is required');
+    }
+
+    // Basic email format validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      throw new BadRequestException('Invalid email format');
+    }
+
+    const exists = await this.authService.checkEmailExists(email);
+    return { exists };
   }
 
   /**

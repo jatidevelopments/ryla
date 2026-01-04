@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { cn } from '@ryla/ui';
 import type { StudioMode, ContentType } from './types';
+import { Tooltip } from '../../ui/tooltip';
 
 interface ModeSelectorProps {
   mode: StudioMode;
@@ -93,19 +94,41 @@ export function ModeSelector({
           const config = MODE_CONFIG[modeKey];
           const isActive = mode === modeKey;
           const colors = COLOR_CLASSES[config.color];
-          const isDisabled = modeKey === 'creating' && hasSelectedImage;
+          const isComingSoon = modeKey === 'variations';
+          
+          if (isComingSoon) {
+            return (
+              <Tooltip key={modeKey} content="Variations mode is coming soon!">
+                <button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    // Variations mode is not yet available
+                  }}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border-2 relative',
+                    'text-orange-400/40 border-transparent cursor-not-allowed',
+                    'hover:text-orange-400/50'
+                  )}
+                  disabled
+                >
+                  <span className="flex-shrink-0">{config.icon}</span>
+                  <span>{config.label}</span>
+                  <span className="absolute -top-0.5 -right-0.5 text-[7px] text-orange-400 font-bold bg-orange-400/20 px-1 py-0.5 rounded uppercase tracking-wider">
+                    Soon
+                  </span>
+                </button>
+              </Tooltip>
+            );
+          }
           
           return (
             <button
               key={modeKey}
-              onClick={() => !isDisabled && onModeChange(modeKey)}
-              disabled={isDisabled}
+              onClick={() => onModeChange(modeKey)}
               className={cn(
                 'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border-2',
-                isActive ? colors.active : colors.inactive,
-                isDisabled && 'opacity-50 cursor-not-allowed'
+                isActive ? colors.active : colors.inactive
               )}
-              title={isDisabled ? 'Clear image selection to use Creating mode' : undefined}
             >
               <span className="flex-shrink-0">{config.icon}</span>
               <span>{config.label}</span>
@@ -130,17 +153,25 @@ export function ModeSelector({
         >
           Image
         </button>
-        <button
-          onClick={() => onContentTypeChange('video')}
-          className={cn(
-            'px-3 py-2 rounded-lg text-sm font-medium transition-all',
-            contentType === 'video'
-              ? 'bg-white/10 text-white'
-              : 'text-white/50 hover:text-white hover:bg-white/5'
-          )}
-        >
-          Video
-        </button>
+        <Tooltip content="Video generation is coming soon!">
+          <button
+            onClick={(e) => {
+              e.preventDefault();
+              // Video generation is not yet available
+            }}
+            className={cn(
+              'px-3 py-2 rounded-lg text-sm font-medium transition-all relative',
+              'text-white/40 cursor-not-allowed',
+              'hover:text-white/50'
+            )}
+            disabled
+          >
+            Video
+            <span className="absolute -top-0.5 -right-0.5 text-[7px] text-orange-400 font-bold bg-orange-400/20 px-1 py-0.5 rounded uppercase tracking-wider">
+              Soon
+            </span>
+          </button>
+        </Tooltip>
       </div>
 
       {/* Spacer */}

@@ -117,26 +117,56 @@ export const expressionOptions = {
 } as const;
 
 /**
- * Common pose options
+ * Common pose options - comprehensive library for profile pictures
  */
 export const poseOptions = {
   standing: {
     casual: 'relaxed casual standing pose',
     confident: 'confident power stance',
-    walking: 'natural walking mid-stride',
+    walking: 'natural walking mid-stride, full body visible',
     leaning: 'casually leaning against wall',
+    armsCrossed: 'standing with arms crossed, confident',
+    handsPocket: 'standing with hands in pockets, relaxed cool',
+    waving: 'standing and waving, friendly greeting',
+    pointing: 'standing and pointing, engaging gesture',
+    thinking: 'standing in thoughtful pose, hand on chin',
+    elegant: 'standing elegantly, model pose, graceful posture',
+    backView: 'standing with back to camera, looking over shoulder',
+    sideProfile: 'standing in side profile, elegant silhouette',
   },
   sitting: {
     relaxed: 'relaxed sitting position',
-    crossLegged: 'sitting cross-legged',
-    perched: 'perched on edge elegantly',
-    lounging: 'lounging comfortably',
+    crossLegged: 'sitting cross-legged on floor, casual',
+    perched: 'perched on edge elegantly, legs crossed',
+    lounging: 'lounging comfortably on couch or bed',
+    edge: 'sitting on edge of surface, legs dangling',
+    backward: 'sitting backward on chair, arms resting on back',
+    reading: 'sitting and reading, relaxed focus',
+    working: 'sitting at desk working, productive pose',
+    elegant: 'sitting elegantly, legs to side, sophisticated',
+    floor: 'sitting on floor, casual relaxed pose',
+  },
+  lying: {
+    relaxed: 'lying down relaxed, peaceful pose',
+    propped: 'lying propped up on elbow, casual',
+    stomach: 'lying on stomach, looking up at camera',
+    elegant: 'lying elegantly, artistic pose',
+    stretching: 'lying and stretching, elongated pose',
   },
   action: {
-    dancing: 'dynamic dancing movement',
-    stretching: 'graceful stretching pose',
-    exercising: 'active workout pose',
-    playing: 'playful action pose',
+    dancing: 'dynamic dancing movement, expressive',
+    stretching: 'graceful stretching pose, flexible',
+    exercising: 'active workout pose, athletic',
+    playing: 'playful action pose, joyful',
+    yoga: 'yoga pose, balanced and centered',
+    running: 'running or jogging, dynamic motion',
+    jumping: 'mid-jump, energetic and playful',
+    sports: 'athletic sports pose, dynamic',
+  },
+  expressive: {
+    laughing: 'laughing genuinely, candid joy',
+    surprised: 'surprised expression, playful reaction',
+    thinking: 'deep in thought, contemplative',
   },
 } as const;
 
@@ -174,6 +204,44 @@ export const styleModifiers = {
     'fashion magazine quality',
     'Pinterest aesthetic',
     'influencer style',
+  ],
+  /**
+   * Ultra-realistic modifiers for authentic smartphone-quality images
+   * Source: AI Influencer Course research - "amateur photo camera style" prevents adding phones in image
+   */
+  ultraRealistic: [
+    'amateur photo camera style',
+    'candid moment captured',
+    'authentic natural lighting',
+    'raw unedited aesthetic',
+  ],
+  /**
+   * Skin texture modifiers for natural-looking skin
+   * Prevents the "plastic/waxy" AI look
+   */
+  naturalSkin: [
+    'natural skin texture with visible pores',
+    'subtle skin imperfections',
+    'realistic skin lighting',
+    'authentic complexion',
+  ],
+  /**
+   * Smartphone/selfie aesthetic for casual content
+   */
+  smartphone: [
+    'smartphone selfie aesthetic',
+    'casual phone photo quality',
+    'authentic moment',
+    'natural imperfections',
+  ],
+  /**
+   * Editorial/magazine quality for professional content
+   */
+  editorial: [
+    'editorial fashion photography',
+    'magazine cover quality',
+    'professional retouching',
+    'high-end production value',
   ],
 } as const;
 
@@ -220,6 +288,60 @@ export const negativePromptElements = {
     'airbrushed',
     'mannequin',
   ],
+  /**
+   * AI artifacts - prevents common AI-generated image problems
+   * Source: "Why AI Images Look Fake/Plastic" research
+   */
+  aiArtifacts: [
+    'airbrushed perfection',
+    'plastic texture',
+    'waxy appearance',
+    'perfect symmetry',
+    'uncanny valley',
+    'oversaturated colors',
+    'artificial lighting',
+    'stock photo look',
+    'unnaturally smooth skin',
+    'porcelain doll',
+  ],
+  /**
+   * Flux model specific negatives
+   */
+  flux: [
+    'cartoon',
+    'illustration',
+    'CGI',
+    'render',
+    '3D',
+    'anime',
+    'painted',
+    'digital art',
+    'drawing',
+    'sketch',
+  ],
+  /**
+   * Face-specific issues for better facial quality
+   */
+  faceAdvanced: [
+    'misaligned pupils',
+    'unnatural smile',
+    'wrong proportions',
+    'smooth mannequin face',
+    'dead eyes',
+    'uncanny expression',
+    'distorted features',
+  ],
+  /**
+   * Body proportions
+   */
+  bodyProportions: [
+    'wrong proportions',
+    'elongated limbs',
+    'tiny head',
+    'giant hands',
+    'misshapen body',
+    'floating limbs',
+  ],
 } as const;
 
 /**
@@ -234,4 +356,139 @@ export function buildNegativePrompt(
   }
   return elements.join(', ');
 }
+
+/**
+ * Model types for optimized negative prompts
+ */
+export type ModelType = 'flux-dev' | 'z-image-turbo' | 'sdxl' | 'default';
+
+/**
+ * Build an enhanced negative prompt optimized for realism
+ * Includes AI artifact prevention and model-specific terms
+ */
+export function buildEnhancedNegativePrompt(
+  options: {
+    model?: ModelType;
+    includeAiArtifacts?: boolean;
+    includeSkin?: boolean;
+    includeBody?: boolean;
+  } = {}
+): string {
+  const {
+    model = 'default',
+    includeAiArtifacts = true,
+    includeSkin = true,
+    includeBody = true,
+  } = options;
+
+  const categories: (keyof typeof negativePromptElements)[] = [
+    'anatomy',
+    'quality',
+    'face',
+    'faceAdvanced',
+  ];
+
+  if (includeSkin) {
+    categories.push('skin');
+  }
+
+  if (includeAiArtifacts) {
+    categories.push('aiArtifacts');
+  }
+
+  if (includeBody) {
+    categories.push('bodyProportions');
+  }
+
+  // Add model-specific negatives
+  if (model === 'flux-dev' || model === 'z-image-turbo') {
+    categories.push('flux');
+  }
+
+  return buildNegativePrompt(categories);
+}
+
+/**
+ * Style preset types for quick application
+ */
+export type StylePresetType =
+  | 'quality'
+  | 'ultraRealistic'
+  | 'instagramReady'
+  | 'editorialFashion'
+  | 'casualSelfie'
+  | 'professionalPortrait';
+
+/**
+ * Pre-configured style presets combining multiple modifiers
+ * Use with PromptBuilder.withStylePreset()
+ */
+export const stylePresets: Record<StylePresetType, {
+  modifiers: string[];
+  description: string;
+  negativeCategories: (keyof typeof negativePromptElements)[];
+}> = {
+  quality: {
+    modifiers: [...styleModifiers.quality],
+    description: 'Standard quality enhancement',
+    negativeCategories: ['anatomy', 'quality', 'face'],
+  },
+  ultraRealistic: {
+    modifiers: [
+      ...styleModifiers.ultraRealistic,
+      ...styleModifiers.naturalSkin,
+      'authentic moment',
+      'natural imperfections',
+      'candid photo',
+    ],
+    description: 'Maximum realism, smartphone aesthetic, natural look',
+    negativeCategories: ['anatomy', 'quality', 'face', 'faceAdvanced', 'skin', 'aiArtifacts', 'flux'],
+  },
+  instagramReady: {
+    modifiers: [
+      'Instagram aesthetic',
+      'lifestyle photography',
+      'natural lighting',
+      'authentic moment',
+      'social media quality',
+      'trendy composition',
+    ],
+    description: 'Polished but authentic Instagram look',
+    negativeCategories: ['anatomy', 'quality', 'face', 'skin', 'aiArtifacts'],
+  },
+  editorialFashion: {
+    modifiers: [
+      ...styleModifiers.editorial,
+      'dramatic lighting',
+      'high fashion',
+      'Vogue quality',
+      'artistic composition',
+    ],
+    description: 'Magazine-quality editorial fashion',
+    negativeCategories: ['anatomy', 'quality', 'face', 'faceAdvanced'],
+  },
+  casualSelfie: {
+    modifiers: [
+      ...styleModifiers.smartphone,
+      'selfie aesthetic',
+      'casual moment',
+      'relaxed expression',
+      'natural setting',
+    ],
+    description: 'Everyday casual selfie vibe',
+    negativeCategories: ['anatomy', 'quality', 'face', 'skin', 'aiArtifacts', 'flux'],
+  },
+  professionalPortrait: {
+    modifiers: [
+      'professional headshot',
+      'studio lighting',
+      'confident pose',
+      'corporate style',
+      'clean background',
+      'polished appearance',
+    ],
+    description: 'Professional headshot quality',
+    negativeCategories: ['anatomy', 'quality', 'face', 'faceAdvanced', 'skin'],
+  },
+};
 

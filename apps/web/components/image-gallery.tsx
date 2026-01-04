@@ -15,7 +15,9 @@ import {
   ZoomIn,
   ChevronLeft,
   ChevronRight,
+  Edit,
 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export interface ImageGalleryProps {
   images: Post[];
@@ -31,12 +33,13 @@ export interface ImageGalleryProps {
 
 export function ImageGallery({
   images,
-  influencerId: _influencerId, // eslint-disable-line @typescript-eslint/no-unused-vars
+  influencerId,
   emptyMessage = 'No images yet',
   emptyAction,
   className,
   onLike: onLikeProp,
 }: ImageGalleryProps) {
+  const router = useRouter();
   const toggleLike = useInfluencerStore((state) => state.toggleLike);
   const [selectedIndex, setSelectedIndex] = React.useState<number | null>(null);
 
@@ -65,6 +68,11 @@ export function ImageGallery({
     } catch (error) {
       console.error('Download failed:', error);
     }
+  };
+
+  const handleEditInStudio = (e: React.MouseEvent, imageId: string) => {
+    e.stopPropagation();
+    router.push(`/studio?influencer=${influencerId}&imageId=${imageId}&edit=true`);
   };
 
   const openLightbox = (index: number) => {
@@ -143,7 +151,7 @@ export function ImageGallery({
       {/* Gallery Grid - Masonry-like layout */}
       <div
         className={cn(
-          'grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3',
+          'grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3',
           className
         )}
       >
@@ -154,6 +162,7 @@ export function ImageGallery({
             onClick={() => openLightbox(index)}
             onLike={(e) => handleLike(e, image.id)}
             onDownload={(e) => handleDownload(e, image)}
+            onEdit={(e) => handleEditInStudio(e, image.id)}
           />
         ))}
       </div>
@@ -240,6 +249,13 @@ export function ImageGallery({
               >
                 <Download className="h-5 w-5" />
               </button>
+              <button
+                onClick={(e) => handleEditInStudio(e, images[selectedIndex].id)}
+                className="flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+                title="Edit in Studio"
+              >
+                <Edit className="h-5 w-5" />
+              </button>
             </div>
 
             {/* Caption */}
@@ -269,9 +285,10 @@ interface GalleryImageProps {
   onClick: () => void;
   onLike: (e: React.MouseEvent) => void;
   onDownload: (e: React.MouseEvent) => void;
+  onEdit: (e: React.MouseEvent) => void;
 }
 
-function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps) {
+const GalleryImage = React.memo(function GalleryImage({ image, onClick, onLike, onDownload, onEdit }: GalleryImageProps) {
   // Event handlers that use the event parameter
   const handleLike = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -281,6 +298,11 @@ function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps)
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
     onDownload(e);
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onEdit(e);
   };
   const [isHovered, setIsHovered] = React.useState(false);
   const [imageError, setImageError] = React.useState(false);
@@ -299,8 +321,10 @@ function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps)
             src={image.imageUrl}
             alt={image.caption || 'Generated image'}
             fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover transition-transform duration-500 group-hover:scale-105"
             onError={() => setImageError(true)}
+            loading="lazy"
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gradient-to-br from-[var(--purple-900)]/50 to-[var(--pink-900)]/50">
@@ -316,14 +340,23 @@ function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps)
           )}
         />
 
-        {/* Like indicator (always visible if liked) */}
-        {image.isLiked && !isHovered && (
-          <div className="absolute top-2 right-2">
+        {/* Top-right actions - Edit button (always visible) and Like indicator */}
+        <div className="absolute top-2 right-2 flex items-center gap-2">
+          {/* Edit in Studio button */}
+          <button
+            onClick={handleEdit}
+            className="flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-all hover:bg-white/30 hover:scale-110"
+            title="Edit in Studio"
+          >
+            <Edit className="h-3.5 w-3.5" />
+          </button>
+          {/* Like indicator (always visible if liked) */}
+          {image.isLiked && (
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--pink-500)] shadow-lg">
               <Heart className="h-3.5 w-3.5 text-white fill-current" />
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Hover actions */}
         <div
@@ -366,5 +399,13 @@ function GalleryImage({ image, onClick, onLike, onDownload }: GalleryImageProps)
       </div>
     </div>
   );
-}
+}, (prevProps, nextProps) => {
+  // Custom comparison to prevent re-renders when image data hasn't changed
+  return (
+    prevProps.image.id === nextProps.image.id &&
+    prevProps.image.imageUrl === nextProps.image.imageUrl &&
+    prevProps.image.isLiked === nextProps.image.isLiked &&
+    prevProps.image.caption === nextProps.image.caption
+  );
+});
 

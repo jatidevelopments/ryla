@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { RylaButton } from '@ryla/ui';
+import { RylaButton, cn } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
 import {
   ArrowLeft,
@@ -151,15 +151,6 @@ export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
 
           {/* Actions */}
           <div className="flex gap-3">
-            <RylaButton asChild variant="gradient" size="sm">
-              <Link
-                href={`/influencer/${influencer.id}/studio`}
-                className="gap-2"
-              >
-                <Plus className="h-4 w-4" />
-                New Post
-              </Link>
-            </RylaButton>
             <RylaButton asChild variant="glassy-outline" size="sm">
               <Link
                 href={`/studio?influencer=${influencer.id}`}

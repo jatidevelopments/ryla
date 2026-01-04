@@ -96,7 +96,7 @@ class ConsoleLogBuffer {
       .join(' ');
 
     // Filter sensitive data from args
-    const filteredArgs = this.filterSensitive(args);
+    const filteredArgs = this.filterSensitive(args) as unknown[];
 
     this.logs.push({
       level,

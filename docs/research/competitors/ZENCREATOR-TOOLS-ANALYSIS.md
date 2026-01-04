@@ -56,27 +56,48 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 
 ### 2. Video-To-Video
 - **Description:** Transforms existing videos into new styles or variations by applying image style to video
-- **Use Case:** Video style transfer and transformation
+- **Use Case:** Video style transfer and transformation, animating photos with video actions
 - **URL:** `/tools/video-to-video`
-- **Model Available:**
-  - **Animate** (Animating your photo with the same action as in the video)
+- **Modes Available:**
+  - **Animate** (default) - Animating your photo with the same actions as in the video
+  - **ReplaceUnstable** - Swaps the person in the video with your person from the image
 
 #### Video-To-Video Features:
 - **Image Upload:** Upload image to apply style/appearance to video (single file)
 - **Video Upload:** Upload video to transform (single file)
-- **Resolution:** Configurable (default: 480p, dropdown suggests other options available)
+- **Resolution:** Configurable (default: 480p)
 - **Template Library:** 
   - Pre-built video templates available
   - "Task" and "Library" tabs for template selection
-  - Templates show before/after video examples
-  - Each template has a "Try Template" button and "Copy ID" functionality
+  - Templates show before/after video examples with Image, Video, and Output previews
+  - Template examples include:
+    - Animating your photo (Mode: Animate) - 720p
+    - Swaps the person (Mode: Replace) - 720p
+  - Each template has a "Try Template" button
+  - "Show 18+ templates" toggle available
 - **Credit Cost:** 7 credits per video
 - **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
 ### 3. Editor & Combiner
-- **Description:** Image/video editing and combination tool
-- **Use Case:** Merging multiple media elements
-- **URL:** Available via tools page
+- **Description:** Edit and enhance images with AI-powered transformations
+- **Use Case:** Image editing, combining multiple images, sequential generation
+- **URL:** `/tools/image-editor`
+- **Model Available:**
+  - **General SFW/NSFW** (default)
+
+#### Editor & Combiner Features:
+- **Image Upload:** Select 1 to 10 images to edit (up to 10 files)
+- **Sequential Generation:** Toggle switch for sequential processing
+- **Prompt Input:** Text description of edits to make
+- **Aspect Ratio:** Configurable (default: 1:1)
+- **Resize Options:**
+  - Width: Default 4096px (adjustable)
+  - Height: Default 4096px (adjustable)
+- **Number of Images:** Configurable (default: 4 images)
+- **Credit Cost:** 1 credit per image (Total: 4 credits for 4 images)
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
 ### 4. PhotoShoot
 - **Description:** Generates professional photo shoot style images across multiple categories
@@ -265,19 +286,66 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 - **SFW Only:** No NSFW option available for Face Generator
 
 ### 10. Carousel
-- **Description:** Creates carousel-style content (likely for social media)
-- **Use Case:** Multi-image posts for Instagram, etc.
-- **URL:** Available via tools page
+- **Description:** Generate engaging image carousels from uploaded images
+- **Use Case:** Multi-image posts for Instagram and other social media platforms
+- **URL:** `/tools/carousel`
 
-### 11. Collab
-- **Description:** Collaboration features (details unclear from surface inspection)
-- **Use Case:** Team or shared content creation
-- **URL:** Available via tools page
+#### Carousel Features:
+- **Image Upload:** Upload images to create variations (up to 1000 files)
+- **Aspect Ratio:** Configurable (default: 1:1)
+- **Resize Options:**
+  - Width: Default 1024px (adjustable)
+  - Height: Default 1024px (adjustable)
+- **Number of Images:** Configurable (default: 4 images)
+- **Credit Cost:** 1 credit per generation
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
-### 12. Lip Sync
-- **Description:** Synchronizes lip movements with audio
-- **Use Case:** Creating talking head videos
-- **URL:** Available via tools page
+### 11. Collabs
+- **Description:** Generate collaborative images with two personas
+- **Use Case:** Creating images with multiple people/characters together
+- **URL:** `/tools/collabs`
+
+#### Collabs Features:
+- **Image 1 Upload:** Required - Upload the first image (single file)
+- **Image 2 Upload:** Required - Upload the second image (single file)
+- **Location Image Upload:** Optional - Upload a location/background image (single file)
+- **Prompt:** Optional text description of the collaboration scene
+- **Aspect Ratio:** Configurable (default: 1:1)
+- **Resize Options:**
+  - Width: Default 1024px (adjustable)
+  - Height: Default 1024px (adjustable)
+- **Number of Images:** Configurable (default: 1 image)
+- **Credit Cost:** 1 credit per image (Total: 1 credit for 1 image)
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
+
+### 12. Lipsync
+- **Description:** Generate lip-synced videos from images and audio
+- **Use Case:** Creating talking head videos with synchronized lip movements
+- **URL:** `/tools/lipsync`
+- **Model Available:**
+  - **General SFW/NSFW** (default)
+
+#### Lipsync Features:
+- **Image Upload:** Required - Upload image for lipsync (JPG, PNG, JFIF, HEIC formats, single file)
+- **Audio File Upload:** Required - Upload audio file (MP3, WAV, M4A formats, single file)
+- **Prompt:** Optional text description of what you want in the lipsync video
+- **Resolution:** Fixed at 1080p (disabled/not configurable)
+- **Duration:** Automatically determined by audio file length (shows "No audio file" until uploaded)
+- **Template Library:** 
+  - Pre-built templates available
+  - "Task" and "Library" tabs for template selection
+  - Template examples include:
+    - Naked Talk (NSFW)
+    - Relaxed Talk & Natural Moves (NSFW)
+    - Flirty Bed Talk
+  - Each template shows Image, Audio, and Output video previews
+  - Each template has a "Try Template" button and "Copy ID" functionality
+  - "Show 18+ templates" toggle available
+- **Credit Cost:** 3 credits per second of audio
+- **Watermark:** First 30 credits generate with ZenCreator watermark
+- **SFW/NSFW Toggle:** Available
 
 ## Additional Platform Features
 
@@ -382,13 +450,13 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 7. **Head & Face Swap** - Complete analysis with model, batch processing capabilities, personas integration
 8. **Face Generator** - Complete analysis with all customization parameters, surprise me feature, template library
 
-### Tools Identified (Basic Information Available) ⚠️
-9. **Carousel** - Multi-image carousel creation for social media
-10. **Editor & Combiner** - Image/video editing and combination
-11. **Collabs** - Collaboration features (multi-person generation)
-12. **Lipsync** - Audio-synchronized lip movement for videos
+### Tools Fully Analyzed ✅ (Complete)
+9. **Carousel** - Complete analysis with upload limits, aspect ratio, resize options, and credit costs
+10. **Editor & Combiner** - Complete analysis with model, sequential generation, resize options, and credit costs
+11. **Collabs** - Complete analysis with multi-image upload, location image, and credit costs
+12. **Lipsync** - Complete analysis with model, audio/image upload, templates, and per-second pricing
 
-**Note:** Tools 9-12 were identified from the main tools page. Carousel, Editor & Combiner, Collabs, and Lipsync require further exploration for complete feature analysis. The analysis above covers 8 major tools in full detail with models, features, templates, credit costs, and all available options.
+**Note:** All 12 tools have been fully analyzed with complete details including models, features, settings, templates, credit costs, and all available options. The documentation now provides comprehensive coverage of ZenCreator's entire tool suite.
 
 ## Key Findings
 
@@ -406,6 +474,10 @@ ZenCreator is an AI-powered content creation platform offering a comprehensive s
 - **Upscaler:** 1 credit per image
 - **Head & Face Swap:** 1 credit per image
 - **Face Generator:** 1 credit per image
+- **Editor & Combiner:** 1 credit per image
+- **Carousel:** 1 credit per generation
+- **Collabs:** 1 credit per image
+- **Lipsync:** 3 credits per second of audio
 - **Free Tier:** First 30 credits include watermark (applies to all tools)
 
 ### Template System

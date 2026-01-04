@@ -15,8 +15,12 @@ import { useLocalStorage } from '../../../lib/hooks/use-local-storage';
 import type { StudioImage } from '../studio-image-card';
 import { ModeSelector, getModeBorderColor } from './mode-selector';
 import { PosePicker } from './pose-picker';
+import { OutfitCompositionPicker } from './outfit-composition-picker';
+import { PreComposedOutfitPicker } from './pre-composed-outfit-picker';
+import { OutfitModeSelector, type OutfitMode } from './outfit-mode-selector';
 import { ObjectPicker } from './object-picker';
 import { ALL_POSES } from './types';
+import { OUTFIT_OPTIONS, OutfitComposition, getPieceById } from '@ryla/shared';
 import type { StudioMode, ContentType, SelectedObject } from './types';
 
 interface Influencer {
@@ -28,6 +32,7 @@ interface Influencer {
 interface StudioGenerationBarProps {
   influencers: Influencer[];
   selectedInfluencer: Influencer | null;
+  onInfluencerChange?: (influencerId: string | null) => void; // Callback when influencer changes in bottom toolbar
   onGenerate: (settings: GenerationSettings) => void;
   isGenerating?: boolean;
   creditsAvailable?: number;
@@ -39,12 +44,16 @@ interface StudioGenerationBarProps {
   onContentTypeChange: (type: ContentType) => void;
   nsfwEnabled: boolean;
   availableImages?: StudioImage[]; // Images available for object selection
+  hasUploadConsent?: boolean; // Whether user has accepted upload consent
+  onAcceptConsent?: () => Promise<void>; // Handler to accept consent
+  onUploadImage?: (file: File) => Promise<StudioImage | null>; // Handler to upload image
   className?: string;
 }
 
 export function StudioGenerationBar({
   influencers,
   selectedInfluencer,
+  onInfluencerChange,
   onGenerate,
   isGenerating = false,
   creditsAvailable = 250,
@@ -56,14 +65,90 @@ export function StudioGenerationBar({
   onContentTypeChange,
   nsfwEnabled,
   availableImages = [],
+  hasUploadConsent = false,
+  onAcceptConsent,
+  onUploadImage,
   className,
 }: StudioGenerationBarProps) {
-  // Auto-switch to editing mode when image is selected
+  // Auto-switch to editing mode when image is selected (but allow manual mode changes)
   React.useEffect(() => {
     if (selectedImage && mode === 'creating') {
       onModeChange('editing');
     }
   }, [selectedImage, mode, onModeChange]);
+
+  // Handle mode changes - clear image when switching to creating mode
+  const handleModeChange = React.useCallback((newMode: StudioMode) => {
+    // If switching to creating mode and there's a selected image, clear it first
+    if (newMode === 'creating' && selectedImage) {
+      if (onClearSelectedImage) {
+        onClearSelectedImage();
+      }
+    }
+    onModeChange(newMode);
+  }, [selectedImage, onClearSelectedImage, onModeChange]);
+
+  // Track the last image ID we loaded settings from to avoid overwriting user edits
+  const lastLoadedImageIdRef = React.useRef<string | null>(null);
+
+  // Helper to convert snake_case to kebab-case (for scene/environment mapping)
+  const snakeToKebab = (str: string | null | undefined): string | null => {
+    if (!str) return null;
+    return str.replace(/_/g, '-');
+  };
+
+  // Helper to map qualityMode to quality setting
+  const mapQualityMode = (qualityMode: string | null | undefined): Quality => {
+    if (qualityMode === 'hq') return '2k';
+    return '1.5k'; // default to draft/1.5k
+  };
+
+  // Load all settings from selected image when entering editing/upscaling/variations mode
+  React.useEffect(() => {
+    if (selectedImage && (mode === 'editing' || mode === 'upscaling' || mode === 'variations')) {
+      // Only load settings if this is a different image than we've already loaded
+      if (selectedImage.id !== lastLoadedImageIdRef.current) {
+        // Parse outfit - can be string or JSON stringified OutfitComposition
+        let outfitValue: string | null | import('@ryla/shared').OutfitComposition = null;
+        if (selectedImage.outfit) {
+          try {
+            // Try to parse as JSON first (new format)
+            outfitValue = JSON.parse(selectedImage.outfit);
+          } catch {
+            // If parsing fails, it's a legacy string format
+            outfitValue = selectedImage.outfit;
+          }
+        }
+
+        setSettings(prev => ({
+          ...prev,
+          // Don't load prompt - we can't extract just the user's custom input from the full built prompt
+          prompt: '', // User can re-enter their custom details
+          // Load all other settings from the image
+          sceneId: snakeToKebab(selectedImage.scene) || null,
+          poseId: selectedImage.poseId || null,
+          outfit: outfitValue,
+          aspectRatio: selectedImage.aspectRatio || prev.aspectRatio,
+          // Note: qualityMode needs to be mapped, but we don't have it in StudioImage
+          // We'll keep the current quality setting
+        }));
+        
+        // Load NSFW setting from the selected image
+        if (selectedImage.nsfw !== undefined) {
+          setStudioNsfwEnabled(selectedImage.nsfw);
+        }
+        
+        lastLoadedImageIdRef.current = selectedImage.id;
+      }
+    } else if (!selectedImage || mode === 'creating') {
+      // Clear prompt when no image is selected or switching to creating mode
+      setSettings(prev => ({
+        ...prev,
+        prompt: '',
+      }));
+      lastLoadedImageIdRef.current = null;
+    }
+  }, [selectedImage, mode]);
 
   // Clear objects when switching away from editing mode
   React.useEffect(() => {
@@ -85,6 +170,7 @@ export function StudioGenerationBar({
       promptEnhance: DEFAULT_GENERATION_SETTINGS.promptEnhance,
       batchSize: DEFAULT_GENERATION_SETTINGS.batchSize,
       poseId: DEFAULT_GENERATION_SETTINGS.poseId,
+      outfit: DEFAULT_GENERATION_SETTINGS.outfit,
     }
   );
 
@@ -94,6 +180,7 @@ export function StudioGenerationBar({
     influencerId: selectedInfluencer?.id || null,
     mode,
     contentType,
+    outfit: persistedSettings.outfit ?? null,
     objects: [], // Always start with empty objects
   }));
 
@@ -104,6 +191,9 @@ export function StudioGenerationBar({
   const [showCharacterPicker, setShowCharacterPicker] = React.useState(false);
   const [showStylePicker, setShowStylePicker] = React.useState(false);
   const [showPosePicker, setShowPosePicker] = React.useState(false);
+  const [showOutfitModeSelector, setShowOutfitModeSelector] = React.useState(false);
+  const [showOutfitPicker, setShowOutfitPicker] = React.useState(false);
+  const [outfitMode, setOutfitMode] = React.useState<OutfitMode | null>(null);
   const [showObjectPicker, setShowObjectPicker] = React.useState(false);
 
   // Button refs for picker positioning
@@ -111,12 +201,19 @@ export function StudioGenerationBar({
   const aspectRatioButtonRef = React.useRef<HTMLButtonElement>(null);
   const qualityButtonRef = React.useRef<HTMLButtonElement>(null);
 
-  // Update influencer when prop changes
+  // Update influencer when prop changes (sync from top bar)
   React.useEffect(() => {
-    setSettings(prev => ({
-      ...prev,
-      influencerId: selectedInfluencer?.id || null,
-    }));
+    setSettings(prev => {
+      const newInfluencerId = selectedInfluencer?.id || null;
+      // Only update if different to avoid unnecessary re-renders
+      if (prev.influencerId !== newInfluencerId) {
+        return {
+          ...prev,
+          influencerId: newInfluencerId,
+        };
+      }
+      return prev;
+    });
   }, [selectedInfluencer]);
 
   // Sync persisted settings when they change externally
@@ -132,12 +229,18 @@ export function StudioGenerationBar({
     }));
   }, [persistedSettings, mode, contentType]);
 
-  // Get models filtered by current mode
-  const availableModels = React.useMemo(() => {
-    return getAIModelsForMode(mode);
-  }, [mode]);
+  // Local NSFW toggle state (separate from influencer-level nsfwEnabled)
+  const [studioNsfwEnabled, setStudioNsfwEnabled] = React.useState(false);
 
-  // Reset modelId if current selection is not available for the mode
+  // Get models filtered by current mode and NSFW setting
+  const availableModels = React.useMemo(() => {
+    return getAIModelsForMode(mode, {
+      nsfwEnabled: studioNsfwEnabled,
+      mvpOnly: true, // Only show MVP models (1-2 per mode)
+    });
+  }, [mode, studioNsfwEnabled]);
+
+  // Reset modelId if current selection is not available for the mode or NSFW setting
   React.useEffect(() => {
     const isCurrentModelAvailable = availableModels.some(m => m.id === settings.modelId);
     if (!isCurrentModelAvailable && availableModels.length > 0) {
@@ -150,32 +253,80 @@ export function StudioGenerationBar({
         return updated;
       });
     }
-  }, [mode, availableModels, settings.modelId]);
+  }, [mode, studioNsfwEnabled, availableModels, settings.modelId]);
 
-  const selectedModel = availableModels.find(m => m.id === settings.modelId) || availableModels[0];
+  // Disable NSFW toggle if influencer doesn't have NSFW enabled
+  const canEnableNSFW = nsfwEnabled; // Only if influencer has NSFW enabled
+
+  const selectedModel = availableModels.find(m => m.id === settings.modelId) || availableModels[0] || null;
   const selectedQuality = QUALITY_OPTIONS.find(q => q.value === settings.quality) || QUALITY_OPTIONS[0];
   const creditsCost = selectedQuality.credits * settings.batchSize;
   const selectedPose = settings.poseId ? ALL_POSES.find(p => p.id === settings.poseId) : null;
+  
+  // Reorder influencers to show selected one first
+  const orderedInfluencers = React.useMemo(() => {
+    if (!settings.influencerId) {
+      return influencers;
+    }
+    const selected = influencers.find(inf => inf.id === settings.influencerId);
+    const others = influencers.filter(inf => inf.id !== settings.influencerId);
+    return selected ? [selected, ...others] : influencers;
+  }, [influencers, settings.influencerId]);
+  
+  // Get outfit display text (supports both legacy string and new composition)
+  const getOutfitDisplayText = (): string => {
+    if (!settings.outfit) return 'Outfit';
+    
+    // Legacy string format
+    if (typeof settings.outfit === 'string') {
+      const outfit = OUTFIT_OPTIONS.find(
+        (o) => o.label.toLowerCase().replace(/\s+/g, '-') === settings.outfit
+      );
+      return outfit?.label || 'Outfit';
+    }
+    
+    // New composition format
+    const comp = settings.outfit as OutfitComposition;
+    const pieces: string[] = [];
+    if (comp.top) {
+      const piece = getPieceById(comp.top);
+      if (piece) pieces.push(piece.label);
+    }
+    if (comp.bottom) {
+      const piece = getPieceById(comp.bottom);
+      if (piece) pieces.push(piece.label);
+    }
+    if (comp.shoes) {
+      const piece = getPieceById(comp.shoes);
+      if (piece) pieces.push(piece.label);
+    }
+    if (pieces.length > 0) {
+      return pieces.length > 2 ? `${pieces[0]} +${pieces.length - 1}` : pieces.join(' + ');
+    }
+    return 'Outfit';
+  };
+  
+  const outfitDisplayText = getOutfitDisplayText();
+  const hasOutfitComposition = settings.outfit && typeof settings.outfit === 'object';
   const modeBorderColor = getModeBorderColor(mode);
 
-  // Build prompt with pose if selected
-  const buildPrompt = (basePrompt: string): string => {
-    if (selectedPose && basePrompt.trim()) {
-      return `${basePrompt}, ${selectedPose.prompt}`;
-    }
-    return basePrompt;
-  };
-
   const handleGenerate = () => {
-    if (!settings.influencerId) return;
+    // Allow generation without influencer (for "All Images" mode)
+    // if (!settings.influencerId) return;
     
     // Validation based on mode
-    if (mode === 'creating' && !settings.prompt.trim()) return;
+    // Note: prompt is now optional - backend builds it from character DNA and settings
     if ((mode === 'editing' || mode === 'upscaling') && !selectedImage) return;
+    
+    // If no influencer selected, we can't generate (need at least one)
+    if (!settings.influencerId) {
+      // Show a message or prevent generation
+      return;
+    }
     
     const finalSettings = {
       ...settings,
-      prompt: buildPrompt(settings.prompt),
+      nsfw: studioNsfwEnabled, // Pass Studio-level NSFW toggle
     };
     onGenerate(finalSettings);
   };
@@ -197,11 +348,14 @@ export function StudioGenerationBar({
   };
 
   // Validation based on mode
+  // Note: prompt is now optional - backend builds it from character DNA and settings
   const canGenerate = React.useMemo(() => {
+    // Require influencer for generation
     if (!settings.influencerId || creditsAvailable < creditsCost) return false;
     
+    // Creating mode: no prompt required (backend builds it)
     if (mode === 'creating') {
-      return settings.prompt.trim().length > 0;
+      return true;
     }
     
     if (mode === 'editing' || mode === 'upscaling') {
@@ -209,7 +363,7 @@ export function StudioGenerationBar({
     }
     
     return false;
-  }, [settings.influencerId, settings.prompt, mode, selectedImage, creditsAvailable, creditsCost]);
+  }, [settings.influencerId, mode, selectedImage, creditsAvailable, creditsCost]);
 
   // Get button label based on mode
   const getButtonLabel = () => {
@@ -227,13 +381,18 @@ export function StudioGenerationBar({
     }
   };
 
+  // Determine which controls should be visible based on mode
+  const showCreativeControls = mode === 'creating' || mode === 'editing';
+  const showAspectRatio = mode === 'creating' || mode === 'editing';
+  const showPromptEnhance = mode === 'creating' || mode === 'editing';
+
   return (
     <div className={cn('mx-4 mb-4 lg:mx-6 lg:mb-6', className)}>
       {/* Mode Selector */}
       <ModeSelector
         mode={mode}
         contentType={contentType}
-        onModeChange={onModeChange}
+        onModeChange={handleModeChange}
         onContentTypeChange={onContentTypeChange}
         hasSelectedImage={!!selectedImage}
         creditsAvailable={creditsAvailable}
@@ -331,36 +490,50 @@ export function StudioGenerationBar({
         )}
 
         {/* Prompt Input */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-w-0">
           <input
             type="text"
             value={settings.prompt}
             onChange={(e) => updateSetting('prompt', e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && canGenerate && !e.shiftKey) {
+                e.preventDefault();
+                handleGenerate();
+              }
+            }}
             disabled={mode === 'upscaling'}
             placeholder={
               mode === 'upscaling' 
                 ? "Upscaling doesn't require a prompt..."
                 : mode === 'editing'
-                ? "Edit the prompt or describe changes..."
+                ? "Add custom details or describe changes..."
                 : mode === 'creating'
                 ? "Upload image as a prompt or Describe the scene you imagine"
                 : "Describe what you want to generate..."
             }
             className={cn(
               "w-full h-11 bg-transparent text-[var(--text-primary)] placeholder:text-[var(--text-muted)] text-sm focus:outline-none transition-all",
+              "truncate pr-2", // Truncate long text
               mode === 'upscaling' && "opacity-50 cursor-not-allowed"
             )}
+            style={{
+              maxWidth: '100%',
+            }}
           />
         </div>
 
         {/* Selected Influencer Thumbnails */}
         <div className="flex items-center gap-2">
-          {influencers.slice(0, 3).map((inf) => (
+          {orderedInfluencers.slice(0, 3).map((inf) => (
             <button
               key={inf.id}
               onClick={() => {
                 updateSetting('influencerId', inf.id);
                 setShowCharacterPicker(false);
+                // Sync to top bar
+                if (onInfluencerChange) {
+                  onInfluencerChange(inf.id);
+                }
               }}
               className={cn(
                 'relative h-10 w-10 rounded-lg overflow-hidden border-2 transition-all',
@@ -397,6 +570,17 @@ export function StudioGenerationBar({
           >
             More...
           </button>
+          
+          {/* Red cross icon when no influencer is selected */}
+          {!selectedInfluencer && (
+            <Tooltip content="No influencer selected. Select an influencer to generate images.">
+              <div className="relative h-10 w-10 rounded-lg bg-red-500/20 border-2 border-red-500/50 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5 text-red-400">
+                  <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                </svg>
+              </div>
+            </Tooltip>
+          )}
         </div>
 
         {/* Generate Button */}
@@ -424,18 +608,24 @@ export function StudioGenerationBar({
       </div>
 
       {/* Controls Row */}
-      <div className="flex items-center gap-2 px-5 py-3 border-t border-white/5 overflow-x-auto scroll-hidden">
+      <div className="flex items-center gap-1.5 px-4 py-2 border-t border-white/5 overflow-x-auto scroll-hidden">
         {/* Model Selector */}
         <div className="relative">
           <Tooltip content="AI Model: Choose the AI model for generation. Different models offer unique styles and quality levels.">
             <button
               ref={modelButtonRef}
               onClick={() => setShowModelPicker(!showModelPicker)}
-              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all"
+              disabled={!selectedModel || availableModels.length === 0}
+              className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-white/5 text-[var(--text-primary)] text-xs font-medium hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <ModelIcon model={selectedModel} className="h-4 w-4 text-[var(--purple-400)]" />
-              <span>{selectedModel.name.replace('RYLA ', '')}</span>
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--text-muted)]">
+              {selectedModel && (
+                <>
+                  <ModelIcon model={selectedModel} className="h-3.5 w-3.5 text-[var(--purple-400)]" />
+                  <span className="truncate max-w-[80px]">{selectedModel.name.replace('RYLA ', '')}</span>
+                </>
+              )}
+              {!selectedModel && <span>No models available</span>}
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--text-muted)]">
                 <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
               </svg>
             </button>
@@ -455,34 +645,39 @@ export function StudioGenerationBar({
         </div>
 
         {/* Divider */}
-        <div className="h-4 w-px bg-white/10" />
+        <div className="h-3.5 w-px bg-white/10" />
 
-        {/* Aspect Ratio */}
-        <div className="relative">
-          <Tooltip content="Aspect Ratio: Set the dimensions of generated images. 1:1 for square, 9:16 for stories, 16:9 for landscape.">
-            <button
-              ref={aspectRatioButtonRef}
-              onClick={() => setShowAspectRatioPicker(!showAspectRatioPicker)}
-              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all"
-            >
-              <AspectRatioIcon ratio={settings.aspectRatio} className="h-4 w-4" />
-              <span>{settings.aspectRatio}</span>
-            </button>
-          </Tooltip>
-          {showAspectRatioPicker && (
-            <AspectRatioPicker
-              ratios={ASPECT_RATIOS}
-              selectedRatio={settings.aspectRatio}
-              placement="top"
-              onSelect={(ratio) => {
-                updateSetting('aspectRatio', ratio);
-                setShowAspectRatioPicker(false);
-              }}
-              onClose={() => setShowAspectRatioPicker(false)}
-              anchorRef={aspectRatioButtonRef}
-            />
-          )}
-        </div>
+        {/* Aspect Ratio - Only show for creating/editing modes */}
+        {showAspectRatio && (
+          <div className="relative">
+            <Tooltip content="Aspect Ratio: Set the dimensions of generated images. 1:1 for square, 9:16 for stories, 16:9 for landscape.">
+              <button
+                ref={aspectRatioButtonRef}
+                onClick={() => setShowAspectRatioPicker(!showAspectRatioPicker)}
+                className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-white/5 text-[var(--text-primary)] text-xs font-medium hover:bg-white/10 transition-all"
+              >
+                <AspectRatioIcon ratio={settings.aspectRatio} className="h-3.5 w-3.5" />
+                <span>{settings.aspectRatio}</span>
+              </button>
+            </Tooltip>
+            {showAspectRatioPicker && (
+              <AspectRatioPicker
+                ratios={ASPECT_RATIOS}
+                selectedRatio={settings.aspectRatio}
+                placement="top"
+                onSelect={(ratio) => {
+                  updateSetting('aspectRatio', ratio);
+                  setShowAspectRatioPicker(false);
+                }}
+                onClose={() => setShowAspectRatioPicker(false)}
+                anchorRef={aspectRatioButtonRef}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Divider - Show after aspect ratio if visible */}
+        {showAspectRatio && <div className="h-3.5 w-px bg-white/10" />}
 
         {/* Quality */}
         <div className="relative">
@@ -490,9 +685,9 @@ export function StudioGenerationBar({
             <button
               ref={qualityButtonRef}
               onClick={() => setShowQualityPicker(!showQualityPicker)}
-              className="flex items-center gap-2 h-9 px-3 rounded-lg bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all"
+              className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-white/5 text-[var(--text-primary)] text-xs font-medium hover:bg-white/10 transition-all"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
                 <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
               </svg>
               <span>{settings.quality}</span>
@@ -512,106 +707,151 @@ export function StudioGenerationBar({
           )}
         </div>
 
-        {/* Prompt Enhance Toggle */}
-        <Tooltip content="Prompt Enhance: Uses AI to improve your prompt, adding more detail and creativity for better generation results.">
-          <button
-            onClick={() => updateSetting('promptEnhance', !settings.promptEnhance)}
-            className={cn(
-              'flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-all',
-              settings.promptEnhance
-                ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)]'
-                : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
-            )}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
-              <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684z" />
-            </svg>
-            <span>{settings.promptEnhance ? 'On' : 'Off'}</span>
-          </button>
-        </Tooltip>
+        {/* Prompt Enhance Toggle - Only show for creating/editing modes */}
+        {showPromptEnhance && (
+          <>
+            <Tooltip content="Prompt Enhance: Uses AI to improve your prompt, adding more detail and creativity for better generation results.">
+              <button
+                onClick={() => updateSetting('promptEnhance', !settings.promptEnhance)}
+                className={cn(
+                  'flex items-center gap-1.5 h-8 px-2 rounded-lg text-xs font-medium transition-all',
+                  settings.promptEnhance
+                    ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)]'
+                    : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
+                )}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                  <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684z" />
+                </svg>
+                <span>{settings.promptEnhance ? 'On' : 'Off'}</span>
+              </button>
+            </Tooltip>
 
-        {/* Divider */}
-        <div className="h-4 w-px bg-white/10" />
+            {/* Divider */}
+            <div className="h-3.5 w-px bg-white/10" />
+          </>
+        )}
 
         {/* Batch Size */}
         <Tooltip content="Batch Size: Generate multiple images at once. Higher batch = more credits used per generation.">
-          <div className="flex items-center gap-1 h-9 px-1.5 rounded-lg bg-white/5">
+          <div className="flex items-center gap-1 h-8 px-1 rounded-lg bg-white/5">
             <button
               onClick={() => updateSetting('batchSize', Math.max(1, settings.batchSize - 1))}
               disabled={settings.batchSize <= 1}
-              className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded hover:bg-white/10"
+              className="p-0.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded hover:bg-white/10"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
                 <path fillRule="evenodd" d="M4 10a.75.75 0 01.75-.75h10.5a.75.75 0 010 1.5H4.75A.75.75 0 014 10z" clipRule="evenodd" />
               </svg>
             </button>
-            <span className="min-w-[36px] text-center text-sm font-medium text-[var(--text-primary)]">
+            <span className="min-w-[32px] text-center text-xs font-medium text-[var(--text-primary)]">
               {settings.batchSize}/4
             </span>
             <button
               onClick={() => updateSetting('batchSize', Math.min(4, settings.batchSize + 1))}
               disabled={settings.batchSize >= 4}
-              className="p-1 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded hover:bg-white/10"
+              className="p-0.5 text-[var(--text-muted)] hover:text-[var(--text-primary)] disabled:opacity-30 disabled:cursor-not-allowed transition-colors rounded hover:bg-white/10"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
                 <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
               </svg>
             </button>
           </div>
         </Tooltip>
 
-        {/* Pose Picker Button */}
-        <Tooltip content="Pose: Select a pose to add to your prompt. Different poses available based on content settings.">
-          <button
-            onClick={() => setShowPosePicker(true)}
-            className={cn(
-              'flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-all',
-              selectedPose
-                ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
-                : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
-            )}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
-              <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM3 18a7 7 0 0114 0v1H3v-1zm7-4a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" />
-            </svg>
-            <span>{selectedPose ? selectedPose.name : 'Pose'}</span>
-          </button>
-        </Tooltip>
+        {/* Creative Controls - Only show for creating/editing modes */}
+        {showCreativeControls && (
+          <>
+            {/* Divider before creative controls */}
+            <div className="h-3.5 w-px bg-white/10" />
 
-        {/* Visual Styles Button */}
-        <Tooltip content="Styles & Scenes: Apply visual styles, backgrounds, and lighting to customize your generated images.">
-          <button
-            onClick={() => setShowStylePicker(true)}
-            className="flex items-center gap-2 h-9 px-3 rounded-lg bg-[var(--purple-500)]/15 text-[var(--text-primary)] text-sm font-medium hover:bg-[var(--purple-500)]/25 transition-all"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
-              <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
-            </svg>
-            <span>Styles & Scenes</span>
-          </button>
-        </Tooltip>
+            {/* Pose Picker Button */}
+            <Tooltip content="Pose: Select a pose to add to your prompt. Different poses available based on content settings.">
+              <button
+                onClick={() => setShowPosePicker(true)}
+                className={cn(
+                  'flex items-center gap-1.5 h-8 px-2 rounded-lg text-xs font-medium transition-all',
+                  selectedPose
+                    ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                    : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
+                )}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
+                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM3 18a7 7 0 0114 0v1H3v-1zm7-4a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" />
+                </svg>
+                <span className="truncate max-w-[100px]">{selectedPose ? selectedPose.name : 'Pose'}</span>
+              </button>
+            </Tooltip>
+
+            {/* Outfit Composition Picker Button */}
+            <Tooltip content="Outfit: Choose from pre-composed outfits or create your own custom composition.">
+              <button
+                onClick={() => setShowOutfitModeSelector(true)}
+                className={cn(
+                  'flex items-center gap-1.5 h-8 px-2 rounded-lg text-xs font-medium transition-all',
+                  hasOutfitComposition || (typeof settings.outfit === 'string' && settings.outfit)
+                    ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                    : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
+                )}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
+                  <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
+                </svg>
+                <span className="truncate max-w-[100px]">{outfitDisplayText}</span>
+              </button>
+            </Tooltip>
+
+            {/* Visual Styles Button */}
+            <Tooltip content="Styles & Scenes: Apply visual styles, backgrounds, and lighting to customize your generated images.">
+              <button
+                onClick={() => setShowStylePicker(true)}
+                className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-[var(--purple-500)]/15 text-[var(--text-primary)] text-xs font-medium hover:bg-[var(--purple-500)]/25 transition-all"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
+                  <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+                </svg>
+                <span className="truncate max-w-[120px]">Styles & Scenes</span>
+              </button>
+            </Tooltip>
+          </>
+        )}
 
         {/* Spacer */}
         <div className="flex-1" />
 
-        {/* 18+ Adult Content Indicator */}
+        {/* Adult Content Toggle */}
         <Tooltip 
-          content={nsfwEnabled 
-            ? "18+ Adult Content: Enabled. Adult content features are available for this influencer. You can change this in the influencer settings."
-            : "18+ Adult Content: Disabled. Adult content features are not available for this influencer. Enable this in the influencer settings to access adult poses and content."
+          content={
+            !canEnableNSFW
+              ? "Adult content generation requires enabling 18+ Adult Content in influencer settings."
+              : studioNsfwEnabled
+              ? "Adult Content: Enabled. Only ComfyUI models (RYLA Soul, RYLA Character) are available. Click to disable."
+              : "Adult Content: Disabled. All models available. Click to enable adult content generation (18+)."
           }
         >
-          <div className={cn(
-            'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all cursor-help',
-            nsfwEnabled
-              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-              : 'bg-white/5 text-[var(--text-muted)] border border-white/10 opacity-60'
-          )}>
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+          <button
+            onClick={() => {
+              if (!canEnableNSFW) {
+                alert('Adult content generation requires enabling 18+ Adult Content in influencer settings.');
+                return;
+              }
+              setStudioNsfwEnabled(!studioNsfwEnabled);
+            }}
+            disabled={!canEnableNSFW}
+            className={cn(
+              'flex items-center gap-1.5 h-8 px-2 rounded-lg text-xs font-medium transition-all',
+              !canEnableNSFW
+                ? 'bg-white/5 text-[var(--text-muted)] border border-white/10 opacity-60 cursor-not-allowed'
+                : studioNsfwEnabled
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+                : 'bg-white/5 text-[var(--text-secondary)] border border-white/10 hover:text-[var(--text-primary)] hover:bg-white/10'
+            )}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
             </svg>
-            <span>18+ Adult Content</span>
-          </div>
+            <span className="truncate max-w-[120px]">Adult Content {studioNsfwEnabled ? 'On' : 'Off'}</span>
+          </button>
         </Tooltip>
       </div>
 
@@ -623,6 +863,10 @@ export function StudioGenerationBar({
           onSelect={(id) => {
             updateSetting('influencerId', id);
             setShowCharacterPicker(false);
+            // Sync to top bar
+            if (onInfluencerChange) {
+              onInfluencerChange(id);
+            }
           }}
           onClose={() => setShowCharacterPicker(false)}
         />
@@ -647,7 +891,60 @@ export function StudioGenerationBar({
           selectedPoseId={settings.poseId}
           onPoseSelect={(id) => updateSetting('poseId', id)}
           onClose={() => setShowPosePicker(false)}
-          nsfwEnabled={nsfwEnabled}
+          nsfwEnabled={studioNsfwEnabled}
+        />
+      )}
+
+      {/* Outfit Mode Selector */}
+      {showOutfitModeSelector && (
+        <OutfitModeSelector
+          onModeSelect={(mode) => {
+            setOutfitMode(mode);
+            setShowOutfitModeSelector(false);
+            setShowOutfitPicker(true);
+          }}
+          onClose={() => setShowOutfitModeSelector(false)}
+        />
+      )}
+
+      {/* Pre-Composed Outfit Picker */}
+      {showOutfitPicker && outfitMode === 'pre-composed' && (
+        <PreComposedOutfitPicker
+          selectedOutfit={
+            typeof settings.outfit === 'string' ? settings.outfit : null
+          }
+          onOutfitSelect={(outfit) => {
+            updateSetting('outfit', outfit);
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          onClose={() => {
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          nsfwEnabled={studioNsfwEnabled}
+        />
+      )}
+
+      {/* Custom Composition Picker */}
+      {showOutfitPicker && outfitMode === 'custom' && (
+        <OutfitCompositionPicker
+          selectedComposition={
+            typeof settings.outfit === 'object' && settings.outfit !== null
+              ? (settings.outfit as OutfitComposition)
+              : null
+          }
+          onCompositionSelect={(composition) => {
+            updateSetting('outfit', composition);
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          onClose={() => {
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          nsfwEnabled={studioNsfwEnabled}
+          influencerId={settings.influencerId || undefined}
         />
       )}
 
@@ -670,6 +967,9 @@ export function StudioGenerationBar({
           }}
           onClose={() => setShowObjectPicker(false)}
           maxObjects={3}
+          hasUploadConsent={hasUploadConsent}
+          onConsentAccept={onAcceptConsent}
+          onUploadImage={onUploadImage}
         />
       )}
       </div>

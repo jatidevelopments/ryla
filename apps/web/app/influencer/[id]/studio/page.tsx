@@ -12,6 +12,8 @@ import {
   ENVIRONMENT_OPTIONS,
   OUTFIT_OPTIONS,
   FEATURE_CREDITS,
+  OutfitComposition,
+  getPieceById,
 } from '@ryla/shared';
 import { ProtectedRoute } from '../../../../components/protected-route';
 import { ZeroCreditsModal } from '../../../../components/credits';
@@ -46,12 +48,16 @@ import {
   likeImage,
 } from '../../../../lib/api';
 import { InpaintEditModal } from '../../../../components/studio/inpaint-edit-modal';
+import { OutfitCompositionPicker } from '../../../../components/studio/generation/outfit-composition-picker';
+import { PreComposedOutfitPicker } from '../../../../components/studio/generation/pre-composed-outfit-picker';
+import { OutfitModeSelector, type OutfitMode } from '../../../../components/studio/generation/outfit-mode-selector';
 import { trpc } from '../../../../lib/trpc';
+import { TemplateTabs, SaveTemplateDialog } from '../../../../components/studio/templates';
 
 interface StudioSettings {
   scene: string;
   environment: string;
-  outfit: string | null;
+  outfit: string | null | OutfitComposition;
   aspectRatio: '1:1' | '9:16' | '2:3';
   qualityMode: 'draft' | 'hq';
   nsfwEnabled: boolean;
@@ -114,10 +120,21 @@ function StudioContent() {
   const addPost = useInfluencerStore((state) => state.addPost);
   const [existingImages, setExistingImages] = React.useState<Post[]>([]);
   const preselectImageId = searchParams.get('imageId');
+  const shouldOpenEdit = searchParams.get('edit') === 'true';
+  const templateId = searchParams.get('template');
 
   // Credit management
   const utils = trpc.useUtils();
   const { balance, refetch: refetchCredits } = useCredits();
+  
+  // Template creation mutation
+  const createTemplateMutation = trpc.templates.create.useMutation({
+    onSuccess: () => {
+      // Invalidate templates list to show new template
+      utils.templates.list.invalidate();
+      // TODO: Show success toast
+    },
+  });
   const [showCreditModal, setShowCreditModal] = React.useState(false);
 
   // State with localStorage persistence
@@ -130,6 +147,10 @@ function StudioContent() {
   const [caption, setCaption] = React.useState('');
   const [selectedExistingPost, setSelectedExistingPost] = React.useState<Post | null>(null);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
+  const [showOutfitModeSelector, setShowOutfitModeSelector] = React.useState(false);
+  const [showOutfitPicker, setShowOutfitPicker] = React.useState(false);
+  const [outfitMode, setOutfitMode] = React.useState<OutfitMode | null>(null);
+  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = React.useState(false);
 
   // Expanded sections with localStorage persistence
   const [expandedSections, setExpandedSections] = useLocalStorage('ryla-studio-expanded-sections', {
@@ -205,12 +226,12 @@ function StudioContent() {
       isLiked: Boolean(row.liked),
       scene: row.scene || undefined,
       environment: row.environment || undefined,
-      outfit: row.outfit || influencer.outfit,
+      outfit: row.outfit || influencer?.outfit || 'casual',
       aspectRatio: (row.aspectRatio || '9:16') as Post['aspectRatio'],
       createdAt: row.createdAt || new Date().toISOString(),
     }));
     setExistingImages(mapped);
-  }, [influencerId, influencer.outfit]);
+  }, [influencerId, influencer?.outfit]);
 
   React.useEffect(() => {
     refreshExistingImages().catch((err) => console.error('Failed to load images:', err));
@@ -228,8 +249,13 @@ function StudioContent() {
         outfit: match.outfit || null,
         aspectRatio: match.aspectRatio || prev.aspectRatio,
       }));
+      
+      // Automatically open edit modal if edit=true in query params
+      if (shouldOpenEdit && match.imageUrl) {
+        setIsEditOpen(true);
+      }
     }
-  }, [preselectImageId, existingImages]);
+  }, [preselectImageId, existingImages, shouldOpenEdit]);
 
   // Credit costs from shared pricing (studio_standard for HQ, studio_fast for draft)
   const creditCost = settings.qualityMode === 'hq' 
@@ -268,6 +294,40 @@ function StudioContent() {
     setSelectedExistingPost(null);
   };
 
+  // Handle template application
+  const handleTemplateApply = React.useCallback(async (templateId: string) => {
+    try {
+      const { config } = await utils.templates.applyTemplate.fetch({ id: templateId });
+      
+      // Apply template config to settings
+      setSettings((prev) => ({
+        ...prev,
+        scene: config.scene || prev.scene,
+        environment: config.environment || prev.environment,
+        outfit: config.outfit || null,
+        aspectRatio: config.aspectRatio || prev.aspectRatio,
+        qualityMode: config.qualityMode || prev.qualityMode,
+        nsfwEnabled: config.nsfw || prev.nsfwEnabled,
+        modelId: config.modelId || prev.modelId,
+      }));
+
+      // Show success notification (you can add a toast here)
+      console.log('Template applied successfully');
+    } catch (error) {
+      console.error('Failed to apply template:', error);
+      // Show error notification
+    }
+  }, [setSettings, utils]);
+
+  // Handle template query param
+  React.useEffect(() => {
+    if (templateId) {
+      handleTemplateApply(templateId);
+      // Clear template param from URL
+      router.replace(`/influencer/${influencerId}/studio`, { scroll: false });
+    }
+  }, [templateId, influencerId, router, handleTemplateApply]);
+
   const handleGenerate = async () => {
     if (balance < creditCost) {
       setShowCreditModal(true);
@@ -276,7 +336,7 @@ function StudioContent() {
 
     // Hard invariant: wizard-created influencers must always have a base image.
     // If legacy data slips through, fail fast instead of generating inconsistent results.
-    if (!influencer.avatar) {
+    if (!influencer?.avatar) {
       throw new Error('Missing base image for this influencer. Please re-run the wizard base image step.');
     }
 
@@ -290,7 +350,7 @@ function StudioContent() {
         characterId: influencerId,
         scene: settings.scene,
         environment: settings.environment,
-        outfit: settings.outfit || influencer.outfit,
+        outfit: settings.outfit || influencer?.outfit || 'casual',
         aspectRatio: settings.aspectRatio,
         qualityMode: settings.qualityMode,
         count: 1,
@@ -322,12 +382,14 @@ function StudioContent() {
       isLiked: false,
       scene: settings.scene,
       environment: settings.environment,
-      outfit: settings.outfit || influencer.outfit,
+      outfit: typeof settings.outfit === 'string' ? settings.outfit : (influencer?.outfit || 'casual'),
       aspectRatio: settings.aspectRatio,
       createdAt: new Date().toISOString(),
     };
     setGeneratedPost(newPost);
           await refreshExistingImages();
+          // Show save template dialog after successful generation
+          setShowSaveTemplateDialog(true);
           break;
         }
         if (res.status === 'failed') {
@@ -384,7 +446,7 @@ function StudioContent() {
           {/* Title */}
           <div className="flex items-center gap-3">
             <div className="relative h-8 w-8 overflow-hidden rounded-full border border-[var(--border-default)]">
-              {influencer.avatar ? (
+              {influencer?.avatar ? (
                 <Image
                   src={influencer.avatar}
                   alt={influencer.name}
@@ -393,16 +455,16 @@ function StudioContent() {
                 />
               ) : (
                 <div className="flex h-full items-center justify-center bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] text-xs font-bold text-white">
-                  {influencer.name.charAt(0)}
+                  {influencer?.name?.charAt(0) || '?'}
                 </div>
               )}
             </div>
             <div className="text-center sm:text-left">
               <h1 className="text-sm font-semibold text-[var(--text-primary)]">
-                Content Studio
+                Post Generator
               </h1>
               <p className="text-xs text-[var(--text-muted)] hidden sm:block">
-                {influencer.name}
+                {influencer?.name}
               </p>
             </div>
           </div>
@@ -420,13 +482,19 @@ function StudioContent() {
       </div>
 
       {/* Content */}
-      <div className="flex-1 flex">
-        <div className="mx-auto w-full max-w-4xl flex flex-col lg:flex-row gap-6 px-4 lg:px-6 py-6">
-          {/* Left: Settings Panel */}
-          <div className="flex-1 lg:max-w-md space-y-4">
-            {/* Existing Images Section */}
-            {existingImages.length > 0 && (
-              <SettingsSection
+      <div className="flex-1 flex pb-20">
+        <div className="mx-auto w-full max-w-4xl px-4 lg:px-6 py-6">
+          <TemplateTabs
+            influencerId={influencerId}
+            onTemplateApply={handleTemplateApply}
+            defaultTab={templateId ? 'generate' : 'generate'}
+            generateContent={
+              <div className="flex flex-col lg:flex-row gap-6">
+                {/* Left: Settings Panel */}
+                <div className="flex-1 lg:max-w-md space-y-4">
+                  {/* Existing Images Section */}
+                  {existingImages.length > 0 && (
+                    <SettingsSection
                 title={`Use Existing Image (${existingImages.length})`}
                 icon={<Images className="h-4 w-4" />}
                 expanded={expandedSections.existingImages}
@@ -514,15 +582,16 @@ function StudioContent() {
                     Select an image to copy its scene, environment & outfit settings
                   </p>
                 </div>
-              </SettingsSection>
-            )}
+                    </SettingsSection>
+                  )}
 
-            {/* Scene Section */}
-            <SettingsSection
+                  {/* Scene Section */}
+                  <SettingsSection
               title="Scene"
               icon={<Palette className="h-4 w-4" />}
               expanded={expandedSections.scene}
               onToggle={() => toggleSection('scene')}
+              dataSection="scene"
             >
               <div className="grid grid-cols-3 gap-2">
                 {SCENE_OPTIONS.map((scene) => (
@@ -534,15 +603,16 @@ function StudioContent() {
                     onSelect={() => handleSettingChange('scene', scene.value)}
                   />
                 ))}
-              </div>
-            </SettingsSection>
+                    </div>
+                  </SettingsSection>
 
-            {/* Environment Section */}
-            <SettingsSection
+                  {/* Environment Section */}
+                  <SettingsSection
               title="Environment"
               icon={<MapPin className="h-4 w-4" />}
               expanded={expandedSections.environment}
               onToggle={() => toggleSection('environment')}
+              dataSection="environment"
             >
               <div className="grid grid-cols-3 gap-2">
                 {ENVIRONMENT_OPTIONS.map((env) => (
@@ -554,40 +624,93 @@ function StudioContent() {
                     onSelect={() => handleSettingChange('environment', env.value)}
                   />
                 ))}
-              </div>
-            </SettingsSection>
+                    </div>
+                  </SettingsSection>
 
-            {/* Outfit Section */}
-            <SettingsSection
+                  {/* Outfit Section */}
+                  <SettingsSection
               title="Outfit"
               icon={<Shirt className="h-4 w-4" />}
               expanded={expandedSections.outfit}
               onToggle={() => toggleSection('outfit')}
             >
-              <div className="flex flex-wrap gap-2">
-                <OptionPill
-                  label="Keep Current"
-                  selected={settings.outfit === null}
-                  onSelect={() => handleSettingChange('outfit', null)}
-                />
-                {OUTFIT_OPTIONS.slice(0, 8).map((outfit) => {
-                  const outfitValue = outfit.label
-                    .toLowerCase()
-                    .replace(/\s+/g, '-');
-                  return (
-                    <OptionPill
-                      key={outfitValue}
-                      label={outfit.label}
-                      selected={settings.outfit === outfitValue}
-                      onSelect={() => handleSettingChange('outfit', outfitValue)}
-                    />
-                  );
-                })}
-              </div>
-            </SettingsSection>
+              <div className="space-y-3">
+                {/* Selected Outfit Display */}
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] px-3 py-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">
+                          {(() => {
+                            if (!settings.outfit) return '👕';
+                            if (typeof settings.outfit === 'string') {
+                              return OUTFIT_OPTIONS.find(
+                                (o) => o.label.toLowerCase().replace(/\s+/g, '-') === settings.outfit
+                              )?.emoji || '👕';
+                            }
+                            const comp = settings.outfit as OutfitComposition;
+                            if (comp.top) {
+                              const piece = getPieceById(comp.top);
+                              if (piece) return piece.emoji;
+                            }
+                            return '👕';
+                          })()}
+                        </span>
+                        <span className="text-sm font-medium text-[var(--text-primary)]">
+                          {(() => {
+                            if (!settings.outfit) return 'Keep Current Outfit';
+                            if (typeof settings.outfit === 'string') {
+                              return OUTFIT_OPTIONS.find(
+                                (o) => o.label.toLowerCase().replace(/\s+/g, '-') === settings.outfit
+                              )?.label || settings.outfit;
+                            }
+                            const comp = settings.outfit as OutfitComposition;
+                            const pieces: string[] = [];
+                            if (comp.top) {
+                              const piece = getPieceById(comp.top);
+                              if (piece) pieces.push(piece.label);
+                            }
+                            if (comp.bottom) {
+                              const piece = getPieceById(comp.bottom);
+                              if (piece) pieces.push(piece.label);
+                            }
+                            if (comp.shoes) {
+                              const piece = getPieceById(comp.shoes);
+                              if (piece) pieces.push(piece.label);
+                            }
+                            if (pieces.length > 0) {
+                              return pieces.length > 2 ? `${pieces[0]} +${pieces.length - 1} more` : pieces.join(' + ');
+                            }
+                            return 'Custom Outfit';
+                          })()}
+                        </span>
+                      </div>
+                      {settings.outfit && (
+                        <button
+                          onClick={() => handleSettingChange('outfit', null)}
+                          className="text-[var(--text-muted)] hover:text-[var(--text-primary)] transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowOutfitPicker(true)}
+                    className="px-4 py-2 rounded-lg bg-[var(--purple-500)]/20 text-[var(--purple-400)] font-medium text-sm hover:bg-[var(--purple-500)]/30 transition-colors border border-[var(--purple-500)]/30 flex items-center gap-2"
+                  >
+                    <Shirt className="h-4 w-4" />
+                    Compose Outfit
+                  </button>
+                </div>
+                <p className="text-xs text-[var(--text-muted)]">
+                  Click "Compose Outfit" to select individual pieces from different categories
+                </p>
+                    </div>
+                  </SettingsSection>
 
-            {/* Format Section */}
-            <SettingsSection
+                  {/* Format Section */}
+                  <SettingsSection
               title="Format"
               icon={<Maximize className="h-4 w-4" />}
               expanded={expandedSections.format}
@@ -636,11 +759,11 @@ function StudioContent() {
                     )}
                   </button>
                 ))}
-              </div>
-            </SettingsSection>
+                    </div>
+                  </SettingsSection>
 
-            {/* Advanced Settings Section */}
-            <SettingsSection
+                  {/* Advanced Settings Section */}
+                  <SettingsSection
               title="Advanced"
               icon={<Settings2 className="h-4 w-4" />}
               expanded={expandedSections.advanced}
@@ -653,7 +776,7 @@ function StudioContent() {
                       Model
                     </Label>
                     <p className="text-xs text-[var(--text-muted)]">
-                      NSFW always uses on-server
+                      Adult Content always uses on-server
                     </p>
                   </div>
                   <select
@@ -697,7 +820,7 @@ function StudioContent() {
                       18+ Content
                     </Label>
                     <p className="text-xs text-[var(--text-muted)]">
-                      Enable mature content
+                      Enable Adult Content
                     </p>
                   </div>
                   <Switch
@@ -707,16 +830,16 @@ function StudioContent() {
                     }
                   />
                 </div>
-              </div>
-            </SettingsSection>
-          </div>
+                    </div>
+                  </SettingsSection>
+                </div>
 
-          {/* Right: Preview & Actions */}
-          <div className="flex-1 lg:max-w-md flex flex-col">
-            {/* Preview Card */}
-            <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-subtle)] overflow-hidden flex-1 flex flex-col">
-              {/* Preview Area */}
-              <div className="flex-1 flex items-center justify-center p-6 min-h-[280px]">
+                {/* Right: Preview & Actions */}
+                <div className="flex-1 lg:max-w-md flex flex-col">
+                  {/* Preview Card */}
+                  <div className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-subtle)] overflow-hidden flex-1 flex flex-col">
+                    {/* Preview Area */}
+                    <div className="flex-1 flex items-center justify-center p-6 min-h-[280px]">
                 {isGenerating ? (
                   <div className="text-center space-y-4">
                     <div className="relative mx-auto w-12 h-12">
@@ -770,15 +893,15 @@ function StudioContent() {
                     <p className="text-xs text-[var(--text-muted)]">
                       Configure settings and generate
                     </p>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
 
-              {/* Captions are Phase 2+ (intentionally omitted in MVP) */}
-            </div>
+                  {/* Captions are Phase 2+ (intentionally omitted in MVP) */}
+                </div>
 
-            {/* Action Buttons */}
-            <div className="mt-4 space-y-3">
+                {/* Action Buttons */}
+                <div className="mt-4 space-y-3">
               {generatedPost && !isGenerating ? (
                 <>
                   <div className="flex gap-3">
@@ -825,9 +948,12 @@ function StudioContent() {
                       : `Generate Content (${creditCost} credits)`}
                   </span>
                 </button>
-              )}
+                )}
+                </div>
+              </div>
             </div>
-          </div>
+            }
+          />
         </div>
       </div>
 
@@ -884,6 +1010,175 @@ function StudioContent() {
         creditsNeeded={creditCost}
         currentBalance={balance}
       />
+
+      {/* Save Template Dialog */}
+      {generatedPost && (
+        <SaveTemplateDialog
+          isOpen={showSaveTemplateDialog}
+          onClose={() => setShowSaveTemplateDialog(false)}
+          onSave={async (data) => {
+            // Create template via tRPC
+            await createTemplateMutation.mutateAsync({
+              name: data.name,
+              description: data.description,
+              previewImageId: data.previewImageId,
+              config: data.config,
+              isPublic: data.isPublic,
+              influencerId: influencerId,
+            });
+            // TODO: Show success toast
+          }}
+          defaultName={`${SCENE_OPTIONS.find((s) => s.value === settings.scene)?.label || settings.scene} - ${ENVIRONMENT_OPTIONS.find((e) => e.value === settings.environment)?.label || settings.environment}`}
+          previewImages={[
+            {
+              id: generatedPost.id,
+              url: generatedPost.imageUrl,
+              thumbnailUrl: generatedPost.imageUrl,
+            },
+          ]}
+          config={{
+            scene: settings.scene,
+            environment: settings.environment,
+            outfit: settings.outfit,
+            aspectRatio: settings.aspectRatio,
+            qualityMode: settings.qualityMode,
+            nsfw: settings.nsfwEnabled,
+            poseId: null, // TODO: Get from settings when pose selector is added
+            styleId: null, // TODO: Get from settings when style selector is added
+            lightingId: null, // TODO: Get from settings when lighting selector is added
+            modelId: settings.modelId || 'fal-ai/flux/schnell',
+            objects: null, // TODO: Get from settings when objects selector is added
+          }}
+          influencerId={influencerId}
+        />
+      )}
+
+      {/* Outfit Mode Selector */}
+      {showOutfitModeSelector && (
+        <OutfitModeSelector
+          onModeSelect={(mode) => {
+            setOutfitMode(mode);
+            setShowOutfitModeSelector(false);
+            setShowOutfitPicker(true);
+          }}
+          onClose={() => setShowOutfitModeSelector(false)}
+        />
+      )}
+
+      {/* Pre-Composed Outfit Picker */}
+      {showOutfitPicker && outfitMode === 'pre-composed' && (
+        <PreComposedOutfitPicker
+          selectedOutfit={
+            typeof settings.outfit === 'string' ? settings.outfit : null
+          }
+          onOutfitSelect={(outfit) => {
+            handleSettingChange('outfit', outfit);
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          onClose={() => {
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          nsfwEnabled={settings.nsfwEnabled}
+        />
+      )}
+
+      {/* Custom Composition Picker */}
+      {showOutfitPicker && outfitMode === 'custom' && (
+        <OutfitCompositionPicker
+          selectedComposition={
+            typeof settings.outfit === 'object' && settings.outfit !== null
+              ? (settings.outfit as OutfitComposition)
+              : null
+          }
+          onCompositionSelect={(composition) => {
+            handleSettingChange('outfit', composition);
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          onClose={() => {
+            setShowOutfitPicker(false);
+            setOutfitMode(null);
+          }}
+          nsfwEnabled={settings.nsfwEnabled}
+          influencerId={influencerId}
+        />
+      )}
+
+      {/* Bottom Toolbar - Quick Access */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-[var(--border-default)] bg-[var(--bg-elevated)]/95 backdrop-blur-xl shadow-2xl">
+        <div className="mx-auto max-w-7xl px-4 lg:px-6">
+          <div className="flex items-center justify-between gap-4 py-3">
+            {/* Left: Quick Settings */}
+            <div className="flex items-center gap-2 overflow-x-auto scroll-hidden">
+              {/* Scene Button */}
+              <button
+                onClick={() => {
+                  const sceneSection = document.querySelector('[data-section="scene"]');
+                  sceneSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                className="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/5 text-[var(--text-secondary)] text-sm font-medium hover:bg-white/10 hover:text-[var(--text-primary)] transition-all whitespace-nowrap border border-transparent hover:border-white/10"
+              >
+                <Palette className="h-4 w-4" />
+                <span>
+                  {SCENE_OPTIONS.find((s) => s.value === settings.scene)?.label || 'Scene'}
+                </span>
+              </button>
+
+              {/* Environment Button */}
+              <button
+                onClick={() => {
+                  const envSection = document.querySelector('[data-section="environment"]');
+                  envSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }}
+                className="flex items-center gap-2 h-10 px-4 rounded-lg bg-white/5 text-[var(--text-secondary)] text-sm font-medium hover:bg-white/10 hover:text-[var(--text-primary)] transition-all whitespace-nowrap border border-transparent hover:border-white/10"
+              >
+                <MapPin className="h-4 w-4" />
+                <span>
+                  {ENVIRONMENT_OPTIONS.find((e) => e.value === settings.environment)?.label || 'Environment'}
+                </span>
+              </button>
+
+              {/* Outfit Button */}
+              <button
+                onClick={() => setShowOutfitModeSelector(true)}
+                className={cn(
+                  'flex items-center gap-2 h-10 px-4 rounded-lg text-sm font-medium transition-all whitespace-nowrap border',
+                  settings.outfit
+                    ? 'bg-[var(--purple-500)]/20 text-[var(--purple-400)] border-[var(--purple-500)]/30 hover:bg-[var(--purple-500)]/30'
+                    : 'bg-white/5 text-[var(--text-secondary)] border-transparent hover:bg-white/10 hover:text-[var(--text-primary)] hover:border-white/10'
+                )}
+              >
+                <Shirt className="h-4 w-4" />
+                <span>
+                  {settings.outfit
+                    ? OUTFIT_OPTIONS.find(
+                        (o) => o.label.toLowerCase().replace(/\s+/g, '-') === settings.outfit
+                      )?.label || 'Outfit'
+                    : 'Outfit'}
+                </span>
+              </button>
+            </div>
+
+            {/* Right: Generate Button (on mobile) */}
+            <div className="lg:hidden">
+              <button
+                onClick={handleGenerate}
+                disabled={isGenerating}
+                className={cn(
+                  'h-10 px-6 rounded-lg font-semibold text-sm transition-all',
+                  !isGenerating
+                    ? 'bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] text-white shadow-lg shadow-[var(--purple-500)]/25'
+                    : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed'
+                )}
+              >
+                {isGenerating ? 'Generating...' : `Generate (${creditCost})`}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -895,15 +1190,20 @@ function SettingsSection({
   expanded,
   onToggle,
   children,
+  dataSection,
 }: {
   title: string;
   icon: React.ReactNode;
   expanded: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  dataSection?: string;
 }) {
   return (
-    <div className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-subtle)] overflow-hidden">
+    <div 
+      className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-subtle)] overflow-hidden"
+      data-section={dataSection}
+    >
       <button
         onClick={onToggle}
         className="w-full flex items-center justify-between px-4 py-3 hover:bg-[var(--bg-surface)] transition-colors"

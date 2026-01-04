@@ -19,6 +19,7 @@ export * from './breast-size-options';
 
 // Identity options
 export * from './outfit-options';
+export * from './outfit-pieces';
 export * from './personality-options';
 export * from './archetype-options';
 

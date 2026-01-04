@@ -8,6 +8,11 @@ import { BaseImageGenerationService } from './base-image-generation.service';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
 import { ImageStorageService } from './image-storage.service';
 
+function asValidEnumOrNull(value: unknown, allowed: readonly string[]): string | null {
+  if (typeof value !== 'string') return null;
+  return allowed.includes(value) ? value : null;
+}
+
 /**
  * Reconciles ComfyUI prompt results into DB-backed image assets.
  *
@@ -164,33 +169,79 @@ export class ComfyUIResultsService {
       characterId: trackedJob.characterId ?? undefined,
     });
 
+    // Validate all enum values before inserting
+    const safeScene = asValidEnumOrNull((trackedJob.input as any)?.scene, schema.scenePresetEnum.enumValues);
+    const safeEnvironment = asValidEnumOrNull(
+      (trackedJob.input as any)?.environment,
+      schema.environmentPresetEnum.enumValues,
+    );
+    const safeAspectRatio = asValidEnumOrNull(
+      (trackedJob.input as any)?.aspectRatio,
+      schema.aspectRatioEnum.enumValues,
+    );
+    const safeQualityMode = asValidEnumOrNull(
+      (trackedJob.input as any)?.qualityMode,
+      schema.qualityModeEnum.enumValues,
+    );
+
+    // Helper to normalize strings - convert empty strings to undefined
+    const normalizeString = (value: any): string | undefined => {
+      if (!value) return undefined;
+      if (typeof value !== 'string') return undefined;
+      const trimmed = value.trim();
+      return trimmed === '' ? undefined : trimmed;
+    };
+
     // Persist as image assets with structured metadata
     const created = [];
     for (let i = 0; i < storedImages.length; i++) {
       const img = storedImages[i];
-      const row = await this.imagesRepo.createImage({
+      
+      // Build image data object, only including fields with values
+      const imageData: any = {
         characterId: trackedJob.characterId ?? null,
         userId,
         s3Key: img.key,
-        s3Url: img.url,
-        thumbnailKey: img.thumbnailKey,
-        thumbnailUrl: img.thumbnailUrl,
-        prompt: (trackedJob.input as any)?.prompt ?? null,
-        negativePrompt: (trackedJob.input as any)?.negativePrompt ?? null,
-        seed: (trackedJob.input as any)?.seed ?? null,
-        width: (trackedJob.input as any)?.width ?? null,
-        height: (trackedJob.input as any)?.height ?? null,
-        status: 'completed',
-        scene: (trackedJob.input as any)?.scene ?? null,
-        environment: (trackedJob.input as any)?.environment ?? null,
-        outfit: (trackedJob.input as any)?.outfit ?? null,
-        aspectRatio: (trackedJob.input as any)?.aspectRatio ?? null,
-        qualityMode: (trackedJob.input as any)?.qualityMode ?? null,
+        thumbnailKey: img.key,
+        status: 'completed' as const,
         nsfw: Boolean((trackedJob.input as any)?.nsfw),
-        sourceImageId: (trackedJob.input as any)?.sourceImageId ?? null,
-        editType: (trackedJob.input as any)?.editType ?? null,
-        editMaskS3Key: (trackedJob.input as any)?.editMaskS3Key ?? null,
-      });
+      };
+
+      // Add optional fields only if they have valid values
+      const prompt = normalizeString((trackedJob.input as any)?.prompt);
+      if (prompt) imageData.prompt = prompt;
+
+      const negativePrompt = normalizeString((trackedJob.input as any)?.negativePrompt);
+      if (negativePrompt) imageData.negativePrompt = negativePrompt;
+
+      const seed = normalizeString((trackedJob.input as any)?.seed);
+      if (seed) imageData.seed = seed;
+
+      if ((trackedJob.input as any)?.width) imageData.width = (trackedJob.input as any).width;
+      if ((trackedJob.input as any)?.height) imageData.height = (trackedJob.input as any).height;
+
+      if (safeScene) imageData.scene = safeScene;
+      if (safeEnvironment) imageData.environment = safeEnvironment;
+
+      const outfit = normalizeString((trackedJob.input as any)?.outfit);
+      if (outfit) imageData.outfit = outfit;
+
+      const poseId = normalizeString((trackedJob.input as any)?.poseId);
+      if (poseId) imageData.poseId = poseId;
+
+      if (safeAspectRatio) imageData.aspectRatio = safeAspectRatio;
+      if (safeQualityMode) imageData.qualityMode = safeQualityMode;
+
+      const sourceImageId = normalizeString((trackedJob.input as any)?.sourceImageId);
+      if (sourceImageId) imageData.sourceImageId = sourceImageId;
+
+      const editType = normalizeString((trackedJob.input as any)?.editType);
+      if (editType) imageData.editType = editType;
+
+      const editMaskS3Key = normalizeString((trackedJob.input as any)?.editMaskS3Key);
+      if (editMaskS3Key) imageData.editMaskS3Key = editMaskS3Key;
+
+      const row = await this.imagesRepo.createImage(imageData);
       created.push(row);
     }
 
@@ -217,7 +268,7 @@ export class ComfyUIResultsService {
         title: 'Your images are ready',
         body: `Generated ${storedImages.length} image${storedImages.length === 1 ? '' : 's'}.`,
         href: trackedJob.characterId 
-          ? `/influencer/${trackedJob.characterId}/studio` 
+          ? `/studio?influencer=${trackedJob.characterId}` 
           : '/activity',
         metadata: {
           generationJobId: trackedJob.id,
@@ -233,12 +284,18 @@ export class ComfyUIResultsService {
 
     return {
       status: 'completed',
-      images: created.map((r) => ({
-        id: r.id,
-        url: r.s3Url,
-        thumbnailUrl: r.thumbnailUrl,
-        s3Key: r.s3Key,
-      })),
+      images: await Promise.all(
+        created.map(async (r) => {
+          const url = await this.imageStorage.getImageUrl(r.s3Key);
+          const thumbnailUrl = await this.imageStorage.getImageUrl(r.thumbnailKey ?? r.s3Key);
+          return {
+            id: r.id,
+            url,
+            thumbnailUrl,
+            s3Key: r.s3Key,
+          };
+        }),
+      ),
     };
   }
 }

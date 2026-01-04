@@ -19,7 +19,7 @@ interface AppShellProps {
 }
 
 // Routes that should NOT show the app shell (header/nav)
-const excludedRoutes = ['/login', '/register', '/forgot-password', '/reset-password'];
+const excludedRoutes = ['/login', '/register', '/auth', '/forgot-password', '/reset-password'];
 
 // Inner component that uses sidebar context
 function AppShellContent({ children }: { children: React.ReactNode }) {

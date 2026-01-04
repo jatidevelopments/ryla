@@ -114,6 +114,7 @@ export function StepProfilePictures() {
           baseImageUrl: selectedBaseImage.url,
           setId: 'classic-influencer',
           nsfwEnabled: form.nsfwEnabled,
+          generationMode: 'fast', // Use fast mode (no PuLID) for now
         },
         (status: JobStatus, err?: string) => {
           // Progress updates

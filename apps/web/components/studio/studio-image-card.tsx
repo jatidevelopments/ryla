@@ -14,10 +14,13 @@ export interface StudioImage {
   prompt?: string;
   scene?: string;
   environment?: string;
+  outfit?: string; // Can be a string or JSON stringified OutfitComposition
+  poseId?: string; // Pose ID (e.g., "standing-casual")
   aspectRatio: '1:1' | '9:16' | '2:3';
   status: 'completed' | 'generating' | 'failed';
   createdAt: string;
   isLiked?: boolean;
+  nsfw?: boolean;
 }
 
 interface StudioImageCardProps {

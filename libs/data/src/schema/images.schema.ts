@@ -7,6 +7,7 @@ import {
   integer,
   index,
   boolean,
+  jsonb,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { characters } from './characters.schema';
@@ -59,6 +60,11 @@ export const images = pgTable(
     scene: scenePresetEnum('scene'),
     environment: environmentPresetEnum('environment'),
     outfit: text('outfit'),
+    poseId: text('pose_id'), // Pose ID (e.g., "standing-casual", "sitting-elegant")
+    styleId: text('style_id'), // Visual style preset
+    lightingId: text('lighting_id'), // Lighting preset
+    modelId: text('model_id'), // AI model used (e.g., "ryla-soul", "fal-ai/flux/schnell")
+    objects: jsonb('objects').$type<Array<{ id: string; imageUrl?: string; thumbnailUrl?: string; name?: string }>>(), // Objects for composition (up to 3)
     aspectRatio: aspectRatioEnum('aspect_ratio'),
     qualityMode: qualityModeEnum('quality_mode'),
     nsfw: boolean('nsfw').default(false),

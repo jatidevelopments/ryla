@@ -1,16 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useCharacterWizardStore } from "@ryla/business";
-import { StepIdentity } from "../../../components/wizard/step-identity";
+import { useEffect } from 'react';
+import { useCharacterWizardStore } from '@ryla/business';
+import { StepBody } from '../../../components/wizard/step-body';
 
 export default function WizardStep5() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
+  const creationMethod = useCharacterWizardStore((s) => s.form.creationMethod);
 
   useEffect(() => {
     setStep(5);
   }, [setStep]);
 
-  return <StepIdentity />;
-}
+  // Only presets flow uses step 5 (Body)
+  if (creationMethod !== 'presets') {
+    return null;
+  }
 
+  return <StepBody />;
+}

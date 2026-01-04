@@ -154,6 +154,10 @@ export interface ModelDefinition {
   isNew?: boolean;
   /** Whether this is a pro/premium model */
   isPro?: boolean;
+  /** Whether this model supports NSFW content (only ComfyUI models) */
+  supportsNSFW?: boolean;
+  /** Whether this model should be shown in MVP Studio (1-2 per capability) */
+  isMVP?: boolean;
   /** Estimated credits for 1024x1024 image (for display) */
   estimatedCredits1MP?: number;
   /** Pricing info (for fal models) */
@@ -182,6 +186,8 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     inputType: 'text',
     outputType: 'image',
     isUnlimited: true,
+    supportsNSFW: true, // ComfyUI models support NSFW
+    isMVP: true, // MVP model for creating/upscaling
     estimatedCredits1MP: 20, // studio_fast
   },
   'ryla-face-swap': {
@@ -208,6 +214,8 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     inputType: 'text+image',
     outputType: 'image',
     isUnlimited: true,
+    supportsNSFW: true, // ComfyUI models support NSFW
+    isMVP: true, // MVP model for editing/variations
     estimatedCredits1MP: 50, // studio_standard
   },
   'comfyui-default': {
@@ -235,6 +243,8 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     capabilities: ['text-to-image'],
     inputType: 'text',
     outputType: 'image',
+    supportsNSFW: false, // Fal.ai models don't support NSFW
+    isMVP: true, // MVP model for creating (SFW only)
     estimatedCredits1MP: 0.3,
     pricingInfo: {
       costPerMegapixel: 0.003,
@@ -251,6 +261,8 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     inputType: 'text',
     outputType: 'image',
     isUnlimited: true,
+    supportsNSFW: false, // Fal.ai models don't support NSFW
+    isMVP: true, // MVP model for editing/variations (SFW only)
     estimatedCredits1MP: 2.5,
     pricingInfo: {
       costPerMegapixel: 0.025,
@@ -876,6 +888,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     inputType: 'image',
     outputType: 'image',
     estimatedCredits1MP: 2, // Estimated
+    isMVP: true, // MVP model for upscaling
     pricingInfo: {
       costPerImage: 0.02, // Estimated
     },
@@ -891,6 +904,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     inputType: 'image',
     outputType: 'image',
     estimatedCredits1MP: 1, // Estimated
+    isMVP: true, // MVP model for upscaling (fast/cheap option)
     pricingInfo: {
       costPerImage: 0.01, // Estimated
     },
@@ -1149,11 +1163,35 @@ export function getCapabilitiesForStudioMode(mode: 'creating' | 'editing' | 'ups
 /**
  * Get models that support a Studio mode
  */
-export function getModelsForStudioMode(mode: 'creating' | 'editing' | 'upscaling' | 'variations'): ModelDefinition[] {
+export function getModelsForStudioMode(
+  mode: 'creating' | 'editing' | 'upscaling' | 'variations',
+  options?: {
+    nsfwEnabled?: boolean;
+    mvpOnly?: boolean;
+  }
+): ModelDefinition[] {
   const capabilities = getCapabilitiesForStudioMode(mode);
-  return Object.values(MODEL_REGISTRY).filter((m) =>
-    capabilities.some((cap) => m.capabilities.includes(cap))
-  );
+  return Object.values(MODEL_REGISTRY).filter((m) => {
+    // Filter by capability
+    const hasCapability = capabilities.some((cap) => m.capabilities.includes(cap));
+    if (!hasCapability) return false;
+
+    // Filter by MVP flag if requested
+    if (options?.mvpOnly && !m.isMVP) return false;
+
+    // Filter by NSFW support
+    if (options?.nsfwEnabled !== undefined) {
+      if (options.nsfwEnabled) {
+        // NSFW enabled: only show models that support NSFW
+        return m.supportsNSFW === true;
+      } else {
+        // NSFW disabled: show all models (both NSFW and non-NSFW)
+        return true;
+      }
+    }
+
+    return true;
+  });
 }
 
 /**

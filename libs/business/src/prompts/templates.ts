@@ -31,10 +31,11 @@ export const promptTemplates: PromptTemplate[] = [
     subcategory: 'selfie',
     name: 'Casual Selfie',
     description: 'Instagram-style casual selfie portrait',
+    // Token ordering: subject first, then shot type, expression, lighting, style
     template:
-      'Close-up selfie of {{character}}, natural makeup, amateur photography style, selfie aesthetic, looking at camera with {{expression}}, {{lighting}}',
+      '{{character}}, close-up selfie, {{expression}}, looking at camera, {{lighting}}, amateur photo camera style, natural makeup, candid moment, Instagram aesthetic',
     negativePrompt:
-      'blurry, deformed, ugly, bad anatomy, bad hands, missing fingers, extra fingers, watermark, signature',
+      'blurry, deformed, ugly, bad anatomy, bad hands, missing fingers, extra fingers, watermark, signature, plastic skin, airbrushed, uncanny valley, CGI, illustration',
     requiredDNA: ['age', 'hair', 'eyes', 'skin'],
     tags: ['selfie', 'casual', 'instagram', 'portrait'],
     rating: 'sfw',
@@ -47,10 +48,11 @@ export const promptTemplates: PromptTemplate[] = [
     subcategory: 'beauty',
     name: 'Beauty Close-up',
     description: 'High-detail beauty/makeup portrait',
+    // Token ordering: subject first, then shot type, features, lighting
     template:
-      'Hyper-realistic close-up portrait of {{character}}, professional beauty photography, perfect skin texture, detailed eyes, {{lighting}}, studio quality',
+      '{{character}}, close-up beauty portrait, {{expression}}, natural skin texture with visible pores, detailed expressive eyes, {{lighting}}, professional beauty photography, authentic complexion',
     negativePrompt:
-      'plastic skin, flat lighting, blurry, deformed, bad makeup, unnatural colors',
+      'plastic skin, flat lighting, blurry, deformed, bad makeup, unnatural colors, airbrushed perfection, waxy appearance, uncanny valley, CGI',
     requiredDNA: ['age', 'hair', 'eyes', 'skin', 'facialFeatures'],
     tags: ['beauty', 'close-up', 'professional', 'makeup'],
     rating: 'sfw',
@@ -97,10 +99,11 @@ export const promptTemplates: PromptTemplate[] = [
     subcategory: 'standing',
     name: 'Casual Standing Pose',
     description: 'Full body casual standing pose',
+    // Token ordering: subject first, then pose, outfit, scene, lighting, style
     template:
-      'Full-body shot of {{character}}, {{outfit}}, standing in {{scene}}, relaxed casual pose, {{lighting}}, amateur photography style',
+      '{{character}}, full-body shot, relaxed casual standing pose, {{outfit}}, {{scene}}, {{lighting}}, amateur photo camera style, natural imperfections, candid moment',
     negativePrompt:
-      'cropped body, missing limbs, deformed proportions, bad hands, bad feet',
+      'cropped body, missing limbs, deformed proportions, bad hands, bad feet, plastic skin, airbrushed, CGI, illustration, uncanny valley',
     requiredDNA: ['age', 'hair', 'eyes', 'skin', 'bodyType'],
     tags: ['fullbody', 'standing', 'casual', 'lifestyle'],
     rating: 'sfw',
@@ -133,9 +136,10 @@ export const promptTemplates: PromptTemplate[] = [
     subcategory: 'daily',
     name: 'Coffee Shop Moment',
     description: 'Influencer at a trendy coffee shop',
+    // Token ordering: subject first, then action, setting, lighting, style
     template:
-      '{{character}}, {{outfit}}, sitting at a trendy coffee shop, holding a latte, cozy atmosphere, natural window light, Instagram aesthetic, candid moment',
-    negativePrompt: 'empty cafe, bad lighting, blurry background, awkward pose',
+      '{{character}}, {{expression}}, sitting at trendy coffee shop, holding latte cup, {{outfit}}, cozy warm atmosphere, natural window light, amateur photo camera style, Instagram aesthetic, candid authentic moment',
+    negativePrompt: 'empty cafe, bad lighting, blurry background, awkward pose, plastic skin, airbrushed, CGI, illustration, stock photo look',
     requiredDNA: ['age', 'hair', 'eyes', 'skin'],
     tags: ['lifestyle', 'coffee', 'cafe', 'instagram', 'daily'],
     rating: 'sfw',

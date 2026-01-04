@@ -26,6 +26,9 @@ These epics define the **MVP Product** — what users interact with after conver
 | [EP-017](./EP-017-in-app-notifications.md) | In-App Notifications (Inbox + Navbar Indicator) | P1 | B-Retention | 📝 Defined |
 | [EP-018](./EP-018-influencer-settings.md) | AI Influencer Settings | P1 | B-Retention | 📝 Defined |
 | [EP-019](./EP-019-report-a-bug.md) | Report a Bug | P1 | B-Retention | 📝 Defined |
+| [EP-020](./EP-020-template-gallery.md) | Template Gallery & Library | P1 | A-Activation, C-Core Value | 📝 Defined |
+| [EP-021](./EP-021-multi-piece-outfit-gallery.md) | Multi-Piece Outfit Gallery | P1 | C-Core Value | 📝 Defined |
+| [EP-022](./EP-022-unified-auth-page.md) | Unified Login/Registration Page | P1 | A-Activation | 📝 Defined |
 
 ## User Journey
 

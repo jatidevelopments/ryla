@@ -14,6 +14,7 @@ import {
   type SceneCategory,
   type LightingType,
 } from './types';
+import { useGalleryFavorites } from '../../../lib/hooks/use-gallery-favorites';
 
 type TabType = 'styles' | 'scenes' | 'lighting' | 'effects';
 
@@ -40,7 +41,21 @@ export function StylePicker({
   const [search, setSearch] = React.useState('');
   const [styleCategory, setStyleCategory] = React.useState<StyleCategory>('all');
   const [sceneCategory, setSceneCategory] = React.useState<SceneCategory | 'all'>('all');
+  const [showFavoritesOnly, setShowFavoritesOnly] = React.useState(false);
   const overlayRef = React.useRef<HTMLDivElement>(null);
+  
+  // Favorites hooks for different item types
+  const stylesFavorites = useGalleryFavorites({ itemType: 'style' });
+  const scenesFavorites = useGalleryFavorites({ itemType: 'scene' });
+  const lightingFavorites = useGalleryFavorites({ itemType: 'lighting' });
+  
+  // Get the appropriate favorites hook based on active tab
+  const currentFavorites = React.useMemo(() => {
+    if (activeTab === 'styles') return stylesFavorites;
+    if (activeTab === 'scenes') return scenesFavorites;
+    if (activeTab === 'lighting') return lightingFavorites;
+    return null;
+  }, [activeTab, stylesFavorites, scenesFavorites, lightingFavorites]);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === overlayRef.current) {
@@ -52,20 +67,24 @@ export function StylePicker({
   const filteredStyles = VISUAL_STYLES.filter(style => {
     const matchesSearch = style.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = styleCategory === 'all' || style.category === styleCategory;
-    return matchesSearch && matchesCategory;
+    const matchesFavorites = !showFavoritesOnly || stylesFavorites.isFavorited(style.id);
+    return matchesSearch && matchesCategory && matchesFavorites;
   });
 
   // Filter scenes
   const filteredScenes = SCENES.filter(scene => {
     const matchesSearch = scene.name.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = sceneCategory === 'all' || scene.category === sceneCategory;
-    return matchesSearch && matchesCategory;
+    const matchesFavorites = !showFavoritesOnly || scenesFavorites.isFavorited(scene.id);
+    return matchesSearch && matchesCategory && matchesFavorites;
   });
 
   // Filter lighting
-  const filteredLighting = LIGHTING_SETTINGS.filter(light =>
-    light.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredLighting = LIGHTING_SETTINGS.filter(light => {
+    const matchesSearch = light.name.toLowerCase().includes(search.toLowerCase());
+    const matchesFavorites = !showFavoritesOnly || lightingFavorites.isFavorited(light.id);
+    return matchesSearch && matchesFavorites;
+  });
 
   const tabs: { id: TabType; label: string; icon: React.ReactNode }[] = [
     {
@@ -120,7 +139,7 @@ export function StylePicker({
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8"
     >
       <div 
-        className="flex flex-col w-full max-w-5xl max-h-[70vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        className="flex flex-col w-full max-w-7xl max-h-[85vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -150,8 +169,24 @@ export function StylePicker({
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Search & Close */}
+          {/* Search, Favorites Filter & Close */}
           <div className="flex items-center gap-3">
+            {currentFavorites && (
+              <button
+                onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+                className={cn(
+                  'flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all',
+                  showFavoritesOnly
+                    ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/25'
+                    : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
+                )}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={cn('h-4 w-4', showFavoritesOnly && 'fill-current')}>
+                  <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+                </svg>
+                <span className="hidden sm:inline">Favorites</span>
+              </button>
+            )}
             <div className="relative">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40">
                 <path fillRule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clipRule="evenodd" />
@@ -255,6 +290,11 @@ export function StylePicker({
                   thumbnail={style.thumbnail}
                   isSelected={selectedStyleId === style.id}
                   onSelect={() => onStyleSelect(style.id)}
+                  isFavorited={stylesFavorites.isFavorited(style.id)}
+                  onToggleFavorite={(e) => {
+                    e.stopPropagation();
+                    stylesFavorites.toggleFavorite(style.id);
+                  }}
                 />
               ))}
             </div>
@@ -288,6 +328,11 @@ export function StylePicker({
                   thumbnail={scene.thumbnail}
                   isSelected={selectedSceneId === scene.id}
                   onSelect={() => onSceneSelect(scene.id)}
+                  isFavorited={scenesFavorites.isFavorited(scene.id)}
+                  onToggleFavorite={(e) => {
+                    e.stopPropagation();
+                    scenesFavorites.toggleFavorite(scene.id);
+                  }}
                 />
               ))}
             </div>
@@ -321,6 +366,11 @@ export function StylePicker({
                   thumbnail={light.thumbnail}
                   isSelected={selectedLightingId === light.id}
                   onSelect={() => onLightingSelect(light.id)}
+                  isFavorited={lightingFavorites.isFavorited(light.id)}
+                  onToggleFavorite={(e) => {
+                    e.stopPropagation();
+                    lightingFavorites.toggleFavorite(light.id);
+                  }}
                 />
               ))}
             </div>
@@ -420,12 +470,16 @@ function StyleCard({
   thumbnail,
   isSelected,
   onSelect,
+  isFavorited,
+  onToggleFavorite,
 }: {
   id: string;
   name: string;
   thumbnail: string;
   isSelected: boolean;
   onSelect: () => void;
+  isFavorited?: boolean;
+  onToggleFavorite?: (e: React.MouseEvent) => void;
 }) {
   const [imgError, setImgError] = React.useState(false);
 
@@ -471,11 +525,28 @@ function StyleCard({
 
         {/* Selection indicator */}
         {isSelected && (
-          <div className="absolute top-2 right-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--purple-500)]">
+          <div className="absolute top-2 left-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--purple-500)]">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-white">
               <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
             </svg>
           </div>
+        )}
+
+        {/* Like button */}
+        {onToggleFavorite && (
+          <button
+            onClick={onToggleFavorite}
+            className={cn(
+              'absolute top-2 right-2 z-10 flex h-7 w-7 items-center justify-center rounded-full transition-all opacity-0 group-hover:opacity-100',
+              isFavorited
+                ? 'bg-[var(--pink-500)] text-white opacity-100'
+                : 'bg-black/50 text-white/60 hover:bg-black/70 hover:text-white'
+            )}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className={cn('h-4 w-4', isFavorited && 'fill-current')}>
+              <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+            </svg>
+          </button>
         )}
       </button>
     </div>

@@ -20,6 +20,7 @@ import { GenerateFaceSwapDto } from './dto/req/generate-face-swap.dto';
 import { GenerateCharacterSheetDto } from './dto/req/generate-character-sheet.dto';
 import { InpaintEditDto } from './dto/req/inpaint-edit.dto';
 import { GenerateStudioImagesDto } from './dto/req/generate-studio-images.dto';
+import { UpscaleImageDto } from './dto/req/upscale-image.dto';
 import { BaseImageGenerationService } from './services/base-image-generation.service';
 import { ComfyUIJobRunnerAdapter } from './services/comfyui-job-runner.adapter';
 import { InpaintEditService } from './services/inpaint-edit.service';
@@ -164,11 +165,14 @@ export class ImageController {
 
     return this.studioGenerationService.startStudioGeneration({
       userId: user.userId,
-      prompt: dto.prompt,
+      additionalDetails: dto.additionalDetails,
       characterId: dto.characterId,
       scene: dto.scene,
       environment: dto.environment,
       outfit: dto.outfit,
+      poseId: dto.poseId,
+      lighting: dto.lighting,
+      expression: dto.expression,
       aspectRatio: dto.aspectRatio,
       qualityMode: dto.qualityMode,
       count: dto.count,
@@ -176,6 +180,34 @@ export class ImageController {
       seed: dto.seed,
       modelProvider: dto.modelProvider,
       modelId: dto.modelId,
+    });
+  }
+
+  @Post('upscale')
+  @ApiOperation({ summary: 'Upscale an existing image using Fal.ai upscaling models' })
+  public async upscaleImage(
+    @CurrentUser() user: IJwtPayload,
+    @Body() dto: UpscaleImageDto,
+  ) {
+    // Calculate credits needed (using default model if not specified)
+    const modelId = dto.modelId ?? 'fal-ai/clarity-upscaler';
+    // For upscaling, we estimate based on 2x upscale (roughly 4x the megapixels)
+    // Use a fixed cost estimate since we don't know the exact output size
+    const estimatedCredits = 20; // Fixed cost for upscaling (can be refined later)
+
+    // Check and deduct credits upfront
+    await this.creditService.deductCreditsRaw(
+      user.userId,
+      estimatedCredits,
+      undefined,
+      `Image upscaling: ${modelId}`,
+    );
+
+    return this.studioGenerationService.startUpscale({
+      userId: user.userId,
+      imageId: dto.imageId,
+      modelId: dto.modelId,
+      scale: dto.scale,
     });
   }
 

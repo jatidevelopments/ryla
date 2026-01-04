@@ -2,15 +2,20 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepFinalize } from '../../../components/wizard/step-finalize';
+import { StepIdentity } from '../../../components/wizard/step-identity';
 
 export default function WizardStep8() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
+  const creationMethod = useCharacterWizardStore((s) => s.form.creationMethod);
 
   useEffect(() => {
     setStep(8);
   }, [setStep]);
 
-  return <StepFinalize />;
-}
+  // Only presets flow uses step 8 (Identity)
+  if (creationMethod !== 'presets') {
+    return null;
+  }
 
+  return <StepIdentity />;
+}

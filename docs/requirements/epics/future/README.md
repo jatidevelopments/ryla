@@ -64,6 +64,7 @@ These epics are **NOT in MVP** — planned for Phase 2 or later.
 | EP-035 | Mobile App | P3 | Web-first |
 | EP-036 | i18n (Multi-language) | P2 | English only for MVP |
 | EP-047 | Retention Offer Before Account Deletion | P2 | Requires billing rules + offer mechanics |
+| EP-048 | Competitor Pricing Intelligence | P2 | Business intelligence, not core product |
 
 > **Note**: EP-009 to EP-014 are now used for MVP epics (Credits, Subscription, Legal, Onboarding, Education, Captions)
 
@@ -144,6 +145,17 @@ Based on MVP learnings, prioritize:
 - Multi-language captions
 
 **Why Phase 2**: MVP has 1 caption per image with edit. Validate basic captions first.
+
+### EP-048: Competitor Pricing Intelligence
+
+**What**: Automated system to collect, track, and analyze competitor pricing data
+- Web scraping infrastructure for pricing pages
+- Database storage with version history
+- Admin dashboard for viewing/comparing pricing
+- Alerts on significant pricing changes
+- Historical pricing trends and analysis
+
+**Why Phase 2**: Business intelligence feature, not core product. Enables data-driven pricing strategy and competitive positioning. Phase 1 manual research must be completed first.
 
 ---
 

@@ -9,6 +9,8 @@ const genderOptions = [
     value: 'female' as const,
     label: 'Female',
     gradient: 'from-pink-500 to-rose-500',
+    disabled: false,
+    comingSoon: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
         <circle cx="12" cy="8" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -25,6 +27,8 @@ const genderOptions = [
     value: 'male' as const,
     label: 'Male',
     gradient: 'from-blue-500 to-indigo-600',
+    disabled: true,
+    comingSoon: true,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
         <circle cx="10" cy="14" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -46,6 +50,8 @@ const styleOptions = [
     label: 'Realistic',
     description: 'Photorealistic AI images',
     gradient: 'from-purple-500 to-pink-500',
+    disabled: false,
+    comingSoon: false,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
         <path
@@ -70,6 +76,8 @@ const styleOptions = [
     label: 'Anime',
     description: 'Stylized anime art',
     gradient: 'from-cyan-500 to-blue-600',
+    disabled: true,
+    comingSoon: true,
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
         <path
@@ -107,19 +115,24 @@ export function StepStyle() {
           <div className="grid grid-cols-2 gap-3">
             {genderOptions.map((option) => {
               const isSelected = form.gender === option.value;
+              const isDisabled = option.disabled;
               return (
                 <button
                   key={option.value}
-                  onClick={() => setField('gender', option.value)}
+                  onClick={() => !isDisabled && setField('gender', option.value)}
+                  disabled={isDisabled}
                   className={cn(
                     'relative aspect-square rounded-xl border-2 transition-all duration-200 overflow-hidden',
+                    isDisabled && 'cursor-not-allowed opacity-50',
                     isSelected
                       ? 'border-purple-400/50 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/20'
+                      : isDisabled
+                      ? 'border-white/5 bg-white/2'
                       : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
                   )}
                 >
                   {/* Shimmer effect when selected */}
-                  {isSelected && (
+                  {isSelected && !isDisabled && (
                     <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
                   )}
 
@@ -129,7 +142,8 @@ export function StepStyle() {
                       className={cn(
                         'w-12 h-12 rounded-lg flex items-center justify-center shadow-md transition-transform duration-200 bg-gradient-to-br',
                         option.gradient,
-                        isSelected && 'scale-110'
+                        isSelected && !isDisabled && 'scale-110',
+                        isDisabled && 'opacity-50'
                       )}
                     >
                       {option.icon}
@@ -137,15 +151,19 @@ export function StepStyle() {
                     <p
                       className={cn(
                         'text-sm font-medium',
-                        isSelected ? 'text-white' : 'text-white/90'
+                        isSelected ? 'text-white' : 'text-white/90',
+                        isDisabled && 'opacity-50'
                       )}
                     >
                       {option.label}
                     </p>
+                    {option.comingSoon && (
+                      <span className="text-xs text-white/40 font-medium">Coming Soon</span>
+                    )}
                   </div>
 
                   {/* Selection Indicator */}
-                  {isSelected && (
+                  {isSelected && !isDisabled && (
                     <div className="absolute top-2 right-2 w-5 h-5 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center z-20 shadow-md">
                       <svg
                         width="12"
@@ -174,14 +192,19 @@ export function StepStyle() {
       <div className="w-full space-y-3">
         {styleOptions.map((option) => {
           const isSelected = form.style === option.value;
+          const isDisabled = option.disabled;
           return (
             <button
               key={option.value}
-              onClick={() => setField('style', option.value)}
+              onClick={() => !isDisabled && setField('style', option.value)}
+              disabled={isDisabled}
               className={cn(
                 'w-full p-4 rounded-2xl border-2 transition-all duration-200 text-left relative overflow-hidden group',
+                isDisabled && 'cursor-not-allowed opacity-50',
                 isSelected
                   ? 'border-purple-400/50 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/20'
+                  : isDisabled
+                  ? 'border-white/5 bg-white/2'
                   : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
               )}
             >
@@ -190,18 +213,28 @@ export function StepStyle() {
                   className={cn(
                     'w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md transition-transform duration-200 bg-gradient-to-br',
                     option.gradient,
-                    isSelected && 'scale-110'
+                    isSelected && !isDisabled && 'scale-110',
+                    isDisabled && 'opacity-50'
                   )}
                 >
                   {option.icon}
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-base font-bold text-white">
-                    {option.label}
-                  </h3>
-                  <p className="text-sm text-white/60">{option.description}</p>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-base font-bold text-white">
+                      {option.label}
+                    </h3>
+                    {option.comingSoon && (
+                      <span className="text-xs text-white/40 font-medium bg-white/5 px-2 py-0.5 rounded">
+                        Coming Soon
+                      </span>
+                    )}
+                  </div>
+                  <p className={cn('text-sm', isDisabled ? 'text-white/40' : 'text-white/60')}>
+                    {option.description}
+                  </p>
                 </div>
-                {isSelected && (
+                {isSelected && !isDisabled && (
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center flex-shrink-0">
                     <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
                       <path

@@ -73,7 +73,13 @@ export type FalFluxModelId =
   | 'fal-ai/kling-image/o1'
   | 'fal-ai/vidu/q2/text-to-image'
   | 'fal-ai/vidu/q2/reference-to-image'
-  | 'imagineart/imagineart-1.5-preview/text-to-image';
+  | 'imagineart/imagineart-1.5-preview/text-to-image'
+  // Upscaling Models
+  | 'fal-ai/clarity-upscaler'
+  | 'fal-ai/aura-sr'
+  | 'clarityai/crystal-upscaler'
+  | 'fal-ai/seedvr/upscale/image'
+  | 'fal-ai/topaz/upscale/image';
 
 export interface FalRunInput {
   prompt: string;
@@ -82,6 +88,11 @@ export interface FalRunInput {
   height: number;
   seed?: number;
   numImages: number;
+}
+
+export interface FalUpscaleInput {
+  imageUrl: string;
+  scale?: number; // Optional scale factor (2x, 4x, etc.)
 }
 
 export interface FalRunOutput {
@@ -430,6 +441,32 @@ export const FAL_MODEL_PRICING: Record<FalFluxModelId, FalModelPricing> = {
     name: 'ImagineArt 1.5',
     description: 'High-fidelity professional visuals',
   },
+  // Upscaling Models
+  'fal-ai/clarity-upscaler': {
+    costPerImage: 0.02, // Estimated
+    name: 'Clarity Upscaler',
+    description: 'High fidelity upscaling',
+  },
+  'fal-ai/aura-sr': {
+    costPerImage: 0.01, // Estimated
+    name: 'AuraSR',
+    description: 'Upscale images with AuraSR',
+  },
+  'clarityai/crystal-upscaler': {
+    costPerImage: 0.02, // Estimated
+    name: 'Crystal Upscaler',
+    description: 'Advanced facial detail upscaling',
+  },
+  'fal-ai/seedvr/upscale/image': {
+    costPerImage: 0.03, // Estimated
+    name: 'SeedVR2',
+    description: 'Use SeedVR2 to upscale your images',
+  },
+  'fal-ai/topaz/upscale/image': {
+    costPerImage: 0.02, // Estimated
+    name: 'Topaz',
+    description: 'Powerful and accurate image enhancer',
+  },
 };
 
 /**
@@ -544,6 +581,62 @@ export class FalImageService {
     if (!res.ok) {
       this.logger.warn(`Fal run failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`);
       throw new Error(`Fal run failed (${modelId}) status=${res.status}`);
+    }
+
+    let json: unknown;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error(`Fal returned non-JSON response for (${modelId})`);
+    }
+
+    const imageUrls = this.extractImageUrls(json);
+    if (imageUrls.length === 0) {
+      this.logger.warn(`Fal returned 0 image URLs (${modelId}) body=${text.slice(0, 500)}`);
+      throw new Error(`Fal returned no images (${modelId})`);
+    }
+
+    return { requestId, imageUrls };
+  }
+
+  /**
+   * Upscale an image using a Fal.ai upscaling model.
+   * Takes an image URL and returns upscaled image URLs.
+   */
+  async runUpscale(modelId: FalFluxModelId, input: FalUpscaleInput): Promise<FalRunOutput> {
+    const falKey = this.getFalKey();
+    if (!falKey) {
+      throw new Error('FAL_KEY is not configured');
+    }
+
+    const url = `https://fal.run/${modelId}`;
+    const requestId = randomUUID();
+
+    // Upscaling models typically accept:
+    // - image_url: URL to the image to upscale
+    // - scale: Optional scale factor (2x, 4x, etc.)
+    const body: Record<string, unknown> = {
+      image_url: input.imageUrl,
+    };
+
+    if (input.scale !== undefined) {
+      body.scale = input.scale;
+    }
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        Authorization: `Key ${falKey}`,
+        'Content-Type': 'application/json',
+        'X-Request-Id': requestId,
+      },
+      body: JSON.stringify(body),
+    });
+
+    const text = await res.text();
+    if (!res.ok) {
+      this.logger.warn(`Fal upscale failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`);
+      throw new Error(`Fal upscale failed (${modelId}) status=${res.status}`);
     }
 
     let json: unknown;

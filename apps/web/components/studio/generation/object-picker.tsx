@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { cn, Input } from '@ryla/ui';
 import type { StudioImage } from '../studio-image-card';
+import { UploadConsentDialog } from './upload-consent-dialog';
 
 interface ObjectPickerProps {
   availableImages: StudioImage[];
@@ -13,6 +14,9 @@ interface ObjectPickerProps {
   onObjectRemove: (imageId: string) => void;
   onClose: () => void;
   maxObjects?: number;
+  onUploadImage?: (file: File) => Promise<StudioImage | null>;
+  hasUploadConsent?: boolean;
+  onConsentAccept?: () => Promise<void>;
 }
 
 export function ObjectPicker({
@@ -22,8 +26,14 @@ export function ObjectPicker({
   onObjectRemove,
   onClose,
   maxObjects = 3,
+  onUploadImage,
+  hasUploadConsent = false,
+  onConsentAccept,
 }: ObjectPickerProps) {
   const [search, setSearch] = React.useState('');
+  const [showConsentDialog, setShowConsentDialog] = React.useState(false);
+  const [isUploading, setIsUploading] = React.useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
   const overlayRef = React.useRef<HTMLDivElement>(null);
 
   const handleOverlayClick = (e: React.MouseEvent) => {
@@ -46,6 +56,120 @@ export function ObjectPicker({
 
   const canAddMore = selectedObjectIds.length < maxObjects;
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onUploadImage) return;
+
+    // Check if consent is needed
+    if (!hasUploadConsent) {
+      setShowConsentDialog(true);
+      // Store file for later upload after consent
+      const storedFile = file;
+      const handleConsentAccept = async () => {
+        if (onConsentAccept) {
+          await onConsentAccept();
+        }
+        setShowConsentDialog(false);
+        // Now upload the file
+        setIsUploading(true);
+        try {
+          const uploadedImage = await onUploadImage(storedFile);
+          if (uploadedImage && canAddMore) {
+            onObjectSelect(uploadedImage);
+          }
+        } catch (error) {
+          console.error('Failed to upload image:', error);
+        } finally {
+          setIsUploading(false);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        }
+      };
+      // We'll handle this in the consent dialog
+      return;
+    }
+
+    // Upload directly if consent already given
+    setIsUploading(true);
+    try {
+      const uploadedImage = await onUploadImage(file);
+      if (uploadedImage && canAddMore) {
+        onObjectSelect(uploadedImage);
+      }
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const handleUploadClick = () => {
+    if (!hasUploadConsent) {
+      setShowConsentDialog(true);
+      return;
+    }
+    fileInputRef.current?.click();
+  };
+
+  const [pendingFile, setPendingFile] = React.useState<File | null>(null);
+  const handleConsentAccept = async () => {
+    if (onConsentAccept) {
+      await onConsentAccept();
+    }
+    setShowConsentDialog(false);
+    // Upload pending file if exists
+    if (pendingFile && onUploadImage) {
+      setIsUploading(true);
+      try {
+        const uploadedImage = await onUploadImage(pendingFile);
+        if (uploadedImage && canAddMore) {
+          onObjectSelect(uploadedImage);
+        }
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+      } finally {
+        setIsUploading(false);
+        setPendingFile(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      }
+    }
+  };
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !onUploadImage) return;
+
+    if (!hasUploadConsent) {
+      setPendingFile(file);
+      setShowConsentDialog(true);
+      return;
+    }
+
+    // Upload directly
+    setIsUploading(true);
+    onUploadImage(file)
+      .then((uploadedImage) => {
+        if (uploadedImage && canAddMore) {
+          onObjectSelect(uploadedImage);
+        }
+      })
+      .catch((error) => {
+        console.error('Failed to upload image:', error);
+      })
+      .finally(() => {
+        setIsUploading(false);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+      });
+  };
+
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
     setMounted(true);
@@ -60,7 +184,7 @@ export function ObjectPicker({
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8"
     >
       <div 
-        className="flex flex-col w-full max-w-5xl max-h-[70vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        className="flex flex-col w-full max-w-7xl max-h-[85vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
@@ -80,7 +204,7 @@ export function ObjectPicker({
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Search & Close */}
+          {/* Search, Upload & Close */}
           <div className="flex items-center gap-3">
             <div className="relative">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40">
@@ -94,6 +218,44 @@ export function ObjectPicker({
                 className="w-44 h-10 pl-9 pr-4 bg-[#0d0d0f] border-white/10 rounded-xl text-sm placeholder:text-white/40 focus:border-white/20 focus:ring-0"
               />
             </div>
+            {onUploadImage && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                />
+                <button
+                  onClick={handleUploadClick}
+                  disabled={isUploading || !canAddMore}
+                  className={cn(
+                    'flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all',
+                    isUploading || !canAddMore
+                      ? 'bg-white/5 text-white/40 cursor-not-allowed'
+                      : 'bg-[var(--purple-500)]/20 text-[var(--purple-400)] hover:bg-[var(--purple-500)]/30 border border-[var(--purple-500)]/30'
+                  )}
+                >
+                  {isUploading ? (
+                    <>
+                      <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span>Uploading...</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4">
+                        <path d="M9.25 13.25a.75.75 0 001.5 0V4.636l2.955 2.955a.75.75 0 101.06-1.06l-4.25-4.25a.75.75 0 00-1.06 0l-4.25 4.25a.75.75 0 001.06 1.06l2.955-2.955V13.25zM3.75 15.5a.75.75 0 000 1.5h12.5a.75.75 0 000-1.5H3.75z" />
+                      </svg>
+                      <span>Upload</span>
+                    </>
+                  )}
+                </button>
+              </>
+            )}
             <button
               onClick={onClose}
               className="flex items-center justify-center h-10 w-10 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-colors"
@@ -171,6 +333,19 @@ export function ObjectPicker({
           </button>
         </div>
       </div>
+
+      {/* Upload Consent Dialog */}
+      <UploadConsentDialog
+        isOpen={showConsentDialog}
+        onAccept={handleConsentAccept}
+        onReject={() => {
+          setShowConsentDialog(false);
+          setPendingFile(null);
+          if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+          }
+        }}
+      />
     </div>,
     document.body
   );

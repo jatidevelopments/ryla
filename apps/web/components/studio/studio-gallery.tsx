@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import Link from 'next/link';
-import { cn, RylaButton } from '@ryla/ui';
+import { cn } from '@ryla/ui';
 import { StudioImageCard, type StudioImage } from './studio-image-card';
 import type { ViewMode } from './studio-toolbar';
 
@@ -29,14 +28,14 @@ export function StudioGallery({
 }: StudioGalleryProps) {
   // Calculate grid columns based on view mode
   const gridClasses = {
-    grid: 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6',
-    large: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-    masonry: 'columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-6',
+    grid: 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
+    large: 'grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3',
+    masonry: 'columns-2 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5',
   };
 
   if (isLoading) {
     return (
-      <div className={cn('grid gap-4', gridClasses.grid, className)}>
+      <div className={cn('grid gap-3', gridClasses.grid, className)}>
         {Array.from({ length: 18 }).map((_, i) => (
           <div
             key={i}
@@ -78,17 +77,9 @@ export function StudioGallery({
             </svg>
           </div>
           <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-3">No images yet</h3>
-          <p className="text-[var(--text-secondary)] max-w-md mx-auto mb-8">
+          <p className="text-[var(--text-secondary)] max-w-md mx-auto">
             Start generating stunning images for your AI influencers. Each creation will appear here in your personal studio.
           </p>
-          <RylaButton asChild variant="gradient" size="xl">
-            <Link href="/dashboard">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="mr-2 h-5 w-5">
-                <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684z" />
-              </svg>
-              Start Creating
-            </Link>
-          </RylaButton>
         </div>
       </div>
     );
@@ -97,7 +88,7 @@ export function StudioGallery({
   // Masonry layout
   if (viewMode === 'masonry') {
     return (
-      <div className={cn('gap-4', gridClasses.masonry, className)}>
+      <div className={cn('gap-3', gridClasses.masonry, className)}>
         {images.map((image, index) => (
           <div 
             key={image.id} 
@@ -121,7 +112,7 @@ export function StudioGallery({
   return (
     <div
       className={cn(
-        'grid gap-4',
+        'grid gap-3',
         viewMode === 'large' ? gridClasses.large : gridClasses.grid,
         className
       )}

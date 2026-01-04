@@ -8,8 +8,11 @@
 import { z } from 'zod';
 import { eq } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
+import { randomUUID } from 'crypto';
+import { S3Client, PutObjectCommand, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { users } from '@ryla/data';
+import { users, images, ImagesRepository } from '@ryla/data';
 
 import { router, publicProcedure, protectedProcedure } from '../trpc';
 
@@ -217,5 +220,195 @@ export const userRouter = router({
         success: true,
         settings: newSettings,
       };
+    }),
+
+  /**
+   * Check if user has accepted upload consent
+   */
+  hasUploadConsent: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.query.users.findFirst({
+      where: eq(users.id, ctx.user.id),
+      columns: { settings: true },
+    });
+
+    const settings = user?.settings ? JSON.parse(user.settings) : {};
+    return {
+      hasConsent: settings.uploadConsent?.accepted === true,
+      acceptedAt: settings.uploadConsent?.acceptedAt || null,
+    };
+  }),
+
+  /**
+   * Accept upload consent (one-time acceptance)
+   */
+  acceptUploadConsent: protectedProcedure.mutation(async ({ ctx }) => {
+    const user = await ctx.db.query.users.findFirst({
+      where: eq(users.id, ctx.user.id),
+      columns: { settings: true },
+    });
+
+    const currentSettings = user?.settings ? JSON.parse(user.settings) : {};
+
+    // Only update if not already accepted
+    if (currentSettings.uploadConsent?.accepted !== true) {
+      const newSettings = {
+        ...currentSettings,
+        uploadConsent: {
+          accepted: true,
+          acceptedAt: new Date().toISOString(),
+        },
+      };
+
+      await ctx.db
+        .update(users)
+        .set({
+          settings: JSON.stringify(newSettings),
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, ctx.user.id));
+
+      return {
+        success: true,
+        acceptedAt: newSettings.uploadConsent.acceptedAt,
+      };
+    }
+
+      return {
+        success: true,
+        acceptedAt: currentSettings.uploadConsent?.acceptedAt || null,
+        alreadyAccepted: true,
+      };
+  }),
+
+  /**
+   * Upload user image for object selection
+   * Accepts base64 image data
+   */
+  uploadObjectImage: protectedProcedure
+    .input(
+      z.object({
+        imageBase64: z.string(), // data:image/png;base64,... format
+        name: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Check consent first
+      const user = await ctx.db.query.users.findFirst({
+        where: eq(users.id, ctx.user.id),
+        columns: { settings: true },
+      });
+
+      const settings = user?.settings ? JSON.parse(user.settings) : {};
+      if (settings.uploadConsent?.accepted !== true) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Upload consent not accepted. Please accept the consent first.',
+        });
+      }
+
+      // Parse base64 data URL
+      const base64Match = input.imageBase64.match(/^data:image\/(\w+);base64,(.+)$/);
+      if (!base64Match) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Invalid base64 image format',
+        });
+      }
+
+      const [, imageType, base64Data] = base64Match;
+      const buffer = Buffer.from(base64Data, 'base64');
+
+      // Create S3 client (same pattern as bug-report router)
+      const accessKeyId = process.env.AWS_S3_ACCESS_KEY;
+      const secretAccessKey = process.env.AWS_S3_SECRET_KEY;
+      const endpoint = process.env.AWS_S3_ENDPOINT;
+      const region = process.env.AWS_S3_REGION || 'us-east-1';
+      const bucketName = process.env.AWS_S3_BUCKET_NAME || 'ryla-images';
+
+      if (!accessKeyId || !secretAccessKey) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'S3 storage not configured',
+        });
+      }
+
+      const s3Client = new S3Client({
+        region,
+        endpoint,
+        credentials: {
+          accessKeyId,
+          secretAccessKey,
+        },
+        forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true', // For MinIO
+      });
+
+      // Build storage path: users/{userId}/user-uploads/{filename}
+      const imageId = randomUUID();
+      const timestamp = Date.now();
+      const shortId = imageId.slice(0, 8);
+      const extension = imageType === 'jpeg' ? '.jpg' : `.${imageType}`;
+      const filename = `user-upload_${timestamp}_${shortId}${extension}`;
+      const key = `users/${ctx.user.id}/user-uploads/${filename}`;
+
+      // Determine content type
+      const contentType = imageType === 'jpeg' ? 'image/jpeg' : `image/${imageType}`;
+
+      try {
+        // Upload to S3/MinIO
+        await s3Client.send(
+          new PutObjectCommand({
+            Bucket: bucketName,
+            Key: key,
+            Body: buffer,
+            ContentType: contentType,
+          })
+        );
+
+        // Get signed URL (valid for 1 year)
+        const getObjectCommand = new GetObjectCommand({
+          Bucket: bucketName,
+          Key: key,
+        });
+        const url = await getSignedUrl(s3Client, getObjectCommand, { expiresIn: 31536000 });
+
+        // Store image metadata in database
+        const imagesRepo = new ImagesRepository(ctx.db);
+        const imageRow = await imagesRepo.createImage({
+          userId: ctx.user.id,
+          characterId: null, // User uploads are not tied to a character
+          s3Key: key,
+          s3Url: url,
+          thumbnailKey: key, // Use same key for thumbnail (can add resizing later)
+          thumbnailUrl: url,
+          prompt: input.name || 'User Uploaded Image',
+          negativePrompt: null,
+          seed: null,
+          width: null, // Could extract from image if needed
+          height: null,
+          status: 'completed',
+          scene: null, // User uploads don't have scene/environment/outfit
+          environment: null,
+          outfit: null,
+          aspectRatio: null,
+          qualityMode: null,
+          nsfw: false,
+          sourceImageId: null,
+          editType: null,
+          editMaskS3Key: null,
+        });
+
+        return {
+          id: imageRow.id,
+          imageUrl: url,
+          thumbnailUrl: url,
+          name: input.name || 'Uploaded Image',
+          createdAt: imageRow.createdAt.toISOString(),
+        };
+      } catch (error: any) {
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: `Failed to upload image: ${error.message}`,
+        });
+      }
     }),
 });

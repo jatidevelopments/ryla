@@ -18,6 +18,8 @@ import { ImageGalleryModule } from './image-gallery/image-gallery.module';
 import { NotificationModule } from './notification/notification.module';
 import { CronModule } from './cron/cron.module';
 import { PromptsModule } from './prompts/prompts.module';
+import { OutfitPresetsModule } from './outfit-presets/outfit-presets.module';
+import { VoiceTranscriptionModule } from './voice-transcription/voice-transcription.module';
 
 @Module({
   imports: [
@@ -45,6 +47,8 @@ import { PromptsModule } from './prompts/prompts.module';
     NotificationModule,
     CronModule,
     PromptsModule,
+    OutfitPresetsModule,
+    VoiceTranscriptionModule,
     ThrottlerConfigModule,
   ],
   providers: [

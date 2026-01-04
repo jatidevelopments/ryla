@@ -52,6 +52,34 @@ const VISUAL_STYLE_PROMPTS: Record<string, string> = {
   'soft-glam': 'soft glam makeup, elegant beauty, professional portrait, soft lighting, high fashion',
   'editorial': 'editorial fashion photography, high fashion aesthetic, clean composition, professional studio',
   'retro-film': 'retro film camera aesthetic, vintage colors, film grain, nostalgic photography style',
+  // Camera Presets
+  'polaroid': 'Polaroid instant photo aesthetic, nostalgic vintage, square format, retro colors, authentic instant photography',
+  'disposable-camera': 'disposable camera aesthetic, authentic mobile photography, casual lifestyle, natural colors',
+  'film-grain': 'film grain aesthetic, vintage film texture, classic photography, nostalgic feel',
+  'gopro': 'GoPro action camera style, wide-angle view, action sports aesthetic, dynamic perspective',
+  'vintage-camera': 'vintage camera aesthetic, retro photography, classic film look, nostalgic colors',
+  // Social Media Trends
+  'cottagecore': 'cottagecore aesthetic, cozy rural lifestyle, natural textures, soft colors, pastoral atmosphere',
+  'dark-academia': 'dark academia aesthetic, scholarly atmosphere, vintage library, moody lighting, intellectual',
+  'light-academia': 'light academia aesthetic, bright scholarly atmosphere, clean aesthetic, intellectual elegance',
+  'clean-girl': 'clean girl aesthetic, minimal makeup, natural beauty, fresh and clean, modern simplicity',
+  'indie-sleaze': 'indie sleaze aesthetic, alternative style, edgy fashion, underground culture, raw authenticity',
+  'coquette': 'coquette aesthetic, feminine delicate style, soft pastels, romantic vintage, playful elegance',
+  'minimalist': 'minimalist style, clean simple composition, less is more, modern simplicity, elegant restraint',
+  'maximalist': 'maximalist style, bold vibrant colors, rich patterns, layered textures, expressive abundance',
+  // Artistic
+  'watercolor': 'watercolor painting effect, soft brush strokes, artistic watercolor style, dreamy colors',
+  'oil-painting': 'oil painting style, classic fine art, rich textures, traditional painting aesthetic',
+  'sketch': 'pencil sketch artistic style, hand-drawn illustration, artistic line work, creative drawing',
+  'pop-art': 'pop art style, vibrant bold colors, graphic design, Andy Warhol aesthetic, modern art',
+  'cyberpunk': 'cyberpunk aesthetic, futuristic neon, high-tech low-life, dystopian future, sci-fi',
+  'steampunk': 'steampunk aesthetic, retro-futuristic, Victorian era meets technology, brass and gears',
+  // Mood
+  'dreamy': 'dreamy soft focus aesthetic, ethereal atmosphere, soft blur, romantic dream-like quality',
+  'moody-dark': 'moody dark tones, dramatic shadows, low key lighting, atmospheric darkness, cinematic mood',
+  'pastel': 'pastel colors, soft gentle hues, light and airy, delicate color palette, sweet aesthetic',
+  'high-contrast': 'high contrast photography, bold dramatic lighting, strong shadows and highlights, striking composition',
+  'monochrome': 'monochrome black and white, timeless classic, elegant simplicity, artistic grayscale',
 };
 
 // Scene prompts
@@ -70,6 +98,30 @@ const SCENE_PROMPTS: Record<string, string> = {
   'dark-studio': 'dark studio background, moody lighting, dramatic shadows, professional photography',
   'cyberpunk-city': 'futuristic cyberpunk city, neon lights, high-tech aesthetic, night scene',
   'enchanted-forest': 'magical enchanted forest, fairy tale atmosphere, mystical lighting, fantasy setting',
+  // Additional Outdoor scenes
+  'mountain-view': 'mountain vista scenic view, majestic peaks, natural landscape, breathtaking scenery',
+  'desert-sunset': 'desert at sunset, dramatic golden hour, sand dunes, warm colors, serene desert atmosphere',
+  'lake-side': 'lakeside peaceful scene, calm water, natural setting, serene atmosphere, tranquil nature',
+  'urban-park': 'urban city park, green space in city, trees and grass, peaceful urban oasis',
+  'beach-day': 'beach during day, bright sunny beach, ocean waves, sand, vibrant beach scene',
+  'snow-scene': 'snowy landscape, winter scene, snow-covered ground, cold atmosphere, winter wonderland',
+  // Additional Indoor scenes
+  'modern-kitchen': 'modern kitchen interior, clean contemporary design, bright lighting, stylish kitchen',
+  'home-office': 'home office interior, professional workspace, modern desk setup, comfortable work environment',
+  'bathroom-mirror': 'bathroom mirror scene, intimate setting, modern bathroom, reflective surfaces',
+  'library': 'library interior, bookshelves, intellectual atmosphere, quiet study space, scholarly environment',
+  'art-gallery': 'art gallery interior, sophisticated space, white walls, elegant exhibition space',
+  'boutique-shop': 'boutique store interior, fashionable retail space, stylish shop, curated displays',
+  // Additional Urban scenes
+  'subway-station': 'subway metro station, urban transit, underground railway, city transportation',
+  'street-market': 'street market scene, vibrant market, vendors and stalls, bustling urban market',
+  'bridge-view': 'bridge with city view, iconic bridge, urban landscape, architectural landmark',
+  'parking-garage': 'parking garage interior, industrial urban space, concrete structure, urban infrastructure',
+  // Additional Fantasy/Creative scenes
+  'underwater': 'underwater scene, ethereal aquatic environment, floating in water, dreamy underwater atmosphere',
+  'space-station': 'space station interior, futuristic space environment, sci-fi setting, high-tech space',
+  'medieval-castle': 'medieval castle interior, historical architecture, stone walls, ancient castle atmosphere',
+  'tropical-paradise': 'tropical paradise scene, exotic island, palm trees, paradise beach, tropical vacation',
 };
 
 // Lighting prompts
@@ -84,6 +136,23 @@ const LIGHTING_PROMPTS: Record<string, string> = {
   'soft-diffused': 'soft diffused lighting, gentle shadows, flattering light, elegant atmosphere',
   'cinematic-moody': 'cinematic moody lighting, film noir aesthetic, dramatic shadows, artistic composition',
   'backlit-silhouette': 'backlit silhouette, rim lighting, dramatic contrast, artistic portrait',
+  // Natural Lighting
+  'sunrise': 'sunrise lighting, warm morning glow, soft golden light, peaceful morning atmosphere',
+  'midday': 'bright midday sun, clear daylight, strong natural light, bright and clear',
+  'cloudy-day': 'cloudy diffused light, soft overcast lighting, even natural light, gentle shadows',
+  'stormy': 'stormy dramatic lighting, dark clouds, dramatic atmosphere, moody storm lighting',
+  // Studio Lighting
+  'beauty-dish': 'beauty dish lighting, glamorous portrait lighting, professional beauty photography, flattering light',
+  'butterfly': 'butterfly lighting, flattering portrait light, professional photography, elegant lighting setup',
+  'rim-light': 'rim lighting, edge glow, dramatic rim light effect, artistic portrait lighting',
+  'split-light': 'split lighting, dramatic half-light, high contrast, cinematic split lighting',
+  // Creative Lighting
+  'firelight': 'firelight glow, warm fire illumination, cozy firelight, warm intimate lighting',
+  'candlelight': 'candlelight, intimate candle glow, soft warm light, romantic candlelit atmosphere',
+  'strobe': 'strobe effect, high-energy flash lighting, dynamic strobe, dramatic flash effect',
+  'colored-gel': 'colored gel lighting, creative colored lights, artistic color lighting, vibrant gel colors',
+  'sunset-glow': 'sunset glow lighting, warm sunset colors, golden hour glow, romantic sunset atmosphere',
+  'moonlight': 'moonlight, cool moon glow, night lighting, ethereal moonlit atmosphere, cool blue tones',
 };
 
 interface PresetAsset {
@@ -94,39 +163,95 @@ interface PresetAsset {
   outputPath: string;
 }
 
+function getClothingForStyle(styleId: string): string {
+  // Style-appropriate clothing
+  const styleClothing: Record<string, string> = {
+    'bimbocore': 'glamorous outfit, trendy fashion, stylish clothing, fashionable attire',
+    'tokyo-street': 'streetwear, urban fashion, trendy casual outfit, modern street style',
+    'y2k': 'Y2K fashion, retro outfit, early 2000s style clothing, nostalgic fashion',
+    'vaporwave': 'retro futuristic outfit, synthwave style clothing, aesthetic fashion',
+    'soft-glam': 'elegant outfit, glamorous attire, sophisticated clothing, fashion-forward',
+    'editorial': 'high fashion outfit, editorial style clothing, designer fashion, runway style',
+    'retro-film': 'vintage outfit, retro clothing, classic fashion, nostalgic attire',
+    'iphone': 'casual everyday outfit, comfortable clothing, modern casual wear',
+    'digitalcam': 'stylish casual outfit, modern fashion, contemporary clothing',
+    'sunset-beach': 'beachwear, casual summer outfit, relaxed vacation clothing, beach appropriate attire',
+    'mt-fuji': 'casual comfortable outfit, relaxed clothing, everyday wear',
+    'flight-mode': 'travel outfit, comfortable travel clothing, casual travel wear',
+    'street-view': 'urban casual outfit, street style clothing, modern casual wear',
+    'cctv': 'casual everyday outfit, normal clothing, everyday attire',
+    'elevator-mirror': 'stylish outfit, fashionable clothing, modern casual wear',
+    'ringselfie': 'casual outfit, everyday clothing, comfortable stylish wear',
+    'golden-hour': 'casual elegant outfit, comfortable stylish clothing, relaxed fashion',
+    'neon-nights': 'nightlife outfit, trendy clothing, stylish night wear, fashionable attire',
+  };
+
+  return styleClothing[styleId] || 'casual outfit, comfortable everyday clothing, stylish modern fashion, well-fitted clothes, appropriate attire';
+}
+
+function getClothingForScene(sceneId: string): string {
+  // Scene-appropriate clothing
+  const sceneClothing: Record<string, string> = {
+    'beach-sunset': 'beachwear, swimsuit or beach cover-up, casual summer outfit, beach appropriate clothing',
+    'city-rooftop': 'stylish urban outfit, fashionable clothing, modern casual wear, city style',
+    'cozy-cafe': 'casual comfortable outfit, relaxed clothing, cozy everyday wear, comfortable attire',
+    'white-studio': 'stylish outfit, fashionable clothing, modern casual wear, studio appropriate',
+    'neon-alley': 'urban streetwear, trendy outfit, nightlife clothing, stylish casual wear',
+    'forest-path': 'casual outdoor outfit, comfortable clothing, nature-appropriate attire, relaxed wear',
+    'luxury-bedroom': 'elegant loungewear, sophisticated comfortable clothing, luxury casual wear',
+    'gym': 'athletic wear, sportswear, active clothing, fitness outfit, workout attire',
+    'pool-party': 'swimwear, pool party outfit, beachwear, casual summer clothing',
+    'paris-street': 'elegant casual outfit, Parisian style clothing, sophisticated fashion, chic attire',
+    'japanese-garden': 'casual comfortable outfit, relaxed clothing, peaceful everyday wear',
+    'dark-studio': 'stylish outfit, fashionable clothing, modern casual wear, studio appropriate',
+    'cyberpunk-city': 'futuristic outfit, cyberpunk style clothing, edgy fashion, urban tech wear',
+    'enchanted-forest': 'casual fantasy outfit, comfortable clothing, nature-appropriate attire',
+  };
+
+  return sceneClothing[sceneId] || 'casual outfit, comfortable everyday clothing, stylish modern fashion, well-fitted clothes, appropriate attire';
+}
+
+function getClothingForLighting(lightingId: string): string {
+  // Lighting-appropriate clothing (generally casual/portrait appropriate)
+  return 'casual outfit, comfortable everyday clothing, stylish modern fashion, well-fitted clothes, appropriate attire, portrait appropriate clothing';
+}
+
 function getAllPresets(characterDescription: string): PresetAsset[] {
   const presets: PresetAsset[] = [];
   const publicDir = path.join(process.cwd(), 'apps', 'web', 'public');
 
-  // Visual Styles - always include the character
+  // Visual Styles - always include the character with appropriate clothing
   Object.entries(VISUAL_STYLE_PROMPTS).forEach(([id, prompt]) => {
+    const clothing = getClothingForStyle(id);
     presets.push({
       id,
       name: id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
       category: 'style',
-      prompt: `${characterDescription}, ${prompt}, full body portrait, clearly visible in the scene, ${BASE_STYLE}`,
+      prompt: `${characterDescription}, ${clothing}, ${prompt}, full body portrait, clearly visible in the scene, ${BASE_STYLE}`,
       outputPath: path.join(publicDir, 'styles', `${id}.webp`),
     });
   });
 
-  // Scenes - always include the character in the scene
+  // Scenes - always include the character in the scene with appropriate clothing
   Object.entries(SCENE_PROMPTS).forEach(([id, prompt]) => {
+    const clothing = getClothingForScene(id);
     presets.push({
       id,
       name: id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
       category: 'scene',
-      prompt: `${characterDescription}, in ${prompt}, full body view, character prominently featured in the scene, ${BASE_STYLE}`,
+      prompt: `${characterDescription}, ${clothing}, in ${prompt}, full body view, character prominently featured in the scene, ${BASE_STYLE}`,
       outputPath: path.join(publicDir, 'scenes', `${id}.webp`),
     });
   });
 
-  // Lighting - always include the character with the lighting effect
+  // Lighting - always include the character with the lighting effect and appropriate clothing
   Object.entries(LIGHTING_PROMPTS).forEach(([id, prompt]) => {
+    const clothing = getClothingForLighting(id);
     presets.push({
       id,
       name: id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
       category: 'lighting',
-      prompt: `${characterDescription}, portrait with ${prompt}, full body view, character clearly visible, ${BASE_STYLE}`,
+      prompt: `${characterDescription}, ${clothing}, portrait with ${prompt}, full body view, character clearly visible, ${BASE_STYLE}`,
       outputPath: path.join(publicDir, 'lighting', `${id}.webp`),
     });
   });
@@ -160,7 +285,7 @@ async function generatePresetThumbnail(
   console.log(`\n📸 Generating: ${presetName}`);
   console.log(`   Prompt: ${prompt.substring(0, 100)}...`);
 
-  const negativePrompt = 'deformed, blurry, bad anatomy, ugly, low quality, watermark, signature, multiple people, extra limbs, distorted face, bad hands, missing fingers, extra fingers, mutated hands, poorly drawn hands, bad proportions, long neck, duplicate, mutilated, disfigured, bad anatomy, out of frame, extra limbs, bad body, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated, ugly, bad face, bad eyes, text, watermark, signature, no person, empty scene, no character';
+  const negativePrompt = 'deformed, blurry, bad anatomy, ugly, low quality, watermark, signature, multiple people, extra limbs, distorted face, bad hands, missing fingers, extra fingers, mutated hands, poorly drawn hands, bad proportions, long neck, duplicate, mutilated, disfigured, bad anatomy, out of frame, extra limbs, bad body, gross proportions, malformed limbs, missing arms, missing legs, extra arms, extra legs, mutated, ugly, bad face, bad eyes, text, watermark, signature, no person, empty scene, no character, nude, naked, no clothing, bare skin, exposed';
 
   // Build Z-Image Turbo workflow
   const workflow = buildZImageSimpleWorkflow({

@@ -14,7 +14,18 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { AwsS3Service } from '../../aws-s3/services/aws-s3.service';
 
-export type ImageCategory = 'base-images' | 'character-sheets' | 'gallery' | 'avatars' | 'profile-pictures';
+export type ImageCategory =
+  | 'base-images'
+  | 'character-sheets'
+  | 'gallery'
+  | 'avatars'
+  | 'profile-pictures'
+  | 'user-uploads'
+  // ComfyUI Studio/inpaint job outputs (legacy naming, kept for backwards compatibility)
+  | 'studio-images'
+  | 'inpaint'
+  // Debug/replay assets for inpaint
+  | 'inpaint-masks';
 
 export interface StoredImage {
   /** S3 key/path */

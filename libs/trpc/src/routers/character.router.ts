@@ -8,28 +8,85 @@
 import { z } from 'zod';
 import { eq, and, isNull, desc, sql, ne, or, inArray } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
+import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { characters, images, NotificationsRepository, type CharacterConfig } from '@ryla/data';
 import type { NotificationType } from '@ryla/data/schema';
 
 import { router, protectedProcedure } from '../trpc';
 
+function tryExtractS3KeyFromStoredUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    // Common local MinIO path-style: http://localhost:9000/ryla-images/<key>
+    const marker = '/ryla-images/';
+    const idx = u.pathname.indexOf(marker);
+    if (idx === -1) return null;
+    const key = u.pathname.slice(idx + marker.length);
+    return key || null;
+  } catch {
+    return null;
+  }
+}
+
+function createS3ClientForSigning() {
+  const accessKeyId = process.env.AWS_S3_ACCESS_KEY;
+  const secretAccessKey = process.env.AWS_S3_SECRET_KEY;
+  const endpoint = process.env.AWS_S3_ENDPOINT;
+  const region = process.env.AWS_S3_REGION || 'us-east-1';
+  const bucketName = process.env.AWS_S3_BUCKET_NAME || 'ryla-images';
+  const urlTtl = Number(process.env.AWS_S3_URL_TTL) || 3600;
+
+  if (!accessKeyId || !secretAccessKey) return null;
+
+  const client = new S3Client({
+    region,
+    endpoint,
+    credentials: { accessKeyId, secretAccessKey },
+    forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true',
+  });
+
+  return { client, bucketName, urlTtl };
+}
+
 // Character configuration schema (matching CharacterConfig interface)
 const characterConfigSchema = z.object({
   gender: z.enum(['female', 'male']).optional(),
   style: z.enum(['realistic', 'anime']).optional(),
+  // Step 2: General (Basic Appearance)
   ethnicity: z.string().optional(),
   age: z.number().min(18).max(80).optional(),
+  ageRange: z.string().optional(),
+  skinColor: z.string().optional(),
+  // Step 3: Face (Facial Features)
+  eyeColor: z.string().optional(),
+  faceShape: z.string().optional(),
+  // Step 4: Hair
   hairStyle: z.string().optional(),
   hairColor: z.string().optional(),
-  eyeColor: z.string().optional(),
+  // Step 5: Body
   bodyType: z.string().optional(),
+  assSize: z.string().optional(),
   breastSize: z.string().optional(),
+  breastType: z.string().optional(),
+  // Step 6: Skin Features
+  freckles: z.string().optional(),
+  scars: z.string().optional(),
+  beautyMarks: z.string().optional(),
+  // Step 7: Body Modifications
+  piercings: z.string().optional(),
+  tattoos: z.string().optional(),
+  // Step 8: Identity
   defaultOutfit: z.string().optional(),
   archetype: z.string().optional(),
   personalityTraits: z.array(z.string()).optional(),
   bio: z.string().max(500).optional(),
   handle: z.string().max(50).optional(),
+  // Advanced (kept for backward compatibility)
+  voice: z.string().optional(),
+  videoContentOptions: z.array(z.string()).optional(),
+  // Settings
   nsfwEnabled: z.boolean().optional(),
   profilePictureSetId: z.enum(['classic-influencer', 'professional-model', 'natural-beauty']).nullable().optional(),
 });
@@ -133,6 +190,29 @@ export const characterRouter = router({
         imageCount: imageCountsMap[item.id] ?? 0,
       }));
 
+      // Re-sign baseImageUrl (it is often stored as a presigned URL and expires)
+      const s3 = createS3ClientForSigning();
+      const itemsWithSignedBaseImage = await Promise.all(
+        itemsWithCounts.map(async (item) => {
+          const baseImageUrl = item.baseImageUrl;
+          if (!baseImageUrl || !s3) return item;
+
+          const key = tryExtractS3KeyFromStoredUrl(baseImageUrl);
+          if (!key) return item;
+
+          try {
+            const url = await getSignedUrl(
+              s3.client,
+              new GetObjectCommand({ Bucket: s3.bucketName, Key: key }),
+              { expiresIn: s3.urlTtl },
+            );
+            return { ...item, baseImageUrl: url };
+          } catch {
+            return item;
+          }
+        }),
+      );
+
       // Get total count
       const [countResult] = await ctx.db
         .select({ count: sql<number>`count(*)` })
@@ -140,7 +220,7 @@ export const characterRouter = router({
         .where(and(...conditions));
 
       return {
-        items: itemsWithCounts,
+        items: itemsWithSignedBaseImage,
         total: Number(countResult?.count ?? 0),
         limit,
         offset,
@@ -187,10 +267,24 @@ export const characterRouter = router({
         console.error('Failed to fetch image count:', error);
       }
 
-      return {
-        ...character,
-        imageCount,
-      };
+      const s3 = createS3ClientForSigning();
+      let baseImageUrl = character.baseImageUrl;
+      if (baseImageUrl && s3) {
+        const key = tryExtractS3KeyFromStoredUrl(baseImageUrl);
+        if (key) {
+          try {
+            baseImageUrl = await getSignedUrl(
+              s3.client,
+              new GetObjectCommand({ Bucket: s3.bucketName, Key: key }),
+              { expiresIn: s3.urlTtl },
+            );
+          } catch {
+            // keep stored value
+          }
+        }
+      }
+
+      return { ...character, baseImageUrl, imageCount };
     }),
 
   /**

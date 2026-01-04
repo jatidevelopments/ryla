@@ -94,22 +94,30 @@ export const characterDNATemplates: Record<string, CharacterDNA> = {
 
 /**
  * Convert character DNA to a prompt segment
+ * 
+ * Token ordering optimized for AI models (most important first):
+ * 1. Age + ethnicity (core identity)
+ * 2. Distinctive features (hair, eyes - most recognizable)
+ * 3. Skin/complexion
+ * 4. Facial features (secondary identity)
+ * 5. Body type (environmental)
  */
 export function dnaToPromptSegment(dna: CharacterDNA): string {
   const parts: string[] = [];
 
-  // Age and ethnicity
+  // Age and ethnicity - core identity first
   if (dna.ethnicity) {
     parts.push(`${dna.age} ${dna.ethnicity} woman`);
   } else {
     parts.push(`${dna.age} woman`);
   }
 
-  // Physical features
+  // Most distinctive/recognizable features next
   parts.push(dna.hair);
   parts.push(dna.eyes);
   parts.push(dna.skin);
 
+  // Secondary features
   if (dna.facialFeatures) {
     parts.push(dna.facialFeatures);
   }
@@ -119,6 +127,42 @@ export function dnaToPromptSegment(dna: CharacterDNA): string {
   }
 
   return parts.join(', ');
+}
+
+/**
+ * Convert character DNA to an enhanced prompt segment for realism
+ * Adds natural skin texture and authentic appearance modifiers
+ */
+export function dnaToRealisticPromptSegment(dna: CharacterDNA): string {
+  const baseParts: string[] = [];
+
+  // Age and ethnicity - core identity first
+  if (dna.ethnicity) {
+    baseParts.push(`${dna.age} ${dna.ethnicity} woman`);
+  } else {
+    baseParts.push(`${dna.age} woman`);
+  }
+
+  // Most distinctive/recognizable features
+  baseParts.push(dna.hair);
+  baseParts.push(dna.eyes);
+  
+  // Enhanced skin description for realism
+  const skinWithTexture = dna.skin.includes('skin') 
+    ? dna.skin.replace('skin', 'skin with natural texture')
+    : `${dna.skin}, natural skin texture`;
+  baseParts.push(skinWithTexture);
+
+  // Secondary features
+  if (dna.facialFeatures) {
+    baseParts.push(dna.facialFeatures);
+  }
+
+  if (dna.bodyType) {
+    baseParts.push(dna.bodyType);
+  }
+
+  return baseParts.join(', ');
 }
 
 /**

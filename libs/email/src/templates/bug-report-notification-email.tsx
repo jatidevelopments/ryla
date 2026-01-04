@@ -154,7 +154,7 @@ BugReportNotificationEmail.PreviewProps = {
   hasScreenshot: true,
   hasLogs: true,
   browserInfo: 'Chrome 120.0.0.0 on macOS',
-  url: 'https://app.ryla.ai/influencer/123/studio',
+  url: 'https://app.ryla.ai/studio?influencer=123',
   viewUrl: 'https://app.ryla.ai/admin/bug-reports/550e8400-e29b-41d4-a716-446655440000',
 } as BugReportNotificationEmailProps;
 

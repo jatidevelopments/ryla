@@ -1,0 +1,138 @@
+---
+description: Test fixtures and accounts for MCP and development testing
+globs:
+alwaysApply: false
+---
+
+# Test Fixtures
+
+## Test User Account
+
+Created via MCP on 2026-01-03 for development and testing.
+
+| Field | Value |
+|-------|-------|
+| **User ID** | `e57e0a15-cb59-4343-9c40-e31f3331086d` |
+| **Email** | `mcptest99@ryla.dev` |
+| **Password** | `TestPass123!` |
+| **Name** | `MCP Tester` |
+| **Public Name** | `mcptester99` |
+| **Role** | `user` |
+| **Created** | `2026-01-03T22:37:46.530Z` |
+
+### Getting a Fresh Token
+
+```bash
+# Via curl
+curl -s -X POST http://localhost:3001/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "mcptest99@ryla.dev", "password": "TestPass123!"}' | jq '.tokens.accessToken'
+
+# Via MCP
+ryla_auth_login(email="mcptest99@ryla.dev", password="TestPass123!")
+```
+
+## Test Influencer
+
+To create a test influencer for the test user, run the character generation flow:
+
+### Via MCP Inspector
+
+1. Login first:
+```
+ryla_auth_login(email="mcptest99@ryla.dev", password="TestPass123!")
+```
+
+2. Copy the `accessToken` and set it as `RYLA_DEV_TOKEN` in env
+
+3. Generate base images:
+```
+ryla_generate_base_images(
+  appearance: {
+    gender: "female",
+    ethnicity: "european",
+    age: 25,
+    bodyType: "athletic",
+    hairColor: "blonde",
+    hairStyle: "long-straight",
+    eyeColor: "blue",
+    skinColor: "fair"
+  },
+  identity: {
+    defaultOutfit: "casual",
+    archetype: "influencer",
+    personalityTraits: ["confident", "friendly"]
+  },
+  nsfwEnabled: false
+)
+```
+
+### Via Web App Wizard
+
+1. Login with test user at `http://localhost:4200`
+2. Go through the character creation wizard
+3. The character will be created with proper images
+
+### Expected Character Data
+
+Once created:
+- **Name**: Luna Test (or as configured)
+- **Handle**: luna_test_mcp
+- **Status**: `ready` (after generation completes)
+
+## Usage in Tests
+
+When writing tests or using MCP tools:
+
+1. **Use the test user** for authenticated requests
+2. **Get fresh token** before testing (tokens expire in 1 hour)
+3. **Create characters** via the wizard flow or generate-base-images endpoint
+
+## MCP Configuration
+
+Add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "ryla-api": {
+      "command": "npx",
+      "args": ["tsx", "/Users/admin/Documents/Projects/RYLA/apps/mcp/src/main.ts"],
+      "env": {
+        "RYLA_API_URL": "http://localhost:3001",
+        "RYLA_DEV_TOKEN": "<access-token-from-login>"
+      }
+    }
+  }
+}
+```
+
+## Refresh Test Token
+
+Tokens expire after 1 hour. To refresh:
+
+```bash
+# Get new token via login
+ryla_auth_login(email="mcptest99@ryla.dev", password="TestPass123!")
+```
+
+## Important Notes
+
+- Test user has **free tier credits** (initial welcome bonus)
+- Email is **not verified** (isEmailVerified: false)
+- Use this account for:
+  - MCP tool testing
+  - API endpoint testing
+  - Development debugging
+  - Integration tests
+
+## Creating Additional Test Users
+
+```bash
+ryla_auth_register(
+  email="test2@ryla.dev",
+  password="TestPass123!",
+  name="Test User 2",
+  publicName="testuser2"
+)
+```

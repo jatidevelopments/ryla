@@ -8,6 +8,7 @@ import {
   Inject,
   ForbiddenException,
   ParseUUIDPipe,
+  Redirect,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
@@ -37,6 +38,17 @@ export class ImageGalleryController {
       user.userId,
     );
     return { images };
+  }
+
+  @Get('images/:imageId/file')
+  @ApiOperation({ summary: 'Get a stable auth-protected image URL (302 redirect to fresh signed URL)' })
+  @Redirect(undefined, 302)
+  public async getImageFileRedirect(
+    @Param('imageId', new ParseUUIDPipe()) imageId: string,
+    @CurrentUser() user: IJwtPayload,
+  ) {
+    const url = await this.imageGalleryService.getImageRedirectUrl(imageId, user.userId);
+    return { url };
   }
 
   @Post('images/:imageId/like')

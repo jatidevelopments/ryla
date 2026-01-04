@@ -11,3 +11,6 @@ export * from './prompts.schema';
 export * from './prompt-sets.schema';
 export * from './notifications.schema';
 export * from './bug-reports.schema';
+export * from './outfit-presets.schema';
+export * from './gallery-favorites.schema';
+export * from './templates.schema';

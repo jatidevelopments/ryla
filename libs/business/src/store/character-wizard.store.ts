@@ -38,7 +38,7 @@ export interface ProfilePictureImage extends GeneratedImage {
 /** Character form data matching the wizard */
 export interface CharacterFormData {
   // Step 0: Creation Method
-  creationMethod: 'presets' | 'prompt-based' | null;
+  creationMethod: 'presets' | 'prompt-based' | 'ai' | 'custom' | null;
 
   // Prompt-based Flow Fields
   promptInput?: string; // Single prompt for character description
@@ -53,18 +53,38 @@ export interface CharacterFormData {
   gender: 'female' | 'male' | null;
   style: 'realistic' | 'anime' | null;
 
-  // Step 2: General
+  // Step 2: General (Basic Appearance)
   ethnicity: string | null;
-  age: number;
+  ageRange: string | null; // Age range instead of age slider
+  age: number; // Keep for backward compatibility
+  skinColor: string | null;
 
-  // Step 3: Face
+  // Step 3: Face (Facial Features)
+  eyeColor: string | null;
+  faceShape: string | null;
+
+  // Step 3.5: Hair (separate step)
   hairStyle: string | null;
   hairColor: string | null;
-  eyeColor: string | null;
 
   // Step 4: Body
   bodyType: string | null;
+  assSize: string | null;
   breastSize: string | null; // Female only
+  breastType: string | null; // Different from breastSize
+
+  // Step 6: Skin Features
+  freckles: string | null;
+  scars: string | null;
+  beautyMarks: string | null;
+
+  // Step 7: Body Modifications
+  piercings: string | null;
+  tattoos: string | null;
+
+  // Step 9: Advanced
+  voice: string | null;
+  videoContentOptions: string[];
 
   // Step 5: Identity
   name: string;
@@ -143,12 +163,15 @@ export interface CharacterWizardState {
 /** Default wizard steps - will be dynamically built based on creation method */
 const PRESETS_STEPS: WizardStep[] = [
   { id: 1, title: 'Style', description: 'Choose gender and style' },
-  { id: 2, title: 'General', description: 'Set ethnicity and age' },
-  { id: 3, title: 'Face', description: 'Design hair and eyes' },
-  { id: 4, title: 'Body', description: 'Define body type' },
-  { id: 5, title: 'Identity', description: 'Add personality and outfit' },
-  { id: 6, title: 'Base Image', description: 'Select your character face' },
-  { id: 7, title: 'Finalize', description: 'Review and create' },
+  { id: 2, title: 'Basic Appearance', description: 'Ethnicity, age, and skin color' },
+  { id: 3, title: 'Facial Features', description: 'Eye color and face shape' },
+  { id: 4, title: 'Hair', description: 'Hair style and color' },
+  { id: 5, title: 'Body', description: 'Body type, ass size, and breast type' },
+  { id: 6, title: 'Skin Features', description: 'Freckles, scars, and beauty marks' },
+  { id: 7, title: 'Body Modifications', description: 'Piercings and tattoos' },
+  { id: 8, title: 'Identity', description: 'Add personality and outfit' },
+  { id: 9, title: 'Base Image', description: 'Select your character face' },
+  { id: 10, title: 'Finalize', description: 'Review and create' },
 ];
 
 const PROMPT_BASED_STEPS: WizardStep[] = [
@@ -188,22 +211,41 @@ function resetStepsFrom(
       form.style = null;
     }
     if (fromStep <= 2) {
-      // Reset general
+      // Reset basic appearance
       form.ethnicity = null;
+      form.ageRange = null;
       form.age = 25; // Reset to default
+      form.skinColor = null;
     }
     if (fromStep <= 3) {
-      // Reset face
-      form.hairStyle = null;
-      form.hairColor = null;
+      // Reset facial features
       form.eyeColor = null;
+      form.faceShape = null;
     }
     if (fromStep <= 4) {
-      // Reset body
-      form.bodyType = null;
-      form.breastSize = null;
+      // Reset hair
+      form.hairStyle = null;
+      form.hairColor = null;
     }
     if (fromStep <= 5) {
+      // Reset body
+      form.bodyType = null;
+      form.assSize = null;
+      form.breastSize = null;
+      form.breastType = null;
+    }
+    if (fromStep <= 6) {
+      // Reset skin features
+      form.freckles = null;
+      form.scars = null;
+      form.beautyMarks = null;
+    }
+    if (fromStep <= 7) {
+      // Reset body modifications
+      form.piercings = null;
+      form.tattoos = null;
+    }
+    if (fromStep <= 8) {
       // Reset identity
       form.name = '';
       form.outfit = null;
@@ -211,12 +253,13 @@ function resetStepsFrom(
       form.personalityTraits = [];
       form.bio = '';
     }
-    if (fromStep <= 6) {
+    if (fromStep <= 9) {
       // Reset base image selection
       state.baseImages = [];
       state.selectedBaseImageId = null;
       state.baseImageFineTunePrompt = '';
     }
+    // Note: NSFW toggle is in finalize step, so it's not reset when going back
     // Profile pictures are generated after creation on the profile page.
   }
 }
@@ -232,18 +275,34 @@ const DEFAULT_FORM: CharacterFormData = {
   customIdentityPrompt: undefined,
   customImagePrompt: undefined,
   // Step 1
-  gender: null,
-  style: null,
-  // Step 2
+  gender: 'female', // Preselected
+  style: 'realistic', // Preselected
+  // Step 2: General (Basic Appearance)
   ethnicity: null,
-  age: 25,
-  // Step 3
+  ageRange: null,
+  age: 25, // Keep for backward compatibility
+  skinColor: null,
+  // Step 3: Face (Facial Features)
+  eyeColor: null,
+  faceShape: null,
+  // Step 3.5: Hair
   hairStyle: null,
   hairColor: null,
-  eyeColor: null,
-  // Step 4
+  // Step 4: Body
   bodyType: null,
+  assSize: null,
   breastSize: null,
+  breastType: null,
+  // Step 6: Skin Features
+  freckles: null,
+  scars: null,
+  beautyMarks: null,
+  // Step 7: Body Modifications
+  piercings: null,
+  tattoos: null,
+  // Step 9: Advanced
+  voice: null,
+  videoContentOptions: [],
   // Step 5
   name: '',
   outfit: null,
@@ -314,11 +373,16 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           state.characterId = id;
         }),
 
-      updateSteps: (method: 'presets' | 'prompt-based') =>
+      updateSteps: (method: 'presets' | 'prompt-based' | 'ai' | 'custom') =>
         set((state) => {
           if (method === 'prompt-based') {
             state.steps = PROMPT_BASED_STEPS;
+          } else if (method === 'ai' || method === 'custom') {
+            // AI and Custom flows use similar steps to prompt-based for now
+            // Can be customized later
+            state.steps = PROMPT_BASED_STEPS;
           } else {
+            // Default to presets
             state.steps = PRESETS_STEPS;
           }
           // Reset to step 1 of the selected flow
@@ -397,6 +461,7 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           // Auto-clear gender-specific fields when gender changes
           if (field === 'gender') {
             state.form.breastSize = null;
+            state.form.breastType = null;
             state.form.bodyType = null;
             state.form.hairStyle = null;
           }
@@ -448,22 +513,58 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
             default:
               return false;
           }
+        } else if (form.creationMethod === 'ai' || form.creationMethod === 'custom') {
+          // AI and Custom flows use similar validation to prompt-based for now
+          switch (step) {
+            case 1: // AI Description or Custom Prompts
+              return true; // Will be validated in their respective components
+            case 2: // Base Image Selection
+              return !!get().selectedBaseImageId;
+            case 3: // Finalize
+              return true;
+            default:
+              return false;
+          }
         } else {
           // Presets flow
           switch (step) {
             case 1: // Style
               return !!form.gender && !!form.style;
-            case 2: // General
-              return !!form.ethnicity && form.age >= 18 && form.age <= 65;
-            case 3: // Face
-              return !!form.hairStyle && !!form.hairColor && !!form.eyeColor;
-            case 4: // Body
-              return !!form.bodyType;
-            case 5: // Identity
-              return !!form.outfit; // Other identity fields optional
-            case 6: // Base Image Selection
+            case 2: // Basic Appearance
+              return (
+                !!form.ethnicity &&
+                !!form.ageRange &&
+                !!form.skinColor
+              );
+            case 3: // Facial Features
+              return !!form.eyeColor && !!form.faceShape;
+            case 4: // Hair
+              return !!form.hairStyle && !!form.hairColor;
+            case 5: // Body
+              return (
+                !!form.bodyType &&
+                !!form.assSize &&
+                (form.gender === 'male' || (!!form.breastSize && !!form.breastType))
+              );
+            case 6: // Skin Features
+              return (
+                !!form.freckles &&
+                !!form.scars &&
+                !!form.beautyMarks
+              );
+            case 7: // Body Modifications
+              return !!form.piercings && !!form.tattoos;
+            case 8: // Identity
+              return (
+                !!form.name?.trim() &&
+                !!form.outfit &&
+                !!form.archetype &&
+                form.personalityTraits.length > 0 &&
+                !!form.bio?.trim()
+              );
+            case 9: // Base Image Selection
               return !!get().selectedBaseImageId;
-            case 7: // Finalize
+            case 10: // Finalize
               return true;
             default:
               return false;
@@ -554,22 +655,58 @@ export const useCanProceed = () => {
       default:
         return false;
     }
+  } else if (form.creationMethod === 'ai' || form.creationMethod === 'custom') {
+    // AI and Custom flows use similar validation to prompt-based for now
+    switch (step) {
+      case 1: // AI Description or Custom Prompts
+        return true; // Will be validated in their respective components
+      case 2: // Base Image Selection
+        return !!selectedBaseImageId;
+      case 3: // Finalize
+        return true;
+      default:
+        return false;
+    }
   } else {
-    // Presets flow
+    // Presets flow - match the isStepValid logic
     switch (step) {
       case 1: // Style
         return !!form.gender && !!form.style;
-      case 2: // General
-        return !!form.ethnicity && form.age >= 18 && form.age <= 65;
-      case 3: // Face
-        return !!form.hairStyle && !!form.hairColor && !!form.eyeColor;
-      case 4: // Body
-        return !!form.bodyType;
-      case 5: // Identity
-        return !!form.outfit; // Other identity fields optional
-      case 6: // Base Image Selection
+      case 2: // Basic Appearance
+        return (
+          !!form.ethnicity &&
+          !!form.ageRange &&
+          !!form.skinColor
+        );
+      case 3: // Facial Features
+        return !!form.eyeColor && !!form.faceShape;
+      case 4: // Hair
+        return !!form.hairStyle && !!form.hairColor;
+      case 5: // Body
+        return (
+          !!form.bodyType &&
+          !!form.assSize &&
+          (form.gender === 'male' || (!!form.breastSize && !!form.breastType))
+        );
+      case 6: // Skin Features
+        return (
+          !!form.freckles &&
+          !!form.scars &&
+          !!form.beautyMarks
+        );
+      case 7: // Body Modifications
+        return !!form.piercings && !!form.tattoos;
+      case 8: // Identity
+        return (
+          !!form.name?.trim() &&
+          !!form.outfit &&
+          !!form.archetype &&
+          form.personalityTraits.length > 0 &&
+          !!form.bio?.trim()
+        );
+      case 9: // Base Image Selection
         return !!selectedBaseImageId;
-      case 7: // Finalize
+      case 10: // Finalize
         return true;
       default:
         return false;

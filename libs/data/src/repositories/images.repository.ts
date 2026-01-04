@@ -10,12 +10,42 @@ export class ImagesRepository {
   constructor(private readonly db: NodePgDatabase<typeof schema>) {}
 
   async createImage(values: Omit<NewImageRow, 'id' | 'createdAt' | 'updatedAt'>) {
-    const result = await this.db
-      .insert(schema.images)
-      .values(values)
-      .returning();
+    try {
+      const result = await this.db
+        .insert(schema.images)
+        .values(values)
+        .returning();
 
-    return result[0];
+      return result[0];
+    } catch (error: any) {
+      // Log detailed error information for debugging
+      console.error('[ImagesRepository.createImage] Error Details:');
+      console.error('  Error name:', error?.name);
+      console.error('  Error message:', error?.message);
+      console.error('  Error code:', error?.code);
+      console.error('  Error detail:', error?.detail);
+      console.error('  Error constraint:', error?.constraint);
+      console.error('  Error column:', error?.column);
+      console.error('  Error table:', error?.table);
+      console.error('  Error cause:', error?.cause);
+      
+      // Check for nested cause (Drizzle wraps errors)
+      if (error?.cause) {
+        console.error('  Cause name:', error.cause?.name);
+        console.error('  Cause message:', error.cause?.message);
+        console.error('  Cause code:', error.cause?.code);
+        console.error('  Cause detail:', error.cause?.detail);
+        console.error('  Cause constraint:', error.cause?.constraint);
+        console.error('  Cause column:', error.cause?.column);
+        console.error('  Cause table:', error.cause?.table);
+      }
+      
+      // Full error object
+      console.error('  Full error:', JSON.stringify(error, Object.getOwnPropertyNames(error), 2));
+      
+      console.error('  Values being inserted:', JSON.stringify(values, null, 2));
+      throw error;
+    }
   }
 
   async getById(input: { id: string; userId: string }) {

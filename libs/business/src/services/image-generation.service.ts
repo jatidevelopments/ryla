@@ -215,7 +215,7 @@ export class ImageGenerationService {
           type: 'generation.completed' as NotificationType,
           title: 'Generation complete',
           body: `Your ${jobType} is ready!`,
-          href: job.characterId ? `/influencer/${job.characterId}/studio` : '/activity',
+          href: job.characterId ? `/studio?influencer=${job.characterId}` : '/activity',
           metadata: {
             generationJobId: job.id,
             characterId: job.characterId,

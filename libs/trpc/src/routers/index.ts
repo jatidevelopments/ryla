@@ -8,3 +8,5 @@ export { promptsRouter } from './prompts.router';
 export { activityRouter } from './activity.router';
 export { notificationsRouter } from './notifications.router';
 export { bugReportRouter } from './bug-report.router';
+export { galleryFavoritesRouter } from './gallery-favorites.router';
+export { templatesRouter } from './templates.router';

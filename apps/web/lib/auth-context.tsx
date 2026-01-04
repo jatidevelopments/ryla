@@ -33,6 +33,7 @@ const PUBLIC_ROUTES = [
   '/',
   '/login',
   '/register',
+  '/auth',
   '/forgot-password',
   '/reset-password',
   '/legal',
@@ -99,9 +100,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const isPublic = isPublicRoute(pathname);
 
     if (!isPublic && !user) {
-      // Redirect to login with return URL
+      // Redirect to auth page with return URL
       const returnUrl = encodeURIComponent(pathname);
-      router.push(`/login?returnUrl=${returnUrl}`);
+      router.push(`/auth?returnUrl=${returnUrl}`);
     }
   }, [isLoading, user, pathname, router]);
 

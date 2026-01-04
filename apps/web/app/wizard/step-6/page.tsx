@@ -2,15 +2,20 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepBaseImageSelection } from '../../../components/wizard/step-base-image-selection';
+import { StepSkinFeatures } from '../../../components/wizard/step-skin-features';
 
 export default function WizardStep6() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
+  const creationMethod = useCharacterWizardStore((s) => s.form.creationMethod);
 
   useEffect(() => {
     setStep(6);
   }, [setStep]);
 
-  return <StepBaseImageSelection />;
-}
+  // Only presets flow uses step 6 (Skin Features)
+  if (creationMethod !== 'presets') {
+    return null;
+  }
 
+  return <StepSkinFeatures />;
+}

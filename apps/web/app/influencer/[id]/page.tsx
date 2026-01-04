@@ -16,10 +16,11 @@ import {
   TabsContent,
 } from '@ryla/ui';
 import { InfluencerProfile } from '../../../components/influencer-profile';
-import { ProfilePicturesPanel } from '../../../components/profile-pictures/profile-pictures-panel';
 import { PostGrid } from '../../../components/post-grid';
 import { ImageGallery } from '../../../components/image-gallery';
 import { ProtectedRoute } from '../../../components/protected-route';
+import { ProfilePictureGenerationIndicator } from '../../../components/profile-picture-generation-indicator';
+import { useProfilePictures } from '@ryla/business';
 import { LayoutGrid, Images, Heart } from 'lucide-react';
 import { trpc } from '../../../lib/trpc';
 import { getCharacterImages, likeImage } from '../../../lib/api/studio';
@@ -47,9 +48,15 @@ function InfluencerProfileContent() {
   const allPosts = useInfluencerPosts(influencerId);
   const likedPosts = useLikedPosts(influencerId);
   
+  // Check if profile pictures are being generated
+  const profilePicturesState = useProfilePictures(influencerId);
+  const isGeneratingProfilePictures = profilePicturesState?.status === 'generating';
+  const previousCompletedCount = React.useRef<number>(0);
+  
   // Fetch images from database instead of local store
   const [dbImages, setDbImages] = React.useState<Post[]>([]);
   const [isLoadingImages, setIsLoadingImages] = React.useState(true);
+  const loadingRef = React.useRef(false);
   
   // Get image count from character query (includes imageCount) or fallback to images length
   const imageCount = React.useMemo(() => {
@@ -59,10 +66,23 @@ function InfluencerProfileContent() {
     return dbImages.length;
   }, [character, dbImages.length]);
   
+  // Use refs to access latest values without recreating callback
+  const influencerRef = React.useRef(influencer);
+  const updateInfluencerRef = React.useRef(updateInfluencer);
+  
+  React.useEffect(() => {
+    influencerRef.current = influencer;
+    updateInfluencerRef.current = updateInfluencer;
+  }, [influencer, updateInfluencer]);
+  
   const loadImages = React.useCallback(async () => {
     if (!influencerId) return;
     
+    // Prevent multiple simultaneous loads using ref
+    if (loadingRef.current) return;
+    
     try {
+      loadingRef.current = true;
       setIsLoadingImages(true);
       const rows = await getCharacterImages(influencerId);
       // Convert ApiImageRow[] to Post[]
@@ -80,34 +100,70 @@ function InfluencerProfileContent() {
       }));
       setDbImages(converted);
       
-      // Update influencer imageCount in store
-      if (influencer) {
-        updateInfluencer(influencerId, { imageCount: converted.length });
+      // Update influencer imageCount in store using ref to avoid dependency
+      if (influencerRef.current) {
+        updateInfluencerRef.current(influencerId, { imageCount: converted.length });
       }
     } catch (error) {
       console.error('Failed to load images:', error);
       setDbImages([]);
     } finally {
       setIsLoadingImages(false);
+      loadingRef.current = false;
     }
-  }, [influencerId, influencer, updateInfluencer]);
+  }, [influencerId]); // Only depend on influencerId
   
-  // Load images on mount and when influencerId changes
+  // Load images on mount and when influencerId changes (only once per influencerId)
   React.useEffect(() => {
-    loadImages();
-  }, [loadImages]);
-  
-  // Refresh images when page comes into focus (e.g., returning from studio)
-  React.useEffect(() => {
-    const handleFocus = () => {
+    if (influencerId && !loadingRef.current) {
       loadImages();
-    };
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [loadImages]);
+    }
+  }, [influencerId, loadImages]);
   
-  const allImages = dbImages;
-  const likedImages = allImages.filter((img) => img.isLiked);
+  // Reset images when influencerId changes
+  React.useEffect(() => {
+    setDbImages([]);
+    setIsLoadingImages(true);
+    loadingRef.current = false;
+    previousCompletedCount.current = 0;
+  }, [influencerId]);
+
+  // Push-based refresh: Watch for new images being added to the store
+  // When completedCount increases, trigger a gallery refresh
+  React.useEffect(() => {
+    if (!profilePicturesState || !influencerId) return;
+    
+    const currentCompletedCount = profilePicturesState.completedCount || 0;
+    
+    // If a new image was completed (count increased), refresh the gallery
+    if (
+      currentCompletedCount > previousCompletedCount.current &&
+      !loadingRef.current
+    ) {
+      previousCompletedCount.current = currentCompletedCount;
+      loadImages();
+    }
+    
+    // Also refresh when generation completes to ensure all images are loaded
+    if (
+      profilePicturesState.status === 'completed' &&
+      previousCompletedCount.current < (profilePicturesState.totalCount || 0) &&
+      !loadingRef.current
+    ) {
+      previousCompletedCount.current = profilePicturesState.totalCount || 0;
+      loadImages();
+    }
+  }, [
+    profilePicturesState?.completedCount,
+    profilePicturesState?.status,
+    profilePicturesState?.totalCount,
+    influencerId,
+    loadImages,
+  ]);
+  
+  // Memoize images to prevent unnecessary re-renders
+  const allImages = React.useMemo(() => dbImages, [dbImages]);
+  const likedImages = React.useMemo(() => allImages.filter((img) => img.isLiked), [allImages]);
   
   // Handle like toggle - sync with database
   const handleImageLike = async (imageId: string) => {
@@ -177,14 +233,32 @@ function InfluencerProfileContent() {
     <>
       {/* Profile Header */}
       <InfluencerProfile influencer={influencer} />
-      <ProfilePicturesPanel influencer={influencer} />
 
       {/* Content */}
       <PageContainer>
-        <Tabs defaultValue="posts" className="mt-8">
+        {/* Profile Picture Generation Indicator */}
+        <div className="mt-8 mb-6">
+          <ProfilePictureGenerationIndicator influencerId={influencerId} />
+        </div>
+
+        <Tabs defaultValue="gallery" className="mt-8">
           {/* Tab Navigation */}
           <div className="mb-8">
             <TabsList className="inline-flex h-auto bg-[var(--bg-subtle)] border border-[var(--border-default)] rounded-xl p-1 gap-1">
+              {/* Gallery Tab - First */}
+              <TabsTrigger
+                value="gallery"
+                className="relative rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-[var(--bg-surface)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-sm data-[state=inactive]:text-[var(--text-secondary)] data-[state=inactive]:hover:text-[var(--text-primary)]"
+              >
+                <span className="flex items-center gap-2">
+                  <Images className="h-4 w-4" />
+                  <span className="hidden sm:inline">Gallery</span>
+                  <span className="inline-flex items-center justify-center rounded-full bg-[var(--purple-500)]/10 px-2 py-0.5 text-xs font-medium text-[var(--purple-400)]">
+                    {allImages.length}
+                  </span>
+                </span>
+              </TabsTrigger>
+
               {/* Posts Tab */}
               <TabsTrigger
                 value="posts"
@@ -195,20 +269,6 @@ function InfluencerProfileContent() {
                   <span className="hidden sm:inline">Posts</span>
                   <span className="inline-flex items-center justify-center rounded-full bg-[var(--purple-500)]/10 px-2 py-0.5 text-xs font-medium text-[var(--purple-400)]">
                     {allPosts.length}
-                  </span>
-                </span>
-              </TabsTrigger>
-
-              {/* Gallery Tab */}
-              <TabsTrigger
-                value="gallery"
-                className="relative rounded-lg px-4 py-2.5 text-sm font-medium transition-all duration-200 data-[state=active]:bg-[var(--bg-surface)] data-[state=active]:text-[var(--text-primary)] data-[state=active]:shadow-sm data-[state=inactive]:text-[var(--text-secondary)] data-[state=inactive]:hover:text-[var(--text-primary)]"
-              >
-                <span className="flex items-center gap-2">
-                  <Images className="h-4 w-4" />
-                  <span className="hidden sm:inline">Gallery</span>
-                  <span className="inline-flex items-center justify-center rounded-full bg-[var(--purple-500)]/10 px-2 py-0.5 text-xs font-medium text-[var(--purple-400)]">
-                    {allImages.length}
                   </span>
                 </span>
               </TabsTrigger>
@@ -229,20 +289,7 @@ function InfluencerProfileContent() {
             </TabsList>
           </div>
 
-          {/* Posts Content */}
-          <TabsContent value="posts" className="mt-0">
-            <PostGrid
-              posts={allPosts}
-              onExport={handleExport}
-              emptyMessage="No posts yet"
-              emptyAction={{
-                label: 'Create First Post',
-                href: `/influencer/${influencerId}/studio`,
-              }}
-            />
-          </TabsContent>
-
-          {/* Gallery Content */}
+          {/* Gallery Content - First */}
           <TabsContent value="gallery" className="mt-0">
             {isLoadingImages ? (
               <div className="flex items-center justify-center py-16">
@@ -255,11 +302,20 @@ function InfluencerProfileContent() {
                 emptyMessage="No images generated yet"
                 emptyAction={{
                   label: 'Generate Images',
-                  href: `/influencer/${influencerId}/studio`,
+                  href: `/studio?influencer=${influencerId}`,
                 }}
                 onLike={handleImageLike}
               />
             )}
+          </TabsContent>
+
+          {/* Posts Content */}
+          <TabsContent value="posts" className="mt-0">
+            <PostGrid
+              posts={allPosts}
+              onExport={handleExport}
+              emptyMessage="No posts yet"
+            />
           </TabsContent>
 
           {/* Liked Content */}

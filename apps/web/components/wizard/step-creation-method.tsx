@@ -30,12 +30,12 @@ const creationMethods = [
     ),
   },
   {
-    id: 'prompt-based',
-    value: 'prompt-based' as const,
-    label: 'Create with Prompt',
-    description: 'Describe your character in your own words (voice memo coming soon)',
-    bestFor: 'Quick start',
-    gradient: 'from-cyan-500 to-blue-600',
+    id: 'custom',
+    value: 'custom' as const,
+    label: 'Create with Custom Prompts',
+    description: 'Full control with custom prompts',
+    bestFor: 'Advanced users',
+    gradient: 'from-orange-500 to-red-500',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
         <path
@@ -61,7 +61,7 @@ export function StepCreationMethod() {
   const updateSteps = useCharacterWizardStore((s) => s.updateSteps);
   const nextStep = useCharacterWizardStore((s) => s.nextStep);
 
-  const handleMethodSelect = (method: 'presets' | 'prompt-based') => {
+  const handleMethodSelect = (method: 'presets' | 'custom') => {
     setField('creationMethod', method);
     updateSteps(method);
     nextStep();
