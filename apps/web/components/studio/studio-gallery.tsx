@@ -88,7 +88,10 @@ export function StudioGallery({
   // Masonry layout
   if (viewMode === 'masonry') {
     return (
-      <div className={cn('gap-3', gridClasses.masonry, className)}>
+      <div 
+        className={cn('gap-3', gridClasses.masonry, className)}
+        data-tutorial-target="gallery"
+      >
         {images.map((image, index) => (
           <div 
             key={image.id} 

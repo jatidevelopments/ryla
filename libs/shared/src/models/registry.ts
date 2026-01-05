@@ -390,6 +390,8 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     capabilities: ['text-to-image', 'editing'],
     inputType: 'text',
     outputType: 'image',
+    isMVP: true, // Available in MVP studio
+    supportsNSFW: false, // Seedream has strict content filtering
     estimatedCredits1MP: 4,
     pricingInfo: {
       costPerImage: 0.04,

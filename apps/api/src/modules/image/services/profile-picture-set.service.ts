@@ -12,7 +12,7 @@ import {
   getProfilePictureSet,
   ProfilePictureSet,
   buildWorkflow,
-  buildZImagePuLIDWorkflow,
+  buildZImageInstantIDWorkflow,
   WorkflowId,
   PromptBuilder,
   CharacterDNA,
@@ -225,6 +225,14 @@ export class ProfilePictureSetService {
     const cfg = input.cfg ?? 1.0;
     const defaultSize = generationMode === 'fast' ? 768 : 1024;
 
+    // For consistent mode, use Z-Image InstantID workflow
+    // InstantID works better than PuLID for single-image workflows and extreme angles
+    if (generationMode === 'consistent') {
+      this.logger.log(
+        `Using Z-Image InstantID workflow for consistent mode (better than PuLID)`
+      );
+    }
+
     const workflows = allImages.map((imageData) => {
       const { width, height } = this.getDimensionsForPosition(
         imageData.position,
@@ -248,12 +256,13 @@ export class ProfilePictureSetService {
         });
       }
 
-      // Consistent mode: PuLID (slower), requires reference image uploaded to ComfyUI input
+      // Consistent mode: Z-Image InstantID (slower), requires reference image uploaded to ComfyUI input
+      // InstantID works better than PuLID for single-image workflows and handles extreme angles better
       if (!referenceImageFilename) {
         throw new BadRequestException('Reference image is required for consistent mode');
       }
 
-      return buildZImagePuLIDWorkflow({
+      return buildZImageInstantIDWorkflow({
         prompt: imageData.prompt,
         negativePrompt: imageData.negativePrompt,
         referenceImage: referenceImageFilename,
@@ -262,9 +271,10 @@ export class ProfilePictureSetService {
         steps,
         cfg,
         seed: Math.floor(Math.random() * 2 ** 32),
-        pulidStrength: 0.8,
-        pulidStart: 0.0,
-        pulidEnd: 0.8,
+        instantidStrength: 0.8,
+        controlnetStrength: 0.8,
+        faceProvider: 'CPU', // CPU is more stable
+        filenamePrefix: 'ryla_profile_consistent',
       });
     });
 
@@ -448,8 +458,9 @@ export class ProfilePictureSetService {
         filenamePrefix: 'ryla_profile_fast',
       });
     } else {
+      // Consistent mode: Use Z-Image InstantID (better than PuLID for single-image workflows)
       const referenceImageFilename = await this.uploadReferenceImageToComfyUI(input.baseImageUrl);
-      workflow = buildZImagePuLIDWorkflow({
+      workflow = buildZImageInstantIDWorkflow({
         prompt,
         negativePrompt,
         referenceImage: referenceImageFilename,
@@ -458,9 +469,10 @@ export class ProfilePictureSetService {
         steps,
         cfg,
         seed: Math.floor(Math.random() * 2 ** 32),
-        pulidStrength: 0.8,
-        pulidStart: 0.0,
-        pulidEnd: 0.8,
+        instantidStrength: 0.8,
+        controlnetStrength: 0.8,
+        faceProvider: 'CPU',
+        filenamePrefix: 'ryla_profile_consistent',
       });
     }
 
@@ -1017,13 +1029,13 @@ export class ProfilePictureSetService {
       });
     }
 
-    // Consistent mode: PuLID workflow
+    // Consistent mode: Z-Image InstantID workflow (better than PuLID)
     if (!baseImageUrl) {
       throw new BadRequestException('Reference image is required for consistent mode retry');
     }
 
     const referenceImageFilename = await this.uploadReferenceImageToComfyUI(baseImageUrl);
-    return buildZImagePuLIDWorkflow({
+    return buildZImageInstantIDWorkflow({
       prompt: jobInput.prompt || '',
       negativePrompt: jobInput.negativePrompt || '',
       referenceImage: referenceImageFilename,
@@ -1032,9 +1044,10 @@ export class ProfilePictureSetService {
       steps,
       cfg,
       seed: Math.floor(Math.random() * 2 ** 32),
-      pulidStrength: 0.8,
-      pulidStart: 0.0,
-      pulidEnd: 0.8,
+      instantidStrength: 0.8,
+      controlnetStrength: 0.8,
+      faceProvider: 'CPU',
+      filenamePrefix: 'ryla_profile_consistent',
     });
   }
 

@@ -26,9 +26,12 @@ export interface GenerateStudioImagesInput {
   qualityMode: QualityMode;
   count: number;
   nsfw: boolean;
+  promptEnhance?: boolean; // Enable AI prompt enhancement (uses OpenRouter/Gemini/OpenAI)
   seed?: number;
   modelProvider?: 'comfyui' | 'fal';
   modelId?: 'fal-ai/flux/schnell' | 'fal-ai/flux/dev';
+  isRetry?: boolean; // Indicates this is a retry of a failed image (should not charge credits)
+  retryImageId?: string; // ID of the failed image being retried
 }
 
 export interface InpaintEditInput {
@@ -84,9 +87,12 @@ export async function generateStudioImages(input: GenerateStudioImagesInput): Pr
       qualityMode: input.qualityMode,
       count: input.count,
       nsfw: input.nsfw,
+      promptEnhance: input.promptEnhance,
       seed: input.seed,
       modelProvider: input.modelProvider,
       modelId: input.modelId,
+      isRetry: input.isRetry,
+      retryImageId: input.retryImageId,
     }),
   });
 
@@ -139,6 +145,10 @@ export interface ApiImageRow {
   createdAt: string | null;
   liked?: boolean | null;
   nsfw?: boolean | null;
+  // Prompt enhancement metadata
+  promptEnhance?: boolean | null;
+  originalPrompt?: string | null;
+  enhancedPrompt?: string | null;
 }
 
 export async function getCharacterImages(characterId: string): Promise<ApiImageRow[]> {

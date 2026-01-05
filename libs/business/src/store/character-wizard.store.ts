@@ -26,6 +26,7 @@ export interface GeneratedImage {
   prompt?: string;
   negativePrompt?: string;
   seed?: string;
+  model?: string; // Model that generated this image (e.g., "Schnell", "Dev", "Danrisi")
 }
 
 /** Profile picture with position info */
@@ -38,10 +39,11 @@ export interface ProfilePictureImage extends GeneratedImage {
 /** Character form data matching the wizard */
 export interface CharacterFormData {
   // Step 0: Creation Method
-  creationMethod: 'presets' | 'prompt-based' | 'ai' | 'custom' | null;
+  creationMethod: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person' | null;
 
   // Prompt-based Flow Fields
   promptInput?: string; // Single prompt for character description
+  promptEnhance?: boolean; // Enable AI prompt enhancement (default: true)
   voiceMemoUrl?: string; // URL to uploaded voice memo (future)
 
   // Legacy fields (for migration)
@@ -100,6 +102,12 @@ export interface CharacterFormData {
   
   // Profile picture set selection (null = skip)
   selectedProfilePictureSetId: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
+  
+  // Existing Person Request Flow Fields
+  influencerRequestConsent?: boolean;
+  influencerRequestInstagram?: string;
+  influencerRequestTikTok?: string;
+  influencerRequestDescription?: string;
 }
 
 /** Store state interface */
@@ -116,6 +124,11 @@ export interface CharacterWizardState {
   baseImages: GeneratedImage[]; // 3 generated base images
   selectedBaseImageId: string | null;
   baseImageFineTunePrompt: string; // For fine-tuning selected image
+
+  // Base image generation tracking (for prompt-based flow)
+  baseImageJobId: string | null; // Primary job ID
+  baseImageAllJobIds: string[] | null; // All job IDs for parallel generation
+  baseImageGenerationStartedAt: number | null; // Timestamp when generation started
 
   // Profile picture set
   profilePictureSet: {
@@ -134,7 +147,7 @@ export interface CharacterWizardState {
   prevStep: () => void;
   setStatus: (status: CharacterWizardState['status']) => void;
   setCharacterId: (id: string | null) => void;
-  updateSteps: (method: 'presets' | 'prompt-based') => void;
+  updateSteps: (method: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person') => void;
 
   // Form actions
   setField: <K extends keyof CharacterFormData>(field: K, value: CharacterFormData[K]) => void;
@@ -146,6 +159,8 @@ export interface CharacterWizardState {
   selectBaseImage: (imageId: string) => void;
   setBaseImageFineTunePrompt: (prompt: string) => void;
   replaceBaseImage: (imageId: string, newImage: GeneratedImage) => void;
+  setBaseImageJobIds: (jobId: string, allJobIds: string[]) => void;
+  clearBaseImageJobIds: () => void;
 
   // Profile picture set actions
   setProfilePictureSetGenerating: (generating: boolean) => void;
@@ -176,8 +191,13 @@ const PRESETS_STEPS: WizardStep[] = [
 
 const PROMPT_BASED_STEPS: WizardStep[] = [
   { id: 1, title: 'Prompt Input', description: 'Describe your character' },
-  { id: 2, title: 'Base Image', description: 'Select your character face' },
-  { id: 3, title: 'Finalize', description: 'Review and create' },
+  { id: 2, title: 'Identity', description: 'Name and personality' },
+  { id: 3, title: 'Base Image', description: 'Select your character face' },
+  { id: 4, title: 'Finalize', description: 'Review and create' },
+];
+
+const EXISTING_PERSON_STEPS: WizardStep[] = [
+  { id: 1, title: 'Request Influencer', description: 'Submit request with consent and details' },
 ];
 
 /**
@@ -191,16 +211,46 @@ function resetStepsFrom(
   const { form, creationMethod } = state;
 
   if (creationMethod === 'prompt-based') {
-    // Prompt-based flow
+    // Prompt-based flow: 1=Prompt, 2=Identity, 3=Base Image, 4=Finalize
     if (fromStep <= 1) {
       // Reset prompt input
       form.promptInput = undefined;
+      // Also clear downstream steps
+      form.name = '';
+      form.outfit = null;
+      form.archetype = null;
+      form.personalityTraits = [];
+      form.bio = '';
+      state.baseImages = [];
+      state.selectedBaseImageId = null;
+      state.baseImageFineTunePrompt = '';
+      state.baseImageJobId = null;
+      state.baseImageAllJobIds = null;
+      state.baseImageGenerationStartedAt = null;
     }
     if (fromStep <= 2) {
+      // Reset identity
+      form.name = '';
+      form.outfit = null;
+      form.archetype = null;
+      form.personalityTraits = [];
+      form.bio = '';
+      // Also clear base images since they may depend on identity
+      state.baseImages = [];
+      state.selectedBaseImageId = null;
+      state.baseImageFineTunePrompt = '';
+      state.baseImageJobId = null;
+      state.baseImageAllJobIds = null;
+      state.baseImageGenerationStartedAt = null;
+    }
+    if (fromStep <= 3) {
       // Reset base image selection
       state.baseImages = [];
       state.selectedBaseImageId = null;
       state.baseImageFineTunePrompt = '';
+      state.baseImageJobId = null;
+      state.baseImageAllJobIds = null;
+      state.baseImageGenerationStartedAt = null;
     }
     // Profile pictures are generated after creation on the profile page.
   } else if (creationMethod === 'presets') {
@@ -269,6 +319,7 @@ const DEFAULT_FORM: CharacterFormData = {
   // Step 0
   creationMethod: null,
   promptInput: undefined,
+  promptEnhance: true, // Default to enabled (like studio)
   voiceMemoUrl: undefined,
   // Legacy fields
   customAppearancePrompt: undefined,
@@ -315,6 +366,11 @@ const DEFAULT_FORM: CharacterFormData = {
   qualityMode: 'draft',
   // Profile picture set (null = skip by default)
   selectedProfilePictureSetId: null,
+  // Existing Person Request Flow
+  influencerRequestConsent: undefined,
+  influencerRequestInstagram: undefined,
+  influencerRequestTikTok: undefined,
+  influencerRequestDescription: undefined,
 };
 
 /** Create the store with persistence */
@@ -330,6 +386,10 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
       baseImages: [],
       selectedBaseImageId: null,
       baseImageFineTunePrompt: '',
+      // Base image generation tracking (for prompt-based flow)
+      baseImageJobId: null,
+      baseImageAllJobIds: null,
+      baseImageGenerationStartedAt: null,
       profilePictureSet: {
         jobId: null,
         images: [],
@@ -373,7 +433,7 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           state.characterId = id;
         }),
 
-      updateSteps: (method: 'presets' | 'prompt-based' | 'ai' | 'custom') =>
+      updateSteps: (method: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person') =>
         set((state) => {
           if (method === 'prompt-based') {
             state.steps = PROMPT_BASED_STEPS;
@@ -381,6 +441,8 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
             // AI and Custom flows use similar steps to prompt-based for now
             // Can be customized later
             state.steps = PROMPT_BASED_STEPS;
+          } else if (method === 'existing-person') {
+            state.steps = EXISTING_PERSON_STEPS;
           } else {
             // Default to presets
             state.steps = PRESETS_STEPS;
@@ -415,6 +477,20 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           if (state.selectedBaseImageId === imageId) {
             state.selectedBaseImageId = newImage.id;
           }
+        }),
+
+      setBaseImageJobIds: (jobId, allJobIds) =>
+        set((state) => {
+          state.baseImageJobId = jobId;
+          state.baseImageAllJobIds = allJobIds;
+          state.baseImageGenerationStartedAt = Date.now();
+        }),
+
+      clearBaseImageJobIds: () =>
+        set((state) => {
+          state.baseImageJobId = null;
+          state.baseImageAllJobIds = null;
+          state.baseImageGenerationStartedAt = null;
         }),
 
       // Profile picture set actions
@@ -588,6 +664,10 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
         baseImages: state.baseImages,
         selectedBaseImageId: state.selectedBaseImageId,
         baseImageFineTunePrompt: state.baseImageFineTunePrompt,
+        // Persist job IDs for resume after refresh
+        baseImageJobId: state.baseImageJobId,
+        baseImageAllJobIds: state.baseImageAllJobIds,
+        baseImageGenerationStartedAt: state.baseImageGenerationStartedAt,
         profilePictureSet: state.profilePictureSet,
       }),
       onRehydrateStorage: () => (state) => {
@@ -645,24 +725,29 @@ export const useCanProceed = () => {
 
   // Validation based on creation method
   if (form.creationMethod === 'prompt-based') {
+    // 4-step flow: Prompt → Identity → Base Image → Finalize
     switch (step) {
       case 1: // Prompt Input
         return !!form.promptInput?.trim();
-      case 2: // Base Image Selection
+      case 2: // Identity (name required, others optional for prompt-based)
+        return !!form.name?.trim();
+      case 3: // Base Image Selection
         return !!selectedBaseImageId;
-      case 3: // Finalize
+      case 4: // Finalize
         return true;
       default:
         return false;
     }
   } else if (form.creationMethod === 'ai' || form.creationMethod === 'custom') {
-    // AI and Custom flows use similar validation to prompt-based for now
+    // AI and Custom flows use similar validation to prompt-based
     switch (step) {
       case 1: // AI Description or Custom Prompts
         return true; // Will be validated in their respective components
-      case 2: // Base Image Selection
+      case 2: // Identity
+        return !!form.name?.trim();
+      case 3: // Base Image Selection
         return !!selectedBaseImageId;
-      case 3: // Finalize
+      case 4: // Finalize
         return true;
       default:
         return false;

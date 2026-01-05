@@ -9,4 +9,5 @@ export * from './rules';
 export * from './store';
 export * from './workflows';
 export * from './prompts';
+export * from './wizard';
 

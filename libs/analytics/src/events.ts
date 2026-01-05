@@ -48,3 +48,12 @@ export const ACTIVITY_EVENTS = {
   LOAD_MORE: 'activity_load_more',
 } as const;
 
+// Tutorial events (EP-024)
+export const TUTORIAL_EVENTS = {
+  STARTED: 'tutorial.started',
+  STEP_VIEWED: 'tutorial.step_viewed',
+  COMPLETED: 'tutorial.completed',
+  SKIPPED: 'tutorial.skipped',
+  RESTARTED: 'tutorial.restarted',
+} as const;
+

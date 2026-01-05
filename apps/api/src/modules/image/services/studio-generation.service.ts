@@ -4,7 +4,7 @@ import { and, eq } from 'drizzle-orm';
 
 import * as schema from '@ryla/data/schema';
 import { GenerationJobsRepository, ImagesRepository } from '@ryla/data';
-import { buildWorkflow, getRecommendedWorkflow, PromptBuilder } from '@ryla/business';
+import { buildWorkflow, getRecommendedWorkflow, PromptBuilder, createAutoEnhancer } from '@ryla/business';
 import type { OutfitComposition } from '@ryla/shared';
 import { randomUUID } from 'crypto';
 
@@ -80,6 +80,7 @@ export class StudioGenerationService {
     qualityMode: 'draft' | 'hq';
     count: number;
     nsfw: boolean;
+    promptEnhance?: boolean; // Enable AI prompt enhancement
     seed?: number;
     modelProvider?: 'comfyui' | 'fal';
     modelId?: FalFluxModelId;
@@ -128,10 +129,49 @@ export class StudioGenerationService {
     // Add quality modifiers
     builder.withStylePreset('quality');
 
-    // Build the final prompt
-    const builtPrompt = builder.build();
-    const basePrompt = builtPrompt.prompt;
-    const negativePrompt = builtPrompt.negativePrompt;
+    // Build base prompt immediately (synchronous, no delay)
+    const baseBuiltPrompt = builder.build();
+    let basePrompt = baseBuiltPrompt.prompt;
+    let negativePrompt = baseBuiltPrompt.negativePrompt;
+    const originalPrompt = basePrompt; // Store original for metadata
+    let promptEnhance = false;
+    let enhancedPrompt: string | undefined = undefined;
+
+    // If prompt enhancement is enabled, try to enhance in parallel with timeout
+    // This prevents blocking the generation start - we'll use enhanced prompt if it completes quickly,
+    // otherwise fall back to base prompt
+    if (input.promptEnhance !== false) {
+      const enhancer = createAutoEnhancer();
+      
+      // Enhance in parallel with 500ms timeout - don't block generation start
+      const enhancementPromise = builder.buildWithAI(enhancer, {
+        strength: 0.7,
+        focus: ['realism', 'lighting', 'details'],
+      }).catch((err) => {
+        // If enhancement fails, log but don't block - use base prompt
+        console.warn('Prompt enhancement failed, using base prompt:', err);
+        return null;
+      });
+
+      // Race: enhancement vs timeout
+      const timeoutPromise = new Promise<null>((resolve) => 
+        setTimeout(() => resolve(null), 500)
+      );
+
+      const enhancementResult = await Promise.race([enhancementPromise, timeoutPromise]);
+      
+      // Use enhanced prompt if it completed in time, otherwise use base
+      if (enhancementResult) {
+        basePrompt = enhancementResult.prompt;
+        enhancedPrompt = enhancementResult.prompt;
+        promptEnhance = true;
+        // Merge negative prompt additions
+        if (enhancementResult.enhancement.negativeAdditions.length > 0) {
+          negativePrompt += ', ' + enhancementResult.enhancement.negativeAdditions.join(', ');
+        }
+      }
+      // If timeout or error, continue with base prompt (already set above)
+    }
 
     const { width, height } = aspectRatioToSize(input.aspectRatio);
     const { steps, cfg } = qualityToParams(input.qualityMode);
@@ -150,6 +190,49 @@ export class StudioGenerationService {
 
     for (let i = 0; i < input.count; i++) {
       const seed = typeof input.seed === 'number' ? input.seed + i : undefined;
+
+      // Validate enum values for image creation
+      const safeScene = asValidEnumOrNull(input.scene, schema.scenePresetEnum.enumValues);
+      const safeEnvironment = asValidEnumOrNull(input.environment, schema.environmentPresetEnum.enumValues);
+      const safeAspectRatio = asValidEnumOrNull(input.aspectRatio, schema.aspectRatioEnum.enumValues);
+      const safeQualityMode = asValidEnumOrNull(input.qualityMode, schema.qualityModeEnum.enumValues);
+
+      // Create image record immediately with status 'generating' so it persists across page reloads
+      const placeholderS3Key = `generating/${input.characterId}/${randomUUID()}`;
+      const imageData: any = {
+        characterId: input.characterId,
+        userId: input.userId,
+        s3Key: placeholderS3Key, // Placeholder key - will be updated when image completes
+        thumbnailKey: placeholderS3Key,
+        status: 'generating' as const,
+        nsfw: input.nsfw,
+      };
+
+      // Add optional fields
+      if (basePrompt) imageData.prompt = basePrompt;
+      if (negativePrompt) imageData.negativePrompt = negativePrompt;
+      if (seed) imageData.seed = seed.toString();
+      if (width) imageData.width = width;
+      if (height) imageData.height = height;
+      if (safeScene) imageData.scene = safeScene;
+      if (safeEnvironment) imageData.environment = safeEnvironment;
+      
+      const outfit = typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit);
+      if (outfit) imageData.outfit = outfit;
+      
+      if (input.poseId) imageData.poseId = input.poseId;
+      if (input.lighting) imageData.lightingId = input.lighting;
+      if (safeAspectRatio) imageData.aspectRatio = safeAspectRatio;
+      if (safeQualityMode) imageData.qualityMode = safeQualityMode;
+      
+      // Prompt enhancement metadata
+      if (typeof promptEnhance === 'boolean') {
+        imageData.promptEnhance = promptEnhance;
+      }
+      if (promptEnhance && originalPrompt) imageData.originalPrompt = originalPrompt;
+      if (promptEnhance && enhancedPrompt) imageData.enhancedPrompt = enhancedPrompt;
+
+      const imageRecord = await this.imagesRepo.createImage(imageData);
 
       if (provider === 'fal') {
         if (!this.fal.isConfigured()) {
@@ -180,12 +263,22 @@ export class StudioGenerationService {
               width,
               height,
               steps,
+              // Prompt enhancement metadata
+              promptEnhance,
+              originalPrompt: promptEnhance ? originalPrompt : undefined,
+              enhancedPrompt: promptEnhance ? enhancedPrompt : undefined,
+              // Store image ID so we can update it when complete
+              imageId: imageRecord.id,
             },
             imageCount: 1,
             completedCount: 0,
             externalJobId,
             externalProvider: 'fal',
             startedAt: new Date(),
+            // Store image ID in output for reference
+            output: {
+              imageIds: [imageRecord.id],
+            } as any,
           });
 
           // Run in background; UI will poll /image/comfyui/:promptId/results which is
@@ -201,6 +294,7 @@ export class StudioGenerationService {
             width,
             height,
             seed,
+            imageId: imageRecord.id,
           });
 
           results.push({ jobId: job.id, promptId: externalJobId });
@@ -230,6 +324,7 @@ export class StudioGenerationService {
           scene: input.scene,
           environment: input.environment,
           outfit: input.outfit,
+          poseId: input.poseId,
           aspectRatio: input.aspectRatio,
           qualityMode: input.qualityMode,
           imageCount: 1,
@@ -240,18 +335,64 @@ export class StudioGenerationService {
           width,
           height,
           steps,
+          // Prompt enhancement metadata
+          promptEnhance,
+          originalPrompt: promptEnhance ? originalPrompt : undefined,
+          enhancedPrompt: promptEnhance ? enhancedPrompt : undefined,
+          // Store image ID so we can update it when complete
+          imageId: imageRecord.id,
         },
         imageCount: 1,
         completedCount: 0,
         externalJobId: promptId,
         externalProvider: 'comfyui',
         startedAt: new Date(),
+        // Store image ID in output for reference
+        output: {
+          imageIds: [imageRecord.id],
+        } as any,
       });
 
       results.push({ jobId: job.id, promptId });
     }
 
     return { workflowId: actualWorkflowId, jobs: results };
+  }
+
+  /**
+   * Sanitize prompt for models with strict content policies (like Seedream 4.5)
+   * Removes body part descriptions that trigger content policy violations
+   */
+  private sanitizePromptForStrictModels(prompt: string, modelId: FalFluxModelId): string {
+    // Seedream 4.5 has stricter content filtering - remove body part descriptions
+    const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
+    
+    if (!isStrictModel) {
+      return prompt;
+    }
+
+    // Remove body part descriptions that trigger content policy violations
+    const bodyPartPatterns = [
+      /\b(small|medium|large|big|tiny|huge)\s+(ass|butt|buttocks|booty)\b/gi,
+      /\b(small|medium|large|big|tiny|huge|perky|saggy)\s+(breasts|boobs|chest|bust)\b/gi,
+      /\b(ass|butt|buttocks|booty)\s+(size|shape)\b/gi,
+      /\b(breast|boob|chest|bust)\s+(size|type|shape)\b/gi,
+    ];
+
+    let sanitized = prompt;
+    for (const pattern of bodyPartPatterns) {
+      sanitized = sanitized.replace(pattern, '');
+    }
+
+    // Clean up double commas and extra spaces
+    sanitized = sanitized
+      .replace(/,\s*,/g, ',')
+      .replace(/,\s*$/g, '')
+      .replace(/^\s*,/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    return sanitized;
   }
 
   private async runFalStudioJob(params: {
@@ -265,14 +406,19 @@ export class StudioGenerationService {
     width: number;
     height: number;
     seed?: number;
+    imageId: string;
   }) {
-    const { jobId, externalJobId, userId, characterId, modelId, prompt, negativePrompt, width, height, seed } =
+    const { jobId, externalJobId, userId, characterId, modelId, prompt, negativePrompt, width, height, seed, imageId } =
       params;
+    
+    // Sanitize prompt for strict models like Seedream 4.5
+    const sanitizedPrompt = this.sanitizePromptForStrictModels(prompt, modelId);
+    
     try {
       const trackedJob = await this.generationJobsRepo.getById(jobId);
 
       const out = await this.fal.runFlux(modelId, {
-        prompt,
+        prompt: sanitizedPrompt,
         negativePrompt,
         width,
         height,
@@ -292,37 +438,41 @@ export class StudioGenerationService {
 
       const img = stored[0];
       
-      // Validate enum values before inserting
-      const safeScene = asValidEnumOrNull((trackedJob?.input as any)?.scene, schema.scenePresetEnum.enumValues);
-      const safeEnvironment = asValidEnumOrNull((trackedJob?.input as any)?.environment, schema.environmentPresetEnum.enumValues);
-      const safeAspectRatio = asValidEnumOrNull((trackedJob?.input as any)?.aspectRatio, schema.aspectRatioEnum.enumValues);
-      const safeQualityMode = asValidEnumOrNull((trackedJob?.input as any)?.qualityMode, schema.qualityModeEnum.enumValues);
-      
-      // Build image data object, only including fields with values
-      const imageData: any = {
-        characterId,
-        userId,
+      // Update existing image record instead of creating a new one
+      const updateData: any = {
         s3Key: img.key,
         thumbnailKey: img.key,
+        s3Url: img.url,
+        thumbnailUrl: img.thumbnailUrl,
         status: 'completed' as const,
-        nsfw: false,
       };
       
-      if (prompt) imageData.prompt = prompt;
-      if (negativePrompt) imageData.negativePrompt = negativePrompt;
-      if (seed) imageData.seed = seed.toString();
-      if (width) imageData.width = width;
-      if (height) imageData.height = height;
-      if (safeScene) imageData.scene = safeScene;
-      if (safeEnvironment) imageData.environment = safeEnvironment;
+      // Only update fields that might have changed
+      if (prompt) updateData.prompt = prompt;
+      if (negativePrompt) updateData.negativePrompt = negativePrompt;
+      if (seed) updateData.seed = seed.toString();
+      if (width) updateData.width = width;
+      if (height) updateData.height = height;
       
-      const outfit = normalizeString((trackedJob?.input as any)?.outfit);
-      if (outfit) imageData.outfit = outfit;
+      // Get prompt enhancement metadata from tracked job (already fetched above)
+      if (trackedJob?.input) {
+        const jobInput = trackedJob.input as any;
+        if (typeof jobInput.promptEnhance === 'boolean') {
+          updateData.promptEnhance = jobInput.promptEnhance;
+        }
+        if (jobInput.originalPrompt) {
+          updateData.originalPrompt = jobInput.originalPrompt;
+        }
+        if (jobInput.enhancedPrompt) {
+          updateData.enhancedPrompt = jobInput.enhancedPrompt;
+        }
+      }
       
-      if (safeAspectRatio) imageData.aspectRatio = safeAspectRatio;
-      if (safeQualityMode) imageData.qualityMode = safeQualityMode;
-      
-      const row = await this.imagesRepo.createImage(imageData);
+      await this.imagesRepo.updateById({
+        id: imageId,
+        userId,
+        patch: updateData,
+      });
 
       await this.generationJobsRepo.updateById(jobId, {
         status: 'completed',
@@ -332,11 +482,94 @@ export class StudioGenerationService {
           imageUrls: [img.url],
           thumbnailUrls: [img.thumbnailUrl],
           s3Keys: [img.key],
-          imageIds: [row.id],
+          imageIds: [imageId],
         } as any,
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Fal generation failed';
+      
+      // Check if it's a content policy violation (422) for strict models
+      const isContentPolicyError = message.includes('422') || message.includes('content_policy') || message.includes('content checker');
+      const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
+      
+      // Retry with more aggressive sanitization if content policy violation
+      if (isContentPolicyError && isStrictModel) {
+        try {
+          // Remove all potentially problematic terms
+          const aggressiveSanitized = sanitizedPrompt
+            .replace(/\b(ass|butt|breast|boob|chest|bust|nipple|genital)\w*/gi, '')
+            .replace(/,\s*,/g, ',')
+            .replace(/,\s*$/g, '')
+            .replace(/^\s*,/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          if (aggressiveSanitized.length > 20) { // Only retry if we have enough prompt left
+            // Retry with aggressively sanitized prompt
+            const retryOut = await this.fal.runFlux(modelId, {
+              prompt: aggressiveSanitized,
+              negativePrompt,
+              width,
+              height,
+              seed,
+              numImages: 1,
+            });
+
+            const base64 = await this.fal.downloadToBase64DataUrl(retryOut.imageUrls[0]);
+            const { images: stored } = await this.imageStorage.uploadImages([base64], {
+              userId,
+              category: 'gallery',
+              jobId: externalJobId,
+              characterId,
+            });
+
+            const img = stored[0];
+            await this.imagesRepo.updateById({
+              id: imageId,
+              userId,
+              patch: {
+                s3Key: img.key,
+                thumbnailKey: img.key,
+                s3Url: img.url,
+                thumbnailUrl: img.thumbnailUrl,
+                status: 'completed' as const,
+                prompt: sanitizedPrompt, // Store sanitized prompt
+              },
+            });
+
+            await this.generationJobsRepo.updateById(jobId, {
+              status: 'completed',
+              completedAt: new Date(),
+              completedCount: 1,
+              output: {
+                imageUrls: [img.url],
+                thumbnailUrls: [img.thumbnailUrl],
+                s3Keys: [img.key],
+                imageIds: [imageId],
+              } as any,
+            });
+            
+            return; // Success on retry
+          }
+        } catch (retryErr) {
+          // Retry also failed, continue to error handling
+        }
+      }
+      
+      // Update image status to failed
+      try {
+        await this.imagesRepo.updateById({
+          id: imageId,
+          userId,
+          patch: {
+            status: 'failed' as const,
+            generationError: message,
+          },
+        });
+      } catch (updateError) {
+        console.error('Failed to update image status to failed:', updateError);
+      }
+      
       await this.generationJobsRepo.updateById(jobId, {
         status: 'failed',
         completedAt: new Date(),

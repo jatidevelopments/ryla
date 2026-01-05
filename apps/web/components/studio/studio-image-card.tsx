@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { cn } from '@ryla/ui';
+import { Tooltip } from '../ui/tooltip';
 
 export interface StudioImage {
   id: string;
@@ -21,6 +22,10 @@ export interface StudioImage {
   createdAt: string;
   isLiked?: boolean;
   nsfw?: boolean;
+  // Prompt enhancement metadata
+  promptEnhance?: boolean;
+  originalPrompt?: string;
+  enhancedPrompt?: string;
 }
 
 interface StudioImageCardProps {
@@ -75,6 +80,7 @@ export function StudioImageCard({
         size === 'large' && 'rounded-3xl',
         className
       )}
+      title="Click to view details"
     >
       {/* Image Container */}
       <div className={cn('relative w-full bg-[var(--bg-elevated)]', aspectClass)}>
@@ -186,15 +192,16 @@ export function StudioImageCard({
           {/* Right - Quick actions on hover */}
           {image.status === 'completed' && (
             <div className="flex gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ml-auto">
-              <button
-                onClick={handleLike}
-                className={cn(
-                  'flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm transition-all',
-                  image.isLiked
-                    ? 'bg-red-500 text-white'
-                    : 'bg-black/50 text-white hover:bg-black/70'
-                )}
-              >
+              <Tooltip content="Like this image">
+                <button
+                  onClick={handleLike}
+                  className={cn(
+                    'flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm transition-all',
+                    image.isLiked
+                      ? 'bg-red-500 text-white'
+                      : 'bg-black/50 text-white hover:bg-black/70'
+                  )}
+                >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
@@ -204,10 +211,12 @@ export function StudioImageCard({
                   <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
                 </svg>
               </button>
-              <button
-                onClick={handleDownload}
-                className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70"
-              >
+              </Tooltip>
+              <Tooltip content="Download image">
+                <button
+                  onClick={handleDownload}
+                  className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70"
+                >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
@@ -218,6 +227,7 @@ export function StudioImageCard({
                   <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
                 </svg>
               </button>
+              </Tooltip>
             </div>
           )}
         </div>

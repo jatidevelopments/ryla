@@ -1,16 +1,23 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
+import { useTransition } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { Textarea } from '@ryla/ui';
+import { Textarea, cn } from '@ryla/ui';
 
 /**
  * Step 1 (Prompt-based Flow): Prompt Input
  * User describes their character in natural language
+ * Next step: Identity (step 2)
  */
 export function StepPromptInput() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const form = useCharacterWizardStore((s) => s.form);
   const setField = useCharacterWizardStore((s) => s.setField);
+  const nextStep = useCharacterWizardStore((s) => s.nextStep);
+  const [error, setError] = React.useState<string | null>(null);
 
   return (
     <div className="flex flex-col items-center">
@@ -54,6 +61,48 @@ export function StepPromptInput() {
           <p className="text-white/40 text-xs mt-3">
             💡 Be as detailed as possible. Include age, appearance, personality, and style preferences.
           </p>
+        </div>
+      </div>
+
+      {/* Prompt Enhancement Toggle */}
+      <div className="w-full mb-4">
+        <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <p className="text-white/70 text-sm mb-4 font-medium">Prompt Enhancement</p>
+          <button
+            onClick={() => setField('promptEnhance', !(form.promptEnhance ?? true))}
+            className={cn(
+              'w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden group',
+              (form.promptEnhance ?? true)
+                ? 'border-purple-400/50 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/20'
+                : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+            )}
+          >
+            <div className="relative z-10 flex items-center justify-between">
+              <div>
+                <p className="text-base font-semibold text-white mb-1">
+                  Enable Prompt Enhancement
+                </p>
+                <p className="text-sm text-white/60">
+                  Uses AI to improve your prompt, adding more detail and creativity for better generation results
+                </p>
+              </div>
+              <div
+                className={cn(
+                  'w-12 h-6 rounded-full transition-all duration-200 flex items-center',
+                  (form.promptEnhance ?? true)
+                    ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+                    : 'bg-white/20'
+                )}
+              >
+                <div
+                  className={cn(
+                    'w-5 h-5 rounded-full bg-white transition-transform duration-200 shadow-md',
+                    (form.promptEnhance ?? true) ? 'translate-x-6' : 'translate-x-0.5'
+                  )}
+                />
+              </div>
+            </div>
+          </button>
         </div>
       </div>
 
@@ -123,6 +172,46 @@ export function StepPromptInput() {
             <li>• The more details you provide, the better the AI can create your character</li>
           </ul>
         </div>
+      </div>
+
+      {/* Custom Continue Button - Overrides wizard layout button */}
+      <div className="w-full mt-8">
+        {error && (
+          <div className="mb-4 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+            <p className="text-red-400 text-sm">{error}</p>
+          </div>
+        )}
+
+        <button
+          onClick={() => {
+            if (!form.promptInput?.trim()) {
+              setError('Please enter a character description');
+              return;
+            }
+
+            setError(null);
+
+            // Navigate to Identity step (step 2)
+            // Generation will happen when entering Base Image step (step 3)
+            nextStep();
+            startTransition(() => {
+              router.push('/wizard/step-2');
+            });
+          }}
+          disabled={!form.promptInput?.trim() || isPending}
+          className={cn(
+            'w-full h-12 rounded-xl font-bold text-base transition-all duration-200 relative overflow-hidden',
+            form.promptInput?.trim() && !isPending
+              ? 'bg-gradient-to-r from-[#c4b5fd] to-[#7c3aed] text-white shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40'
+              : 'bg-white/10 text-white/40 cursor-not-allowed'
+          )}
+        >
+          {/* Shimmer effect */}
+          {form.promptInput?.trim() && (
+            <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+          )}
+          <span className="relative z-10">Continue</span>
+        </button>
       </div>
     </div>
   );

@@ -95,6 +95,9 @@ export class CharacterController {
       cfg: dto.cfg,
       width: dto.width,
       height: dto.height,
+      promptInput: dto.promptInput,
+      promptEnhance: dto.promptEnhance,
+      idempotencyKey: dto.idempotencyKey,
     });
 
     return {

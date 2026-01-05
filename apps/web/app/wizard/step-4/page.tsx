@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { StepHair } from '../../../components/wizard/step-hair';
+import { StepFinalize } from '../../../components/wizard/step-finalize';
 
 export default function WizardStep4() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -12,10 +13,16 @@ export default function WizardStep4() {
     setStep(4);
   }, [setStep]);
 
-  // Only presets flow uses step 4 (Hair)
-  if (creationMethod !== 'presets') {
-    return null;
+  // For prompt-based flow, step 4 is Finalize
+  if (creationMethod === 'prompt-based') {
+    return <StepFinalize />;
   }
 
-  return <StepHair />;
+  // For presets flow, step 4 is Hair
+  if (creationMethod === 'presets') {
+    return <StepHair />;
+  }
+
+  // Fallback: if no creation method selected, return null
+  return null;
 }

@@ -1,7 +1,7 @@
 /**
  * AI Prompt Enhancer
  * 
- * Uses LLMs (Gemini, OpenAI/GPT, or local) to enhance and improve prompts
+ * Uses LLMs (OpenRouter, Gemini, OpenAI/GPT, or local) to enhance and improve prompts
  * for better image generation quality.
  * 
  * Features:
@@ -10,10 +10,23 @@
  * - Suggest improvements based on the target style
  * - Maintain character consistency
  * 
+ * Providers:
+ * - OpenRouter (recommended): 500+ models, better prices, automatic fallback
+ * - Gemini: Fast, cheap
+ * - OpenAI: Reliable fallback
+ * 
  * Usage:
- *   import { AIPromptEnhancer, createGeminiEnhancer } from '@ryla/business/prompts';
+ *   // Recommended: OpenRouter (best prices, reliability)
+ *   import { createOpenRouterEnhancer } from '@ryla/business/prompts';
+ *   const enhancer = createOpenRouterEnhancer({ 
+ *     apiKey: process.env.OPENROUTER_API_KEY,
+ *     defaultModel: 'deepseek/deepseek-chat', // Cost-optimized
+ *   });
  *   
- *   const enhancer = createGeminiEnhancer({ apiKey: process.env.GEMINI_API_KEY });
+ *   // Or use auto-detection (prefers OpenRouter if available)
+ *   import { createAutoEnhancer } from '@ryla/business/prompts';
+ *   const enhancer = createAutoEnhancer();
+ *   
  *   const result = await enhancer.enhance({
  *     prompt: "A woman in a coffee shop",
  *     style: "ultraRealistic",
@@ -43,9 +56,11 @@ export interface EnhancementRequest {
   /** Enhancement strength (0.0 - 1.0) */
   strength?: number;
   /** Specific aspects to focus on */
-  focus?: ('realism' | 'lighting' | 'composition' | 'details' | 'emotion')[];
+  focus?: ('realism' | 'lighting' | 'composition' | 'details' | 'emotion' | 'character')[];
   /** Maximum output length (approximate) */
   maxLength?: number;
+  /** Use wizard-specific character creation enhancement (focuses on unique character creation) */
+  isWizard?: boolean;
 }
 
 /**
@@ -111,6 +126,29 @@ Format your response as JSON:
   "confidence": 0.85
 }`;
 
+const WIZARD_CHARACTER_CREATION_SYSTEM_PROMPT = `You are an expert AI character creation specialist. Your task is to transform a minimal character description into a detailed, unique character prompt for AI image generation.
+
+Your goal is to create a DISTINCT, MEMORABLE character that stands out - not a generic AI-generated person.
+
+Key principles:
+1. CHARACTER UNIQUENESS: Add specific, distinguishing features that make this character memorable and unique
+2. EXPAND MINIMAL INPUT: Transform brief descriptions into rich, detailed character portraits
+3. PHYSICAL DETAILS: Add specific facial structure, skin tone, hair texture, body proportions, unique features
+4. PERSONALITY IN APPEARANCE: Include details that reflect personality (confident posture, friendly expression, style choices)
+5. REALISTIC IMPERFECTIONS: Include subtle natural features (freckles, beauty marks, natural skin texture) - avoid "perfect" or "flawless"
+6. QUALITY KEYWORDS: Always include "8K hyper-realistic, ultra-detailed, professional photography" for best results
+7. PRESERVE USER VISION: Keep the user's core description intact while expanding it
+
+CRITICAL: Focus on creating a UNIQUE CHARACTER, not a generic person. Add distinguishing features, specific details, and personality markers that make this character stand out.
+
+Format your response as JSON:
+{
+  "enhancedPrompt": "the detailed, unique character description with quality keywords",
+  "negativeAdditions": ["terms to add to negative prompt"],
+  "changes": ["explanation of character enhancements"],
+  "confidence": 0.85
+}`;
+
 const STYLE_INSTRUCTIONS: Record<StylePresetType, string> = {
   quality: 'Focus on technical quality: sharp focus, good lighting, high resolution.',
   ultraRealistic: 'Maximum realism: smartphone aesthetic, natural skin texture, candid moment feel, avoid any AI artifacts.',
@@ -152,7 +190,7 @@ export class AIPromptEnhancer {
   /**
    * Enhance a prompt using AI
    */
-  async enhance(request: EnhancementRequest): Promise<EnhancementResult> {
+  async enhance(request: EnhancementRequest & { isWizard?: boolean }): Promise<EnhancementResult> {
     if (!this.isAvailable()) {
       // Return passthrough result if provider not available
       return {
@@ -166,13 +204,17 @@ export class AIPromptEnhancer {
 
     const style = request.style || this.options.defaultStyle || 'quality';
     const strength = request.strength ?? 0.7;
+    const isWizard = request.isWizard ?? false;
+
+    // Use wizard-specific system prompt for character creation
+    const systemPrompt = isWizard ? WIZARD_CHARACTER_CREATION_SYSTEM_PROMPT : ENHANCER_SYSTEM_PROMPT;
 
     // Build the enhancement prompt
-    const userPrompt = this.buildUserPrompt(request, style, strength);
+    const userPrompt = this.buildUserPrompt(request, style, strength, isWizard);
 
     try {
       const response = await this.provider.complete(
-        `${ENHANCER_SYSTEM_PROMPT}\n\n${userPrompt}`,
+        `${systemPrompt}\n\n${userPrompt}`,
         {
           maxTokens: request.maxLength ? Math.ceil(request.maxLength * 1.5) : 500,
           temperature: this.options.temperature ?? 0.7,
@@ -206,13 +248,33 @@ export class AIPromptEnhancer {
   private buildUserPrompt(
     request: EnhancementRequest,
     style: StylePresetType,
-    strength: number
+    strength: number,
+    isWizard: boolean = false
   ): string {
     const parts: string[] = [];
 
-    parts.push(`ORIGINAL PROMPT:\n"${request.prompt}"`);
-    parts.push(`\nTARGET STYLE: ${style}`);
-    parts.push(STYLE_INSTRUCTIONS[style]);
+    if (isWizard) {
+      // Wizard-specific prompt building - focus on character creation
+      parts.push(`ORIGINAL USER INPUT (minimal description):\n"${request.prompt}"`);
+      parts.push(`\nYOUR TASK:`);
+      parts.push(`1. Expand this minimal description into a rich, detailed character portrait`);
+      parts.push(`2. Add specific physical features (facial structure, skin tone, hair texture, body proportions)`);
+      parts.push(`3. Include personality traits that show in appearance (confident posture, friendly expression, etc.)`);
+      parts.push(`4. Add unique distinguishing features to make this character memorable and distinct`);
+      parts.push(`5. Ensure the character feels like a real, unique person - not generic or AI-generated`);
+      parts.push(`6. Focus on creating a character that stands out and has personality`);
+      parts.push(`\nIMPORTANT:`);
+      parts.push(`- Keep the user's core vision intact`);
+      parts.push(`- Add details that make the character unique and memorable`);
+      parts.push(`- Use natural, realistic descriptions (avoid "perfect" or "flawless")`);
+      parts.push(`- Include subtle imperfections that make characters feel real`);
+      parts.push(`- Always include quality keywords: "8K hyper-realistic, ultra-detailed, professional photography"`);
+    } else {
+      // Standard enhancement prompt
+      parts.push(`ORIGINAL PROMPT:\n"${request.prompt}"`);
+      parts.push(`\nTARGET STYLE: ${style}`);
+      parts.push(STYLE_INSTRUCTIONS[style]);
+    }
 
     if (request.characterContext) {
       const dna = request.characterContext;
@@ -424,6 +486,87 @@ export class OpenAIProvider implements AIProvider {
 }
 
 /**
+ * OpenRouter API Provider
+ * 
+ * Unified interface for 500+ LLM models across 60+ providers.
+ * Provides better prices, better uptime, and automatic fallback.
+ * 
+ * @see https://openrouter.ai/
+ */
+export class OpenRouterProvider implements AIProvider {
+  name = 'openrouter';
+  private apiKey: string;
+  private defaultModel: string;
+  private baseUrl: string;
+  private httpReferer?: string;
+  private appTitle?: string;
+
+  constructor(config: {
+    apiKey: string;
+    defaultModel?: string;
+    baseUrl?: string;
+    httpReferer?: string;
+    appTitle?: string;
+  }) {
+    this.apiKey = config.apiKey;
+    this.defaultModel = config.defaultModel || 'openai/gpt-4o-mini';
+    this.baseUrl = config.baseUrl || 'https://openrouter.ai/api/v1';
+    this.httpReferer = config.httpReferer;
+    this.appTitle = config.appTitle;
+  }
+
+  isAvailable(): boolean {
+    return !!this.apiKey;
+  }
+
+  async complete(prompt: string, options?: {
+    maxTokens?: number;
+    temperature?: number;
+    model?: string; // Override default model
+  }): Promise<{ text: string; usage?: { inputTokens: number; outputTokens: number } }> {
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${this.apiKey}`,
+    };
+
+    // Optional headers for analytics (OpenRouter best practice)
+    if (this.httpReferer) {
+      headers['HTTP-Referer'] = this.httpReferer;
+    }
+    if (this.appTitle) {
+      headers['X-Title'] = this.appTitle;
+    }
+
+    const response = await fetch(`${this.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        model: options?.model || this.defaultModel,
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: options?.maxTokens || 500,
+        temperature: options?.temperature || 0.7,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
+    }
+
+    const data = await response.json();
+    const text = data.choices?.[0]?.message?.content || '';
+
+    return {
+      text,
+      usage: data.usage ? {
+        inputTokens: data.usage.prompt_tokens || 0,
+        outputTokens: data.usage.completion_tokens || 0,
+      } : undefined,
+    };
+  }
+}
+
+/**
  * Mock provider for testing (no API calls)
  */
 export class MockAIProvider implements AIProvider {
@@ -487,6 +630,36 @@ export function createOpenAIEnhancer(config: {
 }
 
 /**
+ * Create an OpenRouter-powered enhancer
+ * 
+ * Provides access to 500+ models across 60+ providers with better prices
+ * and automatic fallback. Recommended for production use.
+ * 
+ * @example
+ *   const enhancer = createOpenRouterEnhancer({
+ *     apiKey: process.env.OPENROUTER_API_KEY,
+ *     defaultModel: 'deepseek/deepseek-chat', // Cheaper alternative
+ *   });
+ */
+export function createOpenRouterEnhancer(config: {
+  apiKey: string;
+  defaultModel?: string;
+  defaultStyle?: StylePresetType;
+  httpReferer?: string;
+  appTitle?: string;
+}): AIPromptEnhancer {
+  return new AIPromptEnhancer(
+    new OpenRouterProvider({
+      apiKey: config.apiKey,
+      defaultModel: config.defaultModel,
+      httpReferer: config.httpReferer,
+      appTitle: config.appTitle,
+    }),
+    { defaultStyle: config.defaultStyle }
+  );
+}
+
+/**
  * Create a mock enhancer for testing
  */
 export function createMockEnhancer(): AIPromptEnhancer {
@@ -496,19 +669,40 @@ export function createMockEnhancer(): AIPromptEnhancer {
 /**
  * Auto-detect and create the best available enhancer
  * Checks for API keys in environment variables
+ * 
+ * Priority order:
+ * 1. OpenRouter (best prices, reliability, 500+ models)
+ * 2. Gemini (fast, cheap)
+ * 3. OpenAI (reliable fallback)
+ * 4. Mock (testing only)
  */
 export function createAutoEnhancer(env?: {
+  OPENROUTER_API_KEY?: string;
   GEMINI_API_KEY?: string;
   OPENAI_API_KEY?: string;
+  OPENROUTER_DEFAULT_MODEL?: string;
 }): AIPromptEnhancer {
+  const openrouterKey = env?.OPENROUTER_API_KEY || (typeof process !== 'undefined' ? process.env?.OPENROUTER_API_KEY : undefined);
   const geminiKey = env?.GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : undefined);
   const openaiKey = env?.OPENAI_API_KEY || (typeof process !== 'undefined' ? process.env?.OPENAI_API_KEY : undefined);
+  const openrouterModel = env?.OPENROUTER_DEFAULT_MODEL || (typeof process !== 'undefined' ? process.env?.OPENROUTER_DEFAULT_MODEL : undefined);
 
-  // Prefer Gemini (faster, cheaper for this use case)
+  // Prefer OpenRouter (best prices, reliability, automatic fallback)
+  if (openrouterKey) {
+    return createOpenRouterEnhancer({
+      apiKey: openrouterKey,
+      defaultModel: openrouterModel,
+      httpReferer: typeof window !== 'undefined' ? window.location.origin : 'https://ryla.ai',
+      appTitle: 'RYLA AI Influencer Platform',
+    });
+  }
+
+  // Fallback to Gemini (faster, cheaper for this use case)
   if (geminiKey) {
     return createGeminiEnhancer({ apiKey: geminiKey });
   }
 
+  // Fallback to OpenAI
   if (openaiKey) {
     return createOpenAIEnhancer({ apiKey: openaiKey });
   }

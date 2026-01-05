@@ -4,6 +4,7 @@ import * as React from 'react';
 import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { cn, Input } from '@ryla/ui';
+import { Tooltip } from '../ui/tooltip';
 
 interface InfluencerTab {
   id: string;
@@ -108,16 +109,21 @@ export function StudioHeader({
       {/* Top Navigation Tabs - Like Higgsfield */}
       <div className="flex items-center gap-4 px-4 py-3">
         {/* Left - Main tabs */}
-        <div className="flex items-center gap-1 min-w-0" style={{ maxWidth: 'calc(100% - 300px)' }}>
-          <button
-            onClick={() => onSelectInfluencer(null)}
-            className={cn(
-              'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all flex-shrink-0',
-              !selectedInfluencerId
-                ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/20'
-                : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
-            )}
-          >
+        <div 
+          className="flex items-center gap-1 min-w-0" 
+          style={{ maxWidth: 'calc(100% - 300px)' }}
+          data-tutorial-target="character-selector"
+        >
+          <Tooltip content="View all images from all influencers">
+            <button
+              onClick={() => onSelectInfluencer(null)}
+              className={cn(
+                'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all flex-shrink-0',
+                !selectedInfluencerId
+                  ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/20'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
+              )}
+            >
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -135,6 +141,7 @@ export function StudioHeader({
               {totalCount}
             </span>
           </button>
+          </Tooltip>
 
           {/* Divider */}
           <div className="mx-3 h-6 w-px bg-[var(--border-default)] flex-shrink-0" />
@@ -143,16 +150,16 @@ export function StudioHeader({
           <div className="flex items-center gap-2 min-w-0">
             <div className="flex items-center gap-2 min-w-0 overflow-hidden">
               {visibleInfluencers.map((influencer) => (
-                <button
-                  key={influencer.id}
-                  onClick={() => onSelectInfluencer(influencer.id)}
-                  className={cn(
-                    'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
-                    selectedInfluencerId === influencer.id
-                      ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/50'
-                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent'
-                  )}
-                >
+                <Tooltip key={influencer.id} content={`View images from ${influencer.name}`}>
+                  <button
+                    onClick={() => onSelectInfluencer(influencer.id)}
+                    className={cn(
+                      'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
+                      selectedInfluencerId === influencer.id
+                        ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/50'
+                        : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent'
+                    )}
+                  >
                   {influencer.avatar ? (
                     <div className="relative h-6 w-6 overflow-hidden rounded-full border border-[var(--purple-500)]/30 flex-shrink-0">
                       <Image
@@ -173,25 +180,27 @@ export function StudioHeader({
                     {influencer.imageCount}
                   </span>
                 </button>
+                </Tooltip>
               ))}
             </div>
 
             {/* More Influencers Button (Ellipsis) - Always visible when there are hidden influencers */}
             {hiddenInfluencers.length > 0 && (
               <div className="relative flex-shrink-0">
-                <button
-                  ref={buttonRef}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setShowMoreDropdown(!showMoreDropdown);
-                  }}
-                  className={cn(
-                    'flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition-all h-[36px] w-[36px]',
-                    showMoreDropdown
-                      ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/50'
-                      : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent'
-                  )}
-                >
+                <Tooltip content="View more influencers">
+                  <button
+                    ref={buttonRef}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowMoreDropdown(!showMoreDropdown);
+                    }}
+                    className={cn(
+                      'flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition-all h-[36px] w-[36px]',
+                      showMoreDropdown
+                        ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/50'
+                        : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent'
+                    )}
+                  >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 20 20"
@@ -203,6 +212,7 @@ export function StudioHeader({
                     <path d="M15.5 8.5a1.5 1.5 0 100 3 1.5 1.5 0 000-3z" />
                   </svg>
                 </button>
+                </Tooltip>
               </div>
             )}
           </div>
@@ -210,7 +220,8 @@ export function StudioHeader({
 
         {/* Right - Search - Always visible */}
         <div className="flex items-center gap-3 flex-shrink-0 ml-auto">
-          <div className="relative w-64">
+          <Tooltip content="Search images by prompt, scene, or influencer name">
+            <div className="relative w-64">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -233,6 +244,7 @@ export function StudioHeader({
               className="h-10 bg-[var(--bg-base)] border-[var(--border-default)] pl-10 text-sm placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20 rounded-xl"
             />
           </div>
+          </Tooltip>
 
         </div>
       </div>

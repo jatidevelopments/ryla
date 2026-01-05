@@ -1,292 +1,95 @@
-# Character Wizard - Complete Audit & Expected Behavior
+# Character Wizard - Complete Audit & Flow Specification
+
+> **Last Updated**: 2026-01-05
+> **Status**: Updated to reflect 4-step prompt-based flow with Identity step
 
 ## Overview
+
 The Character Wizard is a multi-step flow for creating AI influencers with two creation methods:
-1. **Presets Flow**: 8 steps with form-based configuration
-2. **Prompt-based Flow**: 4 steps with text input
 
-## Architecture
+1. **Presets Flow**: 10-step form-based configuration (visual option selection)
+2. **Prompt-Based Flow**: 4-step text-driven creation (minimal input + identity + AI-enhanced)
 
-### State Management
-- **Store**: Zustand with localStorage persistence (`ryla-character-wizard`)
-- **Persistence**: All form data, base images, profile pictures, and navigation state
-- **Rehydration**: Steps array restored based on `creationMethod` on page reload
-
-### Navigation
-- **Dynamic Steps**: Steps array changes based on `creationMethod`
-- **Step IDs**: Numeric IDs (1-8 for presets, 1-4 for prompt-based)
-- **Progress**: Calculated from current step / total steps
-
-## Expected Behavior by Step
-
-### Step 0: Creation Method Selection
-**File**: `step-creation-method.tsx`
-
-**Expected Behavior:**
-- User selects either "Presets" or "Prompt-based"
-- Selection updates `form.creationMethod`
-- `updateSteps()` called to set appropriate step array
-- Navigation moves to step 1
-
-**Edge Cases:**
-- ✅ User reloads page → `creationMethod` restored from localStorage
-- ✅ User goes back → Can change creation method (should reset form?)
-- ⚠️ User changes method mid-flow → Should reset form or warn?
-
-**Current Issues:**
-- None identified
+Both flows share the final steps (Base Image Selection → Finalize).
 
 ---
 
-### Presets Flow: Step 1 - Style
-**File**: `step-style.tsx`
+## Flow Diagrams
 
-**Expected Behavior:**
-- User selects gender (female/male)
-- User selects style (realistic/anime)
-- Data saved to `form.gender` and `form.style`
-- Can proceed when both selected
+### Presets Flow (10 steps)
 
-**Edge Cases:**
-- ✅ User reloads → Form data restored
-- ✅ User goes back → Previous selections visible
-- ⚠️ User changes gender → Should reset dependent fields (breastSize)?
+```
+Step 0: Creation Method Selection
+    ↓
+Step 1: Style (gender + realistic/anime)
+    ↓
+Step 2: Basic Appearance (ethnicity, age, skin color)
+    ↓
+Step 3: Facial Features (eye color, face shape)
+    ↓
+Step 4: Hair (style, color)
+    ↓
+Step 5: Body (type, ass size, breast size/type)
+    ↓
+Step 6: Skin Features (freckles, scars, beauty marks)
+    ↓
+Step 7: Body Modifications (piercings, tattoos)
+    ↓
+Step 8: Identity (name, outfit, archetype, personality, bio)
+    ↓
+Step 9: Base Image (generate 3, select 1)
+    ↓
+Step 10: Finalize (review, NSFW toggle, create character)
+```
 
-**Current Issues:**
-- None identified
+### Prompt-Based Flow (4 steps)
 
----
-
-### Presets Flow: Step 2 - General
-**File**: `step-general.tsx`
-
-**Expected Behavior:**
-- User selects ethnicity
-- User sets age (slider/input)
-- Data saved to `form.ethnicity` and `form.age`
-- Can proceed when ethnicity selected
-
-**Edge Cases:**
-- ✅ User reloads → Form data restored
-- ✅ User goes back → Previous selections visible
-
-**Current Issues:**
-- None identified
-
----
-
-### Presets Flow: Step 3 - Face
-**File**: `step-face.tsx`
-
-**Expected Behavior:**
-- User selects hair style
-- User selects hair color
-- User selects eye color
-- Data saved to form
-- Can proceed when all selected
-
-**Edge Cases:**
-- ✅ User reloads → Form data restored
-- ✅ User goes back → Previous selections visible
-
-**Current Issues:**
-- None identified
+```
+Step 0: Creation Method Selection
+    ↓
+Step 1: Prompt Input (text description + enhancement toggle)
+    ↓
+Step 2: Identity (name, outfit, archetype, personality, bio)
+    ↓
+Step 3: Base Image (generation starts, display 3, select 1)
+    ↓
+Step 4: Finalize (review, NSFW toggle, create character)
+```
 
 ---
 
-### Presets Flow: Step 4 - Body
-**File**: `step-body.tsx`
+## Route Map
 
-**Expected Behavior:**
-- User selects body type
-- If female, user selects breast size
-- Data saved to form
-- Can proceed when body type selected
+### Step → Route → Component Mapping
 
-**Edge Cases:**
-- ✅ User reloads → Form data restored
-- ✅ User goes back → Previous selections visible
-- ⚠️ User changes gender from female to male → breastSize should be cleared?
+| Step ID | Route | Presets Component | Prompt-Based Component |
+|---------|-------|-------------------|------------------------|
+| 0 | `/wizard/step-0` | StepCreationMethod | StepCreationMethod |
+| 1 | `/wizard/step-1` | StepStyle | StepPromptInput |
+| 2 | `/wizard/step-2` | StepGeneral | StepIdentity |
+| 3 | `/wizard/step-3` | StepFace | StepBaseImageSelection |
+| 4 | `/wizard/step-4` | StepHair | StepFinalize |
+| 5 | `/wizard/step-5` | StepBody | N/A |
+| 6 | `/wizard/step-6` | StepSkinFeatures | N/A |
+| 7 | `/wizard/step-7` | StepBodyModifications | N/A |
+| 8 | `/wizard/step-8` | StepIdentity | N/A |
+| 9 | `/wizard/step-9` | StepBaseImageSelection | N/A |
+| 10 | `/wizard/step-10` | StepFinalize | N/A |
 
-**Current Issues:**
-- None identified
+### Known Issues
 
----
-
-### Presets Flow: Step 5 - Identity
-**File**: `step-identity.tsx`
-
-**Expected Behavior:**
-- User enters name
-- User selects outfit
-- User selects archetype
-- User selects personality traits
-- User enters bio
-- Data saved to form
-- Can proceed when name and outfit selected
-
-**Edge Cases:**
-- ✅ User reloads → Form data restored
-- ✅ User goes back → Previous selections visible
-
-**Current Issues:**
-- None identified
+1. **Route assumes numeric step IDs** - Deep-linking fragile; should use flow router helpers.
 
 ---
 
-### Prompt-based Flow: Step 1 - Prompt Input
-**File**: `step-prompt-input.tsx`
+## State Management
 
-**Expected Behavior:**
-- User enters character description in textarea
-- Data saved to `form.promptInput`
-- Voice memo placeholder (future feature)
-- Can proceed when prompt entered
+### Store Location
+- **Store**: `libs/business/src/store/character-wizard.store.ts`
+- **Persistence**: Zustand + localStorage (`ryla-character-wizard`)
 
-**Edge Cases:**
-- ✅ User reloads → Prompt text restored
-- ✅ User goes back → Prompt text visible
-- ⚠️ User changes prompt → Should regenerate base images?
+### Persisted State
 
-**Current Issues:**
-- None identified
-
----
-
-### Step: Base Image Selection
-**File**: `step-base-image-selection.tsx`
-**Applies to**: Both flows (Step 6 for presets, Step 2 for prompt-based)
-
-**Expected Behavior:**
-1. **On Mount/Enter:**
-   - If no valid images exist → Auto-generate 3 base images
-   - If images exist → Display them immediately
-   - If only skeletons → Regenerate
-
-2. **Generation:**
-   - Show 3 skeleton loaders immediately
-   - Generate 3 images in parallel
-   - Update each skeleton as image completes (progressive)
-   - Show progress: "Generating X/3 images..."
-
-3. **After Generation:**
-   - User can select one image
-   - User can regenerate individual images
-   - User can fine-tune selected image with prompt
-   - User can regenerate all images
-
-4. **Navigation:**
-   - Going back → Images remain visible
-   - Going forward → Selected image preserved
-   - Reload → Images restored from localStorage
-
-**Edge Cases:**
-- ✅ **Page Reload**: Images should be restored from localStorage
-- ✅ **Navigate Back**: Images should still be visible
-- ✅ **Navigate Forward then Back**: Images should still be visible
-- ⚠️ **Generation Interrupted**: If user navigates away during generation, skeletons remain
-- ⚠️ **API Error**: Should show error and allow retry
-- ⚠️ **Partial Generation**: If only 1-2 images complete, should show them
-- ⚠️ **baseImages is undefined**: Should default to empty array (FIXED)
-
-**Current Issues:**
-- ✅ **FIXED**: `baseImages.some is not a function` - Added defensive check for array
-- ⚠️ **TODO**: Handle generation interruption (cleanup skeletons)
-- ⚠️ **TODO**: Handle partial generation (show completed images)
-
-**State Dependencies:**
-- `baseImages`: Array of GeneratedImage (should always be array)
-- `selectedBaseImageId`: ID of selected image
-- `baseImageFineTunePrompt`: Optional fine-tuning text
-
----
-
-### Step: Profile Pictures
-**File**: `step-profile-pictures.tsx`
-**Applies to**: Both flows (Step 7 for presets, Step 3 for prompt-based)
-
-**Expected Behavior:**
-1. **On Mount/Enter:**
-   - If base image selected AND no profile pictures exist → Auto-generate
-   - If profile pictures exist → Display them immediately
-   - If only skeletons → Regenerate
-
-2. **Generation:**
-   - Show skeleton loaders for all expected images (7-10 + 3 NSFW if enabled)
-   - Generate all images in parallel
-   - Update each skeleton as image completes (progressive)
-   - Show progress: "Generating X/Y images..."
-
-3. **After Generation:**
-   - User can view images in grid
-   - User can delete individual images
-   - User can regenerate individual images
-   - User can edit prompt for individual images
-   - User can regenerate all images
-   - NSFW images shown separately if enabled
-
-4. **Navigation:**
-   - Going back → Images remain visible
-   - Going forward → Images preserved
-   - Reload → Images restored from localStorage
-
-**Edge Cases:**
-- ✅ **Page Reload**: Images should be restored from localStorage
-- ✅ **Navigate Back**: Images should still be visible
-- ✅ **Navigate Forward then Back**: Images should still be visible
-- ⚠️ **No Base Image Selected**: Should show error message
-- ⚠️ **Generation Interrupted**: If user navigates away, skeletons remain
-- ⚠️ **API Error**: Should show error and allow retry
-- ⚠️ **Partial Generation**: Should show completed images
-- ⚠️ **NSFW Toggle Changed**: Should regenerate if images already exist?
-
-**Current Issues:**
-- ⚠️ **TODO**: Handle case where base image is deselected
-- ⚠️ **TODO**: Handle generation interruption
-- ⚠️ **TODO**: Handle NSFW toggle change mid-flow
-
-**State Dependencies:**
-- `selectedBaseImageId`: Required for generation
-- `profilePictureSet.images`: Array of ProfilePictureImage
-- `profilePictureSet.generating`: Boolean flag
-- `form.nsfwEnabled`: Controls NSFW image generation
-
----
-
-### Step: Finalize
-**File**: `step-finalize.tsx`
-**Applies to**: Both flows (Step 8 for presets, Step 4 for prompt-based)
-
-**Expected Behavior:**
-1. **Display:**
-   - Show selected base image
-   - Show profile picture set preview
-   - Show character name input
-   - Show all form data summary
-
-2. **Actions:**
-   - User enters character name
-   - User can review all selections
-   - User clicks "Create Character"
-   - Character created in database
-   - User redirected to character page
-
-**Edge Cases:**
-- ✅ **Missing Base Image**: Should show error
-- ✅ **Missing Profile Pictures**: Should show error
-- ✅ **Missing Name**: Should disable create button
-- ⚠️ **Create Fails**: Should show error and allow retry
-- ⚠️ **User Navigates Away**: Should preserve state
-
-**Current Issues:**
-- ⚠️ **TODO**: Implement actual character creation API call
-- ⚠️ **TODO**: Handle creation errors
-
----
-
-## State Persistence & Rehydration
-
-### localStorage Structure
 ```typescript
 {
   step: number,
@@ -304,206 +107,247 @@ The Character Wizard is a multi-step flow for creating AI influencers with two c
 }
 ```
 
-### Rehydration Behavior
-1. **On Page Load:**
-   - Store rehydrates from localStorage
-   - `onRehydrateStorage` callback executes
-   - If `creationMethod` exists but `steps` is empty → Restore steps array
-   - Components receive rehydrated state
+### Missing Fields (to be added)
 
-2. **Expected After Reload:**
-   - ✅ All form data visible
-   - ✅ Base images visible (if generated)
-   - ✅ Profile pictures visible (if generated)
-   - ✅ Current step correct
-   - ✅ Selected base image preserved
-   - ✅ NSFW setting preserved
-
-**Edge Cases:**
-- ⚠️ **Corrupted localStorage**: Should reset to defaults
-- ⚠️ **Old localStorage format**: Should migrate or reset
-- ⚠️ **baseImages is not array**: Should default to [] (FIXED)
+```typescript
+// For prompt-based generation handoff (to prevent duplicate generation)
+baseImageJobId: string | null,
+baseImageAllJobIds: string[] | null,
+baseImageGenerationStartedAt: number | null,
+```
 
 ---
 
-## Navigation Flow
+## Step Requirements
 
 ### Presets Flow
-```
-Step 0 (Creation Method) 
-  → Step 1 (Style)
-  → Step 2 (General)
-  → Step 3 (Face)
-  → Step 4 (Body)
-  → Step 5 (Identity)
-  → Step 6 (Base Image) ← Can go back to Step 5
-  → Step 7 (Profile Pictures) ← Requires base image selected
-  → Step 8 (Finalize) ← Requires profile pictures generated
-```
 
-### Prompt-based Flow
-```
-Step 0 (Creation Method)
-  → Step 1 (Prompt Input)
-  → Step 2 (Base Image) ← Can go back to Step 1
-  → Step 3 (Profile Pictures) ← Requires base image selected
-  → Step 4 (Finalize) ← Requires profile pictures generated
-```
+| Step | Required Inputs | Produced Outputs |
+|------|-----------------|------------------|
+| 0 | - | `creationMethod: 'presets'` |
+| 1 | - | `gender`, `style` |
+| 2 | `gender`, `style` | `ethnicity`, `ageRange`, `skinColor` |
+| 3 | step 2 complete | `eyeColor`, `faceShape` |
+| 4 | step 3 complete | `hairStyle`, `hairColor` |
+| 5 | step 4 complete | `bodyType`, `assSize`, `breastSize`, `breastType` |
+| 6 | step 5 complete | `freckles`, `scars`, `beautyMarks` |
+| 7 | step 6 complete | `piercings`, `tattoos` |
+| 8 | step 7 complete | `name`, `outfit`, `archetype`, `personalityTraits`, `bio` |
+| 9 | step 8 complete | `baseImages[]`, `selectedBaseImageId` |
+| 10 | `selectedBaseImageId` | Character created in DB |
 
-### Navigation Rules
-- **Next Button**: Only enabled if current step is valid
-- **Back Button**: Always enabled (except step 0)
-- **Progress Bar**: Shows current step / total steps
-- **Step Validation**: `isStepValid(step)` checks required fields
+### Prompt-Based Flow
 
-**Edge Cases:**
-- ⚠️ **User skips steps via URL**: Should validate and redirect
-- ⚠️ **User goes back multiple steps**: Should preserve all data
-- ⚠️ **User changes creation method**: Should reset form or warn?
+| Step | Required Inputs | Produced Outputs |
+|------|-----------------|------------------|
+| 0 | - | `creationMethod: 'prompt-based'` |
+| 1 | - | `promptInput`, `promptEnhance` |
+| 2 | `promptInput` | `name`, `outfit`, `archetype`, `personalityTraits`, `bio` |
+| 3 | `name`, `promptInput` | `baseImages[]`, `selectedBaseImageId` (generation starts on enter) |
+| 4 | `selectedBaseImageId` | Character created in DB |
 
 ---
 
-## Image Generation Flow
+## Back Navigation Reset Rules
 
-### Base Image Generation
-1. **Trigger**: Auto on mount if no valid images
-2. **Input**: Form data (appearance + identity)
-3. **Process**: 
-   - Create 3 skeleton slots
-   - Generate 3 images in parallel (different seeds)
-   - Update skeletons progressively as images complete
-4. **Output**: 3 GeneratedImage objects
-5. **Storage**: Saved to `baseImages` in store + localStorage
+### Current Behavior (resetStepsFrom)
 
-**Edge Cases:**
-- ✅ **Generation in progress**: Show skeletons + progress
-- ✅ **Partial completion**: Show completed images, keep skeletons for pending
-- ⚠️ **Generation fails**: Show error, allow retry
-- ⚠️ **User navigates away**: Generation continues in background (should cleanup?)
+#### Prompt-Based Flow
 
-### Profile Picture Generation
-1. **Trigger**: Auto on mount if base image selected AND no profile pictures
-2. **Input**: Selected base image URL + profile picture set ID
-3. **Process**:
-   - Create skeleton slots for all positions (7-10 + 3 NSFW if enabled)
-   - Generate all images in parallel using PuLID workflow
-   - Update skeletons progressively as images complete
-4. **Output**: 7-10 ProfilePictureImage objects (+ 3 NSFW if enabled)
-5. **Storage**: Saved to `profilePictureSet.images` in store + localStorage
+| Going back to | Fields cleared |
+|---------------|----------------|
+| Step 1 | `promptInput`, `name`, `outfit`, `archetype`, `personalityTraits`, `bio`, `baseImages`, `selectedBaseImageId`, `baseImageFineTunePrompt`, `baseImageJobIds` |
+| Step 2 | `name`, `outfit`, `archetype`, `personalityTraits`, `bio`, `baseImages`, `selectedBaseImageId`, `baseImageFineTunePrompt`, `baseImageJobIds` |
+| Step 3 | `baseImages`, `selectedBaseImageId`, `baseImageFineTunePrompt`, `baseImageJobIds` |
 
-**Edge Cases:**
-- ✅ **Generation in progress**: Show skeletons + progress
-- ✅ **Partial completion**: Show completed images, keep skeletons for pending
-- ⚠️ **Generation fails**: Show error, allow retry
-- ⚠️ **User navigates away**: Generation continues in background (should cleanup?)
-- ⚠️ **Base image changed**: Should regenerate profile pictures?
+#### Presets Flow
+
+| Going back to | Fields cleared |
+|---------------|----------------|
+| Step 1 | `gender`, `style` |
+| Step 2 | `ethnicity`, `ageRange`, `age`, `skinColor` |
+| Step 3 | `eyeColor`, `faceShape` |
+| Step 4 | `hairStyle`, `hairColor` |
+| Step 5 | `bodyType`, `assSize`, `breastSize`, `breastType` |
+| Step 6 | `freckles`, `scars`, `beautyMarks` |
+| Step 7 | `piercings`, `tattoos` |
+| Step 8 | `name`, `outfit`, `archetype`, `personalityTraits`, `bio` |
+| Step 9 | `baseImages`, `selectedBaseImageId`, `baseImageFineTunePrompt` |
+
+### Required Addition
+
+- **Clear `baseImageJobIds` when going back** to ensure new generation starts on re-enter.
 
 ---
 
-## Identified Issues & Fixes Needed
+## Generation Contract (Prompt-Based)
 
-### Critical Issues
-1. ✅ **FIXED**: `baseImages.some is not a function`
-   - **Cause**: `baseImages` could be undefined during rehydration
-   - **Fix**: Added defensive check `Array.isArray(baseImages) ? baseImages : []`
+### Current Behavior (IMPLEMENTED)
 
-2. ⚠️ **TODO**: Handle generation interruption
-   - **Issue**: If user navigates away during generation, skeletons remain
-   - **Fix Needed**: Cleanup skeletons or show "Generation in progress" state
+1. User clicks Continue on Prompt step → navigates to Identity (step 2)
+2. User fills identity (name, etc.) → clicks Continue → navigates to Base Image (step 3)
+3. Base Image step mounts:
+   - If `promptInput` exists → calls `handleGenerateAll()` → generation starts
+   - If jobIds exist (from prior generation) → poll those jobs
+4. Generation produces `baseImages[]`, user selects one
+5. User clicks Continue → navigates to Finalize (step 4)
 
-3. ⚠️ **TODO**: Handle partial generation
-   - **Issue**: If only some images complete, should show them
-   - **Current**: Works for progressive updates, but needs error handling
+### Idempotency
 
-### Medium Priority Issues
-4. ⚠️ **TODO**: Validate step access via URL
-   - **Issue**: User could navigate to step-7 without completing previous steps
-   - **Fix Needed**: Add step validation in page components
+- API supports `idempotencyKey` to prevent duplicate generation on double-click/refresh
+- Job IDs stored in wizard state for polling resume after refresh
 
-5. ⚠️ **TODO**: Handle creation method change mid-flow
-   - **Issue**: User could change method after starting
-   - **Fix Needed**: Warn user or reset form
+### Refresh Resilience
 
-6. ⚠️ **TODO**: Handle base image deselection
-   - **Issue**: What if user deselects base image after profile pictures generated?
-   - **Fix Needed**: Regenerate profile pictures or show warning
+- On page reload, `baseImageJobIds` restored from localStorage (if generation was started)
+- Base Image step resumes polling those jobs
+- If no jobIds but `promptInput` exists, starts fresh generation
+- Images display progressively as jobs complete
 
-### Low Priority Issues
-7. ⚠️ **TODO**: Improve error messages
-   - **Issue**: Generic error messages not helpful
-   - **Fix Needed**: More specific error messages per failure type
+---
 
-8. ⚠️ **TODO**: Add loading states for API calls
-   - **Issue**: Some operations don't show loading state
-   - **Fix Needed**: Add loading indicators for all async operations
+## Identified Bugs
+
+### Critical
+
+| ID | Description | Status | Fix Location |
+|----|-------------|--------|--------------|
+| BUG-1 | `/wizard/step-3` returns null for prompt-based flow | ✅ Fixed | `apps/web/app/wizard/step-3/page.tsx` |
+| BUG-2 | Duplicate base image generation on prompt-based flow | ✅ Fixed | Idempotency + generation on step 3 enter |
+| BUG-3 | JobIds not persisted, can't resume after refresh | ✅ Fixed | `character-wizard.store.ts` |
+
+### Medium
+
+| ID | Description | Status | Fix Location |
+|----|-------------|--------|--------------|
+| BUG-4 | Deep-link to invalid step renders empty page | 🟡 Open | All step pages, wizard-layout.tsx |
+| BUG-5 | No validation that previous steps are complete | 🟡 Open | wizard-layout.tsx |
+
+### Low
+
+| ID | Description | Status | Fix Location |
+|----|-------------|--------|--------------|
+| BUG-6 | Skeletons remain if generation interrupted | 🟢 Low | step-base-image-selection.tsx |
+
+---
+
+## Planned Fixes
+
+### 1. Shared Flow Router (libs/business)
+
+Create `libs/business/src/wizard/flow-router.ts`:
+
+```typescript
+export interface WizardStepConfig {
+  id: number;
+  route: string;
+  title: string;
+  component: string; // Component name for reference
+  canEnter: (form: CharacterFormData, state: CharacterWizardState) => boolean;
+  canProceed: (form: CharacterFormData, state: CharacterWizardState) => boolean;
+  resetFields: (keyof CharacterFormData | 'baseImages' | 'selectedBaseImageId' | 'baseImageJobIds')[];
+}
+
+export const WIZARD_FLOWS: Record<'presets' | 'prompt-based', WizardStepConfig[]> = {
+  'presets': [...],
+  'prompt-based': [...]
+};
+
+// Helpers
+export function getStepConfig(method: string, stepId: number): WizardStepConfig | undefined;
+export function getNextRoute(method: string, currentStepId: number): string | null;
+export function getPrevRoute(method: string, currentStepId: number): string | null;
+export function getFirstIncompleteStep(method: string, form: CharacterFormData, state: CharacterWizardState): WizardStepConfig;
+```
+
+### 2. Store Updates
+
+Add to `CharacterWizardState`:
+
+```typescript
+// Base image generation tracking (for prompt-based)
+baseImageJobId: string | null;
+baseImageAllJobIds: string[] | null;
+baseImageGenerationStartedAt: number | null;
+
+// Actions
+setBaseImageJobIds: (jobId: string, allJobIds: string[]) => void;
+clearBaseImageJobIds: () => void;
+```
+
+Update `resetStepsFrom()` to clear job IDs.
+
+### 3. Page Updates
+
+- `step-3/page.tsx`: Render `StepFinalize` when `creationMethod === 'prompt-based'`
+- `step-prompt-input.tsx`: Store jobIds after `generateBaseImages()`
+- `step-base-image-selection.tsx`: Check for existing jobIds, poll if present
+
+### 4. API Idempotency (Optional but Recommended)
+
+Add `idempotencyKey` support to `/characters/generate-base-images`:
+
+```typescript
+interface GenerateBaseImagesDto {
+  // ... existing fields
+  idempotencyKey?: string; // hash(userId + promptInput + promptEnhance)
+}
+```
+
+If a job with matching key exists and is in_progress, return existing job IDs.
 
 ---
 
 ## Testing Checklist
 
-### Happy Path
-- [ ] Complete presets flow end-to-end
-- [ ] Complete prompt-based flow end-to-end
-- [ ] Select base image and generate profile pictures
-- [ ] Create character successfully
+### Prompt-Based Flow
 
-### Navigation
-- [ ] Navigate forward through all steps
-- [ ] Navigate backward through all steps
-- [ ] Reload page at each step → State preserved
-- [ ] Navigate forward then back → State preserved
+- [ ] Step 0 → Step 1: Creation method persists
+- [ ] Step 1 → Step 2: Prompt saved, Identity step renders correctly
+- [ ] Step 2: Name and personality fields work
+- [ ] Step 2 → Step 3: Generation starts on enter, skeleton loaders appear
+- [ ] Step 3: Images appear progressively, selection works
+- [ ] Step 3 → Step 4: Finalize renders correctly
+- [ ] Step 4: Create character works
+- [ ] Refresh on Step 3: Resumes polling from stored jobIds
+- [ ] Back from Step 3: Clears images + jobIds
+- [ ] Back from Step 2: Clears identity fields + images + jobIds
+- [ ] Forward again: Identity empty, generation starts fresh
 
-### Image Generation
-- [ ] Base images generate and display progressively
-- [ ] Profile pictures generate and display progressively
-- [ ] Regenerate individual base image
-- [ ] Regenerate individual profile picture
-- [ ] Regenerate all base images
-- [ ] Regenerate all profile pictures
+### Presets Flow
+
+- [ ] Full flow step 0 → step 10 works
+- [ ] Back navigation at each step preserves earlier data
+- [ ] Back from step 9: Clears base images
+- [ ] Refresh at any step: State restored correctly
+- [ ] Deep-link to step without prior data: Redirects appropriately
 
 ### Edge Cases
-- [ ] Reload during base image generation
-- [ ] Reload during profile picture generation
-- [ ] Navigate away during generation
-- [ ] Change NSFW setting mid-flow
-- [ ] Deselect base image after profile pictures generated
-- [ ] API error during generation
-- [ ] Network timeout during generation
-- [ ] Corrupted localStorage data
 
-### State Persistence
-- [ ] Form data persists across reloads
-- [ ] Base images persist across reloads
-- [ ] Profile pictures persist across reloads
-- [ ] Selected base image persists across reloads
-- [ ] Steps array restored correctly after reload
+- [ ] Double-click Continue: Only one generation starts
+- [ ] Generation error: Shows error, allows retry
+- [ ] Generation timeout: Shows message, allows retry
+- [ ] Network disconnect during polling: Resumes when reconnected
 
 ---
 
-## Recommended Changes
+## Files Affected
 
-### Immediate Fixes
-1. ✅ **DONE**: Fix `baseImages.some is not a function` error
-2. ⚠️ **TODO**: Add step validation in page components
-3. ⚠️ **TODO**: Add cleanup for interrupted generations
-
-### Short-term Improvements
-4. ⚠️ **TODO**: Add better error handling and messages
-5. ⚠️ **TODO**: Add loading states for all async operations
-6. ⚠️ **TODO**: Handle creation method change mid-flow
-
-### Long-term Enhancements
-7. ⚠️ **TODO**: Add migration for old localStorage formats
-8. ⚠️ **TODO**: Add analytics for wizard completion rates
-9. ⚠️ **TODO**: Add ability to save draft characters
+| File | Changes |
+|------|---------|
+| `libs/business/src/wizard/flow-router.ts` | **New file** - Flow schema + helpers |
+| `libs/business/src/store/character-wizard.store.ts` | Add jobId fields, update reset logic |
+| `apps/web/app/wizard/step-3/page.tsx` | Handle prompt-based → Finalize |
+| `apps/web/components/wizard/step-prompt-input.tsx` | Store jobIds on continue |
+| `apps/web/components/wizard/step-base-image-selection.tsx` | Poll existing jobIds, no auto-start |
+| `apps/web/components/wizard/wizard-layout.tsx` | Use flow router for navigation |
 
 ---
 
-## Notes
+## Acceptance Criteria
 
-- All state is persisted to localStorage for recovery
-- Progressive image loading improves perceived performance
-- Skeleton loaders provide better UX than blank screens
-- Both flows share base image and profile picture steps
-- NSFW content is optional and clearly marked
-
+- [ ] No wizard route renders an empty/null step for valid flows
+- [ ] Prompt-based base images are generated exactly once per Continue (idempotent)
+- [ ] Back navigation clears downstream wizard state including persisted base image artifacts
+- [ ] Wizard is resilient to refresh/deep-linking
+- [ ] This audit doc reflects actual behavior

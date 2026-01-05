@@ -14,3 +14,4 @@ export * from './bug-reports.schema';
 export * from './outfit-presets.schema';
 export * from './gallery-favorites.schema';
 export * from './templates.schema';
+export * from './influencer-requests.schema';

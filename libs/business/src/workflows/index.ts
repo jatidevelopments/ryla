@@ -18,6 +18,9 @@ export * from './types';
 export * from './z-image-danrisi';
 export * from './z-image-simple';
 export * from './z-image-pulid';
+export * from './z-image-pulid-fallback';
+export * from './z-image-instantid';
 export * from './flux-inpaint';
+export * from './flux-pulid';
 export * from './registry';
 

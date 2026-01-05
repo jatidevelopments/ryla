@@ -8,10 +8,11 @@ interface TooltipProps {
   content: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  wrapperClassName?: string;
   delay?: number;
 }
 
-export function Tooltip({ content, children, className, delay = 300 }: TooltipProps) {
+export function Tooltip({ content, children, className, wrapperClassName, delay = 300 }: TooltipProps) {
   const [isVisible, setIsVisible] = React.useState(false);
   const [position, setPosition] = React.useState<{ top: number; left: number } | null>(null);
   const [mounted, setMounted] = React.useState(false);
@@ -74,7 +75,7 @@ export function Tooltip({ content, children, className, delay = 300 }: TooltipPr
         ref={triggerRef}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="inline-flex"
+        className={cn(wrapperClassName || 'inline-flex')}
       >
         {children}
       </div>

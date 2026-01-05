@@ -71,6 +71,8 @@ export class ImageController {
       nsfwEnabled: dto.nsfwEnabled,
       workflowId: dto.workflowId,
       seed: dto.seed,
+      promptInput: dto.promptInput,
+      promptEnhance: dto.promptEnhance,
     });
 
     return {
@@ -177,6 +179,7 @@ export class ImageController {
       qualityMode: dto.qualityMode,
       count: dto.count,
       nsfw: dto.nsfw,
+      promptEnhance: dto.promptEnhance,
       seed: dto.seed,
       modelProvider: dto.modelProvider,
       modelId: dto.modelId,

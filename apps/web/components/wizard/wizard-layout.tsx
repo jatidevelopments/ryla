@@ -142,7 +142,8 @@ export function WizardLayout({ children }: WizardLayoutProps) {
 
           {/* Continue Button - flows at the bottom of content */}
           {/* Hide on last step since step-finalize has its own "Create Character" button */}
-          {step > 0 && !isLastStep && (
+          {/* Hide on prompt-based step 1 since StepPromptInput has its own Continue button */}
+          {step > 0 && !isLastStep && !(form.creationMethod === 'prompt-based' && step === 1) && (
             <div className="mt-8 pb-6">
               <button
                 onClick={handleNext}

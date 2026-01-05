@@ -223,6 +223,73 @@ export const userRouter = router({
     }),
 
   /**
+   * Check if onboarding is completed
+   */
+  isOnboardingCompleted: protectedProcedure.query(async ({ ctx }) => {
+    const user = await ctx.db.query.users.findFirst({
+      where: eq(users.id, ctx.user.id),
+      columns: { settings: true },
+    });
+
+    const settings = user?.settings ? JSON.parse(user.settings) : {};
+    return {
+      completed: settings.onboarding?.completed === true,
+      completedAt: settings.onboarding?.completedAt || null,
+    };
+  }),
+
+  /**
+   * Complete onboarding - save answers and mark as completed
+   */
+  completeOnboarding: protectedProcedure
+    .input(
+      z.object({
+        referralSource: z.enum([
+          'tiktok',
+          'reddit',
+          'instagram',
+          'google',
+          'friend',
+          'other',
+        ]),
+        aiInfluencerExperience: z.enum(['never', 'few', 'many']),
+        referralSourceOther: z.string().optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const user = await ctx.db.query.users.findFirst({
+        where: eq(users.id, ctx.user.id),
+        columns: { settings: true },
+      });
+
+      const currentSettings = user?.settings ? JSON.parse(user.settings) : {};
+
+      const newSettings = {
+        ...currentSettings,
+        onboarding: {
+          completed: true,
+          completedAt: new Date().toISOString(),
+          referralSource: input.referralSource,
+          aiInfluencerExperience: input.aiInfluencerExperience,
+          ...(input.referralSourceOther && { referralSourceOther: input.referralSourceOther }),
+        },
+      };
+
+      await ctx.db
+        .update(users)
+        .set({
+          settings: JSON.stringify(newSettings),
+          updatedAt: new Date(),
+        })
+        .where(eq(users.id, ctx.user.id));
+
+      return {
+        success: true,
+        onboarding: newSettings.onboarding,
+      };
+    }),
+
+  /**
    * Check if user has accepted upload consent
    */
   hasUploadConsent: protectedProcedure.query(async ({ ctx }) => {

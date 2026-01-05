@@ -567,15 +567,30 @@ export class FalImageService {
       seed: input.seed,
     };
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Key ${falKey}`,
-        'Content-Type': 'application/json',
-        'X-Request-Id': requestId,
-      },
-      body: JSON.stringify(body),
-    });
+    // Add timeout to prevent hanging (30 seconds for initial request)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Key ${falKey}`,
+          'Content-Type': 'application/json',
+          'X-Request-Id': requestId,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw new Error(`Fal request timeout (${modelId}) - model may require async polling`);
+      }
+      throw err;
+    }
 
     const text = await res.text();
     if (!res.ok) {
@@ -587,15 +602,41 @@ export class FalImageService {
     try {
       json = JSON.parse(text);
     } catch {
+      this.logger.error(`Fal returned non-JSON response for (${modelId}): ${text.slice(0, 500)}`);
       throw new Error(`Fal returned non-JSON response for (${modelId})`);
+    }
+
+    // Log response structure for debugging
+    this.logger.debug(`Fal response for ${modelId}: ${JSON.stringify(json).substring(0, 200)}`);
+
+    // Check if this is an async queue response (returns request_id for polling)
+    // Some models like Seedream 4.5 use async queue API
+    const queueResponse = json as { request_id?: string; status?: string; images?: unknown };
+    const hasImages = this.extractImageUrls(json).length > 0;
+    
+    this.logger.debug(`Fal response check ${modelId}: request_id=${queueResponse.request_id || 'none'}, status=${queueResponse.status || 'none'}, hasImages=${hasImages}`);
+    
+    // If we got a request_id but no images, it's async - need to poll
+    if (queueResponse.request_id && !hasImages) {
+      this.logger.log(`Fal model ${modelId} returned async request_id=${queueResponse.request_id}, polling queue...`);
+      return await this.pollFalQueue(queueResponse.request_id, modelId);
+    }
+    
+    // Also check if status indicates async processing
+    if (queueResponse.status === 'IN_QUEUE' || queueResponse.status === 'IN_PROGRESS') {
+      if (queueResponse.request_id) {
+        this.logger.log(`Fal model ${modelId} status=${queueResponse.status} request_id=${queueResponse.request_id}, polling...`);
+        return await this.pollFalQueue(queueResponse.request_id, modelId);
+      }
     }
 
     const imageUrls = this.extractImageUrls(json);
     if (imageUrls.length === 0) {
-      this.logger.warn(`Fal returned 0 image URLs (${modelId}) body=${text.slice(0, 500)}`);
+      this.logger.error(`Fal returned 0 image URLs (${modelId}) response=${JSON.stringify(json).substring(0, 500)}`);
       throw new Error(`Fal returned no images (${modelId})`);
     }
 
+    this.logger.log(`Fal model ${modelId} returned ${imageUrls.length} image(s) immediately`);
     return { requestId, imageUrls };
   }
 
@@ -667,6 +708,71 @@ export class FalImageService {
     const arrayBuffer = await res.arrayBuffer();
     const b64 = Buffer.from(arrayBuffer).toString('base64');
     return `data:${contentType};base64,${b64}`;
+  }
+
+  /**
+   * Poll Fal AI queue API for async model results
+   * Some models (like Seedream 4.5) use async queue instead of immediate response
+   */
+  private async pollFalQueue(requestId: string, modelId: FalFluxModelId): Promise<FalRunOutput> {
+    const falKey = this.getFalKey();
+    if (!falKey) {
+      throw new Error('FAL_KEY is not configured');
+    }
+
+    const maxAttempts = 60; // 5 minutes max (5s * 60)
+    const pollInterval = 5000; // 5 seconds
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      await new Promise((resolve) => setTimeout(resolve, pollInterval));
+      attempts++;
+
+      try {
+        // Poll the queue endpoint: https://queue.fal.run/{modelId}/requests/{request_id}
+        // Remove 'fal-ai/' prefix if present for queue API
+        const modelPath = modelId.startsWith('fal-ai/') ? modelId : `fal-ai/${modelId}`;
+        const pollUrl = `https://queue.fal.run/${modelPath}/requests/${requestId}`;
+        
+        const res = await fetch(pollUrl, {
+          method: 'GET',
+          headers: {
+            Authorization: `Key ${falKey}`,
+          },
+        });
+
+        if (!res.ok) {
+          this.logger.warn(`Fal queue poll failed (${modelId}) requestId=${requestId} status=${res.status}`);
+          if (attempts >= maxAttempts) {
+            throw new Error(`Fal queue polling timeout (${modelId}) after ${maxAttempts} attempts`);
+          }
+          continue;
+        }
+
+        const json = await res.json() as { status: string; images?: Array<{ url: string }>; error?: string };
+        
+        if (json.status === 'COMPLETED' && json.images && json.images.length > 0) {
+          const imageUrls = json.images.map((img) => img.url);
+          this.logger.log(`Fal queue completed (${modelId}) requestId=${requestId} images=${imageUrls.length}`);
+          return { requestId, imageUrls };
+        }
+
+        if (json.status === 'FAILED' || json.error) {
+          throw new Error(`Fal queue failed (${modelId}): ${json.error || 'Unknown error'}`);
+        }
+
+        // Still processing - continue polling
+        this.logger.debug(`Fal queue status (${modelId}) requestId=${requestId} status=${json.status} attempt=${attempts}/${maxAttempts}`);
+      } catch (err) {
+        if (err instanceof Error && err.message.includes('timeout')) {
+          throw err;
+        }
+        // Log but continue polling on transient errors
+        this.logger.warn(`Fal queue poll error (${modelId}) requestId=${requestId} attempt=${attempts}: ${err}`);
+      }
+    }
+
+    throw new Error(`Fal queue polling timeout (${modelId}) after ${maxAttempts} attempts`);
   }
 
   private getFalKey(): string | undefined {

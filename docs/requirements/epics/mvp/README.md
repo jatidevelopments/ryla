@@ -29,6 +29,8 @@ These epics define the **MVP Product** — what users interact with after conver
 | [EP-020](./EP-020-template-gallery.md) | Template Gallery & Library | P1 | A-Activation, C-Core Value | 📝 Defined |
 | [EP-021](./EP-021-multi-piece-outfit-gallery.md) | Multi-Piece Outfit Gallery | P1 | C-Core Value | 📝 Defined |
 | [EP-022](./EP-022-unified-auth-page.md) | Unified Login/Registration Page | P1 | A-Activation | 📝 Defined |
+| [EP-023](./EP-023-prompt-builder-optimization.md) | Prompt Builder Optimization | P1 | C-Core Value | 📝 Defined |
+| [EP-024](./EP-024-contextual-page-tutorials.md) | Contextual Page Tutorials | P1 | A-Activation, C-Core Value | 📝 Defined |
 
 ## User Journey
 

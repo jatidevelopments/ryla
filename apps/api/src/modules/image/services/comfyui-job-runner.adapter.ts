@@ -243,6 +243,14 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   }
 
   /**
+   * Get available nodes (for workflow compatibility checking)
+   */
+  async getAvailableNodes(): Promise<string[]> {
+    if (!this.client) return [];
+    return this.client.getAvailableNodes();
+  }
+
+  /**
    * Check if ComfyUI is available
    */
   isAvailable(): boolean {

@@ -18,7 +18,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import dotenv from 'dotenv';
-import { buildZImagePuLIDWorkflow } from '@ryla/business';
+import { buildZImagePuLIDWorkflowWithKSampler } from '@ryla/business';
 import { ComfyUIPodClient } from '@ryla/business';
 
 // Load environment variables
@@ -39,7 +39,7 @@ const imageUrl = imageUrlArg ? imageUrlArg.split('=')[1] : undefined;
 console.log('🧪 Consistent Mode (PuLID) Test\n');
 console.log(`📡 ComfyUI Pod: ${COMFYUI_URL}\n`);
 
-const client = new ComfyUIPodClient({ baseUrl: COMFYUI_URL, timeout: 300000 }); // 5 min timeout
+const client = new ComfyUIPodClient({ baseUrl: COMFYUI_URL, timeout: 600000 }); // 10 min timeout for PuLID
 
 /**
  * Step 1: Health check
@@ -66,16 +66,14 @@ async function checkHealth(): Promise<boolean> {
  */
 async function checkRequiredNodes(): Promise<{ allPresent: boolean; missing: string[] }> {
   console.log('2️⃣  Checking required PuLID nodes...');
+  // Using KSampler fallback, so we don't need FixPulidFluxPatch or ClownsharKSampler_Beta
   const requiredNodes = [
     'PulidFluxModelLoader',
     'PulidFluxInsightFaceLoader',
     'PulidFluxEvaClipLoader',
     'ApplyPulidFlux',
-    'FixPulidFluxPatch',
     'LoadImage',
-    'ClownsharKSampler_Beta',
-    'Sigmas Rescale',
-    'BetaSamplingScheduler',
+    'KSampler', // Using KSampler instead of ClownsharKSampler_Beta
     'UNETLoader',
     'CLIPLoader',
     'VAELoader',
@@ -90,7 +88,11 @@ async function checkRequiredNodes(): Promise<{ allPresent: boolean; missing: str
       return { allPresent: true, missing: [] };
     } else {
       console.log(`   ⚠️  Missing ${missing.length} nodes:`);
-      missing.forEach((node) => console.log(`      - ${node}`));
+      missing.forEach((node) => {
+        const isCritical = node === 'FixPulidFluxPatch';
+        console.log(`      - ${node}${isCritical ? ' ⚠️  CRITICAL - This fixes latent_shapes error!' : ''}`);
+      });
+      // Note: We're using KSampler fallback, so FixPulidFluxPatch is not required
       console.log(`   ✅ ${requiredNodes.length - missing.length}/${requiredNodes.length} nodes available\n`);
       return { allPresent: false, missing };
     }
@@ -262,9 +264,9 @@ async function uploadReferenceImage(imageBuffer: Buffer): Promise<string> {
  * Step 5: Build and validate workflow
  */
 function buildAndValidateWorkflow(referenceImageFilename: string) {
-  console.log('5️⃣  Building PuLID workflow...');
+  console.log('5️⃣  Building PuLID workflow (KSampler fallback)...');
   try {
-    const workflow = buildZImagePuLIDWorkflow({
+    const workflow = buildZImagePuLIDWorkflowWithKSampler({
       prompt: 'The same woman in a coffee shop, wearing casual clothes, warm lighting, candid photo, smiling',
       negativePrompt: 'blurry, deformed, ugly, bad anatomy, disfigured',
       referenceImage: referenceImageFilename,
@@ -279,8 +281,8 @@ function buildAndValidateWorkflow(referenceImageFilename: string) {
       filenamePrefix: 'consistent_test_result',
     });
 
-    // Validate workflow structure
-    const requiredNodeIds = ['1', '2', '3', '20', '21', '22', '23', '24', '28', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+    // Validate workflow structure (KSampler version doesn't need nodes 8, 9, 28)
+    const requiredNodeIds = ['1', '2', '3', '20', '21', '22', '23', '24', '4', '5', '6', '7', '8', '9', '10'];
     const missingNodes = requiredNodeIds.filter((id) => !workflow[id]);
 
     if (missingNodes.length > 0) {
@@ -305,9 +307,28 @@ async function executeWorkflow(workflow: any): Promise<{ success: boolean; image
   try {
     const promptId = await client.queueWorkflow(workflow);
     console.log(`   ⏳ Queued: ${promptId}`);
-    console.log('   ⏳ Waiting for generation (this may take 1-3 minutes)...');
+    console.log('   ⏳ Waiting for generation (PuLID can take 3-10 minutes)...');
+
+    // Check status a few times to see progress
+    let checkCount = 0;
+    const statusCheckInterval = setInterval(async () => {
+      checkCount++;
+      if (checkCount % 15 === 0) { // Every 30 seconds (15 * 2s)
+        try {
+          const status = await client.getJobStatus(promptId);
+          console.log(`   📊 Status check (${checkCount * 2}s): ${status.status}`);
+          if (status.error) {
+            console.log(`   ⚠️  Error detected: ${status.error}`);
+          }
+        } catch (e) {
+          // Ignore status check errors
+        }
+      }
+    }, 2000);
 
     const result = await client.executeWorkflow(workflow, 2000);
+    
+    clearInterval(statusCheckInterval);
 
     const duration = ((Date.now() - startTime) / 1000).toFixed(1);
 

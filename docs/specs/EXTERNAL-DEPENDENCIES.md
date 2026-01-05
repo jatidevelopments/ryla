@@ -159,6 +159,47 @@ Configured in `.cursor/mcp.json` for Cursor IDE integration. Allows managing Run
 
 ---
 
+### OpenRouter (LLM Prompt Enhancement)
+| | |
+|---|---|
+| **Purpose** | Unified LLM API for prompt enhancement |
+| **Used For** | AI prompt enhancement (alternative to direct OpenAI/Gemini) |
+| **Docs** | https://openrouter.ai/docs |
+| **Dashboard** | https://openrouter.ai/ |
+| **API** | OpenAI-compatible API |
+
+**Env Vars:**
+```
+OPENROUTER_API_KEY=
+OPENROUTER_DEFAULT_MODEL=openai/gpt-4o-mini
+```
+
+**Benefits:**
+- ✅ Access to 500+ models across 60+ providers
+- ✅ Better prices (20-40% savings vs direct APIs)
+- ✅ Automatic fallback between providers
+- ✅ Better uptime/reliability
+- ✅ Single API key instead of multiple
+
+**Recommended Models:**
+- `openai/gpt-4o-mini` - Balanced quality/cost (default)
+- `deepseek/deepseek-chat` - Cost-optimized (50-70% cheaper)
+- `qwen/qwen-2.5-72b-instruct` - Cost-optimized (40-60% cheaper)
+- `anthropic/claude-opus-4.5` - Premium quality
+- `google/gemini-3-pro-preview` - High quality
+
+**Fallback:**
+- Direct OpenAI API (`OPENAI_API_KEY`)
+- Direct Gemini API (`GEMINI_API_KEY`)
+
+**Implementation:**
+- Location: `libs/business/src/prompts/ai-enhancer.ts`
+- Provider: `OpenRouterProvider`
+- Factory: `createOpenRouterEnhancer()`
+- Auto-detection: `createAutoEnhancer()` prefers OpenRouter if available
+
+---
+
 ## Analytics
 
 ### PostHog

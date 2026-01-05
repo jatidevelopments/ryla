@@ -62,3 +62,6 @@ export * from './platform-badge';
 
 // Prompt Builder components
 export * from './prompt-builder';
+
+// Tutorial components
+export * from './tutorial';

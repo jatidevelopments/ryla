@@ -30,16 +30,16 @@ const creationMethods = [
     ),
   },
   {
-    id: 'custom',
-    value: 'custom' as const,
-    label: 'Create with Custom Prompts',
-    description: 'Full control with custom prompts',
-    bestFor: 'Advanced users',
-    gradient: 'from-orange-500 to-red-500',
+    id: 'prompt-based',
+    value: 'prompt-based' as const,
+    label: 'Create with Prompt',
+    description: 'Quick creation with one detailed description',
+    bestFor: 'Quick start',
+    gradient: 'from-cyan-500 to-blue-600',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
         <path
-          d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
+          d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
           stroke="currentColor"
           strokeWidth="1.5"
           strokeLinecap="round"
@@ -61,7 +61,7 @@ export function StepCreationMethod() {
   const updateSteps = useCharacterWizardStore((s) => s.updateSteps);
   const nextStep = useCharacterWizardStore((s) => s.nextStep);
 
-  const handleMethodSelect = (method: 'presets' | 'custom') => {
+  const handleMethodSelect = (method: 'presets' | 'prompt-based' | 'existing-person') => {
     setField('creationMethod', method);
     updateSteps(method);
     nextStep();
@@ -168,12 +168,97 @@ export function StepCreationMethod() {
             </button>
           );
         })}
-      </div>
+        
+        {/* Divider */}
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <div className="w-full border-t border-white/5"></div>
+          </div>
+          <div className="relative flex justify-center">
+            <span className="px-4 py-1.5 bg-[var(--bg-base)] text-white/30 text-xs font-medium tracking-wider uppercase">
+              or
+            </span>
+          </div>
+        </div>
 
-      {/* Helper text */}
-      <p className="text-white/40 text-xs text-center mt-6">
-        You can always change these settings later
-      </p>
+        {/* Existing Person Option */}
+        <button
+          onClick={() => handleMethodSelect('existing-person')}
+          className={cn(
+            'w-full p-5 rounded-2xl border-2 transition-all duration-200 text-left relative overflow-hidden group',
+            form.creationMethod === 'existing-person'
+              ? 'border-purple-400/50 bg-gradient-to-br from-purple-500/20 to-pink-500/20 shadow-lg shadow-purple-500/20'
+              : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
+          )}
+        >
+          {/* Shimmer effect on hover */}
+          <div className="absolute inset-0 w-[200%] -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-transparent via-white/10 to-transparent transition-transform duration-700 pointer-events-none" />
+
+          <div className="relative z-10 flex items-center gap-4">
+            {/* Icon */}
+            <div
+              className={cn(
+                'w-14 h-14 rounded-xl flex items-center justify-center flex-shrink-0 shadow-md transition-transform duration-200 bg-gradient-to-br from-amber-500 to-orange-500',
+                form.creationMethod === 'existing-person' && 'scale-110'
+              )}
+            >
+              <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6 text-white">
+                <path
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </div>
+
+            {/* Text */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1">
+                <h3 className="text-lg font-bold text-white">
+                  Create from Existing Person
+                </h3>
+              </div>
+              <p className="text-sm text-white/60">
+                Request to create an AI influencer based on an existing person
+              </p>
+            </div>
+
+            {/* Arrow */}
+            <div
+              className={cn(
+                'w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 transition-all',
+                form.creationMethod === 'existing-person'
+                  ? 'bg-gradient-to-br from-amber-500 to-orange-500'
+                  : 'bg-white/10'
+              )}
+            >
+              {form.creationMethod === 'existing-person' ? (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M10.5 4.5L5.25 9.75L3.5 8"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              ) : (
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path
+                    d="M5 3L9 7L5 11"
+                    stroke="white"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
+            </div>
+          </div>
+        </button>
+      </div>
     </div>
   );
 }

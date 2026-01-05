@@ -89,7 +89,7 @@ export function ModeSelector({
   return (
     <div className={cn('flex items-center gap-2 px-4 lg:px-6 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-default)]', className)}>
       {/* Mode Tabs */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-1" data-tutorial-target="mode-tabs">
         {(Object.keys(MODE_CONFIG) as StudioMode[]).map((modeKey) => {
           const config = MODE_CONFIG[modeKey];
           const isActive = mode === modeKey;
@@ -141,7 +141,7 @@ export function ModeSelector({
       <div className="h-6 w-px bg-[var(--border-default)]" />
 
       {/* Content Type Selector */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2" data-tutorial-target="content-type-selector">
         <button
           onClick={() => onContentTypeChange('image')}
           className={cn(

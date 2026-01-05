@@ -112,6 +112,15 @@ export class GenerateStudioImagesDto {
   @IsBoolean()
   nsfw!: boolean;
 
+  @ApiProperty({ 
+    required: false, 
+    default: true,
+    description: 'Enable AI prompt enhancement using OpenRouter/Gemini/OpenAI. Improves prompts with photography techniques and realism keywords.' 
+  })
+  @IsOptional()
+  @IsBoolean()
+  promptEnhance?: boolean;
+
   @ApiProperty({ required: false, description: 'Optional base seed. Each image increments this seed.' })
   @IsOptional()
   @IsInt()

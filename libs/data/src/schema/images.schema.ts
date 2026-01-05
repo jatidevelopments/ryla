@@ -52,9 +52,14 @@ export const images = pgTable(
     s3Url: text('s3_url'), // Full URL (or pre-signed URL)
     thumbnailKey: text('thumbnail_key'), // Thumbnail storage key
     thumbnailUrl: text('thumbnail_url'), // Thumbnail URL
-    prompt: text('prompt'), // Generation prompt used
+    prompt: text('prompt'), // Generation prompt used (final prompt, may be enhanced)
     negativePrompt: text('negative_prompt'),
     seed: text('seed'), // Generation seed for reproducibility
+    
+    // Prompt enhancement metadata
+    promptEnhance: boolean('prompt_enhance').default(false), // Whether AI prompt enhancement was used
+    originalPrompt: text('original_prompt'), // Original prompt before enhancement (if enhanced)
+    enhancedPrompt: text('enhanced_prompt'), // Enhanced prompt (if enhancement was used)
 
     // Required structured Studio metadata (EP-005)
     scene: scenePresetEnum('scene'),

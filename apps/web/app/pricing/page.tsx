@@ -22,40 +22,43 @@ export default function PricingPage() {
 
   const currentPlanId = subscription?.tier ?? 'free';
 
-  // Subscribe mutation
-  const subscribeMutation = trpc.subscription.subscribe.useMutation({
-    onSuccess: (data) => {
-      // Refetch data
-      refetchSubscription();
-      refetchCredits();
-
-      // Invalidate activity feed to show subscription credit grant
-      utils.activity.list.invalidate();
-      utils.activity.summary.invalidate();
-      // Invalidate notifications (subscription created notification)
-      utils.notifications.list.invalidate();
-      
-      // Show success message
-      setSuccessMessage(
-        `🎉 Successfully subscribed to ${data.plan} plan! You received ${data.creditsGranted} credits.`
-      );
-      
-      // Clear message after 5 seconds
-      setTimeout(() => setSuccessMessage(null), 5000);
-    },
-    onError: (error) => {
-      console.error('Subscription error:', error);
-      alert('Failed to subscribe. Please try again.');
-    },
-  });
+  const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
   const handleSubscribe = async (planId: string, yearly: boolean) => {
     if (planId === currentPlanId) return;
     
-    subscribeMutation.mutate({
-      planId: planId as 'starter' | 'pro' | 'unlimited',
-      isYearly: yearly,
-    });
+    setIsProcessing(planId);
+    try {
+      const response = await fetch('/api/finby/setup-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'subscription',
+          planId: planId as 'starter' | 'pro' | 'unlimited',
+          isYearly: yearly,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create payment session');
+      }
+
+      const data = await response.json();
+      
+      // Redirect to Finby payment page
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error('No payment URL received');
+      }
+    } catch (error: any) {
+      console.error('Subscription error:', error);
+      alert(error.message || 'Failed to start subscription. Please try again.');
+      setIsProcessing(null);
+    }
   };
 
   return (
@@ -136,7 +139,7 @@ export default function PricingPage() {
             isYearly={isYearly}
             isCurrentPlan={currentPlanId === plan.id}
             onSubscribe={handleSubscribe}
-            isLoading={subscribeMutation.isPending && subscribeMutation.variables?.planId === plan.id}
+            isLoading={isProcessing === plan.id}
           />
         ))}
       </div>

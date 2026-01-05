@@ -107,6 +107,7 @@ Select AI Influencer → Choose Scene + Environment + Outfit → Generate → Pi
 | [EP-014](./epics/mvp/EP-014-captions.md)          | AI Caption Generation         | P0       | C-Core Value | 📝 Defined |
 | [EP-016](./epics/mvp/EP-016-activity-audit-log.md) | Generation Activity + Credit Audit Log | P0 | B-Retention | 📝 Defined |
 | [EP-018](./epics/mvp/EP-018-influencer-settings.md) | AI Influencer Settings | P0 | B-Retention | 📝 Defined |
+| [EP-025](./epics/mvp/EP-025-finby-payment-integration.md) | Finby Payment Integration | P0 | D-Conversion | 📝 Defined |
 
 #### Funnel (`docs/requirements/epics/funnel/`)
 

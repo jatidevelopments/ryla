@@ -1,4 +1,4 @@
-import { IsObject, IsBoolean, ValidateNested, IsOptional, IsIn, IsNumber } from 'class-validator';
+import { IsObject, IsBoolean, ValidateNested, IsOptional, IsIn, IsNumber, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class AppearanceDto {
@@ -31,15 +31,17 @@ class IdentityDto {
 }
 
 export class GenerateBaseImagesDto {
+  @IsOptional()
   @IsObject()
   @ValidateNested()
   @Type(() => AppearanceDto)
-  appearance!: AppearanceDto;
+  appearance?: AppearanceDto;
 
+  @IsOptional()
   @IsObject()
   @ValidateNested()
   @Type(() => IdentityDto)
-  identity!: IdentityDto;
+  identity?: IdentityDto;
 
   @IsBoolean()
   nsfwEnabled!: boolean;
@@ -76,4 +78,21 @@ export class GenerateBaseImagesDto {
   @IsOptional()
   @IsNumber()
   height?: number;
+
+  @IsOptional()
+  @IsString()
+  promptInput?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  promptEnhance?: boolean;
+
+  /**
+   * Idempotency key to prevent duplicate generation.
+   * If a job with this key is already in progress, returns existing job IDs.
+   * Recommended: hash of userId + promptInput + promptEnhance
+   */
+  @IsOptional()
+  @IsString()
+  idempotencyKey?: string;
 }

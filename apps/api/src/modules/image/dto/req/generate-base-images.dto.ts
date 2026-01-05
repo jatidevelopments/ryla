@@ -84,15 +84,17 @@ export class GenerateBaseImagesDto {
   @IsUUID()
   characterId?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @ValidateNested()
   @Type(() => AppearanceDto)
-  appearance!: AppearanceDto;
+  appearance?: AppearanceDto;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @ValidateNested()
   @Type(() => IdentityDto)
-  identity!: IdentityDto;
+  identity?: IdentityDto;
 
   @ApiProperty({ default: false })
   @IsBoolean()
@@ -153,6 +155,31 @@ export class GenerateBaseImagesDto {
   @IsOptional()
   @IsString()
   expression?: string;
+
+  @ApiProperty({
+    required: false,
+    description: 'Raw prompt input for prompt-based character creation (alternative to structured appearance/identity)',
+  })
+  @IsOptional()
+  @IsString()
+  promptInput?: string;
+
+  @ApiProperty({
+    required: false,
+    default: true,
+    description: 'Enable AI prompt enhancement using OpenRouter/Gemini/OpenAI. Improves prompts with photography techniques and realism keywords.',
+  })
+  @IsOptional()
+  @IsBoolean()
+  promptEnhance?: boolean;
+
+  @ApiProperty({
+    required: false,
+    description: 'Idempotency key to prevent duplicate generation. If a job with this key is already in progress, returns existing job IDs instead of starting a new one. Recommended: hash of userId + promptInput + promptEnhance.',
+  })
+  @IsOptional()
+  @IsString()
+  idempotencyKey?: string;
 }
 
 

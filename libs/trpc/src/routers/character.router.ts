@@ -11,8 +11,9 @@ import { TRPCError } from '@trpc/server';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { characters, images, NotificationsRepository, type CharacterConfig } from '@ryla/data';
+import { characters, images, influencerRequests, users, NotificationsRepository, type CharacterConfig } from '@ryla/data';
 import type { NotificationType } from '@ryla/data/schema';
+import { sendEmail, InfluencerRequestNotificationEmail } from '@ryla/email';
 
 import { router, protectedProcedure } from '../trpc';
 
@@ -485,6 +486,88 @@ export const characterRouter = router({
       return {
         success: true,
         characterId: input.characterId,
+      };
+    }),
+
+  /**
+   * Submit an influencer request (for creating AI from existing person)
+   */
+  submitInfluencerRequest: protectedProcedure
+    .input(
+      z.object({
+        consent: z.boolean(),
+        instagram: z.string().optional(),
+        tiktok: z.string().optional(),
+        description: z.string().max(500).optional(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (!input.consent) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'Consent is required to submit a request',
+        });
+      }
+
+      const [request] = await ctx.db
+        .insert(influencerRequests)
+        .values({
+          userId: ctx.user.id,
+          consent: input.consent,
+          instagram: input.instagram || null,
+          tiktok: input.tiktok || null,
+          description: input.description || null,
+          status: 'pending',
+        })
+        .returning();
+
+      // Get user info for email notification
+      const user = await ctx.db.query.users.findFirst({
+        where: eq(users.id, ctx.user.id),
+        columns: {
+          name: true,
+          publicName: true,
+          email: true,
+        },
+      });
+
+      const userName = user?.name || user?.publicName || null;
+      const userEmail = user?.email || ctx.user.email || 'unknown@example.com';
+
+      // Send email notification to admin (don't fail request if email fails)
+      const notificationEmail = process.env['INFLUENCER_REQUEST_NOTIFICATION_EMAIL'] || process.env['BUG_REPORT_NOTIFICATION_EMAIL'];
+      if (notificationEmail) {
+        try {
+          // Build view URL (admin page or direct link)
+          const appUrl = process.env['NEXT_PUBLIC_APP_URL'] || 'https://app.ryla.ai';
+          const viewUrl = `${appUrl}/admin/influencer-requests/${request.id}`;
+
+          await sendEmail({
+            to: notificationEmail,
+            subject: `[Influencer Request] ${request.id.substring(0, 8)} - ${userName || userEmail}`,
+            template: InfluencerRequestNotificationEmail,
+            props: {
+              requestId: request.id,
+              userEmail,
+              userName,
+              instagram: input.instagram || null,
+              tiktok: input.tiktok || null,
+              description: input.description || null,
+              viewUrl,
+            },
+          });
+        } catch (error) {
+          // Log but don't fail the request submission
+          console.error('Failed to send influencer request notification email:', error);
+        }
+      } else {
+        console.warn('INFLUENCER_REQUEST_NOTIFICATION_EMAIL not configured - skipping email notification');
+      }
+
+      return {
+        success: true,
+        requestId: request.id,
+        message: 'Your request has been submitted. We will review it and contact you via email.',
       };
     }),
 });

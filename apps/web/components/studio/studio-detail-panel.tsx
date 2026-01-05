@@ -4,9 +4,11 @@ import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn, Button } from '@ryla/ui';
+import { Tooltip } from '../ui/tooltip';
 import type { StudioImage } from './studio-image-card';
 import { ALL_POSES, SCENES } from './generation/types';
 import { OUTFIT_OPTIONS } from '@ryla/shared';
+import { ZoomIn, X } from 'lucide-react';
 
 interface StudioDetailPanelProps {
   image: StudioImage | null;
@@ -14,6 +16,7 @@ interface StudioDetailPanelProps {
   onLike?: (imageId: string) => void;
   onDelete?: (imageId: string) => void;
   onDownload?: (image: StudioImage) => void;
+  onRetry?: (image: StudioImage) => void;
   className?: string;
 }
 
@@ -23,19 +26,34 @@ export function StudioDetailPanel({
   onLike,
   onDelete,
   onDownload,
+  onRetry,
   className,
 }: StudioDetailPanelProps) {
   const [copied, setCopied] = React.useState(false);
+  const [copiedId, setCopiedId] = React.useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = React.useState(false);
+  const [showLightbox, setShowLightbox] = React.useState(false);
 
   const handleCopyPrompt = async () => {
-    if (!image?.prompt) return;
+    const promptToCopy = image?.enhancedPrompt || image?.prompt;
+    if (!promptToCopy) return;
     try {
-      await navigator.clipboard.writeText(image.prompt);
+      await navigator.clipboard.writeText(promptToCopy);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error('Failed to copy:', err);
+    }
+  };
+
+  const handleCopyId = async () => {
+    if (!image?.id) return;
+    try {
+      await navigator.clipboard.writeText(image.id);
+      setCopiedId(true);
+      setTimeout(() => setCopiedId(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy ID:', err);
     }
   };
 
@@ -51,6 +69,27 @@ export function StudioDetailPanel({
       setShowDeleteConfirm(false);
     }
   };
+
+  // Handle lightbox keyboard navigation
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (showLightbox && e.key === 'Escape') {
+        setShowLightbox(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showLightbox]);
+
+  // Handle body overflow when lightbox is open
+  React.useEffect(() => {
+    if (showLightbox) {
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = 'unset';
+      };
+    }
+  }, [showLightbox]);
 
   // Format date nicely
   const formatDate = (dateStr: string) => {
@@ -122,38 +161,60 @@ export function StudioDetailPanel({
           </div>
           <h3 className="font-semibold text-[var(--text-primary)]">Image Details</h3>
         </div>
-        <button
-          onClick={onClose}
-          className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={2}
-            stroke="currentColor"
-            className="h-5 w-5"
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2">
+          <Tooltip content="View image in full width">
+            <button
+              onClick={() => setShowLightbox(true)}
+              className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            >
+              <ZoomIn className="h-5 w-5" />
+            </button>
+          </Tooltip>
+          <Tooltip content="Close detail panel">
+            <button
+              onClick={onClose}
+              className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="h-5 w-5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          </Tooltip>
+        </div>
       </div>
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto">
         {/* Image Preview */}
-        <div className="relative aspect-square w-full bg-[var(--bg-base)]">
+        <div 
+          className="relative aspect-square w-full bg-[var(--bg-base)] cursor-pointer group"
+          onClick={() => image.imageUrl && setShowLightbox(true)}
+        >
           {image.imageUrl ? (
             <>
               <Image
                 src={image.imageUrl}
                 alt=""
                 fill
-                className="object-contain"
+                className="object-contain transition-transform duration-300 group-hover:scale-[1.02]"
               />
               {/* Aspect ratio indicator */}
               <div className="absolute bottom-3 right-3 rounded-full bg-black/60 backdrop-blur-sm px-2.5 py-1 text-xs font-medium text-white/70">
                 {image.aspectRatio}
+              </div>
+              {/* Zoom hint overlay on hover */}
+              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                <div className="flex items-center gap-2 rounded-full bg-white/20 backdrop-blur-sm px-4 py-2 text-white text-sm font-medium">
+                  <ZoomIn className="h-4 w-4" />
+                  <span>Click to view full width</span>
+                </div>
               </div>
             </>
           ) : (
@@ -191,56 +252,125 @@ export function StudioDetailPanel({
               {image.status === 'generating' ? 'Generating...' : 'Failed'}
             </div>
           )}
+
+          {/* Retry Button for Failed Images */}
+          {image.status === 'failed' && onRetry && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+              <div className="text-center p-6">
+                <div className="mb-4 flex justify-center">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/20">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-8 w-8 text-red-400"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <h3 className="mb-2 text-lg font-semibold text-white">Generation Failed</h3>
+                <p className="mb-4 text-sm text-white/70">
+                  This image failed to generate. You can retry without any cost.
+                </p>
+                <Button
+                  onClick={() => onRetry(image)}
+                  className="bg-[var(--purple-500)] hover:bg-[var(--purple-600)] text-white rounded-xl px-6 py-2.5 font-medium transition-colors"
+                >
+                  Retry
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Quick Action Buttons */}
-        <div className="grid grid-cols-3 gap-3 p-4 border-b border-[var(--border-default)]">
-          <Button
-            onClick={() => onLike?.(image.id)}
-            variant="outline"
-            className={cn(
-              'flex-col gap-1.5 h-auto py-4 rounded-xl transition-all',
-              image.isLiked
-                ? 'border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20'
-                : 'border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
-            )}
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-5 w-5"
-            >
-              <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
-            </svg>
-            <span className="text-xs font-medium">{image.isLiked ? 'Liked' : 'Like'}</span>
-          </Button>
-          <Button
-            onClick={handleDownload}
-            variant="outline"
-            className="flex-col gap-1.5 h-auto py-4 rounded-xl border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="h-5 w-5"
-            >
-              <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
-              <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
-            </svg>
-            <span className="text-xs font-medium">Download</span>
-          </Button>
-          <Button
-            onClick={() => setShowDeleteConfirm(true)}
+        <div className={cn(
+          "grid gap-3 p-4 border-b border-[var(--border-default)]",
+          image.status === 'failed' && onRetry ? "grid-cols-2" : "grid-cols-3"
+        )}>
+          {image.status === 'failed' && onRetry && (
+            <Tooltip content="Retry generation (free)" wrapperClassName="contents">
+              <Button
+                onClick={() => onRetry(image)}
+                className="col-span-2 bg-[var(--purple-500)] hover:bg-[var(--purple-600)] text-white rounded-xl py-4 font-medium transition-colors flex items-center justify-center gap-2"
+              >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="h-5 w-5"
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M15.312 11.424a5.5 5.5 0 01-9.201 2.466l-.312-.311h2.433a.75.75 0 000-1.5H3.989a.75.75 0 00-.75.75v4.546a.75.75 0 001.5 0v-2.203l.31.31a7 7 0 0011.712-3.138.75.75 0 00-1.449-.39zm1.23-3.723a.75.75 0 00.219-.53V2.929a.75.75 0 00-1.5 0V5.36l-.31-.31A7 7 0 003.239 8.188a.75.75 0 101.448.389A5.5 5.5 0 0113.89 6.11l.311.31h-2.432a.75.75 0 000 1.5h4.546a.75.75 0 00.53-.219z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>Retry Generation (Free)</span>
+            </Button>
+            </Tooltip>
+          )}
+          {image.status !== 'failed' && (
+            <>
+              <Tooltip content="Like this image" wrapperClassName="contents">
+                <Button
+                  onClick={() => onLike?.(image.id)}
+                variant="outline"
+                className={cn(
+                  'flex-col gap-1.5 h-auto py-4 rounded-xl transition-all',
+                  image.isLiked
+                    ? 'border-red-500/50 bg-red-500/10 text-red-400 hover:bg-red-500/20'
+                    : 'border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
+                )}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-5 w-5"
+                >
+                  <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+                </svg>
+                <span className="text-xs font-medium">{image.isLiked ? 'Liked' : 'Like'}</span>
+              </Button>
+              </Tooltip>
+              <Tooltip content="Download image" wrapperClassName="contents">
+                <Button
+                  onClick={handleDownload}
+                variant="outline"
+                className="flex-col gap-1.5 h-auto py-4 rounded-xl border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] transition-all"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  className="h-5 w-5"
+                >
+                  <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+                  <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+                </svg>
+                <span className="text-xs font-medium">Download</span>
+              </Button>
+              </Tooltip>
+            </>
+          )}
+          <Tooltip content="Delete this image" wrapperClassName="contents">
+            <Button
+              onClick={() => setShowDeleteConfirm(true)}
             variant="outline"
             className="flex-col gap-1.5 h-auto py-4 rounded-xl border-[var(--border-default)] bg-[var(--bg-base)] text-[var(--text-secondary)] hover:text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all"
           >
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
               <path fillRule="evenodd" d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.519.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 101.5.06l.3-7.5z" clipRule="evenodd" />
             </svg>
-            <span className="text-xs font-medium">Delete</span>
-          </Button>
+              <span className="text-xs font-medium">Delete</span>
+            </Button>
+          </Tooltip>
         </div>
 
         {/* Delete Confirmation */}
@@ -276,10 +406,11 @@ export function StudioDetailPanel({
               AI Influencer
             </h4>
           </div>
-          <Link
-            href={`/influencer/${image.influencerId}`}
-            className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-gradient-to-r from-[var(--purple-500)]/5 to-[var(--pink-500)]/5 p-4 transition-all hover:border-[var(--purple-500)]/50 hover:from-[var(--purple-500)]/10 hover:to-[var(--pink-500)]/10"
-          >
+          <Tooltip content="View influencer profile">
+            <Link
+              href={`/influencer/${image.influencerId}`}
+              className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-gradient-to-r from-[var(--purple-500)]/5 to-[var(--pink-500)]/5 p-4 transition-all hover:border-[var(--purple-500)]/50 hover:from-[var(--purple-500)]/10 hover:to-[var(--pink-500)]/10"
+            >
             {/* Avatar with glow */}
             <div className="relative">
               {image.influencerAvatar ? (
@@ -318,6 +449,7 @@ export function StudioDetailPanel({
               </svg>
             </div>
           </Link>
+          </Tooltip>
         </div>
 
         {/* Generation Details */}
@@ -332,15 +464,43 @@ export function StudioDetailPanel({
           </div>
           
           <div className="space-y-3">
-            {/* Prompt */}
-            {image.prompt && (
+            {/* Prompt Enhancement Badge */}
+            {image.promptEnhance && (
+              <div className="flex items-center gap-2 rounded-xl bg-[var(--purple-500)]/10 border border-[var(--purple-500)]/30 px-3 py-2">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
+                  <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684z" />
+                </svg>
+                <span className="text-xs font-medium text-[var(--purple-400)]">AI Enhanced</span>
+              </div>
+            )}
+
+            {/* Original Prompt (if enhanced) */}
+            {image.promptEnhance && image.originalPrompt && (
               <div>
                 <div className="mb-2 flex items-center justify-between">
-                  <span className="text-xs text-[var(--text-muted)]">Prompt</span>
-                  <button
-                    onClick={handleCopyPrompt}
-                    className="flex items-center gap-1 text-xs text-[var(--purple-400)] hover:text-[var(--purple-300)] transition-colors"
-                  >
+                  <span className="text-xs text-[var(--text-muted)]">Original Prompt</span>
+                </div>
+                <p className="rounded-xl bg-[var(--bg-base)] p-3 text-sm text-[var(--text-secondary)] leading-relaxed border border-[var(--border-default)] opacity-75">
+                  {image.originalPrompt}
+                  {image.originalPrompt === image.prompt && (
+                    <span className="ml-2 text-xs text-[var(--text-muted)] italic">(No changes after enhancement)</span>
+                  )}
+                </p>
+              </div>
+            )}
+
+            {/* Enhanced/Final Prompt */}
+            {(image.prompt || image.enhancedPrompt) && (
+              <div>
+                <div className="mb-2 flex items-center justify-between">
+                  <span className="text-xs text-[var(--text-muted)]">
+                    {image.promptEnhance ? 'Enhanced Prompt' : 'Prompt'}
+                  </span>
+                  <Tooltip content="Copy prompt to clipboard">
+                    <button
+                      onClick={handleCopyPrompt}
+                      className="flex items-center gap-1 text-xs text-[var(--purple-400)] hover:text-[var(--purple-300)] transition-colors"
+                    >
                     {copied ? (
                       <>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
@@ -358,9 +518,24 @@ export function StudioDetailPanel({
                       </>
                     )}
                   </button>
+                  </Tooltip>
                 </div>
-                <p className="rounded-xl bg-[var(--bg-base)] p-3 text-sm text-[var(--text-secondary)] leading-relaxed border border-[var(--border-default)]">
-                  {image.prompt}
+                <p className={cn(
+                  "rounded-xl bg-[var(--bg-base)] p-3 text-sm leading-relaxed border",
+                  image.promptEnhance 
+                    ? "text-[var(--text-primary)] border-[var(--purple-500)]/30" 
+                    : "text-[var(--text-secondary)] border-[var(--border-default)]"
+                )}>
+                  {image.enhancedPrompt || image.prompt}
+                </p>
+              </div>
+            )}
+            
+            {/* Show message if no prompt but enhancement was attempted */}
+            {!image.prompt && !image.enhancedPrompt && image.promptEnhance && (
+              <div className="rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                <p className="text-sm text-[var(--text-muted)] italic">
+                  Prompt information not available for this image.
                 </p>
               </div>
             )}
@@ -520,6 +695,33 @@ export function StudioDetailPanel({
             </h4>
           </div>
           <div className="space-y-3 text-sm">
+            {/* ID - Moved to top with copy functionality */}
+            <div className="flex justify-between items-center group">
+              <span className="text-[var(--text-muted)]">ID</span>
+              <Tooltip content="Copy image ID to clipboard">
+                <button
+                  onClick={handleCopyId}
+                  className="flex items-center gap-1.5 font-mono text-xs text-[var(--text-muted)] hover:text-[var(--purple-400)] transition-colors"
+                >
+                <span>{image.id.slice(0, 12)}...</span>
+                {copiedId ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
+                    <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                  </svg>
+                ) : (
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    viewBox="0 0 20 20" 
+                    fill="currentColor" 
+                    className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <path d="M7 3.5A1.5 1.5 0 018.5 2h3.879a1.5 1.5 0 011.06.44l3.122 3.12A1.5 1.5 0 0117 6.622V12.5a1.5 1.5 0 01-1.5 1.5h-1v-3.379a3 3 0 00-.879-2.121L10.5 5.379A3 3 0 008.379 4.5H7v-1z" />
+                    <path d="M4.5 6A1.5 1.5 0 003 7.5v9A1.5 1.5 0 004.5 18h7a1.5 1.5 0 001.5-1.5v-5.879a1.5 1.5 0 00-.44-1.06L9.44 6.439A1.5 1.5 0 008.378 6H4.5z" />
+                  </svg>
+                )}
+              </button>
+              </Tooltip>
+            </div>
             <div className="flex justify-between">
               <span className="text-[var(--text-muted)]">Created</span>
               <span className="text-[var(--text-secondary)]">{formatDate(image.createdAt)}</span>
@@ -562,13 +764,67 @@ export function StudioDetailPanel({
                 )}
               </span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-[var(--text-muted)]">ID</span>
-              <span className="font-mono text-xs text-[var(--text-muted)]">{image.id.slice(0, 12)}...</span>
-            </div>
+            {/* Prompt Enhancement Status */}
+            {typeof image.promptEnhance !== 'undefined' && (
+              <div className="flex justify-between items-center">
+                <span className="text-[var(--text-muted)]">Prompt Enhancement</span>
+                <span className={cn(
+                  "font-medium flex items-center gap-1.5",
+                  image.promptEnhance ? "text-[var(--purple-400)]" : "text-[var(--text-secondary)]"
+                )}>
+                  {image.promptEnhance ? (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                        <path fillRule="evenodd" d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z" clipRule="evenodd" />
+                      </svg>
+                      Enabled
+                    </>
+                  ) : (
+                    <>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clipRule="evenodd" />
+                      </svg>
+                      Disabled
+                    </>
+                  )}
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Lightbox */}
+      {showLightbox && image.imageUrl && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm"
+          onClick={() => setShowLightbox(false)}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setShowLightbox(false)}
+            className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+          >
+            <X className="h-5 w-5" />
+          </button>
+
+          {/* Image */}
+          <div
+            className="relative max-w-[90vw] max-h-[90vh]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="relative aspect-[3/4] h-[80vh]">
+              <Image
+                src={image.imageUrl}
+                alt={image.prompt || 'Generated image'}
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

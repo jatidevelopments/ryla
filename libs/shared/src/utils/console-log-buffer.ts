@@ -128,35 +128,56 @@ class ConsoleLogBuffer {
 
   /**
    * Filter sensitive data from objects/arrays
+   * Uses a visited set to prevent circular reference infinite recursion
    */
-  private filterSensitive(data: unknown): unknown {
+  private filterSensitive(data: unknown, visited = new WeakSet<object>()): unknown {
     if (typeof data === 'string') {
       return this.filterSensitiveString(data);
     }
 
     if (Array.isArray(data)) {
-      return data.map((item) => this.filterSensitive(item));
+      // For arrays, check if we've seen this array before
+      if (visited.has(data)) {
+        return '[CIRCULAR]';
+      }
+      visited.add(data);
+      try {
+        return data.map((item) => this.filterSensitive(item, visited));
+      } finally {
+        // Note: We don't remove from visited as arrays might be referenced multiple times
+      }
     }
 
     if (data && typeof data === 'object') {
-      const filtered: Record<string, unknown> = {};
-      for (const [key, value] of Object.entries(data)) {
-        const lowerKey = key.toLowerCase();
-        // Filter common sensitive keys
-        if (
-          lowerKey.includes('token') ||
-          lowerKey.includes('password') ||
-          lowerKey.includes('secret') ||
-          lowerKey.includes('key') ||
-          lowerKey.includes('auth') ||
-          lowerKey.includes('api')
-        ) {
-          filtered[key] = '[FILTERED]';
-        } else {
-          filtered[key] = this.filterSensitive(value);
-        }
+      // Check for circular references
+      if (visited.has(data)) {
+        return '[CIRCULAR]';
       }
-      return filtered;
+      visited.add(data);
+      
+      try {
+        const filtered: Record<string, unknown> = {};
+        for (const [key, value] of Object.entries(data)) {
+          const lowerKey = key.toLowerCase();
+          // Filter common sensitive keys
+          if (
+            lowerKey.includes('token') ||
+            lowerKey.includes('password') ||
+            lowerKey.includes('secret') ||
+            lowerKey.includes('key') ||
+            lowerKey.includes('auth') ||
+            lowerKey.includes('api')
+          ) {
+            filtered[key] = '[FILTERED]';
+          } else {
+            filtered[key] = this.filterSensitive(value, visited);
+          }
+        }
+        return filtered;
+      } catch (error) {
+        // If we hit any error (like stack overflow), return a safe representation
+        return '[ERROR_FILTERING]';
+      }
     }
 
     return data;
@@ -166,27 +187,51 @@ class ConsoleLogBuffer {
    * Filter sensitive patterns from strings
    */
   private filterSensitiveString(str: string): string {
-    // Filter JWT tokens (base64-like strings)
-    str = str.replace(
-      /[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/g,
-      '[JWT_TOKEN]'
-    );
+    // Safety: Skip processing extremely long strings to prevent stack overflow
+    const MAX_STRING_LENGTH = 100000; // 100KB limit
+    if (str.length > MAX_STRING_LENGTH) {
+      return str.substring(0, MAX_STRING_LENGTH) + '...[TRUNCATED]';
+    }
 
-    // Filter API keys (long alphanumeric strings)
-    str = str.replace(/[A-Za-z0-9]{32,}/g, (match) => {
-      // Don't filter if it looks like a normal word or number
-      if (/^\d+$/.test(match) || match.length < 40) return match;
-      return '[API_KEY]';
-    });
+    try {
+      // Filter JWT tokens (base64-like strings)
+      str = str.replace(
+        /[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}\.[A-Za-z0-9_-]{20,}/g,
+        '[JWT_TOKEN]'
+      );
 
-    // Filter email-like patterns that might be tokens
-    str = str.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, (match) => {
-      // Only filter if it's in a suspicious context
-      if (str.includes('token') || str.includes('key') || str.includes('secret')) {
-        return '[EMAIL_FILTERED]';
-      }
-      return match;
-    });
+      // Filter API keys (long alphanumeric strings)
+      // Use a safer approach: limit replacements and use non-overlapping pattern
+      // Match sequences of 40+ alphanumeric chars, but limit to prevent stack overflow
+      let replacementCount = 0;
+      const MAX_REPLACEMENTS = 100;
+      const apiKeyPattern = /[A-Za-z0-9]{40,}/g;
+
+      str = str.replace(apiKeyPattern, (match) => {
+        if (replacementCount >= MAX_REPLACEMENTS) {
+          return match; // Stop replacing after limit
+        }
+        // Don't filter if it looks like a normal number
+        if (/^\d+$/.test(match)) {
+          return match;
+        }
+        replacementCount++;
+        return '[API_KEY]';
+      });
+
+      // Filter email-like patterns that might be tokens
+      str = str.replace(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, (match) => {
+        // Only filter if it's in a suspicious context
+        if (str.includes('token') || str.includes('key') || str.includes('secret')) {
+          return '[EMAIL_FILTERED]';
+        }
+        return match;
+      });
+    } catch (error) {
+      // If filtering fails, return truncated string to prevent crash
+      console.warn('Error filtering sensitive data:', error);
+      return str.length > 1000 ? str.substring(0, 1000) + '...[TRUNCATED]' : str;
+    }
 
     return str;
   }

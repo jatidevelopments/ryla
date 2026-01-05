@@ -103,8 +103,28 @@ export class ComfyUIResultsService {
           error: status.error,
         });
 
-        // Create in-app notification on first transition to failed
+        // Update image status if generation failed
         if (mapped === 'failed') {
+          const existingImageIds = (trackedJob.output as any)?.imageIds as string[] | undefined;
+          const inputImageId = (trackedJob.input as any)?.imageId as string | undefined;
+          const imageId = existingImageIds?.[0] ?? inputImageId;
+          
+          if (imageId) {
+            try {
+              await this.imagesRepo.updateById({
+                id: imageId,
+                userId,
+                patch: {
+                  status: 'failed' as const,
+                  generationError: status.error ?? 'Generation failed',
+                },
+              });
+            } catch (updateError) {
+              console.error('Failed to update image status to failed:', updateError);
+            }
+          }
+
+          // Create in-app notification on first transition to failed
           await this.notificationsRepo.create({
             userId,
             type: 'generation.failed',
@@ -193,55 +213,98 @@ export class ComfyUIResultsService {
     };
 
     // Persist as image assets with structured metadata
+    // Check if we have existing image IDs from when generation started
+    const existingImageIds = (trackedJob.output as any)?.imageIds as string[] | undefined;
+    const inputImageId = (trackedJob.input as any)?.imageId as string | undefined;
+    
     const created = [];
     for (let i = 0; i < storedImages.length; i++) {
       const img = storedImages[i];
       
-      // Build image data object, only including fields with values
-      const imageData: any = {
-        characterId: trackedJob.characterId ?? null,
-        userId,
+      // Try to get existing image ID: from output array, input, or undefined
+      const existingImageId = existingImageIds?.[i] ?? inputImageId;
+      
+      // Build update data object
+      const updateData: any = {
         s3Key: img.key,
         thumbnailKey: img.key,
+        s3Url: img.url,
+        thumbnailUrl: img.thumbnailUrl,
         status: 'completed' as const,
-        nsfw: Boolean((trackedJob.input as any)?.nsfw),
       };
 
       // Add optional fields only if they have valid values
       const prompt = normalizeString((trackedJob.input as any)?.prompt);
-      if (prompt) imageData.prompt = prompt;
+      if (prompt) updateData.prompt = prompt;
 
       const negativePrompt = normalizeString((trackedJob.input as any)?.negativePrompt);
-      if (negativePrompt) imageData.negativePrompt = negativePrompt;
+      if (negativePrompt) updateData.negativePrompt = negativePrompt;
 
       const seed = normalizeString((trackedJob.input as any)?.seed);
-      if (seed) imageData.seed = seed;
+      if (seed) updateData.seed = seed;
 
-      if ((trackedJob.input as any)?.width) imageData.width = (trackedJob.input as any).width;
-      if ((trackedJob.input as any)?.height) imageData.height = (trackedJob.input as any).height;
+      if ((trackedJob.input as any)?.width) updateData.width = (trackedJob.input as any).width;
+      if ((trackedJob.input as any)?.height) updateData.height = (trackedJob.input as any).height;
 
-      if (safeScene) imageData.scene = safeScene;
-      if (safeEnvironment) imageData.environment = safeEnvironment;
+      if (safeScene) updateData.scene = safeScene;
+      if (safeEnvironment) updateData.environment = safeEnvironment;
 
       const outfit = normalizeString((trackedJob.input as any)?.outfit);
-      if (outfit) imageData.outfit = outfit;
+      if (outfit) updateData.outfit = outfit;
 
       const poseId = normalizeString((trackedJob.input as any)?.poseId);
-      if (poseId) imageData.poseId = poseId;
+      if (poseId) updateData.poseId = poseId;
 
-      if (safeAspectRatio) imageData.aspectRatio = safeAspectRatio;
-      if (safeQualityMode) imageData.qualityMode = safeQualityMode;
+      if (safeAspectRatio) updateData.aspectRatio = safeAspectRatio;
+      if (safeQualityMode) updateData.qualityMode = safeQualityMode;
 
       const sourceImageId = normalizeString((trackedJob.input as any)?.sourceImageId);
-      if (sourceImageId) imageData.sourceImageId = sourceImageId;
+      if (sourceImageId) updateData.sourceImageId = sourceImageId;
 
       const editType = normalizeString((trackedJob.input as any)?.editType);
-      if (editType) imageData.editType = editType;
+      if (editType) updateData.editType = editType;
 
       const editMaskS3Key = normalizeString((trackedJob.input as any)?.editMaskS3Key);
-      if (editMaskS3Key) imageData.editMaskS3Key = editMaskS3Key;
+      if (editMaskS3Key) updateData.editMaskS3Key = editMaskS3Key;
 
-      const row = await this.imagesRepo.createImage(imageData);
+      // Prompt enhancement metadata
+      if (typeof (trackedJob.input as any)?.promptEnhance === 'boolean') {
+        updateData.promptEnhance = (trackedJob.input as any).promptEnhance;
+      }
+      const originalPrompt = normalizeString((trackedJob.input as any)?.originalPrompt);
+      if (originalPrompt) updateData.originalPrompt = originalPrompt;
+      const enhancedPrompt = normalizeString((trackedJob.input as any)?.enhancedPrompt);
+      if (enhancedPrompt) updateData.enhancedPrompt = enhancedPrompt;
+
+      // Update existing image if we have an ID, otherwise create new
+      let row;
+      if (existingImageId) {
+        try {
+          row = await this.imagesRepo.updateById({
+            id: existingImageId,
+            userId,
+            patch: updateData,
+          });
+        } catch (updateError) {
+          // If update fails (e.g., image doesn't exist), create new one
+          console.warn(`Failed to update existing image ${existingImageId}, creating new:`, updateError);
+          const imageData: any = {
+            ...updateData,
+            characterId: trackedJob.characterId ?? null,
+            nsfw: Boolean((trackedJob.input as any)?.nsfw),
+          };
+          row = await this.imagesRepo.createImage(imageData);
+        }
+      } else {
+        // No existing image ID, create new
+        const imageData: any = {
+          ...updateData,
+          characterId: trackedJob.characterId ?? null,
+          nsfw: Boolean((trackedJob.input as any)?.nsfw),
+        };
+        row = await this.imagesRepo.createImage(imageData);
+      }
+      
       created.push(row);
     }
 

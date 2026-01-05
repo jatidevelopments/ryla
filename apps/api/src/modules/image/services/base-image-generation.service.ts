@@ -13,6 +13,7 @@ import {
   PromptBuilder,
   CharacterDNA,
   WorkflowId,
+  createAutoEnhancer,
 } from '@ryla/business';
 import { CharacterConfig } from '@ryla/data/schema';
 import { characterConfigToDNA } from './character-config-to-dna';
@@ -21,7 +22,7 @@ import { ImageStorageService } from './image-storage.service';
 import { FalImageService, type FalFluxModelId } from './fal-image.service';
 
 export interface BaseImageGenerationInput {
-  appearance: {
+  appearance?: {
     gender: 'female' | 'male';
     style: 'realistic' | 'anime';
     ethnicity: string;
@@ -42,7 +43,7 @@ export interface BaseImageGenerationInput {
     piercings?: string;
     tattoos?: string;
   };
-  identity: {
+  identity?: {
     defaultOutfit: string;
     archetype: string;
     personalityTraits: string[];
@@ -55,6 +56,9 @@ export interface BaseImageGenerationInput {
   cfg?: number;
   width?: number;
   height?: number;
+  promptInput?: string; // Raw prompt for prompt-based flow
+  promptEnhance?: boolean; // Enable AI prompt enhancement
+  idempotencyKey?: string; // Prevent duplicate generation (client: hash of userId + input)
 }
 
 export interface BaseImageGenerationResult {
@@ -62,19 +66,33 @@ export interface BaseImageGenerationResult {
     id: string;
     url: string;
     thumbnailUrl: string;
+    model?: string; // Model/provider that generated this image
   }>;
-  jobId: string; // Primary job ID (first of 3)
+  jobId: string; // Primary job ID (first of 6)
   workflowUsed: WorkflowId;
-  allJobIds?: string[]; // All 3 job IDs for batch polling
+  allJobIds?: string[]; // All 6 job IDs for batch polling
 }
 
 @Injectable()
 export class BaseImageGenerationService {
   private readonly logger = new Logger(BaseImageGenerationService.name);
+  // Store external job results with model info for display
   private readonly externalResults = new Map<
     string,
-    { status: 'queued' | 'in_progress' | 'completed' | 'failed'; images: any[]; error?: string; createdAt: number }
+    { 
+      status: 'queued' | 'in_progress' | 'completed' | 'failed'; 
+      images: Array<{ id: string; url: string; thumbnailUrl: string; s3Key?: string; model?: string }>;
+      error?: string; 
+      createdAt: number;
+      model?: string; // Human-friendly model name
+    }
   >();
+  // Idempotency tracking: key -> { jobIds, createdAt }
+  private readonly idempotencyCache = new Map<
+    string,
+    { jobId: string; allJobIds: string[]; workflowUsed: WorkflowId; createdAt: number }
+  >();
+  private readonly IDEMPOTENCY_TTL_MS = 10 * 60 * 1000; // 10 minutes
 
   constructor(
     @Inject(forwardRef(() => ComfyUIJobRunnerAdapter))
@@ -87,12 +105,39 @@ export class BaseImageGenerationService {
   ) {}
 
   /**
+   * Clean up expired idempotency cache entries
+   */
+  private cleanIdempotencyCache(): void {
+    const now = Date.now();
+    for (const [key, entry] of this.idempotencyCache.entries()) {
+      if (now - entry.createdAt > this.IDEMPOTENCY_TTL_MS) {
+        this.idempotencyCache.delete(key);
+      }
+    }
+  }
+
+  /**
    * Generate base image(s) from wizard config using ComfyUI pod
    * Generates 3 images with different seeds for variety
    */
   async generateBaseImages(
     input: BaseImageGenerationInput,
   ): Promise<BaseImageGenerationResult> {
+    // Check for idempotency key - return existing job if still valid
+    if (input.idempotencyKey) {
+      this.cleanIdempotencyCache();
+      const existing = this.idempotencyCache.get(input.idempotencyKey);
+      if (existing) {
+        this.logger.log(`Returning existing job for idempotency key: ${input.idempotencyKey}`);
+        return {
+          images: [], // Images will be fetched via polling
+          jobId: existing.jobId,
+          allJobIds: existing.allJobIds,
+          workflowUsed: existing.workflowUsed,
+        };
+      }
+    }
+
     // Ensure ComfyUI is available
     if (!this.comfyuiAdapter.isAvailable()) {
       throw new Error(
@@ -100,62 +145,146 @@ export class BaseImageGenerationService {
       );
     }
 
-    // Convert wizard config to CharacterConfig, then to CharacterDNA
-    const characterConfig: CharacterConfig = {
-      gender: input.appearance.gender,
-      style: input.appearance.style,
-      ethnicity: input.appearance.ethnicity,
-      age: input.appearance.age,
-      ageRange: input.appearance.ageRange,
-      skinColor: input.appearance.skinColor,
-      eyeColor: input.appearance.eyeColor,
-      faceShape: input.appearance.faceShape,
-      hairStyle: input.appearance.hairStyle,
-      hairColor: input.appearance.hairColor,
-      bodyType: input.appearance.bodyType,
-      assSize: input.appearance.assSize,
-      breastSize: input.appearance.breastSize,
-      breastType: input.appearance.breastType,
-      freckles: input.appearance.freckles,
-      scars: input.appearance.scars,
-      beautyMarks: input.appearance.beautyMarks,
-      piercings: input.appearance.piercings,
-      tattoos: input.appearance.tattoos,
-      defaultOutfit: input.identity.defaultOutfit,
-      archetype: input.identity.archetype,
-      personalityTraits: input.identity.personalityTraits,
-      bio: input.identity.bio,
-      nsfwEnabled: input.nsfwEnabled,
-    };
+    let basePrompt: string;
+    let negativePrompt: string;
+    let originalPrompt: string | undefined;
+    let enhancedPrompt: string | undefined;
+    let promptEnhance = false;
 
-    // Convert to CharacterDNA using the enhanced converter
-    const characterDNA = characterConfigToDNA(characterConfig, 'Character');
-
-    // Build prompt using PromptBuilder with character DNA
-    // Base images are ALWAYS SFW - ensure proper clothing and no nudity
-    // Force outfit to be appropriate (never allow nudity/NSFW for base images)
-    const outfit = input.identity.defaultOutfit || 'casual';
-    const safeOutfit = this.ensureSafeOutfit(outfit);
-    
-    const builtPrompt = new PromptBuilder()
-      .withCharacter(characterDNA)
-      .withTemplate('portrait-selfie-casual') // Default template for base images
-      .withOutfit(safeOutfit)
-      .withLighting('natural.soft')
-      .withExpression('positive.confident')
-      .withStylePreset('quality')
-      .addDetails('fully clothed, appropriate attire, professional appearance, modest clothing') // Explicitly add clothing requirement
-      .withNegativePrompt(
-        // Strong SFW negative prompt for base images - always enforce no nudity
-        'nude, naked, topless, bottomless, exposed breasts, nipples, genitals, ' +
+    // Handle prompt-based flow (raw prompt input)
+    if (input.promptInput) {
+      basePrompt = input.promptInput.trim();
+      originalPrompt = basePrompt;
+      
+      // Add SFW requirements to the prompt
+      basePrompt += ', fully clothed, appropriate attire, professional appearance, modest clothing';
+      
+      // Base images are ALWAYS SFW - strong negative prompt
+      negativePrompt = 'nude, naked, topless, bottomless, exposed breasts, nipples, genitals, ' +
         'see-through clothing, lingerie, underwear visible, revealing clothing, ' +
         'bikini, swimsuit, intimate wear, sexy clothing, ' +
         'nsfw, adult content, explicit, sexual content, erotic, ' +
-        'bad anatomy, deformed, blurry, low quality, watermark, signature'
-      )
-      .build();
+        'bad anatomy, deformed, blurry, low quality, watermark, signature';
 
-    this.logger.debug(`Generated prompt: ${builtPrompt.prompt.substring(0, 100)}...`);
+      // Apply wizard-specific prompt enhancement if enabled
+      if (input.promptEnhance !== false) {
+        try {
+          const enhancer = createAutoEnhancer();
+          
+          // Wizard-specific enhancement: Focus on creating unique character from minimal input
+          // Use a custom enhancement request that emphasizes character uniqueness
+          const enhancementPromise = enhancer.enhance({
+            prompt: basePrompt,
+            style: 'ultraRealistic',
+            strength: 0.85, // Higher strength for wizard - we want significant enhancement for character creation
+            focus: ['realism', 'details', 'character'], // Focus on character details
+            maxLength: 400,
+            isWizard: true, // Flag for wizard-specific enhancement
+          }).catch((err) => {
+            this.logger.warn('Wizard prompt enhancement failed, using base prompt:', err);
+            return null;
+          });
+
+          // Race: enhancement vs timeout (1.5 seconds for wizard - more time for character creation)
+          const timeoutPromise = new Promise<null>((resolve) => 
+            setTimeout(() => resolve(null), 1500)
+          );
+
+          const enhancementResult = await Promise.race([enhancementPromise, timeoutPromise]);
+          
+          // Use enhanced prompt if it completed in time, otherwise use base with quality keywords
+          if (enhancementResult && enhancementResult.enhancedPrompt) {
+            basePrompt = enhancementResult.enhancedPrompt;
+            // Ensure quality keywords are present (add if not already there)
+            const lowerPrompt = basePrompt.toLowerCase();
+            if (!lowerPrompt.includes('8k') && !lowerPrompt.includes('hyper-realistic') && !lowerPrompt.includes('ultra-detailed')) {
+              basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, sharp focus, high resolution, photorealistic';
+            }
+            enhancedPrompt = enhancementResult.enhancedPrompt;
+            promptEnhance = true;
+            // Merge negative prompt additions
+            if (enhancementResult.negativeAdditions.length > 0) {
+              negativePrompt += ', ' + enhancementResult.negativeAdditions.join(', ');
+            }
+          } else {
+            // Enhancement timed out or failed - add quality keywords to base prompt
+            basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, sharp focus, high resolution, photorealistic';
+          }
+        } catch (err) {
+          this.logger.warn('Wizard prompt enhancement failed, using base prompt with quality keywords:', err);
+          // Add quality keywords even when enhancement fails
+          basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, sharp focus, high resolution, photorealistic';
+        }
+      } else {
+        // Enhancement disabled - still add quality keywords for good base images
+        basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, sharp focus, high resolution, photorealistic';
+      }
+    } else {
+      // Traditional flow: build from appearance/identity
+      if (!input.appearance || !input.identity) {
+        throw new Error('Either promptInput or appearance+identity must be provided');
+      }
+
+      // Convert wizard config to CharacterConfig, then to CharacterDNA
+      const characterConfig: CharacterConfig = {
+        gender: input.appearance.gender,
+        style: input.appearance.style,
+        ethnicity: input.appearance.ethnicity,
+        age: input.appearance.age,
+        ageRange: input.appearance.ageRange,
+        skinColor: input.appearance.skinColor,
+        eyeColor: input.appearance.eyeColor,
+        faceShape: input.appearance.faceShape,
+        hairStyle: input.appearance.hairStyle,
+        hairColor: input.appearance.hairColor,
+        bodyType: input.appearance.bodyType,
+        assSize: input.appearance.assSize,
+        breastSize: input.appearance.breastSize,
+        breastType: input.appearance.breastType,
+        freckles: input.appearance.freckles,
+        scars: input.appearance.scars,
+        beautyMarks: input.appearance.beautyMarks,
+        piercings: input.appearance.piercings,
+        tattoos: input.appearance.tattoos,
+        defaultOutfit: input.identity.defaultOutfit,
+        archetype: input.identity.archetype,
+        personalityTraits: input.identity.personalityTraits,
+        bio: input.identity.bio,
+        nsfwEnabled: input.nsfwEnabled,
+      };
+
+      // Convert to CharacterDNA using the enhanced converter
+      const characterDNA = characterConfigToDNA(characterConfig, 'Character');
+
+      // Build prompt using PromptBuilder with character DNA
+      // Base images are ALWAYS SFW - ensure proper clothing and no nudity
+      // Force outfit to be appropriate (never allow nudity/NSFW for base images)
+      const outfit = input.identity.defaultOutfit || 'casual';
+      const safeOutfit = this.ensureSafeOutfit(outfit);
+      
+      const builtPrompt = new PromptBuilder()
+        .withCharacter(characterDNA)
+        .withTemplate('portrait-selfie-casual') // Default template for base images
+        .withOutfit(safeOutfit)
+        .withLighting('natural.soft')
+        .withExpression('positive.confident')
+        .withStylePreset('quality')
+        .addDetails('fully clothed, appropriate attire, professional appearance, modest clothing') // Explicitly add clothing requirement
+        .withNegativePrompt(
+          // Strong SFW negative prompt for base images - always enforce no nudity
+          'nude, naked, topless, bottomless, exposed breasts, nipples, genitals, ' +
+          'see-through clothing, lingerie, underwear visible, revealing clothing, ' +
+          'bikini, swimsuit, intimate wear, sexy clothing, ' +
+          'nsfw, adult content, explicit, sexual content, erotic, ' +
+          'bad anatomy, deformed, blurry, low quality, watermark, signature'
+        )
+        .build();
+
+      basePrompt = builtPrompt.prompt;
+      negativePrompt = builtPrompt.negativePrompt;
+    }
+
+    this.logger.debug(`Generated prompt: ${basePrompt.substring(0, 100)}...`);
 
     // Select workflow (use recommended or specified)
     const workflowId = input.workflowId || this.comfyuiAdapter.getRecommendedWorkflow();
@@ -175,8 +304,21 @@ export class BaseImageGenerationService {
     const shouldUseFal = this.fal.isConfigured(); // Always use Fal for base images (they're always SFW)
 
     if (shouldUseFal) {
-      const falModels: FalFluxModelId[] = ['fal-ai/flux/schnell', 'fal-ai/flux/dev'];
-      const falJobIds = falModels.map((m) => this.createExternalJobId(`fal:${m}`));
+      // Generate 6 base images: 2 per model (seedream-4.5, flux-dev, comfyui)
+      // Seedream 4.5 (ByteDance) - highest quality, 9/10 rating in our research
+      // Flux Dev - proven NSFW support, 9/10 rating
+      // This gives users variety from different model architectures
+      const falModels: FalFluxModelId[] = ['fal-ai/bytedance/seedream/v4.5/text-to-image', 'fal-ai/flux/dev'];
+      const imagesPerModel = 2;
+      
+      // Create job IDs for all Fal images (2 per model = 4 total)
+      const falJobIds: string[] = [];
+      for (let modelIdx = 0; modelIdx < falModels.length; modelIdx++) {
+        for (let i = 0; i < imagesPerModel; i++) {
+          const jobId = this.createExternalJobId(`fal:${falModels[modelIdx]}:${i}`);
+          falJobIds.push(jobId);
+        }
+      }
 
       // Initialize entries as in_progress so polling can start immediately.
       falJobIds.forEach((id) => {
@@ -187,40 +329,49 @@ export class BaseImageGenerationService {
         });
       });
 
-      // Kick off Fal work in background.
-      falJobIds.forEach((jobId, idx) => {
-        const modelId = falModels[idx];
-        const seed = baseSeed + idx;
-        void this.runFalBaseImageJob({
-          jobId,
-          modelId,
-          prompt: builtPrompt.prompt,
-          negativePrompt: builtPrompt.negativePrompt,
+      // Kick off Fal work in background (2 images per model = 4 total)
+      let seedOffset = 0;
+      for (let modelIdx = 0; modelIdx < falModels.length; modelIdx++) {
+        const modelId = falModels[modelIdx];
+        for (let i = 0; i < imagesPerModel; i++) {
+          const jobId = falJobIds[seedOffset];
+          const seed = baseSeed + seedOffset;
+          void this.runFalBaseImageJob({
+            jobId,
+            modelId,
+            prompt: basePrompt,
+            negativePrompt: negativePrompt,
+            width,
+            height,
+            seed,
+            userId: 'anonymous',
+          });
+          seedOffset++;
+        }
+      }
+
+      // Internal ComfyUI jobs: 2 images for variety
+      // Base images are ALWAYS SFW (nsfw: false)
+      const internalJobIds: string[] = [];
+      for (let i = 0; i < imagesPerModel; i++) {
+        const internalSeed = baseSeed + seedOffset + i;
+        const internalJobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
+          prompt: basePrompt,
+          negativePrompt: negativePrompt,
+          nsfw: false, // Base images are always SFW
+          seed: internalSeed,
           width,
           height,
-          seed,
-          userId: 'anonymous',
+          steps,
+          cfg,
+          workflowId,
         });
-      });
+        internalJobIds.push(internalJobId);
+      }
 
-      // Internal ComfyUI job for the 3rd image.
-      // Base images are ALWAYS SFW (nsfw: false)
-      const internalSeed = baseSeed + 2;
-      const internalJobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
-        prompt: builtPrompt.prompt,
-        negativePrompt: builtPrompt.negativePrompt,
-        nsfw: false, // Base images are always SFW
-        seed: internalSeed,
-        width,
-        height,
-        steps,
-        cfg,
-        workflowId,
-      });
-
-      const allJobIds = [...falJobIds, internalJobId];
+      const allJobIds = [...falJobIds, ...internalJobIds];
       this.logger.log(
-        `Base images queued (hybrid): fal(${falModels.join(', ')}) + comfyui(${workflowId}) jobIds=${allJobIds.join(', ')}`,
+        `Base images queued (hybrid): fal(${falModels.join(', ')}) x${imagesPerModel} + comfyui(${workflowId}) x${imagesPerModel} = ${allJobIds.length} total, jobIds=${allJobIds.join(', ')}`,
       );
 
       return {
@@ -231,15 +382,16 @@ export class BaseImageGenerationService {
       };
     }
 
-    // Internal-only fallback (3 ComfyUI jobs)
+    // Internal-only fallback (6 ComfyUI jobs for variety)
     // Base images are ALWAYS SFW (nsfw: false)
-    const jobs = Array.from({ length: 3 }).map((_, i) => {
+    const internalImageCount = 6;
+    const jobs = Array.from({ length: internalImageCount }).map((_, i) => {
       const seed = baseSeed + i;
       return {
         seed,
         promise: this.comfyuiAdapter.submitBaseImageWithWorkflow({
-          prompt: builtPrompt.prompt,
-          negativePrompt: builtPrompt.negativePrompt,
+          prompt: basePrompt,
+          negativePrompt: negativePrompt,
           nsfw: false, // Base images are always SFW
           seed,
           width,
@@ -254,16 +406,29 @@ export class BaseImageGenerationService {
     const jobIds = await Promise.all(jobs.map((j) => j.promise));
     jobIds.forEach((jobId, idx) => {
       this.logger.log(
-        `Job ${jobId} submitted (${idx + 1}/3) with workflow: ${workflowId}, seed: ${jobs[idx].seed}, steps: ${steps}, size: ${width}x${height}`,
+        `Job ${jobId} submitted (${idx + 1}/${internalImageCount}) with workflow: ${workflowId}, seed: ${jobs[idx].seed}, steps: ${steps}, size: ${width}x${height}`,
       );
     });
 
-    return {
+    const result = {
       images: [],
       jobId: jobIds[0],
       workflowUsed: workflowId,
       allJobIds: jobIds,
     };
+
+    // Store in idempotency cache if key was provided
+    if (input.idempotencyKey) {
+      this.idempotencyCache.set(input.idempotencyKey, {
+        jobId: result.jobId,
+        allJobIds: jobIds,
+        workflowUsed: workflowId,
+        createdAt: Date.now(),
+      });
+      this.logger.log(`Cached idempotency key: ${input.idempotencyKey} -> jobs: ${jobIds.join(', ')}`);
+    }
+
+    return result;
   }
 
   /**
@@ -363,6 +528,7 @@ export class BaseImageGenerationService {
       if (!record) {
         return { status: 'failed', images: [], error: 'External job not found (expired)' };
       }
+      // Images already have model field set when stored
       return { status: record.status, images: record.images, error: record.error };
     }
 
@@ -403,6 +569,7 @@ export class BaseImageGenerationService {
             url: img.url,
             thumbnailUrl: img.thumbnailUrl,
             s3Key: img.key,
+            model: 'Danrisi', // ComfyUI internal workflow
           })),
         };
       } catch (error) {
@@ -414,6 +581,7 @@ export class BaseImageGenerationService {
             id: `${jobId}-${idx}`,
             url: img, // Base64 data URL as fallback
             thumbnailUrl: img,
+            model: 'Danrisi', // ComfyUI internal workflow
           })),
           warning: 'Images stored as base64 - storage upload failed',
         };
@@ -433,6 +601,67 @@ export class BaseImageGenerationService {
     return `fal_job_${Buffer.from(id).toString('base64url')}`;
   }
 
+  /**
+   * Convert Fal model ID to human-friendly display name
+   */
+  private getFalModelDisplayName(modelId: FalFluxModelId): string {
+    const modelNames: Record<string, string> = {
+      'fal-ai/flux/schnell': 'Schnell',
+      'fal-ai/flux/dev': 'Dev',
+      'fal-ai/flux-pro': 'Pro',
+      'fal-ai/flux-realism': 'Realism',
+      'fal-ai/flux-2': 'FLUX 2',
+      'fal-ai/flux-2-pro': 'FLUX 2 Pro',
+      'fal-ai/flux-2-max': 'FLUX 2 Max',
+      'fal-ai/flux-2/turbo': 'FLUX 2 Turbo',
+      'fal-ai/flux-2/flash': 'FLUX 2 Flash',
+      'fal-ai/z-image/turbo': 'Z-Image',
+      'fal-ai/qwen-image-2512': 'Qwen',
+      'fal-ai/bytedance/seedream/v4.5/text-to-image': 'Seedream',
+    };
+    return modelNames[modelId] || modelId.split('/').pop() || 'Fal';
+  }
+
+  /**
+   * Sanitize prompt for models with strict content policies (like Seedream 4.5)
+   * Removes body part descriptions that trigger content policy violations
+   */
+  private sanitizePromptForStrictModels(prompt: string, modelId: FalFluxModelId): string {
+    // Seedream 4.5 has stricter content filtering - remove body part descriptions
+    const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
+    
+    if (!isStrictModel) {
+      return prompt;
+    }
+
+    // Remove body part descriptions that trigger content policy violations
+    const bodyPartPatterns = [
+      /\b(small|medium|large|big|tiny|huge)\s+(ass|butt|buttocks|booty)\b/gi,
+      /\b(small|medium|large|big|tiny|huge|perky|saggy)\s+(breasts|boobs|chest|bust)\b/gi,
+      /\b(ass|butt|buttocks|booty)\s+(size|shape)\b/gi,
+      /\b(breast|boob|chest|bust)\s+(size|type|shape)\b/gi,
+    ];
+
+    let sanitized = prompt;
+    for (const pattern of bodyPartPatterns) {
+      sanitized = sanitized.replace(pattern, '');
+    }
+
+    // Clean up double commas and extra spaces
+    sanitized = sanitized
+      .replace(/,\s*,/g, ',')
+      .replace(/,\s*$/g, '')
+      .replace(/^\s*,/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+
+    if (sanitized !== prompt) {
+      this.logger.debug(`Sanitized prompt for ${modelId}: removed body part descriptions`);
+    }
+
+    return sanitized;
+  }
+
   private async runFalBaseImageJob(params: {
     jobId: string;
     modelId: FalFluxModelId;
@@ -444,10 +673,15 @@ export class BaseImageGenerationService {
     userId: string;
   }) {
     const { jobId, modelId, prompt, negativePrompt, width, height, seed, userId } = params;
+    const modelName = this.getFalModelDisplayName(modelId);
+    
+    // Sanitize prompt for strict models like Seedream 4.5
+    const sanitizedPrompt = this.sanitizePromptForStrictModels(prompt, modelId);
+    
     try {
-      this.logger.log(`Fal base image started jobId=${jobId} model=${modelId}`);
+      this.logger.log(`Fal base image started jobId=${jobId} model=${modelId} (${modelName})`);
       const out = await this.fal.runFlux(modelId, {
-        prompt,
+        prompt: sanitizedPrompt,
         negativePrompt,
         width,
         height,
@@ -455,13 +689,26 @@ export class BaseImageGenerationService {
         numImages: 1,
       });
 
+      this.logger.log(`Fal base image got response jobId=${jobId} model=${modelId} images=${out.imageUrls.length}`);
+
+      if (!out.imageUrls || out.imageUrls.length === 0) {
+        throw new Error(`No image URLs returned from Fal for ${modelId}`);
+      }
+
       // Download -> base64 data URL -> upload to our storage for stable URLs.
+      this.logger.log(`Fal base image downloading jobId=${jobId} model=${modelId} url=${out.imageUrls[0].substring(0, 50)}...`);
       const base64 = await this.fal.downloadToBase64DataUrl(out.imageUrls[0]);
+      
+      this.logger.log(`Fal base image uploading jobId=${jobId} model=${modelId}`);
       const { images: stored } = await this.imageStorage.uploadImages([base64], {
         userId,
         category: 'base-images',
         jobId,
       });
+
+      if (!stored || stored.length === 0) {
+        throw new Error(`Failed to upload image to storage for ${modelId}`);
+      }
 
       const img = stored[0];
       this.externalResults.set(jobId, {
@@ -472,17 +719,84 @@ export class BaseImageGenerationService {
             url: img.url,
             thumbnailUrl: img.thumbnailUrl,
             s3Key: img.key,
+            model: modelName,
           },
         ],
+        model: modelName,
         createdAt: Date.now(),
       });
+      
+      this.logger.log(`Fal base image completed jobId=${jobId} model=${modelId} (${modelName}) url=${img.url}`);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Fal generation failed';
-      this.logger.warn(`Fal base image failed jobId=${jobId} model=${modelId}: ${message}`);
+      const stack = e instanceof Error ? e.stack : undefined;
+      
+      // Check if it's a content policy violation (422) for strict models
+      const isContentPolicyError = message.includes('422') || message.includes('content_policy') || message.includes('content checker');
+      const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
+      
+      if (isContentPolicyError && isStrictModel) {
+        this.logger.warn(`Content policy violation for ${modelId}, trying more aggressive sanitization...`);
+        
+        // Try again with more aggressive sanitization
+        try {
+          // Remove all potentially problematic terms
+          const aggressiveSanitized = sanitizedPrompt
+            .replace(/\b(ass|butt|breast|boob|chest|bust|nipple|genital)\w*/gi, '')
+            .replace(/,\s*,/g, ',')
+            .replace(/,\s*$/g, '')
+            .replace(/^\s*,/g, '')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          if (aggressiveSanitized.length > 20) { // Only retry if we have enough prompt left
+            this.logger.log(`Retrying ${modelId} with aggressively sanitized prompt`);
+            const retryOut = await this.fal.runFlux(modelId, {
+              prompt: aggressiveSanitized,
+              negativePrompt,
+              width,
+              height,
+              seed,
+              numImages: 1,
+            });
+            
+            if (retryOut.imageUrls && retryOut.imageUrls.length > 0) {
+              const base64 = await this.fal.downloadToBase64DataUrl(retryOut.imageUrls[0]);
+              const { images: stored } = await this.imageStorage.uploadImages([base64], {
+                userId,
+                category: 'base-images',
+                jobId,
+              });
+              
+              const img = stored[0];
+              this.externalResults.set(jobId, {
+                status: 'completed',
+                images: [{
+                  id: `${jobId}-0`,
+                  url: img.url,
+                  thumbnailUrl: img.thumbnailUrl,
+                  s3Key: img.key,
+                  model: modelName,
+                }],
+                model: modelName,
+                createdAt: Date.now(),
+              });
+              
+              this.logger.log(`Fal base image completed (retry) jobId=${jobId} model=${modelId} (${modelName})`);
+              return; // Success on retry
+            }
+          }
+        } catch (retryErr) {
+          this.logger.warn(`Retry also failed for ${modelId}: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`);
+        }
+      }
+      
+      this.logger.error(`Fal base image failed jobId=${jobId} model=${modelId} (${modelName}): ${message}`, stack);
       this.externalResults.set(jobId, {
         status: 'failed',
         images: [],
         error: message,
+        model: modelName,
         createdAt: Date.now(),
       });
     }

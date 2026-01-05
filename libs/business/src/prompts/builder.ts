@@ -468,16 +468,24 @@ export class PromptBuilder {
   }
 
   /**
-   * Enhance the prompt using AI (Gemini/OpenAI)
+   * Enhance the prompt using AI (OpenRouter/Gemini/OpenAI)
    * Improves the prompt with photography techniques, realism keywords, and better descriptions.
    * 
-   * @param enhancer - An AIPromptEnhancer instance (create with createGeminiEnhancer or createOpenAIEnhancer)
+   * @param enhancer - An AIPromptEnhancer instance (create with createOpenRouterEnhancer, createGeminiEnhancer, createOpenAIEnhancer, or createAutoEnhancer)
    * @param options - Enhancement options
    * @returns Promise with enhanced BuiltPrompt and enhancement details
    * @example
-   *   import { createGeminiEnhancer } from '@ryla/business/prompts';
+   *   // Recommended: OpenRouter (best prices, reliability, 500+ models)
+   *   import { createOpenRouterEnhancer } from '@ryla/business/prompts';
+   *   const enhancer = createOpenRouterEnhancer({ 
+   *     apiKey: process.env.OPENROUTER_API_KEY,
+   *     defaultModel: 'deepseek/deepseek-chat',
+   *   });
    *   
-   *   const enhancer = createGeminiEnhancer({ apiKey: process.env.GEMINI_API_KEY });
+   *   // Or use auto-detection (prefers OpenRouter if available)
+   *   import { createAutoEnhancer } from '@ryla/business/prompts';
+   *   const enhancer = createAutoEnhancer();
+   *   
    *   const result = await builder.buildWithAI(enhancer, { strength: 0.8 });
    *   console.log(result.enhancement.changes); // What was improved
    */

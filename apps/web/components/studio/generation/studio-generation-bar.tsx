@@ -425,15 +425,16 @@ export function StudioGenerationBar({
               </div>
               {/* Clear button on hover */}
               {onClearSelectedImage && (
-                <button
-                  onClick={onClearSelectedImage}
-                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
-                  title="Clear selection"
-                >
+                <Tooltip content="Clear selected image">
+                  <button
+                    onClick={onClearSelectedImage}
+                    className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
+                  >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
                     <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                   </svg>
                 </button>
+                </Tooltip>
               )}
             </div>
 
@@ -452,41 +453,45 @@ export function StudioGenerationBar({
                       />
                     </div>
                     {/* Remove button on hover */}
-                    <button
-                      onClick={() => {
-                        updateSetting('objects', settings.objects.filter(o => o.id !== obj.id));
-                      }}
-                      className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
-                      title="Remove object"
-                    >
+                    <Tooltip content="Remove this object">
+                      <button
+                        onClick={() => {
+                          updateSetting('objects', settings.objects.filter(o => o.id !== obj.id));
+                        }}
+                        className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-white opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow-lg hover:bg-red-600 z-10"
+                      >
                       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-2.5 w-2.5">
                         <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
                       </svg>
                     </button>
+                    </Tooltip>
                   </div>
                 ))}
                 
                 {/* Add Object Button */}
                 {settings.objects.length < 3 && (
-                  <button
-                    onClick={() => setShowObjectPicker(true)}
-                    className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all border-2 border-dashed border-white/20"
-                    title="Add object"
-                  >
+                  <Tooltip content="Add object to edit">
+                    <button
+                      onClick={() => setShowObjectPicker(true)}
+                      className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all border-2 border-dashed border-white/20"
+                    >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
                       <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
                     </svg>
                   </button>
+                  </Tooltip>
                 )}
               </div>
             )}
           </div>
         ) : (
-          <button className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
-              <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-            </svg>
-          </button>
+          <Tooltip content="Upload image as prompt or for editing">
+            <button className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
+              </svg>
+            </button>
+          </Tooltip>
         )}
 
         {/* Prompt Input */}
@@ -522,26 +527,26 @@ export function StudioGenerationBar({
           />
         </div>
 
-        {/* Selected Influencer Thumbnails */}
+          {/* Selected Influencer Thumbnails */}
         <div className="flex items-center gap-2">
           {orderedInfluencers.slice(0, 3).map((inf) => (
-            <button
-              key={inf.id}
-              onClick={() => {
-                updateSetting('influencerId', inf.id);
-                setShowCharacterPicker(false);
-                // Sync to top bar
-                if (onInfluencerChange) {
-                  onInfluencerChange(inf.id);
-                }
-              }}
-              className={cn(
-                'relative h-10 w-10 rounded-lg overflow-hidden border-2 transition-all',
-                settings.influencerId === inf.id
-                  ? 'border-[var(--purple-500)] ring-1 ring-[var(--purple-500)]/50'
-                  : 'border-transparent hover:border-white/30'
-              )}
-            >
+            <Tooltip key={inf.id} content={`Select ${inf.name} for generation`}>
+              <button
+                onClick={() => {
+                  updateSetting('influencerId', inf.id);
+                  setShowCharacterPicker(false);
+                  // Sync to top bar
+                  if (onInfluencerChange) {
+                    onInfluencerChange(inf.id);
+                  }
+                }}
+                className={cn(
+                  'relative h-10 w-10 rounded-lg overflow-hidden border-2 transition-all',
+                  settings.influencerId === inf.id
+                    ? 'border-[var(--purple-500)] ring-1 ring-[var(--purple-500)]/50'
+                    : 'border-transparent hover:border-white/30'
+                )}
+              >
               {inf.avatar ? (
                 <Image
                   src={inf.avatar}
@@ -561,15 +566,18 @@ export function StudioGenerationBar({
                 </div>
               )}
             </button>
+            </Tooltip>
           ))}
           
           {/* More Characters Button */}
-          <button
-            onClick={() => setShowCharacterPicker(true)}
-            className="h-11 px-4 rounded-xl bg-white/5 text-[var(--text-secondary)] text-xs font-medium hover:bg-white/10 hover:text-[var(--text-primary)] transition-all"
-          >
-            More...
-          </button>
+          <Tooltip content="Select from more influencers">
+            <button
+              onClick={() => setShowCharacterPicker(true)}
+              className="h-11 px-4 rounded-xl bg-white/5 text-[var(--text-secondary)] text-xs font-medium hover:bg-white/10 hover:text-[var(--text-primary)] transition-all"
+            >
+              More...
+            </button>
+          </Tooltip>
           
           {/* Red cross icon when no influencer is selected */}
           {!selectedInfluencer && (
@@ -584,16 +592,18 @@ export function StudioGenerationBar({
         </div>
 
         {/* Generate Button */}
-        <button
-          onClick={handleGenerate}
-          disabled={!canGenerate}
-          className={cn(
-            'h-12 px-8 rounded-xl font-bold text-sm flex items-center gap-2.5 transition-all',
-            canGenerate
-              ? 'bg-gradient-to-r from-[var(--purple-500)] to-[var(--purple-600)] text-white hover:from-[var(--purple-400)] hover:to-[var(--purple-500)] shadow-lg shadow-[var(--purple-500)]/25'
-              : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed'
-          )}
-        >
+        <Tooltip content={canGenerate ? (mode === 'creating' ? 'Generate new images' : mode === 'editing' ? 'Edit selected image' : 'Upscale selected image') : 'Select an influencer and ensure you have enough credits'}>
+          <button
+            onClick={handleGenerate}
+            disabled={!canGenerate}
+            data-tutorial-target="generate-button"
+            className={cn(
+              'h-12 px-8 rounded-xl font-bold text-sm flex items-center gap-2.5 transition-all',
+              canGenerate
+                ? 'bg-gradient-to-r from-[var(--purple-500)] to-[var(--purple-600)] text-white hover:from-[var(--purple-400)] hover:to-[var(--purple-500)] shadow-lg shadow-[var(--purple-500)]/25'
+                : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed'
+            )}
+          >
           <>
             {getButtonLabel()}
             <span className="flex items-center gap-0.5 text-xs opacity-80">
@@ -605,10 +615,14 @@ export function StudioGenerationBar({
             </span>
           </>
         </button>
+        </Tooltip>
       </div>
 
       {/* Controls Row */}
-      <div className="flex items-center gap-1.5 px-4 py-2 border-t border-white/5 overflow-x-auto scroll-hidden">
+      <div 
+        className="flex items-center gap-1.5 px-4 py-2 border-t border-white/5 overflow-x-auto scroll-hidden"
+        data-tutorial-target="generation-controls"
+      >
         {/* Model Selector */}
         <div className="relative">
           <Tooltip content="AI Model: Choose the AI model for generation. Different models offer unique styles and quality levels.">
@@ -679,6 +693,11 @@ export function StudioGenerationBar({
         {/* Divider - Show after aspect ratio if visible */}
         {showAspectRatio && <div className="h-3.5 w-px bg-white/10" />}
 
+        {/* Settings Section */}
+        <div 
+          className="flex items-center gap-1.5"
+          data-tutorial-target="generation-settings"
+        >
         {/* Quality */}
         <div className="relative">
           <Tooltip content="Quality: Higher resolution produces sharper images but uses more credits. 1k is fast, 2k is high-quality.">
@@ -758,6 +777,7 @@ export function StudioGenerationBar({
             </button>
           </div>
         </Tooltip>
+        </div>
 
         {/* Creative Controls - Only show for creating/editing modes */}
         {showCreativeControls && (
@@ -767,51 +787,114 @@ export function StudioGenerationBar({
 
             {/* Pose Picker Button */}
             <Tooltip content="Pose: Select a pose to add to your prompt. Different poses available based on content settings.">
-              <button
-                onClick={() => setShowPosePicker(true)}
-                className={cn(
-                  'flex items-center gap-1.5 h-8 px-2 rounded-lg text-xs font-medium transition-all',
-                  selectedPose
-                    ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
-                    : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
-                )}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
-                  <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM3 18a7 7 0 0114 0v1H3v-1zm7-4a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" />
-                </svg>
-                <span className="truncate max-w-[100px]">{selectedPose ? selectedPose.name : 'Pose'}</span>
-              </button>
+              <div className="group">
+                <button
+                  onClick={() => setShowPosePicker(true)}
+                  className={cn(
+                    'flex items-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all px-2',
+                    selectedPose
+                      ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                      : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
+                  )}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM3 18a7 7 0 0114 0v1H3v-1zm7-4a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1z" />
+                  </svg>
+                  <span className="truncate max-w-[100px]">{selectedPose ? selectedPose.name : 'Pose'}</span>
+                  {selectedPose && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateSetting('poseId', null);
+                      }}
+                      className="h-4 w-0 max-w-0 flex items-center justify-center rounded overflow-hidden opacity-0 group-hover:w-4 group-hover:max-w-4 group-hover:opacity-100 group-hover:ml-1 transition-all text-white hover:bg-white/10"
+                      title="Clear pose"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  )}
+                </button>
+              </div>
             </Tooltip>
 
             {/* Outfit Composition Picker Button */}
             <Tooltip content="Outfit: Choose from pre-composed outfits or create your own custom composition.">
-              <button
-                onClick={() => setShowOutfitModeSelector(true)}
-                className={cn(
-                  'flex items-center gap-1.5 h-8 px-2 rounded-lg text-xs font-medium transition-all',
-                  hasOutfitComposition || (typeof settings.outfit === 'string' && settings.outfit)
-                    ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
-                    : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
-                )}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
-                  <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
-                </svg>
-                <span className="truncate max-w-[100px]">{outfitDisplayText}</span>
-              </button>
+              <div className="group">
+                <button
+                  onClick={() => setShowOutfitModeSelector(true)}
+                  className={cn(
+                    'flex items-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all px-2',
+                    hasOutfitComposition || (typeof settings.outfit === 'string' && settings.outfit)
+                      ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                      : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
+                  )}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
+                    <path d="M10.75 16.82A7.462 7.462 0 0115 15.5c.71 0 1.396.098 2.046.282A.75.75 0 0018 15.06v-11a.75.75 0 00-.546-.721A9.006 9.006 0 0015 3a8.963 8.963 0 00-4.25 1.065V16.82zM9.25 4.065A8.963 8.963 0 005 3c-.85 0-1.673.118-2.454.339A.75.75 0 002 4.06v11a.75.75 0 00.954.721A7.506 7.506 0 015 15.5c1.579 0 3.042.487 4.25 1.32V4.065z" />
+                  </svg>
+                  <span className="truncate max-w-[100px]">{outfitDisplayText}</span>
+                  {(hasOutfitComposition || (typeof settings.outfit === 'string' && settings.outfit)) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        updateSetting('outfit', null);
+                      }}
+                      className="h-4 w-0 max-w-0 flex items-center justify-center rounded overflow-hidden opacity-0 group-hover:w-4 group-hover:max-w-4 group-hover:opacity-100 group-hover:ml-1 transition-all text-white hover:bg-white/10"
+                      title="Clear outfit"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  )}
+                </button>
+              </div>
             </Tooltip>
 
             {/* Visual Styles Button */}
             <Tooltip content="Styles & Scenes: Apply visual styles, backgrounds, and lighting to customize your generated images.">
-              <button
-                onClick={() => setShowStylePicker(true)}
-                className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-[var(--purple-500)]/15 text-[var(--text-primary)] text-xs font-medium hover:bg-[var(--purple-500)]/25 transition-all"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
-                  <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
-                </svg>
-                <span className="truncate max-w-[120px]">Styles & Scenes</span>
-              </button>
+              <div className="group">
+                <button
+                  onClick={() => setShowStylePicker(true)}
+                  className={cn(
+                    'flex items-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all px-2',
+                    settings.styleId || settings.sceneId || settings.lightingId
+                      ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                      : 'bg-[var(--purple-500)]/15 text-[var(--text-primary)] hover:bg-[var(--purple-500)]/25'
+                  )}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">
+                    <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+                  </svg>
+                  <span className="truncate max-w-[120px]">Styles & Scenes</span>
+                  {(settings.styleId || settings.sceneId || settings.lightingId) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSettings(prev => {
+                          const updated = { ...prev, styleId: null, sceneId: null, lightingId: null };
+                          // Persist to localStorage
+                          setPersistedSettings(prevPersisted => ({
+                            ...prevPersisted,
+                            styleId: null,
+                            sceneId: null,
+                            lightingId: null,
+                          }));
+                          return updated;
+                        });
+                      }}
+                      className="h-4 w-0 max-w-0 flex items-center justify-center rounded overflow-hidden opacity-0 group-hover:w-4 group-hover:max-w-4 group-hover:opacity-100 group-hover:ml-1 transition-all text-white hover:bg-white/10"
+                      title="Clear styles & scenes"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3 w-3">
+                        <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+                      </svg>
+                    </button>
+                  )}
+                </button>
+              </div>
             </Tooltip>
           </>
         )}

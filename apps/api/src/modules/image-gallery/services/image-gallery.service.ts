@@ -91,6 +91,10 @@ export class ImageGalleryService {
             width: schema.images.width,
             height: schema.images.height,
             generationError: schema.images.generationError,
+            // Prompt enhancement metadata
+            promptEnhance: schema.images.promptEnhance,
+            originalPrompt: schema.images.originalPrompt,
+            enhancedPrompt: schema.images.enhancedPrompt,
             createdAt: schema.images.createdAt,
             updatedAt: schema.images.updatedAt,
           })
@@ -130,8 +134,18 @@ export class ImageGalleryService {
     // IMPORTANT:
     // Do NOT trust persisted s3Url/thumbnailUrl, since they may be presigned and expire.
     // Always return fresh signed URLs derived from storage keys.
+    // For images with status 'generating', s3Key may be a placeholder - skip URL generation
     const signed = await Promise.all(
       images.map(async (img) => {
+        // Skip URL generation for generating images with placeholder keys
+        if (img.status === 'generating' && img.s3Key.startsWith('generating/')) {
+          return {
+            ...img,
+            s3Url: null,
+            thumbnailUrl: null,
+          };
+        }
+
         const key = img.s3Key;
         const thumbKey = img.thumbnailKey ?? img.s3Key;
         const [s3Url, thumbnailUrl] = await Promise.all([

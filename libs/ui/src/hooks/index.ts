@@ -1,3 +1,3 @@
 // Custom hooks
-export {};
+export { useTutorial } from './use-tutorial';
 

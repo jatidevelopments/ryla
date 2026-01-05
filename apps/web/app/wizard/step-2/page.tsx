@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { StepGeneral } from '../../../components/wizard/step-general';
+import { StepIdentity } from '../../../components/wizard/step-identity';
 
 export default function WizardStep2() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -12,10 +13,16 @@ export default function WizardStep2() {
     setStep(2);
   }, [setStep]);
 
-  // Only presets flow uses step 2 (Basic Appearance)
-  if (creationMethod !== 'presets') {
-    return null;
+  // For prompt-based flow, step 2 is Identity
+  if (creationMethod === 'prompt-based') {
+    return <StepIdentity />;
   }
 
-  return <StepGeneral />;
+  // For presets flow, step 2 is Basic Appearance
+  if (creationMethod === 'presets') {
+    return <StepGeneral />;
+  }
+
+  // Fallback: if no creation method selected, return null
+  return null;
 }

@@ -17,27 +17,41 @@ function BuyCreditsContent() {
   const utils = trpc.useUtils();
   const { data: creditsData, refetch: refetchCredits } = trpc.credits.getBalance.useQuery();
 
-  const purchaseMutation = trpc.subscription.purchaseCredits.useMutation({
-    onSuccess: (data) => {
-      refetchCredits();
-      // Invalidate activity feed so it shows the new credit transaction
-      utils.activity.list.invalidate();
-      utils.activity.summary.invalidate();
-      // Invalidate notifications (credits purchased notification)
-      utils.notifications.list.invalidate();
-      setSuccessMessage(
-        `Successfully purchased ${data.creditsPurchased} credits! New balance: ${data.newBalance}`
-      );
-      setTimeout(() => setSuccessMessage(null), 5000);
-      setShowConfirmModal(false);
-      setSelectedPackage(null);
-    },
-    onError: (error) => {
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const handlePurchase = async (packageId: string) => {
+    setIsProcessing(true);
+    try {
+      const response = await fetch('/api/finby/setup-payment', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'credit',
+          packageId,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create payment session');
+      }
+
+      const data = await response.json();
+      
+      // Redirect to Finby payment page
+      if (data.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        throw new Error('No payment URL received');
+      }
+    } catch (error: any) {
       console.error('Purchase error:', error);
-      alert('Failed to purchase credits. Please try again.');
-      setShowConfirmModal(false);
-    },
-  });
+      alert(error.message || 'Failed to start payment. Please try again.');
+      setIsProcessing(false);
+    }
+  };
 
   const handlePurchaseClick = (packageId: string) => {
     const pkg = CREDIT_PACKAGES.find(p => p.id === packageId);
@@ -49,7 +63,7 @@ function BuyCreditsContent() {
 
   const handleConfirmPurchase = async () => {
     if (!selectedPackage) return;
-    purchaseMutation.mutate({ packageId: selectedPackage.id });
+    await handlePurchase(selectedPackage.id);
   };
 
   return (
@@ -125,7 +139,7 @@ function BuyCreditsContent() {
               <CreditPackageCard
                 package_={pkg}
                 onPurchase={handlePurchaseClick}
-                isLoading={purchaseMutation.isPending && selectedPackage?.id === pkg.id}
+                isLoading={isProcessing && selectedPackage?.id === pkg.id}
               />
             </div>
           ))}
@@ -225,10 +239,10 @@ function BuyCreditsContent() {
                 </div>
               </div>
 
-              {/* Test mode notice */}
-              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-6">
-                <p className="text-amber-300/80 text-xs">
-                  🧪 Test Mode: Credits will be added instantly
+              {/* Payment notice */}
+              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 mb-6">
+                <p className="text-blue-300/80 text-xs">
+                  You will be redirected to our secure payment page to complete your purchase.
                 </p>
               </div>
 
@@ -236,12 +250,12 @@ function BuyCreditsContent() {
               <div className="space-y-3">
                 <RylaButton
                   onClick={handleConfirmPurchase}
-                  disabled={purchaseMutation.isPending}
-                  loading={purchaseMutation.isPending}
+                  disabled={isProcessing}
+                  loading={isProcessing}
                   variant="glassy"
                   className="w-full"
                 >
-                  Confirm Purchase
+                  Continue to Payment
                 </RylaButton>
                 <RylaButton
                   onClick={() => setShowConfirmModal(false)}

@@ -12,6 +12,9 @@ import { ChevronDown, Grid3X3, LayoutGrid, Rows } from 'lucide-react';
 import { cn } from '@ryla/ui';
 import { SCENE_OPTIONS, ENVIRONMENT_OPTIONS } from '@ryla/shared';
 
+// Feature flag: Set to true when ready to launch template gallery
+const TEMPLATES_ENABLED = false;
+
 // Filter Pill Button Component
 function FilterPill({
   label,
@@ -74,7 +77,7 @@ function FilterDropdown({
   );
 }
 
-function TemplatesContent() {
+function TemplatesContentFull() {
   const router = useRouter();
   const [filters, setFilters] = React.useState({
     category: 'all' as 'all' | 'my_templates' | 'curated' | 'popular',
@@ -341,6 +344,50 @@ function TemplatesContent() {
       />
     </PageContainer>
   );
+}
+
+function TemplatesContentComingSoon() {
+  return (
+    <PageContainer maxWidth="full" className="relative">
+      {/* Background gradient effect */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute -top-40 right-0 h-[500px] w-[500px] opacity-30"
+          style={{
+            background:
+              'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
+            filter: 'blur(60px)',
+          }}
+        />
+      </div>
+
+      {/* Coming Soon Content */}
+      <FadeInUp>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
+            <LayoutGrid className="h-10 w-10 text-[var(--purple-400)]" />
+          </div>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-3">
+            Template Gallery
+          </h1>
+          <div className="mb-4">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 text-[var(--purple-400)] border border-[var(--purple-500)]/20">
+              Coming Soon
+            </span>
+          </div>
+          <p className="text-[var(--text-secondary)] max-w-md">
+            We're building a gallery where you can discover and reuse successful generation configurations. 
+            Save your favorite studio presets and share them with the community.
+          </p>
+        </div>
+      </FadeInUp>
+    </PageContainer>
+  );
+}
+
+function TemplatesContent() {
+  // Show full page when feature flag is enabled, otherwise show coming soon
+  return TEMPLATES_ENABLED ? <TemplatesContentFull /> : <TemplatesContentComingSoon />;
 }
 
 export default function TemplatesPage() {

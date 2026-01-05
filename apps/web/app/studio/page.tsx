@@ -24,15 +24,19 @@ import {
   type AdultFilter,
   type SortBy,
 } from '../../components/studio';
+import type { OutfitComposition } from '@ryla/shared';
 import {
   StudioGenerationBar,
   type GenerationSettings,
   type StudioMode,
   type ContentType,
+  type AspectRatio,
 } from '../../components/studio/generation';
 import { trpc } from '../../lib/trpc';
 import { useCredits } from '../../lib/hooks';
 import { useLocalStorage } from '../../lib/hooks/use-local-storage';
+import { TutorialOverlay, useTutorial, type TutorialStepType } from '@ryla/ui';
+import { DevPanel } from '../../components/dev/dev-panel';
 
 export default function StudioPage() {
   return (
@@ -49,9 +53,68 @@ function isUuid(value: string): boolean {
   return UUID_RE.test(value);
 }
 
+// Studio tutorial steps definition
+const studioTutorialSteps: TutorialStepType[] = [
+  {
+    id: 'character-selection',
+    target: '[data-tutorial-target="character-selector"]',
+    message: 'Select an AI Influencer to generate images for',
+    position: 'bottom',
+    pointerDirection: 'up',
+  },
+  {
+    id: 'mode-tabs',
+    target: '[data-tutorial-target="mode-tabs"]',
+    message:
+      'Switch between Creating new images, Editing existing ones, or Upscaling for higher resolution',
+    position: 'bottom',
+    pointerDirection: 'up',
+  },
+  {
+    id: 'content-type',
+    target: '[data-tutorial-target="content-type-selector"]',
+    message: 'Choose to generate Images or Videos (Video coming soon!)',
+    position: 'bottom',
+    pointerDirection: 'up',
+  },
+  {
+    id: 'generation-controls',
+    target: '[data-tutorial-target="generation-controls"]',
+    message: 'Choose a scene, environment, and outfit for your images',
+    position: 'top',
+    pointerDirection: 'down',
+  },
+  {
+    id: 'generation-settings',
+    target: '[data-tutorial-target="generation-settings"]',
+    message: 'Adjust settings: aspect ratio, quality, and batch size',
+    position: 'top',
+    pointerDirection: 'down',
+  },
+  {
+    id: 'generate-button',
+    target: '[data-tutorial-target="generate-button"]',
+    message: 'Click Generate to create your images. Each image costs credits.',
+    position: 'top',
+    pointerDirection: 'down',
+  },
+  {
+    id: 'gallery',
+    target: '[data-tutorial-target="gallery"]',
+    message: 'View your generated images here. Like, download, or delete them.',
+    position: 'top',
+    pointerDirection: 'down',
+  },
+];
+
 function StudioContent() {
   const utils = trpc.useUtils();
   const searchParams = useSearchParams();
+
+  // Tutorial state
+  const tutorial = useTutorial('studio', studioTutorialSteps, {
+    autoStart: true,
+  });
 
   // Check upload consent
   const { data: consentData } = trpc.user.hasUploadConsent.useQuery();
@@ -193,6 +256,34 @@ function StudioContent() {
     [influencers]
   );
 
+  // Cleanup stale generating images - mark as failed if stuck for too long
+  const cleanupStaleGeneratingImages = React.useCallback(() => {
+    const STALE_THRESHOLD_MS = 60 * 1000; // 1 minute
+    const now = Date.now();
+
+    setAllImages((prev) => {
+      let hasChanges = false;
+      const updated = prev.map((img) => {
+        // Only check images that are still generating
+        if (img.status !== 'generating') return img;
+
+        // Check if image has been generating for too long
+        const createdAt = new Date(img.createdAt).getTime();
+        const age = now - createdAt;
+
+        if (age > STALE_THRESHOLD_MS) {
+          hasChanges = true;
+          // Mark as failed
+          return { ...img, status: 'failed' as const };
+        }
+
+        return img;
+      });
+
+      return hasChanges ? updated : prev;
+    });
+  }, []);
+
   const refreshImages = React.useCallback(
     async (characterId: string) => {
       if (!isUuid(characterId)) {
@@ -224,6 +315,10 @@ function StudioContent() {
         createdAt: row.createdAt || new Date().toISOString(),
         isLiked: Boolean(row.liked),
         nsfw: row.nsfw ?? false,
+        // Prompt enhancement metadata
+        promptEnhance: row.promptEnhance ?? undefined,
+        originalPrompt: row.originalPrompt || undefined,
+        enhancedPrompt: row.enhancedPrompt || undefined,
       }));
 
       // Replace placeholders with real images - remove all placeholders for this character
@@ -238,7 +333,22 @@ function StudioContent() {
 
         // Return real images + placeholders for other characters only
         // Real images will replace placeholders naturally since they have different IDs
-        return [...mapped, ...placeholdersForOtherChars];
+        const newImages = [...mapped, ...placeholdersForOtherChars];
+
+        // Cleanup stale generating images - mark as failed if stuck for too long
+        const STALE_THRESHOLD_MS = 60 * 1000; // 1 minute
+        const now = Date.now();
+        const cleanedImages = newImages.map((img) => {
+          if (img.status !== 'generating') return img;
+          const createdAt = new Date(img.createdAt).getTime();
+          const age = now - createdAt;
+          if (age > STALE_THRESHOLD_MS) {
+            return { ...img, status: 'failed' as const };
+          }
+          return img;
+        });
+
+        return cleanedImages;
       });
     },
     [validInfluencers]
@@ -284,6 +394,19 @@ function StudioContent() {
       console.error('Failed to load images:', err)
     );
   }, [selectedInfluencerId, refreshImages]);
+
+  // Cleanup stale generating images on mount and periodically
+  React.useEffect(() => {
+    // Run cleanup immediately on mount
+    cleanupStaleGeneratingImages();
+
+    // Set up periodic cleanup every 30 seconds
+    const interval = setInterval(() => {
+      cleanupStaleGeneratingImages();
+    }, 30 * 1000);
+
+    return () => clearInterval(interval);
+  }, [cleanupStaleGeneratingImages]);
 
   // Preselect image from query params and open edit mode if requested
   React.useEffect(() => {
@@ -400,6 +523,10 @@ function StudioContent() {
     // Filter by status
     if (status !== 'all') {
       result = result.filter((img) => img.status === status);
+    } else {
+      // When showing 'all', exclude failed images by default (they're errored)
+      // User can still see them by selecting 'failed' status filter
+      result = result.filter((img) => img.status !== 'failed');
     }
 
     // Filter by aspect ratio
@@ -460,13 +587,41 @@ function StudioContent() {
 
   // Handle image selection
   const handleSelectImage = (image: StudioImage | null) => {
-    setSelectedImage(image);
+    // Prevent errors when selecting generating/failed images
+    // Create a safe copy without circular references
     if (image) {
+      const safeImage: StudioImage = {
+        id: image.id,
+        imageUrl: image.imageUrl || '',
+        thumbnailUrl: image.thumbnailUrl,
+        influencerId: image.influencerId,
+        influencerName: image.influencerName,
+        influencerAvatar: image.influencerAvatar,
+        prompt: image.prompt,
+        scene: image.scene,
+        environment: image.environment,
+        outfit: image.outfit,
+        poseId: image.poseId,
+        aspectRatio: image.aspectRatio,
+        status: image.status,
+        createdAt: image.createdAt,
+        isLiked: image.isLiked,
+        nsfw: image.nsfw,
+        promptEnhance: image.promptEnhance,
+        originalPrompt: image.originalPrompt,
+        enhancedPrompt: image.enhancedPrompt,
+      };
+      setSelectedImage(safeImage);
       setShowPanel(true);
       // Auto-select the influencer associated with the image
-      if (image.influencerId && image.influencerId !== selectedInfluencerId) {
-        setSelectedInfluencerId(image.influencerId);
+      if (
+        safeImage.influencerId &&
+        safeImage.influencerId !== selectedInfluencerId
+      ) {
+        setSelectedInfluencerId(safeImage.influencerId);
       }
+    } else {
+      setSelectedImage(null);
     }
   };
 
@@ -527,6 +682,97 @@ function StudioContent() {
     }
   };
 
+  // Handle retry - regenerate failed image without charging credits
+  const handleRetry = async (image: StudioImage) => {
+    if (image.status !== 'failed') return;
+
+    const influencer = influencers.find((i) => i.id === image.influencerId);
+    if (!influencer) return;
+
+    // Extract prompt from enhanced or original prompt
+    const additionalDetails = image.enhancedPrompt
+      ? image.enhancedPrompt.replace(image.originalPrompt || '', '').trim()
+      : image.prompt || undefined;
+
+    // Determine quality mode from image (default to hq if unknown)
+    const qualityMode = 'hq'; // Default, could be inferred from image metadata if stored
+
+    try {
+      // Parse outfit - could be string or JSON
+      let outfit: string | OutfitComposition =
+        image.outfit || influencer.outfit || 'casual';
+      try {
+        if (typeof image.outfit === 'string' && image.outfit.startsWith('{')) {
+          outfit = JSON.parse(image.outfit);
+        }
+      } catch {
+        // Keep as string if parsing fails
+      }
+
+      const started = await generateStudioImages({
+        characterId: image.influencerId,
+        additionalDetails,
+        scene: image.scene || 'candid-lifestyle',
+        environment: image.environment || 'studio',
+        outfit,
+        poseId: image.poseId,
+        aspectRatio: image.aspectRatio,
+        qualityMode,
+        count: 1,
+        nsfw: image.nsfw ?? false,
+        promptEnhance: image.promptEnhance ?? true,
+        isRetry: true, // Flag to indicate this is a retry
+        retryImageId: image.id, // ID of the failed image
+      });
+
+      // Remove the failed image and add placeholder for new generation
+      setAllImages((prev) => {
+        const filtered = prev.filter((img) => img.id !== image.id);
+        const placeholderImages: StudioImage[] = started.jobs.map((job) => ({
+          id: `placeholder-${job.promptId}`,
+          imageUrl: '',
+          influencerId: image.influencerId,
+          influencerName: influencer.name || 'Unknown',
+          influencerAvatar: influencer.avatar || undefined,
+          prompt: image.prompt || additionalDetails,
+          scene: image.scene || 'candid-lifestyle',
+          environment: image.environment || 'studio',
+          outfit: image.outfit,
+          aspectRatio: image.aspectRatio,
+          status: 'generating' as const,
+          createdAt: new Date().toISOString(),
+          isLiked: false,
+          nsfw: image.nsfw ?? false,
+          promptEnhance: image.promptEnhance,
+          originalPrompt: image.originalPrompt,
+          enhancedPrompt: image.enhancedPrompt,
+        }));
+        return [...placeholderImages, ...filtered];
+      });
+
+      // Track active generations
+      const promptIds = started.jobs.map((j) => j.promptId);
+      setActiveGenerations((prev) => {
+        const next = new Set(prev);
+        promptIds.forEach((pid) => next.add(pid));
+        return next;
+      });
+
+      // Start background polling
+      void pollGenerationResults(promptIds, image.influencerId);
+
+      // Clear selected image to show new generation
+      setSelectedImage(null);
+
+      // Invalidate activity feed and refresh credits
+      utils.activity.list.invalidate();
+      utils.activity.summary.invalidate();
+      refetchCredits();
+    } catch (err) {
+      console.error('Retry failed:', err);
+    }
+  };
+
   // Handle generate - non-blocking with optimistic updates
   const handleGenerate = async (settings: GenerationSettings) => {
     if (!settings.influencerId) return;
@@ -553,6 +799,7 @@ function StudioContent() {
         qualityMode,
         count: Math.max(1, Math.min(10, settings.batchSize)),
         nsfw: settings.nsfw ?? false, // Use Studio-level NSFW toggle (defaults to false)
+        promptEnhance: settings.promptEnhance ?? true, // Use AI prompt enhancement if enabled
       });
 
       // Create placeholder images immediately
@@ -751,6 +998,7 @@ function StudioContent() {
             onLike={handleLike}
             onDelete={handleDelete}
             onDownload={handleDownload}
+            onRetry={handleRetry}
             className="hidden w-[380px] flex-shrink-0 lg:flex"
           />
         )}
@@ -819,6 +1067,27 @@ function StudioContent() {
           }}
         />
       </FadeInUp>
+
+      {/* Tutorial Overlay */}
+      {tutorial.isActive && (
+        <TutorialOverlay
+          steps={studioTutorialSteps}
+          currentStep={tutorial.currentStep}
+          onNext={tutorial.next}
+          onSkip={tutorial.skip}
+          onComplete={tutorial.complete}
+          isVisible={tutorial.isActive}
+        />
+      )}
+
+      {/* Dev Panel (Development Only) */}
+      <DevPanel
+        onResetTutorial={(tutorialId) => {
+          if (tutorialId === 'studio') {
+            tutorial.reset();
+          }
+        }}
+      />
     </div>
   );
 }
