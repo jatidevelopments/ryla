@@ -1,6 +1,6 @@
 'use client';
 
-import { ProtectedRoute } from "@/components/auth"';
+import { ProtectedRoute } from '@/components/auth';
 import { useAuth } from '../../lib/auth-context';
 import { Input } from '@ryla/ui';
 import { REFERRAL_OPTIONS, EXPERIENCE_OPTIONS } from './constants';

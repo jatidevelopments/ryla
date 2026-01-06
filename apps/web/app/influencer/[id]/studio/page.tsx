@@ -15,7 +15,7 @@ import {
   OutfitComposition,
   getPieceById,
 } from '@ryla/shared';
-import { ProtectedRoute } from "@/components/auth"';
+import { ProtectedRoute } from '@/components/auth';
 import { ZeroCreditsModal } from '../../../../components/credits';
 import { useCredits } from '../../../../lib/hooks/use-credits';
 import { useLocalStorage } from '../../../../lib/hooks/use-local-storage';
