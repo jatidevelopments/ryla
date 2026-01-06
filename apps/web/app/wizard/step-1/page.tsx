@@ -2,10 +2,10 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepStyle } from '../components/wizard/steps/StepStyle';
-import { StepPromptInput } from '../components/wizard/steps/StepPromptInput';
-import { StepCustomPrompts } from '../components/wizard/steps/StepCustomPrompts';
-import { StepInfluencerRequest } from '../components/wizard/steps/StepInfluencerRequest';
+import { StepStyle } from '../../components/wizard/steps/StepStyle';
+import { StepPromptInput } from '../../components/wizard/steps/StepPromptInput';
+import { StepCustomPrompts } from '../../components/wizard/steps/StepCustomPrompts';
+import { StepInfluencerRequest } from '../../components/wizard/steps/StepInfluencerRequest';
 
 export default function WizardStep1() {
   const setStep = useCharacterWizardStore((s) => s.setStep);

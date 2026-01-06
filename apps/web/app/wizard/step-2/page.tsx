@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepGeneral } from '../components/wizard/steps/StepGeneral';
-import { StepIdentity } from '../components/wizard/steps/StepIdentity';
+import { StepGeneral } from '../../components/wizard/steps/StepGeneral';
+import { StepIdentity } from '../../components/wizard/steps/StepIdentity';
 
 export default function WizardStep2() {
   const setStep = useCharacterWizardStore((s) => s.setStep);

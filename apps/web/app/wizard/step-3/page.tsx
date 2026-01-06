@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepFace } from '../components/wizard/steps/StepFace';
-import { StepBaseImageSelection } from '../components/wizard/steps/StepBaseImageSelection';
+import { StepFace } from '../../components/wizard/steps/StepFace';
+import { StepBaseImageSelection } from '../../components/wizard/steps/StepBaseImageSelection';
 
 export default function WizardStep3() {
   const setStep = useCharacterWizardStore((s) => s.setStep);

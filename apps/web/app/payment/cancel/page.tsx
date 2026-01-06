@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { X, ArrowLeft, CreditCard } from 'lucide-react';
 import { PageContainer, FadeInUp, RylaButton } from '@ryla/ui';
-import { ProtectedRoute } from '../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 
 export default function PaymentCancelPage() {
   const router = useRouter();

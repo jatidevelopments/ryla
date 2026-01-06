@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepCreationMethod } from '../components/wizard/steps/StepCreationMethod';
+import { StepCreationMethod } from '../../components/wizard/steps/StepCreationMethod';
 import { cn } from '@ryla/ui';
 
 export default function WizardStep0() {

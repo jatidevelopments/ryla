@@ -1,7 +1,7 @@
 "use client";
 
-import { WizardLayout } from '../components/wizard/WizardLayout';
-import { ProtectedRoute } from '../components/auth/ProtectedRoute';
+import { WizardLayout } from '../../components/wizard/WizardLayout';
+import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 
 export default function WizardRootLayout({
   children,

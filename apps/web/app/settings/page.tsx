@@ -4,7 +4,7 @@ import * as React from 'react';
 import { PageContainer, Button } from '@ryla/ui';
 import { capture } from '@ryla/analytics';
 import { useRouter } from 'next/navigation';
-import { ProtectedRoute } from '../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { useAuth } from "../../lib/auth-context";
 import { useSubscription } from '../../lib/hooks/use-subscription';
 import { deleteAccount, logoutAllDevices } from '../../lib/auth';
