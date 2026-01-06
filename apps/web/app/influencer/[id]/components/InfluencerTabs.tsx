@@ -133,7 +133,7 @@ function GalleryTab({
   influencerId: string;
   onLike: (imageId: string) => void;
 }) {
-  const { ImageGallery } = require('../../../components/image-gallery/ImageGallery');
+  const { ImageGallery } = require('../../../../components/image-gallery/ImageGallery');
   
   return (
     <ImageGallery
@@ -157,7 +157,7 @@ function PostsTab({
   posts: Post[];
   onExport: (post: { id: string; caption: string; imageUrl: string }) => void;
 }) {
-  const { PostGrid } = require('../../../components/posts/PostGrid');
+  const { PostGrid } = require('../../../../components/posts/PostGrid');
   
   return (
     <PostGrid
@@ -182,8 +182,8 @@ function LikedTab({
   onImageLike: (imageId: string) => void;
   onExport: (post: { id: string; caption: string; imageUrl: string }) => void;
 }) {
-  const { ImageGallery } = require('../../../components/image-gallery/ImageGallery');
-  const { PostGrid } = require('../../../components/posts/PostGrid');
+  const { ImageGallery } = require('../../../../components/image-gallery/ImageGallery');
+  const { PostGrid } = require('../../../../components/posts/PostGrid');
   const { LayoutGrid, Images } = require('lucide-react');
 
   if (likedPosts.length === 0 && likedImages.length === 0) {
