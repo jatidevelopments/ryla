@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepFinalize } from '../../../components/wizard/step-finalize';
+import { StepFinalize } from '@/components/wizard/steps/StepFinalize';
 
 export default function WizardStep10() {
   const setStep = useCharacterWizardStore((s) => s.setStep);

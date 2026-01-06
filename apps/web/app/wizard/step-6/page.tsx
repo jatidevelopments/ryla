@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepSkinFeatures } from '../../../components/wizard/step-skin-features';
+import { StepSkinFeatures } from '@/components/wizard/steps/StepSkinFeatures';
 
 export default function WizardStep6() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
