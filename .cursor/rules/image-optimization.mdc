@@ -85,31 +85,7 @@ npm run compress:images
 1. **Always compress before committing** - Never commit uncompressed images
 2. **Use WebP format** - Better compression than JPEG/PNG
 3. **Test visual quality** - Ensure compression doesn't degrade UX
-4. **Check file sizes** - Use total 1552
--rw-r--r--   1 admin  staff   1.9K Dec  4 15:30 AGENTS.md
--rw-r--r--   1 admin  staff   2.7K Dec  4 11:58 README.md
-drwxr-xr-x   4 admin  staff   128B Dec  4 11:40 ai
-drwxr-xr-x   9 admin  staff   288B Dec 16 13:49 apps
-drwxr-xr-x   6 admin  staff   192B Dec 15 15:55 config
-drwxr-xr-x   3 admin  staff    96B Dec 10 15:02 dist
-drwxr-xr-x   6 admin  staff   192B Dec 11 13:46 docker
-drwxr-xr-x  17 admin  staff   544B Dec 16 18:43 docs
--rw-r--r--   1 admin  staff   503B Dec 15 04:09 fly.landing.toml
-drwxr-xr-x   5 admin  staff   160B Dec 11 13:47 handlers
-drwxr-xr-x   7 admin  staff   224B Dec  4 11:55 libs
-drwxr-xr-x   5 admin  staff   160B Dec  5 14:06 mockups
-drwxr-xr-x  80 admin  staff   2.5K Dec 16 13:58 node_modules
--rw-r--r--   1 admin  staff   1.2K Dec 16 13:49 nx.json
--rw-r--r--   1 admin  staff   5.7K Dec 17 16:12 package.json
-drwxr-xr-x   3 admin  staff    96B Dec  4 11:39 playwright
--rw-r--r--   1 admin  staff   735K Dec 16 13:58 pnpm-lock.yaml
--rw-r--r--   1 admin  staff    37B Dec  4 15:07 pnpm-workspace.yaml
--rw-r--r--   1 admin  staff    94B Dec  5 19:03 postcss.config.js
-drwxr-xr-x  11 admin  staff   352B Dec 17 16:07 scripts
-drwxr-xr-x   3 admin  staff    96B Dec 10 15:02 tmp
--rw-r--r--   1 admin  staff   749B Dec  4 11:58 tsconfig.base.json
--rw-r--r--   1 admin  staff   101B Dec  4 11:55 tsconfig.json
-drwxr-xr-x   4 admin  staff   128B Dec 11 14:01 workflows or 3.4G	. to verify
+4. **Check file sizes** - Verify images meet target size requirements
 5. **Document exceptions** - If an image must be larger, document why
 
 ### Performance Impact
@@ -129,6 +105,22 @@ Requires Pillow (PIL):
 pip install Pillow
 ```
 
+## Git LFS for Large Images
+
+**This repository uses Git LFS for all image files.**
+
+- All `.webp`, `.png`, `.jpg`, `.jpeg` files are automatically tracked by Git LFS
+- No manual steps needed - just commit images normally
+- Prevents repository size issues and push failures
+- See `docs/technical/GIT-LFS-SETUP.md` for full details
+
+**Important:**
+- Git LFS must be installed: `git lfs install`
+- Images are automatically handled - no special commands needed
+- If push fails with "file too large", check Git LFS is installed
+
 ### Documentation
 
-Full details: 
+Full details:
+- Image Optimization: `docs/technical/IMAGE-OPTIMIZATION.md`
+- Git LFS Setup: `docs/technical/GIT-LFS-SETUP.md`
