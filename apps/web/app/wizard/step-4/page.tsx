@@ -2,8 +2,8 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepHair } from '@/components/wizard/steps/StepHair';
-import { StepFinalize } from '@/components/wizard/steps/StepFinalize';
+import { StepHair } from '../../components/wizard/steps/StepHair';
+import { StepFinalize } from '../../components/wizard/steps/StepFinalize';
 
 export default function WizardStep4() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
