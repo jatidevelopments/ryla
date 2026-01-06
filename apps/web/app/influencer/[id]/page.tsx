@@ -2,8 +2,8 @@
 
 import { notFound } from 'next/navigation';
 import { PageContainer } from '@ryla/ui';
-import { InfluencerProfile } from '../components/influencer/InfluencerCard';
-import { ProtectedRoute } from '../components/auth';
+import { InfluencerProfile } from '../components/influencer/InfluencerProfile';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { ProfilePictureGenerationIndicator } from '../components/profile-pictures';
 import { useInfluencerData } from './hooks/useInfluencerData';
 import { useInfluencerImages } from './hooks/useInfluencerImages';

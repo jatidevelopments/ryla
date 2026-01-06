@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageContainer, FadeInUp } from '@ryla/ui';
-import { ProtectedRoute } from '../components/auth';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { trpc } from '../../lib/trpc';
 import { capture } from '@ryla/analytics';
 import { useActivityFilters } from './hooks';

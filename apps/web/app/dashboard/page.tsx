@@ -9,7 +9,7 @@ import {
   Pagination,
 } from '@ryla/ui';
 import { InfluencerCard } from '../components/influencer/InfluencerCard';
-import { ProtectedRoute } from '../components/auth';
+import { ProtectedRoute } from '../components/auth/ProtectedRoute';
 import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
 import Link from 'next/link';

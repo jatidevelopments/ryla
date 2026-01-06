@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { RylaInput, RylaCheckbox } from '@ryla/ui';
-import { PasswordStrength, isPasswordValid } from '../components/auth';
+import { PasswordStrength, isPasswordValid } from '../components/auth/ProtectedRoute';
 import { GoogleButton } from './google-button';
 import { PrimaryButton } from './primary-button';
 import { slideIn } from '../constants';
