@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Check, Sparkles, ArrowRight } from 'lucide-react';
 import { PageContainer, FadeInUp, RylaButton } from '@ryla/ui';
-import { ProtectedRoute } from '../../components/auth';
+import { ProtectedRoute } from '../components/auth';
 
 export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();

@@ -8,8 +8,8 @@ import {
   StaggerChildren,
   Pagination,
 } from '@ryla/ui';
-import { InfluencerCard } from '../../components/influencer';
-import { ProtectedRoute } from '../../components/auth';
+import { InfluencerCard } from '../components/influencer';
+import { ProtectedRoute } from '../components/auth';
 import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
 import Link from 'next/link';

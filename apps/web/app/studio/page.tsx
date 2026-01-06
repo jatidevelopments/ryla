@@ -2,11 +2,11 @@
 
 import * as React from 'react';
 import { FadeInUp } from '@ryla/ui';
-import { ProtectedRoute } from '../../components/auth';
-import { StudioHeader, StudioToolbar } from '../../components/studio';
-import { StudioGenerationBar } from '../../components/studio/generation';
+import { ProtectedRoute } from '../components/auth';
+import { StudioHeader, StudioToolbar } from '../components/studio';
+import { StudioGenerationBar } from '../components/studio/generation';
 import { useTutorial } from '@ryla/ui';
-import { DevPanel } from '../../components/dev/dev-panel';
+import { DevPanel } from '../components/dev/dev-panel';
 import { studioTutorialSteps } from './constants';
 import { useStudioState } from './hooks';
 import {

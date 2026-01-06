@@ -5,8 +5,8 @@ import Link from 'next/link';
 import { useParams, notFound } from 'next/navigation';
 import { useInfluencer, useInfluencerStore, useLikedPosts } from '@ryla/business';
 import { PageContainer, Button, Checkbox } from '@ryla/ui';
-import { LikedPostRow } from '../../components/posts';
-import { ProtectedRoute } from '../../components/auth';
+import { LikedPostRow } from '../components/posts';
+import { ProtectedRoute } from '../components/auth';
 import { trpc } from '../../../../lib/trpc';
 
 export default function LikedPostsPage() {

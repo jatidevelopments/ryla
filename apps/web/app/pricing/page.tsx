@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { ArrowLeft, CreditCard, Shield, Lock, Check } from 'lucide-react';
 import { cn } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
-import { PlanCard } from '../../components/pricing';
+import { PlanCard } from '../components/pricing';
 import { SUBSCRIPTION_PLANS } from '../../constants/pricing';
 import { getAccessToken } from '../../lib/auth';
 

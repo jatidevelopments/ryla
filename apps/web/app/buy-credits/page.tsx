@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Shield, Lock, CreditCard, Check, Sparkles } from 'lucide-react';
 import { PageContainer, FadeInUp } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
-import { ProtectedRoute } from '../../components/auth';
+import { ProtectedRoute } from '../components/auth';
 import { CREDIT_PACKAGES, type CreditPackage } from '../../constants/pricing';
 import { useCreditPurchase } from './hooks';
 import {
