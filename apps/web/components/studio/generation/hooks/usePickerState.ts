@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { OutfitMode } from '../outfit-mode-selector';
+import type { OutfitMode } from '../pickers/OutfitModeSelector';
 
 /**
  * Manages visibility state for all pickers in the generation bar.

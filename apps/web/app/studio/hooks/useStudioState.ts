@@ -83,6 +83,7 @@ export function useStudioState() {
   // Use extracted hook for image management
   const {
     images: allImages,
+    isLoading: isLoadingImages,
     refreshImages,
     addPlaceholders,
     updateImage,
@@ -184,6 +185,7 @@ export function useStudioState() {
     filteredImages,
     // Data
     allImages,
+    isLoadingImages,
     creditsBalance,
     activeGenerations,
     // Handlers

@@ -3,7 +3,7 @@
 import { ProtectedRoute } from '../../components/protected-route';
 import { useAuth } from '../../lib/auth-context';
 import { Input } from '@ryla/ui';
-import { REFERRAL_OPTIONS, EXPERIENCE_OPTIONS } from './constants.tsx';
+import { REFERRAL_OPTIONS, EXPERIENCE_OPTIONS } from './constants';
 import { useOnboardingForm } from './hooks/useOnboardingForm';
 import { OptionCard, ProgressDots, SubmitButton } from './components';
 

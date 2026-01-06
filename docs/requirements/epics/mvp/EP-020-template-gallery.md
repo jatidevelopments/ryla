@@ -579,9 +579,9 @@ GET /api/templates/:id/stats
 
 - [x] P1: Requirements (this epic) ✅
 - [x] P2: Stories created ✅
-- [x] P3: Architecture design ✅ **See**: `docs/architecture/EP-020-TEMPLATE-GALLERY-P3.md`
-- [x] P4: UI mockups (Content Studio tabs, Template page) ✅ **See**: `docs/specs/EP-020-TEMPLATE-GALLERY-P4-UI-SKELETON.md`
-- [x] P5: Tech spec ✅ **See**: `docs/specs/EP-020-TEMPLATE-GALLERY-P5-TECH-SPEC.md`
+- [x] P3: Architecture design ✅ **See**: `docs/architecture/epics/EP-020-TEMPLATE-GALLERY-P3.md`
+- [x] P4: UI mockups (Content Studio tabs, Template page) ✅ **See**: `docs/specs/epics/EP-020-TEMPLATE-GALLERY-P4-UI-SKELETON.md`
+- [x] P5: Tech spec ✅ **See**: `docs/specs/epics/EP-020-TEMPLATE-GALLERY-P5-TECH-SPEC.md`
 - [ ] P6: Implementation ❌ **Not started** (blocked by missing settings migration)
 - [ ] P7: Testing ❌ **Not started**
 - [ ] P8: Integration with Content Studio ❌ **Not started**

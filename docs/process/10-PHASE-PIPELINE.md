@@ -60,7 +60,7 @@ Every feature follows this pipeline. **No phase skipped.**
 - Event schema (PostHog events)
 - Funnel definitions
 
-**Output file:** `docs/architecture/EP-XXX-architecture.md`
+**Output file:** `docs/architecture/epics/EP-XXX-architecture.md`
 
 **Acceptance rules:**
 - Every epic/AC covered by components + APIs + data
@@ -81,7 +81,7 @@ Every feature follows this pipeline. **No phase skipped.**
 - Interaction notes (UI → API, success/failure states)
 - Interaction → event mapping
 
-**Output file:** `docs/specs/EP-XXX-ui-skeleton.md`
+**Output file:** `docs/specs/epics/EP-XXX-ui-skeleton.md`
 
 **Acceptance rules:**
 - No mystery screens: every screen maps to epic/story
@@ -103,7 +103,7 @@ Every feature follows this pipeline. **No phase skipped.**
 - Task breakdown (ST-XXX stories, TSK-XXX tasks)
 - Tracking plan (where each event fires)
 
-**Output file:** `docs/specs/EP-XXX-tech-spec.md`
+**Output file:** `docs/specs/epics/EP-XXX-tech-spec.md`
 
 **Acceptance rules:**
 - Each task has defined INPUTS and OUTPUTS

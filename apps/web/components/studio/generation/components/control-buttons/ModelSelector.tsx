@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Tooltip } from '../../../../ui/tooltip';
-import { ModelPicker } from '../../model-picker';
+import { ModelPicker } from '../../pickers/ModelPicker';
 import { ModelIcon } from '../../icons';
 import type { AIModel, GenerationSettings } from '../../types';
 

@@ -174,7 +174,7 @@ Low Accessibility ←----+----→ High Accessibility
 
 **RYLA's Unique Position**: High quality + high accessibility + monetization + NSFW support
 
-📄 **Full competitor analysis**: [docs/research/COMPETITORS.md](../research/COMPETITORS.md)
+📄 **Full competitor analysis**: [docs/research/competitors/individual/COMPETITORS.md](../research/competitors/individual/COMPETITORS.md)
 
 ---
 

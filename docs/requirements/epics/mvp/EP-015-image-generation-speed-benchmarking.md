@@ -96,7 +96,7 @@ See `docs/technical/IMAGE-GEN-PRICE-MATRIX.md`.
 **Goal**: Provide a single command to benchmark latency and success rate across permutations.
 
 **Acceptance Criteria**
-- [ ] Add `scripts/benchmark-image-generation.ts`
+- [ ] Add `scripts/utils/benchmark-image-generation.ts`
 - [ ] Supports running:
   - Base images → profile pictures end-to-end
   - Multiple workflows/modes

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { Tooltip } from '../../../../ui/tooltip';
-import { AspectRatioPicker } from '../../aspect-ratio-picker';
+import { AspectRatioPicker } from '../../pickers/AspectRatioPicker';
 import { AspectRatioIcon } from '../../icons';
 import type { GenerationSettings, AspectRatio } from '../../types';
 import { ASPECT_RATIOS } from '../../types';

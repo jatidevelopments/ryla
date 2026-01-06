@@ -48,6 +48,9 @@ export function useStudioImages({
   const [activeGenerations, setActiveGenerations] = React.useState<Set<string>>(
     new Set()
   );
+  
+  // Track current loading request to prevent race conditions
+  const loadingRef = React.useRef<string | null>(null);
 
   const validInfluencers = React.useMemo(
     () => influencers.filter((i) => isUuid(i.id)),
@@ -88,9 +91,17 @@ export function useStudioImages({
     async (characterId: string) => {
       if (!isUuid(characterId)) {
         setAllImages([]);
+        setIsLoading(false);
+        loadingRef.current = null;
         return;
       }
       
+      // Prevent multiple simultaneous calls for the same character
+      if (loadingRef.current === characterId) {
+        return;
+      }
+      
+      loadingRef.current = characterId;
       setIsLoading(true);
       try {
         const rows = await getCharacterImages(characterId);
@@ -147,7 +158,11 @@ export function useStudioImages({
           return cleanedImages;
         });
       } finally {
-        setIsLoading(false);
+        // Only reset loading if this is still the current request
+        if (loadingRef.current === characterId) {
+          setIsLoading(false);
+          loadingRef.current = null;
+        }
       }
     },
     [staleThreshold] // Removed validInfluencers from dependencies

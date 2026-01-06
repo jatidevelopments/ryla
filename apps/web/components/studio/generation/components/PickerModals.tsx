@@ -1,16 +1,17 @@
 'use client';
 
 import * as React from 'react';
-import { CharacterPicker } from '../character-picker';
-import { StylePicker } from '../style-picker';
-import { PosePicker } from '../pose-picker';
-import { OutfitModeSelector } from '../outfit-mode-selector';
-import { PreComposedOutfitPicker } from '../pre-composed-outfit-picker';
-import { OutfitCompositionPicker } from '../outfit-composition-picker';
-import { ObjectPicker } from '../object-picker';
-import { OutfitComposition } from '@ryla/shared';
-import type { GenerationSettings, StudioMode, SelectedObject } from '../types';
+import type { GenerationSettings, StudioMode } from '../types';
 import type { StudioImage } from '../../studio-image-card';
+import {
+  CharacterPickerModal,
+  StylePickerModal,
+  PosePickerModal,
+  OutfitModeSelectorModal,
+  PreComposedOutfitPickerModal,
+  CustomCompositionPickerModal,
+  ObjectPickerModal,
+} from './picker-modals';
 
 interface Influencer {
   id: string;
@@ -75,49 +76,36 @@ export function PickerModals({
 }: PickerModalsProps) {
   return (
     <>
-      {/* Character Picker Modal */}
       {pickers.showCharacterPicker && (
-        <CharacterPicker
+        <CharacterPickerModal
           influencers={influencers}
           selectedInfluencerId={settings.influencerId}
-          onSelect={(id) => {
-            updateSetting('influencerId', id);
-            pickers.setShowCharacterPicker(false);
-            // Sync to top bar
-            if (onInfluencerChange) {
-              onInfluencerChange(id);
-            }
-          }}
+          settings={settings}
+          updateSetting={updateSetting}
+          onInfluencerChange={onInfluencerChange}
           onClose={() => pickers.setShowCharacterPicker(false)}
         />
       )}
 
-      {/* Style Picker Modal */}
       {pickers.showStylePicker && (
-        <StylePicker
-          selectedStyleId={settings.styleId}
-          selectedSceneId={settings.sceneId}
-          selectedLightingId={settings.lightingId}
-          onStyleSelect={(id) => updateSetting('styleId', id)}
-          onSceneSelect={(id) => updateSetting('sceneId', id)}
-          onLightingSelect={(id) => updateSetting('lightingId', id)}
+        <StylePickerModal
+          settings={settings}
+          updateSetting={updateSetting}
           onClose={() => pickers.setShowStylePicker(false)}
         />
       )}
 
-      {/* Pose Picker Modal */}
       {pickers.showPosePicker && (
-        <PosePicker
-          selectedPoseId={settings.poseId}
-          onPoseSelect={(id) => updateSetting('poseId', id)}
+        <PosePickerModal
+          settings={settings}
+          updateSetting={updateSetting}
+          studioNsfwEnabled={studioNsfwEnabled}
           onClose={() => pickers.setShowPosePicker(false)}
-          nsfwEnabled={studioNsfwEnabled}
         />
       )}
 
-      {/* Outfit Mode Selector */}
       {pickers.showOutfitModeSelector && (
-        <OutfitModeSelector
+        <OutfitModeSelectorModal
           onModeSelect={(mode) => {
             pickers.setOutfitMode(mode);
             pickers.setShowOutfitModeSelector(false);
@@ -127,69 +115,40 @@ export function PickerModals({
         />
       )}
 
-      {/* Pre-Composed Outfit Picker */}
       {pickers.showOutfitPicker && pickers.outfitMode === 'pre-composed' && (
-        <PreComposedOutfitPicker
-          selectedOutfit={
-            typeof settings.outfit === 'string' ? settings.outfit : null
-          }
-          onOutfitSelect={(outfit) => {
-            updateSetting('outfit', outfit);
-            pickers.setShowOutfitPicker(false);
-            pickers.setOutfitMode(null);
-          }}
+        <PreComposedOutfitPickerModal
+          settings={settings}
+          updateSetting={updateSetting}
+          studioNsfwEnabled={studioNsfwEnabled}
           onClose={() => {
             pickers.setShowOutfitPicker(false);
             pickers.setOutfitMode(null);
           }}
-          nsfwEnabled={studioNsfwEnabled}
         />
       )}
 
-      {/* Custom Composition Picker */}
       {pickers.showOutfitPicker && pickers.outfitMode === 'custom' && (
-        <OutfitCompositionPicker
-          selectedComposition={
-            typeof settings.outfit === 'object' && settings.outfit !== null
-              ? (settings.outfit as OutfitComposition)
-              : null
-          }
-          onCompositionSelect={(composition) => {
-            updateSetting('outfit', composition);
-            pickers.setShowOutfitPicker(false);
-            pickers.setOutfitMode(null);
-          }}
+        <CustomCompositionPickerModal
+          settings={settings}
+          updateSetting={updateSetting}
+          studioNsfwEnabled={studioNsfwEnabled}
           onClose={() => {
             pickers.setShowOutfitPicker(false);
             pickers.setOutfitMode(null);
           }}
-          nsfwEnabled={studioNsfwEnabled}
-          influencerId={settings.influencerId || undefined}
         />
       )}
 
-      {/* Object Picker Modal */}
       {pickers.showObjectPicker && mode === 'editing' && (
-        <ObjectPicker
-          availableImages={availableImages.filter(img => img.id !== selectedImage?.id)}
-          selectedObjectIds={settings.objects.map(obj => obj.id)}
-          onObjectSelect={(image) => {
-            const newObject: SelectedObject = {
-              id: image.id,
-              imageUrl: image.imageUrl,
-              thumbnailUrl: image.thumbnailUrl,
-              name: image.prompt || image.influencerName,
-            };
-            updateSetting('objects', [...settings.objects, newObject]);
-          }}
-          onObjectRemove={(imageId) => {
-            updateSetting('objects', settings.objects.filter(obj => obj.id !== imageId));
-          }}
-          onClose={() => pickers.setShowObjectPicker(false)}
-          maxObjects={3}
+        <ObjectPickerModal
+          settings={settings}
+          updateSetting={updateSetting}
+          selectedImage={selectedImage}
+          availableImages={availableImages}
           hasUploadConsent={hasUploadConsent}
-          onConsentAccept={onAcceptConsent}
+          onAcceptConsent={onAcceptConsent}
           onUploadImage={onUploadImage}
+          onClose={() => pickers.setShowObjectPicker(false)}
         />
       )}
     </>

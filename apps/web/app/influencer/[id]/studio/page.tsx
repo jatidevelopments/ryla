@@ -48,9 +48,9 @@ import {
   likeImage,
 } from '../../../../lib/api';
 import { InpaintEditModal } from '../../../../components/studio/inpaint-edit-modal';
-import { OutfitCompositionPicker } from '../../../../components/studio/generation/outfit-composition-picker';
-import { PreComposedOutfitPicker } from '../../../../components/studio/generation/pre-composed-outfit-picker';
-import { OutfitModeSelector, type OutfitMode } from '../../../../components/studio/generation/outfit-mode-selector';
+import { OutfitCompositionPicker } from '../../../../components/studio/generation/pickers/OutfitCompositionPicker';
+import { PreComposedOutfitPicker } from '../../../../components/studio/generation/pickers/PreComposedOutfitPicker';
+import { OutfitModeSelector, type OutfitMode } from '../../../../components/studio/generation/pickers/OutfitModeSelector';
 import { trpc } from '../../../../lib/trpc';
 import { TemplateTabs, SaveTemplateDialog } from '../../../../components/studio/templates';
 

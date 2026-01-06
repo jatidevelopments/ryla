@@ -8,6 +8,7 @@ interface StudioMainContentProps {
   selectedImage: StudioImage | null;
   showPanel: boolean;
   viewMode: ViewMode;
+  isLoading?: boolean;
   onSelectImage: (image: StudioImage | null) => void;
   onLike: (imageId: string) => void;
   onDownload: (image: StudioImage) => void;
@@ -21,6 +22,7 @@ export function StudioMainContent({
   selectedImage,
   showPanel,
   viewMode,
+  isLoading = false,
   onSelectImage,
   onLike,
   onDownload,
@@ -40,6 +42,7 @@ export function StudioMainContent({
             onQuickLike={onLike}
             onQuickDownload={onDownload}
             viewMode={viewMode}
+            isLoading={isLoading}
           />
         </FadeInUp>
       </div>

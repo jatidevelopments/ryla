@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from '@ryla/ui';
 import { Tooltip } from '../../../../ui/tooltip';
-import { QualityPicker } from '../../quality-picker';
+import { QualityPicker } from '../../pickers/QualityPicker';
 import type { GenerationSettings, Quality } from '../../types';
 import { QUALITY_OPTIONS } from '../../types';
 

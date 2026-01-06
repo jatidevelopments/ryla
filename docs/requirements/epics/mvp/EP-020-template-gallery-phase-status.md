@@ -24,7 +24,7 @@
 - [x] Component architecture
 - [x] Event schema (PostHog events)
 - [x] Funnel definitions
-- **File**: `docs/architecture/EP-020-TEMPLATE-GALLERY-P3.md` ✅ **JUST CREATED**
+- **File**: `docs/architecture/epics/EP-020-TEMPLATE-GALLERY-P3.md` ✅ **JUST CREATED**
 
 ### ✅ P4: UI Skeleton - COMPLETE
 - [x] Design considerations in epic (tabs, cards, layout)
@@ -33,14 +33,14 @@
 - [x] Interaction notes (UI → API, success/failure states)
 - [x] Interaction → event mapping
 - **Status**: Complete
-- **File**: `docs/specs/EP-020-TEMPLATE-GALLERY-P4-UI-SKELETON.md` ✅ **CREATED**
+- **File**: `docs/specs/epics/EP-020-TEMPLATE-GALLERY-P4-UI-SKELETON.md` ✅ **CREATED**
 
 ### ✅ P5: Technical Spec - COMPLETE
 - [x] File plan (files to create/modify + purpose)
 - [x] Technical spec (logic flows, env vars, dependencies)
 - [x] Task breakdown (ST-XXX stories, TSK-XXX tasks)
 - [x] Tracking plan (where each event fires)
-- **File**: `docs/specs/EP-020-TEMPLATE-GALLERY-P5-TECH-SPEC.md` ✅ **CREATED**
+- **File**: `docs/specs/epics/EP-020-TEMPLATE-GALLERY-P5-TECH-SPEC.md` ✅ **CREATED**
 
 ### ❌ P6: Implementation - NOT STARTED
 - [ ] Code complete

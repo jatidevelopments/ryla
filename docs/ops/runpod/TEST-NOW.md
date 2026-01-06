@@ -20,11 +20,11 @@
 
 ```bash
 # Test with API key as argument
-./scripts/test-runpod-endpoints-manual.sh YOUR_API_KEY
+./scripts/tests/test-runpod-endpoints-manual.sh YOUR_API_KEY
 
 # Or set environment variable
 export RUNPOD_API_KEY=your_key_here
-./scripts/test-runpod-endpoints-manual.sh
+./scripts/tests/test-runpod-endpoints-manual.sh
 ```
 
 ## Option 3: Test via RunPod Console

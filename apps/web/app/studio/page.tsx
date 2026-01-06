@@ -74,6 +74,7 @@ function StudioContent() {
         selectedImage={state.selectedImage}
         showPanel={state.showPanel}
         viewMode={state.viewMode}
+        isLoading={state.isLoadingImages}
         onSelectImage={state.handleSelectImage}
         onLike={state.handleLike}
         onDownload={state.handleDownload}

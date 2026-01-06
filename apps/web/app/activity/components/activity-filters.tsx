@@ -158,7 +158,7 @@ export function ActivityFilters({
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/5'
             )}
           >
-            <Calendar className="h-3 w-3" />
+            <Calendar className="h-3 w-3 text-white" />
             <span className="max-w-[120px] truncate">{customLabel}</span>
           </button>
 
@@ -182,7 +182,7 @@ export function ActivityFilters({
                     onChange={(e) =>
                       onCustomRangeChange({ ...customRange, start: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-sm bg-[var(--bg-default)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                    className="w-full px-3 py-2 text-sm bg-[var(--bg-default)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
                 <div>
@@ -193,7 +193,7 @@ export function ActivityFilters({
                     onChange={(e) =>
                       onCustomRangeChange({ ...customRange, end: e.target.value })
                     }
-                    className="w-full px-3 py-2 text-sm bg-[var(--bg-default)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50"
+                    className="w-full px-3 py-2 text-sm bg-[var(--bg-default)] border border-[var(--border-default)] rounded-lg text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50 [&::-webkit-calendar-picker-indicator]:invert [&::-webkit-calendar-picker-indicator]:opacity-100 [&::-webkit-calendar-picker-indicator]:cursor-pointer"
                   />
                 </div>
                 <button

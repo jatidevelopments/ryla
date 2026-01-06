@@ -297,7 +297,7 @@ async function consumeCredits(userId: string, amount: number, action: string) {
 - [x] P2: Stories created
 - [x] P3: Architecture design
 - [x] P4: UI skeleton
-- [x] P5: Tech spec (see `docs/technical/CREDIT-SYSTEM.md`)
+- [x] P5: Tech spec (see `docs/technical/systems/CREDIT-SYSTEM.md`)
 - [x] P6: Implementation
 - [ ] P7: Testing
 - [ ] P8: Integration

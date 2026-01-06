@@ -109,7 +109,7 @@ const jobId = await service.generateBaseImages({
 - **Verification Status**: `docs/ops/runpod/VERIFICATION-STATUS.md`
 - **Next Steps**: `docs/ops/runpod/NEXT-STEPS.md`
 - **Resources Ledger**: `docs/ops/runpod/RESOURCES.md`
-- **Test Script**: `scripts/test-runpod-endpoints.ts`
+- **Test Script**: `scripts/tests/test-runpod-endpoints.ts`
 
 ---
 

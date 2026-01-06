@@ -1,67 +1,33 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { Shield, Lock, CreditCard, X, Check, Zap, Sparkles } from 'lucide-react';
-import { PageContainer, FadeInUp, RylaButton, cn } from '@ryla/ui';
+import { Shield, Lock, CreditCard, Check, Sparkles } from 'lucide-react';
+import { PageContainer, FadeInUp } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
 import { ProtectedRoute } from '../../components/protected-route';
-import { CreditPackageCard } from '../../components/pricing';
-import { CREDIT_PACKAGES } from '../../constants/pricing';
-import { getAccessToken } from '../../lib/auth';
+import { CREDIT_PACKAGES, type CreditPackage } from '../../constants/pricing';
+import { useCreditPurchase } from './hooks';
+import {
+  PurchaseConfirmationModal,
+  CreditPackagesGrid,
+  SubscriptionUpsell,
+} from './components';
 
 function BuyCreditsContent() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<typeof CREDIT_PACKAGES[0] | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  const utils = trpc.useUtils();
-  const { data: creditsData, refetch: refetchCredits } = trpc.credits.getBalance.useQuery();
+  const { data: creditsData } = trpc.credits.getBalance.useQuery();
 
-  const [isProcessing, setIsProcessing] = useState(false);
-
-  const handlePurchase = async (packageId: string) => {
-    setIsProcessing(true);
-    try {
-      const token = getAccessToken();
-      if (!token) {
-        throw new Error('You must be logged in to purchase credits');
-      }
-
-      const response = await fetch('/api/finby/setup-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          type: 'credit',
-          packageId,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create payment session');
-      }
-
-      const data = await response.json();
-      
-      // Redirect to Finby payment page
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        throw new Error('No payment URL received');
-      }
-    } catch (error: any) {
-      console.error('Purchase error:', error);
+  const { purchase, isProcessing } = useCreditPurchase({
+    onError: (error) => {
       alert(error.message || 'Failed to start payment. Please try again.');
-      setIsProcessing(false);
-    }
-  };
+    },
+  });
 
   const handlePurchaseClick = (packageId: string) => {
-    const pkg = CREDIT_PACKAGES.find(p => p.id === packageId);
+    const pkg = CREDIT_PACKAGES.find((p) => p.id === packageId);
     if (pkg) {
       setSelectedPackage(pkg);
       setShowConfirmModal(true);
@@ -70,7 +36,11 @@ function BuyCreditsContent() {
 
   const handleConfirmPurchase = async () => {
     if (!selectedPackage) return;
-    await handlePurchase(selectedPackage.id);
+    try {
+      await purchase(selectedPackage.id);
+    } catch {
+      // Error handled by hook's onError callback
+    }
   };
 
   return (
@@ -135,49 +105,14 @@ function BuyCreditsContent() {
       </FadeInUp>
 
       {/* Credit packages grid */}
-      <FadeInUp delay={100}>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 mb-8">
-          {CREDIT_PACKAGES.map((pkg, index) => (
-            <div
-              key={pkg.id}
-              style={{ animationDelay: `${index * 50}ms` }}
-              className="animate-in fade-in slide-in-from-bottom-2"
-            >
-              <CreditPackageCard
-                package_={pkg}
-                onPurchase={handlePurchaseClick}
-                isLoading={isProcessing && selectedPackage?.id === pkg.id}
-              />
-            </div>
-          ))}
-        </div>
-      </FadeInUp>
+      <CreditPackagesGrid
+        selectedPackageId={selectedPackage?.id ?? null}
+        isProcessing={isProcessing}
+        onPurchase={handlePurchaseClick}
+      />
 
       {/* Subscription upsell */}
-      <FadeInUp delay={200}>
-        <div className="max-w-2xl mx-auto mb-8">
-          <div className="p-6 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)] hover:border-[var(--purple-500)]/30 transition-all">
-            <div className="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20">
-                <Zap className="h-6 w-6 text-[var(--purple-400)]" />
-              </div>
-              <div className="flex-1">
-                <h3 className="font-semibold text-[var(--text-primary)] mb-1">
-                  Want monthly credits?
-                </h3>
-                <p className="text-sm text-[var(--text-secondary)]">
-                  Subscribe and get credits every month at a better price.
-                </p>
-              </div>
-              <RylaButton asChild variant="glassy-outline" size="default">
-                <Link href="/pricing" className="flex items-center gap-2">
-                  View Plans
-                </Link>
-              </RylaButton>
-            </div>
-          </div>
-        </div>
-      </FadeInUp>
+      <SubscriptionUpsell />
 
       {/* Trust badges */}
       <FadeInUp delay={300}>
@@ -205,76 +140,12 @@ function BuyCreditsContent() {
 
       {/* Confirmation Modal */}
       {showConfirmModal && selectedPackage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-          <div
-            className={cn(
-              'relative w-full max-w-md rounded-2xl',
-              'bg-[var(--bg-elevated)] border border-[var(--border-default)]',
-              'p-6 sm:p-8 shadow-2xl',
-              'animate-in fade-in zoom-in-95 duration-200'
-            )}
-          >
-            <button
-              onClick={() => setShowConfirmModal(false)}
-              className="absolute top-4 right-4 p-2 rounded-lg text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/5 transition-colors"
-            >
-              <X className="h-5 w-5" />
-            </button>
-
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
-                <Sparkles className="h-7 w-7 text-[var(--purple-400)]" />
-              </div>
-              
-              <h2 className="text-xl font-bold text-[var(--text-primary)] mb-2">
-                Confirm Purchase
-              </h2>
-              <p className="text-sm text-[var(--text-secondary)] mb-6">
-                You're about to purchase credits
-              </p>
-
-              {/* Summary card */}
-              <div className="p-5 rounded-xl bg-white/5 border border-[var(--border-default)] mb-5">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-[var(--text-secondary)]">Credits</span>
-                  <span className="text-2xl font-bold text-[var(--text-primary)]">{selectedPackage.credits}</span>
-                </div>
-                <div className="h-px bg-[var(--border-default)] mb-3" />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-[var(--text-secondary)]">Total</span>
-                  <span className="text-3xl font-extrabold text-[var(--text-primary)]">${selectedPackage.price}</span>
-                </div>
-              </div>
-
-              {/* Payment notice */}
-              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 mb-6">
-                <p className="text-blue-300/80 text-xs">
-                  You will be redirected to our secure payment page to complete your purchase.
-                </p>
-              </div>
-
-              {/* Actions */}
-              <div className="space-y-3">
-                <RylaButton
-                  onClick={handleConfirmPurchase}
-                  disabled={isProcessing}
-                  loading={isProcessing}
-                  variant="glassy"
-                  className="w-full"
-                >
-                  Continue to Payment
-                </RylaButton>
-                <RylaButton
-                  onClick={() => setShowConfirmModal(false)}
-                  variant="ghost"
-                  className="w-full text-[var(--text-muted)]"
-                >
-                  Cancel
-                </RylaButton>
-              </div>
-            </div>
-          </div>
-        </div>
+        <PurchaseConfirmationModal
+          package_={selectedPackage}
+          isProcessing={isProcessing}
+          onConfirm={handleConfirmPurchase}
+          onCancel={() => setShowConfirmModal(false)}
+        />
       )}
     </PageContainer>
   );
