@@ -10,8 +10,8 @@ import {
   useSidebar,
 } from '@ryla/ui';
 import { cn } from '@ryla/ui';
-import { useSubscription } from '../lib/hooks';
-import { useAuth } from '../lib/auth-context';
+import { useSubscription } from '../../lib/hooks';
+import { useAuth } from '../../lib/auth-context';
 import { BugReportModal } from './bug-report';
 import { BugIcon } from './sidebar/sidebar-icons';
 import { menuItems, SidebarNavigation } from './sidebar/sidebar-navigation';
