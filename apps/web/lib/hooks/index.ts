@@ -13,3 +13,7 @@ export type { SubscriptionTier } from './use-subscription';
 // Notifications hooks
 export { useNotifications } from './use-notifications';
 
+// Studio hooks
+export { useStudioImages } from './use-studio-images';
+export { useStudioFilters } from './use-studio-filters';
+

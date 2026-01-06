@@ -328,3 +328,4 @@ CREATE INDEX idx_templates_config ON templates USING GIN (config); -- For filter
 5. **Template Sharing**: Should templates be public by default?
    - **Recommendation**: Opt-in (is_public = false by default)
 
+

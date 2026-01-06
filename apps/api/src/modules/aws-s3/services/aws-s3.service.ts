@@ -1,4 +1,3 @@
-import { randomUUID } from 'node:crypto';
 import * as path from 'node:path';
 
 import {
@@ -14,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { AwsConfig, Config } from '../../../config/config.type';
 import { ImageFileInterface } from '../interfaces/image-file.interface';
 import { ContentType } from '../enums/content-type.enum';
+import { S3PathBuilder } from '../utils/path-builder.util';
 
 @Injectable()
 export class AwsS3Service {
@@ -261,13 +261,26 @@ export class AwsS3Service {
     }
   }
 
-  //TODO Refactor building file path
+  /**
+   * Builds a file path for S3 storage
+   * 
+   * Uses S3PathBuilder utility for consistent path generation.
+   * Currently uses flat structure (backward compatible).
+   * 
+   * @param itemType - The type of content
+   * @param itemId - The ID of the item/user
+   * @param fileName - Original file name (used to extract extension)
+   * @returns The S3 key/path for the file
+   */
   private buildPath(
     itemType: ContentType,
     itemId: number,
     fileName: string,
   ): string {
-    return `${itemType}-${randomUUID()}-user-${itemId}${path.extname(fileName)}`;
+    return S3PathBuilder.buildPath(itemType, itemId, fileName, {
+      useFolderStructure: false, // Keep flat structure for backward compatibility
+      includeUserId: true,
+    });
   }
 
   /**

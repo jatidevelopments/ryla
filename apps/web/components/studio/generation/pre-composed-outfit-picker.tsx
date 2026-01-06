@@ -9,7 +9,7 @@ import {
   OUTFIT_CATEGORIES,
   type OutfitOption,
 } from '@ryla/shared';
-import { useGalleryFavorites } from '../../../lib/hooks/use-gallery-favorites';
+import { usePreComposedOutfitFilter } from './hooks/usePreComposedOutfitFilter';
 
 interface PreComposedOutfitPickerProps {
   selectedOutfit: string | null;
@@ -35,42 +35,16 @@ export function PreComposedOutfitPicker({
   onClose,
   nsfwEnabled = false,
 }: PreComposedOutfitPickerProps) {
-  const [search, setSearch] = React.useState('');
-  const [category, setCategory] = React.useState<OutfitCategory | 'all'>('all');
-  const [showFavoritesOnly, setShowFavoritesOnly] = React.useState(false);
   const overlayRef = React.useRef<HTMLDivElement>(null);
 
-  // Favorites hook
-  const { isFavorited, toggleFavorite } = useGalleryFavorites({
-    itemType: 'outfit',
-  });
+  // Filtering and favorites logic
+  const filter = usePreComposedOutfitFilter({ nsfwEnabled });
 
   const handleOverlayClick = (e: React.MouseEvent) => {
     if (e.target === overlayRef.current) {
       onClose();
     }
   };
-
-  // Filter outfits based on search, category, NSFW setting, and favorites
-  const availableOutfits = React.useMemo(() => {
-    let baseOutfits = OUTFIT_OPTIONS;
-
-    // Filter out Adult Content outfits if Adult Content is not enabled
-    if (!nsfwEnabled) {
-      baseOutfits = baseOutfits.filter((outfit) => !outfit.isAdult);
-    }
-
-    return baseOutfits.filter((outfit) => {
-      const matchesSearch = outfit.label
-        .toLowerCase()
-        .includes(search.toLowerCase());
-      const matchesCategory =
-        category === 'all' || outfit.category === category;
-      const outfitId = outfit.label.toLowerCase().replace(/\s+/g, '-');
-      const matchesFavorites = !showFavoritesOnly || isFavorited(outfitId);
-      return matchesSearch && matchesCategory && matchesFavorites;
-    });
-  }, [search, category, nsfwEnabled, showFavoritesOnly, isFavorited]);
 
   const [mounted, setMounted] = React.useState(false);
   React.useEffect(() => {
@@ -123,10 +97,10 @@ export function PreComposedOutfitPicker({
           {/* Search, Favorites Filter & Close */}
           <div className="flex items-center gap-3">
             <button
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+              onClick={() => filter.setShowFavoritesOnly(!filter.showFavoritesOnly)}
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all',
-                showFavoritesOnly
+                filter.showFavoritesOnly
                   ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/25'
                   : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
               )}
@@ -135,7 +109,7 @@ export function PreComposedOutfitPicker({
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className={cn('h-4 w-4', showFavoritesOnly && 'fill-current')}
+                className={cn('h-4 w-4', filter.showFavoritesOnly && 'fill-current')}
               >
                 <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
               </svg>
@@ -157,8 +131,8 @@ export function PreComposedOutfitPicker({
               <Input
                 type="text"
                 placeholder="Search outfits..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                value={filter.search}
+                onChange={(e) => filter.setSearch(e.target.value)}
                 className="w-64 pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40"
               />
             </div>
@@ -181,10 +155,10 @@ export function PreComposedOutfitPicker({
         {/* Category Tabs */}
         <div className="flex items-center gap-3 px-6 py-4 border-b border-white/10 overflow-x-auto scroll-hidden">
           <button
-            onClick={() => setCategory('all')}
+            onClick={() => filter.setCategory('all')}
             className={cn(
               'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
-              category === 'all'
+              filter.category === 'all'
                 ? 'bg-white text-black'
                 : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
             )}
@@ -194,10 +168,10 @@ export function PreComposedOutfitPicker({
           {OUTFIT_CATEGORIES.map((cat) => (
             <button
               key={cat}
-              onClick={() => setCategory(cat)}
+              onClick={() => filter.setCategory(cat)}
               className={cn(
                 'px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all',
-                category === cat
+                filter.category === cat
                   ? 'bg-white text-black'
                   : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
               )}
@@ -267,13 +241,13 @@ export function PreComposedOutfitPicker({
           </div>
 
           {/* Outfits Grid */}
-          {availableOutfits.length === 0 ? (
+          {filter.availableOutfits.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-white/40 text-sm">No outfits found</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {availableOutfits.map((outfit) => {
+              {filter.availableOutfits.map((outfit) => {
                 const outfitValue = outfit.label
                   .toLowerCase()
                   .replace(/\s+/g, '-');
@@ -285,10 +259,10 @@ export function PreComposedOutfitPicker({
                     outfit={outfit}
                     isSelected={isSelected}
                     onSelect={() => onOutfitSelect(outfitValue)}
-                    isFavorited={isFavorited(outfitValue)}
+                    isFavorited={filter.isFavorited(outfitValue)}
                     onToggleFavorite={(e) => {
                       e.stopPropagation();
-                      toggleFavorite(outfitValue);
+                      filter.toggleFavorite(outfitValue);
                     }}
                   />
                 );
@@ -300,7 +274,7 @@ export function PreComposedOutfitPicker({
         {/* Footer */}
         <div className="flex items-center justify-between px-6 py-4 border-t border-white/10 bg-[#18181b]">
           <div className="text-sm text-white/60">
-            {availableOutfits.length} outfit{availableOutfits.length !== 1 ? 's' : ''} available
+            {filter.availableOutfits.length} outfit{filter.availableOutfits.length !== 1 ? 's' : ''} available
           </div>
           <button
             onClick={() => {

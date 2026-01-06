@@ -8,89 +8,28 @@ import { TemplateGrid } from '../../components/studio/templates/template-grid';
 import { TemplateDetailModal } from '../../components/studio/templates/template-detail-modal';
 import { trpc } from '../../lib/trpc';
 import { useRouter } from 'next/navigation';
-import { ChevronDown, Grid3X3, LayoutGrid, Rows } from 'lucide-react';
+import { LayoutGrid } from 'lucide-react';
 import { cn } from '@ryla/ui';
 import { SCENE_OPTIONS, ENVIRONMENT_OPTIONS } from '@ryla/shared';
+import { FilterPill, FilterDropdown, ViewModeToggle, SortDropdown } from './components';
+import { useTemplateFilters } from './hooks/useTemplateFilters';
 
 // Feature flag: Set to true when ready to launch template gallery
 const TEMPLATES_ENABLED = false;
 
-// Filter Pill Button Component
-function FilterPill({
-  label,
-  selected,
-  onClick,
-}: {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        'px-3 py-1.5 rounded-full text-sm font-medium transition-all whitespace-nowrap',
-        selected
-          ? 'bg-[var(--purple-500)] text-white'
-          : 'bg-[var(--bg-surface)] text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] border border-[var(--border-default)]'
-      )}
-    >
-      {label}
-    </button>
-  );
-}
-
-// Dropdown Select Component
-function FilterDropdown({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string | undefined;
-  options: { value: string; label: string; emoji?: string }[];
-  onChange: (value: string | undefined) => void;
-}) {
-  return (
-    <div className="relative">
-      <select
-        value={value || ''}
-        onChange={(e) => onChange(e.target.value || undefined)}
-        className={cn(
-          'appearance-none pl-3 pr-8 py-1.5 rounded-full text-sm font-medium',
-          'bg-[var(--bg-surface)] border border-[var(--border-default)]',
-          'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)]',
-          'focus:outline-none focus:ring-2 focus:ring-[var(--purple-500)]/50',
-          'cursor-pointer'
-        )}
-      >
-        <option value="">{label}</option>
-        {options.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.emoji ? `${opt.emoji} ${opt.label}` : opt.label}
-          </option>
-        ))}
-      </select>
-      <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)] pointer-events-none" />
-    </div>
-  );
-}
-
 function TemplatesContentFull() {
   const router = useRouter();
-  const [filters, setFilters] = React.useState({
-    category: 'all' as 'all' | 'my_templates' | 'curated' | 'popular',
-    scene: undefined as string | undefined,
-    environment: undefined as string | undefined,
-    aspectRatio: undefined as string | undefined,
-    qualityMode: undefined as 'draft' | 'hq' | undefined,
-    nsfw: undefined as boolean | undefined,
-  });
-  const [searchQuery, setSearchQuery] = React.useState('');
+  const {
+    filters,
+    searchQuery,
+    viewMode,
+    sortBy,
+    updateFilter,
+    setSearchQuery,
+    setViewMode,
+    setSortBy,
+  } = useTemplateFilters();
   const [selectedTemplateId, setSelectedTemplateId] = React.useState<string | null>(null);
-  const [viewMode, setViewMode] = React.useState<'grid' | 'compact' | 'list'>('grid');
-  const [sortBy, setSortBy] = React.useState<'newest' | 'popular' | 'name'>('newest');
 
   const { data, isLoading, error } = trpc.templates.list.useQuery({
     category: filters.category,
@@ -104,23 +43,16 @@ function TemplatesContentFull() {
     limit: 24,
   });
 
-  const handleTemplateClick = (templateId: string) => {
+  const handleTemplateClick = React.useCallback((templateId: string) => {
     setSelectedTemplateId(templateId);
-  };
+  }, []);
 
-  const handleTemplateApply = (templateId: string) => {
-    router.push(`/studio?template=${templateId}`);
-  };
-
-  const updateFilter = <K extends keyof typeof filters>(
-    key: K,
-    value: typeof filters[K]
-  ) => {
-    setFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
-  };
+  const handleTemplateApply = React.useCallback(
+    (templateId: string) => {
+      router.push(`/studio?template=${templateId}`);
+    },
+    [router]
+  );
 
   return (
     <PageContainer maxWidth="full" className="relative">
@@ -252,67 +184,10 @@ function TemplatesContentFull() {
           <div className="flex-1" />
 
           {/* Sort Dropdown */}
-          <div className="flex items-center gap-2 border-l border-[var(--border-default)] pl-3">
-            <span className="text-sm text-[var(--text-muted)]">Sort:</span>
-            <div className="relative">
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className={cn(
-                  'appearance-none pl-3 pr-8 py-1.5 rounded-md text-sm font-medium',
-                  'bg-[var(--bg-surface)] border border-[var(--border-default)]',
-                  'text-[var(--text-primary)]',
-                  'focus:outline-none focus:ring-2 focus:ring-[var(--purple-500)]/50',
-                  'cursor-pointer'
-                )}
-              >
-                <option value="newest">Newest</option>
-                <option value="popular">Most Used</option>
-                <option value="name">Name</option>
-              </select>
-              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-muted)] pointer-events-none" />
-            </div>
-          </div>
+          <SortDropdown value={sortBy} onChange={setSortBy} />
 
           {/* View Mode Toggles */}
-          <div className="flex items-center gap-1 border-l border-[var(--border-default)] pl-3">
-            <button
-              onClick={() => setViewMode('grid')}
-              className={cn(
-                'p-2 rounded-md transition-colors',
-                viewMode === 'grid'
-                  ? 'bg-[var(--purple-500)] text-white'
-                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-default)]'
-              )}
-              title="Grid view"
-            >
-              <Grid3X3 className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('compact')}
-              className={cn(
-                'p-2 rounded-md transition-colors',
-                viewMode === 'compact'
-                  ? 'bg-[var(--purple-500)] text-white'
-                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-default)]'
-              )}
-              title="Compact view"
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode('list')}
-              className={cn(
-                'p-2 rounded-md transition-colors',
-                viewMode === 'list'
-                  ? 'bg-[var(--purple-500)] text-white'
-                  : 'bg-[var(--bg-surface)] text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-[var(--border-default)]'
-              )}
-              title="List view"
-            >
-              <Rows className="h-4 w-4" />
-            </button>
-          </div>
+          <ViewModeToggle value={viewMode} onChange={setViewMode} />
         </div>
       </FadeInUp>
 

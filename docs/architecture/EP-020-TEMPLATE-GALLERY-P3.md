@@ -418,3 +418,4 @@ CREATE INDEX idx_template_usage_user ON template_usage(user_id);
 4. **Template Versioning**: What if template config changes (e.g., scene renamed)?
    - **Recommendation**: Store full config, handle migrations gracefully
 
+

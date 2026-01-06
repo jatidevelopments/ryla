@@ -125,8 +125,8 @@ export class FinbyProvider implements PaymentProvider {
   }
 
   /**
-   * Create checkout session using Finby API v3 (popup-based)
-   * Used by the funnel app
+   * Create checkout session using Finby API v3 (redirect-based)
+   * The payment URL can be used for both popup and redirect flows
    */
   private async createCheckoutSessionV3(params: CheckoutSessionParams): Promise<CheckoutSession> {
     if (!this.projectId || !this.secretKey) {
@@ -164,7 +164,9 @@ export class FinbyProvider implements PaymentProvider {
     const sigData = `${this.projectId}/${amount.toFixed(2)}/${currency}/${reference}/${paymentType}/${billingCity}/${billingCountry}/${billingPostcode}/${billingStreet}/${cardHolder}/${email}`;
     const signature = this.generateSignature(this.secretKey, sigData);
 
-    // Build Finby payment URL
+    // Build Finby payment URL for redirect
+    // Note: PayPopup endpoint works for both popup and redirect flows
+    // When using window.location.href, it will redirect to a full-page payment form
     const baseUrl = 'https://amapi.finby.eu/mapi5/Card/PayPopup';
     const urlParams = new URLSearchParams({
       AccountId: this.projectId,

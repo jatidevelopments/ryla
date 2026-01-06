@@ -15,28 +15,18 @@ import {
   Label,
 } from '@ryla/ui';
 import { capture } from '@ryla/analytics';
-import { trpc } from '../../lib/trpc';
-import { getConsoleLogBuffer } from '@ryla/shared';
-import type { BrowserMetadata, ConsoleLogEntry } from '@ryla/shared';
+import {
+  useBugReportForm,
+  useBugReportScreenshot,
+  useBugReportCountdown,
+  useBugReportAutoCapture,
+  useBugReportSubmission,
+} from './hooks';
 
 export interface BugReportModalProps {
   isOpen: boolean;
   onClose: () => void;
   userEmail?: string; // Pre-fill if logged in
-}
-
-function getBrowserMetadata(): BrowserMetadata {
-  return {
-    userAgent: navigator.userAgent,
-    url: window.location.href,
-    viewport: {
-      width: window.innerWidth,
-      height: window.innerHeight,
-    },
-    platform: navigator.platform,
-    language: navigator.language,
-    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-  };
 }
 
 export function BugReportModal({
@@ -45,193 +35,70 @@ export function BugReportModal({
   userEmail,
 }: BugReportModalProps) {
   // Form state
-  const [description, setDescription] = React.useState('');
-  const [email, setEmail] = React.useState(userEmail || '');
-  const [screenshot, setScreenshot] = React.useState<string | null>(null);
-  const [screenshotFile, setScreenshotFile] = React.useState<File | null>(null);
+  const form = useBugReportForm({ initialEmail: userEmail });
 
-  // Auto-captured data (not shown to user)
-  const [consoleLogs, setConsoleLogs] = React.useState<ConsoleLogEntry[]>([]);
-  const [browserMetadata, setBrowserMetadata] = React.useState<BrowserMetadata | null>(null);
+  // Screenshot handling
+  const screenshot = useBugReportScreenshot();
 
-  // Submission state
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [submitError, setSubmitError] = React.useState<string | null>(null);
-  const [submitSuccess, setSubmitSuccess] = React.useState(false);
-  const [countdown, setCountdown] = React.useState(5);
-  const countdownTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  const autoCloseTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  // Auto-capture data
+  const autoCapture = useBugReportAutoCapture({ enabled: isOpen });
 
-  // Countdown timer effect
-  React.useEffect(() => {
-    if (submitSuccess) {
-      setCountdown(5);
-      
-      // Start countdown
-      const interval = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            clearInterval(interval);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      countdownTimeoutRef.current = interval;
-
-      // Auto-close after 5 seconds
-      autoCloseTimeoutRef.current = setTimeout(() => {
-        handleClose();
-      }, 5000);
-
-      return () => {
-        clearInterval(interval);
-        if (autoCloseTimeoutRef.current) {
-          clearTimeout(autoCloseTimeoutRef.current);
-        }
-      };
-    }
-  }, [submitSuccess]);
-
-  // tRPC mutation
-  const submitMutation = trpc.bugReport.submit.useMutation({
-    onSuccess: (data) => {
-      setIsSubmitting(false);
-      setSubmitSuccess(true);
-      capture('bug_report_submitted', {
-        bug_report_id: data.bugReportId,
-        has_screenshot: !!screenshot,
-        has_logs: consoleLogs.length > 0,
-        description_length: description.length,
-        success: true,
-      });
-    },
-    onError: (error) => {
-      setSubmitError(error.message);
-      setIsSubmitting(false);
-      capture('bug_report_submitted', {
-        has_screenshot: !!screenshot,
-        has_logs: consoleLogs.length > 0,
-        description_length: description.length,
-        success: false,
-        error: error.message,
-      });
-    },
+  // Submission
+  const submission = useBugReportSubmission({
+    description: form.description,
+    email: form.email,
+    screenshot: screenshot.screenshot,
+    consoleLogs: autoCapture.consoleLogs,
+    browserMetadata: autoCapture.browserMetadata,
   });
 
-  // Auto-capture console logs and browser metadata when modal opens (hidden from user)
+  // Countdown for auto-close
+  const handleCloseRef = React.useRef(onClose);
   React.useEffect(() => {
-    if (isOpen) {
-      // Capture console logs automatically
-      try {
-        const buffer = getConsoleLogBuffer();
-        const logs = buffer.getLogs();
-        setConsoleLogs(logs);
-        capture('bug_report_logs_captured', {
-          log_count: logs.length,
-          has_errors: logs.some((l) => l.level === 'error'),
-          has_warnings: logs.some((l) => l.level === 'warn'),
-        });
-      } catch (error) {
-        console.error('Console log capture failed:', error);
-        capture('bug_report_logs_captured', {
-          log_count: 0,
-          has_errors: false,
-          success: false,
-        });
-      }
+    handleCloseRef.current = onClose;
+  }, [onClose]);
 
-      // Get browser metadata automatically
-      setBrowserMetadata(getBrowserMetadata());
-    }
-  }, [isOpen]);
+  const handleCloseWithReset = React.useCallback(() => {
+    if (submission.isSubmitting && !submission.submitSuccess) return;
 
-  // Handle manual screenshot file upload
-  const handleScreenshotUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+    form.reset();
+    screenshot.reset();
+    submission.reset();
+    countdown.reset();
+    handleCloseRef.current();
+  }, [form, screenshot, submission]);
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      setSubmitError('Please upload an image file');
-      return;
-    }
+  const countdown = useBugReportCountdown({
+    enabled: submission.submitSuccess,
+    duration: 5,
+    onComplete: handleCloseWithReset,
+  });
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setSubmitError('Image file must be less than 5MB');
-      return;
-    }
-
-    setScreenshotFile(file);
-
-    // Convert to base64 for preview and submission
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64String = reader.result as string;
-      setScreenshot(base64String);
-    };
-    reader.onerror = () => {
-      setSubmitError('Failed to read image file');
-    };
-    reader.readAsDataURL(file);
-  };
-
-  const handleRemoveScreenshot = () => {
-    setScreenshot(null);
-    setScreenshotFile(null);
-  };
-
-  const handleSubmit = async () => {
-    if (!isDescriptionValid) return;
-
-    setIsSubmitting(true);
-    setSubmitError(null);
-
-    try {
-      await submitMutation.mutateAsync({
-        description,
-        email: email || undefined,
-        includeScreenshot: !!screenshot,
-        includeLogs: true, // Always include logs
-        screenshot: screenshot || undefined,
-        consoleLogs: consoleLogs.length > 0 ? consoleLogs : undefined,
-        browserMetadata: browserMetadata || getBrowserMetadata(),
+  // Handle screenshot upload
+  const handleScreenshotUpload = React.useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      screenshot.uploadScreenshot(file).catch(() => {
+        // Error already set in hook
       });
-    } catch (error) {
-      // Error handled in onError callback
-    }
-  };
+    },
+    [screenshot]
+  );
 
-  const handleClose = () => {
-    // Don't close while actively submitting (but allow closing after success)
-    if (isSubmitting && !submitSuccess) return;
+  // Handle submit
+  const handleSubmit = React.useCallback(async () => {
+    if (!form.isDescriptionValid) return;
+    await submission.submit();
+  }, [form.isDescriptionValid, submission]);
 
-    // Clear timeouts
-    if (countdownTimeoutRef.current) {
-      clearInterval(countdownTimeoutRef.current);
-    }
-    if (autoCloseTimeoutRef.current) {
-      clearTimeout(autoCloseTimeoutRef.current);
-    }
+  // Handle close
+  const handleClose = React.useCallback(() => {
+    handleCloseWithReset();
+  }, [handleCloseWithReset]);
 
-    // Reset form
-    setDescription('');
-    setEmail(userEmail || '');
-    setScreenshot(null);
-    setScreenshotFile(null);
-    setConsoleLogs([]);
-    setBrowserMetadata(null);
-    setSubmitError(null);
-    setSubmitSuccess(false);
-    setCountdown(5);
-    onClose();
-  };
-
-  // Validation
-  const isDescriptionValid = description.length >= 10;
-  const canSubmit = isDescriptionValid && !isSubmitting;
+  // Combine errors (screenshot errors + submission errors)
+  const displayError = screenshot.error || submission.submitError;
 
   // Analytics: track modal open
   React.useEffect(() => {
@@ -242,6 +109,8 @@ export function BugReportModal({
       });
     }
   }, [isOpen, userEmail]);
+
+  const canSubmit = form.canSubmit && !submission.isSubmitting;
 
   if (!isOpen) return null;
 
@@ -263,7 +132,7 @@ export function BugReportModal({
 
         <div className="space-y-4">
           {/* Success Message */}
-          {submitSuccess && (
+          {submission.submitSuccess && (
             <div className="space-y-4">
               <div className="flex items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 p-4">
                 <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0" />
@@ -281,25 +150,27 @@ export function BugReportModal({
                   onClick={handleClose}
                   className="bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)] hover:opacity-90"
                 >
-                  Close{countdown > 0 ? ` (${countdown})` : ''}
+                  Close{countdown.countdown > 0 ? ` (${countdown.countdown})` : ''}
                 </Button>
               </div>
             </div>
           )}
 
           {/* Error Message */}
-          {submitError && (
+          {displayError && (
             <div className="flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
               <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-red-400">Failed to submit bug report</p>
-                <p className="text-xs text-red-400/70">{submitError}</p>
+                <p className="text-sm font-medium text-red-400">
+                  {submission.submitError ? 'Failed to submit bug report' : 'Error'}
+                </p>
+                <p className="text-xs text-red-400/70">{displayError}</p>
               </div>
             </div>
           )}
 
           {/* Form Fields - Only show when not successful */}
-          {!submitSuccess && (
+          {!submission.submitSuccess && (
             <>
               {/* Description Field */}
               <div className="space-y-2">
@@ -308,22 +179,22 @@ export function BugReportModal({
                 </Label>
                 <Textarea
                   id="description"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
+                  value={form.description}
+                  onChange={(e) => form.setDescription(e.target.value)}
                   placeholder="Please describe the bug or issue you encountered..."
                   rows={4}
-                  error={description.length > 0 && !isDescriptionValid}
-                  disabled={isSubmitting}
+                  error={form.description.length > 0 && !form.isDescriptionValid}
+                  disabled={submission.isSubmitting}
                   className="resize-none"
                 />
                 <div className="flex items-center justify-between">
-                  {description.length > 0 && !isDescriptionValid && (
+                  {form.description.length > 0 && !form.isDescriptionValid && (
                     <p className="text-xs text-red-400">
                       Description must be at least 10 characters
                     </p>
                   )}
                   <p className="text-xs text-white/40 ml-auto">
-                    {description.length} / 10 minimum
+                    {form.description.length} / 10 minimum
                   </p>
                 </div>
               </div>
@@ -334,24 +205,24 @@ export function BugReportModal({
                 <Input
                   id="email"
                   type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={form.email}
+                  onChange={(e) => form.setEmail(e.target.value)}
                   placeholder="your@email.com"
-                  disabled={isSubmitting}
+                  disabled={submission.isSubmitting}
                 />
               </div>
 
               {/* Manual Screenshot Upload */}
               <div className="space-y-2">
                 <Label htmlFor="screenshot">Screenshot (optional)</Label>
-                {!screenshot ? (
+                {!screenshot.screenshot ? (
                   <div className="flex items-center gap-2">
                     <Input
                       id="screenshot"
                       type="file"
                       accept="image/*"
                       onChange={handleScreenshotUpload}
-                      disabled={isSubmitting}
+                      disabled={submission.isSubmitting}
                       className="text-sm"
                     />
                   </div>
@@ -359,7 +230,7 @@ export function BugReportModal({
                   <div className="space-y-2">
                     <div className="relative rounded-lg border border-white/10 overflow-hidden">
                       <img
-                        src={screenshot}
+                        src={screenshot.screenshot}
                         alt="Screenshot preview"
                         className="w-full h-auto max-h-64 object-contain bg-[#0f0f11]"
                       />
@@ -368,8 +239,8 @@ export function BugReportModal({
                       type="button"
                       variant="outline"
                       size="sm"
-                      onClick={handleRemoveScreenshot}
-                      disabled={isSubmitting}
+                      onClick={screenshot.removeScreenshot}
+                      disabled={submission.isSubmitting}
                       className="w-full"
                     >
                       Remove Screenshot
@@ -385,21 +256,21 @@ export function BugReportModal({
         </div>
 
         {/* Footer - Only show when not successful */}
-        {!submitSuccess && (
+        {!submission.submitSuccess && (
           <DialogFooter className="flex flex-row justify-end gap-3">
             <Button
               variant="outline"
               onClick={handleClose}
-              disabled={isSubmitting}
+              disabled={submission.isSubmitting}
             >
               Cancel
             </Button>
             <Button
               onClick={handleSubmit}
-              disabled={!canSubmit || isSubmitting}
+              disabled={!canSubmit || submission.isSubmitting}
               className="bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)] hover:opacity-90 disabled:opacity-50"
             >
-              {isSubmitting ? (
+              {submission.isSubmitting ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2" />
                   Submitting...

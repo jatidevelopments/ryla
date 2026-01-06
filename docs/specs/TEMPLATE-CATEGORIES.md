@@ -440,3 +440,4 @@ npx tsx scripts/seed-templates.ts
 npx tsx scripts/seed-templates.ts --category=trending
 ```
 
+

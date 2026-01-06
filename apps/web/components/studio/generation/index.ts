@@ -7,3 +7,9 @@ export * from './character-picker';
 export * from './style-picker';
 export * from './liked-filter-picker';
 
+// Hooks
+export * from './hooks';
+
+// Icons
+export * from './icons';
+

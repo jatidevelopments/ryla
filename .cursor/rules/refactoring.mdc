@@ -1,0 +1,202 @@
+# Refactoring Best Practices
+
+## Component Rules
+
+| Metric | Target | Max |
+|--------|--------|-----|
+| Lines | < 100 | 200 |
+| Props | ≤ 5 | 7 |
+| JSX nesting | 2 levels | 3 |
+
+### Component Types
+- **Page** → Data fetch + layout composition, NO business logic
+- **Feature** → Orchestrates UI + logic, 100-200 lines
+- **UI** → Pure presentation, props in JSX out, < 80 lines
+
+### Good Component Checklist
+```
+✅ Single responsibility
+✅ Typed props interface (exported)
+✅ Handlers named handle* (handleClick, handleSubmit)
+✅ Loading/error states handled
+✅ No inline styles (use Tailwind)
+✅ Accessible (aria labels, keyboard nav)
+```
+
+---
+
+## Hook Rules
+
+### When to Extract
+- useState + useEffect together
+- Logic reused 2+ places
+- Complex state updates
+- API calls / async ops
+
+### Pattern
+```typescript
+// ✅ Good: verb+noun, returns object
+function useCharacterGeneration(id: string) {
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [error, setError] = useState<Error | null>(null);
+  
+  const generate = useCallback(async () => { /* ... */ }, []);
+  
+  return { status, error, generate, isLoading: status === 'loading' };
+}
+
+// ❌ Bad: unclear name, returns array
+function useGen() { return [data, loading, error]; }
+```
+
+### Checklist
+```
+✅ Prefix with "use"
+✅ Return object for > 2 values
+✅ Handle loading/error/success states
+✅ useCallback for returned functions
+✅ Cleanup in useEffect return
+```
+
+---
+
+## Context Rules
+
+### Use Context For
+- Auth state (rarely changes, needed everywhere)
+- Theme/dark mode
+- Toast/notification manager
+- Feature flags
+
+### DON'T Use Context For
+- Server state → Use React Query
+- Frequently changing data → Causes re-renders
+- Form state → Use RHF or local state
+- Data in subtree only → Just pass props
+
+### Performance Pattern
+```typescript
+// ✅ Split state from dispatch
+const StateContext = createContext<State | null>(null);
+const DispatchContext = createContext<Dispatch | null>(null);
+
+// ✅ Split by update frequency
+const AuthContext = createContext(...);   // Rarely changes
+const ThemeContext = createContext(...);  // Rarely changes
+```
+
+---
+
+## State Management
+
+```
+Used by ONE component? → useState
+Shared parent + children? → Lift to ancestor
+App-wide, rarely changes? → Context
+Server data? → React Query
+```
+
+---
+
+## Code Smells → Actions
+
+| Smell | Signal | Fix |
+|-------|--------|-----|
+| God Component | > 300 lines | Split feature + UI |
+| Prop Drilling | > 3 levels | Context or composition |
+| Copy-Paste | Same code 2+ places | Extract hook/util |
+| Mixed Concerns | Fetch + render + logic | Separate layers |
+| Magic Strings | `status === 'PENDING'` | Use constants |
+| Nested Ternaries | `a ? b ? c : d : e` | Early return or function |
+
+---
+
+## TypeScript
+
+```typescript
+// ✅ Discriminated unions for state
+type AsyncState<T> =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; error: Error };
+
+// ✅ Export props interface
+export interface ButtonProps {
+  variant?: 'primary' | 'secondary';
+  isLoading?: boolean;
+}
+
+// ❌ Avoid
+const data: any = ...;        // No any
+const user = data as User;    // No unvalidated assertions
+```
+
+---
+
+## Performance
+
+```typescript
+// ✅ useMemo: Expensive computation only
+const sorted = useMemo(() => items.sort(...), [items]);
+
+// ✅ useCallback: Stable reference for child props
+const handleClick = useCallback(() => { ... }, [dep]);
+
+// ❌ Don't memoize cheap ops
+const fullName = useMemo(() => `${first} ${last}`, [first, last]);
+const fullName = `${first} ${last}`; // Just do it
+```
+
+---
+
+## Tailwind
+
+```typescript
+// ✅ Consistent order: Layout → Size → Space → Visual → Interactive → Responsive
+<div className="flex flex-col w-full p-4 bg-white rounded-lg hover:shadow-lg md:p-6">
+
+// ✅ Use cn() for conditionals
+<button className={cn(
+  'px-4 py-2 rounded-lg',
+  variant === 'primary' && 'bg-blue-600 text-white',
+  disabled && 'opacity-50',
+)}>
+
+// ❌ No dynamic class construction
+<div className={`text-${color}-500`}> // Breaks purge
+```
+
+---
+
+## Refactor Process
+
+1. **IDENTIFY** → Find code smell
+2. **TEST** → Ensure behavior covered
+3. **EXTRACT** → One piece at a time
+4. **SIMPLIFY** → Remove duplication
+5. **VERIFY** → Run tests, smoke test
+6. **DOCUMENT** → Update types
+
+---
+
+## Acceptance Criteria
+
+Before merging refactored code:
+```
+□ Component < 200 lines
+□ Single responsibility
+□ Props interface exported
+□ No prop drilling > 2 levels
+□ Hooks for reusable logic
+□ Loading/error handled
+□ No TypeScript any
+□ Tests pass
+□ No console errors
+□ Accessible
+```
+
+---
+
+## Full Guide
+See `docs/technical/REFACTORING-GUIDE.md`
