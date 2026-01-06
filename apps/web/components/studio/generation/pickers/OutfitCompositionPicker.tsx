@@ -3,12 +3,12 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import type { OutfitComposition } from '@ryla/shared';
-import { useGalleryFavorites } from '../../../lib/hooks/use-gallery-favorites';
+import { useGalleryFavorites } from '../../../../lib/hooks/use-gallery-favorites';
 import { useOutfitComposition } from '../hooks/use-outfit-composition';
 import { useOutfitPickerState } from '../hooks/use-outfit-picker-state';
 import { useOutfitPresets } from '../hooks/use-outfit-presets';
 import { getSelectedPieces } from '../utils/get-selected-pieces';
-import type { OutfitPreset } from '../../../lib/api/outfit-presets';
+import type { OutfitPreset } from '../../../../lib/api/outfit-presets';
 import {
   OutfitPickerHeader,
   OutfitPickerSearch,

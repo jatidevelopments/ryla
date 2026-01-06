@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@ryla/ui';
-import { PostCard } from './post-card';
+import { PostCard } from './PostCard';
 import type { Post } from '@ryla/shared';
 import { ImageIcon, Plus, Sparkles } from 'lucide-react';
 import Link from 'next/link';

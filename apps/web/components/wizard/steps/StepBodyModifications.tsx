@@ -2,12 +2,12 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { WizardImageCard } from './wizard-image-card';
+import { WizardImageCard } from '../WizardImageCard';
 import {
   INFLUENCER_PIERCINGS,
   INFLUENCER_TATTOOS,
-} from '../../constants';
-import { getPiercingImage, getTattooImage } from '../../lib/utils/get-influencer-image';
+} from '../../../constants';
+import { getPiercingImage, getTattooImage } from '../../../lib/utils/get-influencer-image';
 
 /**
  * Step 7: Body Modifications

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useCharacterWizardStore } from '@ryla/business';
 import { Textarea, cn } from '@ryla/ui';
-import { trpc } from '../../lib/trpc';
+import { trpc } from '../../../lib/trpc';
 
 /**
  * Step 1 (Existing Person Flow): Influencer Request

@@ -1,6 +1,6 @@
 export * from './DesktopSidebar';
-export * from './SidebarFooter';
-export * from './SidebarHeader';
-export * from './SidebarIcons';
-export * from './SidebarNavigation';
+export * from './sidebar-footer';
+export * from './sidebar-header';
+export * from './sidebar-icons';
+export * from './sidebar-navigation';
 

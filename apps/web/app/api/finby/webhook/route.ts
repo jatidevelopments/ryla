@@ -248,7 +248,8 @@ const v1Handler = process.env.FINBY_API_KEY && process.env.FINBY_MERCHANT_ID
     console.error('[Finby Webhook] v1 Handler error:', error);
     console.error('[Finby Webhook] Raw body:', rawBody);
   },
-});
+  })
+  : null;
 
 
 /**

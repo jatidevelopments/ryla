@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { useBaseImageGeneration } from './hooks/use-base-image-generation';
-import { useBaseImageInitialization } from './hooks/use-base-image-initialization';
-import { useBaseImageHandlers } from './hooks/use-base-image-handlers';
+import { useBaseImageGeneration } from '../hooks/use-base-image-generation';
+import { useBaseImageInitialization } from '../hooks/use-base-image-initialization';
+import { useBaseImageHandlers } from '../hooks/use-base-image-handlers';
 import {
   BaseImageHeader,
   MissingJobIdsWarning,
@@ -13,7 +13,7 @@ import {
   RegenerateAllButton,
   BaseImageError,
   BaseImageEmptyState,
-} from './components';
+} from '../components';
 
 /**
  * Step: Base Image Selection

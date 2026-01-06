@@ -4,13 +4,13 @@ import * as React from 'react';
 import { PageContainer } from '@ryla/ui';
 import { capture } from '@ryla/analytics';
 import type { AIInfluencer } from '@ryla/shared';
-import { useInfluencerSettings } from './influencer-settings/hooks/use-influencer-settings';
+import { useInfluencerSettings } from './hooks/use-influencer-settings';
 import { InfluencerSettingsHeader } from './components/influencer-settings-header';
-import { NSFWToggleSection } from './influencer-settings/components/nsfw-toggle-section';
-import { NameField } from './influencer-settings/components/name-field';
-import { BioField } from './influencer-settings/components/bio-field';
-import { HandleField } from './influencer-settings/components/handle-field';
-import { SocialMediaSection } from './influencer-settings/components/social-media-section';
+import { NSFWToggleSection } from './components/nsfw-toggle-section';
+import { NameField } from './components/name-field';
+import { BioField } from './components/bio-field';
+import { HandleField } from './components/handle-field';
+import { SocialMediaSection } from './components/social-media-section';
 
 export interface InfluencerSettingsContentProps {
   influencer: AIInfluencer;

@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepBaseImageSelection } from '../../components/wizard/steps/StepBaseImageSelection';
+import { StepBaseImageSelection } from '../../../components/wizard/steps/StepBaseImageSelection';
 
 export default function WizardStep9() {
   const setStep = useCharacterWizardStore((s) => s.setStep);

@@ -1,4 +1,5 @@
 import type { StudioImage } from '../../../components/studio/studio-image-card';
+import type { ViewMode } from '../../../components/studio/studio-toolbar';
 import { StudioDetailPanel } from '../../../components/studio';
 
 interface StudioDetailPanelsProps {

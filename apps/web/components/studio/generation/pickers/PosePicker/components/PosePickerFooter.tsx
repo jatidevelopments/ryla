@@ -1,6 +1,6 @@
 'use client';
 
-import { ALL_POSES } from '../../types';
+import { ALL_POSES } from '../../../types';
 
 interface PosePickerFooterProps {
   selectedPoseId: string | null;

@@ -3,13 +3,13 @@
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { ETHNICITY_OPTIONS } from '@ryla/shared';
-import { WizardOptionCard } from './wizard-option-card';
-import { WizardImageCard } from './wizard-image-card';
+import { WizardOptionCard } from '../WizardOptionCard';
+import { WizardImageCard } from '../WizardImageCard';
 import {
   INFLUENCER_AGE_RANGES,
   INFLUENCER_SKIN_COLORS,
-} from '../../constants';
-import { getInfluencerImage } from '../../lib/utils/get-influencer-image';
+} from '../../../constants';
+import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
 import { cn } from '@ryla/ui';
 
 /**

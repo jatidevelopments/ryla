@@ -2,7 +2,7 @@
 
 import { Save } from 'lucide-react';
 import type { OutfitComposition } from '@ryla/shared';
-import { getSelectedPieces } from '../utils/get-selected-pieces';
+import { getSelectedPieces } from '../../utils/get-selected-pieces';
 
 interface OutfitPickerFooterProps {
   composition: OutfitComposition | null;

@@ -12,7 +12,7 @@ import {
   ProfilePicturePromptEditor,
   ProfilePictureEmptyState,
   BaseImageError,
-} from './components';
+} from '../components';
 
 /**
  * Step: Profile Pictures

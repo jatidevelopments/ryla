@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { createPortal } from 'react-dom';
 import { OUTFIT_OPTIONS } from '@ryla/shared';
-import { usePreComposedOutfitFilter } from './hooks/usePreComposedOutfitFilter';
+import { usePreComposedOutfitFilter } from '../hooks/usePreComposedOutfitFilter';
 import {
   PreComposedOutfitPickerHeader,
   PreComposedOutfitPickerTabs,

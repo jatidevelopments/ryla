@@ -3,9 +3,9 @@
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { EYE_COLOR_OPTIONS } from '@ryla/shared';
-import { WizardImageCard } from './wizard-image-card';
-import { INFLUENCER_FACE_SHAPES } from '../../constants';
-import { getInfluencerImage } from '../../lib/utils/get-influencer-image';
+import { WizardImageCard } from '../WizardImageCard';
+import { INFLUENCER_FACE_SHAPES } from '../../../constants';
+import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
 
 /**
  * Step 3: Facial Features

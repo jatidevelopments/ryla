@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { useCredits } from '../../lib/hooks/use-credits';
-import { ZeroCreditsModal } from '../credits';
-import { FEATURE_CREDITS } from '../../constants/pricing';
+import { useCredits } from '../../../lib/hooks/use-credits';
+import { ZeroCreditsModal } from '../../credits';
+import { FEATURE_CREDITS } from '../../../constants/pricing';
 import { useWizardGeneration } from './hooks/use-wizard-generation';
 import {
   GenerateLoadingState,
@@ -13,7 +13,7 @@ import {
   CharacterSummary,
   GenerationSettings,
   GenerateButton,
-} from './components';
+} from '../components';
 
 /**
  * Step 6: Generate

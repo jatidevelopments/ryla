@@ -2,7 +2,7 @@
 
 import { X } from 'lucide-react';
 import { OutfitPieceCategory, OUTFIT_PIECE_CATEGORIES } from '@ryla/shared';
-import { getSelectedPieces } from '../utils/get-selected-pieces';
+import { getSelectedPieces } from '../../utils/get-selected-pieces';
 import type { OutfitComposition } from '@ryla/shared';
 
 const CATEGORY_LABELS: Record<OutfitPieceCategory, string> = {

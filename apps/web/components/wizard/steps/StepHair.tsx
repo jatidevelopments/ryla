@@ -6,9 +6,9 @@ import {
   HAIR_STYLE_OPTIONS,
   HAIR_COLOR_OPTIONS,
 } from '@ryla/shared';
-import { WizardOptionCard } from './wizard-option-card';
-import { WizardImageCard } from './wizard-image-card';
-import { getInfluencerImage } from '../../lib/utils/get-influencer-image';
+import { WizardOptionCard } from '../WizardOptionCard';
+import { WizardImageCard } from '../WizardImageCard';
+import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
 
 /**
  * Step 4: Hair

@@ -2,16 +2,16 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { useCredits } from '../../lib/hooks/use-credits';
-import { ZeroCreditsModal } from '../credits';
-import { ProfilePictureSetSelector } from './profile-picture-set-selector';
-import { useFinalizeCredits } from './hooks/use-finalize-credits';
-import { useCharacterCreation } from './hooks/use-character-creation';
-import { BaseImagePreview } from './finalize/base-image-preview';
-import { NSFWToggleSection } from './finalize/nsfw-toggle-section';
-import { CreditSummary } from './finalize/credit-summary';
-import { CreateButton } from './finalize/create-button';
-import { CreatingLoading } from './finalize/creating-loading';
+import { useCredits } from '../../../lib/hooks/use-credits';
+import { ZeroCreditsModal } from '../../credits';
+import { ProfilePictureSetSelector } from '../profile-picture-set-selector/ProfilePictureSetSelector';
+import { useFinalizeCredits } from '../hooks/use-finalize-credits';
+import { useCharacterCreation } from '../hooks/use-character-creation';
+import { BaseImagePreview } from '../finalize/base-image-preview';
+import { NSFWToggleSection } from '../finalize/nsfw-toggle-section';
+import { CreditSummary } from '../finalize/credit-summary';
+import { CreateButton } from '../finalize/create-button';
+import { CreatingLoading } from '../finalize/creating-loading';
 
 /**
  * Step: Finalize

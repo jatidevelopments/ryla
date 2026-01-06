@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { StudioMode } from '../types';
+import type { StudioMode } from '../../types';
 
 export const MODE_CONFIG = {
   creating: {

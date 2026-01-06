@@ -2,13 +2,13 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { WizardOptionCard } from './wizard-option-card';
-import { WizardImageCard } from './wizard-image-card';
+import { WizardOptionCard } from '../WizardOptionCard';
+import { WizardImageCard } from '../WizardImageCard';
 import { cn } from '@ryla/ui';
 import {
   INFLUENCER_VOICES,
   VIDEO_CONTENT_OPTIONS,
-} from '../../constants';
+} from '../../../constants';
 
 /**
  * Step 9: Advanced

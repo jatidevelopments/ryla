@@ -1,8 +1,8 @@
 'use client';
 
 import * as React from 'react';
-import { SFW_POSES, ADULT_POSES, POSE_CATEGORIES, type Pose } from '../../types';
-import { useGalleryFavorites } from '../../../../../lib/hooks/use-gallery-favorites';
+import { SFW_POSES, ADULT_POSES, POSE_CATEGORIES, type Pose } from '../../../types';
+import { useGalleryFavorites } from '../../../../../../lib/hooks/use-gallery-favorites';
 
 type PoseCategory = typeof POSE_CATEGORIES[number]['id'];
 

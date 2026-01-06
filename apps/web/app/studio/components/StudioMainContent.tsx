@@ -1,5 +1,6 @@
 import { FadeInUp } from '@ryla/ui';
-import type { StudioImage, ViewMode } from '../../../components/studio/studio-image-card';
+import type { StudioImage } from '../../../components/studio/studio-image-card';
+import type { ViewMode } from '../../../components/studio/studio-toolbar';
 import { StudioGallery } from '../../../components/studio';
 import { StudioDetailPanels } from './StudioDetailPanels';
 

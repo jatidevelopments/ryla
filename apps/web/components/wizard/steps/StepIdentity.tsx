@@ -8,7 +8,7 @@ import {
   ARCHETYPE_OPTIONS,
   PERSONALITY_TRAIT_OPTIONS,
 } from '@ryla/shared';
-import { WizardOptionCard } from './wizard-option-card';
+import { WizardOptionCard } from '../WizardOptionCard';
 
 /**
  * Step 5: Identity

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '@ryla/ui';
-import type { StudioMode, ContentType } from '../types';
+import type { StudioMode, ContentType } from '../../types';
 import { MODE_CONFIG, COLOR_CLASSES } from './constants';
 import { ModeButton, ContentTypeSelector, CreditsDisplay } from './components';
 

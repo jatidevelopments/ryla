@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import type { AspectRatio, AspectRatioOption } from '../types';
+import type { AspectRatio, AspectRatioOption } from '../../types';
 import { usePlatformFilter, usePickerPosition } from './hooks';
 import { PlatformFilter, AspectRatioList } from './components';
 

@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { WizardImageCard } from './wizard-image-card';
-import { INFLUENCER_SKIN_FEATURES } from '../../constants';
-import { getSkinFeatureImage } from '../../lib/utils/get-influencer-image';
+import { WizardImageCard } from '../WizardImageCard';
+import { INFLUENCER_SKIN_FEATURES } from '../../../constants';
+import { getSkinFeatureImage } from '../../../lib/utils/get-influencer-image';
 
 /**
  * Step 6: Skin Features

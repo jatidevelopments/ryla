@@ -2,9 +2,9 @@
 
 import * as React from 'react';
 import { cn } from '@ryla/ui';
-import { Tooltip } from '../../../../ui/tooltip';
+import { Tooltip } from '../../../../../ui/tooltip';
 import { MODE_CONFIG, COLOR_CLASSES } from '../constants';
-import type { StudioMode } from '../../types';
+import type { StudioMode } from '../../../types';
 
 interface ModeButtonProps {
   mode: StudioMode;

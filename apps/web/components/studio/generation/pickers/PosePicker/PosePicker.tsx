@@ -9,7 +9,7 @@ import {
   PosePickerGrid,
   PosePickerFooter,
 } from './components';
-import { useGalleryFavorites } from '../../../lib/hooks/use-gallery-favorites';
+import { useGalleryFavorites } from '../../../../../lib/hooks/use-gallery-favorites';
 
 interface PosePickerProps {
   selectedPoseId: string | null;

@@ -4,7 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { PageContainer, FadeInUp, RylaButton } from '@ryla/ui';
-import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
+import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 
 export default function PaymentErrorPage() {
   const searchParams = useSearchParams();

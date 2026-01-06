@@ -2,7 +2,7 @@
 
 import { Star, Edit2, Trash2 } from 'lucide-react';
 import { cn } from '@ryla/ui';
-import type { OutfitPreset } from '../../../../lib/api/outfit-presets';
+import type { OutfitPreset } from '../../../../../lib/api/outfit-presets';
 
 interface OutfitPresetsGridProps {
   presets: OutfitPreset[];

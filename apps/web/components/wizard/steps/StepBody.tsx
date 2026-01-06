@@ -3,12 +3,12 @@
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { BODY_TYPE_OPTIONS, BREAST_SIZE_OPTIONS } from '@ryla/shared';
-import { WizardOptionCard } from './wizard-option-card';
-import { WizardImageCard } from './wizard-image-card';
+import { WizardOptionCard } from '../WizardOptionCard';
+import { WizardImageCard } from '../WizardImageCard';
 import {
   INFLUENCER_ASS_SIZES,
   INFLUENCER_BREAST_TYPES,
-} from '../../constants';
+} from '../../../constants';
 
 /**
  * Step 5: Body Type

@@ -2,10 +2,10 @@
 
 import * as React from 'react';
 import { profilePictureSets } from '@ryla/business';
-import { ProfilePictureSetSelectorHeader } from './profile-picture-set-selector/header';
-import { SkipOption } from './profile-picture-set-selector/skip-option';
-import { ProfileSetCard } from './profile-picture-set-selector/profile-set-card';
-import { InfoNote } from './profile-picture-set-selector/info-note';
+import { ProfilePictureSetSelectorHeader } from './header';
+import { SkipOption } from './skip-option';
+import { ProfileSetCard } from './profile-set-card';
+import { InfoNote } from './info-note';
 
 interface ProfilePictureSetSelectorProps {
   selectedSetId: string | null;

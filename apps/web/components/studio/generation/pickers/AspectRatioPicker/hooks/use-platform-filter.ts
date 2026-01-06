@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type { PlatformId } from '@ryla/shared';
-import type { AspectRatioOption } from '../types';
+import type { AspectRatioOption } from '../../../types';
 
 const STORAGE_KEY = 'ryla-aspect-ratio-platform-filter';
 

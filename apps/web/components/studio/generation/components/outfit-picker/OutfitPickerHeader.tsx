@@ -1,7 +1,7 @@
 'use client';
 
 import { X, Star } from 'lucide-react';
-import type { OutfitPreset } from '../../../../lib/api/outfit-presets';
+import type { OutfitPreset } from '../../../../../lib/api/outfit-presets';
 
 interface OutfitPickerHeaderProps {
   presets: OutfitPreset[];

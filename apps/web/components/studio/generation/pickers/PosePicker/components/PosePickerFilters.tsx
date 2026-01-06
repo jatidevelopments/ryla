@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@ryla/ui';
-import { POSE_CATEGORIES } from '../../types';
+import { POSE_CATEGORIES } from '../../../types';
 
 type PoseCategory = typeof POSE_CATEGORIES[number]['id'];
 

@@ -2,8 +2,8 @@
 
 import * as React from 'react';
 import { cn } from '@ryla/ui';
-import { Tooltip } from '../../../../ui/tooltip';
-import type { ContentType } from '../../types';
+import { Tooltip } from '../../../../../ui/tooltip';
+import type { ContentType } from '../../../types';
 
 interface ContentTypeSelectorProps {
   contentType: ContentType;
