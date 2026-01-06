@@ -18,6 +18,7 @@ interface StudioDetailPanelProps {
   onDownload?: (image: StudioImage) => void;
   onRetry?: (image: StudioImage) => void;
   className?: string;
+  variant?: 'panel' | 'modal'; // 'panel' for desktop side panel, 'modal' for mobile bottom sheet
 }
 
 export function StudioDetailPanel({
@@ -28,6 +29,7 @@ export function StudioDetailPanel({
   onDownload,
   onRetry,
   className,
+  variant = 'panel',
 }: StudioDetailPanelProps) {
   const [copied, setCopied] = React.useState(false);
   const [copiedId, setCopiedId] = React.useState(false);
@@ -112,86 +114,12 @@ export function StudioDetailPanel({
     });
   };
 
-  if (!image) {
+  // Render the main content (shared between mobile and desktop)
+  const renderContent = () => {
+    if (!image) return null;
+
     return (
-      <div
-        className={cn(
-          'flex flex-col items-center justify-center border-l border-[var(--border-default)] bg-[var(--bg-elevated)] p-8 text-center',
-          className
-        )}
-      >
-        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--border-default)]">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            strokeWidth={1}
-            stroke="currentColor"
-            className="h-12 w-12 text-[var(--text-muted)]"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
-            />
-          </svg>
-        </div>
-        <p className="text-lg font-semibold text-[var(--text-primary)] mb-2">Select an image</p>
-        <p className="text-sm text-[var(--text-muted)] max-w-[200px]">
-          Click on any image to view details and edit options
-        </p>
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className={cn(
-        'flex flex-col border-l border-[var(--border-default)] bg-[var(--bg-elevated)] overflow-hidden',
-        className
-      )}
-    >
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-4 bg-[var(--bg-elevated)]">
-        <div className="flex items-center gap-3">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--purple-500)]/20">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
-              <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <h3 className="font-semibold text-[var(--text-primary)]">Image Details</h3>
-        </div>
-        <div className="flex items-center gap-2">
-          <Tooltip content="View image in full width">
-            <button
-              onClick={() => setShowLightbox(true)}
-              className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-            >
-              <ZoomIn className="h-5 w-5" />
-            </button>
-          </Tooltip>
-          <Tooltip content="Close detail panel">
-            <button
-              onClick={onClose}
-              className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
-            >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={2}
-              stroke="currentColor"
-              className="h-5 w-5"
-            >
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-          </Tooltip>
-        </div>
-      </div>
-
-      {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto">
+      <>
         {/* Image Preview */}
         <div 
           className="relative aspect-square w-full bg-[var(--bg-base)] cursor-pointer group"
@@ -792,6 +720,192 @@ export function StudioDetailPanel({
             )}
           </div>
         </div>
+      </>
+    );
+  };
+
+  // Mobile modal variant - bottom sheet
+  if (variant === 'modal') {
+    if (!image) return null;
+
+    return (
+      <>
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden"
+          onClick={onClose}
+        />
+        {/* Bottom Sheet */}
+        <div
+          className={cn(
+            'fixed bottom-0 left-0 right-0 z-50 flex flex-col',
+            'bg-[var(--bg-elevated)] rounded-t-3xl border-t border-[var(--border-default)]',
+            'max-h-[90vh] overflow-hidden',
+            'animate-in slide-in-from-bottom-full duration-300',
+            'lg:hidden',
+            className
+          )}
+        >
+          {/* Drag Handle */}
+          <div className="flex justify-center pt-3 pb-2">
+            <div className="h-1.5 w-12 rounded-full bg-white/20" />
+          </div>
+
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-4 bg-[var(--bg-elevated)]">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--purple-500)]/20">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
+                  <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <h3 className="font-semibold text-[var(--text-primary)]">Image Details</h3>
+            </div>
+            <div className="flex items-center gap-2">
+              <Tooltip content="View image in full width">
+                <button
+                  onClick={() => setShowLightbox(true)}
+                  className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] touch-target"
+                  aria-label="Zoom"
+                >
+                  <ZoomIn className="h-5 w-5" />
+                </button>
+              </Tooltip>
+              <Tooltip content="Close">
+                <button
+                  onClick={onClose}
+                  className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] touch-target"
+                  aria-label="Close"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </Tooltip>
+            </div>
+          </div>
+
+          {/* Scrollable Content */}
+          <div className="flex-1 overflow-y-auto">
+            {renderContent()}
+          </div>
+        </div>
+
+        {/* Lightbox */}
+        {showLightbox && image.imageUrl && (
+          <div
+            className="fixed inset-0 z-[60] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            onClick={() => setShowLightbox(false)}
+          >
+            {/* Close button */}
+            <button
+              onClick={() => setShowLightbox(false)}
+              className="absolute top-4 right-4 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white/80 transition-colors hover:bg-white/20 hover:text-white"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Image */}
+            <div
+              className="relative max-w-[90vw] max-h-[90vh]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="relative aspect-[3/4] h-[80vh]">
+                <Image
+                  src={image.imageUrl}
+                  alt={image.prompt || 'Generated image'}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  // Desktop panel variant
+  if (!image) {
+    return (
+      <div
+        className={cn(
+          'flex flex-col items-center justify-center border-l border-[var(--border-default)] bg-[var(--bg-elevated)] p-8 text-center',
+          className
+        )}
+      >
+        <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--border-default)]">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth={1}
+            stroke="currentColor"
+            className="h-12 w-12 text-[var(--text-muted)]"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"
+            />
+          </svg>
+        </div>
+        <p className="text-lg font-semibold text-[var(--text-primary)] mb-2">Select an image</p>
+        <p className="text-sm text-[var(--text-muted)] max-w-[200px]">
+          Click on any image to view details and edit options
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className={cn(
+        'flex flex-col border-l border-[var(--border-default)] bg-[var(--bg-elevated)] overflow-hidden',
+        className
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-[var(--border-default)] px-4 py-4 bg-[var(--bg-elevated)]">
+        <div className="flex items-center gap-3">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[var(--purple-500)]/20">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-[var(--purple-400)]">
+              <path fillRule="evenodd" d="M1 5.25A2.25 2.25 0 013.25 3h13.5A2.25 2.25 0 0119 5.25v9.5A2.25 2.25 0 0116.75 17H3.25A2.25 2.25 0 011 14.75v-9.5zm1.5 5.81v3.69c0 .414.336.75.75.75h13.5a.75.75 0 00.75-.75v-2.69l-2.22-2.219a.75.75 0 00-1.06 0l-1.91 1.909.47.47a.75.75 0 11-1.06 1.06L6.53 8.091a.75.75 0 00-1.06 0l-2.97 2.97zM12 7a1 1 0 11-2 0 1 1 0 012 0z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <h3 className="font-semibold text-[var(--text-primary)]">Image Details</h3>
+        </div>
+        <div className="flex items-center gap-2">
+          <Tooltip content="View image in full width">
+            <button
+              onClick={() => setShowLightbox(true)}
+              className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            >
+              <ZoomIn className="h-5 w-5" />
+            </button>
+          </Tooltip>
+          <Tooltip content="Close detail panel">
+            <button
+              onClick={onClose}
+              className="rounded-xl p-2 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+            >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="h-5 w-5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          </Tooltip>
+        </div>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto">
+        {renderContent()}
       </div>
 
       {/* Lightbox */}
@@ -828,4 +942,3 @@ export function StudioDetailPanel({
     </div>
   );
 }
-

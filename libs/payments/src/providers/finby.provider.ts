@@ -29,6 +29,9 @@ export class FinbyProvider implements PaymentProvider {
   private readonly webhookSecret?: string;
   private readonly baseUrl: string;
 
+  // OAuth token cache for REST API
+  private accessTokenCache?: { token: string; expiresAt: number };
+
   constructor(config: FinbyConfig) {
     this.apiVersion = config.apiVersion || (config.projectId && config.secretKey ? 'v3' : 'v1');
     
@@ -36,12 +39,56 @@ export class FinbyProvider implements PaymentProvider {
     this.projectId = config.projectId;
     this.secretKey = config.secretKey;
     
-    // API v1 credentials
+    // API v1 credentials (legacy - for direct API key auth)
     this.apiKey = config.apiKey;
     this.merchantId = config.merchantId;
     
     this.webhookSecret = config.webhookSecret;
-    this.baseUrl = config.baseUrl || (this.apiVersion === 'v3' ? 'https://amapi.finby.eu/mapi5' : 'https://api.finby.io');
+    // REST API uses aapi.finby.eu, popup API uses amapi.finby.eu
+    this.baseUrl = config.baseUrl || (this.apiVersion === 'v3' ? 'https://amapi.finby.eu/mapi5' : 'https://aapi.finby.eu');
+  }
+
+  /**
+   * Get OAuth access token for REST API (aapi.finby.eu)
+   * Uses ProjectID and SecretKey for authentication
+   * Based on: https://doc.finby.eu/aapi/#oauth-getting-access-token
+   */
+  private async getOAuthToken(): Promise<string> {
+    // Check cache (tokens expire in 30 minutes)
+    if (this.accessTokenCache && this.accessTokenCache.expiresAt > Date.now()) {
+      return this.accessTokenCache.token;
+    }
+
+    if (!this.projectId || !this.secretKey) {
+      throw new Error('Finby REST API requires projectId and secretKey for OAuth');
+    }
+
+    const credentials = Buffer.from(`${this.projectId}:${this.secretKey}`).toString('base64');
+
+    const response = await fetch('https://aapi.finby.eu/api/oauth2/token', {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${credentials}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: 'grant_type=client_credentials',
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      throw new Error(`Finby OAuth token error: ${error}`);
+    }
+
+    const data = (await response.json()) as { access_token: string; expires_in: number };
+    const expiresIn = (data.expires_in || 1799) * 1000; // Convert to milliseconds (default 30 min)
+    const expiresAt = Date.now() + expiresIn - 300000; // Refresh 5 min before expiry
+
+    this.accessTokenCache = {
+      token: data.access_token,
+      expiresAt,
+    };
+
+    return data.access_token;
   }
 
   // ===========================================================================
@@ -57,10 +104,17 @@ export class FinbyProvider implements PaymentProvider {
         params.mode === 'subscription';
       
       if (isSubscription) {
-        throw new Error(
-          'Subscriptions are not supported in Finby API v3. ' +
-          'Please use Finby API v1 (set apiVersion: "v1" and provide apiKey/merchantId) for subscriptions.'
-        );
+      // For subscriptions, use REST API (v1) with OAuth
+      // ProjectID/SecretKey can be used for OAuth authentication
+      if (this.projectId && this.secretKey) {
+        // Switch to REST API mode for subscriptions
+        return this.createCheckoutSessionV1(params);
+      }
+      
+      throw new Error(
+        'Subscriptions require Finby REST API. ' +
+        'Please provide projectId and secretKey for OAuth authentication, or use apiKey/merchantId for direct API access.'
+      );
       }
       
       return this.createCheckoutSessionV3(params);
@@ -79,8 +133,15 @@ export class FinbyProvider implements PaymentProvider {
       throw new Error('Finby API v3 requires projectId and secretKey');
     }
 
+    // Validate required parameters for Finby API v3
+    // Required: productId, amount, and email (per Finby API requirements)
     if (!params.productId || !params.amount || !params.email) {
       throw new Error('productId, amount, and email are required for Finby API v3');
+    }
+    
+    // Ensure productId is a valid number
+    if (typeof params.productId !== 'number' || isNaN(params.productId) || params.productId < 0) {
+      throw new Error('productId must be a valid non-negative number');
     }
 
     // Generate reference if not provided
@@ -146,27 +207,53 @@ export class FinbyProvider implements PaymentProvider {
   }
 
   /**
-   * Create checkout session using Finby API v1 (REST-based)
+   * Create checkout session using Finby REST API (aapi.finby.eu)
    * Supports both subscriptions and one-time payments
+   * Uses OAuth authentication with ProjectID/SecretKey
+   * Based on: https://doc.finby.eu/aapi
    */
   private async createCheckoutSessionV1(params: CheckoutSessionParams): Promise<CheckoutSession> {
-    if (!this.apiKey || !this.merchantId) {
-      throw new Error('Finby API v1 requires apiKey and merchantId');
+    // Use OAuth if ProjectID/SecretKey are available, otherwise fall back to apiKey/merchantId
+    let accessToken: string;
+    let useOAuth = false;
+
+    if (this.projectId && this.secretKey) {
+      // Use OAuth with ProjectID/SecretKey (preferred method)
+      accessToken = await this.getOAuthToken();
+      useOAuth = true;
+    } else if (this.apiKey && this.merchantId) {
+      // Fall back to direct API key (legacy)
+      accessToken = this.apiKey;
+    } else {
+      throw new Error('Finby REST API requires either (projectId + secretKey) or (apiKey + merchantId)');
     }
 
     // Determine if this is a subscription or one-time payment
-    // Check metadata flag or mode parameter (similar to Stripe)
     const isSubscription = 
       params.metadata?.isSubscription === 'true' ||
       params.mode === 'subscription' ||
       params.metadata?.subscription === 'true';
 
+    // Build request body based on Finby REST API documentation
     const requestBody: Record<string, any> = {
-      price_id: params.priceId,
-      customer_email: params.email,
-      success_url: params.successUrl,
-      cancel_url: params.cancelUrl,
-      metadata: {
+      MerchantIdentification: {
+        ProjectId: parseInt(this.projectId || '0', 10),
+      },
+      CustomerIdentification: {
+        Email: params.email,
+      },
+      PaymentRequest: {
+        Amount: params.amount ? (params.amount / 100).toFixed(2) : undefined, // Convert cents to decimal
+        Currency: params.currency || 'EUR',
+        Reference: params.reference || generateFinbyReference(),
+      },
+      ReturnUrls: {
+        SuccessUrl: params.successUrl,
+        CancelUrl: params.cancelUrl,
+        ErrorUrl: params.errorUrl,
+      },
+      NotificationUrl: params.notificationUrl,
+      Metadata: {
         user_id: params.userId,
         ...params.metadata,
       },
@@ -174,35 +261,92 @@ export class FinbyProvider implements PaymentProvider {
 
     // Add subscription-specific parameters if it's a subscription
     if (isSubscription) {
-      requestBody.subscription = true;
-      // Optional: Add trial period, billing cycle, etc. if provided in metadata
-      if (params.metadata?.trial_period_days) {
-        requestBody.trial_period_days = parseInt(params.metadata.trial_period_days, 10);
-      }
+      // For subscriptions, we may need to use a different endpoint or add subscription parameters
+      // Check Finby docs for subscription-specific fields
+      requestBody.Subscription = {
+        Recurring: true,
+        // Add billing cycle if provided
+        ...(params.metadata?.billing_cycle && { BillingCycle: params.metadata.billing_cycle }),
+      };
     }
 
-    const response = await fetch(`${this.baseUrl}/v1/checkout/sessions`, {
+    // Remove undefined fields
+    Object.keys(requestBody).forEach(key => {
+      if (requestBody[key] === undefined) {
+        delete requestBody[key];
+      }
+    });
+
+    // Use the payment initiation endpoint from Finby REST API
+    // Based on: https://doc.finby.eu/aapi
+    // Note: If subscriptions aren't supported natively, we'll handle as recurring one-time payments
+    const endpoint = `${this.baseUrl}/api/Payments/InitiatePayment`;
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${this.apiKey}`,
-        'X-Merchant-Id': this.merchantId,
+        Authorization: `Bearer ${accessToken}`,
+        ...(useOAuth ? {} : { 'X-Merchant-Id': this.merchantId! }),
       },
       body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`Finby checkout error: ${error}`);
+      const errorText = await response.text();
+      let errorMessage = `Finby checkout error: ${errorText}`;
+      
+      // If subscription endpoint doesn't exist, fall back to one-time payment
+      if (isSubscription && response.status === 404) {
+        console.warn('[Finby] Subscription endpoint not found, using one-time payment');
+        // Remove subscription-specific fields and retry as one-time payment
+        delete requestBody.Subscription;
+        const retryResponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(requestBody),
+        });
+        
+        if (!retryResponse.ok) {
+          throw new Error(`Finby payment error: ${await retryResponse.text()}`);
+        }
+        
+        const retryData = (await retryResponse.json()) as any;
+        return {
+          id: retryData.PaymentRequestId || params.reference || '',
+          url: retryData.CheckoutUrl || '',
+          provider: 'finby',
+          reference: params.reference || retryData.PaymentRequestId || '',
+          transactionId: retryData.PaymentRequestId,
+        };
+      }
+      
+      throw new Error(errorMessage);
     }
 
-    const data = (await response.json()) as { id: string; checkout_url: string; subscription_id?: string };
+    const data = (await response.json()) as { 
+      PaymentRequestId?: string; 
+      CheckoutUrl?: string; 
+      SubscriptionId?: string;
+      ResultInfo?: { ResultCode: number; AdditionalInfo?: string };
+    };
+
+    // Handle Finby response format
+    if (data.ResultInfo && data.ResultInfo.ResultCode !== 0) {
+      throw new Error(
+        `Finby payment error: ResultCode ${data.ResultInfo.ResultCode}. ${data.ResultInfo.AdditionalInfo || ''}`
+      );
+    }
 
     return {
-      id: data.id,
-      url: data.checkout_url,
+      id: data.PaymentRequestId || data.SubscriptionId || params.reference || '',
+      url: data.CheckoutUrl || '',
       provider: 'finby',
-      reference: data.subscription_id || data.id, // Use subscription_id if available
+      reference: params.reference || data.PaymentRequestId || data.SubscriptionId || '',
+      transactionId: data.PaymentRequestId || data.SubscriptionId,
     };
   }
 

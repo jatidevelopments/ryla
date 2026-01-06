@@ -373,6 +373,53 @@ export class AuthService {
   }
 
   /**
+   * Generate a long-lived dev token for MCP/development tools
+   * This creates a token that expires in 10 years instead of 1 hour
+   */
+  public async generateDevToken(
+    dto: LoginUserDto,
+    userAgent: string,
+    ip: string,
+  ): Promise<{ accessToken: string; user: Omit<User, 'password'> }> {
+    // Find user by email
+    const user = await this.usersRepository.findByEmail(dto.email);
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Verify password
+    const isPasswordValid = await bcrypt.compare(dto.password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    // Generate device ID
+    const deviceId = this.generateDeviceId(userAgent, ip);
+
+    // Create payload
+    const payload: IJwtPayload = {
+      userId: user.id,
+      email: user.email,
+      role: user.role || 'user',
+      deviceId,
+    };
+
+    // Generate long-lived dev token (10 years)
+    const devToken = await this.tokenService.generateDevToken(payload);
+
+    // Note: We don't save dev tokens to Redis cache since they're long-lived
+    // and meant for development tools, not regular user sessions
+
+    // Remove sensitive data
+    const { password: _, ...userWithoutPassword } = user;
+
+    return {
+      accessToken: devToken,
+      user: userWithoutPassword,
+    };
+  }
+
+  /**
    * Build auth response DTO
    */
   private buildAuthResponse(user: User, tokens: ITokenPair): AuthResponseDto {

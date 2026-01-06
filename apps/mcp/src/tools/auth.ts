@@ -63,6 +63,57 @@ Returns tokens that can be used for subsequent authenticated requests.`,
   });
 
   /**
+   * Get long-lived dev token (10-year expiration) for MCP/development tools
+   */
+  server.addTool({
+    name: 'ryla_auth_dev_token',
+    description: `Get a long-lived dev token that expires in 10 years instead of 1 hour.
+    
+Perfect for MCP servers and development tools that need persistent authentication.
+This token will not expire for 10 years, so you won't need to refresh it regularly.`,
+    parameters: z.object({
+      email: z.string().email().describe('User email address'),
+      password: z.string().min(1).describe('User password'),
+    }),
+    execute: async (args) => {
+      try {
+        const result = await apiCall<{
+          user: {
+            id: string;
+            email: string;
+            name: string | null;
+          };
+          accessToken: string;
+        }>('/auth/dev-token', {
+          method: 'POST',
+          body: JSON.stringify({
+            email: args.email,
+            password: args.password,
+          }),
+        });
+
+        return JSON.stringify(
+          {
+            success: true,
+            user: result.user,
+            accessToken: result.accessToken,
+            expiresIn: '10 years',
+            note: 'This token expires in 10 years - perfect for MCP configuration! Set RYLA_DEV_TOKEN to the accessToken value.',
+          },
+          null,
+          2
+        );
+      } catch (error) {
+        return JSON.stringify({
+          success: false,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          hint: 'Make sure the API server has been restarted to include the new dev-token endpoint',
+        });
+      }
+    },
+  });
+
+  /**
    * Register new user
    */
   server.addTool({

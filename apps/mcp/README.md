@@ -52,7 +52,8 @@ In Cursor, use the MCP tools:
 ### Authentication Tools (`ryla_auth_*`)
 | Tool | Description |
 |------|-------------|
-| `ryla_auth_login` | Login and get access/refresh tokens |
+| `ryla_auth_login` | Login and get access/refresh tokens (expires in 1 hour) |
+| `ryla_auth_dev_token` | **Get long-lived dev token (expires in 10 years)** - Perfect for MCP! |
 | `ryla_auth_register` | Register new test accounts |
 | `ryla_auth_refresh` | Refresh an access token |
 | `ryla_auth_check_email` | Check if email exists |

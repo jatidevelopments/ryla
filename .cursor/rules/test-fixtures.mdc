@@ -20,13 +20,25 @@ Created via MCP on 2026-01-03 for development and testing.
 | **Role** | `user` |
 | **Created** | `2026-01-03T22:37:46.530Z` |
 
-### Getting a Fresh Token
+### Getting a Token
 
+**For MCP/Development (Recommended - 10-year expiration):**
+```bash
+# Via curl - Long-lived dev token (expires in 10 years)
+curl -s -X POST http://localhost:3001/auth/dev-token \
+  -H "Content-Type: application/json" \
+  -d '{"email": "mcptest99@ryla.dev", "password": "TestPass123!"}' | jq -r '.accessToken'
+
+# Via MCP - Long-lived dev token
+ryla_auth_dev_token(email="mcptest99@ryla.dev", password="TestPass123!")
+```
+
+**Regular Token (1-hour expiration):**
 ```bash
 # Via curl
 curl -s -X POST http://localhost:3001/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email": "mcptest99@ryla.dev", "password": "TestPass123!"}' | jq '.tokens.accessToken'
+  -d '{"email": "mcptest99@ryla.dev", "password": "TestPass123!"}' | jq -r '.tokens.accessToken'
 
 # Via MCP
 ryla_auth_login(email="mcptest99@ryla.dev", password="TestPass123!")
@@ -107,14 +119,17 @@ Add to `.cursor/mcp.json`:
 }
 ```
 
-## Refresh Test Token
+## Token Management
 
-Tokens expire after 1 hour. To refresh:
+**Dev Token (Recommended for MCP):**
+- Use `ryla_auth_dev_token` or `/auth/dev-token` endpoint
+- Expires in **10 years** - perfect for MCP configuration
+- No need to refresh regularly
 
-```bash
-# Get new token via login
-ryla_auth_login(email="mcptest99@ryla.dev", password="TestPass123!")
-```
+**Regular Token:**
+- Use `ryla_auth_login` or `/auth/login` endpoint  
+- Expires after 1 hour
+- Use `ryla_auth_refresh` to get a new token
 
 ## Important Notes
 

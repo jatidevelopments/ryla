@@ -217,16 +217,40 @@ export function StudioGenerationBar({
   }, [selectedInfluencer]);
 
   // Sync persisted settings when they change externally
+  // Only update the specific field that changed to avoid clearing other selections
+  const persistedSettingsRef = React.useRef(persistedSettings);
   React.useEffect(() => {
-    setSettings(prev => ({
-      ...prev,
-      ...persistedSettings,
-      prompt: prev.prompt, // Keep current prompt
-      influencerId: prev.influencerId, // Keep current influencer
-      mode, // Sync mode
-      contentType, // Sync content type
-      objects: prev.objects, // Keep current objects
-    }));
+    // Find which field actually changed
+    const prev = persistedSettingsRef.current;
+    const changedFields: Partial<typeof persistedSettings> = {};
+    
+    if (prev.aspectRatio !== persistedSettings.aspectRatio) changedFields.aspectRatio = persistedSettings.aspectRatio;
+    if (prev.quality !== persistedSettings.quality) changedFields.quality = persistedSettings.quality;
+    if (prev.modelId !== persistedSettings.modelId) changedFields.modelId = persistedSettings.modelId;
+    if (prev.styleId !== persistedSettings.styleId) changedFields.styleId = persistedSettings.styleId;
+    if (prev.sceneId !== persistedSettings.sceneId) changedFields.sceneId = persistedSettings.sceneId;
+    if (prev.lightingId !== persistedSettings.lightingId) changedFields.lightingId = persistedSettings.lightingId;
+    if (prev.promptEnhance !== persistedSettings.promptEnhance) changedFields.promptEnhance = persistedSettings.promptEnhance;
+    if (prev.batchSize !== persistedSettings.batchSize) changedFields.batchSize = persistedSettings.batchSize;
+    if (prev.poseId !== persistedSettings.poseId) changedFields.poseId = persistedSettings.poseId;
+    if (prev.outfit !== persistedSettings.outfit) changedFields.outfit = persistedSettings.outfit;
+    
+    // Only update if something actually changed
+    if (Object.keys(changedFields).length > 0) {
+      setSettings(prev => ({
+        ...prev,
+        ...changedFields,
+        // Always preserve these fields
+        prompt: prev.prompt,
+        influencerId: prev.influencerId,
+        mode,
+        contentType,
+        objects: prev.objects,
+      }));
+    }
+    
+    // Update ref for next comparison
+    persistedSettingsRef.current = persistedSettings;
   }, [persistedSettings, mode, contentType]);
 
   // Local NSFW toggle state (separate from influencer-level nsfwEnabled)
@@ -407,10 +431,10 @@ export function StudioGenerationBar({
       <div className="flex items-center gap-3 px-5 py-4">
         {/* Upload Button / Selected Image in Editing Mode */}
         {selectedImage ? (
-          <div className="flex items-center gap-2">
+          <div className="flex flex-row items-center gap-2 flex-nowrap">
             {/* Main Selected Image */}
-            <div className="relative group">
-              <div className="relative h-11 w-11 rounded-xl overflow-hidden border-2 border-[var(--purple-500)] ring-1 ring-[var(--purple-500)]/50">
+            <div className="relative group flex items-center justify-center h-11">
+              <div className="relative h-11 w-11 rounded-xl overflow-hidden border-2 border-[var(--purple-500)] ring-1 ring-[var(--purple-500)]/50 flex-shrink-0">
                 <Image
                   src={selectedImage.thumbnailUrl || selectedImage.imageUrl}
                   alt="Selected image"
@@ -440,10 +464,10 @@ export function StudioGenerationBar({
 
             {/* Selected Objects (up to 3) */}
             {mode === 'editing' && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-row items-center gap-1.5 flex-nowrap">
                 {settings.objects.slice(0, 3).map((obj, index) => (
-                  <div key={obj.id} className="relative group">
-                    <div className="relative h-11 w-11 rounded-xl overflow-hidden border-2 border-[var(--purple-400)]/50">
+                  <div key={obj.id} className="relative group flex items-center justify-center h-11 flex-shrink-0">
+                    <div className="relative h-11 w-11 rounded-xl overflow-hidden border-2 border-[var(--purple-400)]/50 flex-shrink-0">
                       <Image
                         src={obj.thumbnailUrl || obj.imageUrl}
                         alt={obj.name || `Object ${index + 1}`}
@@ -473,7 +497,7 @@ export function StudioGenerationBar({
                   <Tooltip content="Add object to edit">
                     <button
                       onClick={() => setShowObjectPicker(true)}
-                      className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all border-2 border-dashed border-white/20"
+                      className="flex items-center justify-center h-11 w-11 rounded-xl bg-white/5 text-[var(--text-muted)] hover:text-[var(--text-primary)] hover:bg-white/10 transition-all border-2 border-dashed border-white/20 flex-shrink-0"
                     >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
                       <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
@@ -862,7 +886,7 @@ export function StudioGenerationBar({
                     'flex items-center gap-1.5 h-8 rounded-lg text-xs font-medium transition-all px-2',
                     settings.styleId || settings.sceneId || settings.lightingId
                       ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
-                      : 'bg-[var(--purple-500)]/15 text-[var(--text-primary)] hover:bg-[var(--purple-500)]/25'
+                      : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
                   )}
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5 text-[var(--purple-400)]">

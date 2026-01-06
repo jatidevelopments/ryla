@@ -139,6 +139,22 @@ export class AuthController {
     return { exists };
   }
 
+  @Post('dev-token')
+  @SkipAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ 
+    summary: 'Generate long-lived dev token for MCP/development tools',
+    description: 'Creates a token that expires in 10 years instead of 1 hour. Use this for MCP servers and development tools that need persistent authentication.'
+  })
+  public async generateDevToken(
+    @Body() dto: LoginUserDto,
+    @Req() req: Request,
+  ): Promise<{ accessToken: string; user: Omit<import('@ryla/data').User, 'password'> }> {
+    const userAgent = req.get('User-Agent') || '';
+    const ip = this.getClientIp(req);
+    return await this.authService.generateDevToken(dto, userAgent, ip);
+  }
+
   /**
    * Extract client IP from request
    */

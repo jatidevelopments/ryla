@@ -8,6 +8,7 @@ import { trpc } from '../../lib/trpc';
 import { ProtectedRoute } from '../../components/protected-route';
 import { CreditPackageCard } from '../../components/pricing';
 import { CREDIT_PACKAGES } from '../../constants/pricing';
+import { getAccessToken } from '../../lib/auth';
 
 function BuyCreditsContent() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -22,10 +23,16 @@ function BuyCreditsContent() {
   const handlePurchase = async (packageId: string) => {
     setIsProcessing(true);
     try {
+      const token = getAccessToken();
+      if (!token) {
+        throw new Error('You must be logged in to purchase credits');
+      }
+
       const response = await fetch('/api/finby/setup-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           type: 'credit',

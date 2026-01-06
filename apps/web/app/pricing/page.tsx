@@ -7,6 +7,7 @@ import { cn } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
 import { PlanCard } from '../../components/pricing';
 import { SUBSCRIPTION_PLANS } from '../../constants/pricing';
+import { getAccessToken } from '../../lib/auth';
 
 export default function PricingPage() {
   const utils = trpc.useUtils();
@@ -29,10 +30,16 @@ export default function PricingPage() {
     
     setIsProcessing(planId);
     try {
+      const token = getAccessToken();
+      if (!token) {
+        throw new Error('You must be logged in to subscribe');
+      }
+
       const response = await fetch('/api/finby/setup-payment', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify({
           type: 'subscription',

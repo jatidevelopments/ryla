@@ -97,6 +97,20 @@ export class TokenService {
     return secret;
   }
 
+  /**
+   * Generate a long-lived dev token (10 years) for MCP/development use
+   * This bypasses the normal expiration for development tools
+   */
+  public async generateDevToken(payload: IJwtPayload): Promise<string> {
+    // 10 years in seconds (315360000 seconds)
+    const tenYearsInSeconds = 10 * 365 * 24 * 60 * 60;
+    
+    return await this.jwtService.signAsync(payload, {
+      secret: this.jwtConfig.accessSecret,
+      expiresIn: tenYearsInSeconds,
+    });
+  }
+
   private getSecret(type: TokenType): string {
     let secret: string;
     switch (type) {

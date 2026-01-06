@@ -51,6 +51,8 @@ export async function POST(request: NextRequest) {
 
     if (body.type === 'subscription') {
       // Handle subscription purchase
+      // NOTE: Using API v3 for subscriptions (one-time monthly payment)
+      // We'll track subscription status ourselves and handle renewals
       if (!body.planId) {
         return NextResponse.json(
           { error: 'planId is required for subscription' },
@@ -66,13 +68,13 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Use Finby API v1 for subscriptions
-      const finbyApiKey = process.env.FINBY_API_KEY;
-      const finbyMerchantId = process.env.FINBY_MERCHANT_ID;
-      const finbyWebhookSecret = process.env.FINBY_WEBHOOK_SECRET;
+      // Use Finby REST API (aapi.finby.eu) with OAuth for subscriptions
+      // Uses ProjectID/SecretKey for OAuth authentication
+      const projectId = process.env.FINBY_PROJECT_ID;
+      const secretKey = process.env.FINBY_SECRET_KEY;
 
-      if (!finbyApiKey || !finbyMerchantId || !finbyWebhookSecret) {
-        console.error('Finby API v1 credentials not configured');
+      if (!projectId || !secretKey) {
+        console.error('Finby credentials not configured');
         return NextResponse.json(
           { error: 'Payment system not configured' },
           { status: 500 }
@@ -80,31 +82,33 @@ export async function POST(request: NextRequest) {
       }
 
       const finby = createPaymentProvider('finby', {
-        apiKey: finbyApiKey,
-        merchantId: finbyMerchantId,
-        webhookSecret: finbyWebhookSecret,
-        apiVersion: 'v1',
+        projectId,
+        secretKey,
+        apiVersion: 'v1', // Use REST API for subscriptions
+        baseUrl: 'https://aapi.finby.eu', // REST API endpoint from docs
       });
 
       const price = body.isYearly ? plan.priceYearly : plan.priceMonthly;
-      const priceId = body.isYearly 
-        ? plan.finbyProductIdYearly || `price_${plan.id}_yearly`
-        : plan.finbyProductIdMonthly || `price_${plan.id}_monthly`;
-
       const reference = generateSubscriptionReference(ctx.user.id, body.planId);
 
       const session = await finby.createCheckoutSession({
-        priceId,
+        priceId: body.isYearly 
+          ? plan.finbyProductIdYearly || `price_${plan.id}_yearly`
+          : plan.finbyProductIdMonthly || `price_${plan.id}_monthly`,
         userId: ctx.user.id,
         email: ctx.user.email,
-        mode: 'subscription',
+        amount: Math.round(price * 100), // Convert to cents
+        currency: 'EUR',
+        mode: 'subscription', // Mark as subscription
         successUrl: `${baseUrl}/payment/success?type=subscription&reference=${reference}`,
         cancelUrl: `${baseUrl}/pricing`,
+        errorUrl: `${baseUrl}/payment/error?reference=${reference}`,
         notificationUrl: `${baseUrl}/api/finby/webhook`,
         reference,
         metadata: {
           planId: body.planId,
           isYearly: body.isYearly ? 'true' : 'false',
+          isSubscription: 'true',
         },
       });
 
@@ -151,8 +155,27 @@ export async function POST(request: NextRequest) {
 
       const reference = generateCreditReference(ctx.user.id, body.packageId);
 
+      // Finby API v3 requires productId (numeric)
+      // Since finbyProductId is stored as a string identifier (e.g., 'credits_500'),
+      // we need to map it to a numeric product ID.
+      // For now, we'll use a simple hash or index-based mapping.
+      // TODO: Configure actual numeric product IDs in Finby merchant portal
+      // and store them in the package definition
+      const productIdMap: Record<string, number> = {
+        'credits_500': 1,
+        'credits_1500': 2,
+        'credits_3500': 3,
+        'credits_7500': 4,
+        'credits_15000': 5,
+      };
+      const productId = productIdMap[package_.finbyProductId || ''] || 0;
+      
+      if (productId === 0) {
+        console.warn(`[Finby] No productId mapping found for package ${package_.id}, using 0`);
+      }
+      
       const session = await finby.createCheckoutSession({
-        productId: parseInt(package_.finbyProductId || '0') || 0,
+        productId, // Required for Finby API v3
         amount: Math.round(package_.price * 100), // Convert to cents
         email: ctx.user.email,
         currency: 'EUR',

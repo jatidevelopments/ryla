@@ -6,7 +6,7 @@ import { StructuredData } from '../components/seo/StructuredData';
 import { ConsoleLogBufferInit } from '../components/console-log-buffer-init';
 import { TRPCProvider } from '../lib/trpc';
 import { AuthProvider } from '../lib/auth-context';
-import { MobileBlocker } from '../components/mobile-blocker';
+// import { MobileBlocker } from '../components/mobile-blocker'; // Disabled for mobile development
 
 // DM Sans - Clean, modern, geometric sans-serif (unified with landing)
 const dmSans = DM_Sans({
@@ -118,9 +118,10 @@ export default function RootLayout({
         <ConsoleLogBufferInit />
         <TRPCProvider>
           <AuthProvider>
-            <MobileBlocker>
+            {/* MobileBlocker disabled for mobile responsiveness development */}
+            {/* <MobileBlocker> */}
               <AppShell>{children}</AppShell>
-            </MobileBlocker>
+            {/* </MobileBlocker> */}
           </AuthProvider>
         </TRPCProvider>
       </body>

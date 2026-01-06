@@ -496,9 +496,18 @@ export const characterRouter = router({
     .input(
       z.object({
         consent: z.boolean(),
-        instagram: z.string().optional(),
-        tiktok: z.string().optional(),
-        description: z.string().max(500).optional(),
+        instagram: z.preprocess(
+          (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+          z.string().trim().optional()
+        ),
+        tiktok: z.preprocess(
+          (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+          z.string().trim().optional()
+        ),
+        description: z.preprocess(
+          (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+          z.string().trim().max(500).optional()
+        ),
       })
     )
     .mutation(async ({ ctx, input }) => {

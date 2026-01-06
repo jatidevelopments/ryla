@@ -987,7 +987,7 @@ function StudioContent() {
           </FadeInUp>
         </div>
 
-        {/* Right Panel - Detail View */}
+        {/* Right Panel - Detail View (Desktop) */}
         {showPanel && selectedImage && (
           <StudioDetailPanel
             image={selectedImage}
@@ -1000,6 +1000,24 @@ function StudioContent() {
             onDownload={handleDownload}
             onRetry={handleRetry}
             className="hidden w-[380px] flex-shrink-0 lg:flex"
+            variant="panel"
+          />
+        )}
+
+        {/* Mobile Modal - Detail View */}
+        {showPanel && selectedImage && (
+          <StudioDetailPanel
+            image={selectedImage}
+            onClose={() => {
+              setSelectedImage(null);
+              setShowPanel(false);
+            }}
+            onLike={handleLike}
+            onDelete={handleDelete}
+            onDownload={handleDownload}
+            onRetry={handleRetry}
+            className="lg:hidden"
+            variant="modal"
           />
         )}
       </div>
