@@ -11,7 +11,7 @@
  * - Environments (7 options)
  *
  * Usage:
- *   npx tsx scripts/seed-templates.ts [--dry-run] [--category=<category>]
+ *   npx tsx scripts/utils/seed-templates.ts [--dry-run] [--category=<category>]
  *
  * Options:
  *   --dry-run           Preview without inserting to database

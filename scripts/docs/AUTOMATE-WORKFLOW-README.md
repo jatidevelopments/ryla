@@ -20,7 +20,7 @@ Keine zusätzliche Installation erforderlich. Das Tool nutzt die vorhandene Infr
    ```
 
 2. **Models installiert** - Die erforderlichen Models müssen auf dem Pod vorhanden sein
-   - Siehe `scripts/download-comfyui-models.py` für Model-Download
+   - Siehe `scripts/models/download-comfyui-models.py` für Model-Download
    - Oder `docs/ops/runpod/MANUAL-MODEL-SETUP.md` für manuelle Installation
 
 3. **Custom Nodes installiert** (falls erforderlich)
@@ -161,7 +161,7 @@ pnpm automate:workflow \
 
 ### "Fehlende Models"
 
-- Installiere fehlende Models mit `scripts/download-comfyui-models.py`
+- Installiere fehlende Models mit `scripts/models/download-comfyui-models.py`
 - Oder manuell: `docs/ops/runpod/MANUAL-MODEL-SETUP.md`
 
 ### "Fehlende Nodes"

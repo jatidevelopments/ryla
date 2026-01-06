@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { AppShell } from '../components/app-shell';
+import { AppShell } from "@/components/app-shell"';
 import { StructuredData } from '../components/seo/StructuredData';
-import { ConsoleLogBufferInit } from '../components/console-log-buffer-init';
+import { ConsoleLogBufferInit } from "@/components/bug-report"';
 import { TRPCProvider } from '../lib/trpc';
 import { AuthProvider } from '../lib/auth-context';
 // import { MobileBlocker } from '../components/mobile-blocker'; // Disabled for mobile development

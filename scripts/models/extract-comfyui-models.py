@@ -6,7 +6,7 @@ This script extracts the complete list of all available models from ComfyUI Mana
 on the RunPod server and saves them to JSON and CSV files.
 
 Usage:
-    python scripts/extract-comfyui-models.py [--url URL] [--output-dir DIR] [--headless]
+    python scripts/models/extract-comfyui-models.py [--url URL] [--output-dir DIR] [--headless]
 
 Requirements:
     pip install playwright beautifulsoup4 pandas

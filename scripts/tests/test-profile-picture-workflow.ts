@@ -6,7 +6,7 @@
  * This helps debug workflow issues like the 'latent_shapes' error.
  * 
  * Usage:
- *   pnpm tsx scripts/test-profile-picture-workflow.ts
+ *   pnpm tsx scripts/tests/test-profile-picture-workflow.ts
  * 
  * Environment Variables:
  *   COMFYUI_POD_URL - ComfyUI pod URL (required)

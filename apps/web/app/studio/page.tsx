@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { FadeInUp } from '@ryla/ui';
-import { ProtectedRoute } from '../../components/protected-route';
+import { ProtectedRoute } from "@/components/auth"';
 import { StudioHeader, StudioToolbar } from '../../components/studio';
 import { StudioGenerationBar } from '../../components/studio/generation';
 import { useTutorial } from '@ryla/ui';

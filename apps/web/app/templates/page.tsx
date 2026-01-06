@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { PageContainer, FadeInUp } from '@ryla/ui';
-import { ProtectedRoute } from '../../components/protected-route';
+import { ProtectedRoute } from "@/components/auth"';
 import { TemplateSearch } from '../../components/studio/templates/template-search';
 import { TemplateGrid } from '../../components/studio/templates/template-grid';
 import { TemplateDetailModal } from '../../components/studio/templates/template-detail-modal';

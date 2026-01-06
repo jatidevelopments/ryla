@@ -2,9 +2,9 @@
 
 import { notFound } from 'next/navigation';
 import { PageContainer } from '@ryla/ui';
-import { InfluencerProfile } from '../../../components/influencer-profile';
-import { ProtectedRoute } from '../../../components/protected-route';
-import { ProfilePictureGenerationIndicator } from '../../../components/profile-picture-generation-indicator';
+import { InfluencerProfile } from "@/components/influencer"';
+import { ProtectedRoute } from "@/components/auth"';
+import { ProfilePictureGenerationIndicator } from "@/components/profile-pictures"';
 import { useInfluencerData } from './hooks/useInfluencerData';
 import { useInfluencerImages } from './hooks/useInfluencerImages';
 import { InfluencerTabs } from './components/InfluencerTabs';

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Manual test script for RunPod endpoints
-# Usage: ./scripts/test-runpod-endpoints-manual.sh YOUR_API_KEY
+# Usage: ./scripts/tests/test-runpod-endpoints-manual.sh YOUR_API_KEY
 
 set -e
 

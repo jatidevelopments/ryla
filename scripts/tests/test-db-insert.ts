@@ -2,7 +2,7 @@
 /**
  * Test script to verify database image insertion works
  * 
- * Usage: npx ts-node scripts/test-db-insert.ts
+ * Usage: npx ts-node scripts/tests/test-db-insert.ts
  */
 
 import 'dotenv/config';

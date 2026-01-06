@@ -5,7 +5,7 @@ import { PageContainer } from '@ryla/ui';
 import { capture } from '@ryla/analytics';
 import type { AIInfluencer } from '@ryla/shared';
 import { useInfluencerSettings } from './influencer-settings/hooks/use-influencer-settings';
-import { InfluencerSettingsHeader } from './influencer-settings/components/influencer-settings-header';
+import { InfluencerSettingsHeader } from './components/influencer-settings-header';
 import { NSFWToggleSection } from './influencer-settings/components/nsfw-toggle-section';
 import { NameField } from './influencer-settings/components/name-field';
 import { BioField } from './influencer-settings/components/bio-field';

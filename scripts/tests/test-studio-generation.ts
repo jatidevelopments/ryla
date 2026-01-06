@@ -2,7 +2,7 @@
 /**
  * Test script for debugging studio image generation
  * 
- * Usage: npx ts-node scripts/test-studio-generation.ts
+ * Usage: npx ts-node scripts/tests/test-studio-generation.ts
  */
 
 const API_BASE = process.env.API_URL || 'http://localhost:3000';

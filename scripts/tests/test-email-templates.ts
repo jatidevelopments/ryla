@@ -3,7 +3,7 @@
  * Test script to send all email templates to a test email address
  * 
  * Usage:
- *   tsx scripts/test-email-templates.ts
+ *   tsx scripts/tests/test-email-templates.ts
  * 
  * Make sure RESEND_API_KEY is set in your .env.local or .env file.
  */

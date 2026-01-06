@@ -6,7 +6,7 @@
  * on the RunPod server and saves them to JSON and CSV files.
  * 
  * Usage:
- *   pnpm tsx scripts/extract-comfyui-models-playwright.ts [--url URL] [--output-dir DIR] [--headless]
+ *   pnpm tsx scripts/models/extract-comfyui-models-playwright.ts [--url URL] [--output-dir DIR] [--headless]
  * 
  * Requirements:
  *   pnpm add -D playwright @types/node tsx

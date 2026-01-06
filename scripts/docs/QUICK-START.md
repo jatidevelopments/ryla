@@ -12,7 +12,7 @@
    pip install requests tqdm
    
    # Download models (auto-detects ComfyUI)
-   python scripts/download-comfyui-models.py
+   python scripts/models/download-comfyui-models.py
    ```
 
 That's it! The script will:

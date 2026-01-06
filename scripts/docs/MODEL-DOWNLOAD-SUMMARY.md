@@ -2,24 +2,24 @@
 
 ## ✅ Created Files
 
-1. **`scripts/download-comfyui-models.py`** - Main Python download script
+1. **`scripts/models/download-comfyui-models.py`** - Main Python download script
    - Auto-detects ComfyUI installation
    - Verifies URLs before downloading
    - Progress bars with file sizes
    - Retry logic with exponential backoff
    - Size verification
 
-2. **`scripts/requirements.txt`** - Python dependencies
+2. **`scripts/docs/requirements.txt`** - Python dependencies
    - `requests>=2.31.0`
    - `tqdm>=4.66.0`
 
-3. **`scripts/README.md`** - Complete documentation
+3. **`scripts/docs/README.md`** - Complete documentation
    - Usage instructions
    - Model list
    - Troubleshooting
    - Examples
 
-4. **`scripts/QUICK-START.md`** - Quick reference guide
+4. **`scripts/docs/QUICK-START.md`** - Quick reference guide
    - Fastest way to get started
    - Essential commands only
 
@@ -72,7 +72,7 @@ All URLs have been verified against HuggingFace repositories:
 
 3. **Run script**:
    ```bash
-   python scripts/download-comfyui-models.py
+   python scripts/models/download-comfyui-models.py
    ```
 
 ### From JupyterLab
@@ -82,7 +82,7 @@ All URLs have been verified against HuggingFace repositories:
 3. Run:
    ```bash
    pip install requests tqdm
-   python scripts/download-comfyui-models.py
+   python scripts/models/download-comfyui-models.py
    ```
 
 ### From SSH

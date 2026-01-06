@@ -8,8 +8,8 @@
 # 3. Can optionally install the nodes (requires SSH access)
 #
 # Usage:
-#   ./scripts/check-install-instantid.sh
-#   ./scripts/check-install-instantid.sh --install  # Install if missing (requires SSH)
+#   ./scripts/setup/check-install-instantid.sh
+#   ./scripts/setup/check-install-instantid.sh --install  # Install if missing (requires SSH)
 #
 
 set -e

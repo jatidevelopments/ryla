@@ -6,12 +6,12 @@
 
 ```bash
 # Add all script files
-git add scripts/download-comfyui-models.py
-git add scripts/requirements.txt
-git add scripts/README.md
-git add scripts/QUICK-START.md
-git add scripts/MODEL-DOWNLOAD-SUMMARY.md
-git add scripts/comfyui-model-downloader.zip
+git add scripts/models/download-comfyui-models.py
+git add scripts/docs/requirements.txt
+git add scripts/docs/README.md
+git add scripts/docs/QUICK-START.md
+git add scripts/docs/MODEL-DOWNLOAD-SUMMARY.md
+git add scripts/docs/comfyui-model-downloader.zip
 
 # Or add all at once
 git add scripts/
@@ -41,8 +41,8 @@ cd RYLA
 git pull
 
 # Install and run
-pip install -r scripts/requirements.txt
-python scripts/download-comfyui-models.py
+pip install -r scripts/docs/requirements.txt
+python scripts/models/download-comfyui-models.py
 ```
 
 **Via SSH:**
@@ -50,8 +50,8 @@ python scripts/download-comfyui-models.py
 # Same as above
 git clone <your-repo-url>
 cd RYLA
-pip install -r scripts/requirements.txt
-python scripts/download-comfyui-models.py
+pip install -r scripts/docs/requirements.txt
+python scripts/models/download-comfyui-models.py
 ```
 
 ## Option 2: Download Zip Directly
@@ -102,7 +102,7 @@ If you commit to GitHub, you can download individual files directly:
 
 ```bash
 # Download script
-wget https://raw.githubusercontent.com/<your-username>/<repo>/main/scripts/download-comfyui-models.py
+wget https://raw.githubusercontent.com/<your-username>/<repo>/main/scripts/models/download-comfyui-models.py
 
 # Download requirements
 wget https://raw.githubusercontent.com/<your-username>/<repo>/main/scripts/requirements.txt
@@ -146,7 +146,7 @@ pip install -r requirements.txt
 python download-comfyui-models.py
 
 # Option C: Download individual files
-wget https://raw.githubusercontent.com/<your-username>/<repo>/main/scripts/download-comfyui-models.py
+wget https://raw.githubusercontent.com/<your-username>/<repo>/main/scripts/models/download-comfyui-models.py
 wget https://raw.githubusercontent.com/<your-username>/<repo>/main/scripts/requirements.txt
 chmod +x download-comfyui-models.py
 pip install -r requirements.txt

@@ -3,7 +3,7 @@
  * Test RunPod Serverless Endpoints
  * 
  * Usage:
- *   pnpm tsx scripts/test-runpod-endpoints.ts [flux|z-image|both]
+ *   pnpm tsx scripts/tests/test-runpod-endpoints.ts [flux|z-image|both]
  * 
  * Requires:
  *   - RUNPOD_API_KEY in environment or .env.local
