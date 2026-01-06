@@ -5,7 +5,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useInfluencer, useInfluencerStore } from '@ryla/business';
 import { PageContainer } from '@ryla/ui';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
-import { InfluencerSettingsContent } from '../../../../components/influencer-settings';
+import { InfluencerSettingsContent } from '../../../../components/influencer-settings/InfluencerSettings';
 import { trpc } from '../../../../lib/trpc';
 
 export default function InfluencerSettingsPage() {

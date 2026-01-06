@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { AppShell } from '../../components/app-shell';
+import { AppShell } from '../../components/app-shell/AppShell';
 import { StructuredData } from '../../components/seo/StructuredData';
 import { ConsoleLogBufferInit } from '../../components/bug-report/ConsoleLogBufferInit';
 import { TRPCProvider } from '../lib/trpc';

@@ -174,7 +174,7 @@ export function useAuthFlow() {
 
       // Validate password strength
       const { isPasswordValid } = await import(
-        '../../../components/password-strength'
+        '../../../components/auth/PasswordStrength'
       );
       if (!isPasswordValid(registerData.password)) {
         setSubmitError(
