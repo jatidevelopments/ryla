@@ -1,6 +1,6 @@
 'use client';
 
-import { NotificationItem } from './notification-item';
+import { NotificationItem } from './NotificationItem';
 
 interface Notification {
   id: string;

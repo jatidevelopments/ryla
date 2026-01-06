@@ -1,7 +1,7 @@
 'use client';
 
-import { NotificationsHeader } from './notifications-header';
-import { NotificationsList } from './notifications-list';
+import { NotificationsHeader } from './NotificationsHeader';
+import { NotificationsList } from './NotificationsList';
 
 interface Notification {
   id: string;

@@ -3,8 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { capture } from '@ryla/analytics';
 import { useNotifications } from '../../lib/hooks/use-notifications';
-import { ClockIcon } from './clock-icon';
-import { NotificationsDropdown } from './notifications-dropdown';
+import { ClockIcon } from './ClockIcon';
+import { NotificationsDropdown } from './NotificationsDropdown';
 
 export function NotificationsMenu() {
   const { items, unreadCount, isLoading, markAllRead, markRead } =
