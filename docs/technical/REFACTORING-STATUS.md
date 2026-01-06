@@ -224,6 +224,13 @@
 - ✅ Maintained backward compatibility with existing flat structure
 - ✅ Added comprehensive JSDoc documentation
 
+**Studio Handlers Refactoring:**
+- ✅ Extracted `useImageActions` hook for image-related actions (like, delete, download)
+- ✅ Extracted `useGenerationActions` hook for generation actions (generate, retry)
+- ✅ Extracted `useUploadActions` hook for upload functionality
+- ✅ Main hook reduced from 375 lines → **128 lines** (66% reduction)
+- ✅ Better separation of concerns and reusability
+
 ---
 
 ## 🎯 Next Steps (Optional)
