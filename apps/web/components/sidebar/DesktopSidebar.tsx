@@ -16,7 +16,7 @@ import { BugReportModal } from '../bug-report';
 import { BugIcon } from './sidebar-icons';
 import { menuItems, SidebarNavigation } from './sidebar-navigation';
 import { SidebarHeader } from './sidebar-header';
-import { SidebarFooter } from './sidebar/sidebar-footer';
+import { SidebarFooter } from './sidebar-footer';
 
 export function DesktopSidebar() {
   const pathname = usePathname();
