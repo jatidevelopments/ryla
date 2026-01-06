@@ -12,10 +12,10 @@ import {
 import { cn } from '@ryla/ui';
 import { useSubscription } from '../../lib/hooks';
 import { useAuth } from '../../lib/auth-context';
-import { BugReportModal } from './bug-report';
-import { BugIcon } from './sidebar/sidebar-icons';
-import { menuItems, SidebarNavigation } from './sidebar/sidebar-navigation';
-import { SidebarHeader } from './sidebar/sidebar-header';
+import { BugReportModal } from '../bug-report';
+import { BugIcon } from './sidebar-icons';
+import { menuItems, SidebarNavigation } from './sidebar-navigation';
+import { SidebarHeader } from './sidebar-header';
 import { SidebarFooter } from './sidebar/sidebar-footer';
 
 export function DesktopSidebar() {
