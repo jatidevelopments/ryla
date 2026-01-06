@@ -2,7 +2,7 @@
 
 import { notFound } from 'next/navigation';
 import { PageContainer } from '@ryla/ui';
-import { InfluencerProfile } from '../components/influencer';
+import { InfluencerProfile } from '../components/influencer/InfluencerCard';
 import { ProtectedRoute } from '../components/auth';
 import { ProfilePictureGenerationIndicator } from '../components/profile-pictures';
 import { useInfluencerData } from './hooks/useInfluencerData';
