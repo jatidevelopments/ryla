@@ -1,10 +1,10 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import type { AspectRatio, AspectRatioOption } from '../../types';
-import { usePlatformFilter, usePickerPosition } from './hooks';
+import { usePlatformFilter } from './hooks';
 import { PlatformFilter, AspectRatioList } from './components';
+import { PickerDrawer } from '../PickerDrawer';
 
 interface AspectRatioPickerProps {
   ratios: AspectRatioOption[];
@@ -29,67 +29,57 @@ export function AspectRatioPicker({
   onClose,
   anchorRef,
 }: AspectRatioPickerProps) {
-  const ref = React.useRef<HTMLDivElement>(null);
-
   // Use extracted hooks
-  const { allPlatforms, selectedPlatforms, filteredRatios, togglePlatform, clearFilter } =
-    usePlatformFilter({ ratios });
-  const { position, mounted } = usePickerPosition({ anchorRef, placement });
+  const {
+    allPlatforms,
+    selectedPlatforms,
+    filteredRatios,
+    togglePlatform,
+    clearFilter,
+  } = usePlatformFilter({ ratios });
 
-  // Click outside handler
-  React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClose();
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [onClose]);
-
-  if (!mounted) return null;
-
-  const content = (
-    <div
-      ref={ref}
-      style={{
-        position: 'fixed',
-        top: position.top,
-        left: position.left,
-        transform: placement === 'top' ? 'translateY(-100%)' : undefined,
-      }}
-      className="w-80 rounded-xl border border-white/10 bg-[#1a1a1d] p-2 shadow-xl z-[9999]"
+  return (
+    <PickerDrawer
+      isOpen={true}
+      onClose={onClose}
+      anchorRef={anchorRef}
+      desktopPosition={placement}
+      title="Aspect Ratio"
+      className="md:w-80"
     >
-      <div className="mb-2 px-2">
-        <div className="mb-2 text-xs font-medium text-white/50 uppercase tracking-wider">
-          Aspect ratio
-        </div>
+      <div className="p-3">
         {/* Platform filter */}
-        <PlatformFilter
-          allPlatforms={allPlatforms}
-          selectedPlatforms={selectedPlatforms}
-          onTogglePlatform={togglePlatform}
-          onClearFilter={clearFilter}
-        />
-      </div>
-
-      {/* Aspect ratio list */}
-      {filteredRatios.length === 0 && selectedPlatforms.length > 0 ? (
-        <div className="px-3 py-4 text-center text-sm text-white/40">
-          No aspect ratios support the selected platform(s)
+        <div className="mb-4">
+          <label className="text-[10px] font-bold text-white/30 uppercase tracking-[0.1em] mb-3 block">
+            Filter by platform
+          </label>
+          <PlatformFilter
+            allPlatforms={allPlatforms}
+            selectedPlatforms={selectedPlatforms}
+            onTogglePlatform={togglePlatform}
+            onClearFilter={clearFilter}
+          />
         </div>
-      ) : (
-        <AspectRatioList
-          ratios={filteredRatios}
-          selectedRatio={selectedRatio}
-          selectedRatios={selectedRatios}
-          multiple={multiple}
-          onSelect={onSelect}
-          onSelectMultiple={onSelectMultiple}
-        />
-      )}
-    </div>
-  );
 
-  return createPortal(content, document.body);
+        {/* Aspect ratio list */}
+        {filteredRatios.length === 0 && selectedPlatforms.length > 0 ? (
+          <div className="px-3 py-6 text-center text-sm text-white/40">
+            No aspect ratios support the selected platforms
+          </div>
+        ) : (
+          <AspectRatioList
+            ratios={filteredRatios}
+            selectedRatio={selectedRatio}
+            selectedRatios={selectedRatios}
+            multiple={multiple}
+            onSelect={(ratio) => {
+              onSelect(ratio);
+              if (!multiple) onClose();
+            }}
+            onSelectMultiple={onSelectMultiple}
+          />
+        )}
+      </div>
+    </PickerDrawer>
+  );
 }

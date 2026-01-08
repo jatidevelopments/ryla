@@ -21,7 +21,7 @@ export function PreComposedOutfitCard({
   onToggleFavorite,
 }: PreComposedOutfitCardProps) {
   return (
-    <div>
+    <>
       <button
         onClick={onSelect}
         className={cn(
@@ -132,7 +132,6 @@ export function PreComposedOutfitCard({
           </svg>
         </button>
       </button>
-    </div>
+    </>
   );
 }
-

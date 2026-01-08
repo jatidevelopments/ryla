@@ -11,18 +11,18 @@ interface GalleryEmptyStateProps {
 
 export function GalleryEmptyState({ message, action }: GalleryEmptyStateProps) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+    <div className="flex flex-col items-center justify-center py-8 md:py-16 px-4 text-center">
       {/* Empty state illustration */}
-      <div className="relative mb-6">
-        <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 rounded-2xl blur-xl" />
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-default)]">
-          <ImageIcon className="h-8 w-8 text-[var(--text-muted)]" />
+      <div className="relative mb-4 md:mb-6">
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 rounded-xl md:rounded-2xl blur-lg md:blur-xl" />
+        <div className="relative flex h-16 w-16 md:h-20 md:w-20 items-center justify-center rounded-xl md:rounded-2xl bg-[var(--bg-subtle)] border border-[var(--border-default)]">
+          <ImageIcon className="h-6 w-6 md:h-8 md:w-8 text-[var(--text-muted)]" />
         </div>
       </div>
-      <h3 className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+      <h3 className="text-base md:text-lg font-semibold text-[var(--text-primary)] mb-1 md:mb-2">
         {message}
       </h3>
-      <p className="text-sm text-[var(--text-muted)] max-w-sm mb-6">
+      <p className="text-xs md:text-sm text-[var(--text-muted)] max-w-[200px] md:max-w-sm mb-4 md:mb-6">
         Generate images to build your AI influencer&apos;s gallery
       </p>
       {action && (
@@ -37,4 +37,3 @@ export function GalleryEmptyState({ message, action }: GalleryEmptyStateProps) {
     </div>
   );
 }
-

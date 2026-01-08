@@ -7,7 +7,6 @@ import {
   useInfluencerTabs,
   InfluencerDropdown,
   StudioSearch,
-  useInfluencerDropdown,
   type InfluencerTab,
 } from './header';
 
@@ -34,16 +33,8 @@ export function StudioHeader({
   const buttonRef = React.useRef<HTMLButtonElement>(null);
 
   // Calculate visible and hidden influencers
-  const { visibleInfluencers, hiddenInfluencers } = useInfluencerTabs(
-    influencers
-  );
-
-  // Use dropdown hook for positioning and click-outside detection
-  const { position, mounted, dropdownRef } = useInfluencerDropdown({
-    showDropdown: showMoreDropdown,
-    buttonRef,
-    onClose: () => setShowMoreDropdown(false),
-  });
+  const { visibleInfluencers, hiddenInfluencers } =
+    useInfluencerTabs(influencers);
 
   return (
     <div
@@ -53,23 +44,25 @@ export function StudioHeader({
       )}
     >
       {/* Top Navigation Tabs */}
-      <div className="flex items-center gap-4 px-4 py-3">
-        {/* Left - Main tabs */}
-        <InfluencerTabsDisplay
-          visibleInfluencers={visibleInfluencers}
-          selectedInfluencerId={selectedInfluencerId}
-          onSelectInfluencer={onSelectInfluencer}
-          totalCount={totalCount}
-          onShowMore={
-            hiddenInfluencers.length > 0
-              ? () => setShowMoreDropdown(!showMoreDropdown)
-              : undefined
-          }
-          moreButtonRef={buttonRef}
-        />
+      <div className="flex items-center gap-2 md:gap-4 px-2 md:px-4 py-2 md:py-3">
+        {/* Left - Main tabs - Scrollable on mobile */}
+        <div className="flex-1 overflow-x-auto scroll-hidden">
+          <InfluencerTabsDisplay
+            visibleInfluencers={visibleInfluencers}
+            selectedInfluencerId={selectedInfluencerId}
+            onSelectInfluencer={onSelectInfluencer}
+            totalCount={totalCount}
+            onShowMore={
+              hiddenInfluencers.length > 0
+                ? () => setShowMoreDropdown(!showMoreDropdown)
+                : undefined
+            }
+            moreButtonRef={buttonRef}
+          />
+        </div>
 
-        {/* Right - Search */}
-        <div className="flex items-center gap-3 flex-shrink-0 ml-auto">
+        {/* Right - Search - Hidden on mobile */}
+        <div className="hidden md:flex items-center gap-3 flex-shrink-0 ml-auto">
           <StudioSearch
             searchQuery={searchQuery}
             onSearchChange={onSearchChange}
@@ -77,19 +70,15 @@ export function StudioHeader({
         </div>
       </div>
 
-      {/* Dropdown Menu - Rendered via Portal */}
-      {showMoreDropdown && (
-        <InfluencerDropdown
-          influencers={hiddenInfluencers}
-          selectedInfluencerId={selectedInfluencerId}
-          onSelectInfluencer={(id) => onSelectInfluencer(id)}
-          onClose={() => setShowMoreDropdown(false)}
-          position={position}
-          mounted={mounted}
-          dropdownRef={dropdownRef}
-        />
-      )}
+      {/* Dropdown Menu - Refactored to PickerDrawer */}
+      <InfluencerDropdown
+        influencers={hiddenInfluencers}
+        selectedInfluencerId={selectedInfluencerId}
+        onSelectInfluencer={(id) => onSelectInfluencer(id)}
+        onClose={() => setShowMoreDropdown(false)}
+        isOpen={showMoreDropdown}
+        anchorRef={buttonRef}
+      />
     </div>
   );
 }
-

@@ -1,8 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
-import type { StudioImage } from '../studio-image-card';
+import type { StudioImage } from '../../../studio-image-card';
 import { UploadConsentDialog } from '../../components/dialogs/UploadConsentDialog';
 import { useObjectUpload } from './hooks/use-object-upload';
 import { useObjectSearch } from './hooks/use-object-search';
@@ -10,6 +9,7 @@ import { ObjectCard } from './components/ObjectCard';
 import { ObjectPickerHeader } from './components/ObjectPickerHeader';
 import { ObjectPickerFooter } from './components/ObjectPickerFooter';
 import { ObjectPickerEmpty } from './components/ObjectPickerEmpty';
+import { PickerDrawer } from '../PickerDrawer';
 
 interface ObjectPickerProps {
   availableImages: StudioImage[];
@@ -34,10 +34,10 @@ export function ObjectPicker({
   hasUploadConsent = false,
   onConsentAccept,
 }: ObjectPickerProps) {
-  const overlayRef = React.useRef<HTMLDivElement>(null);
   const canAddMore = selectedObjectIds.length < maxObjects;
 
-  const { search, setSearch, filteredImages } = useObjectSearch(availableImages);
+  const { search, setSearch, filteredImages } =
+    useObjectSearch(availableImages);
 
   const {
     isUploading,
@@ -55,29 +55,14 @@ export function ObjectPicker({
     onObjectSelect,
   });
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === overlayRef.current) {
-      onClose();
-    }
-  };
-
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  return createPortal(
-    <div
-      ref={overlayRef}
-      onClick={handleOverlayClick}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8"
+  return (
+    <PickerDrawer
+      isOpen={true}
+      onClose={onClose}
+      title="Objects"
+      className="w-full max-w-7xl h-full md:h-auto"
     >
-      <div
-        className="flex flex-col w-full max-w-7xl max-h-[85vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex flex-col h-full md:max-h-[85vh]">
         {/* Header */}
         <ObjectPickerHeader
           search={search}
@@ -102,11 +87,11 @@ export function ObjectPicker({
         )}
 
         {/* Content - Scrollable area */}
-        <div className="flex-1 overflow-y-auto p-4 min-h-0">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 min-h-0">
           {filteredImages.length === 0 ? (
             <ObjectPickerEmpty hasSearch={!!search} />
           ) : (
-            <div className="columns-2 sm:columns-3 md:columns-4 gap-3">
+            <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-2 sm:gap-3">
               {filteredImages.map((image) => {
                 const isSelected = selectedObjectIds.includes(image.id);
                 const isDisabled = !isSelected && !canAddMore;
@@ -146,9 +131,6 @@ export function ObjectPicker({
         onAccept={handleConsentAccept}
         onReject={handleConsentReject}
       />
-    </div>,
-    document.body
+    </PickerDrawer>
   );
 }
-
-

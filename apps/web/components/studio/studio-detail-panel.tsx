@@ -38,8 +38,12 @@ export function StudioDetailPanel({
   variant = 'panel',
 }: StudioDetailPanelProps) {
   const { showLightbox, setShowLightbox } = useLightbox();
-  const { showDeleteConfirm, setShowDeleteConfirm, confirmDelete, cancelDelete } =
-    useDeleteConfirmation();
+  const {
+    showDeleteConfirm,
+    setShowDeleteConfirm,
+    confirmDelete,
+    cancelDelete,
+  } = useDeleteConfirmation();
   const { copied, copiedId, copy } = useCopyToClipboard();
 
   const handleCopyPrompt = React.useCallback(() => {
@@ -83,7 +87,10 @@ export function StudioDetailPanel({
         />
 
         {showDeleteConfirm && (
-          <DetailPanelDeleteConfirmation onConfirm={handleDelete} onCancel={cancelDelete} />
+          <DetailPanelDeleteConfirmation
+            onConfirm={handleDelete}
+            onCancel={cancelDelete}
+          />
         )}
 
         <DetailPanelInfluencerSection image={image} />
@@ -161,12 +168,7 @@ export function StudioDetailPanel({
 
   // Desktop panel variant - with content
   return (
-    <div
-      className={cn(
-        'flex flex-col border-l border-[var(--border-default)] bg-[var(--bg-elevated)] overflow-hidden',
-        className
-      )}
-    >
+    <div className={cn('flex flex-col h-full', className)}>
       {/* Header */}
       <DetailPanelHeader
         onOpenLightbox={() => setShowLightbox(true)}
@@ -178,7 +180,11 @@ export function StudioDetailPanel({
       <div className="flex-1 overflow-y-auto">{renderContent()}</div>
 
       {/* Lightbox */}
-      <ImageLightbox image={image} isOpen={showLightbox} onClose={() => setShowLightbox(false)} />
+      <ImageLightbox
+        image={image}
+        isOpen={showLightbox}
+        onClose={() => setShowLightbox(false)}
+      />
     </div>
   );
 }

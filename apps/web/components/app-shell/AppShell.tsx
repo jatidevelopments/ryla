@@ -2,14 +2,12 @@
 
 import * as React from 'react';
 import { usePathname } from 'next/navigation';
-import { SidebarProvider, BottomNav, SidebarMobileTrigger, useSidebar } from '@ryla/ui';
-import type { UserProfile } from '@ryla/ui';
+import { SidebarProvider, BottomNav, SidebarMobileTrigger, useSidebar, cn } from '@ryla/ui';
 import { DesktopSidebar } from '../sidebar/DesktopSidebar';
 import { CreditsBadge, LowBalanceWarning } from '../credits';
 import { NotificationsMenu } from '../notifications/NotificationsMenu';
 import { BugReportModal } from '../bug-report';
 import { useAuth } from '../../lib/auth-context';
-import { useSubscription } from '../../lib/hooks';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Toaster } from 'sonner';
@@ -21,29 +19,64 @@ interface AppShellProps {
 // Routes that should NOT show the app shell (header/nav)
 const excludedRoutes = ['/login', '/register', '/auth', '/forgot-password', '/reset-password'];
 
+// Scroll threshold for hiding header
+const SCROLL_THRESHOLD = 50;
+
 // Inner component that uses sidebar context
 function AppShellContent({ children }: { children: React.ReactNode }) {
   const { open, isMobile } = useSidebar();
   const { user } = useAuth();
-  const { tier } = useSubscription();
   const [bugReportModalOpen, setBugReportModalOpen] = React.useState(false);
+  
+  // Scroll-to-hide header state (like MDC)
+  const [showMobileHeader, setShowMobileHeader] = React.useState(true);
+  const lastScrollRef = React.useRef(0);
+  const tickingRef = React.useRef(false);
   
   // Calculate left offset for main content based on sidebar state (desktop only)
   // Matches Tailwind: w-64 = 256px, w-20 = 80px
   const sidebarWidth = isMobile ? 0 : (open ? 256 : 80);
 
-  // Build user profile for bottom nav
-  const userProfile: UserProfile | undefined = user ? {
-    name: user.publicName || user.name || 'User',
-    avatarUrl: undefined, // TODO: Add avatar support when available
-    tier: tier as UserProfile['tier'],
-  } : undefined;
+  // Scroll detection for mobile header hide/show
+  React.useEffect(() => {
+    if (!isMobile) return;
+
+    const onScroll = () => {
+      if (tickingRef.current) return;
+      tickingRef.current = true;
+
+      requestAnimationFrame(() => {
+        const curr = window.scrollY;
+        const last = lastScrollRef.current;
+
+        // Hide on scroll down, show on scroll up
+        if (curr > last && curr > SCROLL_THRESHOLD) {
+          setShowMobileHeader(false);
+        } else {
+          setShowMobileHeader(true);
+        }
+
+        lastScrollRef.current = curr;
+        tickingRef.current = false;
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    lastScrollRef.current = window.scrollY;
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, [isMobile]);
 
   return (
     <div className="min-h-screen bg-[#121214] overflow-x-hidden">
       <Toaster richColors position="top-right" />
       {/* Desktop Sidebar */}
       <DesktopSidebar />
+
+      {/* Mobile Bottom Nav - outside container to ensure proper positioning */}
+      <BottomNav />
 
       {/* Main Content - positioned next to fixed sidebar */}
       <div 
@@ -69,7 +102,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
             {/* Settings */}
             <Link
               href="/settings"
-              className="flex h-10 w-10 items-center justify-center rounded-full text-[var(--text-secondary)] transition-all hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+              className="flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-[var(--text-secondary)] transition-all hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -87,8 +120,13 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Mobile Header */}
-        <header className="sticky top-0 z-30 flex md:hidden h-14 items-center justify-between border-b border-white/5 bg-[#121214]/90 backdrop-blur-md px-4">
+        {/* Mobile Header - with scroll hide/show like MDC */}
+        <header 
+          className={cn(
+            'fixed top-0 left-0 right-0 z-30 flex md:hidden h-14 items-center justify-between border-b border-white/6 bg-black/70 backdrop-blur-md px-4 transition-transform duration-300',
+            showMobileHeader ? 'translate-y-0' : '-translate-y-full'
+          )}
+        >
           <SidebarMobileTrigger />
           <Link href="/dashboard">
             <Image
@@ -99,7 +137,7 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
               className="h-7 w-auto"
             />
           </Link>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1">
             {/* Notifications */}
             <NotificationsMenu />
             {/* Credits Badge - Mobile - Real balance from API */}
@@ -107,17 +145,14 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
+        {/* Spacer for fixed mobile header */}
+        <div className="h-14 md:hidden" />
+
         {/* Low Balance Warning */}
         <LowBalanceWarning className="mx-4 mt-4 md:mx-6" />
 
         {/* Page Content */}
         <main className="flex-1 pb-20 md:pb-0">{children}</main>
-
-        {/* Mobile Bottom Nav */}
-        <BottomNav
-          userProfile={userProfile}
-          onReportBugClick={() => setBugReportModalOpen(true)}
-        />
 
         {/* Bug Report Modal */}
         <BugReportModal

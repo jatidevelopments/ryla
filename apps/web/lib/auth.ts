@@ -20,6 +20,7 @@ export interface AuthUser {
   banned: boolean | null;
   createdAt: string | null;
   updatedAt: string | null;
+  hasPassword?: boolean;
 }
 
 export interface AuthTokens {
@@ -42,6 +43,11 @@ export interface RegisterCredentials {
   password: string;
   name: string;
   publicName: string;
+}
+
+export interface ChangePasswordCredentials {
+  currentPassword: string;
+  newPassword: string;
 }
 
 /**
@@ -222,6 +228,26 @@ export async function deleteAccount(): Promise<void> {
   }
 
   clearTokens();
+}
+
+/**
+ * Change current user password
+ */
+export async function changePassword(
+  credentials: ChangePasswordCredentials
+): Promise<void> {
+  const response = await authFetch(`${API_BASE_URL}/auth/change-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to change password');
+  }
 }
 
 /**

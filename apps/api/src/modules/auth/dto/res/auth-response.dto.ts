@@ -10,6 +10,7 @@ export interface AuthUserDto {
   banned: boolean | null;
   createdAt: Date | null;
   updatedAt: Date | null;
+  hasPassword?: boolean;
 }
 
 export class AuthResponseDto {

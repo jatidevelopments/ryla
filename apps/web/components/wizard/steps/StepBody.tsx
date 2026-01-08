@@ -74,7 +74,9 @@ export function StepBody() {
         {isFemale && (
           <section>
             <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-              <p className="text-white/70 text-sm mb-4 font-medium">Breast Size</p>
+              <p className="text-white/70 text-sm mb-4 font-medium">
+                Breast Size
+              </p>
               <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
                 {BREAST_SIZE_OPTIONS.map((option) => (
                   <WizardOptionCard
@@ -94,7 +96,9 @@ export function StepBody() {
         {isFemale && (
           <section>
             <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-              <p className="text-white/70 text-sm mb-4 font-medium">Breast Type</p>
+              <p className="text-white/70 text-sm mb-4 font-medium">
+                Breast Type
+              </p>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {INFLUENCER_BREAST_TYPES.map((option) => (
                   <WizardImageCard

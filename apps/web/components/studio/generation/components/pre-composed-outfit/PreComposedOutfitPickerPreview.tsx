@@ -12,13 +12,15 @@ export function PreComposedOutfitPickerPreview({
   nsfwEnabled = false,
 }: PreComposedOutfitPickerPreviewProps) {
   return (
-    <div className="mb-6">
+    <div className="mb-4 sm:mb-6">
       <div className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10">
         <div className="flex-1">
           <div className="text-xs text-white/60 mb-1">Selected Outfit</div>
           {selectedOutfitLabel ? (
             <div className="flex items-center gap-2">
-              <span className="text-white font-semibold">{selectedOutfitLabel}</span>
+              <span className="text-white font-semibold">
+                {selectedOutfitLabel}
+              </span>
               <button
                 onClick={onClear}
                 className="ml-1 text-white/40 hover:text-white transition-colors"
@@ -45,4 +47,3 @@ export function PreComposedOutfitPickerPreview({
     </div>
   );
 }
-

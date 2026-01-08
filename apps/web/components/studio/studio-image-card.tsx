@@ -2,8 +2,9 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { cn } from '@ryla/ui';
+import { cn, useIsMobile } from '@ryla/ui';
 import { Tooltip } from '../ui/tooltip';
+import { MoreHorizontal } from 'lucide-react';
 
 export interface StudioImage {
   id: string;
@@ -32,6 +33,7 @@ interface StudioImageCardProps {
   image: StudioImage;
   isSelected?: boolean;
   onSelect?: (image: StudioImage) => void;
+  onOpenDetails?: (image: StudioImage) => void;
   onQuickLike?: (imageId: string) => void;
   onQuickDownload?: (image: StudioImage) => void;
   size?: 'normal' | 'large';
@@ -42,13 +44,28 @@ export function StudioImageCard({
   image,
   isSelected = false,
   onSelect,
+  onOpenDetails,
   onQuickLike,
   onQuickDownload,
   size = 'normal',
   className,
 }: StudioImageCardProps) {
-  const handleClick = () => {
-    onSelect?.(image);
+  const isMobile = useIsMobile();
+
+  const handleSelect = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    // On desktop, clicking the image opens details
+    // On mobile, it just selects the image (to avoid panel fatigue)
+    if (!isMobile && onOpenDetails) {
+      onOpenDetails(image);
+    } else {
+      onSelect?.(image);
+    }
+  };
+
+  const handleOpenDetails = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onOpenDetails?.(image);
   };
 
   const handleLike = (e: React.MouseEvent) => {
@@ -71,7 +88,7 @@ export function StudioImageCard({
 
   return (
     <div
-      onClick={handleClick}
+      onClick={handleSelect}
       className={cn(
         'group relative cursor-pointer overflow-hidden rounded-2xl transition-all duration-300 border border-transparent',
         isSelected
@@ -83,7 +100,9 @@ export function StudioImageCard({
       title="Click to view details"
     >
       {/* Image Container */}
-      <div className={cn('relative w-full bg-[var(--bg-elevated)]', aspectClass)}>
+      <div
+        className={cn('relative w-full bg-[var(--bg-elevated)]', aspectClass)}
+      >
         {image.status === 'generating' ? (
           // Generating state - animated gradient
           <div className="absolute inset-0 overflow-hidden">
@@ -102,7 +121,9 @@ export function StudioImageCard({
                   </svg>
                 </div>
               </div>
-              <span className="text-sm font-medium text-white/60">Generating...</span>
+              <span className="text-sm font-medium text-white/60">
+                Generating...
+              </span>
             </div>
           </div>
         ) : image.status === 'failed' ? (
@@ -122,7 +143,9 @@ export function StudioImageCard({
                 d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z"
               />
             </svg>
-            <span className="text-sm font-medium text-red-400">Generation Failed</span>
+            <span className="text-sm font-medium text-red-400">
+              Generation Failed
+            </span>
             <button className="mt-2 text-xs text-white/50 hover:text-white underline">
               Retry
             </button>
@@ -136,7 +159,7 @@ export function StudioImageCard({
               fill
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            
+
             {/* Gradient overlays */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
             <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
@@ -170,7 +193,7 @@ export function StudioImageCard({
               Generating
             </div>
           )}
-          
+
           {/* Selection checkmark */}
           {isSelected && image.status === 'completed' && (
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--purple-500)] shadow-lg">
@@ -188,48 +211,62 @@ export function StudioImageCard({
               </svg>
             </div>
           )}
-          
-          {/* Right - Quick actions on hover */}
-          {image.status === 'completed' && (
-            <div className="flex gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100 ml-auto">
-              <Tooltip content="Like this image">
-                <button
-                  onClick={handleLike}
-                  className={cn(
-                    'flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm transition-all',
-                    image.isLiked
-                      ? 'bg-red-500 text-white'
-                      : 'bg-black/50 text-white hover:bg-black/70'
-                  )}
-                >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="h-4 w-4"
-                >
-                  <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
-                </svg>
-              </button>
-              </Tooltip>
-              <Tooltip content="Download image">
-                <button
-                  onClick={handleDownload}
-                  className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70"
-                >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  className="h-4 w-4"
-                >
-                  <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
-                  <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
-                </svg>
-              </button>
-              </Tooltip>
-            </div>
-          )}
+
+          {/* Actions Container - Top Right */}
+          <div className="absolute right-2 top-2 z-10 flex items-center gap-1.5">
+            {/* More actions button - always visible on mobile, hover on desktop */}
+            <button
+              onClick={handleOpenDetails}
+              className={cn(
+                'flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70',
+                isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+              )}
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+
+            {/* Quick actions on hover (Desktop only) */}
+            {image.status === 'completed' && !isMobile && (
+              <div className="flex gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+                <Tooltip content="Like this image">
+                  <button
+                    onClick={handleLike}
+                    className={cn(
+                      'flex h-8 w-8 items-center justify-center rounded-full backdrop-blur-sm transition-all',
+                      image.isLiked
+                        ? 'bg-red-500 text-white'
+                        : 'bg-black/50 text-white hover:bg-black/70'
+                    )}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-4 w-4"
+                    >
+                      <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
+                    </svg>
+                  </button>
+                </Tooltip>
+                <Tooltip content="Download image">
+                  <button
+                    onClick={handleDownload}
+                    className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 20 20"
+                      fill="currentColor"
+                      className="h-4 w-4"
+                    >
+                      <path d="M10.75 2.75a.75.75 0 00-1.5 0v8.614L6.295 8.235a.75.75 0 10-1.09 1.03l4.25 4.5a.75.75 0 001.09 0l4.25-4.5a.75.75 0 00-1.09-1.03l-2.955 3.129V2.75z" />
+                      <path d="M3.5 12.75a.75.75 0 00-1.5 0v2.5A2.75 2.75 0 004.75 18h10.5A2.75 2.75 0 0018 15.25v-2.5a.75.75 0 00-1.5 0v2.5c0 .69-.56 1.25-1.25 1.25H4.75c-.69 0-1.25-.56-1.25-1.25v-2.5z" />
+                    </svg>
+                  </button>
+                </Tooltip>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Liked badge - always visible if liked */}
@@ -246,8 +283,8 @@ export function StudioImageCard({
           </div>
         )}
 
-        {/* Bottom - Influencer info on hover */}
-        {image.status === 'completed' && (
+        {/* Bottom - Influencer info on hover (Desktop only) */}
+        {image.status === 'completed' && !isMobile && (
           <div className="absolute bottom-0 left-0 right-0 translate-y-full p-3 transition-transform duration-300 group-hover:translate-y-0">
             <div className="flex items-center justify-between">
               {/* Influencer Tag */}

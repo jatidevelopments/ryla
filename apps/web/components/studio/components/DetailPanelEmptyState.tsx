@@ -6,22 +6,24 @@ interface DetailPanelEmptyStateProps {
   className?: string;
 }
 
-export function DetailPanelEmptyState({ className }: DetailPanelEmptyStateProps) {
+export function DetailPanelEmptyState({
+  className,
+}: DetailPanelEmptyStateProps) {
   return (
     <div
       className={cn(
-        'flex flex-col items-center justify-center border-l border-[var(--border-default)] bg-[var(--bg-elevated)] p-8 text-center',
+        'flex flex-col items-center justify-center border-l-0 md:border-l border-[var(--border-default)] bg-[var(--bg-elevated)] p-6 md:p-8 text-center',
         className
       )}
     >
-      <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--border-default)]">
+      <div className="mb-4 md:mb-6 flex h-16 w-16 md:h-24 md:w-24 items-center justify-center rounded-xl md:rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/10 to-[var(--pink-500)]/10 border border-[var(--border-default)]">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           strokeWidth={1}
           stroke="currentColor"
-          className="h-12 w-12 text-[var(--text-muted)]"
+          className="h-8 w-8 md:h-12 md:w-12 text-[var(--text-muted)]"
         >
           <path
             strokeLinecap="round"
@@ -30,13 +32,12 @@ export function DetailPanelEmptyState({ className }: DetailPanelEmptyStateProps)
           />
         </svg>
       </div>
-      <p className="text-lg font-semibold text-[var(--text-primary)] mb-2">
+      <p className="text-base md:text-lg font-semibold text-[var(--text-primary)] mb-1 md:mb-2">
         Select an image
       </p>
-      <p className="text-sm text-[var(--text-muted)] max-w-[200px]">
+      <p className="text-xs md:text-sm text-[var(--text-muted)] max-w-[180px] md:max-w-[200px]">
         Click on any image to view details and edit options
       </p>
     </div>
   );
 }
-

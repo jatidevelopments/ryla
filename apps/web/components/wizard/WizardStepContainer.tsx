@@ -22,9 +22,11 @@ export function WizardStepContainer({
   return (
     <div className={`w-full flex flex-col items-center ${className}`}>
       {/* Header */}
-      <div className="text-center mb-8">
-        <p className="text-white/70 text-sm font-medium mb-2">{subtitle}</p>
-        <h2 className="text-white text-2xl font-bold">{title}</h2>
+      <div className="text-center mb-6 md:mb-8">
+        <p className="text-white/70 text-sm font-medium mb-1.5 md:mb-2">
+          {subtitle}
+        </p>
+        <h2 className="text-white text-xl md:text-2xl font-bold">{title}</h2>
       </div>
 
       {/* Content */}

@@ -12,7 +12,10 @@ interface StylePickerHeaderProps {
   showFavoritesOnly: boolean;
   onToggleFavorites: () => void;
   onClose: () => void;
-  currentFavorites: { isFavorited: (id: string) => boolean; toggleFavorite: (id: string) => void } | null;
+  currentFavorites: {
+    isFavorited: (id: string) => boolean;
+    toggleFavorite: (id: string) => void;
+  } | null;
 }
 
 export function StylePickerHeader({
@@ -25,17 +28,13 @@ export function StylePickerHeader({
   currentFavorites,
 }: StylePickerHeaderProps) {
   return (
-    <div className="flex items-center gap-4 px-6 py-4 border-b border-white/10">
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Search, Favorites Filter & Close */}
-      <div className="flex items-center gap-3">
+    <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 flex-1 sm:flex-initial">
         {currentFavorites && (
           <button
             onClick={onToggleFavorites}
             className={cn(
-              'flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all',
+              'flex items-center gap-2 p-2.5 sm:px-3 sm:py-2 rounded-xl text-sm font-medium transition-all',
               showFavoritesOnly
                 ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/25'
                 : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
@@ -52,7 +51,7 @@ export function StylePickerHeader({
             <span className="hidden sm:inline">Favorites</span>
           </button>
         )}
-        <div className="relative">
+        <div className="relative flex-1 sm:flex-initial">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
@@ -70,14 +69,19 @@ export function StylePickerHeader({
             placeholder="Search"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-44 h-10 pl-9 pr-4 bg-[#0d0d0f] border-white/10 rounded-xl text-sm placeholder:text-white/40 focus:border-white/20 focus:ring-0"
+            className="w-full sm:w-44 h-10 pl-9 pr-4 bg-[#0d0d0f] border-white/10 rounded-xl text-sm placeholder:text-white/40 focus:border-white/20 focus:ring-0"
           />
         </div>
         <button
           onClick={onClose}
-          className="flex items-center justify-center h-10 w-10 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+          className="hidden sm:flex items-center justify-center h-10 w-10 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-colors"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-5 w-5">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 20 20"
+            fill="currentColor"
+            className="h-5 w-5"
+          >
             <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
           </svg>
         </button>
@@ -85,4 +89,3 @@ export function StylePickerHeader({
     </div>
   );
 }
-

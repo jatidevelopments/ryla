@@ -19,7 +19,9 @@ export function StepFace() {
     <div className="flex flex-col items-center w-full">
       {/* Header */}
       <div className="text-center mb-8">
-        <p className="text-white/60 text-sm font-medium mb-2">Facial Features</p>
+        <p className="text-white/60 text-sm font-medium mb-2">
+          Facial Features
+        </p>
         <h1 className="text-white text-2xl font-bold">Eyes & Face Shape</h1>
       </div>
 
@@ -36,7 +38,11 @@ export function StepFace() {
                   opt.gender === 'all'
               ).map((option) => {
                 const ethnicityAwareImage = form.ethnicity
-                  ? getInfluencerImage('eye-colors', form.ethnicity, option.value)
+                  ? getInfluencerImage(
+                      'eye-colors',
+                      form.ethnicity,
+                      option.value
+                    )
                   : null;
                 return (
                   <WizardImageCard
@@ -59,10 +65,14 @@ export function StepFace() {
         <section>
           <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
             <p className="text-white/70 text-sm mb-4 font-medium">Face Shape</p>
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
               {INFLUENCER_FACE_SHAPES.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
-                  ? getInfluencerImage('face-shapes', form.ethnicity, option.value)
+                  ? getInfluencerImage(
+                      'face-shapes',
+                      form.ethnicity,
+                      option.value
+                    )
                   : null;
                 return (
                   <WizardImageCard

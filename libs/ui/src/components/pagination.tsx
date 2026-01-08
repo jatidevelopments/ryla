@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { cn } from '../lib/utils';
+import { useIsMobile } from '../hooks/use-mobile';
 
 export interface PaginationProps {
   /** Current active page (1-indexed) */
@@ -82,9 +83,14 @@ export function Pagination({
   onPageChange,
   className,
   showPageNumbers = true,
-  maxVisiblePages = 5,
+  maxVisiblePages: maxVisiblePagesProp,
   size = 'default',
 }: PaginationProps) {
+  const isMobile = useIsMobile();
+
+  // Default maxVisiblePages is 5 on desktop, 3 on mobile
+  const maxVisiblePages = maxVisiblePagesProp ?? (isMobile ? 3 : 5);
+
   // Calculate which page numbers to show
   const getVisiblePages = () => {
     if (totalPages <= maxVisiblePages) {
@@ -116,17 +122,17 @@ export function Pagination({
     sm: {
       button: 'h-8 w-8 text-xs',
       nav: 'h-8 px-3 text-xs',
-      gap: 'gap-1',
+      gap: isMobile ? 'gap-1' : 'gap-1',
     },
     default: {
-      button: 'h-9 w-9 text-sm',
-      nav: 'h-9 px-4 text-sm',
-      gap: 'gap-1.5',
+      button: isMobile ? 'h-8 w-8 text-xs' : 'h-9 w-9 text-sm',
+      nav: isMobile ? 'h-8 px-3 text-xs' : 'h-9 px-4 text-sm',
+      gap: isMobile ? 'gap-1' : 'gap-1.5',
     },
     lg: {
       button: 'h-10 w-10 text-base',
       nav: 'h-10 px-5 text-base',
-      gap: 'gap-2',
+      gap: isMobile ? 'gap-1.5' : 'gap-2',
     },
   };
 
@@ -159,7 +165,11 @@ export function Pagination({
     <nav
       role="navigation"
       aria-label="Pagination"
-      className={cn('flex items-center justify-center', styles.gap, className)}
+      className={cn(
+        'flex items-center justify-center w-full px-4 overflow-x-auto min-w-0 max-w-full',
+        styles.gap,
+        className
+      )}
     >
       {/* Previous Button */}
       <button
@@ -191,8 +201,8 @@ export function Pagination({
                 1
               </button>
               {visiblePages[0] > 2 && (
-                <span className="text-[var(--text-muted)] px-1 select-none">
-                  •••
+                <span className="text-[var(--text-muted)] w-6 text-center select-none">
+                  ...
                 </span>
               )}
             </>
@@ -219,8 +229,8 @@ export function Pagination({
           {visiblePages[visiblePages.length - 1] < totalPages && (
             <>
               {visiblePages[visiblePages.length - 1] < totalPages - 1 && (
-                <span className="text-[var(--text-muted)] px-1 select-none">
-                  •••
+                <span className="text-[var(--text-muted)] w-6 text-center select-none">
+                  ...
                 </span>
               )}
               <button
@@ -303,7 +313,9 @@ export function SimplePagination({
       </button>
 
       <span className="text-sm text-[var(--text-secondary)] tabular-nums">
-        <span className="text-[var(--text-primary)] font-medium">{currentPage}</span>
+        <span className="text-[var(--text-primary)] font-medium">
+          {currentPage}
+        </span>
         <span className="mx-1.5 text-[var(--text-muted)]">/</span>
         <span>{totalPages}</span>
       </span>

@@ -9,7 +9,10 @@ import { ASPECT_RATIOS } from '../../types';
 
 interface AspectRatioSelectorProps {
   settings: GenerationSettings;
-  updateSetting: <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => void;
+  updateSetting: <K extends keyof GenerationSettings>(
+    key: K,
+    value: GenerationSettings[K]
+  ) => void;
   showPicker: boolean;
   onTogglePicker: () => void;
   onClosePicker: () => void;
@@ -30,9 +33,12 @@ export function AspectRatioSelector({
         <button
           ref={buttonRef}
           onClick={onTogglePicker}
-          className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-white/5 text-[var(--text-primary)] text-xs font-medium hover:bg-white/10 transition-all"
+          className="flex items-center gap-1.5 md:gap-2 min-h-[44px] px-3 md:px-4 py-2 md:py-2.5 rounded-2xl bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all"
         >
-          <AspectRatioIcon ratio={settings.aspectRatio} className="h-3.5 w-3.5" />
+          <AspectRatioIcon
+            ratio={settings.aspectRatio}
+            className="h-4 w-4 text-[var(--purple-400)]"
+          />
           <span>{settings.aspectRatio}</span>
         </button>
       </Tooltip>
@@ -52,4 +58,3 @@ export function AspectRatioSelector({
     </div>
   );
 }
-

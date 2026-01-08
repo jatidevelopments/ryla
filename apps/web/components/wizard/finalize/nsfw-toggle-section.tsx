@@ -8,7 +8,11 @@ interface NSFWToggleSectionProps {
   extraCredits: number;
 }
 
-export function NSFWToggleSection({ enabled, onToggle, extraCredits }: NSFWToggleSectionProps) {
+export function NSFWToggleSection({
+  enabled,
+  onToggle,
+  extraCredits,
+}: NSFWToggleSectionProps) {
   return (
     <div className="w-full mb-5">
       <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
@@ -22,15 +26,19 @@ export function NSFWToggleSection({ enabled, onToggle, extraCredits }: NSFWToggl
               : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
           )}
         >
-          <div className="relative z-10 flex items-center justify-between">
+          <div className="relative z-10 flex items-center justify-between gap-4">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <p className="text-base font-semibold text-white">Enable Adult Content</p>
+                <p className="text-base font-semibold text-white">
+                  Enable Adult Content
+                </p>
                 {/* Credit cost badge - always show */}
                 <span
                   className={cn(
                     'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-                    enabled ? 'bg-pink-500/30 text-pink-300' : 'bg-white/10 text-white/40'
+                    enabled
+                      ? 'bg-pink-500/30 text-pink-300'
+                      : 'bg-white/10 text-white/40'
                   )}
                 >
                   +{extraCredits} credits
@@ -48,7 +56,9 @@ export function NSFWToggleSection({ enabled, onToggle, extraCredits }: NSFWToggl
             <div
               className={cn(
                 'w-12 h-6 rounded-full transition-all duration-200 flex items-center flex-shrink-0',
-                enabled ? 'bg-gradient-to-r from-purple-500 to-pink-500' : 'bg-white/20'
+                enabled
+                  ? 'bg-gradient-to-r from-purple-500 to-pink-500'
+                  : 'bg-white/20'
               )}
             >
               <div
@@ -64,4 +74,3 @@ export function NSFWToggleSection({ enabled, onToggle, extraCredits }: NSFWToggl
     </div>
   );
 }
-

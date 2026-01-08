@@ -30,7 +30,7 @@ export function SelectedPiecesSidebar({
   const selectedPieces = getSelectedPieces(composition);
 
   return (
-    <div className="w-64 border-r border-white/10 bg-[#0a0a0b] p-4 overflow-y-auto">
+    <div className="hidden sm:block w-64 border-r border-white/10 bg-[#0a0a0b] p-4 overflow-y-auto">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-sm font-semibold text-white">Selected</h3>
         {composition && (
@@ -55,7 +55,9 @@ export function SelectedPiecesSidebar({
       ) : (
         <div className="space-y-2">
           {OUTFIT_PIECE_CATEGORIES.map((cat) => {
-            const categoryPieces = selectedPieces.filter((sp) => sp.category === cat);
+            const categoryPieces = selectedPieces.filter(
+              (sp) => sp.category === cat
+            );
             if (categoryPieces.length === 0) return null;
 
             return (
@@ -70,7 +72,9 @@ export function SelectedPiecesSidebar({
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{piece.emoji}</span>
-                      <span className="text-xs text-white font-medium">{piece.label}</span>
+                      <span className="text-xs text-white font-medium">
+                        {piece.label}
+                      </span>
                     </div>
                     <button
                       onClick={() => onClearPiece(cat)}
@@ -88,4 +92,3 @@ export function SelectedPiecesSidebar({
     </div>
   );
 }
-

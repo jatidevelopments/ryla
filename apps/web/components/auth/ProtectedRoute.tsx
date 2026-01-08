@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
+import { LoadingState } from '../ui/loading-state';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -15,18 +16,7 @@ interface ProtectedRouteProps {
  * Loading skeleton for protected pages
  */
 function LoadingSkeleton() {
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="flex flex-col items-center gap-4">
-        {/* Spinner */}
-        <div className="relative h-12 w-12">
-          <div className="absolute inset-0 rounded-full border-4 border-[var(--border-default)]" />
-          <div className="absolute inset-0 rounded-full border-4 border-t-[var(--purple-500)] animate-spin" />
-        </div>
-        <p className="text-[var(--text-secondary)] text-sm">Loading...</p>
-      </div>
-    </div>
-  );
+  return <LoadingState title="Loading..." fullPage />;
 }
 
 /**
@@ -35,23 +25,22 @@ function LoadingSkeleton() {
  * Redirects to login if not authenticated (handled by AuthProvider)
  * Redirects to onboarding if not completed
  */
-export function ProtectedRoute({ 
-  children, 
+export function ProtectedRoute({
+  children,
   fallback,
   skipOnboardingCheck = false,
 }: ProtectedRouteProps) {
   const { isLoading, isAuthenticated } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   // Check onboarding completion (only for authenticated users, skip for onboarding page itself)
-  const { data: onboardingStatus, isLoading: isLoadingOnboarding } = trpc.user.isOnboardingCompleted.useQuery(
-    undefined,
-    {
-      enabled: isAuthenticated && !skipOnboardingCheck && pathname !== '/onboarding',
+  const { data: onboardingStatus, isLoading: isLoadingOnboarding } =
+    trpc.user.isOnboardingCompleted.useQuery(undefined, {
+      enabled:
+        isAuthenticated && !skipOnboardingCheck && pathname !== '/onboarding',
       retry: false,
-    }
-  );
+    });
 
   // Redirect to onboarding if not completed
   useEffect(() => {
@@ -66,7 +55,15 @@ export function ProtectedRoute({
     ) {
       router.push('/onboarding');
     }
-  }, [isLoading, isLoadingOnboarding, isAuthenticated, skipOnboardingCheck, pathname, onboardingStatus, router]);
+  }, [
+    isLoading,
+    isLoadingOnboarding,
+    isAuthenticated,
+    skipOnboardingCheck,
+    pathname,
+    onboardingStatus,
+    router,
+  ]);
 
   // Show loading state while checking authentication
   if (isLoading) {
@@ -80,7 +77,11 @@ export function ProtectedRoute({
   }
 
   // Show loading while checking onboarding (unless we're on onboarding page or skipping check)
-  if (!skipOnboardingCheck && pathname !== '/onboarding' && isLoadingOnboarding) {
+  if (
+    !skipOnboardingCheck &&
+    pathname !== '/onboarding' &&
+    isLoadingOnboarding
+  ) {
     return fallback ?? <LoadingSkeleton />;
   }
 
@@ -111,4 +112,3 @@ export function withAuth<P extends object>(
     );
   };
 }
-

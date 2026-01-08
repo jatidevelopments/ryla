@@ -18,6 +18,7 @@ export function usePickerState() {
   const [showOutfitPicker, setShowOutfitPicker] = React.useState(false);
   const [outfitMode, setOutfitMode] = React.useState<OutfitMode | null>(null);
   const [showObjectPicker, setShowObjectPicker] = React.useState(false);
+  const [showMobileSettingsMenu, setShowMobileSettingsMenu] = React.useState(false);
 
   // Close all pickers
   const closeAll = React.useCallback(() => {
@@ -31,6 +32,7 @@ export function usePickerState() {
     setShowOutfitPicker(false);
     setOutfitMode(null);
     setShowObjectPicker(false);
+    setShowMobileSettingsMenu(false);
   }, []);
 
   // Toggle helpers that close other pickers
@@ -63,29 +65,29 @@ export function usePickerState() {
     showModelPicker,
     setShowModelPicker,
     toggleModel,
-    
+
     // Aspect ratio picker
     showAspectRatioPicker,
     setShowAspectRatioPicker,
     toggleAspectRatio,
-    
+
     // Quality picker
     showQualityPicker,
     setShowQualityPicker,
     toggleQuality,
-    
+
     // Character picker
     showCharacterPicker,
     setShowCharacterPicker,
-    
+
     // Style picker
     showStylePicker,
     setShowStylePicker,
-    
+
     // Pose picker
     showPosePicker,
     setShowPosePicker,
-    
+
     // Outfit pickers
     showOutfitModeSelector,
     setShowOutfitModeSelector,
@@ -95,15 +97,18 @@ export function usePickerState() {
     setOutfitMode,
     selectOutfitMode,
     closeOutfitPicker,
-    
+
     // Object picker
     showObjectPicker,
     setShowObjectPicker,
-    
+
+    // Mobile settings menu
+    showMobileSettingsMenu,
+    setShowMobileSettingsMenu,
+
     // Utilities
     closeAll,
   };
 }
 
-export type PickerState = ReturnType<typeof usePickerState>;
 

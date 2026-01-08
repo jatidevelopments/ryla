@@ -56,16 +56,22 @@ export function GenerateButton({
         disabled={!canGenerate}
         data-tutorial-target="generate-button"
         className={cn(
-          'h-12 px-8 rounded-xl font-bold text-sm flex items-center gap-2.5 transition-all',
+          'h-11 md:h-12 px-5 md:px-8 rounded-full md:rounded-2xl font-bold text-sm flex items-center gap-1.5 md:gap-2.5 transition-all flex-shrink-0',
           canGenerate
             ? 'bg-gradient-to-r from-[var(--purple-500)] to-[var(--purple-600)] text-white hover:from-[var(--purple-400)] hover:to-[var(--purple-500)] shadow-lg shadow-[var(--purple-500)]/25'
             : 'bg-[var(--bg-hover)] text-[var(--text-muted)] cursor-not-allowed'
         )}
       >
         <>
-          {getButtonLabel()}
-          <span className="flex items-center gap-0.5 text-xs opacity-80">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-3.5 w-3.5">
+          <span className="hidden md:inline">{getButtonLabel()}</span>
+          <span className="md:hidden">Go</span>
+          <span className="flex items-center gap-0.5 text-xs md:text-sm opacity-80">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="h-3.5 w-3.5 md:h-3.5 md:w-3.5"
+            >
               <path d="M10.75 10.818v2.614A3.13 3.13 0 0011.888 13c.482-.315.612-.648.612-.875 0-.227-.13-.56-.612-.875a3.13 3.13 0 00-1.138-.432zM8.33 8.62c.053.055.115.11.184.164.208.16.46.284.736.363V6.603a2.45 2.45 0 00-.35.13c-.14.065-.27.143-.386.233-.377.292-.514.627-.514.909 0 .184.058.39.202.592.037.051.08.102.128.152z" />
               <path
                 fillRule="evenodd"
@@ -73,11 +79,10 @@ export function GenerateButton({
                 clipRule="evenodd"
               />
             </svg>
-            {creditsCost.toFixed(2)}
+            {creditsCost.toFixed(0)}
           </span>
         </>
       </button>
     </Tooltip>
   );
 }
-

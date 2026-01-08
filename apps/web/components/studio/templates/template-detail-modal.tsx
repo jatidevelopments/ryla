@@ -14,6 +14,7 @@ import { RylaButton } from '@ryla/ui';
 import { trpc } from '../../../lib/trpc';
 import { cn } from '@ryla/ui';
 import { Sparkles, TrendingUp, Users, Calendar } from 'lucide-react';
+import { LoadingState } from '../../ui/loading-state';
 import type { Template } from '@ryla/data/schema/templates.schema';
 
 export interface TemplateDetailModalProps {
@@ -51,9 +52,11 @@ export function TemplateDetailModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--purple-500)]" />
-          </div>
+          <LoadingState
+            title="Loading Template"
+            message="Fetching configuration..."
+            className="py-12"
+          />
         ) : template ? (
           <>
             <DialogHeader>
@@ -77,7 +80,7 @@ export function TemplateDetailModal({
 
                 {/* Stats */}
                 <div className="grid grid-cols-2 gap-3">
-                  {template.usageCount > 0 && (
+                  {template.usageCount !== null && template.usageCount > 0 && (
                     <div className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] p-3">
                       <div className="flex items-center gap-2 text-sm text-[var(--text-muted)] mb-1">
                         <Users className="h-4 w-4" />
@@ -108,7 +111,10 @@ export function TemplateDetailModal({
                   Configuration
                 </h3>
                 <div className="space-y-3">
-                  <ConfigItem label="Scene" value={template.config.scene || 'Not set'} />
+                  <ConfigItem
+                    label="Scene"
+                    value={template.config.scene || 'Not set'}
+                  />
                   <ConfigItem
                     label="Environment"
                     value={template.config.environment || 'Not set'}
@@ -130,18 +136,25 @@ export function TemplateDetailModal({
                     <ConfigItem label="Style" value={template.config.styleId} />
                   )}
                   {template.config.lightingId && (
-                    <ConfigItem label="Lighting" value={template.config.lightingId} />
+                    <ConfigItem
+                      label="Lighting"
+                      value={template.config.lightingId}
+                    />
                   )}
                   {template.config.modelId && (
                     <ConfigItem label="Model" value={template.config.modelId} />
                   )}
-                  {template.config.objects && template.config.objects.length > 0 && (
-                    <ConfigItem
-                      label="Objects"
-                      value={`${template.config.objects.length} object(s)`}
-                    />
-                  )}
-                  <ConfigItem label="Aspect Ratio" value={template.config.aspectRatio} />
+                  {template.config.objects &&
+                    template.config.objects.length > 0 && (
+                      <ConfigItem
+                        label="Objects"
+                        value={`${template.config.objects.length} object(s)`}
+                      />
+                    )}
+                  <ConfigItem
+                    label="Aspect Ratio"
+                    value={template.config.aspectRatio}
+                  />
                   <ConfigItem
                     label="Quality"
                     value={template.config.qualityMode.toUpperCase()}
@@ -176,7 +189,10 @@ export function TemplateDetailModal({
                   <div className="flex items-center gap-2">
                     <Calendar className="h-3 w-3" />
                     <span>
-                      Created {new Date(template.createdAt).toLocaleDateString()}
+                      Created{' '}
+                      {template.createdAt
+                        ? new Date(template.createdAt).toLocaleDateString()
+                        : 'Unknown date'}
                     </span>
                   </div>
                 </div>
@@ -203,8 +219,9 @@ function ConfigItem({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between py-2 border-b border-[var(--border-default)]/50">
       <span className="text-sm text-[var(--text-muted)]">{label}</span>
-      <span className="text-sm font-medium text-[var(--text-primary)]">{value}</span>
+      <span className="text-sm font-medium text-[var(--text-primary)]">
+        {value}
+      </span>
     </div>
   );
 }
-

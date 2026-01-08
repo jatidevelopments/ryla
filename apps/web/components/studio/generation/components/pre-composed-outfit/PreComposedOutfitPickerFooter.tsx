@@ -10,7 +10,7 @@ export function PreComposedOutfitPickerFooter({
   onApply,
 }: PreComposedOutfitPickerFooterProps) {
   return (
-    <div className="flex items-center justify-between px-6 py-4 border-t border-white/10 bg-[#18181b]">
+    <div className="flex items-center justify-between px-5 py-4 border-t border-white/10 bg-[#18181b]">
       <div className="text-sm text-white/60">
         {outfitCount} outfit{outfitCount !== 1 ? 's' : ''} available
       </div>
@@ -23,4 +23,3 @@ export function PreComposedOutfitPickerFooter({
     </div>
   );
 }
-

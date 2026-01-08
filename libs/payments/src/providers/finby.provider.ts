@@ -17,15 +17,15 @@ import { generateFinbyReference } from '../utils/finby-reference';
 export class FinbyProvider implements PaymentProvider {
   readonly type = 'finby' as const;
   private readonly apiVersion: 'v3' | 'v1';
-  
+
   // API v3 (Popup-based) credentials
   private readonly projectId?: string;
   private readonly secretKey?: string;
-  
+
   // API v1 (REST-based) credentials
   private readonly apiKey?: string;
   private readonly merchantId?: string;
-  
+
   private readonly webhookSecret?: string;
   private readonly baseUrl: string;
 
@@ -34,15 +34,15 @@ export class FinbyProvider implements PaymentProvider {
 
   constructor(config: FinbyConfig) {
     this.apiVersion = config.apiVersion || (config.projectId && config.secretKey ? 'v3' : 'v1');
-    
+
     // API v3 credentials
     this.projectId = config.projectId;
     this.secretKey = config.secretKey;
-    
+
     // API v1 credentials (legacy - for direct API key auth)
     this.apiKey = config.apiKey;
     this.merchantId = config.merchantId;
-    
+
     this.webhookSecret = config.webhookSecret;
     // REST API uses aapi.finby.eu, popup API uses amapi.finby.eu
     this.baseUrl = config.baseUrl || (this.apiVersion === 'v3' ? 'https://amapi.finby.eu/mapi5' : 'https://aapi.finby.eu');
@@ -76,6 +76,7 @@ export class FinbyProvider implements PaymentProvider {
 
     if (!response.ok) {
       const error = await response.text();
+      console.error(`[Finby OAuth] Failed to get token: ${response.status} ${response.statusText}`, error);
       throw new Error(`Finby OAuth token error: ${error}`);
     }
 
@@ -99,24 +100,24 @@ export class FinbyProvider implements PaymentProvider {
     // API v3 only supports one-time payments
     if (this.apiVersion === 'v3') {
       // Check if subscription is requested - not supported in v3
-      const isSubscription = 
+      const isSubscription =
         params.metadata?.isSubscription === 'true' ||
         params.mode === 'subscription';
-      
+
       if (isSubscription) {
-      // For subscriptions, use REST API (v1) with OAuth
-      // ProjectID/SecretKey can be used for OAuth authentication
-      if (this.projectId && this.secretKey) {
-        // Switch to REST API mode for subscriptions
-        return this.createCheckoutSessionV1(params);
+        // For subscriptions, use REST API (v1) with OAuth
+        // ProjectID/SecretKey can be used for OAuth authentication
+        if (this.projectId && this.secretKey) {
+          // Switch to REST API mode for subscriptions
+          return this.createCheckoutSessionV1(params);
+        }
+
+        throw new Error(
+          'Subscriptions require Finby REST API. ' +
+          'Please provide projectId and secretKey for OAuth authentication, or use apiKey/merchantId for direct API access.'
+        );
       }
-      
-      throw new Error(
-        'Subscriptions require Finby REST API. ' +
-        'Please provide projectId and secretKey for OAuth authentication, or use apiKey/merchantId for direct API access.'
-      );
-      }
-      
+
       return this.createCheckoutSessionV3(params);
     } else {
       // API v1 supports both subscriptions and one-time payments
@@ -138,7 +139,7 @@ export class FinbyProvider implements PaymentProvider {
     if (!params.productId || !params.amount || !params.email) {
       throw new Error('productId, amount, and email are required for Finby API v3');
     }
-    
+
     // Ensure productId is a valid number
     if (typeof params.productId !== 'number' || isNaN(params.productId) || params.productId < 0) {
       throw new Error('productId must be a valid non-negative number');
@@ -146,7 +147,7 @@ export class FinbyProvider implements PaymentProvider {
 
     // Generate reference if not provided
     const reference = params.reference || generateFinbyReference();
-    
+
     // Convert amount from cents to decimal
     const amount = params.amount / 100;
     const currency = params.currency || 'EUR';
@@ -231,7 +232,7 @@ export class FinbyProvider implements PaymentProvider {
     }
 
     // Determine if this is a subscription or one-time payment
-    const isSubscription = 
+    const isSubscription =
       params.metadata?.isSubscription === 'true' ||
       params.mode === 'subscription' ||
       params.metadata?.subscription === 'true';
@@ -296,8 +297,10 @@ export class FinbyProvider implements PaymentProvider {
 
     if (!response.ok) {
       const errorText = await response.text();
+      console.error(`[Finby Checkout] Initiation failed: ${response.status} ${response.statusText}`, errorText);
+      console.error('[Finby Checkout] Request body:', JSON.stringify(requestBody, null, 2));
       let errorMessage = `Finby checkout error: ${errorText}`;
-      
+
       // If subscription endpoint doesn't exist, fall back to one-time payment
       if (isSubscription && response.status === 404) {
         console.warn('[Finby] Subscription endpoint not found, using one-time payment');
@@ -311,11 +314,11 @@ export class FinbyProvider implements PaymentProvider {
           },
           body: JSON.stringify(requestBody),
         });
-        
+
         if (!retryResponse.ok) {
           throw new Error(`Finby payment error: ${await retryResponse.text()}`);
         }
-        
+
         const retryData = (await retryResponse.json()) as any;
         return {
           id: retryData.PaymentRequestId || params.reference || '',
@@ -325,13 +328,13 @@ export class FinbyProvider implements PaymentProvider {
           transactionId: retryData.PaymentRequestId,
         };
       }
-      
+
       throw new Error(errorMessage);
     }
 
-    const data = (await response.json()) as { 
-      PaymentRequestId?: string; 
-      CheckoutUrl?: string; 
+    const data = (await response.json()) as {
+      PaymentRequestId?: string;
+      CheckoutUrl?: string;
       SubscriptionId?: string;
       ResultInfo?: { ResultCode: number; AdditionalInfo?: string };
     };
@@ -440,7 +443,7 @@ export class FinbyProvider implements PaymentProvider {
 
     // Parse the raw body - could be JSON or URL-encoded query string
     let params: Record<string, string> = {};
-    
+
     try {
       // Try parsing as JSON first
       const jsonData = JSON.parse(rawBody);
@@ -525,7 +528,7 @@ export class FinbyProvider implements PaymentProvider {
    */
   private verifySignatureV1(rawBody: string, signature: string): boolean {
     if (!this.webhookSecret) return true;
-    
+
     // Implement HMAC verification for API v1
     // This may need adjustment based on Finby's actual implementation
     const calculatedSignature = this.generateSignature(this.webhookSecret, rawBody);

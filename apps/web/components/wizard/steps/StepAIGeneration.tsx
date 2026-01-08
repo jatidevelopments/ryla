@@ -124,14 +124,20 @@ export function StepAIGeneration() {
 
       {/* Continue button - only show when complete */}
       {isComplete && (
-        <button
-          onClick={handleContinue}
-          className="w-full max-w-xs h-12 rounded-xl font-bold text-base bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all relative overflow-hidden group"
-        >
-          <div className="absolute inset-0 w-[200%] -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 pointer-events-none" />
-          <span className="relative z-10">Review & Continue</span>
-        </button>
+        <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#121214]/90 backdrop-blur-md border-t border-white/5 md:relative md:p-0 md:bg-transparent md:border-none md:mt-0 z-30">
+          <div className="max-w-2xl mx-auto">
+            <button
+              onClick={handleContinue}
+              className="w-full h-12 md:h-14 rounded-xl font-bold text-base md:text-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all relative overflow-hidden group active:scale-[0.98]"
+            >
+              <div className="absolute inset-0 w-[200%] -translate-x-full group-hover:translate-x-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transition-transform duration-700 pointer-events-none" />
+              <span className="relative z-10">Review & Continue</span>
+            </button>
+          </div>
+        </div>
       )}
+      {/* Spacer for fixed button on mobile when complete */}
+      {isComplete && <div className="h-20 md:hidden" />}
     </div>
   );
 }

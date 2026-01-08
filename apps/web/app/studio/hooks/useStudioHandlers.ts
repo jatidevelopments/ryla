@@ -79,13 +79,19 @@ export function useStudioHandlers({
     uploadImageMutation,
   });
 
-  // Handle image selection with panel management
+  // Handle image selection (select only)
   const handleSelectImage = React.useCallback(
     (image: StudioImage | null) => {
       imageActions.handleSelectImage(image, setSelectedInfluencerId, selectedInfluencerId);
-      if (image) {
-        setShowPanel(true);
-      }
+    },
+    [imageActions, setSelectedInfluencerId, selectedInfluencerId]
+  );
+
+  // Handle opening details (select + show panel)
+  const handleOpenDetails = React.useCallback(
+    (image: StudioImage) => {
+      imageActions.handleSelectImage(image, setSelectedInfluencerId, selectedInfluencerId);
+      setShowPanel(true);
     },
     [imageActions, setSelectedInfluencerId, selectedInfluencerId, setShowPanel]
   );
@@ -115,7 +121,9 @@ export function useStudioHandlers({
     handleDelete: imageActions.handleDelete,
     handleDownload: imageActions.handleDownload,
     handleSelectImage,
+    handleOpenDetails,
     // Generation actions
+
     handleGenerate: generationActions.handleGenerate,
     handleRetry: generationActions.handleRetry,
     // Upload actions

@@ -19,10 +19,10 @@ export function RegenerateAllButton({
         onClick={onRegenerateAll}
         disabled={isGenerating || isRegeneratingAll}
         className={cn(
-          'w-full px-4 py-2.5 rounded-xl text-sm font-medium transition-all',
+          'w-full min-h-[44px] px-4 py-3 rounded-xl text-sm font-semibold transition-all',
           isGenerating || isRegeneratingAll
             ? 'bg-white/5 text-white/40 cursor-not-allowed'
-            : 'bg-white/10 text-white hover:bg-white/20'
+            : 'bg-white/10 text-white hover:bg-white/20 active:scale-[0.98]'
         )}
       >
         {isRegeneratingAll ? (
@@ -37,4 +37,3 @@ export function RegenerateAllButton({
     </div>
   );
 }
-

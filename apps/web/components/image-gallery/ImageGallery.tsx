@@ -7,6 +7,9 @@ import { useImageActions } from './hooks/useImageActions';
 import { GalleryEmptyState } from './components/GalleryEmptyState';
 import { GalleryImage } from './components/GalleryImage';
 import { LightboxModal } from './components/LightboxModal';
+import { StudioDetailPanel, type StudioImage } from '../studio';
+import * as React from 'react';
+import { useIsMobile } from '@ryla/ui';
 
 export interface ImageGalleryProps {
   images: Post[];
@@ -18,6 +21,8 @@ export interface ImageGalleryProps {
   };
   className?: string;
   onLike?: (imageId: string) => void | Promise<void>;
+  influencerName?: string;
+  influencerAvatar?: string;
 }
 
 export function ImageGallery({
@@ -27,7 +32,13 @@ export function ImageGallery({
   emptyAction,
   className,
   onLike,
+  influencerName = 'Influencer',
+  influencerAvatar,
 }: ImageGalleryProps) {
+  const [detailImageIndex, setDetailImageIndex] = React.useState<number | null>(
+    null
+  );
+  const isMobile = useIsMobile();
   const lightbox = useLightbox({ totalImages: images.length });
   const actions = useImageActions({ influencerId, onLike });
 
@@ -48,13 +59,45 @@ export function ImageGallery({
           <GalleryImage
             key={image.id}
             image={image}
-            onClick={() => lightbox.openLightbox(index)}
+            onClick={() => {
+              if (isMobile) {
+                setDetailImageIndex(index);
+              } else {
+                lightbox.openLightbox(index);
+              }
+            }}
+            onMoreActions={() => setDetailImageIndex(index)}
             onLike={(e) => actions.handleLike(e, image.id)}
             onDownload={(e) => actions.handleDownload(e, image)}
             onEdit={(e) => actions.handleEditInStudio(e, image.id)}
           />
         ))}
       </div>
+
+      {/* Mobile Detail Panel (Bottom Sheet) */}
+      {isMobile && detailImageIndex !== null && (
+        <StudioDetailPanel
+          image={
+            {
+              ...images[detailImageIndex],
+              status: 'completed',
+              influencerName,
+              influencerAvatar,
+              aspectRatio: images[detailImageIndex].aspectRatio as any,
+            } as StudioImage
+          }
+          onClose={() => setDetailImageIndex(null)}
+          onLike={onLike}
+          onDownload={(img) =>
+            actions.handleDownload(
+              { stopPropagation: () => {} } as any,
+              images[detailImageIndex]
+            )
+          }
+          onRetry={() => {}} // Not applicable for gallery images usually
+          variant="modal"
+        />
+      )}
 
       {/* Lightbox */}
       {lightbox.selectedIndex !== null && (
@@ -74,4 +117,3 @@ export function ImageGallery({
     </>
   );
 }
-

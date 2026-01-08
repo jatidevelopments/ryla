@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { usePosePickerFilters } from './hooks';
 import {
   PosePickerHeader,
@@ -10,6 +9,7 @@ import {
   PosePickerFooter,
 } from './components';
 import { useGalleryFavorites } from '../../../../../lib/hooks/use-gallery-favorites';
+import { PickerDrawer } from '../PickerDrawer';
 
 interface PosePickerProps {
   selectedPoseId: string | null;
@@ -24,8 +24,6 @@ export function PosePicker({
   onClose,
   nsfwEnabled,
 }: PosePickerProps) {
-  const overlayRef = React.useRef<HTMLDivElement>(null);
-
   // Favorites hook
   const { isFavorited, toggleFavorite } = useGalleryFavorites({
     itemType: 'pose',
@@ -45,30 +43,15 @@ export function PosePicker({
     filteredAdultPoseCount,
   } = usePosePickerFilters({ nsfwEnabled });
 
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === overlayRef.current) {
-      onClose();
-    }
-  };
-
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
-
-  return createPortal(
-    <div
-      ref={overlayRef}
-      onClick={handleOverlayClick}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8"
+  return (
+    <PickerDrawer
+      isOpen={true}
+      onClose={onClose}
+      title="Poses"
+      className="w-full max-w-7xl h-full md:h-auto"
     >
-      <div 
-        className="flex flex-col w-full max-w-7xl max-h-[85vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
+      <div className="flex flex-col h-full md:max-h-[85vh]">
+        {/* Header - Custom for PosePicker */}
         <PosePickerHeader
           search={search}
           onSearchChange={setSearch}
@@ -103,8 +86,6 @@ export function PosePicker({
           onClose={onClose}
         />
       </div>
-    </div>,
-    document.body
+    </PickerDrawer>
   );
 }
-

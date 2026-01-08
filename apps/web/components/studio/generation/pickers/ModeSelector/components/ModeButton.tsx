@@ -23,18 +23,19 @@ export function ModeButton({ mode, isActive, onSelect }: ModeButtonProps) {
         <button
           onClick={(e) => {
             e.preventDefault();
-            // Variations mode is not yet available
           }}
           className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border-2 relative',
+            'flex items-center gap-1 md:gap-2 px-3 md:px-4 min-h-[44px] py-2 md:py-2.5 rounded-2xl text-sm font-medium transition-all border md:border-2 relative',
             'text-orange-400/40 border-transparent cursor-not-allowed',
             'hover:text-orange-400/50'
           )}
           disabled
         >
-          <span className="flex-shrink-0">{config.icon}</span>
-          <span>{config.label}</span>
-          <span className="absolute -top-0.5 -right-0.5 text-[7px] text-orange-400 font-bold bg-orange-400/20 px-1 py-0.5 rounded uppercase tracking-wider">
+          <span className="flex-shrink-0 [&>svg]:w-4 [&>svg]:h-4">
+            {config.icon}
+          </span>
+          <span className="hidden md:inline">{config.label}</span>
+          <span className="absolute -top-0.5 -right-0.5 text-[6px] md:text-[7px] text-orange-400 font-bold bg-orange-400/20 px-0.5 md:px-1 py-0.5 rounded uppercase tracking-wider">
             Soon
           </span>
         </button>
@@ -46,13 +47,16 @@ export function ModeButton({ mode, isActive, onSelect }: ModeButtonProps) {
     <button
       onClick={() => onSelect(mode)}
       className={cn(
-        'flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all border-2',
+        'flex items-center gap-1 md:gap-2 px-3 md:px-4 min-h-[44px] py-2 md:py-2.5 rounded-2xl text-sm font-medium transition-all border md:border-2',
         isActive ? colors.active : colors.inactive
       )}
     >
-      <span className="flex-shrink-0">{config.icon}</span>
-      <span>{config.label}</span>
+      <span className="flex-shrink-0 [&>svg]:w-4 [&>svg]:h-4">
+        {config.icon}
+      </span>
+      <span className={cn('md:inline', isActive ? 'inline' : 'hidden')}>
+        {config.label}
+      </span>
     </button>
   );
 }
-

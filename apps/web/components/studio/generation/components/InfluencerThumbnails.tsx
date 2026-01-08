@@ -67,7 +67,7 @@ export function InfluencerThumbnails({
       <Tooltip content="Select from more influencers">
         <button
           onClick={onShowMore}
-          className="h-11 px-4 rounded-xl bg-white/5 text-[var(--text-secondary)] text-xs font-medium hover:bg-white/10 hover:text-[var(--text-primary)] transition-all"
+          className="min-h-[44px] px-4 rounded-xl bg-white/5 text-[var(--text-secondary)] text-sm font-medium hover:bg-white/10 hover:text-[var(--text-primary)] transition-all"
         >
           More...
         </button>

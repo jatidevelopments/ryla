@@ -46,8 +46,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 
-                   (request.headers.get('origin') || 'http://localhost:3000');
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+      (request.headers.get('origin') || 'http://localhost:3000');
 
     if (body.type === 'subscription') {
       // Handle subscription purchase
@@ -92,7 +92,7 @@ export async function POST(request: NextRequest) {
       const reference = generateSubscriptionReference(ctx.user.id, body.planId);
 
       const session = await finby.createCheckoutSession({
-        priceId: body.isYearly 
+        priceId: body.isYearly
           ? plan.finbyProductIdYearly || `price_${plan.id}_yearly`
           : plan.finbyProductIdMonthly || `price_${plan.id}_monthly`,
         userId: ctx.user.id,
@@ -162,18 +162,18 @@ export async function POST(request: NextRequest) {
       // TODO: Configure actual numeric product IDs in Finby merchant portal
       // and store them in the package definition
       const productIdMap: Record<string, number> = {
-        'credits_500': 1,
-        'credits_1500': 2,
-        'credits_3500': 3,
-        'credits_7500': 4,
-        'credits_15000': 5,
+        'credits_2000': 1,
+        'credits_8000': 2,
+        'credits_22000': 3,
+        'credits_50000': 4,
+        'credits_110000': 5,
       };
       const productId = productIdMap[package_.finbyProductId || ''] || 0;
-      
+
       if (productId === 0) {
         console.warn(`[Finby] No productId mapping found for package ${package_.id}, using 0`);
       }
-      
+
       const session = await finby.createCheckoutSession({
         productId, // Required for Finby API v3
         amount: Math.round(package_.price * 100), // Convert to cents

@@ -5,10 +5,7 @@ import { useCharacterWizardStore } from '@ryla/business';
 import { WizardOptionCard } from '../WizardOptionCard';
 import { WizardImageCard } from '../WizardImageCard';
 import { cn } from '@ryla/ui';
-import {
-  INFLUENCER_VOICES,
-  VIDEO_CONTENT_OPTIONS,
-} from '../../../constants';
+import { INFLUENCER_VOICES, VIDEO_CONTENT_OPTIONS } from '../../../constants';
 
 /**
  * Step 9: Advanced
@@ -60,15 +57,21 @@ export function StepAdvanced() {
         {/* Section 2: Video Content Options */}
         <section>
           <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-            <p className="text-white/70 text-sm mb-4 font-medium">Video Content Options</p>
+            <p className="text-white/70 text-sm mb-4 font-medium">
+              Video Content Options
+            </p>
             <p className="text-white/50 text-xs mb-4">Select all that apply</p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {VIDEO_CONTENT_OPTIONS.map((option) => {
-                const isSelected = form.videoContentOptions?.includes(option.value) || false;
+                const isSelected =
+                  form.videoContentOptions?.includes(option.value) || false;
                 return (
                   <WizardImageCard
                     key={option.id}
-                    image={option.image}
+                    image={{
+                      ...option.image,
+                      name: option.label,
+                    }}
                     selected={isSelected}
                     onSelect={() => toggleVideoContent(option.value)}
                     aspectRatio="wide"
@@ -82,7 +85,9 @@ export function StepAdvanced() {
         {/* Section 3: NSFW Toggle */}
         <section>
           <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-            <p className="text-white/70 text-sm mb-4 font-medium">NSFW Content</p>
+            <p className="text-white/70 text-sm mb-4 font-medium">
+              NSFW Content
+            </p>
             <button
               onClick={() => setField('nsfwEnabled', !form.nsfwEnabled)}
               className={cn(
@@ -92,8 +97,8 @@ export function StepAdvanced() {
                   : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
               )}
             >
-              <div className="relative z-10 flex items-center justify-between">
-                <div>
+              <div className="relative z-10 flex items-center justify-between gap-4">
+                <div className="flex-1">
                   <p className="text-base font-semibold text-white mb-1">
                     Enable NSFW Content
                   </p>
@@ -103,7 +108,7 @@ export function StepAdvanced() {
                 </div>
                 <div
                   className={cn(
-                    'w-12 h-6 rounded-full transition-all duration-200 flex items-center',
+                    'w-12 h-6 rounded-full transition-all duration-200 flex items-center flex-shrink-0',
                     form.nsfwEnabled
                       ? 'bg-gradient-to-r from-purple-500 to-pink-500'
                       : 'bg-white/20'
@@ -124,4 +129,3 @@ export function StepAdvanced() {
     </div>
   );
 }
-

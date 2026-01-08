@@ -7,6 +7,8 @@ export * from './StylePicker';
 export * from './OutfitCompositionPicker';
 export * from './OutfitModeSelector';
 export * from './PreComposedOutfitPicker';
+export * from './PickerDrawer';
+export * from './MobileSettingsMenu';
 
 // Picker folders
 export * from './AspectRatioPicker';

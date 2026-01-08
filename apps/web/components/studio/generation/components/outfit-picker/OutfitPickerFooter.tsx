@@ -24,12 +24,13 @@ export function OutfitPickerFooter({
   onApply,
 }: OutfitPickerFooterProps) {
   return (
-    <div className="flex-shrink-0 flex items-center justify-between px-6 py-4 border-t border-white/10 bg-[#0d0d0f]">
+    <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-t border-white/10 bg-[#0d0d0f]">
       <div className="flex items-center gap-3">
         {selectedPiecesCount > 0 ? (
           <div className="flex items-center gap-2">
             <span className="text-white/50 text-sm">
-              {selectedPiecesCount} piece{selectedPiecesCount !== 1 ? 's' : ''} selected
+              {selectedPiecesCount} piece{selectedPiecesCount !== 1 ? 's' : ''}{' '}
+              selected
             </span>
           </div>
         ) : (
@@ -67,4 +68,3 @@ export function OutfitPickerFooter({
     </div>
   );
 }
-

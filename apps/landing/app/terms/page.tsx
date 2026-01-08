@@ -64,249 +64,174 @@ export default function TermsPage() {
           </div>
 
           {/* Content */}
-          <div className="prose prose-invert max-w-none space-y-8 text-[var(--text-secondary)]">
+          <div className="prose prose-invert max-w-none space-y-12 text-[var(--text-secondary)]">
             <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                1. Agreement to Terms
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                1. Acceptance of Terms
+              </h2>
+              <div className="space-y-4 leading-relaxed">
+                <p>
+                  Welcome to RYLA. These Terms of Service (“TOS”) set forth the
+                  guidelines for using our website located at
+                  https://www.ryla.ai/ and our associated application.
+                </p>
+                <p>
+                  Before you access or use RYLA, you must thoroughly review and
+                  agree to these TOS. By using the platform, you represent that
+                  you have read, understood, and agreed to be bound by these
+                  Terms and our Privacy Policy. If you do not agree, you must
+                  immediately discontinue use of our services.
+                </p>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                2. Description of RYLA Services
+              </h2>
+              <div className="space-y-4 leading-relaxed">
+                <p>
+                  RYLA is a generative artificial intelligence technology
+                  platform. We provide users with tools to design, train, and
+                  manage hyper-realistic AI Influencers and virtual personas.
+                </p>
+                <p>Our core services include:</p>
+                <ul className="list-disc pl-8 space-y-2">
+                  <li>
+                    <strong>Persona Training:</strong> Fine-tuning AI models
+                    based on user-provided reference images.
+                  </li>
+                  <li>
+                    <strong>Image & Video Generation:</strong> Creating visual
+                    content based on text prompts.
+                  </li>
+                  <li>
+                    <strong>Account Management:</strong> Tools for organizing
+                    and monetizing AI personas for social media use.
+                  </li>
+                </ul>
+              </div>
+            </section>
+
+            <section>
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                3. Age Requirement & Eligibility
               </h2>
               <p>
-                By accessing or using RYLA ("the Service"), you agree to be
-                bound by these Terms of Service ("Terms"). If you disagree with
-                any part of these terms, you may not access the Service.
+                The Platform is intended for use by individuals who are at least{' '}
+                <strong>18 years old</strong>. If you are under 18, you are
+                strictly prohibited from accessing our services. We reserve the
+                right to request proof of age at any time and may suspend
+                accounts suspected of belonging to minors.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                2. Description of Service
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                4. Credits, Payments & Earning
               </h2>
-              <p>
-                RYLA is an AI-powered platform that enables users to create,
-                manage, and monetize AI influencers. The Service includes tools
-                for generating images, videos, and content, as well as features
-                for managing social media presence and monetization.
-              </p>
+              <div className="space-y-4 leading-relaxed">
+                <p>
+                  RYLA operates on a credit-based system. Each generation or
+                  training task requires a specific credit balance. Credits can
+                  be purchased as one-time packages or through recurring
+                  memberships.
+                </p>
+                <p>
+                  <strong>No Refunds:</strong> Due to the immediate allocation
+                  of high-cost cloud GPU resources required for AI inference,
+                  all credit purchases and subscription fees are final and
+                  non-refundable.
+                </p>
+                <p>
+                  <strong>Earning and Monetization:</strong> If you use RYLA as
+                  part of an influencer monetization program, you are solely
+                  responsible for compliance with tax laws and local advertising
+                  regulations regarding the disclosure of AI-generated content.
+                </p>
+              </div>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                3. User Accounts
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                5. Intellectual Property & License
               </h2>
-              <h3 className="text-xl font-medium text-[var(--text-primary)] mb-3 mt-6">
-                3.1 Account Creation
-              </h3>
-              <p>
-                To use certain features of the Service, you must register for an
-                account. You agree to:
-              </p>
-              <ul className="list-disc pl-6 space-y-2">
-                <li>Provide accurate, current, and complete information</li>
-                <li>
-                  Maintain and update your information to keep it accurate
-                </li>
-                <li>Maintain the security of your password</li>
-                <li>
-                  Accept responsibility for all activities under your account
-                </li>
-              </ul>
+              <div className="space-y-6 leading-relaxed">
+                <div>
+                  <h3 className="text-white font-semibold mb-2">
+                    User Submissions
+                  </h3>
+                  <p>
+                    You retain any intellectual property rights you hold in the
+                    prompts and reference images you upload. However, you grant
+                    RYLA a worldwide, perpetual, royalty-free license to use
+                    this content to provide and improve the service.
+                  </p>
+                </div>
 
-              <h3 className="text-xl font-medium text-[var(--text-primary)] mb-3 mt-6">
-                3.2 Age Requirement
-              </h3>
-              <p>
-                You must be at least 18 years old to use the Service. By using
-                the Service, you represent and warrant that you are at least 18
-                years of age.
-              </p>
+                <div>
+                  <h3 className="text-white font-semibold mb-2">
+                    Generated Output
+                  </h3>
+                  <p>
+                    Subject to your compliance with these Terms, you are granted
+                    a license to use the generated content for your own
+                    commercial influencer activities. Please note that
+                    AI-generated content without sufficient human creative input
+                    may not be copyrightable under certain jurisdictions (e.g.,
+                    EU or US law).
+                  </p>
+                </div>
+              </div>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                4. Acceptable Use
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                6. Professional Conduct & Restrictions
               </h2>
               <p>You agree not to:</p>
-              <ul className="list-disc pl-6 space-y-2">
+              <ul className="list-disc pl-8 space-y-3">
                 <li>
-                  Use the Service for any illegal purpose or in violation of any
-                  laws
+                  Reverse engineer, scrape, or extract the platform's
+                  proprietary weights or algorithms.
                 </li>
                 <li>
-                  Create, upload, or share content that is harmful, abusive, or
-                  violates others' rights
+                  Generate deepfakes of real individuals without their
+                  verifiable legal consent.
                 </li>
                 <li>
-                  Impersonate any person or entity or misrepresent your
-                  affiliation
-                </li>
-                <li>Interfere with or disrupt the Service or servers</li>
-                <li>
-                  Attempt to gain unauthorized access to any portion of the
-                  Service
+                  Use automated scripts to generate content in a way that
+                  disrupts service for other users.
                 </li>
                 <li>
-                  Use automated systems to access the Service without permission
-                </li>
-                <li>
-                  Reverse engineer, decompile, or disassemble any part of the
-                  Service
+                  Deceive audiences by passing off AI-generated humans as real
+                  people for malicious purposes.
                 </li>
               </ul>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                5. Content and Intellectual Property
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                7. Limitation of Liability
               </h2>
-              <h3 className="text-xl font-medium text-[var(--text-primary)] mb-3 mt-6">
-                5.1 Your Content
-              </h3>
               <p>
-                You retain ownership of content you create, upload, or generate
-                using the Service. By using the Service, you grant us a license
-                to use, store, and process your content as necessary to provide
-                the Service.
-              </p>
-
-              <h3 className="text-xl font-medium text-[var(--text-primary)] mb-3 mt-6">
-                5.2 Our Content
-              </h3>
-              <p>
-                The Service, including its original content, features, and
-                functionality, is owned by RYLA and is protected by
-                international copyright, trademark, and other intellectual
-                property laws.
+                RYLA provides the platform "as is" and "as available." To the
+                fullest extent permitted by law, Miracle AI UG
+                (haftungsbeschränkt) shall not be liable for any indirect,
+                incidental, or consequential damages arising out of your use of
+                the AI services.
               </p>
             </section>
 
             <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                6. Payments and Billing
-              </h2>
-              <h3 className="text-xl font-medium text-[var(--text-primary)] mb-3 mt-6">
-                6.1 Subscription Plans
-              </h3>
-              <p>
-                The Service offers various subscription plans. By subscribing,
-                you agree to pay the fees specified for your chosen plan. Fees
-                are charged in advance on a recurring basis.
-              </p>
-
-              <h3 className="text-xl font-medium text-[var(--text-primary)] mb-3 mt-6">
-                6.2 Refunds
-              </h3>
-              <p>
-                Refund policies vary by plan and are subject to our refund
-                policy. Contact support for refund requests.
-              </p>
-
-              <h3 className="text-xl font-medium text-[var(--text-primary)] mb-3 mt-6">
-                6.3 Price Changes
-              </h3>
-              <p>
-                We reserve the right to modify subscription fees. We will
-                provide notice of any price changes, and you may cancel your
-                subscription before the changes take effect.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                7. Termination
+              <h2 className="text-3xl font-bold text-[var(--text-primary)] mb-6 border-b border-white/10 pb-4">
+                8. Governing Law
               </h2>
               <p>
-                We may terminate or suspend your account and access to the
-                Service immediately, without prior notice, for conduct that we
-                believe violates these Terms or is harmful to other users, us,
-                or third parties, or for any other reason.
-              </p>
-              <p className="mt-4">
-                You may terminate your account at any time by contacting support
-                or using account deletion features in your settings.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                8. Disclaimers
-              </h2>
-              <p>
-                THE SERVICE IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT
-                WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. WE DISCLAIM
-                ALL WARRANTIES, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES
-                OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND
-                NON-INFRINGEMENT.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                9. Limitation of Liability
-              </h2>
-              <p>
-                TO THE MAXIMUM EXTENT PERMITTED BY LAW, RYLA SHALL NOT BE LIABLE
-                FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR
-                PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR REVENUES, WHETHER
-                INCURRED DIRECTLY OR INDIRECTLY, OR ANY LOSS OF DATA, USE,
-                GOODWILL, OR OTHER INTANGIBLE LOSSES.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                10. Indemnification
-              </h2>
-              <p>
-                You agree to defend, indemnify, and hold harmless RYLA and its
-                officers, directors, employees, and agents from and against any
-                claims, liabilities, damages, losses, and expenses, including
-                reasonable attorneys' fees, arising out of or in any way
-                connected with your use of the Service or violation of these
-                Terms.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                11. Governing Law
-              </h2>
-              <p>
-                These Terms shall be governed by and construed in accordance
-                with the laws of [Your Jurisdiction], without regard to its
-                conflict of law provisions.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                12. Changes to Terms
-              </h2>
-              <p>
-                We reserve the right to modify these Terms at any time. We will
-                notify users of any material changes by posting the new Terms on
-                this page and updating the "Last updated" date. Your continued
-                use of the Service after such changes constitutes acceptance of
-                the new Terms.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-2xl font-semibold text-[var(--text-primary)] mb-4">
-                13. Contact Information
-              </h2>
-              <p>
-                If you have any questions about these Terms, please contact us
-                at:
-              </p>
-              <p className="mt-2">
-                <strong>Email:</strong> legal@ryla.ai
-                <br />
-                <strong>Website:</strong>{' '}
-                <a
-                  href="/"
-                  className="text-[var(--purple-400)] hover:underline"
-                >
-                  ryla.ai
-                </a>
+                These Terms are governed by the laws of the Federal Republic of
+                Germany. Any disputes arising from these Terms or use of the
+                service shall be settled in the competent courts of Berlin,
+                Germany.
               </p>
             </section>
           </div>

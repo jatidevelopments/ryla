@@ -62,14 +62,14 @@ function InfluencerTabButton({
       <button
         onClick={onSelect}
         className={cn(
-          'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
+          'flex items-center gap-1.5 md:gap-2 rounded-lg md:rounded-lg px-2.5 md:px-3 min-h-[44px] md:min-h-0 py-2 md:py-1.5 text-sm font-medium transition-all whitespace-nowrap flex-shrink-0',
           isSelected
             ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/50'
             : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent'
         )}
       >
         {influencer.avatar ? (
-          <div className="relative h-6 w-6 overflow-hidden rounded-full border border-[var(--purple-500)]/30 flex-shrink-0">
+          <div className="relative h-5 w-5 md:h-6 md:w-6 overflow-hidden rounded-full border border-[var(--purple-500)]/30 flex-shrink-0">
             <Image
               src={influencer.avatar}
               alt={influencer.name}
@@ -79,12 +79,14 @@ function InfluencerTabButton({
             />
           </div>
         ) : (
-          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] text-xs font-bold text-white flex-shrink-0">
+          <div className="flex h-5 w-5 md:h-6 md:w-6 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] text-[10px] md:text-xs font-bold text-white flex-shrink-0">
             {influencer.name.charAt(0)}
           </div>
         )}
-        <span className="max-w-[100px] truncate">{influencer.name}</span>
-        <span className="rounded-full bg-[var(--bg-hover)] px-1.5 py-0.5 text-xs text-[var(--text-muted)] flex-shrink-0">
+        <span className="hidden md:inline max-w-[100px] truncate">
+          {influencer.name}
+        </span>
+        <span className="rounded-full bg-[var(--bg-hover)] px-1 md:px-1.5 py-0.5 text-[10px] md:text-xs text-[var(--text-muted)] flex-shrink-0">
           {influencer.imageCount}
         </span>
       </button>
@@ -112,14 +114,13 @@ export function InfluencerTabsDisplay({
   return (
     <div
       className="flex items-center gap-1 min-w-0"
-      style={{ maxWidth: 'calc(100% - 300px)' }}
       data-tutorial-target="character-selector"
     >
       <Tooltip content="View all images from all influencers">
         <button
           onClick={() => onSelectInfluencer(null)}
           className={cn(
-            'flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-medium transition-all flex-shrink-0',
+            'flex items-center gap-1.5 md:gap-2 rounded-lg md:rounded-lg px-3 md:px-3.5 min-h-[44px] md:min-h-0 py-2 md:py-1.5 text-sm font-medium transition-all flex-shrink-0',
             !selectedInfluencerId
               ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/20'
               : 'text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]'
@@ -129,7 +130,7 @@ export function InfluencerTabsDisplay({
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="h-4 w-4"
+            className="h-3.5 w-3.5 md:h-4 md:w-4"
           >
             <path
               fillRule="evenodd"
@@ -137,19 +138,20 @@ export function InfluencerTabsDisplay({
               clipRule="evenodd"
             />
           </svg>
-          All Images
-          <span className="rounded-full bg-white/20 px-2 py-0.5 text-xs font-medium">
+          <span className="hidden md:inline">All Images</span>
+          <span className="md:hidden">All</span>
+          <span className="rounded-full bg-white/20 px-1.5 md:px-2 py-0.5 text-[10px] md:text-xs font-medium">
             {totalCount}
           </span>
         </button>
       </Tooltip>
 
       {/* Divider */}
-      <div className="mx-3 h-6 w-px bg-[var(--border-default)] flex-shrink-0" />
+      <div className="mx-1.5 md:mx-3 h-5 md:h-6 w-px bg-[var(--border-default)] flex-shrink-0" />
 
       {/* Influencer Tabs - Limited Width with Overflow */}
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="flex items-center gap-2 min-w-0 overflow-hidden">
+      <div className="flex items-center gap-1 md:gap-2 min-w-0">
+        <div className="flex items-center gap-1 md:gap-2 min-w-0 overflow-hidden">
           {visibleInfluencers.map((influencer) => (
             <InfluencerTabButton
               key={influencer.id}
@@ -165,17 +167,12 @@ export function InfluencerTabsDisplay({
           <div className="relative flex-shrink-0">
             <Tooltip content="View more influencers">
               <button
-                ref={(el) => {
-                  // Store ref for dropdown positioning
-                  if (el) {
-                    (window as any).__moreButtonRef = el;
-                  }
-                }}
+                ref={moreButtonRef}
                 onClick={(e) => {
                   e.stopPropagation();
                   onShowMore();
                 }}
-                className="flex items-center justify-center rounded-xl px-3 py-2 text-sm font-medium transition-all h-[36px] w-[36px] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent"
+                className="flex items-center justify-center rounded-lg md:rounded-lg text-sm font-medium transition-all h-[44px] w-[44px] md:h-[32px] md:w-[32px] text-[var(--text-secondary)] hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)] border border-transparent"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -195,4 +192,3 @@ export function InfluencerTabsDisplay({
     </div>
   );
 }
-

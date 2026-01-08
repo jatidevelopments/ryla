@@ -59,3 +59,8 @@ test-results/
 # Next.js
 .next
 out
+
+# PWA
+public/sw.js
+public/sw.js.map
+public/worker-*.js

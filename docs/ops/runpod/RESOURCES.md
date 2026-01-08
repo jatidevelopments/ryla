@@ -21,9 +21,12 @@ This file is the **single source of truth** for RunPod resources created for RYL
 | 2025-12-16 | ryla-prod-guarded-z-image-turbo-handler | template | x1ua87uhrs | (n/a) | Serverless template for Z-Image-Turbo handler | runpod mcp `create-template` | Image: `ghcr.io/jatidevelopments/ryla-prod-guarded-z-image-turbo-handler:latest` |
 | 2025-12-16 | ryla-prod-guarded-flux-dev-endpoint | endpoint | jpcxjab2zpro19 | EU-RO-1 | Serverless endpoint (FLUX.1-schnell handler) | runpod mcp `create-endpoint` | GPU: 4090/3090, workersMax=1, note: network volume not attached via MCP |
 | 2025-12-16 | ryla-prod-guarded-z-image-turbo-endpoint | endpoint | xqs8k7yhabwh0k | EU-RO-1 | Serverless endpoint (Z-Image-Turbo handler) | runpod mcp `create-endpoint` | GPU: 4090/3090, workersMax=1, note: network volume not attached via MCP |
+| 2026-01-07 | ryla-prod-guarded-comfyui-worker | template | bdew7tme8c | (n/a) | Serverless template for ComfyUI worker | runpod mcp `create-template` | Image: `ghcr.io/jatidevelopments/ryla-comfyui-worker:latest` |
+| 2026-01-07 | ryla-prod-guarded-comfyui-serverless | endpoint | pwqwwai0hlhtw9 | (TBD) | Serverless endpoint for ComfyUI workflows | runpod mcp `create-endpoint` | GPU: 4090/3090, workersMax=2, note: network volume needs manual attachment via console |
 
 ## Change Log
 
 - 2025-12-16: Ledger created.
+- 2026-01-07: Added ComfyUI worker template and serverless endpoint for testing ComfyUI workflows on serverless.
 
 

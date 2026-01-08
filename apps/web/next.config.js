@@ -1,5 +1,11 @@
 //@ts-check
 
+const withSerwist = require('@serwist/next').default({
+  swSrc: 'app/sw.ts',
+  swDest: 'public/sw.js',
+  disable: process.env.NODE_ENV === 'development',
+});
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business'],
@@ -54,13 +60,21 @@ const nextConfig = {
       // Ignore server-only packages on client side
       config.plugins.push(
         new webpack.IgnorePlugin({
+          /**
+           * @param {string} resource
+           * @param {string} context
+           */
           checkResource(resource, context) {
             // Ignore pg and related packages
             if (resource === 'pg' || resource === 'pg-native') {
               return true;
             }
             // Also ignore pg when imported from drizzle-orm
-            if (context && context.includes('drizzle-orm') && resource.includes('pg')) {
+            if (
+              context &&
+              context.includes('drizzle-orm') &&
+              resource.includes('pg')
+            ) {
               return true;
             }
             return false;
@@ -96,4 +110,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+module.exports = withSerwist(nextConfig);

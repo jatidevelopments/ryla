@@ -94,6 +94,15 @@ Use the YouTube Tools MCP server to:
 - **Relevance**: EP-005 (Content Studio), quick prototyping, low-resource setup
 - **Key Insights**: Works on 8GB VRAM, single image input, no training time
 
+### Recent Additions (January 2025)
+
+#### [Hyperrealistic Consistent Characters Workflow](./PhiPASFYBmk/)
+
+- **Published**: Jan 2025
+- **Topic**: Complete end-to-end workflow for creating hyperrealistic, consistent characters using free open-source models (Gwen Image Edit, LoRA training, One 2.2 video generation)
+- **Relevance**: EP-001 (Influencer Wizard), EP-005 (Content Studio), dataset creation, LoRA training, upscaling, video generation
+- **Key Insights**: ✅ Gwen Image Edit as free alternative to censored tools, automated dataset creation with captions, Flux+Yuzo upscaling fixes "plastic" skin, AI Toolkit on RunPod for LoRA training (~$4/LoRA), One 2.2 for unified image+video generation, Light X LoRAs for 4-step speed optimization (53s vs 162s)
+
 ### Recent Additions (December 2025)
 
 #### [Seedream 4.5 Deep Dive](./I5wn8WfaT_U/)

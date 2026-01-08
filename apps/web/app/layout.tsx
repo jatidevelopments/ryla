@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { AppShell } from '../components/app-shell/AppShell';
@@ -99,9 +99,25 @@ export const metadata: Metadata = {
     shortcut: '/favicon.ico',
   },
   manifest: '/favicon/site.webmanifest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'RYLA',
+  },
+  formatDetection: {
+    telephone: false,
+  },
   alternates: {
     canonical: '/',
   },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#0a0a0f',
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -120,7 +136,7 @@ export default function RootLayout({
           <AuthProvider>
             {/* MobileBlocker disabled for mobile responsiveness development */}
             {/* <MobileBlocker> */}
-              <AppShell>{children}</AppShell>
+            <AppShell>{children}</AppShell>
             {/* </MobileBlocker> */}
           </AuthProvider>
         </TRPCProvider>

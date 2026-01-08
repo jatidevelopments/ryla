@@ -16,6 +16,7 @@ import { RegisterUserByEmailDto } from '../dto/req/register-user-by-email.dto';
 import { LoginUserDto } from '../dto/req/login-user.dto';
 import { ForgotPasswordDto } from '../dto/req/forgot-password.dto';
 import { ResetPasswordDto } from '../dto/req/reset-password.dto';
+import { ChangePasswordDto } from '../dto/req/change-password.dto';
 import { AuthResponseDto } from '../dto/res/auth-response.dto';
 import { IJwtPayload } from '../interfaces/jwt-payload.interface';
 import { ITokenPair } from '../interfaces/token-pair.interface';
@@ -30,7 +31,6 @@ import {
   NotificationsRepository,
 } from '@ryla/data';
 import * as schema from '@ryla/data/schema';
-import type { NotificationType } from '@ryla/data/schema';
 import { sendEmail, WelcomeEmail, PasswordResetEmail } from '@ryla/email';
 
 const BCRYPT_SALT_ROUNDS = 10;
@@ -108,7 +108,7 @@ export class AuthService {
     const notificationsRepo = new NotificationsRepository(this.db);
     await notificationsRepo.create({
       userId: user.id,
-      type: 'account.welcome' as NotificationType,
+      type: 'account.welcome',
       title: 'Welcome to RYLA!',
       body: `You received ${freeCredits} free credits to get started.`,
       href: '/wizard/step-0',
@@ -232,7 +232,7 @@ export class AuthService {
   /**
    * Get current user by ID
    */
-  public async getCurrentUser(userId: string): Promise<Omit<User, 'password'> | null> {
+  public async getCurrentUser(userId: string): Promise<(Omit<User, 'password'> & { hasPassword?: boolean }) | null> {
     const user = await this.usersRepository.findById(userId);
 
     if (!user) {
@@ -240,8 +240,11 @@ export class AuthService {
     }
 
     // Remove password from response
-    const { password: _, ...userWithoutPassword } = user;
-    return userWithoutPassword;
+    const { password, ...userWithoutPassword } = user;
+    return {
+      ...userWithoutPassword,
+      hasPassword: !!password,
+    };
   }
 
   /**
@@ -335,6 +338,38 @@ export class AuthService {
   }
 
   /**
+   * Change password for an authenticated user
+   */
+  public async changePassword(
+    userId: string,
+    dto: ChangePasswordDto,
+  ): Promise<void> {
+    const user = await this.usersRepository.findById(userId);
+
+    if (!user) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // Verify current password
+    const isPasswordValid = await bcrypt.compare(
+      dto.currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new BadRequestException('Invalid current password');
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(dto.newPassword, BCRYPT_SALT_ROUNDS);
+
+    // Update password
+    await this.usersRepository.updateById(userId, {
+      password: hashedPassword,
+    });
+  }
+
+  /**
    * Generate JWT tokens and save access token to cache
    */
   private async generateAndSaveTokens(
@@ -380,7 +415,7 @@ export class AuthService {
     dto: LoginUserDto,
     userAgent: string,
     ip: string,
-  ): Promise<{ accessToken: string; user: Omit<User, 'password'> }> {
+  ): Promise<{ accessToken: string; user: Omit<User, 'password'> & { hasPassword?: boolean } }> {
     // Find user by email
     const user = await this.usersRepository.findByEmail(dto.email);
     if (!user) {
@@ -411,11 +446,14 @@ export class AuthService {
     // and meant for development tools, not regular user sessions
 
     // Remove sensitive data
-    const { password: _, ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = user;
 
     return {
       accessToken: devToken,
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        hasPassword: !!password,
+      },
     };
   }
 
@@ -424,10 +462,13 @@ export class AuthService {
    */
   private buildAuthResponse(user: User, tokens: ITokenPair): AuthResponseDto {
     // Remove sensitive data
-    const { password: _, ...userWithoutPassword } = user;
+    const { password, ...userWithoutPassword } = user;
 
     return {
-      user: userWithoutPassword,
+      user: {
+        ...userWithoutPassword,
+        hasPassword: !!password,
+      },
       tokens,
     };
   }

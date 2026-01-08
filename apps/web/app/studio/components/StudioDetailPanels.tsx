@@ -1,6 +1,6 @@
 import type { StudioImage } from '../../../components/studio/studio-image-card';
-import type { ViewMode } from '../../../components/studio/studio-toolbar';
 import { StudioDetailPanel } from '../../../components/studio';
+import { cn } from '@ryla/ui';
 
 interface StudioDetailPanelsProps {
   showPanel: boolean;
@@ -21,34 +21,46 @@ export function StudioDetailPanels({
   onDownload,
   onRetry,
 }: StudioDetailPanelsProps) {
-  if (!showPanel || !selectedImage) return null;
+  const isOpen = showPanel && selectedImage;
 
   return (
     <>
-      {/* Right Panel - Detail View (Desktop) */}
-      <StudioDetailPanel
-        image={selectedImage}
-        onClose={onClose}
-        onLike={onLike}
-        onDelete={onDelete}
-        onDownload={onDownload}
-        onRetry={onRetry}
-        className="hidden w-[380px] flex-shrink-0 lg:flex"
-        variant="panel"
-      />
+      {/* Desktop Sidebar - Detail View (Flex-based for space-making) */}
+      <div
+        className={cn(
+          'hidden lg:flex flex-col transition-all duration-300 ease-in-out relative overflow-hidden',
+          isOpen ? 'w-[420px] opacity-100' : 'w-0 opacity-0'
+        )}
+      >
+        <div className="w-[420px] h-full p-4 pb-[190px]">
+          <div className="h-full w-full flex flex-col bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-2xl shadow-2xl overflow-hidden">
+            <StudioDetailPanel
+              image={selectedImage}
+              onClose={onClose}
+              onLike={onLike}
+              onDelete={onDelete}
+              onDownload={onDownload}
+              onRetry={onRetry}
+              className="flex-1 border-none shadow-none"
+              variant="panel"
+            />
+          </div>
+        </div>
+      </div>
 
       {/* Mobile Modal - Detail View */}
-      <StudioDetailPanel
-        image={selectedImage}
-        onClose={onClose}
-        onLike={onLike}
-        onDelete={onDelete}
-        onDownload={onDownload}
-        onRetry={onRetry}
-        className="lg:hidden"
-        variant="modal"
-      />
+      {isOpen && (
+        <StudioDetailPanel
+          image={selectedImage}
+          onClose={onClose}
+          onLike={onLike}
+          onDelete={onDelete}
+          onDownload={onDownload}
+          onRetry={onRetry}
+          className="lg:hidden"
+          variant="modal"
+        />
+      )}
     </>
   );
 }
-

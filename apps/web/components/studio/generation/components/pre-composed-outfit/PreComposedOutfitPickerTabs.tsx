@@ -25,7 +25,7 @@ export function PreComposedOutfitPickerTabs({
   nsfwEnabled = false,
 }: PreComposedOutfitPickerTabsProps) {
   return (
-    <div className="flex items-center gap-3 px-6 py-4 border-b border-white/10 overflow-x-auto scroll-hidden">
+    <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 overflow-x-auto scroll-hidden">
       <button
         onClick={() => onCategoryChange('all')}
         className={cn(
@@ -78,4 +78,3 @@ export function PreComposedOutfitPickerTabs({
     </div>
   );
 }
-

@@ -9,6 +9,7 @@ interface StudioGalleryProps {
   images: StudioImage[];
   selectedImage: StudioImage | null;
   onSelectImage: (image: StudioImage | null) => void;
+  onOpenDetails?: (image: StudioImage) => void;
   onQuickLike?: (imageId: string) => void;
   onQuickDownload?: (image: StudioImage) => void;
   viewMode?: ViewMode;
@@ -20,6 +21,7 @@ export function StudioGallery({
   images,
   selectedImage,
   onSelectImage,
+  onOpenDetails,
   onQuickLike,
   onQuickDownload,
   viewMode = 'grid',
@@ -49,7 +51,7 @@ export function StudioGallery({
 
   if (images.length === 0) {
     return (
-      <div className="relative flex flex-col items-center justify-center py-20 text-center rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] overflow-hidden">
+      <div className="relative flex flex-col items-center justify-center py-10 md:py-20 px-6 text-center rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] overflow-hidden">
         {/* Gradient glow */}
         <div
           className="absolute inset-0 opacity-50"
@@ -58,16 +60,16 @@ export function StudioGallery({
               'radial-gradient(circle at 50% 0%, rgba(168, 85, 247, 0.1) 0%, transparent 50%)',
           }}
         />
-        
-        <div className="relative z-10">
-          <div className="mb-6 flex h-28 w-28 mx-auto items-center justify-center rounded-3xl bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
+
+        <div className="relative z-10 w-full max-w-sm mx-auto">
+          <div className="mb-4 md:mb-6 flex h-20 w-20 md:h-28 md:w-28 mx-auto items-center justify-center rounded-2xl md:rounded-3xl bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
               strokeWidth={1}
               stroke="currentColor"
-              className="h-14 w-14 text-[var(--purple-400)]"
+              className="h-10 w-10 md:h-14 md:w-14 text-[var(--purple-400)]"
             >
               <path
                 strokeLinecap="round"
@@ -76,9 +78,12 @@ export function StudioGallery({
               />
             </svg>
           </div>
-          <h3 className="text-2xl font-bold text-[var(--text-primary)] mb-3">No images yet</h3>
-          <p className="text-[var(--text-secondary)] max-w-md mx-auto">
-            Start generating stunning images for your AI influencers. Each creation will appear here in your personal studio.
+          <h3 className="text-xl md:text-2xl font-bold text-[var(--text-primary)] mb-2 md:mb-3">
+            No images yet
+          </h3>
+          <p className="text-sm md:text-base text-[var(--text-secondary)]">
+            Start generating stunning images for your AI influencers. Each
+            creation will appear here in your personal studio.
           </p>
         </div>
       </div>
@@ -88,13 +93,13 @@ export function StudioGallery({
   // Masonry layout
   if (viewMode === 'masonry') {
     return (
-      <div 
+      <div
         className={cn('gap-3', gridClasses.masonry, className)}
         data-tutorial-target="gallery"
       >
         {images.map((image, index) => (
-          <div 
-            key={image.id} 
+          <div
+            key={image.id}
             className="mb-4 break-inside-avoid animate-in fade-in slide-in-from-bottom-2 duration-300"
             style={{ animationDelay: `${Math.min(index * 30, 500)}ms` }}
           >
@@ -102,6 +107,7 @@ export function StudioGallery({
               image={image}
               isSelected={selectedImage?.id === image.id}
               onSelect={onSelectImage}
+              onOpenDetails={onOpenDetails}
               onQuickLike={onQuickLike}
               onQuickDownload={onQuickDownload}
             />
@@ -130,6 +136,7 @@ export function StudioGallery({
             image={image}
             isSelected={selectedImage?.id === image.id}
             onSelect={onSelectImage}
+            onOpenDetails={onOpenDetails}
             onQuickLike={onQuickLike}
             onQuickDownload={onQuickDownload}
             size={viewMode === 'large' ? 'large' : 'normal'}

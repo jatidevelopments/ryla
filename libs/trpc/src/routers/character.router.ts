@@ -18,14 +18,62 @@ import { sendEmail, InfluencerRequestNotificationEmail } from '@ryla/email';
 import { router, protectedProcedure } from '../trpc';
 
 function tryExtractS3KeyFromStoredUrl(url: string): string | null {
+  if (!url) return null;
+  
   try {
+    // If it's already just a key (no protocol), return as-is
+    if (!url.includes('://') && !url.startsWith('/')) {
+      // Check if it looks like an S3 key (has path separators)
+      if (url.includes('/')) {
+        return url;
+      }
+      return null;
+    }
+
     const u = new URL(url);
-    // Common local MinIO path-style: http://localhost:9000/ryla-images/<key>
+    
+    // Handle MinIO path-style: http://localhost:9000/ryla-images/<key>
     const marker = '/ryla-images/';
     const idx = u.pathname.indexOf(marker);
-    if (idx === -1) return null;
-    const key = u.pathname.slice(idx + marker.length);
-    return key || null;
+    if (idx !== -1) {
+      const key = u.pathname.slice(idx + marker.length);
+      if (key) return decodeURIComponent(key);
+    }
+    
+    // Handle virtual-hosted style: http://ryla-images.localhost:9000/<key>
+    if (u.hostname.includes('ryla-images')) {
+      const key = u.pathname.slice(1); // Remove leading /
+      if (key) return decodeURIComponent(key);
+    }
+    
+    // Handle AWS S3 URLs: https://bucket.s3.region.amazonaws.com/key
+    // or https://s3.region.amazonaws.com/bucket/key
+    if (u.hostname.includes('amazonaws.com') || u.hostname.includes('s3')) {
+      // Remove query parameters (signature, etc.)
+      const pathWithoutQuery = u.pathname;
+      // Remove leading / and bucket name if present
+      let key = pathWithoutQuery;
+      if (key.startsWith('/')) key = key.slice(1);
+      
+      // If hostname contains bucket name, path is just the key
+      // Otherwise, path might be /bucket/key
+      const bucketMarker = '/ryla-images/';
+      const bucketIdx = key.indexOf(bucketMarker);
+      if (bucketIdx !== -1) {
+        key = key.slice(bucketIdx + bucketMarker.length);
+      }
+      
+      if (key) return decodeURIComponent(key);
+    }
+    
+    // Handle generic S3-compatible URLs: extract path after bucket name
+    // Try to find /ryla-images/ or use the path directly
+    if (u.pathname.includes('/ryla-images/')) {
+      const key = u.pathname.split('/ryla-images/')[1];
+      if (key) return decodeURIComponent(key);
+    }
+    
+    return null;
   } catch {
     return null;
   }
@@ -198,7 +246,14 @@ export const characterRouter = router({
           const baseImageUrl = item.baseImageUrl;
           if (!baseImageUrl || !s3) return item;
 
-          const key = tryExtractS3KeyFromStoredUrl(baseImageUrl);
+          // Try to extract S3 key from stored URL
+          let key = tryExtractS3KeyFromStoredUrl(baseImageUrl);
+          
+          // If extraction failed, check if stored value is already a key
+          if (!key && !baseImageUrl.includes('://') && !baseImageUrl.startsWith('/')) {
+            key = baseImageUrl;
+          }
+          
           if (!key) return item;
 
           try {
@@ -208,7 +263,12 @@ export const characterRouter = router({
               { expiresIn: s3.urlTtl },
             );
             return { ...item, baseImageUrl: url };
-          } catch {
+          } catch (error) {
+            // Log error but return item with original URL
+            console.error('Failed to generate signed URL for baseImageUrl in list:', {
+              key,
+              error: error instanceof Error ? error.message : String(error),
+            });
             return item;
           }
         }),
@@ -271,16 +331,42 @@ export const characterRouter = router({
       const s3 = createS3ClientForSigning();
       let baseImageUrl = character.baseImageUrl;
       if (baseImageUrl && s3) {
+        // Try to extract S3 key from stored URL
         const key = tryExtractS3KeyFromStoredUrl(baseImageUrl);
         if (key) {
           try {
+            // Generate fresh signed URL
             baseImageUrl = await getSignedUrl(
               s3.client,
               new GetObjectCommand({ Bucket: s3.bucketName, Key: key }),
               { expiresIn: s3.urlTtl },
             );
-          } catch {
-            // keep stored value
+          } catch (error) {
+            // Log error but keep stored value as fallback
+            console.error('Failed to generate signed URL for baseImageUrl:', {
+              key,
+              error: error instanceof Error ? error.message : String(error),
+            });
+            // If stored URL looks expired or invalid, try to use key directly
+            // This handles cases where stored URL is expired but key is valid
+          }
+        } else {
+          // If we can't extract a key, check if stored URL is already a valid URL
+          // If it's not a valid URL format, it might be stored as just a key
+          if (!baseImageUrl.includes('://') && !baseImageUrl.startsWith('/')) {
+            // Might be stored as just the key - try to use it directly
+            try {
+              baseImageUrl = await getSignedUrl(
+                s3.client,
+                new GetObjectCommand({ Bucket: s3.bucketName, Key: baseImageUrl }),
+                { expiresIn: s3.urlTtl },
+              );
+            } catch (error) {
+              console.error('Failed to generate signed URL from key:', {
+                key: baseImageUrl,
+                error: error instanceof Error ? error.message : String(error),
+              });
+            }
           }
         }
       }

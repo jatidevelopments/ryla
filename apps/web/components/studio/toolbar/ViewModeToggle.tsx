@@ -10,7 +10,11 @@ interface ViewModeToggleProps {
   onViewModeChange: (mode: ViewMode) => void;
 }
 
-const VIEW_MODES: Array<{ mode: ViewMode; tooltip: string; icon: JSX.Element }> = [
+const VIEW_MODES: Array<{
+  mode: ViewMode;
+  tooltip: string;
+  icon: JSX.Element;
+}> = [
   {
     mode: 'grid',
     tooltip: 'Grid view: Compact layout',
@@ -71,13 +75,13 @@ export function ViewModeToggle({
   onViewModeChange,
 }: ViewModeToggleProps) {
   return (
-    <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] p-1">
+    <div className="flex rounded-md border border-[var(--border-default)] bg-[var(--bg-base)] p-0.5">
       {VIEW_MODES.map(({ mode, tooltip, icon }) => (
         <Tooltip key={mode} content={tooltip}>
           <button
             onClick={() => onViewModeChange(mode)}
             className={cn(
-              'rounded-lg p-2 transition-all',
+              'rounded-md min-h-[44px] md:min-h-0 min-w-[44px] md:min-w-0 p-2 md:p-1.5 transition-all flex items-center justify-center',
               viewMode === mode
                 ? 'bg-[var(--purple-500)] text-white shadow-sm'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
@@ -90,4 +94,3 @@ export function ViewModeToggle({
     </div>
   );
 }
-

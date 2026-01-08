@@ -11,7 +11,7 @@ export default function PaymentSuccessPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
-  
+
   const type = searchParams.get('type'); // 'subscription' | 'credit'
   const reference = searchParams.get('reference');
 
@@ -26,9 +26,9 @@ export default function PaymentSuccessPage() {
 
   const handleContinue = () => {
     if (type === 'subscription') {
-      router.push('/pricing');
+      router.push('/pricing?success=true');
     } else {
-      router.push('/buy-credits');
+      router.push('/buy-credits?success=true');
     }
   };
 
@@ -49,20 +49,22 @@ export default function PaymentSuccessPage() {
 
             {/* Message */}
             <p className="text-[var(--text-secondary)] mb-8">
-              {isLoading ? (
-                'Processing your payment...'
-              ) : type === 'subscription' ? (
-                'Your subscription has been activated. Credits have been added to your account.'
-              ) : (
-                'Your credits have been added to your account and are ready to use.'
-              )}
+              {isLoading
+                ? 'Processing your payment...'
+                : type === 'subscription'
+                ? 'Your subscription has been activated. Credits have been added to your account.'
+                : 'Your credits have been added to your account and are ready to use.'}
             </p>
 
             {/* Reference */}
             {reference && (
               <div className="mb-8 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)]">
-                <p className="text-xs text-[var(--text-muted)] mb-1">Payment Reference</p>
-                <p className="text-sm font-mono text-[var(--text-secondary)]">{reference}</p>
+                <p className="text-xs text-[var(--text-muted)] mb-1">
+                  Payment Reference
+                </p>
+                <p className="text-sm font-mono text-[var(--text-secondary)]">
+                  {reference}
+                </p>
               </div>
             )}
 
@@ -74,26 +76,23 @@ export default function PaymentSuccessPage() {
                 className="w-full"
                 size="lg"
               >
-                {type === 'subscription' ? 'View Subscription' : 'Buy More Credits'}
+                {type === 'subscription'
+                  ? 'View Subscription'
+                  : 'Buy More Credits'}
                 <ArrowRight className="ml-2 h-4 w-4" />
               </RylaButton>
-              
-              <RylaButton
-                asChild
-                variant="ghost"
-                className="w-full"
-              >
-                <Link href="/dashboard">
-                  Go to Dashboard
-                </Link>
+
+              <RylaButton asChild variant="ghost" className="w-full">
+                <Link href="/dashboard">Go to Dashboard</Link>
               </RylaButton>
             </div>
 
             {/* Help */}
             <div className="mt-8 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)]">
               <p className="text-xs text-[var(--text-muted)]">
-                If you don't see your credits or subscription, please wait a few moments and refresh the page.
-                If the issue persists, contact support.
+                If you don't see your credits or subscription, please wait a few
+                moments and refresh the page. If the issue persists, contact
+                support.
               </p>
             </div>
           </div>
@@ -102,4 +101,3 @@ export default function PaymentSuccessPage() {
     </ProtectedRoute>
   );
 }
-

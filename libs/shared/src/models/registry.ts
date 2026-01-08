@@ -156,6 +156,8 @@ export interface ModelDefinition {
   isPro?: boolean;
   /** Whether this model supports NSFW content (only ComfyUI models) */
   supportsNSFW?: boolean;
+  /** Whether this model supports LoRA training for character consistency */
+  supportsLoRA?: boolean;
   /** Whether this model should be shown in MVP Studio (1-2 per capability) */
   isMVP?: boolean;
   /** Estimated credits for 1024x1024 image (for display) */
@@ -262,6 +264,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     outputType: 'image',
     isUnlimited: true,
     supportsNSFW: false, // Fal.ai models don't support NSFW
+    supportsLoRA: true, // Supports LoRA training for character consistency (future)
     isMVP: true, // MVP model for editing/variations (SFW only)
     estimatedCredits1MP: 2.5,
     pricingInfo: {
@@ -373,6 +376,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     inputType: 'text',
     outputType: 'image',
     isUnlimited: true,
+    supportsLoRA: true, // Supports LoRA training for character consistency
     estimatedCredits1MP: 0.5,
     pricingInfo: {
       costPerMegapixel: 0.005,

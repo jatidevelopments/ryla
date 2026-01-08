@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { capture } from '@ryla/analytics';
 import { useNotifications } from '../../lib/hooks/use-notifications';
 import { ClockIcon } from './ClockIcon';
-import { NotificationsDropdown } from './NotificationsDropdown';
+import { PickerDrawer } from '../studio/generation/pickers/PickerDrawer';
+import { NotificationsHeader } from './NotificationsHeader';
+import { NotificationsList } from './NotificationsList';
 
 export function NotificationsMenu() {
   const { items, unreadCount, isLoading, markAllRead, markRead } =
@@ -22,30 +24,6 @@ export function NotificationsMenu() {
     const r = items.filter((n) => n.isRead);
     return { unread: u, read: r };
   }, [items]);
-
-  // Close on click outside + escape
-  useEffect(() => {
-    if (!open) return;
-
-    const onMouseDown = (e: MouseEvent) => {
-      const el = rootRef.current;
-      if (!el) return;
-      if (e.target instanceof Node && !el.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') setOpen(false);
-    };
-
-    document.addEventListener('mousedown', onMouseDown);
-    document.addEventListener('keydown', onKeyDown);
-    return () => {
-      document.removeEventListener('mousedown', onMouseDown);
-      document.removeEventListener('keydown', onKeyDown);
-    };
-  }, [open]);
 
   const handleToggle = () => {
     const next = !open;
@@ -67,7 +45,7 @@ export function NotificationsMenu() {
       <button
         type="button"
         onClick={handleToggle}
-        className="relative flex h-10 w-10 items-center justify-center rounded-full text-[var(--text-secondary)] transition-all hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
+        className="relative flex min-h-[44px] min-w-[44px] items-center justify-center rounded-full text-[var(--text-secondary)] transition-all hover:bg-[var(--bg-hover)] hover:text-[var(--text-primary)]"
         aria-label="Notifications"
         aria-expanded={open}
       >
@@ -79,20 +57,30 @@ export function NotificationsMenu() {
         )}
       </button>
 
-      {open && (
-        <NotificationsDropdown
-          notifications={items}
-          unreadNotifications={unread}
-          readNotifications={read}
+      <PickerDrawer
+        isOpen={open}
+        onClose={() => setOpen(false)}
+        anchorRef={rootRef}
+        desktopPosition="bottom"
+        align="right"
+        className="w-[360px] max-w-[95vw]"
+      >
+        <NotificationsHeader
           unreadCount={unreadCount}
-          isLoading={isLoading}
           onMarkAllRead={handleMarkAllRead}
-          onMarkRead={markRead}
-          onClose={() => setOpen(false)}
         />
-      )}
+
+        <div className="max-h-[420px] overflow-y-auto p-2">
+          <NotificationsList
+            notifications={items}
+            unreadNotifications={unread}
+            readNotifications={read}
+            isLoading={isLoading}
+            onMarkRead={markRead}
+            onClose={() => setOpen(false)}
+          />
+        </div>
+      </PickerDrawer>
     </div>
   );
 }
-
-

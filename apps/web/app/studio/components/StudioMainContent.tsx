@@ -11,6 +11,7 @@ interface StudioMainContentProps {
   viewMode: ViewMode;
   isLoading?: boolean;
   onSelectImage: (image: StudioImage | null) => void;
+  onOpenDetails: (image: StudioImage) => void;
   onLike: (imageId: string) => void;
   onDownload: (image: StudioImage) => void;
   onClosePanel: () => void;
@@ -25,6 +26,7 @@ export function StudioMainContent({
   viewMode,
   isLoading = false,
   onSelectImage,
+  onOpenDetails,
   onLike,
   onDownload,
   onClosePanel,
@@ -34,12 +36,13 @@ export function StudioMainContent({
   return (
     <div className="relative flex flex-1 overflow-hidden">
       {/* Gallery */}
-      <div className="flex-1 overflow-y-auto p-3 lg:p-4">
+      <div className="flex-1 overflow-y-auto p-3 lg:p-4 transition-all duration-300 ease-in-out">
         <FadeInUp delay={100}>
           <StudioGallery
             images={filteredImages}
             selectedImage={selectedImage}
             onSelectImage={onSelectImage}
+            onOpenDetails={onOpenDetails}
             onQuickLike={onLike}
             onQuickDownload={onDownload}
             viewMode={viewMode}
@@ -61,4 +64,3 @@ export function StudioMainContent({
     </div>
   );
 }
-

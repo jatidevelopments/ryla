@@ -28,12 +28,12 @@ export function ModeSelector({
   return (
     <div
       className={cn(
-        'flex items-center gap-2 px-4 lg:px-6 py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-default)]',
+        'flex items-center gap-1 md:gap-2 px-2 md:px-4 lg:px-6 py-1.5 md:py-3 bg-[var(--bg-elevated)] border-b border-[var(--border-default)] overflow-x-auto scroll-hidden',
         className
       )}
     >
-      {/* Mode Tabs */}
-      <div className="flex items-center gap-1" data-tutorial-target="mode-tabs">
+      {/* Mode Tabs - Scrollable on mobile */}
+      <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0" data-tutorial-target="mode-tabs">
         {(Object.keys(MODE_CONFIG) as StudioMode[]).map((modeKey) => (
           <ModeButton
             key={modeKey}
@@ -44,8 +44,8 @@ export function ModeSelector({
         ))}
       </div>
 
-      {/* Divider */}
-      <div className="h-6 w-px bg-[var(--border-default)]" />
+      {/* Divider - hidden on mobile */}
+      <div className="hidden md:block h-6 w-px bg-[var(--border-default)]" />
 
       {/* Content Type Selector */}
       <ContentTypeSelector
@@ -54,10 +54,12 @@ export function ModeSelector({
       />
 
       {/* Spacer */}
-      <div className="flex-1" />
+      <div className="flex-1 min-w-2" />
 
-      {/* Credits Display */}
-      <CreditsDisplay creditsAvailable={creditsAvailable} />
+      {/* Credits Display - Hidden on mobile (shown elsewhere) */}
+      <div className="hidden md:block">
+        <CreditsDisplay creditsAvailable={creditsAvailable} />
+      </div>
     </div>
   );
 }

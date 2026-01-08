@@ -17,8 +17,8 @@ export function OutfitPickerHeader({
   onClose,
 }: OutfitPickerHeaderProps) {
   return (
-    <div className="flex-shrink-0 flex items-center justify-between px-6 py-5 border-b border-white/10">
-      <div className="flex-1">
+    <div className="flex-shrink-0 flex items-center justify-between px-4 sm:px-6 py-3 sm:py-5 border-b border-white/10">
+      <div className="hidden sm:block flex-1">
         <h2 className="text-xl font-bold text-white mb-1">Compose Outfit</h2>
         <p className="text-sm text-white/60">
           Select pieces from different categories to create your outfit
@@ -65,4 +65,3 @@ export function OutfitPickerHeader({
     </div>
   );
 }
-

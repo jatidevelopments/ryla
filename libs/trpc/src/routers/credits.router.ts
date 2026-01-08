@@ -14,13 +14,13 @@ import {
   generationJobs,
   NotificationsRepository,
 } from '@ryla/data';
-import type { NotificationType } from '@ryla/data/schema';
+import type { Notification } from '@ryla/data/schema';
 
 import { router, protectedProcedure } from '../trpc';
 
 // Low balance threshold (show warning when credits <= this value)
-// Set to ~5 fast studio generations worth of credits
-const LOW_BALANCE_THRESHOLD = 100;
+// Set to 500 credits ($0.50)
+const LOW_BALANCE_THRESHOLD = 500;
 
 export const creditsRouter = router({
   /**
@@ -40,7 +40,7 @@ export const creditsRouter = router({
       const notificationsRepo = new NotificationsRepository(ctx.db);
       await notificationsRepo.create({
         userId: ctx.user.id,
-        type: 'credits.low_balance' as NotificationType,
+        type: 'credits.low_balance',
         title: 'Low credits warning',
         body: `You have ${balance} credits remaining. Consider purchasing more.`,
         href: '/buy-credits',
@@ -151,7 +151,7 @@ export const creditsRouter = router({
       const notificationsRepo = new NotificationsRepository(ctx.db);
       await notificationsRepo.create({
         userId: ctx.user.id,
-        type: 'credits.refunded' as NotificationType,
+        type: 'credits.refunded',
         title: 'Credits refunded',
         body: `${creditsToRefund} credits refunded for failed generation`,
         href: '/activity',

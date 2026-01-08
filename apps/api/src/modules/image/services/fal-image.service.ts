@@ -511,8 +511,10 @@ export function calculateFalModelCredits(
   height: number
 ): number {
   const usdCost = calculateFalModelCost(modelId, width, height);
-  // 10x margin × 10x psychological = 100x multiplier
-  return Math.ceil(usdCost * 100);
+  // Standard: 1 Credit = $0.001
+  // Margin: 2x
+  // Formula: (USD * 2) / 0.001 = USD * 2000
+  return Math.ceil(usdCost * 2000);
 }
 
 /**
@@ -613,15 +615,15 @@ export class FalImageService {
     // Some models like Seedream 4.5 use async queue API
     const queueResponse = json as { request_id?: string; status?: string; images?: unknown };
     const hasImages = this.extractImageUrls(json).length > 0;
-    
+
     this.logger.debug(`Fal response check ${modelId}: request_id=${queueResponse.request_id || 'none'}, status=${queueResponse.status || 'none'}, hasImages=${hasImages}`);
-    
+
     // If we got a request_id but no images, it's async - need to poll
     if (queueResponse.request_id && !hasImages) {
       this.logger.log(`Fal model ${modelId} returned async request_id=${queueResponse.request_id}, polling queue...`);
       return await this.pollFalQueue(queueResponse.request_id, modelId);
     }
-    
+
     // Also check if status indicates async processing
     if (queueResponse.status === 'IN_QUEUE' || queueResponse.status === 'IN_PROGRESS') {
       if (queueResponse.request_id) {
@@ -733,7 +735,7 @@ export class FalImageService {
         // Remove 'fal-ai/' prefix if present for queue API
         const modelPath = modelId.startsWith('fal-ai/') ? modelId : `fal-ai/${modelId}`;
         const pollUrl = `https://queue.fal.run/${modelPath}/requests/${requestId}`;
-        
+
         const res = await fetch(pollUrl, {
           method: 'GET',
           headers: {
@@ -750,7 +752,7 @@ export class FalImageService {
         }
 
         const json = await res.json() as { status: string; images?: Array<{ url: string }>; error?: string };
-        
+
         if (json.status === 'COMPLETED' && json.images && json.images.length > 0) {
           const imageUrls = json.images.map((img) => img.url);
           this.logger.log(`Fal queue completed (${modelId}) requestId=${requestId} images=${imageUrls.length}`);

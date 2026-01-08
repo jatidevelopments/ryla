@@ -10,7 +10,10 @@ interface ModelSelectorProps {
   availableModels: AIModel[];
   selectedModel: AIModel | null;
   settings: GenerationSettings;
-  updateSetting: <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => void;
+  updateSetting: <K extends keyof GenerationSettings>(
+    key: K,
+    value: GenerationSettings[K]
+  ) => void;
   showPicker: boolean;
   onTogglePicker: () => void;
   onClosePicker: () => void;
@@ -34,12 +37,17 @@ export function ModelSelector({
           ref={buttonRef}
           onClick={onTogglePicker}
           disabled={!selectedModel || availableModels.length === 0}
-          className="flex items-center gap-1.5 h-8 px-2 rounded-lg bg-white/5 text-[var(--text-primary)] text-xs font-medium hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex items-center gap-1.5 md:gap-2 min-h-[44px] px-3 md:px-4 py-2 md:py-2.5 rounded-2xl bg-white/5 text-[var(--text-primary)] text-sm font-medium hover:bg-white/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {selectedModel && (
             <>
-              <ModelIcon model={selectedModel} className="h-3.5 w-3.5 text-[var(--purple-400)]" />
-              <span className="truncate max-w-[80px]">{selectedModel.name.replace('RYLA ', '')}</span>
+              <ModelIcon
+                model={selectedModel}
+                className="h-4 w-4 text-[var(--purple-400)]"
+              />
+              <span className="truncate max-w-[80px] md:max-w-[120px]">
+                {selectedModel.name.replace('RYLA ', '')}
+              </span>
             </>
           )}
           {!selectedModel && <span>No models available</span>}
@@ -47,7 +55,7 @@ export function ModelSelector({
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="h-3.5 w-3.5 text-[var(--text-muted)]"
+            className="h-3 w-3 md:h-3.5 md:w-3.5 text-[var(--text-muted)]"
           >
             <path
               fillRule="evenodd"
@@ -72,4 +80,3 @@ export function ModelSelector({
     </div>
   );
 }
-

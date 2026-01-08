@@ -15,20 +15,25 @@ import {
   type UserCredits,
 } from '@ryla/data';
 
-// Plan to credits mapping
+// Plan to credits mapping (based on @ryla/shared credits/pricing.ts)
 export const PLAN_CREDITS: Record<string, number> = {
   // Plan names (case-insensitive matching)
-  free: 10,
-  starter: 100,
-  pro: 300,
+  free: 500,
+  starter: 30000,
+  pro: 60000,
   unlimited: 0, // Unlimited plan doesn't use credits
 
-  // Price IDs (for direct lookup)
-  // Add your actual Finby/Stripe price IDs here
-  price_starter_monthly: 100,
-  price_starter_yearly: 100,
-  price_pro_monthly: 300,
-  price_pro_yearly: 300,
+  // Finby/Stripe Product/Price IDs
+  starter_monthly: 30000,
+  starter_yearly: 30000,
+  pro_monthly: 60000,
+  pro_yearly: 60000,
+
+  // Legacy price IDs
+  price_starter_monthly: 30000,
+  price_starter_yearly: 30000,
+  price_pro_monthly: 60000,
+  price_pro_yearly: 60000,
 };
 
 export interface CreditGrantParams {
@@ -60,13 +65,13 @@ export function getCreditsForPlan(planOrPriceId: string): number {
   }
 
   // Try matching by prefix
-  if (key.includes('starter')) return 100;
-  if (key.includes('pro')) return 300;
+  if (key.includes('starter')) return 30000;
+  if (key.includes('pro')) return 60000;
   if (key.includes('unlimited')) return 0;
-  if (key.includes('free')) return 10;
+  if (key.includes('free')) return 500;
 
   // Default to starter credits
-  return 100;
+  return 30000;
 }
 
 /**
@@ -83,8 +88,8 @@ export async function grantCredits(
     const dbQuery = (db as any).query;
     let credits: UserCredits | undefined = dbQuery?.userCredits?.findFirst
       ? await dbQuery.userCredits.findFirst({
-          where: eq(userCredits.userId, params.userId),
-        })
+        where: eq(userCredits.userId, params.userId),
+      })
       : undefined;
 
     const previousBalance = credits?.balance ?? 0;

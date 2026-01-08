@@ -28,7 +28,7 @@ export function OutfitPiecesGrid({
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+    <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
       {pieces.map((piece) => {
         const isSelected = isPieceSelected(piece);
 
@@ -57,8 +57,12 @@ export function OutfitPiecesGrid({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-3 z-10">
-                    <div className="text-sm font-semibold text-white mb-1">{piece.label}</div>
-                    <div className="text-xs text-white/60 capitalize">{piece.category}</div>
+                    <div className="text-sm font-semibold text-white mb-1">
+                      {piece.label}
+                    </div>
+                    <div className="text-xs text-white/60 capitalize">
+                      {piece.category}
+                    </div>
                   </div>
                 </>
               ) : (
@@ -66,8 +70,12 @@ export function OutfitPiecesGrid({
                   <div className="text-5xl mb-3">{piece.emoji}</div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
                   <div className="absolute bottom-0 left-0 right-0 p-3">
-                    <div className="text-sm font-semibold text-white mb-1">{piece.label}</div>
-                    <div className="text-xs text-white/60 capitalize">{piece.category}</div>
+                    <div className="text-sm font-semibold text-white mb-1">
+                      {piece.label}
+                    </div>
+                    <div className="text-xs text-white/60 capitalize">
+                      {piece.category}
+                    </div>
                   </div>
                 </div>
               )}
@@ -104,7 +112,10 @@ export function OutfitPiecesGrid({
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className={cn('h-4 w-4', isFavorited(piece.id) && 'fill-current')}
+                className={cn(
+                  'h-4 w-4',
+                  isFavorited(piece.id) && 'fill-current'
+                )}
               >
                 <path d="M9.653 16.915l-.005-.003-.019-.01a20.759 20.759 0 01-1.162-.682 22.045 22.045 0 01-2.582-1.9C4.045 12.733 2 10.352 2 7.5a4.5 4.5 0 018-2.828A4.5 4.5 0 0118 7.5c0 2.852-2.044 5.233-3.885 6.82a22.049 22.049 0 01-3.744 2.582l-.019.01-.005.003h-.002a.739.739 0 01-.69.001l-.002-.001z" />
               </svg>
@@ -133,4 +144,3 @@ export function OutfitPiecesGrid({
     </div>
   );
 }
-

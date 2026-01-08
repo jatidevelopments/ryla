@@ -1,13 +1,9 @@
 'use client';
 
 import { LayoutGrid, Images, Heart } from 'lucide-react';
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from '@ryla/ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@ryla/ui';
 import type { Post } from '@ryla/shared';
+import { LoadingState } from '../../../../components/ui/loading-state';
 
 interface InfluencerTabsProps {
   allImages: Post[];
@@ -18,6 +14,8 @@ interface InfluencerTabsProps {
   influencerId: string;
   onImageLike: (imageId: string) => void;
   onExport?: (post: { id: string; caption: string; imageUrl: string }) => void;
+  influencerName?: string;
+  influencerAvatar?: string;
 }
 
 export function InfluencerTabs({
@@ -29,6 +27,8 @@ export function InfluencerTabs({
   influencerId,
   onImageLike,
   onExport,
+  influencerName,
+  influencerAvatar,
 }: InfluencerTabsProps) {
   const handleExport = (post: {
     id: string;
@@ -92,14 +92,18 @@ export function InfluencerTabs({
       {/* Gallery Content */}
       <TabsContent value="gallery" className="mt-0">
         {isLoadingImages ? (
-          <div className="flex items-center justify-center py-16">
-            <div className="text-sm text-[var(--text-muted)]">Loading images...</div>
-          </div>
+          <LoadingState
+            title="Loading Images"
+            message="Fetching gallery..."
+            className="py-16"
+          />
         ) : (
           <GalleryTab
             images={allImages}
             influencerId={influencerId}
             onLike={onImageLike}
+            influencerName={influencerName}
+            influencerAvatar={influencerAvatar}
           />
         )}
       </TabsContent>
@@ -117,6 +121,8 @@ export function InfluencerTabs({
           influencerId={influencerId}
           onImageLike={onImageLike}
           onExport={onExport || handleExport}
+          influencerName={influencerName}
+          influencerAvatar={influencerAvatar}
         />
       </TabsContent>
     </Tabs>
@@ -128,23 +134,30 @@ function GalleryTab({
   images,
   influencerId,
   onLike,
+  influencerName,
+  influencerAvatar,
 }: {
   images: Post[];
   influencerId: string;
   onLike: (imageId: string) => void;
+  influencerName?: string;
+  influencerAvatar?: string;
 }) {
-  const { ImageGallery } = require('../../../../components/image-gallery/ImageGallery');
-  
+  const {
+    ImageGallery,
+  } = require('../../../../components/image-gallery/ImageGallery');
+
   return (
     <ImageGallery
       images={images}
       influencerId={influencerId}
       emptyMessage="No images generated yet"
       emptyAction={{
-        label: 'Generate Images',
         href: `/studio?influencer=${influencerId}`,
       }}
       onLike={onLike}
+      influencerName={influencerName}
+      influencerAvatar={influencerAvatar}
     />
   );
 }
@@ -158,13 +171,9 @@ function PostsTab({
   onExport: (post: { id: string; caption: string; imageUrl: string }) => void;
 }) {
   const { PostGrid } = require('../../../../components/posts/PostGrid');
-  
+
   return (
-    <PostGrid
-      posts={posts}
-      onExport={onExport}
-      emptyMessage="No posts yet"
-    />
+    <PostGrid posts={posts} onExport={onExport} emptyMessage="No posts yet" />
   );
 }
 
@@ -175,14 +184,20 @@ function LikedTab({
   influencerId,
   onImageLike,
   onExport,
+  influencerName,
+  influencerAvatar,
 }: {
   likedPosts: Post[];
   likedImages: Post[];
   influencerId: string;
   onImageLike: (imageId: string) => void;
   onExport: (post: { id: string; caption: string; imageUrl: string }) => void;
+  influencerName?: string;
+  influencerAvatar?: string;
 }) {
-  const { ImageGallery } = require('../../../../components/image-gallery/ImageGallery');
+  const {
+    ImageGallery,
+  } = require('../../../../components/image-gallery/ImageGallery');
   const { PostGrid } = require('../../../../components/posts/PostGrid');
   const { LayoutGrid, Images } = require('lucide-react');
 
@@ -226,10 +241,11 @@ function LikedTab({
             images={likedImages}
             influencerId={influencerId}
             onLike={onImageLike}
+            influencerName={influencerName}
+            influencerAvatar={influencerAvatar}
           />
         </div>
       )}
     </div>
   );
 }
-

@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { OUTFIT_OPTIONS } from '@ryla/shared';
 import { usePreComposedOutfitFilter } from '../hooks/usePreComposedOutfitFilter';
 import {
@@ -11,6 +10,7 @@ import {
   PreComposedOutfitPickerFooter,
   PreComposedOutfitCard,
 } from '../components/pre-composed-outfit';
+import { PickerDrawer } from './PickerDrawer';
 
 interface PreComposedOutfitPickerProps {
   selectedOutfit: string | null;
@@ -25,23 +25,8 @@ export function PreComposedOutfitPicker({
   onClose,
   nsfwEnabled = false,
 }: PreComposedOutfitPickerProps) {
-  const overlayRef = React.useRef<HTMLDivElement>(null);
-
   // Filtering and favorites logic
   const filter = usePreComposedOutfitFilter({ nsfwEnabled });
-
-  const handleOverlayClick = (e: React.MouseEvent) => {
-    if (e.target === overlayRef.current) {
-      onClose();
-    }
-  };
-
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) return null;
 
   // Get selected outfit label
   const selectedOutfitLabel = selectedOutfit
@@ -50,22 +35,22 @@ export function PreComposedOutfitPicker({
       )?.label || selectedOutfit
     : null;
 
-  return createPortal(
-    <div
-      ref={overlayRef}
-      onClick={handleOverlayClick}
-      className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-md p-4 md:p-8"
+  return (
+    <PickerDrawer
+      isOpen={true}
+      onClose={onClose}
+      title="Ready Outfits"
+      className="w-full max-w-7xl h-full md:h-auto"
     >
-      <div
-        className="flex flex-col w-full max-w-7xl max-h-[85vh] bg-[#18181b] rounded-2xl border border-white/15 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex flex-col h-full md:max-h-[85vh]">
         {/* Header */}
         <PreComposedOutfitPickerHeader
           search={filter.search}
           onSearchChange={filter.setSearch}
           showFavoritesOnly={filter.showFavoritesOnly}
-          onToggleFavorites={() => filter.setShowFavoritesOnly(!filter.showFavoritesOnly)}
+          onToggleFavorites={() =>
+            filter.setShowFavoritesOnly(!filter.showFavoritesOnly)
+          }
           onClose={onClose}
         />
 
@@ -77,7 +62,7 @@ export function PreComposedOutfitPicker({
         />
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-4 md:p-6">
           {/* Selected Outfit Preview */}
           <PreComposedOutfitPickerPreview
             selectedOutfitLabel={selectedOutfitLabel}
@@ -91,7 +76,7 @@ export function PreComposedOutfitPicker({
               <p className="text-white/40 text-sm">No outfits found</p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 md:gap-4">
               {filter.availableOutfits.map((outfit) => {
                 const outfitValue = outfit.label
                   .toLowerCase()
@@ -125,8 +110,6 @@ export function PreComposedOutfitPicker({
           }}
         />
       </div>
-    </div>,
-    document.body
+    </PickerDrawer>
   );
 }
-

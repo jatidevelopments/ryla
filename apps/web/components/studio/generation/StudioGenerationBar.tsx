@@ -101,22 +101,24 @@ export function StudioGenerationBar({
   const qualityButtonRef = React.useRef<HTMLButtonElement>(null);
 
   // Computed values
-  const selectedPose = settings.poseId ? ALL_POSES.find(p => p.id === settings.poseId) : null;
+  const selectedPose = settings.poseId
+    ? ALL_POSES.find((p) => p.id === settings.poseId)
+    : null;
 
   const handleGenerate = () => {
     // Allow generation without influencer (for "All Images" mode)
     // if (!settings.influencerId) return;
-    
+
     // Validation based on mode
     // Note: prompt is now optional - backend builds it from character DNA and settings
     if ((mode === 'editing' || mode === 'upscaling') && !selectedImage) return;
-    
+
     // If no influencer selected, we can't generate (need at least one)
     if (!settings.influencerId) {
       // Show a message or prevent generation
       return;
     }
-    
+
     const finalSettings = {
       ...settings,
       nsfw: studioNsfwEnabled, // Pass Studio-level NSFW toggle
@@ -137,90 +139,132 @@ export function StudioGenerationBar({
     useControlVisibility(mode);
 
   return (
-    <div className={cn('mx-4 mb-4 lg:mx-6 lg:mb-6', className)}>
-      {/* Mode Selector */}
-      <ModeSelector
-        mode={mode}
-        contentType={contentType}
-        onModeChange={handleModeChange}
-        onContentTypeChange={onContentTypeChange}
-        hasSelectedImage={!!selectedImage}
-        creditsAvailable={creditsAvailable}
-      />
-      
-      {/* Generation Bar */}
-      <div 
-        className="rounded-2xl bg-[var(--bg-elevated)]/95 backdrop-blur-xl border-2 shadow-2xl shadow-black/40 transition-colors"
-        style={{ borderColor: mode === 'creating' ? '#3b82f6' : mode === 'editing' ? '#a855f7' : mode === 'upscaling' ? '#22c55e' : '#f97316' }}
-      >
-      {/* Prompt Input Row */}
-      <PromptInputRow
-        prompt={settings.prompt}
-        onPromptChange={(prompt) => updateSetting('prompt', prompt)}
-        onPromptSubmit={handleGenerate}
-        mode={mode}
-        selectedImage={selectedImage}
-        selectedObjects={settings.objects}
-        influencers={influencers}
-        selectedInfluencerId={settings.influencerId}
-        canGenerate={canGenerate}
-        creditsCost={creditsCost}
-        onClearImage={onClearSelectedImage}
-        onRemoveObject={(objectId) =>
-          updateSetting('objects', settings.objects.filter((o) => o.id !== objectId))
-        }
-        onAddObject={() => pickers.setShowObjectPicker(true)}
-        onSelectInfluencer={(id) => {
-          updateSetting('influencerId', id);
-          pickers.setShowCharacterPicker(false);
-          if (onInfluencerChange) {
-            onInfluencerChange(id);
-          }
+    <div
+      className={cn(
+        'mx-3 md:mx-4 mb-4 md:mb-1 lg:mx-6 lg:mb-2 pointer-events-auto',
+        className
+      )}
+    >
+      <div
+        className="flex flex-col rounded-2xl md:rounded-3xl bg-[var(--bg-elevated)]/95 backdrop-blur-xl border-2 shadow-xl md:shadow-2xl shadow-black/40 overflow-hidden transition-all duration-300"
+        style={{
+          borderColor:
+            mode === 'creating'
+              ? '#3b82f6'
+              : mode === 'editing'
+              ? '#a855f7'
+              : mode === 'upscaling'
+              ? '#22c55e'
+              : '#f97316',
         }}
-        onShowInfluencerPicker={() => pickers.setShowCharacterPicker(true)}
-      />
+      >
+        {/* Mode Selector */}
+        <ModeSelector
+          mode={mode}
+          contentType={contentType}
+          onModeChange={handleModeChange}
+          onContentTypeChange={onContentTypeChange}
+          hasSelectedImage={!!selectedImage}
+          creditsAvailable={creditsAvailable}
+          className="bg-transparent"
+        />
 
-      {/* Controls Row */}
-      <ControlButtonsRow
-        settings={settings}
-        updateSetting={updateSetting}
-        availableModels={availableModels}
-        selectedModel={selectedModel}
-        pickers={pickers}
-        modelButtonRef={modelButtonRef}
-        aspectRatioButtonRef={aspectRatioButtonRef}
-        qualityButtonRef={qualityButtonRef}
-        showAspectRatio={showAspectRatio}
-        showPromptEnhance={showPromptEnhance}
-        showCreativeControls={showCreativeControls}
-        selectedPose={selectedPose}
-        outfitDisplayText={outfitDisplayText}
-        hasOutfitComposition={hasOutfitComposition}
-        studioNsfwEnabled={studioNsfwEnabled}
-        canEnableNSFW={canEnableNSFW}
-        setStudioNsfwEnabled={setStudioNsfwEnabled}
-        clearStyles={clearStyles}
-      />
+        {/* Generation Content */}
+        <div className="flex flex-col">
+          {/* Prompt Input Row */}
+          <PromptInputRow
+            prompt={settings.prompt}
+            onPromptChange={(prompt) => updateSetting('prompt', prompt)}
+            onPromptSubmit={handleGenerate}
+            mode={mode}
+            selectedImage={selectedImage}
+            selectedObjects={settings.objects}
+            influencers={influencers}
+            selectedInfluencerId={settings.influencerId}
+            canGenerate={canGenerate}
+            creditsCost={creditsCost}
+            onClearImage={onClearSelectedImage}
+            onRemoveObject={(objectId) =>
+              updateSetting(
+                'objects',
+                settings.objects.filter((o) => o.id !== objectId)
+              )
+            }
+            onAddObject={() => pickers.setShowObjectPicker(true)}
+            onSelectInfluencer={(id) => {
+              updateSetting('influencerId', id);
+              pickers.setShowCharacterPicker(false);
+              if (onInfluencerChange) {
+                onInfluencerChange(id);
+              }
+            }}
+            onShowInfluencerPicker={() => pickers.setShowCharacterPicker(true)}
+          />
 
-      {/* Picker Modals */}
-      <PickerModals
-        pickers={pickers}
-        settings={settings}
-        updateSetting={updateSetting}
-        influencers={influencers}
-        onInfluencerChange={onInfluencerChange}
-        mode={mode}
-        studioNsfwEnabled={studioNsfwEnabled}
-        selectedImage={selectedImage}
-        availableImages={availableImages}
-        hasUploadConsent={hasUploadConsent}
-        onAcceptConsent={onAcceptConsent}
-        onUploadImage={onUploadImage}
-      />
+          {/* Controls Row */}
+          <ControlButtonsRow
+            settings={settings}
+            updateSetting={updateSetting}
+            availableModels={availableModels}
+            selectedModel={selectedModel}
+            pickers={pickers}
+            modelButtonRef={modelButtonRef}
+            aspectRatioButtonRef={aspectRatioButtonRef}
+            qualityButtonRef={qualityButtonRef}
+            showAspectRatio={showAspectRatio}
+            showPromptEnhance={showPromptEnhance}
+            showCreativeControls={showCreativeControls}
+            selectedPose={selectedPose}
+            outfitDisplayText={outfitDisplayText}
+            hasOutfitComposition={hasOutfitComposition}
+            studioNsfwEnabled={studioNsfwEnabled}
+            canEnableNSFW={canEnableNSFW}
+            setStudioNsfwEnabled={setStudioNsfwEnabled}
+            clearStyles={clearStyles}
+            // Shared props for mobile layout
+            selectedImage={selectedImage}
+            selectedObjects={settings.objects}
+            onAddObject={() => pickers.setShowObjectPicker(true)}
+            onRemoveObject={(objectId) =>
+              updateSetting(
+                'objects',
+                settings.objects.filter((o) => o.id !== objectId)
+              )
+            }
+            onClearImage={onClearSelectedImage}
+            mode={mode}
+            influencers={influencers}
+            selectedInfluencerId={settings.influencerId}
+            onShowInfluencerPicker={() => pickers.setShowCharacterPicker(true)}
+            onPromptSubmit={handleGenerate}
+            canGenerate={canGenerate}
+            creditsCost={creditsCost}
+          />
+        </div>
+
+        {/* Picker Modals */}
+        <PickerModals
+          pickers={pickers}
+          settings={settings}
+          updateSetting={updateSetting}
+          influencers={influencers}
+          onInfluencerChange={onInfluencerChange}
+          mode={mode}
+          studioNsfwEnabled={studioNsfwEnabled}
+          canEnableNSFW={canEnableNSFW}
+          setStudioNsfwEnabled={setStudioNsfwEnabled}
+          selectedImage={selectedImage}
+          availableImages={availableImages}
+          hasUploadConsent={hasUploadConsent}
+          onAcceptConsent={onAcceptConsent}
+          onUploadImage={onUploadImage}
+          outfitDisplayText={outfitDisplayText}
+          selectedPoseName={selectedPose?.name}
+          selectedModelName={selectedModel?.name}
+        />
       </div>
     </div>
   );
 }
 
 // ModelIcon and AspectRatioIcon are now imported from ./icons
-

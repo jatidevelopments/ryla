@@ -20,13 +20,13 @@ const TOOLTIPS: Record<AdultFilter, string> = {
 
 export function AdultFilter({ adult, onAdultChange }: AdultFilterProps) {
   return (
-    <div className="flex rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] p-1">
+    <div className="flex rounded-lg md:rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] p-0.5">
       {ADULT_OPTIONS.map((a) => (
         <Tooltip key={a} content={TOOLTIPS[a]}>
           <button
             onClick={() => onAdultChange(a)}
             className={cn(
-              'rounded-lg px-3 py-1.5 text-xs font-medium transition-all flex items-center gap-1.5',
+              'rounded-md md:rounded-md px-2 md:px-3 min-h-[44px] md:min-h-0 min-w-[44px] md:min-w-0 py-2 md:py-1.5 text-xs font-medium transition-all flex items-center gap-1',
               adult === a
                 ? 'bg-[var(--purple-500)] text-white shadow-sm'
                 : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'
@@ -40,7 +40,7 @@ export function AdultFilter({ adult, onAdultChange }: AdultFilterProps) {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className="h-3.5 w-3.5"
+                  className="h-3 w-3"
                 >
                   <path
                     fillRule="evenodd"
@@ -56,7 +56,7 @@ export function AdultFilter({ adult, onAdultChange }: AdultFilterProps) {
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 20 20"
                   fill="currentColor"
-                  className="h-3.5 w-3.5"
+                  className="h-3 w-3"
                 >
                   <path
                     fillRule="evenodd"
@@ -73,4 +73,3 @@ export function AdultFilter({ adult, onAdultChange }: AdultFilterProps) {
     </div>
   );
 }
-

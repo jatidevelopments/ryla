@@ -1,7 +1,6 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import type { OutfitComposition } from '@ryla/shared';
 import { useGalleryFavorites } from '../../../../lib/hooks/use-gallery-favorites';
 import { useOutfitComposition } from '../hooks/use-outfit-composition';
@@ -19,6 +18,7 @@ import {
   OutfitPickerFooter,
 } from '../components/outfit-picker';
 import { SavePresetDialog } from '../components/dialogs';
+import { PickerDrawer } from './PickerDrawer';
 
 interface OutfitCompositionPickerProps {
   selectedComposition: OutfitComposition | null;
@@ -35,8 +35,6 @@ export function OutfitCompositionPicker({
   nsfwEnabled = false,
   influencerId,
 }: OutfitCompositionPickerProps) {
-  const overlayRef = React.useRef<HTMLDivElement>(null);
-
   // Picker state hook
   const {
     activeCategory,
@@ -45,12 +43,11 @@ export function OutfitCompositionPicker({
     setSearch,
     showFavoritesOnly,
     setShowFavoritesOnly,
-    mounted,
   } = useOutfitPickerState();
 
   // Favorites hook
   const { isFavorited, toggleFavorite } = useGalleryFavorites({
-    itemType: 'outfit-piece',
+    itemType: 'outfit',
   });
 
   // Composition hook
@@ -97,15 +94,6 @@ export function OutfitCompositionPicker({
     [setComposition, setActiveCategory]
   );
 
-  const handleOverlayClick = React.useCallback(
-    (e: React.MouseEvent) => {
-      if (e.target === overlayRef.current) {
-        onClose();
-      }
-    },
-    [onClose]
-  );
-
   const handleApply = React.useCallback(() => {
     onCompositionSelect(composition);
     onClose();
@@ -122,18 +110,14 @@ export function OutfitCompositionPicker({
     [composition]
   );
 
-  if (!mounted) return null;
-
-  return createPortal(
-    <div
-      ref={overlayRef}
-      onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm"
+  return (
+    <PickerDrawer
+      isOpen={true}
+      onClose={onClose}
+      title="Customize Outfit"
+      className="w-full max-w-7xl h-full md:h-auto"
     >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-7xl max-h-[90vh] flex flex-col bg-[#0d0d0f] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-      >
+      <div className="flex flex-col h-full md:max-h-[90vh]">
         <OutfitPickerHeader
           presets={presets}
           influencerId={influencerId}
@@ -157,7 +141,7 @@ export function OutfitCompositionPicker({
         />
 
         {/* Content Area */}
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden min-h-0">
           <SelectedPiecesSidebar
             composition={composition}
             nsfwEnabled={nsfwEnabled}
@@ -166,7 +150,7 @@ export function OutfitCompositionPicker({
           />
 
           {/* Pieces Grid or Presets */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-3 md:p-4">
             {activeCategory === 'presets' ? (
               <OutfitPresetsGrid
                 presets={presets}
@@ -199,7 +183,7 @@ export function OutfitCompositionPicker({
 
         <SavePresetDialog
           isOpen={showSaveDialog}
-          editingPreset={editingPreset}
+          editingPreset={!!editingPreset}
           presetName={presetName}
           presetDescription={presetDescription}
           isSaving={isSaving}
@@ -209,7 +193,6 @@ export function OutfitCompositionPicker({
           onSave={() => composition && handleSavePreset(composition)}
         />
       </div>
-    </div>,
-    document.body
+    </PickerDrawer>
   );
 }

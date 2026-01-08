@@ -2,10 +2,7 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import {
-  HAIR_STYLE_OPTIONS,
-  HAIR_COLOR_OPTIONS,
-} from '@ryla/shared';
+import { HAIR_STYLE_OPTIONS, HAIR_COLOR_OPTIONS } from '@ryla/shared';
 import { WizardOptionCard } from '../WizardOptionCard';
 import { WizardImageCard } from '../WizardImageCard';
 import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
@@ -36,10 +33,14 @@ export function StepHair() {
         <section>
           <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
             <p className="text-white/70 text-sm mb-4 font-medium">Hair Style</p>
-            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
               {filteredHairStyles.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
-                  ? getInfluencerImage('hair-styles', form.ethnicity, option.value)
+                  ? getInfluencerImage(
+                      'hair-styles',
+                      form.ethnicity,
+                      option.value
+                    )
                   : null;
                 return (
                   <WizardImageCard
@@ -65,15 +66,23 @@ export function StepHair() {
             <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
               {HAIR_COLOR_OPTIONS.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
-                  ? getInfluencerImage('hair-colors', form.ethnicity, option.value)
+                  ? getInfluencerImage(
+                      'hair-colors',
+                      form.ethnicity,
+                      option.value
+                    )
                   : null;
                 return (
                   <WizardImageCard
                     key={option.value}
                     image={{
                       src: ethnicityAwareImage || option.imageSrc || '',
-                      alt: option.value.charAt(0).toUpperCase() + option.value.slice(1),
-                      name: option.value.charAt(0).toUpperCase() + option.value.slice(1),
+                      alt:
+                        option.value.charAt(0).toUpperCase() +
+                        option.value.slice(1),
+                      name:
+                        option.value.charAt(0).toUpperCase() +
+                        option.value.slice(1),
                     }}
                     selected={form.hairColor === option.value}
                     onSelect={() => setField('hairColor', option.value)}
@@ -87,4 +96,3 @@ export function StepHair() {
     </div>
   );
 }
-

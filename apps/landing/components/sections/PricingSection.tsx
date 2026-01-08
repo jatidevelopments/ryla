@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { Section, SectionHeader, PricingCard } from "@/components/ryla-ui";
-import { FadeInUp } from "@/components/animations";
-import { FUNNEL_URL } from "@/lib/constants";
+import { Section, SectionHeader, PricingCard } from '@/components/ryla-ui';
+import { FadeInUp } from '@/components/animations';
+import { FUNNEL_URL } from '@/lib/constants';
 
 interface PricingTier {
   name: string;
@@ -16,56 +16,57 @@ interface PricingTier {
 // V4 Minimal: 3 tiers, short feature lists
 const tiers: PricingTier[] = [
   {
-    name: "Starter",
-    price: "$29",
-    period: "/mo",
+    name: 'Starter',
+    price: '$29',
+    period: '/mo',
     features: [
-      "1 AI persona",
-      "100 posts/month",
-      "3 platforms",
-      "Community access",
+      '30,000 monthly credits',
+      'Unlimited AI characters',
+      'Access to all modes',
+      'Standard support',
     ],
-    cta: "Start Free",
+    cta: 'Start Free',
   },
   {
-    name: "Pro",
-    price: "$79",
-    period: "/mo",
+    name: 'Pro',
+    price: '$49',
+    period: '/mo',
     features: [
-      "5 AI personas",
-      "500 posts/month",
-      "Unlimited platforms",
-      "All courses included",
-      "Live earnings dashboard",
+      '60,000 monthly credits',
+      'Unlimited AI characters',
+      'Priority generation',
+      'Priority support',
+      'Early access features',
     ],
     highlighted: true,
-    cta: "Get Pro",
+    cta: 'Get Pro',
   },
   {
-    name: "Studio",
-    price: "$299",
-    period: "/mo",
+    name: 'Unlimited',
+    price: '$99',
+    period: '/mo',
     features: [
-      "Unlimited personas",
-      "Unlimited posts",
-      "Dedicated support",
-      "1-on-1 strategy sessions",
+      'Unlimited credits',
+      'Unlimited AI characters',
+      'Maximum priority',
+      'Dedicated success manager',
+      'API access (soon)',
     ],
-    cta: "Contact Sales",
+    cta: 'Contact Sales',
   },
 ];
 
 /**
  * PricingSection Component (V4 Minimal)
- * 
+ *
  * 3 tiers, short features, one CTA per tier.
  */
 export function PricingSection() {
   return (
     <Section id="pricing" background="default" className="bg-transparent">
       <FadeInUp>
-        <SectionHeader 
-          title="Simple pricing. Start free." 
+        <SectionHeader
+          title="Simple pricing. Start free."
           titleHighlight="Start free"
         />
       </FadeInUp>
@@ -90,4 +91,3 @@ export function PricingSection() {
 }
 
 export default PricingSection;
-

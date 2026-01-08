@@ -13,11 +13,13 @@ export function SortDropdown({ sortBy, onSortByChange }: SortDropdownProps) {
   return (
     <Tooltip content="Sort images by date">
       <div className="flex items-center gap-2">
-        <span className="text-xs text-[var(--text-muted)]">Sort:</span>
+        <span className="text-xs md:text-sm text-[var(--text-muted)]">
+          Sort:
+        </span>
         <select
           value={sortBy}
           onChange={(e) => onSortByChange(e.target.value as SortBy)}
-          className="rounded-xl border border-[var(--border-default)] bg-[var(--bg-base)] px-3 py-2 text-xs text-[var(--text-primary)] focus:border-[var(--purple-500)] focus:outline-none focus:ring-1 focus:ring-[var(--purple-500)]"
+          className="rounded-md border border-[var(--border-default)] bg-[var(--bg-base)] px-2 md:px-3 min-h-[44px] md:min-h-0 py-2 md:py-1.5 text-xs text-[var(--text-primary)] focus:border-[var(--purple-500)] focus:outline-none focus:ring-1 focus:ring-[var(--purple-500)]"
         >
           <option value="newest">Newest</option>
           <option value="oldest">Oldest</option>
@@ -26,4 +28,3 @@ export function SortDropdown({ sortBy, onSortByChange }: SortDropdownProps) {
     </Tooltip>
   );
 }
-

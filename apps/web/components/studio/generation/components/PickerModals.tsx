@@ -12,6 +12,7 @@ import {
   CustomCompositionPickerModal,
   ObjectPickerModal,
 } from './picker-modals';
+import { MobileSettingsMenu } from '../pickers';
 
 interface Influencer {
   id: string;
@@ -28,6 +29,9 @@ interface PickerModalsProps {
     showOutfitModeSelector: boolean;
     showOutfitPicker: boolean;
     showObjectPicker: boolean;
+    showMobileSettingsMenu: boolean;
+    showModelPicker: boolean; // Added
+    showAspectRatioPicker: boolean; // Added
     outfitMode: 'pre-composed' | 'custom' | null;
     setShowCharacterPicker: (show: boolean) => void;
     setShowStylePicker: (show: boolean) => void;
@@ -35,12 +39,18 @@ interface PickerModalsProps {
     setShowOutfitModeSelector: (show: boolean) => void;
     setShowOutfitPicker: (show: boolean) => void;
     setShowObjectPicker: (show: boolean) => void;
+    setShowMobileSettingsMenu: (show: boolean) => void;
+    setShowModelPicker: (show: boolean) => void; // Added
+    setShowAspectRatioPicker: (show: boolean) => void; // Added
     setOutfitMode: (mode: 'pre-composed' | 'custom' | null) => void;
   };
 
   // Settings
   settings: GenerationSettings;
-  updateSetting: <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => void;
+  updateSetting: <K extends keyof GenerationSettings>(
+    key: K,
+    value: GenerationSettings[K]
+  ) => void;
 
   // Influencers
   influencers: Influencer[];
@@ -49,15 +59,22 @@ interface PickerModalsProps {
   // Mode and content
   mode: StudioMode;
   studioNsfwEnabled: boolean;
+  canEnableNSFW: boolean;
+  setStudioNsfwEnabled: (enabled: boolean) => void;
 
   // Images
   selectedImage: StudioImage | null;
   availableImages: StudioImage[];
 
+  // Models
+  selectedModelName?: string; // Added
+
   // Upload consent
   hasUploadConsent?: boolean;
   onAcceptConsent?: () => Promise<void>;
   onUploadImage?: (file: File) => Promise<StudioImage | null>;
+  outfitDisplayText?: string;
+  selectedPoseName?: string;
 }
 
 export function PickerModals({
@@ -68,11 +85,16 @@ export function PickerModals({
   onInfluencerChange,
   mode,
   studioNsfwEnabled,
+  canEnableNSFW,
+  setStudioNsfwEnabled,
   selectedImage,
   availableImages,
   hasUploadConsent = false,
   onAcceptConsent,
   onUploadImage,
+  outfitDisplayText,
+  selectedPoseName,
+  selectedModelName,
 }: PickerModalsProps) {
   return (
     <>
@@ -151,7 +173,29 @@ export function PickerModals({
           onClose={() => pickers.setShowObjectPicker(false)}
         />
       )}
+
+      {pickers.showMobileSettingsMenu && (
+        <MobileSettingsMenu
+          onShowPosePicker={() => pickers.setShowPosePicker(true)}
+          onShowOutfitPicker={() => pickers.setShowOutfitModeSelector(true)}
+          onShowStylePicker={() => pickers.setShowStylePicker(true)}
+          onShowModelPicker={() => pickers.setShowModelPicker(true)}
+          onShowAspectRatioPicker={() => pickers.setShowAspectRatioPicker(true)}
+          onShowCharacterPicker={() => pickers.setShowCharacterPicker(true)}
+          onClose={() => pickers.setShowMobileSettingsMenu(false)}
+          outfitDisplayText={outfitDisplayText}
+          selectedPoseName={selectedPoseName}
+          selectedModelName={selectedModelName}
+          selectedCharacterName={
+            influencers.find((i) => i.id === settings.influencerId)?.name ||
+            'None'
+          }
+          currentAspectRatio={settings.aspectRatio}
+          studioNsfwEnabled={studioNsfwEnabled}
+          canEnableNSFW={canEnableNSFW}
+          setStudioNsfwEnabled={setStudioNsfwEnabled}
+        />
+      )}
     </>
   );
 }
-

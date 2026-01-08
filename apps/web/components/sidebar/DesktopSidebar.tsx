@@ -9,6 +9,7 @@ import {
   SidebarFooter as UISidebarFooter,
   useSidebar,
 } from '@ryla/ui';
+import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@ryla/ui';
 import { useSubscription } from '../../lib/hooks';
 import { useAuth } from '../../lib/auth-context';
@@ -17,6 +18,7 @@ import { BugIcon } from './sidebar-icons';
 import { menuItems, SidebarNavigation } from './sidebar-navigation';
 import { SidebarHeader } from './sidebar-header';
 import { SidebarFooter } from './sidebar-footer';
+import { MobileNavigationSheet } from './MobileNavigationSheet';
 
 export function DesktopSidebar() {
   const pathname = usePathname();
@@ -38,6 +40,18 @@ export function DesktopSidebar() {
       setOpen(!open);
     }
   };
+
+  const handleCloseMobile = React.useCallback(() => {
+    setOpenMobile(false);
+  }, [setOpenMobile]);
+
+  // When on mobile, we don't render the Sidebar component at all.
+  // Instead, we render our custom Bottom Sheet triggered by the same state.
+  if (isMobile) {
+    return (
+      <MobileNavigationSheet isOpen={openMobile} onClose={handleCloseMobile} />
+    );
+  }
 
   return (
     <Sidebar>
@@ -65,13 +79,30 @@ export function DesktopSidebar() {
           <button
             onClick={() => setIsBugReportOpen(true)}
             className={cn(
-              'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 w-full',
-              'text-white/70 hover:bg-white/5 hover:text-white',
+              'group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300 w-full',
+              'text-white/60 hover:text-white focus:outline-none',
               !isExpanded && 'justify-center px-0'
             )}
           >
-            <BugIcon className="text-white/70 shrink-0" />
-            {isExpanded && <span className="truncate">Report Bug</span>}
+            {/* Hover Lift for consistency */}
+            <motion.div
+              className="absolute inset-0 bg-white/[0.03] rounded-xl opacity-0 group-hover:opacity-100"
+              whileHover={{ scale: 1.02 }}
+              transition={{ duration: 0.2 }}
+            />
+
+            <motion.div
+              className="relative z-10 shrink-0"
+              whileHover={{ scale: 1.1, rotate: -5 }}
+            >
+              <BugIcon className="text-white/60 group-hover:text-white transition-colors duration-300" />
+            </motion.div>
+
+            {isExpanded && (
+              <span className="relative z-10 truncate transition-transform duration-300 group-hover:translate-x-0.5">
+                Report Bug
+              </span>
+            )}
           </button>
         </div>
       </SidebarContent>

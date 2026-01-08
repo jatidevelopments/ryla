@@ -36,7 +36,7 @@ export function AspectRatioFilter({
           ref={buttonRef}
           onClick={() => setShowPicker(!showPicker)}
           className={cn(
-            'flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium transition-all',
+            'flex items-center gap-1.5 min-h-[44px] md:min-h-0 px-2 md:px-3 py-2 md:py-1.5 rounded-md text-xs font-medium transition-all',
             aspectRatios.length > 0
               ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
               : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10 border border-[var(--border-default)]'
@@ -46,7 +46,7 @@ export function AspectRatioFilter({
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="h-4 w-4 text-[var(--purple-400)]"
+            className="h-3.5 w-3.5 text-[var(--purple-400)]"
           >
             <path
               fillRule="evenodd"
@@ -59,7 +59,7 @@ export function AspectRatioFilter({
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
             fill="currentColor"
-            className="h-4 w-4 text-[var(--text-muted)]"
+            className="h-3.5 w-3.5 text-[var(--text-muted)]"
           >
             <path
               fillRule="evenodd"
@@ -86,4 +86,3 @@ export function AspectRatioFilter({
     </div>
   );
 }
-

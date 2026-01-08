@@ -22,7 +22,7 @@ export function ProfilePictureNSFWToggle({
           />
           <label
             htmlFor="nsfw-toggle-profile"
-            className="text-white/70 text-sm font-medium leading-none cursor-pointer"
+            className="text-white/70 text-sm font-medium leading-relaxed cursor-pointer flex-1"
           >
             Enable NSFW Content
           </label>
@@ -34,4 +34,3 @@ export function ProfilePictureNSFWToggle({
     </div>
   );
 }
-

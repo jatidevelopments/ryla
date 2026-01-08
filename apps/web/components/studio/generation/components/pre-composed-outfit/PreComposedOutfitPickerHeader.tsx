@@ -19,8 +19,8 @@ export function PreComposedOutfitPickerHeader({
   onClose,
 }: PreComposedOutfitPickerHeaderProps) {
   return (
-    <div className="flex items-center gap-4 px-6 py-4 border-b border-white/10">
-      <div className="flex items-center gap-3">
+    <div className="flex items-center gap-4 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10">
+      <div className="hidden sm:flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -43,11 +43,12 @@ export function PreComposedOutfitPickerHeader({
       <div className="flex-1" />
 
       {/* Search, Favorites Filter & Close */}
-      <div className="flex items-center gap-3">
+      {/* Search, Favorites Filter & Close */}
+      <div className="flex-1 flex items-center justify-end gap-2 sm:gap-3">
         <button
           onClick={onToggleFavorites}
           className={cn(
-            'flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-all',
+            'flex items-center gap-2 p-2.5 sm:px-3 sm:py-2 rounded-xl text-sm font-medium transition-all',
             showFavoritesOnly
               ? 'bg-[var(--purple-500)] text-white shadow-lg shadow-[var(--purple-500)]/25'
               : 'bg-white/5 text-white/60 hover:text-white hover:bg-white/10'
@@ -63,7 +64,7 @@ export function PreComposedOutfitPickerHeader({
           </svg>
           <span className="hidden sm:inline">Favorites</span>
         </button>
-        <div className="relative">
+        <div className="relative flex-1 sm:flex-initial">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 20 20"
@@ -78,15 +79,15 @@ export function PreComposedOutfitPickerHeader({
           </svg>
           <Input
             type="text"
-            placeholder="Search outfits..."
+            placeholder="Search..."
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="w-64 pl-9 bg-white/5 border-white/10 text-white placeholder:text-white/40"
+            className="w-full sm:w-64 h-10 pl-9 pr-4 bg-[#0d0d0f] border-white/10 rounded-xl text-sm placeholder:text-white/40 focus:border-white/20 focus:ring-0"
           />
         </div>
         <button
           onClick={onClose}
-          className="flex items-center justify-center h-10 w-10 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-colors"
+          className="hidden sm:flex items-center justify-center h-10 w-10 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-colors"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -101,4 +102,3 @@ export function PreComposedOutfitPickerHeader({
     </div>
   );
 }
-

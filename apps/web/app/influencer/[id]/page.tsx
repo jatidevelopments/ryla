@@ -8,6 +8,8 @@ import { ProfilePictureGenerationIndicator } from '../../../components/profile-p
 import { useInfluencerData } from './hooks/useInfluencerData';
 import { useInfluencerImages } from './hooks/useInfluencerImages';
 import { InfluencerTabs } from './components/InfluencerTabs';
+import { LoadingState } from '../../../components/ui/loading-state';
+import { useEffect } from 'react';
 
 export default function InfluencerProfilePage() {
   return (
@@ -29,6 +31,7 @@ function InfluencerProfileContent() {
     profilePicturesState,
     isGeneratingProfilePictures,
     imageCount,
+    updateInfluencer,
   } = useInfluencerData();
 
   // Extract image management
@@ -46,12 +49,49 @@ function InfluencerProfileContent() {
     profilePicturesState,
   });
 
-  if (!influencer && isLoading) {
-    return null;
-  }
+  // Sync liked count with store
+  const totalLikedCount = likedImages.length + likedPosts.length;
+  const currentLikedCount = influencer?.likedCount ?? 0;
 
-  if (!influencer && !character) {
-    notFound();
+  useEffect(() => {
+    if (influencer && totalLikedCount !== currentLikedCount) {
+      updateInfluencer(influencerId, { likedCount: totalLikedCount });
+    }
+  }, [
+    totalLikedCount,
+    currentLikedCount,
+    influencer,
+    influencerId,
+    updateInfluencer,
+  ]);
+
+  if (!influencer) {
+    if (isLoading) {
+      return (
+        <div className="flex flex-col min-h-screen">
+          <LoadingState
+            title="Loading Profile"
+            message="Fetching influencer assets..."
+            fullPage
+          />
+        </div>
+      );
+    }
+
+    if (!character) {
+      notFound();
+    }
+
+    // Character exists but influencer mapping failed or is still in progress
+    return (
+      <div className="flex flex-col min-h-screen">
+        <LoadingState
+          title="Loading Profile"
+          message="Synchronizing character data..."
+          fullPage
+        />
+      </div>
+    );
   }
 
   return (
@@ -75,6 +115,8 @@ function InfluencerProfileContent() {
           isLoadingImages={isLoadingImages}
           influencerId={influencerId}
           onImageLike={handleImageLike}
+          influencerName={influencer.name}
+          influencerAvatar={influencer.avatar || undefined}
         />
       </PageContainer>
     </>

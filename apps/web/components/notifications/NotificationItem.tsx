@@ -4,18 +4,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@ryla/ui';
 import { capture } from '@ryla/analytics';
-import { estimateCreditCost, formatRelativeTime } from './utils';
-
-interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  body?: string | null;
-  href?: string | null;
-  isRead: boolean;
-  createdAt?: string | null;
-  metadata?: Record<string, unknown> | null;
-}
+import {
+  estimateCreditCost,
+  formatRelativeTime,
+  type Notification,
+} from './utils';
 
 interface NotificationItemProps {
   notification: Notification;
@@ -143,4 +136,3 @@ export function NotificationItem({
     </button>
   );
 }
-

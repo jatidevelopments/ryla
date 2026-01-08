@@ -21,9 +21,9 @@ export function useInfluencerData() {
   const influencer = useInfluencer(influencerId);
   const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
   const updateInfluencer = useInfluencerStore((s) => s.updateInfluencer);
+  // Always fetch character data to ensure we have the latest baseImageUrl
   const { data: character, isLoading } = trpc.character.getById.useQuery(
-    { id: influencerId },
-    { enabled: !influencer }
+    { id: influencerId }
   );
   const allPosts = useInfluencerPosts(influencerId);
   const likedPosts = useLikedPosts(influencerId);
@@ -40,9 +40,13 @@ export function useInfluencerData() {
     return 0;
   }, [character]);
 
-  // Sync character data to influencer store
+  // Sync character data to influencer store - add if doesn't exist
   React.useEffect(() => {
     if (!influencer && character) {
+      console.log('[useInfluencerData] Adding influencer to store:', {
+        influencerId,
+        baseImageUrl: character.baseImageUrl,
+      });
       addInfluencer({
         id: character.id,
         name: character.name,
@@ -72,6 +76,47 @@ export function useInfluencerData() {
     }
   }, [addInfluencer, character, influencer, imageCount]);
 
+  // Update influencer when character data changes (especially baseImageUrl)
+  // Use ref to track last processed baseImageUrl to prevent infinite loops
+  const lastProcessedBaseImageUrlRef = React.useRef<string | null | undefined>(undefined);
+  const influencerRef = React.useRef(influencer);
+
+  // Keep ref in sync with influencer
+  React.useEffect(() => {
+    influencerRef.current = influencer;
+  }, [influencer]);
+
+  React.useEffect(() => {
+    // Only proceed if we have character data
+    if (!character) {
+      return;
+    }
+
+    const currentBaseImageUrl = character.baseImageUrl || null;
+    const lastProcessed = lastProcessedBaseImageUrlRef.current;
+
+    // Skip if baseImageUrl hasn't changed
+    if (currentBaseImageUrl === lastProcessed) {
+      return;
+    }
+
+    // Update the ref first to prevent re-triggering
+    lastProcessedBaseImageUrlRef.current = currentBaseImageUrl;
+
+    // Get current influencer from ref (may be null if not in store yet)
+    const currentInfluencer = influencerRef.current;
+
+    // Only update if influencer exists and avatar is different
+    if (currentInfluencer && currentBaseImageUrl !== currentInfluencer.avatar) {
+      console.log('[useInfluencerData] Updating avatar:', {
+        influencerId,
+        oldAvatar: currentInfluencer.avatar,
+        newAvatar: currentBaseImageUrl,
+      });
+      updateInfluencer(influencerId, { avatar: currentBaseImageUrl });
+    }
+  }, [character?.baseImageUrl, influencerId, updateInfluencer]); // Only depend on character.baseImageUrl, not influencer
+
   // Update image count when it changes (only if different from current value)
   React.useEffect(() => {
     if (influencer && imageCount !== undefined && influencer.imageCount !== imageCount) {
@@ -90,6 +135,7 @@ export function useInfluencerData() {
     profilePicturesState,
     isGeneratingProfilePictures,
     imageCount,
+    updateInfluencer,
   };
 }
 

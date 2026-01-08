@@ -1,17 +1,7 @@
 'use client';
 
 import { NotificationItem } from './NotificationItem';
-
-interface Notification {
-  id: string;
-  type: string;
-  title: string;
-  body?: string | null;
-  href?: string | null;
-  isRead: boolean;
-  createdAt?: string | null;
-  metadata?: Record<string, unknown> | null;
-}
+import { type Notification } from './utils';
 
 interface NotificationsListProps {
   notifications: Notification[];
@@ -72,4 +62,3 @@ export function NotificationsList({
     </div>
   );
 }
-

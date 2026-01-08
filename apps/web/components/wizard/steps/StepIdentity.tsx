@@ -112,7 +112,7 @@ export function StepIdentity() {
                   key={option.value}
                   onClick={() => toggleTrait(option.value)}
                   className={cn(
-                    'rounded-full border px-3 py-2 text-sm transition-all duration-200',
+                    'rounded-full border px-4 py-3 text-sm transition-all duration-200 min-h-[44px]',
                     isSelected
                       ? 'border-purple-400/50 bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-white shadow-sm'
                       : 'border-white/10 bg-white/5 text-white/60 hover:border-white/20 hover:bg-white/10'

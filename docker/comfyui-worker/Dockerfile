@@ -23,6 +23,35 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \
       pip install -r comfyui-workflow-to-api-converter-endpoint/requirements.txt ; \
     fi
 
-# Models are loaded from network volume at /runpod-volume/models/
+# Create startup script to link models from network volume to ComfyUI directories
+# This handles both /runpod-volume and /workspace mount paths
+RUN echo '#!/bin/bash\n\
+# Create symlinks so ComfyUI custom loaders can find models\n\
+COMFYUI_MODELS="/workspace/runpod-slim/ComfyUI/models"\n\
+\n\
+# Check both possible mount locations\n\
+if [ -d "/runpod-volume/models" ]; then\n\
+    SOURCE_BASE="/runpod-volume/models"\n\
+elif [ -d "/workspace/models" ]; then\n\
+    SOURCE_BASE="/workspace/models"\n\
+else\n\
+    echo "Warning: Network volume models not found at /runpod-volume/models or /workspace/models"\n\
+    exit 0\n\
+fi\n\
+\n\
+# Create symlinks for Z-Image model directories\n\
+for dir in diffusion_models text_encoders vae; do\n\
+    SOURCE="$SOURCE_BASE/$dir"\n\
+    TARGET="$COMFYUI_MODELS/$dir"\n\
+    \n\
+    if [ -d "$SOURCE" ] && [ ! -e "$TARGET" ]; then\n\
+        echo "Creating symlink: $TARGET -> $SOURCE"\n\
+        ln -s "$SOURCE" "$TARGET"\n\
+    fi\n\
+done\n\
+' > /startup-link-models.sh && chmod +x /startup-link-models.sh
+
+# Models are loaded from network volume (either /runpod-volume/models/ or /workspace/models/)
+# Symlinks created at startup so ComfyUI custom loaders can find them
 # No models baked into image - keeps image small and flexible
 

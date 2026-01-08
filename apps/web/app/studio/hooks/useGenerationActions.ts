@@ -78,7 +78,7 @@ export function useGenerationActions({
           promptEnhance: settings.promptEnhance ?? true,
         });
 
-        // Create placeholder images immediately
+        // 1. Add placeholders to state immediately
         const placeholderImages = createPlaceholderImages({
           jobs: started.jobs,
           influencerId: settings.influencerId!,
@@ -91,11 +91,9 @@ export function useGenerationActions({
           nsfw: settings.nsfw ?? false,
           promptEnhance: settings.promptEnhance ?? true,
         });
-
-        // Add placeholders to state immediately
         addPlaceholders(placeholderImages);
 
-        // Track active generations
+        // 2. Track active generations immediately
         const promptIds = started.jobs.map((j) => j.promptId);
         setActiveGenerations((prev) => {
           const next = new Set(prev);
@@ -103,10 +101,10 @@ export function useGenerationActions({
           return next;
         });
 
-        // Start background polling (non-blocking)
+        // 3. Start background polling (non-blocking)
         void pollGenerationResults(promptIds, settings.influencerId);
 
-        // Invalidate activity feed and refresh credits immediately
+        // 4. Invalidate and refresh (lower priority)
         utils.activity.list.invalidate();
         utils.activity.summary.invalidate();
         refetchCredits();

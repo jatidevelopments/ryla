@@ -53,7 +53,7 @@ async function createOrUpdateSubscription(
   });
 
   const credits = getCreditsForPlanId(planId);
-  
+
   // Calculate period end (30 days from now for monthly, 365 for yearly)
   // For v3, we don't get period info, so we calculate it
   const now = new Date();
@@ -100,20 +100,23 @@ const v3Handler = createFinbyV3WebhookHandler({
   secretKey: process.env.FINBY_SECRET_KEY || '',
   onPaymentSucceeded: async (event) => {
     console.log('[Finby Webhook] Payment succeeded (v3):', event.data.invoiceId);
-    
+
     const db = getDb();
     const reference = event.data.subscriptionId; // In v3, subscriptionId is actually the reference
     const parsed = parsePaymentReference(reference);
 
     if (!parsed) {
-      console.warn('[Finby Webhook] Invalid payment reference:', reference);
+      console.warn('[Finby Webhook] Invalid payment reference (v3):', reference);
+      // Log full event data for debugging
+      console.log('[Finby Webhook] Event data:', JSON.stringify(event.data, null, 2));
       return;
     }
 
     if (parsed.type === 'subscription') {
       // Handle subscription payment (one-time monthly payment via v3)
       const { userId, planId } = parsed;
-      
+      console.log(`[Finby Webhook] Processing subscription for user ${userId}, plan ${planId}`);
+
       try {
         // Create or update subscription record
         await createOrUpdateSubscription(
@@ -123,7 +126,7 @@ const v3Handler = createFinbyV3WebhookHandler({
           event.data.invoiceId, // Use invoice ID as subscription ID for v3
           undefined // Period end will be calculated (30 days from now)
         );
-        
+
         console.log(`[Finby Webhook] Subscription activated for user ${userId}, plan ${planId}`);
       } catch (error) {
         console.error('[Finby Webhook] Error processing subscription payment:', error);
@@ -132,6 +135,7 @@ const v3Handler = createFinbyV3WebhookHandler({
     } else if (parsed.type === 'credit') {
       // Handle credit purchase
       const { userId, packageId } = parsed;
+      console.log(`[Finby Webhook] Processing credit purchase for user ${userId}, package ${packageId}`);
 
       try {
         // Find credit package
@@ -168,86 +172,86 @@ const v3Handler = createFinbyV3WebhookHandler({
 });
 
 // Legacy v1 handler (not used if user only has v3, but kept for compatibility)
-const v1Handler = process.env.FINBY_API_KEY && process.env.FINBY_MERCHANT_ID 
+const v1Handler = process.env.FINBY_API_KEY && process.env.FINBY_MERCHANT_ID
   ? createFinbyWebhookHandler({
-      apiKey: process.env.FINBY_API_KEY,
-      merchantId: process.env.FINBY_MERCHANT_ID,
-      webhookSecret: process.env.FINBY_WEBHOOK_SECRET,
-      onSubscriptionCreated: async (event) => {
-    console.log('[Finby Webhook] Subscription created:', event.data.subscriptionId);
-    
-    const db = getDb();
-    const reference = event.data.subscriptionId;
-    const parsed = parsePaymentReference(reference);
-    
-    if (!parsed || parsed.type !== 'subscription') {
-      console.warn('[Finby Webhook] Invalid subscription reference:', reference);
-      return;
-    }
+    apiKey: process.env.FINBY_API_KEY,
+    merchantId: process.env.FINBY_MERCHANT_ID,
+    webhookSecret: process.env.FINBY_WEBHOOK_SECRET,
+    onSubscriptionCreated: async (event) => {
+      console.log('[Finby Webhook] Subscription created:', event.data.subscriptionId);
 
-    const { userId, planId } = parsed;
+      const db = getDb();
+      const reference = event.data.subscriptionId;
+      const parsed = parsePaymentReference(reference);
 
-    try {
-      await createOrUpdateSubscription(
-        db,
-        userId,
-        planId,
-        event.data.subscriptionId,
-        event.data.currentPeriodEnd
-      );
-    } catch (error) {
-      console.error('[Finby Webhook] Error processing subscription created:', error);
-      throw error;
-    }
-  },
-  onPaymentSucceeded: async (event) => {
-    console.log('[Finby Webhook] Payment succeeded:', event.data.invoiceId);
-    
-    const db = getDb();
-    const reference = event.data.subscriptionId;
-    const parsed = parsePaymentReference(reference);
-
-    if (!parsed) {
-      console.warn('[Finby Webhook] Invalid payment reference:', reference);
-      return;
-    }
-
-    if (parsed.type === 'subscription') {
-      // Subscription renewal - grant credits
-      const { userId, planId } = parsed;
-      const credits = getCreditsForPlanId(planId);
-
-      if (credits > 0) {
-        await grantCredits(db, {
-          userId,
-          amount: credits,
-          type: 'subscription_grant',
-          description: `Monthly subscription credits renewal (${planId})`,
-          referenceType: 'subscription_renewal',
-          referenceId: event.data.subscriptionId,
-        });
-        console.log(`[Finby Webhook] Granted ${credits} credits for subscription renewal`);
+      if (!parsed || parsed.type !== 'subscription') {
+        console.warn('[Finby Webhook] Invalid subscription reference:', reference);
+        return;
       }
 
-      // Update subscription period
-      await db
-        .update(subscriptions)
-        .set({
-          currentPeriodStart: new Date(),
-          currentPeriodEnd: event.data.currentPeriodEnd,
-          updatedAt: new Date(),
-        })
-        .where(eq(subscriptions.finbySubscriptionId, event.data.subscriptionId));
-    }
-  },
-  onPaymentFailed: async (event) => {
-    console.error('[Finby Webhook] Payment failed:', event.data.error);
-    // Could update subscription status to past_due here
-  },
-  onError: (error, rawBody) => {
-    console.error('[Finby Webhook] v1 Handler error:', error);
-    console.error('[Finby Webhook] Raw body:', rawBody);
-  },
+      const { userId, planId } = parsed;
+
+      try {
+        await createOrUpdateSubscription(
+          db,
+          userId,
+          planId,
+          event.data.subscriptionId,
+          event.data.currentPeriodEnd
+        );
+      } catch (error) {
+        console.error('[Finby Webhook] Error processing subscription created:', error);
+        throw error;
+      }
+    },
+    onPaymentSucceeded: async (event) => {
+      console.log('[Finby Webhook] Payment succeeded:', event.data.invoiceId);
+
+      const db = getDb();
+      const reference = event.data.subscriptionId;
+      const parsed = parsePaymentReference(reference);
+
+      if (!parsed) {
+        console.warn('[Finby Webhook] Invalid payment reference:', reference);
+        return;
+      }
+
+      if (parsed.type === 'subscription') {
+        // Subscription renewal - grant credits
+        const { userId, planId } = parsed;
+        const credits = getCreditsForPlanId(planId);
+
+        if (credits > 0) {
+          await grantCredits(db, {
+            userId,
+            amount: credits,
+            type: 'subscription_grant',
+            description: `Monthly subscription credits renewal (${planId})`,
+            referenceType: 'subscription_renewal',
+            referenceId: event.data.subscriptionId,
+          });
+          console.log(`[Finby Webhook] Granted ${credits} credits for subscription renewal`);
+        }
+
+        // Update subscription period
+        await db
+          .update(subscriptions)
+          .set({
+            currentPeriodStart: new Date(),
+            currentPeriodEnd: event.data.currentPeriodEnd,
+            updatedAt: new Date(),
+          })
+          .where(eq(subscriptions.finbySubscriptionId, event.data.subscriptionId));
+      }
+    },
+    onPaymentFailed: async (event) => {
+      console.error('[Finby Webhook] Payment failed:', event.data.error);
+      // Could update subscription status to past_due here
+    },
+    onError: (error, rawBody) => {
+      console.error('[Finby Webhook] v1 Handler error:', error);
+      console.error('[Finby Webhook] Raw body:', rawBody);
+    },
   })
   : null;
 
@@ -260,26 +264,39 @@ export async function POST(request: NextRequest) {
   try {
     const rawBody = await request.text();
     const url = new URL(request.url);
-    
+
     // API v3 uses query parameter signature
     const v3Signature = url.searchParams.get('Signature') || '';
+    const v1Signature = request.headers.get('x-finby-signature') || '';
 
-    // Use v3 handler (handles both subscriptions and credit purchases)
-    if (process.env.FINBY_PROJECT_ID && process.env.FINBY_SECRET_KEY) {
+    // Route based on available signature
+    if (v3Signature && process.env.FINBY_PROJECT_ID && process.env.FINBY_SECRET_KEY) {
+      console.log('[Finby Webhook] Routing to v3 handler');
       return await v3Handler(rawBody, v3Signature);
     }
 
-    // Fallback to v1 if v3 not configured but v1 is
-    if (process.env.FINBY_API_KEY && process.env.FINBY_MERCHANT_ID) {
-      const v1Signature = request.headers.get('x-finby-signature') || '';
+    if (v1Signature && (process.env.FINBY_API_KEY || process.env.FINBY_PROJECT_ID)) {
+      console.log('[Finby Webhook] Routing to v1 handler');
+      // If we don't have v1 specific keys, we might be using ProjectID/SecretKey for v1 context
       if (v1Handler) {
         return await v1Handler(rawBody, v1Signature);
       }
     }
 
+    // Default: try v3 if body looks like v3 or if v1 signature is missing
+    if (process.env.FINBY_PROJECT_ID && process.env.FINBY_SECRET_KEY) {
+      console.log('[Finby Webhook] Trying v3 handler as default');
+      return await v3Handler(rawBody, v3Signature);
+    }
+
     // No handlers configured
+    console.error('[Finby Webhook] No suitable handler found', {
+      hasV3Sig: !!v3Signature,
+      hasV1Sig: !!v1Signature,
+      hasProjectId: !!process.env.FINBY_PROJECT_ID
+    });
     return NextResponse.json(
-      { error: 'Webhook handlers not configured' },
+      { error: 'Webhook handlers not configured or no suitable handler found' },
       { status: 500 }
     );
   } catch (error: any) {

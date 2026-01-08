@@ -15,11 +15,14 @@ export function ContentTypeSelector({
   onContentTypeChange,
 }: ContentTypeSelectorProps) {
   return (
-    <div className="flex items-center gap-2" data-tutorial-target="content-type-selector">
+    <div
+      className="flex items-center gap-1 md:gap-2 flex-shrink-0"
+      data-tutorial-target="content-type-selector"
+    >
       <button
         onClick={() => onContentTypeChange('image')}
         className={cn(
-          'px-3 py-2 rounded-lg text-sm font-medium transition-all',
+          'px-3 md:px-4 min-h-[44px] py-2 md:py-2.5 rounded-2xl text-sm font-medium transition-all',
           contentType === 'image'
             ? 'bg-white/10 text-white'
             : 'text-white/50 hover:text-white hover:bg-white/5'
@@ -31,17 +34,16 @@ export function ContentTypeSelector({
         <button
           onClick={(e) => {
             e.preventDefault();
-            // Video generation is not yet available
           }}
           className={cn(
-            'px-3 py-2 rounded-lg text-sm font-medium transition-all relative',
+            'px-3 md:px-4 min-h-[44px] py-2 md:py-2.5 rounded-2xl text-sm font-medium transition-all relative',
             'text-white/40 cursor-not-allowed',
             'hover:text-white/50'
           )}
           disabled
         >
           Video
-          <span className="absolute -top-0.5 -right-0.5 text-[7px] text-orange-400 font-bold bg-orange-400/20 px-1 py-0.5 rounded uppercase tracking-wider">
+          <span className="absolute -top-0.5 -right-0.5 text-[6px] md:text-[7px] text-orange-400 font-bold bg-orange-400/20 px-0.5 md:px-1 py-0.5 rounded uppercase tracking-wider">
             Soon
           </span>
         </button>
@@ -49,4 +51,3 @@ export function ContentTypeSelector({
     </div>
   );
 }
-

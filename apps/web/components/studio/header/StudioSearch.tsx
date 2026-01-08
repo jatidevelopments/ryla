@@ -35,7 +35,7 @@ export function StudioSearch({
           placeholder="Search images..."
           value={searchQuery}
           onChange={(e) => onSearchChange(e.target.value)}
-          className="h-10 bg-[var(--bg-base)] border-[var(--border-default)] pl-10 text-sm placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20 rounded-xl"
+          className="min-h-[44px] bg-[var(--bg-base)] border-[var(--border-default)] pl-10 text-sm placeholder:text-[var(--text-muted)] focus:border-[var(--purple-500)] focus:ring-[var(--purple-500)]/20 rounded-xl"
         />
       </div>
     </Tooltip>

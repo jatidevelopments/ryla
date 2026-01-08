@@ -15,11 +15,19 @@ interface StyleCardProps {
   onToggleFavorite?: (e: React.MouseEvent) => void;
 }
 
-function StyleCard({ id, name, thumbnail, isSelected, onSelect, isFavorited, onToggleFavorite }: StyleCardProps) {
+function StyleCard({
+  id,
+  name,
+  thumbnail,
+  isSelected,
+  onSelect,
+  isFavorited,
+  onToggleFavorite,
+}: StyleCardProps) {
   const [imgError, setImgError] = React.useState(false);
 
   return (
-    <div className="break-inside-avoid mb-3">
+    <div className="break-inside-avoid mb-2 sm:mb-3">
       <button
         onClick={onSelect}
         className={cn(
@@ -41,7 +49,9 @@ function StyleCard({ id, name, thumbnail, isSelected, onSelect, isFavorited, onT
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20">
-              <span className="text-3xl font-bold text-white/20">{name.charAt(0)}</span>
+              <span className="text-3xl font-bold text-white/20">
+                {name.charAt(0)}
+              </span>
             </div>
           )}
 
@@ -51,13 +61,20 @@ function StyleCard({ id, name, thumbnail, isSelected, onSelect, isFavorited, onT
 
         {/* Name */}
         <div className="absolute bottom-0 left-0 right-0 p-3">
-          <span className="text-sm font-medium text-white uppercase">{name}</span>
+          <span className="text-sm font-medium text-white uppercase">
+            {name}
+          </span>
         </div>
 
         {/* Selection indicator */}
         {isSelected && (
           <div className="absolute top-2 left-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--purple-500)]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-white">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="h-4 w-4 text-white"
+            >
               <path
                 fillRule="evenodd"
                 d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -141,8 +158,11 @@ function GridPicker<T extends GridItem>({
   onToggleFavorite,
 }: GridPickerProps<T>) {
   return (
-    <div className="columns-2 sm:columns-3 md:columns-4 gap-3">
-      <NoneOptionButton isSelected={selectedId === null} onSelect={() => onSelect(null)} />
+    <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-2 sm:gap-3">
+      <NoneOptionButton
+        isSelected={selectedId === null}
+        onSelect={() => onSelect(null)}
+      />
       {items.map((item) => (
         <StyleCard
           key={item.id}
@@ -239,4 +259,3 @@ export function LightingGrid({
     />
   );
 }
-

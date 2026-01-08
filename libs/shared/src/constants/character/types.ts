@@ -27,15 +27,17 @@ export interface ColorOption {
   imageSrc?: string;
 }
 
+export type OutfitCategory = 'casual' | 'glamour' | 'intimate' | 'fantasy' | 'kinky' | 'sexual';
+
 export interface OutfitOption {
   label: string;
   emoji: string;
-  category?: 'casual' | 'glamour' | 'intimate' | 'fantasy' | 'kinky' | 'sexual';
+  category?: OutfitCategory;
   isAdult?: boolean; // NSFW outfits
   thumbnail?: string; // Path to thumbnail image (e.g., '/outfits/casual-streetwear.webp')
 }
 
-export type OutfitPieceCategory = 
+export type OutfitPieceCategory =
   | 'top'
   | 'bottom'
   | 'shoes'

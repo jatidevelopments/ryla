@@ -17,7 +17,7 @@ export function OutfitPickerSearch({
   onToggleFavorites,
 }: OutfitPickerSearchProps) {
   return (
-    <div className="flex-shrink-0 px-6 py-4 border-b border-white/10">
+    <div className="flex-shrink-0 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10">
       <div className="flex items-center gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
@@ -52,4 +52,3 @@ export function OutfitPickerSearch({
     </div>
   );
 }
-

@@ -27,10 +27,10 @@ export function DetailPanelInfluencerSection({
           AI Influencer
         </h4>
       </div>
-      <Tooltip content="View influencer profile">
+      <Tooltip content="View influencer profile" wrapperClassName="w-full">
         <Link
           href={`/influencer/${image.influencerId}`}
-          className="group flex items-center gap-4 rounded-2xl border border-white/10 bg-gradient-to-r from-[var(--purple-500)]/5 to-[var(--pink-500)]/5 p-4 transition-all hover:border-[var(--purple-500)]/50 hover:from-[var(--purple-500)]/10 hover:to-[var(--pink-500)]/10"
+          className="group flex w-full items-center gap-4 rounded-2xl border border-white/10 bg-gradient-to-r from-[var(--purple-500)]/5 to-[var(--pink-500)]/5 p-4 transition-all hover:border-[var(--purple-500)]/50 hover:from-[var(--purple-500)]/10 hover:to-[var(--pink-500)]/10"
         >
           {/* Avatar with glow */}
           <div className="relative">
@@ -94,4 +94,3 @@ export function DetailPanelInfluencerSection({
     </div>
   );
 }
-

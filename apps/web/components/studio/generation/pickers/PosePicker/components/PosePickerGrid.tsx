@@ -1,9 +1,9 @@
 'use client';
 
 import { cn } from '@ryla/ui';
-import { ALL_POSES } from '../../types';
+import { ALL_POSES } from '../../../types';
 import { PoseCard } from './PoseCard';
-import type { Pose } from '../../types';
+import type { Pose } from '../../../types';
 
 interface PosePickerGridProps {
   availablePoses: Pose[];
@@ -21,8 +21,8 @@ export function PosePickerGrid({
   onToggleFavorite,
 }: PosePickerGridProps) {
   return (
-    <div className="flex-1 overflow-y-auto p-4 min-h-0">
-      <div className="columns-2 sm:columns-3 md:columns-4 gap-3">
+    <div className="flex-1 overflow-y-auto p-3 sm:p-4 min-h-0">
+      <div className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 gap-2 sm:gap-3">
         {/* None option */}
         <div className="break-inside-avoid mb-3">
           <button
@@ -58,4 +58,3 @@ export function PosePickerGrid({
     </div>
   );
 }
-

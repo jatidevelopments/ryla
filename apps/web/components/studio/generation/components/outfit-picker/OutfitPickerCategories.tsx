@@ -29,7 +29,7 @@ export function OutfitPickerCategories({
   nsfwEnabled = false,
 }: OutfitPickerCategoriesProps) {
   return (
-    <div className="flex-shrink-0 flex items-center gap-3 px-6 py-4 border-b border-white/10 overflow-x-auto scroll-hidden">
+    <div className="flex-shrink-0 flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10 overflow-x-auto scroll-hidden">
       <button
         onClick={() => onCategoryChange('all')}
         className={cn(
@@ -90,11 +90,12 @@ export function OutfitPickerCategories({
                 clipRule="evenodd"
               />
             </svg>
-            <span className="text-xs font-medium text-orange-400">Adult Content Enabled</span>
+            <span className="text-xs font-medium text-orange-400">
+              Adult Content Enabled
+            </span>
           </div>
         </>
       )}
     </div>
   );
 }
-

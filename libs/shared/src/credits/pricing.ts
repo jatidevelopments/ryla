@@ -26,7 +26,13 @@ export type FeatureId =
   | 'fal_schnell' // Fal.ai Schnell (1 image) - legacy
   | 'fal_dev' // Fal.ai Dev (1 image) - legacy
   | 'fal_pro' // Fal.ai Pro (1 image) - legacy
-  | 'fal_model'; // Fal.ai model (dynamic pricing based on model ID)
+  | 'fal_model' // Fal.ai model (dynamic pricing based on model ID)
+  | 'lora_training_z_image_base' // LoRA training base cost (Z-Image)
+  | 'lora_training_z_image_per_image' // LoRA training per-image cost (Z-Image)
+  | 'lora_training_flux_base' // LoRA training base cost (Flux)
+  | 'lora_training_flux_per_image' // LoRA training per-image cost (Flux)
+  | 'lora_training_one_base' // LoRA training base cost (One 2.1/2.2)
+  | 'lora_training_one_per_image'; // LoRA training per-image cost (One 2.1/2.2)
 
 /**
  * AI model identifiers
@@ -77,31 +83,31 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'base_images',
     name: 'Character Creation',
     description: 'Generate 3 base images for new character',
-    credits: 100,
+    credits: 30, // 30 credits = $0.03 (Cost ~$0.006) - 5x margin
     defaultImageCount: 3,
-    costPerImage: 0.002, // ~$0.006 total
+    costPerImage: 0.002,
   },
   profile_set_fast: {
     id: 'profile_set_fast',
     name: 'Profile Set (Fast)',
     description: '8 profile pictures, speed-optimized',
-    credits: 200,
+    credits: 50, // 50 credits = $0.05 (Cost ~$0.011) - 4.5x margin
     defaultImageCount: 8,
-    costPerImage: 0.0014, // ~$0.011 total
+    costPerImage: 0.0014,
   },
   profile_set_quality: {
     id: 'profile_set_quality',
     name: 'Profile Set (Quality)',
     description: '8 profile pictures with face consistency',
-    credits: 300,
+    credits: 100, // 100 credits = $0.10 (Cost ~$0.017) - 5.8x margin
     defaultImageCount: 8,
-    costPerImage: 0.0021, // ~$0.017 total (PuLID overhead)
+    costPerImage: 0.0021,
   },
   studio_fast: {
     id: 'studio_fast',
     name: 'Studio Quick',
     description: 'Single image, speed mode',
-    credits: 20,
+    credits: 5, // 5 credits = $0.005 (Cost ~$0.001) - 5x margin
     defaultImageCount: 1,
     costPerImage: 0.001,
   },
@@ -109,7 +115,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'studio_standard',
     name: 'Studio Standard',
     description: 'Single image, balanced quality',
-    credits: 50,
+    credits: 15, // 15 credits = $0.015 (Cost ~$0.003) - 5x margin
     defaultImageCount: 1,
     costPerImage: 0.003,
   },
@@ -117,15 +123,15 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'studio_batch',
     name: 'Studio Batch',
     description: '4 images in one batch',
-    credits: 80,
+    credits: 20, // 20 credits = $0.020 (Cost ~$0.005) - 4x margin
     defaultImageCount: 4,
-    costPerImage: 0.00125, // ~$0.005 total
+    costPerImage: 0.00125,
   },
   inpaint: {
     id: 'inpaint',
     name: 'Image Edit',
     description: 'Edit/inpaint existing image',
-    credits: 30,
+    credits: 10, // 10 credits = $0.010 (Cost ~$0.002) - 5x margin
     defaultImageCount: 1,
     costPerImage: 0.002,
   },
@@ -133,7 +139,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'upscale',
     name: 'Upscale',
     description: 'Enhance image resolution',
-    credits: 20,
+    credits: 10, // 10 credits = $0.010 (Cost ~$0.002) - 5x margin
     defaultImageCount: 1,
     costPerImage: 0.002,
   },
@@ -141,25 +147,25 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'fal_schnell',
     name: 'Premium Fast (Fal)',
     description: 'Fal.ai Schnell model',
-    credits: 600,
+    credits: 10, // 10 credits = $0.010 (Cost $0.003) - 3.3x margin
     defaultImageCount: 1,
-    costPerImage: 0.05, // External API
+    costPerImage: 0.003,
   },
   fal_dev: {
     id: 'fal_dev',
     name: 'Premium Quality (Fal)',
     description: 'Fal.ai Dev model',
-    credits: 1200,
+    credits: 50, // 50 credits = $0.050 (Cost $0.025) - 2x margin
     defaultImageCount: 1,
-    costPerImage: 0.1, // External API
+    costPerImage: 0.025,
   },
   fal_pro: {
     id: 'fal_pro',
     name: 'Premium Pro (Fal)',
     description: 'Fal.ai Pro model',
-    credits: 1800,
+    credits: 150, // 150 credits = $0.150 (Cost ~$0.06) - 2.5x margin
     defaultImageCount: 1,
-    costPerImage: 0.15, // External API
+    costPerImage: 0.06,
   },
   fal_model: {
     id: 'fal_model',
@@ -168,6 +174,58 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     credits: 0, // Calculated dynamically
     defaultImageCount: 1,
     costPerImage: 0, // Calculated dynamically
+  },
+  // LoRA Training Costs (Base + Per-Image)
+  // Credit value: ~$0.001 per credit (based on packages: $0.00091-$0.0015)
+  // Actual training costs: Z-Image ~$4, Flux/One ~$6-7
+  // Target margin: 5x (consistent with other features)
+  lora_training_z_image_base: {
+    id: 'lora_training_z_image_base',
+    name: 'LoRA Training Base (Z-Image)',
+    description: 'Base cost for Z-Image Turbo LoRA training (~1 hour GPU time)',
+    credits: 15000, // 15,000 credits = ~$15 (Cost ~$3-4) - 4-5x margin
+    defaultImageCount: 0,
+    costPerImage: 3.5, // Actual cost ~$3.5 for base training
+  },
+  lora_training_z_image_per_image: {
+    id: 'lora_training_z_image_per_image',
+    name: 'LoRA Training Per Image (Z-Image)',
+    description: 'Per-image processing cost for Z-Image Turbo LoRA training',
+    credits: 1000, // 1,000 credits = ~$1 per image (Cost ~$0.10-0.15) - 7-10x margin
+    defaultImageCount: 1,
+    costPerImage: 0.12, // Actual cost ~$0.12 per image processing
+  },
+  lora_training_flux_base: {
+    id: 'lora_training_flux_base',
+    name: 'LoRA Training Base (Flux)',
+    description: 'Base cost for Flux Dev LoRA training (~1.5 hours GPU time)',
+    credits: 25000, // 25,000 credits = ~$25 (Cost ~$5-6) - 4-5x margin
+    defaultImageCount: 0,
+    costPerImage: 5.5, // Actual cost ~$5.5 for base training
+  },
+  lora_training_flux_per_image: {
+    id: 'lora_training_flux_per_image',
+    name: 'LoRA Training Per Image (Flux)',
+    description: 'Per-image processing cost for Flux Dev LoRA training',
+    credits: 1000, // 1,000 credits = ~$1 per image (Cost ~$0.10-0.15) - 7-10x margin
+    defaultImageCount: 1,
+    costPerImage: 0.12, // Actual cost ~$0.12 per image processing
+  },
+  lora_training_one_base: {
+    id: 'lora_training_one_base',
+    name: 'LoRA Training Base (One)',
+    description: 'Base cost for One 2.1/2.2 LoRA training (~1.5 hours GPU time)',
+    credits: 25000, // 25,000 credits = ~$25 (Cost ~$5-6) - 4-5x margin
+    defaultImageCount: 0,
+    costPerImage: 5.5, // Actual cost ~$5.5 for base training
+  },
+  lora_training_one_per_image: {
+    id: 'lora_training_one_per_image',
+    name: 'LoRA Training Per Image (One)',
+    description: 'Per-image processing cost for One 2.1/2.2 LoRA training',
+    credits: 1000, // 1,000 credits = ~$1 per image (Cost ~$0.10-0.15) - 7-10x margin
+    defaultImageCount: 1,
+    costPerImage: 0.12, // Actual cost ~$0.12 per image processing
   },
 } as const;
 
@@ -193,7 +251,7 @@ export const PLAN_CREDITS: Record<PlanId, PlanDefinition> = {
   free: {
     id: 'free',
     name: 'Free',
-    monthlyCredits: 250,
+    monthlyCredits: 500, // 500 credits = $0.50 value (Trial)
     priceMonthly: 0,
     priceYearly: 0,
     isOneTime: true,
@@ -201,23 +259,23 @@ export const PLAN_CREDITS: Record<PlanId, PlanDefinition> = {
   starter: {
     id: 'starter',
     name: 'Starter',
-    monthlyCredits: 3000,
+    monthlyCredits: 30000,
     priceMonthly: 29,
-    priceYearly: 199, // ~$16.58/mo
+    priceYearly: 199,
   },
   pro: {
     id: 'pro',
     name: 'Pro',
-    monthlyCredits: 5000,
+    monthlyCredits: 60000,
     priceMonthly: 49,
-    priceYearly: 349, // ~$29/mo
+    priceYearly: 349,
   },
   unlimited: {
     id: 'unlimited',
     name: 'Unlimited',
     monthlyCredits: Infinity,
     priceMonthly: 99,
-    priceYearly: 699, // ~$58/mo
+    priceYearly: 699,
     isUnlimited: true,
   },
 } as const;
@@ -252,50 +310,47 @@ export interface CreditPackage {
  */
 export const CREDIT_PACKAGES: CreditPackage[] = [
   {
-    id: 'credits_500',
-    credits: 500,
+    id: 'credits_pack_2000',
+    credits: 2000,
+    price: 2.99,
+    perCreditPrice: 0.0015,
+    finbyProductId: 'credits_2000',
+  },
+  {
+    id: 'credits_pack_8000',
+    credits: 8000,
     price: 9.99,
-    perCreditPrice: 0.020,
-    finbyProductId: 'credits_500',
+    perCreditPrice: 0.00125,
+    finbyProductId: 'credits_8000',
   },
   {
-    id: 'credits_1500',
-    credits: 1500,
+    id: 'credits_pack_22000',
+    credits: 22000,
     price: 24.99,
-    originalPrice: 29.99,
-    savePercent: 17,
-    perCreditPrice: 0.0167,
-    finbyProductId: 'credits_1500',
-  },
-  {
-    id: 'credits_3500',
-    credits: 3500,
-    price: 49.99,
-    originalPrice: 69.99,
-    savePercent: 29,
-    perCreditPrice: 0.0143,
+    savePercent: 10,
+    perCreditPrice: 0.00114,
+    finbyProductId: 'credits_22000',
     highlighted: true,
+    badge: 'Popular Refill',
+  },
+  {
+    id: 'credits_pack_50000',
+    credits: 50000,
+    price: 49.99,
+    originalPrice: 59.99,
+    savePercent: 20,
+    perCreditPrice: 0.00100,
+    finbyProductId: 'credits_50000',
+  },
+  {
+    id: 'credits_pack_110000',
+    credits: 110000,
+    price: 99.99,
+    originalPrice: 139.99,
+    savePercent: 27,
+    perCreditPrice: 0.00091,
+    finbyProductId: 'credits_110000',
     badge: 'Best Value',
-    finbyProductId: 'credits_3500',
-  },
-  {
-    id: 'credits_7500',
-    credits: 7500,
-    price: 89.99,
-    originalPrice: 149.99,
-    savePercent: 40,
-    perCreditPrice: 0.012,
-    finbyProductId: 'credits_7500',
-  },
-  {
-    id: 'credits_15000',
-    credits: 15000,
-    price: 149.99,
-    originalPrice: 299.99,
-    savePercent: 50,
-    perCreditPrice: 0.010,
-    badge: 'Most Credits',
-    finbyProductId: 'credits_15000',
   },
 ];
 
@@ -327,12 +382,12 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'starter',
     name: 'Starter',
     description: 'Perfect for getting started with AI influencers',
-    monthlyCredits: 3000,
+    monthlyCredits: 30000,
     priceMonthly: 29,
     priceYearly: 199,
     priceYearlyPerMonth: 16.58,
     features: [
-      '3,000 credits/month',
+      '30,000 credits/month',
       'Create unlimited characters',
       'All generation modes',
       'Basic customization',
@@ -345,12 +400,12 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
     id: 'pro',
     name: 'Pro',
     description: 'For serious creators who want more power',
-    monthlyCredits: 5000,
+    monthlyCredits: 60000,
     priceMonthly: 49,
     priceYearly: 349,
     priceYearlyPerMonth: 29.08,
     features: [
-      '5,000 credits/month',
+      '60,000 credits/month',
       'Unlimited characters',
       'All generation modes',
       'Advanced customization',
@@ -409,6 +464,35 @@ export function getFeatureDefinition(
   featureId: FeatureId
 ): FeatureDefinition | undefined {
   return FEATURE_CREDITS[featureId];
+}
+
+/**
+ * Calculate LoRA training cost based on model and image count
+ * 
+ * Formula: Base Cost + (Image Count × Per-Image Cost)
+ * 
+ * @param model - Model type for LoRA training
+ * @param imageCount - Number of images to use for training (minimum 5)
+ * @returns Total credit cost
+ */
+export function calculateLoraTrainingCost(
+  model: 'z-image-turbo' | 'flux' | 'one-2.1' | 'one-2.2',
+  imageCount: number
+): number {
+  const baseFeatureId =
+    model === 'z-image-turbo' ? 'lora_training_z_image_base' :
+      model === 'flux' ? 'lora_training_flux_base' :
+        'lora_training_one_base';
+
+  const perImageFeatureId =
+    model === 'z-image-turbo' ? 'lora_training_z_image_per_image' :
+      model === 'flux' ? 'lora_training_flux_per_image' :
+        'lora_training_one_per_image';
+
+  const baseCost = FEATURE_CREDITS[baseFeatureId]?.credits ?? 0;
+  const perImageCost = FEATURE_CREDITS[perImageFeatureId]?.credits ?? 0;
+
+  return baseCost + (imageCount * perImageCost);
 }
 
 /**
@@ -495,8 +579,8 @@ export function getPackageCredits(packageId: string): number {
  * Legacy mapping for backward compatibility during migration
  */
 export const CREDIT_COSTS = {
-  draft: 20, // Maps to studio_fast
-  hq: 50, // Maps to studio_standard
+  draft: 5, // Maps to studio_fast
+  hq: 15, // Maps to studio_standard
 } as const;
 
 /**
@@ -504,9 +588,9 @@ export const CREDIT_COSTS = {
  * Legacy mapping for backward compatibility during migration
  */
 export const PLAN_CREDIT_LIMITS = {
-  free: 250,
-  starter: 3000,
-  pro: 5000,
+  free: 500,
+  starter: 30000,
+  pro: 60000,
   unlimited: Infinity,
 } as const;
 

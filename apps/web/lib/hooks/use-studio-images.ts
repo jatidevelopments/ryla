@@ -48,7 +48,7 @@ export function useStudioImages({
   const [activeGenerations, setActiveGenerations] = React.useState<Set<string>>(
     new Set()
   );
-  
+
   // Track current loading request to prevent race conditions
   const loadingRef = React.useRef<string | null>(null);
 
@@ -95,14 +95,17 @@ export function useStudioImages({
         loadingRef.current = null;
         return;
       }
-      
+
       // Prevent multiple simultaneous calls for the same character
       if (loadingRef.current === characterId) {
         return;
       }
-      
+
       loadingRef.current = characterId;
-      setIsLoading(true);
+      // Only show full loading state if we have no images yet
+      if (allImages.length === 0) {
+        setIsLoading(true);
+      }
       try {
         const rows = await getCharacterImages(characterId);
         const influencer = influencersRef.current.find((i) => i.id === characterId);
@@ -123,8 +126,8 @@ export function useStudioImages({
             row.status === 'completed'
               ? 'completed'
               : row.status === 'failed'
-              ? 'failed'
-              : 'generating',
+                ? 'failed'
+                : 'generating',
           createdAt: row.createdAt || new Date().toISOString(),
           isLiked: Boolean(row.liked),
           nsfw: row.nsfw ?? false,
@@ -135,13 +138,17 @@ export function useStudioImages({
 
         // Replace placeholders with real images
         setAllImages((prev) => {
-          const placeholdersForOtherChars = prev.filter(
-            (img) =>
-              img.id.startsWith('placeholder-') &&
-              img.influencerId !== characterId
-          );
+          const currentActive = activeGenerationsRef.current;
 
-          const newImages = [...mapped, ...placeholdersForOtherChars];
+          // Keep placeholders that are still active or belong to other characters
+          const activePlaceholders = prev.filter((img) => {
+            if (!img.id.startsWith('placeholder-')) return false;
+            const promptId = img.id.replace('placeholder-', '');
+            // Keep if we're still polling for it OR it's not the character we're currently refreshing
+            return currentActive.has(promptId) || img.influencerId !== characterId;
+          });
+
+          const newImages = [...mapped, ...activePlaceholders];
 
           // Cleanup stale generating images
           const now = Date.now();
@@ -215,29 +222,46 @@ export function useStudioImages({
     activeGenerationsRef.current = activeGenerations;
   }, [activeGenerations]);
 
+  const hasGeneratingRealImages = React.useMemo(
+    () =>
+      allImages.some(
+        (img) =>
+          img.status === 'generating' && !img.id.startsWith('placeholder-')
+      ),
+    [allImages]
+  );
+
   // Poll for updates when there are active generations
   React.useEffect(() => {
-    if (activeGenerations.size === 0 || !selectedInfluencerId) return;
+    if (activeGenerations.size === 0 && !hasGeneratingRealImages) return;
+    if (!selectedInfluencerId) return;
 
     const pollForUpdates = async () => {
       try {
-        // Get results for all active jobs - use ref to get latest value
+        // 1. Poll specific active jobs if we have their IDs
         const currentActive = activeGenerationsRef.current;
-        if (currentActive.size === 0) return; // Stop if no active generations
-        
-        const jobIds = Array.from(currentActive);
-        for (const jobId of jobIds) {
-          const results = await getComfyUIResults(jobId);
-          
-          if (results && results.length > 0) {
-            // Job completed - update images and remove from active
-            await refreshImages(selectedInfluencerId);
-            setActiveGenerations((prev) => {
-              const next = new Set(prev);
-              next.delete(jobId);
-              return next;
-            });
+        if (currentActive.size > 0) {
+          const jobIds = Array.from(currentActive);
+          for (const jobId of jobIds) {
+            const results = await getComfyUIResults(jobId);
+            if (
+              results &&
+              (results.status === 'completed' || results.status === 'failed')
+            ) {
+              await refreshImages(selectedInfluencerId);
+              setActiveGenerations((prev) => {
+                const next = new Set(prev);
+                next.delete(jobId);
+                return next;
+              });
+            }
           }
+        }
+
+        // 2. If we have generating images but no active job IDs (e.g. after refresh),
+        // just perform a general refresh occasionally
+        if (hasGeneratingRealImages && currentActive.size === 0) {
+          await refreshImages(selectedInfluencerId);
         }
       } catch (error) {
         console.error('Error polling for updates:', error);
@@ -247,7 +271,7 @@ export function useStudioImages({
     const interval = setInterval(pollForUpdates, pollInterval);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeGenerations.size, selectedInfluencerId, pollInterval]); // Only depend on size, not the Set object
+  }, [activeGenerations.size, hasGeneratingRealImages, selectedInfluencerId, pollInterval]);
 
   return {
     images: allImages,

@@ -9,11 +9,13 @@ The credit system manages AI image generation quotas with feature-based pricing.
 ## Single Source of Truth
 
 **All credit pricing is defined in:**
+
 ```
 libs/shared/src/credits/pricing.ts
 ```
 
 This file exports:
+
 - `FEATURE_CREDITS` - Cost per feature
 - `PLAN_CREDITS` - Monthly credits per plan
 - `SUBSCRIPTION_PLANS` - Plan definitions with pricing
@@ -21,6 +23,7 @@ This file exports:
 - Helper functions: `getFeatureCost()`, `hasEnoughCredits()`, etc.
 
 **See also:**
+
 - `docs/technical/systems/CREDIT-PRICING-PROPOSAL.md` - Pricing strategy
 - `docs/technical/systems/CREDIT-COST-MARGIN-ANALYSIS.md` - Cost/margin analysis
 
@@ -73,60 +76,49 @@ All credit values are multiplied by 10 for psychological impact (100 credits fee
 
 ### Feature Costs
 
-| Feature | Credits | Description |
-|---------|---------|-------------|
-| `base_images` | 100 | Character creation (3 images) |
-| `profile_set_fast` | 200 | Profile set, speed mode (8 images) |
-| `profile_set_quality` | 300 | Profile set with PuLID (8 images) |
-| `studio_fast` | 20 | Single image, speed mode |
-| `studio_standard` | 50 | Single image, balanced |
-| `studio_batch` | 80 | 4 images in batch |
-| `inpaint` | 30 | Edit existing image |
-| `upscale` | 20 | Enhance resolution |
-| `fal_model` | Dynamic | External API (Fal.ai models - see pricing below) |
+| Feature               | Credits | Description                                      |
+| --------------------- | ------- | ------------------------------------------------ |
+| `base_images`         | 30      | Character creation (3 images)                    |
+| `profile_set_fast`    | 50      | Profile set, speed mode (8 images)               |
+| `profile_set_quality` | 100     | Profile set with PuLID (8 images)                |
+| `studio_fast`         | 5       | Single image, speed mode                         |
+| `studio_standard`     | 15      | Single image, balanced                           |
+| `studio_batch`        | 20      | 4 images in batch                                |
+| `inpaint`             | 10      | Edit existing image                              |
+| `upscale`             | 10      | Enhance resolution                               |
+| `fal_model`           | Dynamic | External API (Fal.ai models - see pricing below) |
 
 ### Fal.ai Model Pricing (Dynamic)
 
 Fal.ai models use **dynamic pricing** based on:
+
 - Model selection (70+ models available)
 - Image dimensions (credits scale with megapixels)
 
 **Pricing Formula:**
+
 ```
-Credits = ceil(USD_Cost × 100)
+Credits = ceil(USD_Cost × 2000)
 ```
 
-Where USD cost is calculated as:
-- **Per megapixel models**: `cost_per_MP × (width × height / 1,000,000)`
-- **Per image models**: Fixed cost regardless of size
+_(Based on 2x Margin and $0.001 Credit Value)_
 
 **Example Costs (for 1024×1024 = 1MP image):**
 
-| Model | USD Cost | Credits | Use Case |
-|-------|----------|---------|----------|
-| `fal-ai/flux/schnell` | $0.003 | **0.3** | Fast generation |
-| `fal-ai/flux-2/flash` | $0.005 | **0.5** | Ultra-fast |
-| `fal-ai/flux-2/turbo` | $0.008 | **0.8** | Fast FLUX 2 |
-| `fal-ai/flux-2` | $0.012 | **1.2** | Standard FLUX 2 |
-| `fal-ai/flux/dev` | $0.025 | **2.5** | High quality |
-| `fal-ai/flux-2-pro` | $0.03 | **3** | Premium quality |
-| `fal-ai/flux-2-max` | $0.07 | **7** | Maximum quality |
-| `fal-ai/flux-pro/v1.1-ultra` | $0.06 | **6** | Ultra premium (per image) |
-| `fal-ai/imagen4/preview` | $0.04 | **4** | Google Imagen 4 (per image) |
-| `fal-ai/gpt-image-1.5` | $0.001 | **0.1** | GPT Image (per image) |
-
-**Full pricing reference:** See `apps/api/src/modules/image/services/fal-image.service.ts` → `FAL_MODEL_PRICING`
-
-**Note:** Credits scale with image size. A 9:16 image (832×1472 = 1.22 MP) costs ~22% more than a 1:1 image (1024×1024 = 1.05 MP).
+| Model                        | USD Cost | Credits  | Use Case                  |
+| ---------------------------- | -------- | -------- | ------------------------- |
+| `fal-ai/flux/schnell`        | $0.003   | **6-10** | Fast generation           |
+| `fal-ai/flux/dev`            | $0.025   | **50**   | High quality              |
+| `fal-ai/flux-pro/v1.1-ultra` | $0.06    | **120**  | Ultra premium (per image) |
 
 ### Plan Credits
 
-| Plan | Monthly Credits | Price |
-|------|-----------------|-------|
-| Free | 250 (one-time) | $0 |
-| Starter | 3,000/month | $29/mo |
-| Pro | 8,000/month | $49/mo |
-| Unlimited | ∞ | $99/mo |
+| Plan      | Monthly Credits | Price  |
+| --------- | --------------- | ------ |
+| Free      | 500 (one-time)  | $0     |
+| Starter   | 30,000/month    | $29/mo |
+| Pro       | 60,000/month    | $49/mo |
+| Unlimited | ∞               | $99/mo |
 
 ---
 
@@ -134,32 +126,32 @@ Where USD cost is calculated as:
 
 ### Shared (Source of Truth)
 
-| File | Purpose |
-|------|---------|
-| `libs/shared/src/credits/pricing.ts` | All credit costs, plans, packages |
-| `libs/shared/src/credits/index.ts` | Exports for @ryla/shared |
+| File                                                       | Purpose                                        |
+| ---------------------------------------------------------- | ---------------------------------------------- |
+| `libs/shared/src/credits/pricing.ts`                       | All credit costs, plans, packages              |
+| `libs/shared/src/credits/index.ts`                         | Exports for @ryla/shared                       |
 | `apps/api/src/modules/image/services/fal-image.service.ts` | Fal.ai model pricing map (`FAL_MODEL_PRICING`) |
 
 ### Backend
 
-| File | Purpose |
-|------|---------|
-| `libs/data/src/schema/credits.schema.ts` | DB schema, re-exports pricing |
-| `libs/trpc/src/routers/credits.router.ts` | tRPC endpoints for credits |
-| `libs/trpc/src/routers/generation.router.ts` | Credit deduction on generation |
+| File                                                                 | Purpose                            |
+| -------------------------------------------------------------------- | ---------------------------------- |
+| `libs/data/src/schema/credits.schema.ts`                             | DB schema, re-exports pricing      |
+| `libs/trpc/src/routers/credits.router.ts`                            | tRPC endpoints for credits         |
+| `libs/trpc/src/routers/generation.router.ts`                         | Credit deduction on generation     |
 | `apps/api/src/modules/credits/services/credit-management.service.ts` | Credit check/deduct/refund service |
-| `apps/api/src/modules/auth/services/auth.service.ts` | Credit init on signup |
-| `apps/api/src/modules/cron/services/credit-refresh.service.ts` | Monthly credit reset |
+| `apps/api/src/modules/auth/services/auth.service.ts`                 | Credit init on signup              |
+| `apps/api/src/modules/cron/services/credit-refresh.service.ts`       | Monthly credit reset               |
 
 ### Frontend
 
-| File | Purpose |
-|------|---------|
-| `apps/web/constants/pricing.ts` | Re-exports from @ryla/shared |
-| `apps/web/lib/hooks/use-credits.ts` | React hook for credit data |
-| `apps/web/components/credits/credits-badge.tsx` | Balance display in header |
-| `apps/web/components/credits/low-balance-warning.tsx` | Warning when credits ≤ 100 |
-| `apps/web/components/credits/zero-credits-modal.tsx` | Modal when insufficient |
+| File                                                  | Purpose                      |
+| ----------------------------------------------------- | ---------------------------- |
+| `apps/web/constants/pricing.ts`                       | Re-exports from @ryla/shared |
+| `apps/web/lib/hooks/use-credits.ts`                   | React hook for credit data   |
+| `apps/web/components/credits/credits-badge.tsx`       | Balance display in header    |
+| `apps/web/components/credits/low-balance-warning.tsx` | Warning when credits ≤ 500   |
+| `apps/web/components/credits/zero-credits-modal.tsx`  | Modal when insufficient      |
 
 ---
 
@@ -205,8 +197,8 @@ Where USD cost is calculated as:
 async registerUserByEmail(email, password) {
   const user = await this.usersRepository.create({ ... });
 
-  // Initialize credits with free tier (250 credits)
-  const freeCredits = PLAN_CREDIT_LIMITS.free; // 250
+  // Initialize credits with free tier (500 credits)
+  const freeCredits = PLAN_CREDIT_LIMITS.free; // 500
   await this.db.insert(userCredits).values({
     userId: user.id,
     balance: freeCredits,
@@ -227,7 +219,7 @@ async deductCredits(
 ): Promise<CreditDeductionResult> {
   // Check if user has enough credits
   const { balance, required } = await this.requireCredits(userId, featureId, count);
-  
+
   // Atomic deduction with transaction log
   await this.db.transaction(async (tx) => {
     await tx.update(userCredits)
@@ -256,8 +248,8 @@ async deductCredits(
 @Post('generate-profile-picture-set')
 async generateProfilePictureSet(@CurrentUser() user, @Body() dto) {
   const imageCount = dto.nsfwEnabled ? 10 : 7;
-  const featureId = dto.generationMode === 'consistent' 
-    ? 'profile_set_quality' 
+  const featureId = dto.generationMode === 'consistent'
+    ? 'profile_set_quality'
     : 'profile_set_fast';
 
   // Check and deduct credits upfront
@@ -285,7 +277,7 @@ async generateProfilePictureSet(@CurrentUser() user, @Body() dto) {
 
 // Credits are RESET, not added (use it or lose it policy)
 const creditsToGrant = PLAN_CREDIT_LIMITS[tier];
-// starter: 3000, pro: 8000
+// starter: 30000, pro: 60000
 
 // Free tier is skipped (one-time credits on signup)
 // Unlimited tier is skipped (no credit tracking)
@@ -295,12 +287,12 @@ const creditsToGrant = PLAN_CREDIT_LIMITS[tier];
 
 ## UI States
 
-| State | Condition | Component |
-|-------|-----------|-----------|
-| Normal | balance > 100 | Green badge in header |
-| Low | balance ≤ 100 | Orange badge + warning banner |
-| Zero | balance < feature cost | Red badge + modal |
-| Loading | isLoading | Skeleton/spinner |
+| State   | Condition              | Component                     |
+| ------- | ---------------------- | ----------------------------- |
+| Normal  | balance > 500          | Green badge in header         |
+| Low     | balance ≤ 500          | Orange badge + warning banner |
+| Zero    | balance < feature cost | Red badge + modal             |
+| Loading | isLoading              | Skeleton/spinner              |
 
 ---
 

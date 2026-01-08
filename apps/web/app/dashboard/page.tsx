@@ -14,6 +14,7 @@ import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
 import Link from 'next/link';
 import { cn } from '@ryla/ui';
+import { LoadingState } from '../../components/ui/loading-state';
 
 export default function DashboardPage() {
   return (
@@ -36,7 +37,7 @@ function DashboardContent() {
     limit: itemsPerPage,
     offset,
   });
-  
+
   // Map Character data to AIInfluencer format for compatibility
   // imageCount is now included in the character list response
   const influencers = (charactersData?.items || []).map((char) => ({
@@ -65,7 +66,7 @@ function DashboardContent() {
     createdAt: char.createdAt?.toISOString() || new Date().toISOString(),
     updatedAt: char.createdAt?.toISOString() || new Date().toISOString(),
   }));
-  
+
   const totalCount = charactersData?.total ?? 0;
   const totalPages = Math.ceil(totalCount / itemsPerPage);
   const hasInfluencers = totalCount > 0;
@@ -86,12 +87,14 @@ function DashboardContent() {
 
       {/* Page Header */}
       <FadeInUp>
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-[var(--text-primary)]">
-              {user ? `Welcome, ${user.name.split(' ')[0]}` : 'My AI Influencers'}
+        <div className="mb-8 flex items-center justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="text-2xl sm:text-3xl font-bold text-[var(--text-primary)] truncate">
+              {user
+                ? `Welcome, ${user.name.split(' ')[0]}`
+                : 'My AI Influencers'}
             </h1>
-            <p className="mt-1 text-[var(--text-secondary)]">
+            <p className="mt-1 text-sm sm:text-base text-[var(--text-secondary)] truncate">
               {hasInfluencers
                 ? `${totalCount} influencer${
                     totalCount !== 1 ? 's' : ''
@@ -103,8 +106,8 @@ function DashboardContent() {
             <Link
               href="/wizard/step-0"
               className={cn(
-                'inline-flex items-center justify-center gap-2',
-                'h-10 px-5 rounded-full font-bold text-sm',
+                'inline-flex items-center justify-center shrink-0',
+                'h-12 w-12 sm:h-10 sm:w-auto sm:px-5 sm:gap-2 rounded-full font-bold text-sm',
                 'bg-gradient-to-r from-[#7c3aed] to-[#a855f7] text-white',
                 'shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40',
                 'transition-all duration-200 relative overflow-hidden',
@@ -117,11 +120,11 @@ function DashboardContent() {
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
-                className="h-4 w-4 relative z-10"
+                className="h-6 w-6 sm:h-4 sm:w-4 relative z-10"
               >
                 <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
               </svg>
-              <span className="relative z-10">Create New</span>
+              <span className="relative z-10 hidden sm:inline">Create New</span>
             </Link>
           )}
         </div>
@@ -130,9 +133,10 @@ function DashboardContent() {
       {/* Content */}
       {isLoading ? (
         <FadeInUp delay={200}>
-          <div className="relative rounded-2xl border border-[var(--border-default)] bg-[var(--bg-elevated)] p-12 text-center">
-            <p className="text-[var(--text-secondary)]">Loading influencers...</p>
-          </div>
+          <LoadingState
+            title="Loading Influencers"
+            message="Fetching your AI empire..."
+          />
         </FadeInUp>
       ) : hasInfluencers ? (
         <>
@@ -220,4 +224,3 @@ function DashboardContent() {
     </PageContainer>
   );
 }
-

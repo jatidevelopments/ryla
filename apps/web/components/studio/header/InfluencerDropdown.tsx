@@ -1,19 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import Image from 'next/image';
 import { cn } from '@ryla/ui';
 import type { InfluencerTab } from './InfluencerTabs';
+import { PickerDrawer } from '../generation/pickers/PickerDrawer';
 
 interface InfluencerDropdownProps {
   influencers: InfluencerTab[];
   selectedInfluencerId: string | null;
   onSelectInfluencer: (id: string) => void;
   onClose: () => void;
-  position: { top: number; left: number };
-  mounted: boolean;
-  dropdownRef: React.RefObject<HTMLDivElement>;
+  isOpen: boolean;
+  anchorRef: React.RefObject<HTMLElement | null>;
 }
 
 export function InfluencerDropdown({
@@ -21,25 +20,24 @@ export function InfluencerDropdown({
   selectedInfluencerId,
   onSelectInfluencer,
   onClose,
-  position,
-  mounted,
-  dropdownRef,
+  isOpen,
+  anchorRef,
 }: InfluencerDropdownProps) {
-  if (!mounted || influencers.length === 0) {
+  if (influencers.length === 0) {
     return null;
   }
 
-  return createPortal(
-    <div
-      ref={dropdownRef}
-      style={{
-        position: 'fixed',
-        top: position.top,
-        left: position.left,
-      }}
-      className="w-64 max-h-96 overflow-y-auto rounded-xl border border-white/10 bg-[#1a1a1d] shadow-xl z-[9999]"
+  return (
+    <PickerDrawer
+      isOpen={isOpen}
+      onClose={onClose}
+      anchorRef={anchorRef}
+      title="All Influencers"
+      desktopPosition="bottom"
+      align="right"
+      className="w-72"
     >
-      <div className="p-2">
+      <div className="p-2 space-y-1">
         {influencers.map((influencer) => (
           <button
             key={influencer.id}
@@ -49,14 +47,14 @@ export function InfluencerDropdown({
               onClose();
             }}
             className={cn(
-              'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
+              'flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm transition-all',
               selectedInfluencerId === influencer.id
-                ? 'bg-[var(--purple-500)]/20 text-white'
-                : 'text-white/60 hover:bg-white/5 hover:text-white'
+                ? 'bg-[var(--purple-500)]/20 text-white border border-[var(--purple-500)]/30'
+                : 'text-white/60 hover:bg-white/5 hover:text-white border border-transparent'
             )}
           >
             {influencer.avatar ? (
-              <div className="relative h-8 w-8 overflow-hidden rounded-full border border-[var(--purple-500)]/30 flex-shrink-0">
+              <div className="relative h-10 w-10 overflow-hidden rounded-full border border-[var(--purple-500)]/30 flex-shrink-0">
                 <Image
                   src={influencer.avatar}
                   alt={influencer.name}
@@ -66,21 +64,24 @@ export function InfluencerDropdown({
                 />
               </div>
             ) : (
-              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] text-sm font-bold text-white flex-shrink-0">
+              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--purple-500)] to-[var(--pink-500)] text-sm font-bold text-white flex-shrink-0">
                 {influencer.name.charAt(0)}
               </div>
             )}
-            <span className="font-medium truncate flex-1">
-              {influencer.name}
-            </span>
-            <span className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-white/40 flex-shrink-0">
-              {influencer.imageCount}
-            </span>
+            <div className="flex flex-col items-start truncate flex-1 min-w-0">
+              <span className="font-semibold text-white truncate w-full">
+                {influencer.name}
+              </span>
+              <span className="text-[11px] text-white/40">
+                {influencer.imageCount} images
+              </span>
+            </div>
+            {selectedInfluencerId === influencer.id && (
+              <div className="h-2 w-2 rounded-full bg-[var(--purple-500)]" />
+            )}
           </button>
         ))}
       </div>
-    </div>,
-    document.body
+    </PickerDrawer>
   );
 }
-

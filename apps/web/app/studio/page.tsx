@@ -33,7 +33,7 @@ function StudioContent() {
   const state = useStudioState();
 
   return (
-    <div className="flex h-[calc(100vh-4rem)] flex-col overflow-hidden bg-[var(--bg-base)]">
+    <div className="flex flex-1 flex-col overflow-hidden bg-[var(--bg-base)] pb-[200px] md:pb-[180px] h-full">
       <StudioBackground />
 
       {/* Studio Header - Influencer Tabs */}
@@ -76,6 +76,7 @@ function StudioContent() {
         viewMode={state.viewMode}
         isLoading={state.isLoadingImages}
         onSelectImage={state.handleSelectImage}
+        onOpenDetails={state.handleOpenDetails}
         onLike={state.handleLike}
         onDownload={state.handleDownload}
         onClosePanel={state.handleClosePanel}
@@ -83,33 +84,35 @@ function StudioContent() {
         onRetry={state.handleRetry}
       />
 
-      {/* Bottom Generation Bar */}
-      <FadeInUp delay={150}>
-        <StudioGenerationBar
-          influencers={state.influencerList}
-          selectedInfluencer={state.selectedInfluencerForGeneration}
-          onInfluencerChange={(influencerId) => {
-            // Sync influencer selection from bottom toolbar to top bar
-            state.setSelectedInfluencerId(influencerId);
-          }}
-          onGenerate={state.handleGenerate}
-          isGenerating={state.activeGenerations.size > 0}
-          creditsAvailable={state.creditsBalance}
-          selectedImage={state.selectedImage}
-          onClearSelectedImage={() =>
-            state.handleClearSelectedImage(state.mode)
-          }
-          mode={state.mode}
-          contentType={state.contentType}
-          onModeChange={state.setMode}
-          onContentTypeChange={state.setContentType}
-          nsfwEnabled={state.nsfwEnabled}
-          availableImages={state.allImages}
-          hasUploadConsent={state.hasConsent}
-          onAcceptConsent={state.acceptConsent}
-          onUploadImage={state.handleUploadImage}
-        />
-      </FadeInUp>
+      {/* Bottom Generation Bar - Fixed on both mobile and desktop */}
+      <div className="fixed bottom-[54px] md:bottom-0 left-0 md:left-64 right-0 z-40 pointer-events-none pb-2 md:pb-1">
+        <FadeInUp delay={150}>
+          <StudioGenerationBar
+            influencers={state.influencerList}
+            selectedInfluencer={state.selectedInfluencerForGeneration}
+            onInfluencerChange={(influencerId) => {
+              // Sync influencer selection from bottom toolbar to top bar
+              state.setSelectedInfluencerId(influencerId);
+            }}
+            onGenerate={state.handleGenerate}
+            isGenerating={state.activeGenerations.size > 0}
+            creditsAvailable={state.creditsBalance}
+            selectedImage={state.selectedImage}
+            onClearSelectedImage={() =>
+              state.handleClearSelectedImage(state.mode)
+            }
+            mode={state.mode}
+            contentType={state.contentType}
+            onModeChange={state.setMode}
+            onContentTypeChange={state.setContentType}
+            nsfwEnabled={state.nsfwEnabled}
+            availableImages={state.allImages}
+            hasUploadConsent={state.hasConsent}
+            onAcceptConsent={state.acceptConsent}
+            onUploadImage={state.handleUploadImage}
+          />
+        </FadeInUp>
+      </div>
 
       {/* Tutorial Overlay */}
       <StudioTutorial tutorial={tutorial} />

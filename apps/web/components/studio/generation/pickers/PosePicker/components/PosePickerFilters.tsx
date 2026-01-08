@@ -3,7 +3,7 @@
 import { cn } from '@ryla/ui';
 import { POSE_CATEGORIES } from '../../../types';
 
-type PoseCategory = typeof POSE_CATEGORIES[number]['id'];
+type PoseCategory = (typeof POSE_CATEGORIES)[number]['id'];
 
 interface PosePickerFiltersProps {
   category: PoseCategory;
@@ -23,8 +23,8 @@ export function PosePickerFilters({
   filteredAdultPoseCount,
 }: PosePickerFiltersProps) {
   return (
-    <div className="flex flex-col gap-3 border-b border-white/5">
-      <div className="flex items-center gap-3 px-6 py-5 overflow-x-auto scroll-hidden">
+    <div className="flex flex-col gap-2 border-b border-white/5">
+      <div className="flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-5 overflow-x-auto scroll-hidden">
         {POSE_CATEGORIES.map((cat) => (
           <button
             key={cat.id}
@@ -73,8 +73,8 @@ export function PosePickerFilters({
 
       {/* Disclaimer when NSFW poses are filtered */}
       {!nsfwEnabled && filteredAdultPoseCount > 0 && (
-        <div className="px-6 pb-3">
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-orange-500/10 border border-orange-500/20">
+        <div className="px-4 sm:px-6 pb-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-orange-500/10 border border-orange-500/20">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 20 20"
@@ -88,8 +88,9 @@ export function PosePickerFilters({
               />
             </svg>
             <span className="text-xs text-orange-300">
-              {filteredAdultPoseCount} adult pose{filteredAdultPoseCount !== 1 ? 's' : ''} filtered
-              because adult content is disabled
+              {filteredAdultPoseCount} adult pose
+              {filteredAdultPoseCount !== 1 ? 's' : ''} filtered because adult
+              content is disabled
             </span>
           </div>
         </div>
@@ -97,4 +98,3 @@ export function PosePickerFilters({
     </div>
   );
 }
-

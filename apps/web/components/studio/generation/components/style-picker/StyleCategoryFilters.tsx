@@ -2,16 +2,24 @@
 
 import * as React from 'react';
 import { cn } from '@ryla/ui';
-import { STYLE_CATEGORIES, SCENE_CATEGORIES, type StyleCategory, type SceneCategory } from '../../types';
+import {
+  STYLE_CATEGORIES,
+  SCENE_CATEGORIES,
+  type StyleCategory,
+  type SceneCategory,
+} from '../../types';
 
 interface StyleCategoryFiltersProps {
   activeCategory: StyleCategory;
   onCategoryChange: (category: StyleCategory) => void;
 }
 
-export function StyleCategoryFilters({ activeCategory, onCategoryChange }: StyleCategoryFiltersProps) {
+export function StyleCategoryFilters({
+  activeCategory,
+  onCategoryChange,
+}: StyleCategoryFiltersProps) {
   return (
-    <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5 overflow-x-auto scroll-hidden">
+    <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-5 border-b border-white/5 overflow-x-auto scroll-hidden">
       {STYLE_CATEGORIES.map((cat) => (
         <button
           key={cat.id}
@@ -35,9 +43,12 @@ interface SceneCategoryFiltersProps {
   onCategoryChange: (category: SceneCategory | 'all') => void;
 }
 
-export function SceneCategoryFilters({ activeCategory, onCategoryChange }: SceneCategoryFiltersProps) {
+export function SceneCategoryFilters({
+  activeCategory,
+  onCategoryChange,
+}: SceneCategoryFiltersProps) {
   return (
-    <div className="flex items-center gap-3 px-6 py-5 border-b border-white/5 overflow-x-auto scroll-hidden">
+    <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-3 sm:py-5 border-b border-white/5 overflow-x-auto scroll-hidden">
       <button
         onClick={() => onCategoryChange('all')}
         className={cn(
@@ -66,4 +77,3 @@ export function SceneCategoryFilters({ activeCategory, onCategoryChange }: Scene
     </div>
   );
 }
-

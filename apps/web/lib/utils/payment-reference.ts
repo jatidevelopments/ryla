@@ -27,12 +27,12 @@ export function generateCreditReference(userId: string, packageId: string): stri
  */
 export function parseSubscriptionReference(reference: string): { userId: string; planId: string } | null {
   const parts = reference.split('_');
-  if (parts.length !== 3 || parts[0] !== 'sub') {
+  if (parts.length < 3 || parts[0] !== 'sub') {
     return null;
   }
   return {
     userId: parts[1],
-    planId: parts[2],
+    planId: parts.slice(2).join('_'),
   };
 }
 
@@ -42,12 +42,12 @@ export function parseSubscriptionReference(reference: string): { userId: string;
  */
 export function parseCreditReference(reference: string): { userId: string; packageId: string } | null {
   const parts = reference.split('_');
-  if (parts.length !== 3 || parts[0] !== 'cred') {
+  if (parts.length < 3 || parts[0] !== 'cred') {
     return null;
   }
   return {
     userId: parts[1],
-    packageId: parts[2],
+    packageId: parts.slice(2).join('_'),
   };
 }
 
@@ -55,7 +55,7 @@ export function parseCreditReference(reference: string): { userId: string; packa
  * Parse any payment reference (subscription or credit)
  * Returns the type and parsed data
  */
-export function parsePaymentReference(reference: string): 
+export function parsePaymentReference(reference: string):
   | { type: 'subscription'; userId: string; planId: string }
   | { type: 'credit'; userId: string; packageId: string }
   | null {
@@ -65,14 +65,14 @@ export function parsePaymentReference(reference: string):
       return { type: 'subscription', ...parsed };
     }
   }
-  
+
   if (reference.startsWith('cred_')) {
     const parsed = parseCreditReference(reference);
     if (parsed) {
       return { type: 'credit', ...parsed };
     }
   }
-  
+
   return null;
 }
 

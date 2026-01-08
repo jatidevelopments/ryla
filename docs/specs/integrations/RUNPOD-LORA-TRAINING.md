@@ -46,8 +46,25 @@ We will use the `runpod` MCP tool to:
   - Call RunPod API to start job.
   - Update DB status to `TRAINING`.
 
+## Updated Approach: AI Toolkit
+
+**Status**: Updated 2025-01-27
+
+Based on research from [Hyperrealistic Consistent Characters Workflow](../../../research/youtube-videos/PhiPASFYBmk/analysis.md), we're using **AI Toolkit** (by Ostrus AI) instead of custom training scripts.
+
+**Why AI Toolkit**:
+- ✅ Available as RunPod template (easy deployment)
+- ✅ Supports One 2.1/2.2, Flux, and other models
+- ✅ Web-based interface with HTTP API
+- ✅ Proven solution with good documentation
+- ✅ Cost-effective (~$4 per LoRA)
+
+**See**: [AI Toolkit LoRA Training Integration](./AI-TOOLKIT-LORA-TRAINING.md) for full implementation plan.
+
 ## Next Steps
-1.  **Execute Backend Setup**: Initialize `apps/api` with NestJS/TypeORM.
-2.  **Define RunPod Template**: Find the right template for Flux LoRA.
-3.  **Implement Integration**: Connect Backend -> RunPod.
+1.  **Deploy AI Toolkit Pod**: Use RunPod template "AI Toolkit" by Ostrus
+2.  **Discover API Endpoints**: Reverse-engineer HTTP API from web UI
+3.  **Implement Client**: Create `AIToolkitClient` with real endpoints
+4.  **Implement Service**: Create `LoraTrainingService` in backend
+5.  **Add Automation**: Hook into character sheet completion
 

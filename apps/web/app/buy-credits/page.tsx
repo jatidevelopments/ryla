@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Shield, Lock, CreditCard, Check, Sparkles } from 'lucide-react';
 import { PageContainer, FadeInUp } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
@@ -15,7 +16,9 @@ import {
 
 function BuyCreditsContent() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null);
+  const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(
+    null
+  );
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const { data: creditsData } = trpc.credits.getBalance.useQuery();
@@ -25,6 +28,15 @@ function BuyCreditsContent() {
       alert(error.message || 'Failed to start payment. Please try again.');
     },
   });
+
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('success') === 'true') {
+      setSuccessMessage('Payment successful! Your credits have been added.');
+      // Remove success param from URL without refreshing
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [searchParams]);
 
   const handlePurchaseClick = (packageId: string) => {
     const pkg = CREDIT_PACKAGES.find((p) => p.id === packageId);
@@ -95,7 +107,9 @@ function BuyCreditsContent() {
           </p>
           {creditsData && (
             <div className="mt-3 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--bg-elevated)] border border-[var(--border-default)]">
-              <span className="text-sm text-[var(--text-secondary)]">Current balance:</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Current balance:
+              </span>
               <span className="text-sm font-semibold text-[var(--purple-400)]">
                 {creditsData.balance} credits
               </span>
@@ -120,19 +134,29 @@ function BuyCreditsContent() {
           <div className="flex flex-wrap justify-center items-center gap-6">
             <div className="flex items-center gap-2">
               <Shield className="h-5 w-5 text-emerald-400" />
-              <span className="text-sm text-[var(--text-secondary)]">Secure Payment</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Secure Payment
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <Lock className="h-5 w-5 text-blue-400" />
-              <span className="text-sm text-[var(--text-secondary)]">Data Protected</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Data Protected
+              </span>
             </div>
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-[var(--purple-400)]" />
-              <span className="text-sm text-[var(--text-secondary)]">Discreet Billing</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Discreet Billing
+              </span>
             </div>
             <div className="hidden sm:flex items-center gap-2 pl-4 border-l border-[var(--border-default)]">
-              <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-[var(--text-muted)]">Visa</span>
-              <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-[var(--text-muted)]">Mastercard</span>
+              <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-[var(--text-muted)]">
+                Visa
+              </span>
+              <span className="px-2 py-1 rounded-md bg-white/5 text-xs text-[var(--text-muted)]">
+                Mastercard
+              </span>
             </div>
           </div>
         </div>

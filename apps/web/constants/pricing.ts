@@ -49,7 +49,7 @@ export function calculateGenerations(
   credits: number,
   quality: 'draft' | 'hq' = 'draft'
 ): number {
-  // Legacy mapping: draft = studio_fast (20), hq = studio_standard (50)
-  const cost = quality === 'hq' ? 50 : 20;
+  // Legacy mapping: draft = studio_fast (5), hq = studio_standard (15)
+  const cost = quality === 'hq' ? 15 : 5;
   return Math.floor(credits / cost);
 }

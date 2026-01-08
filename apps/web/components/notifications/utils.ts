@@ -1,5 +1,16 @@
 import { FEATURE_CREDITS } from '../../constants/pricing';
 
+export interface Notification {
+  id: string;
+  type: string;
+  title: string;
+  body?: string | null;
+  href?: string | null;
+  isRead: boolean;
+  createdAt?: string | Date | null;
+  metadata?: Record<string, unknown> | null;
+}
+
 /**
  * Estimate credit cost from quality mode for display
  */

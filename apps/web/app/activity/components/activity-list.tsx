@@ -4,6 +4,7 @@ import { Sparkles } from 'lucide-react';
 import { Pagination } from '@ryla/ui';
 import type { ActivityItem } from '@ryla/shared';
 import { ActivityItem as ActivityItemComponent } from './activity-item';
+import { LoadingState } from '../../../components/ui/loading-state';
 
 interface ActivityListProps {
   items: ActivityItem[];
@@ -24,12 +25,11 @@ export function ActivityList({
 }: ActivityListProps) {
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="relative h-8 w-8">
-          <div className="absolute inset-0 rounded-full border-4 border-[var(--border-default)]" />
-          <div className="absolute inset-0 rounded-full border-4 border-t-[var(--purple-500)] animate-spin" />
-        </div>
-      </div>
+      <LoadingState
+        title="Loading Activity"
+        message="Fetching your history..."
+        className="py-12"
+      />
     );
   }
 
@@ -43,7 +43,8 @@ export function ActivityList({
           No activity yet
         </h3>
         <p className="text-[var(--text-secondary)] max-w-sm">
-          Start creating AI influencers to see your generation history and credit usage here.
+          Start creating AI influencers to see your generation history and
+          credit usage here.
         </p>
       </div>
     );
@@ -74,4 +75,3 @@ export function ActivityList({
     </>
   );
 }
-

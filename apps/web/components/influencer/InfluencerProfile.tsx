@@ -68,6 +68,7 @@ export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
                   alt={influencer.name}
                   fill
                   className="object-cover"
+                  unoptimized
                   onError={() => setImageError(true)}
                 />
               ) : (

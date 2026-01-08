@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useProfilePictures } from '@ryla/business';
 import { cn } from '@ryla/ui';
+import { Sparkles } from 'lucide-react';
 
 interface ProfilePictureGenerationIndicatorProps {
   influencerId: string;
@@ -26,7 +27,8 @@ export function ProfilePictureGenerationIndicator({
 
   const completedCount = state.completedCount || 0;
   const totalCount = state.totalCount || 0;
-  const progress = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const progress =
+    totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
     <div
@@ -36,9 +38,13 @@ export function ProfilePictureGenerationIndicator({
       )}
     >
       {/* Spinner */}
-      <div className="relative w-8 h-8 flex-shrink-0">
+      <div className="relative w-10 h-10 flex-shrink-0">
+        <div className="absolute inset-0 bg-purple-500/20 rounded-full blur-md animate-pulse" />
         <div className="absolute inset-0 rounded-full border-2 border-purple-500/20" />
         <div className="absolute inset-0 rounded-full border-2 border-transparent border-t-purple-400 animate-spin" />
+        <div className="absolute inset-2 flex items-center justify-center">
+          <Sparkles className="h-3 w-3 text-purple-300 animate-pulse" />
+        </div>
       </div>
 
       {/* Progress Text */}
@@ -61,4 +67,3 @@ export function ProfilePictureGenerationIndicator({
     </div>
   );
 }
-

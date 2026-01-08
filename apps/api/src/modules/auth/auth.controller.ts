@@ -18,6 +18,7 @@ import { RegisterUserByEmailDto } from './dto/req/register-user-by-email.dto';
 import { LoginUserDto } from './dto/req/login-user.dto';
 import { ForgotPasswordDto } from './dto/req/forgot-password.dto';
 import { ResetPasswordDto } from './dto/req/reset-password.dto';
+import { ChangePasswordDto } from './dto/req/change-password.dto';
 import { AuthResponseDto } from './dto/res/auth-response.dto';
 import { AuthService } from './services/auth.service';
 import { JwtAccessGuard } from './guards/jwt-access.guard';
@@ -31,7 +32,7 @@ export class AuthController {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(
     @Inject(AuthService) private readonly authService: AuthService,
-  ) {}
+  ) { }
 
   @Post('register')
   @SkipAuth()
@@ -117,6 +118,19 @@ export class AuthController {
     return { message: 'Password has been reset successfully' };
   }
 
+  @Post('change-password')
+  @UseGuards(JwtAccessGuard)
+  @ApiBearerAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Update password for authenticated user' })
+  public async changePassword(
+    @CurrentUser() user: IJwtPayload,
+    @Body() dto: ChangePasswordDto,
+  ): Promise<{ message: string }> {
+    await this.authService.changePassword(user.userId, dto);
+    return { message: 'Password has been updated successfully' };
+  }
+
   @Get('check-email')
   @SkipAuth()
   @HttpCode(HttpStatus.OK)
@@ -142,7 +156,7 @@ export class AuthController {
   @Post('dev-token')
   @SkipAuth()
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ 
+  @ApiOperation({
     summary: 'Generate long-lived dev token for MCP/development tools',
     description: 'Creates a token that expires in 10 years instead of 1 hour. Use this for MCP servers and development tools that need persistent authentication.'
   })

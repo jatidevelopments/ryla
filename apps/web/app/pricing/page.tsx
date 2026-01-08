@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, CreditCard, Shield, Lock, Check } from 'lucide-react';
 import { cn } from '@ryla/ui';
@@ -17,7 +18,7 @@ export default function PricingPage() {
   // Get current subscription
   const { data: subscription, refetch: refetchSubscription } =
     trpc.subscription.getCurrent.useQuery();
-  
+
   // Get current credits to show updated balance
   const { refetch: refetchCredits } = trpc.credits.getBalance.useQuery();
 
@@ -25,9 +26,23 @@ export default function PricingPage() {
 
   const [isProcessing, setIsProcessing] = useState<string | null>(null);
 
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    if (searchParams.get('success') === 'true') {
+      setSuccessMessage(
+        'Subscription activated! Your account has been updated.'
+      );
+      // Remove success param from URL
+      window.history.replaceState({}, '', window.location.pathname);
+      // Refetch data to show updated state
+      refetchSubscription();
+      refetchCredits();
+    }
+  }, [searchParams, refetchSubscription, refetchCredits]);
+
   const handleSubscribe = async (planId: string, yearly: boolean) => {
     if (planId === currentPlanId) return;
-    
+
     setIsProcessing(planId);
     try {
       const token = getAccessToken();
@@ -39,7 +54,7 @@ export default function PricingPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           type: 'subscription',
@@ -54,7 +69,7 @@ export default function PricingPage() {
       }
 
       const data = await response.json();
-      
+
       // Redirect to Finby payment page
       if (data.paymentUrl) {
         window.location.href = data.paymentUrl;
@@ -97,11 +112,13 @@ export default function PricingPage() {
           Choose Your Plan
         </h1>
         <p className="text-white/60 text-sm max-w-md mx-auto">
-          Unlock the full power of AI influencer creation. Start creating viral content today.
+          Unlock the full power of AI influencer creation. Start creating viral
+          content today.
         </p>
         {currentPlanId !== 'free' && (
           <p className="mt-2 text-purple-400 text-sm">
-            Current plan: <span className="font-semibold capitalize">{currentPlanId}</span>
+            Current plan:{' '}
+            <span className="font-semibold capitalize">{currentPlanId}</span>
           </p>
         )}
       </div>
@@ -183,8 +200,12 @@ export default function PricingPage() {
           <span className="text-xs text-white/70">Discreet Billing</span>
         </div>
         <div className="flex items-center gap-2 pl-4 border-l border-white/10">
-          <span className="px-2 py-0.5 rounded bg-white/10 text-xs text-white/60">Visa</span>
-          <span className="px-2 py-0.5 rounded bg-white/10 text-xs text-white/60">MC</span>
+          <span className="px-2 py-0.5 rounded bg-white/10 text-xs text-white/60">
+            Visa
+          </span>
+          <span className="px-2 py-0.5 rounded bg-white/10 text-xs text-white/60">
+            MC
+          </span>
         </div>
       </div>
 
@@ -220,7 +241,12 @@ function FaqItem({ question, answer }: { question: string; answer: string }) {
         className="w-full px-4 py-3 text-left flex items-center justify-between gap-4"
       >
         <span className="text-sm font-medium text-white">{question}</span>
-        <span className={cn('text-white/50 text-xs transition-transform', isOpen && 'rotate-180')}>
+        <span
+          className={cn(
+            'text-white/50 text-xs transition-transform',
+            isOpen && 'rotate-180'
+          )}
+        >
           ▼
         </span>
       </button>
