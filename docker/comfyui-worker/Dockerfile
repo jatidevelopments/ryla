@@ -14,21 +14,27 @@ RUN comfy-node-install res4lyf controlaltai-nodes
 # Repo: https://github.com/SethRobinson/comfyui-workflow-to-api-converter-endpoint
 #
 # Notes:
-# - Location of ComfyUI in this image is typically /workspace/ComfyUI
-# - We install via git clone into custom_nodes
+# - Base image has ComfyUI at /comfyui (based on comfy-node-install output)
+# - We check multiple possible locations to be safe
 RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \
-    cd /workspace/ComfyUI/custom_nodes && \
-    git clone https://github.com/SethRobinson/comfyui-workflow-to-api-converter-endpoint.git && \
-    if [ -f comfyui-workflow-to-api-converter-endpoint/requirements.txt ]; then \
-      pip install -r comfyui-workflow-to-api-converter-endpoint/requirements.txt ; \
-    fi
+    for COMFYUI_DIR in /comfyui /workspace/ComfyUI /workspace/runpod-slim/ComfyUI; do \
+        if [ -d "$COMFYUI_DIR" ]; then \
+            echo "Found ComfyUI at: $COMFYUI_DIR"; \
+            cd "$COMFYUI_DIR/custom_nodes" && \
+            git clone https://github.com/SethRobinson/comfyui-workflow-to-api-converter-endpoint.git && \
+            if [ -f comfyui-workflow-to-api-converter-endpoint/requirements.txt ]; then \
+                pip install -r comfyui-workflow-to-api-converter-endpoint/requirements.txt; \
+            fi && \
+            break; \
+        fi; \
+    done
 
 # Create startup script to link models from network volume to ComfyUI directories
 # This handles both /runpod-volume and /workspace mount paths
 RUN echo '#!/bin/bash\n\
 # Create symlinks so ComfyUI custom loaders can find models\n\
-# Check both ComfyUI locations (base image uses /workspace/ComfyUI, our setup uses /workspace/runpod-slim/ComfyUI)\n\
-for COMFYUI_BASE in "/workspace/ComfyUI" "/workspace/runpod-slim/ComfyUI"; do\n\
+# Check multiple ComfyUI locations\n\
+for COMFYUI_BASE in "/comfyui" "/workspace/ComfyUI" "/workspace/runpod-slim/ComfyUI"; do\n\
     if [ -d "$COMFYUI_BASE" ]; then\n\
         COMFYUI_MODELS="$COMFYUI_BASE/models"\n\
         echo "Found ComfyUI at: $COMFYUI_BASE"\n\
