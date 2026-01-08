@@ -27,31 +27,57 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \
 # This handles both /runpod-volume and /workspace mount paths
 RUN echo '#!/bin/bash\n\
 # Create symlinks so ComfyUI custom loaders can find models\n\
-COMFYUI_MODELS="/workspace/runpod-slim/ComfyUI/models"\n\
-\n\
-# Check both possible mount locations\n\
-if [ -d "/runpod-volume/models" ]; then\n\
-    SOURCE_BASE="/runpod-volume/models"\n\
-elif [ -d "/workspace/models" ]; then\n\
-    SOURCE_BASE="/workspace/models"\n\
-else\n\
-    echo "Warning: Network volume models not found at /runpod-volume/models or /workspace/models"\n\
-    exit 0\n\
-fi\n\
-\n\
-# Create symlinks for Z-Image model directories\n\
-for dir in diffusion_models text_encoders vae; do\n\
-    SOURCE="$SOURCE_BASE/$dir"\n\
-    TARGET="$COMFYUI_MODELS/$dir"\n\
-    \n\
-    if [ -d "$SOURCE" ] && [ ! -e "$TARGET" ]; then\n\
-        echo "Creating symlink: $TARGET -> $SOURCE"\n\
-        ln -s "$SOURCE" "$TARGET"\n\
+# Check both ComfyUI locations (base image uses /workspace/ComfyUI, our setup uses /workspace/runpod-slim/ComfyUI)\n\
+for COMFYUI_BASE in "/workspace/ComfyUI" "/workspace/runpod-slim/ComfyUI"; do\n\
+    if [ -d "$COMFYUI_BASE" ]; then\n\
+        COMFYUI_MODELS="$COMFYUI_BASE/models"\n\
+        echo "Found ComfyUI at: $COMFYUI_BASE"\n\
+        \n\
+        # Check both possible mount locations\n\
+        if [ -d "/runpod-volume/models" ]; then\n\
+            SOURCE_BASE="/runpod-volume/models"\n\
+            echo "Found models at: $SOURCE_BASE"\n\
+        elif [ -d "/workspace/models" ]; then\n\
+            SOURCE_BASE="/workspace/models"\n\
+            echo "Found models at: $SOURCE_BASE"\n\
+        else\n\
+            echo "Warning: Network volume models not found at /runpod-volume/models or /workspace/models"\n\
+            continue\n\
+        fi\n\
+        \n\
+        # Create symlinks for Z-Image model directories\n\
+        for dir in diffusion_models text_encoders vae; do\n\
+            SOURCE="$SOURCE_BASE/$dir"\n\
+            TARGET="$COMFYUI_MODELS/$dir"\n\
+            \n\
+            if [ -d "$SOURCE" ] && [ ! -e "$TARGET" ]; then\n\
+                echo "Creating symlink: $TARGET -> $SOURCE"\n\
+                ln -s "$SOURCE" "$TARGET"\n\
+            elif [ -d "$SOURCE" ] && [ -L "$TARGET" ]; then\n\
+                echo "Symlink already exists: $TARGET"\n\
+            elif [ -d "$SOURCE" ]; then\n\
+                echo "Target exists but is not a symlink: $TARGET (skipping)"\n\
+            fi\n\
+        done\n\
     fi\n\
 done\n\
 ' > /startup-link-models.sh && chmod +x /startup-link-models.sh
 
+# Create wrapper entrypoint that runs our startup script before the base image entrypoint
+# The base image entrypoint is typically /start.sh or similar
+RUN echo '#!/bin/bash\n\
+set -e\n\
+echo "=== RYLA ComfyUI Worker Startup ==="\n\
+echo "Running model symlink script..."\n\
+/startup-link-models.sh\n\
+echo "Starting ComfyUI worker..."\n\
+exec "$@"\n\
+' > /entrypoint-wrapper.sh && chmod +x /entrypoint-wrapper.sh
+
+# Override entrypoint to use our wrapper
+# The base image CMD will be passed as arguments to our wrapper
+ENTRYPOINT ["/entrypoint-wrapper.sh"]
+
 # Models are loaded from network volume (either /runpod-volume/models/ or /workspace/models/)
 # Symlinks created at startup so ComfyUI custom loaders can find them
 # No models baked into image - keeps image small and flexible
-
