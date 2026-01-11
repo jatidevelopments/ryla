@@ -125,3 +125,60 @@ The `runpod/worker-comfyui` may have environment variables or config to specify 
 - Endpoint: `pwqwwai0hlhtw9` (ryla-prod-guarded-comfyui-serverless)
 - Template: `bdew7tme8c` (ryla-prod-guarded-comfyui-worker)
 
+
+---
+
+## ✅ Dockerfile Fix Applied (2026-01-08)
+
+### Changes Made
+
+1. **Enhanced symlink script** (`/startup-link-models.sh`):
+   - Now checks both `/workspace/ComfyUI` and `/workspace/runpod-slim/ComfyUI` locations
+   - Better error handling and logging
+   - Checks for existing symlinks before creating new ones
+
+2. **Added entrypoint wrapper** (`/entrypoint-wrapper.sh`):
+   - Runs the symlink script before starting ComfyUI
+   - Preserves the base image's CMD/entrypoint behavior
+   - Adds startup logging for debugging
+
+3. **Entrypoint override**:
+   - Uses our wrapper which calls the symlink script, then execs the original entrypoint
+
+### Next Steps
+
+1. **Rebuild Docker image**:
+   ```bash
+   cd docker/comfyui-worker
+   docker build -t ghcr.io/jatidevelopments/ryla-comfyui-worker:latest .
+   docker push ghcr.io/jatidevelopments/ryla-comfyui-worker:latest
+   ```
+
+2. **Update endpoint template** (if needed):
+   - The endpoint should automatically use the new image on next deployment
+   - Or manually update the template to use the new image tag
+
+3. **Re-test endpoint**:
+   ```bash
+   pnpm test:comfyui-serverless
+   ```
+
+4. **Check logs**:
+   - Look for "=== RYLA ComfyUI Worker Startup ===" in RunPod console logs
+   - Verify symlink creation messages
+   - Confirm ComfyUI server starts successfully
+
+### Expected Log Output
+
+When the worker starts, you should see:
+```
+=== RYLA ComfyUI Worker Startup ===
+Running model symlink script...
+Found ComfyUI at: /workspace/ComfyUI
+Found models at: /runpod-volume/models
+Creating symlink: /workspace/ComfyUI/models/diffusion_models -> /runpod-volume/models/diffusion_models
+Creating symlink: /workspace/ComfyUI/models/text_encoders -> /runpod-volume/models/text_encoders
+Creating symlink: /workspace/ComfyUI/models/vae -> /runpod-volume/models/vae
+Starting ComfyUI worker...
+```
+
