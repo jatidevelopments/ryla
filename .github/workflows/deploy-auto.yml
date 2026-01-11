@@ -28,7 +28,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Enable corepack (for pnpm)
         run: corepack enable
@@ -113,7 +112,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Enable corepack (for pnpm)
         run: corepack enable
@@ -166,7 +164,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Enable corepack (for pnpm)
         run: corepack enable
@@ -213,7 +210,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Enable corepack (for pnpm)
         run: corepack enable
@@ -269,7 +265,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
 
       - name: Enable corepack (for pnpm)
         run: corepack enable
