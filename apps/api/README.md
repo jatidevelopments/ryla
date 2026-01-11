@@ -1,5 +1,7 @@
 # RYLA Backend API
 
+<!-- Last updated: 2025-01-11 - Testing auto-deploy workflow -->
+
 ## ✅ Local Services Status
 
 **PostgreSQL**: ✅ Running on port 5432 (PID: 4936)  

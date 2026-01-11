@@ -1,5 +1,7 @@
 # Landing Page App
 
+<!-- Last updated: 2025-01-11 - Testing auto-deploy workflow -->
+
 Marketing website for RYLA - the public-facing marketing site.
 
 ## Purpose

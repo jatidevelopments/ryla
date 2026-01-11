@@ -1,5 +1,7 @@
 # Funnel App
 
+<!-- Last updated: 2025-01-11 - Testing auto-deploy workflow -->
+
 Payment and conversion funnel for RYLA - the entry point for new users.
 
 ## Purpose
