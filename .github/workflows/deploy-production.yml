@@ -5,6 +5,10 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   deploy:
     name: Deploy to Production
@@ -31,14 +35,15 @@ jobs:
             fly_app: ryla-api-prod
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
       
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'pnpm'
       
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
       
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
