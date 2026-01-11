@@ -1,5 +1,7 @@
 # Web App
 
+<!-- Last updated: 2025-01-11 - Testing auto-deploy workflow -->
+
 Main web application for RYLA - the authenticated user experience.
 
 ## Purpose
