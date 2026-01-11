@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@ryla/ui';
-import { ALL_POSES } from '../../../types';
+
 import { PoseCard } from './PoseCard';
 import type { Pose } from '../../../types';
 

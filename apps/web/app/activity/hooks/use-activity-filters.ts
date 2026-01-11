@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import type { FilterType, TimeRangeType } from '@ryla/shared';
 
 export function useActivityFilters() {
@@ -18,9 +18,20 @@ export function useActivityFilters() {
   const itemsPerPage = 5;
 
   // Reset to page 1 when filter or time range changes
-  useEffect(() => {
+  const handleFilterChange = (newFilter: FilterType) => {
+    setFilter(newFilter);
     setCurrentPage(1);
-  }, [filter, timeRange, customRange]);
+  };
+
+  const handleTimeRangeChange = (newRange: TimeRangeType) => {
+    setTimeRange(newRange);
+    setCurrentPage(1);
+  };
+
+  const handleCustomRangeChange = (newRange: { start: string; end: string }) => {
+    setCustomRange(newRange);
+    setCurrentPage(1);
+  };
 
   // Build query params for activity list
   const queryParams = useMemo(() => {
@@ -56,11 +67,11 @@ export function useActivityFilters() {
 
   return {
     filter,
-    setFilter,
+    setFilter: handleFilterChange,
     timeRange,
-    setTimeRange,
+    setTimeRange: handleTimeRangeChange,
     customRange,
-    setCustomRange,
+    setCustomRange: handleCustomRangeChange,
     currentPage,
     setCurrentPage,
     itemsPerPage,

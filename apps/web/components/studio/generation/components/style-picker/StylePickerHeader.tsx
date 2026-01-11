@@ -19,7 +19,6 @@ interface StylePickerHeaderProps {
 }
 
 export function StylePickerHeader({
-  activeTab,
   search,
   onSearchChange,
   showFavoritesOnly,

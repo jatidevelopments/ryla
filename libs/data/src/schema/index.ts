@@ -15,3 +15,4 @@ export * from './outfit-presets.schema';
 export * from './gallery-favorites.schema';
 export * from './templates.schema';
 export * from './influencer-requests.schema';
+export * from './cards.schema';

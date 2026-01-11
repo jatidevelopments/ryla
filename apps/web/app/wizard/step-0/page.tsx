@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useCharacterWizardStore } from '@ryla/business';
 import { StepCreationMethod } from '../../../components/wizard/steps/StepCreationMethod';
-import { cn } from '@ryla/ui';
 
 export default function WizardStep0() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -15,7 +14,7 @@ export default function WizardStep0() {
     setStep(0);
     // Check if request was submitted successfully
     if (searchParams?.get('request-submitted') === 'true') {
-      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(true), 0);
       // Clear the query param after showing message
       const timer = setTimeout(() => {
         setShowSuccess(false);
@@ -48,17 +47,31 @@ export default function WizardStep0() {
               </svg>
             </div>
             <div className="flex-1">
-              <p className="text-white font-semibold">Request Submitted Successfully!</p>
+              <p className="text-white font-semibold">
+                Request Submitted Successfully!
+              </p>
               <p className="text-white/70 text-sm mt-1">
-                We've received your request to create an AI influencer from an existing person. We'll review it and contact you via email once it's been processed.
+                We&apos;ve received your request to create an AI influencer from
+                an existing person. We&apos;ll review it and contact you via
+                email once it&apos;s been processed.
               </p>
             </div>
             <button
               onClick={() => setShowSuccess(false)}
               className="text-white/60 hover:text-white transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>

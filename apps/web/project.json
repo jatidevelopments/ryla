@@ -40,6 +40,13 @@
     },
     "lint": {
       "executor": "@nx/eslint:lint"
+    },
+    "test": {
+      "executor": "@nx/vitest:test",
+      "outputs": ["{workspaceRoot}/coverage/apps/web"],
+      "options": {
+        "config": "apps/web/vitest.config.ts"
+      }
     }
   }
 }

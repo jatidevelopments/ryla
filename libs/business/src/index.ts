@@ -3,11 +3,11 @@
  * Services, models, rules, and stores
  */
 
-export * from './services';
-export * from './models';
-export * from './rules';
-export * from './store';
-export * from './workflows';
-export * from './prompts';
-export * from './wizard';
+export * from './services/index';
+export * from './models/index';
+export * from './rules/index';
+export * from './store/index';
+export * from './workflows/index';
+export * from './prompts/index';
+export * from './wizard/index';
 

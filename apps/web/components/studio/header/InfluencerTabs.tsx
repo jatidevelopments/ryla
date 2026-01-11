@@ -12,7 +12,7 @@ export interface InfluencerTab {
   imageCount: number;
 }
 
-interface InfluencerTabsProps {
+interface _InfluencerTabsProps {
   influencers: InfluencerTab[];
   selectedInfluencerId: string | null;
   onSelectInfluencer: (id: string | null) => void;

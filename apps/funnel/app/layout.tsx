@@ -8,18 +8,10 @@ import MainContentWrapper from '@/components/layouts/MainContentWrapper';
 
 import './globals.css';
 import './app.css';
-import { SPRITE_URL } from '@/constants/sprite';
-import { Suspense } from 'react';
-import { 
-  ClientPostHogProvider, 
-  PostHogPageView,
-  TikTokProvider, 
-  TikTokPageView,
-  FacebookProvider
-} from '@ryla/analytics';
 import { withCdn } from '@/lib/cdn';
+import { SPRITE_URL } from '@/constants/sprite';
 import { CdnDebug } from '@/components/CdnDebug';
-import { FbPixelDebug } from '@/components/FbPixelDebug';
+import { AnalyticsProviders } from '@/components/AnalyticsProviders';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://goviral.ryla.ai';
 const OG_IMAGE_URL = withCdn('/share-ryla.jpg');
@@ -175,24 +167,15 @@ export default function RootLayout({
         className={`${jakartaSans.className} antialiased`}
       >
         <Providers>
-          <ClientPostHogProvider>
-            <TikTokProvider>
-              <FacebookProvider>
-                <CdnDebug />
-                <FbPixelDebug />
-                <Suspense fallback={null}>
-                  <PostHogPageView />
-                  <TikTokPageView />
-                </Suspense>
+          <AnalyticsProviders>
+            <CdnDebug />
 
-                <div className="min-h-dvh w-full flex flex-col">
-                  <MainContentWrapper>{children}</MainContentWrapper>
-                </div>
+            <div className="min-h-dvh w-full flex flex-col">
+              <MainContentWrapper>{children}</MainContentWrapper>
+            </div>
 
-                <Toaster richColors position="bottom-right" />
-              </FacebookProvider>
-            </TikTokProvider>
-          </ClientPostHogProvider>
+            <Toaster richColors position="bottom-right" />
+          </AnalyticsProviders>
         </Providers>
 
         {/* finby Payment Scripts */}

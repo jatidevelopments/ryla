@@ -1,0 +1,45 @@
+---
+description: Standards and best practices for writing unit, integration, and E2E tests in RYLA.
+globs: **/*.spec.ts, **/*.spec.tsx, **/*.test.ts, **/*.test.tsx
+alwaysApply: false
+---
+
+# Testing Standards
+
+Follow these rules when writing tests for the RYLA monorepo. Refer to [BEST-PRACTICES.md](file:///Users/admin/Documents/Projects/RYLA/docs/testing/BEST-PRACTICES.md) for detailed guidelines.
+
+## Frameworks & Tools
+
+- **Unit/Integration**: Use **Vitest** for all apps and libs.
+- **E2E**: Use **Playwright** for high-value flows.
+- **Backend Integration**: Use **pglite** for in-memory PostgreSQL tests.
+- **Mocking**: 
+  - **Frontend**: Always use **MSW (Mock Service Worker)** for network mocking.
+  - **Drizzle**: Use `mockReturnThis()` for chainable query mocking in unit tests.
+
+## Implementation Rules
+
+### Web/Frontend
+- **NEVER mock `useQuery` or `useMutation` hooks directly.** This hides integration bugs between the hook and the component.
+- **Mock at the Network Level**: Configure MSW handlers for API responses.
+- **Server Components**: Prefer testing underlying logic in libraries rather than testing the RSC output in unit tests.
+
+### API/Backend
+- **Database Tests**: Prefer integration tests with `pglite` over extensive mocking of Drizzle repositories for business-critical logic.
+- **tRPC Procedures**: Test procedures by calling them directly with a mocked `context`.
+- **Chainable Mocks**: When unit testing Drizzle, ensure mocks handle the builder pattern (`.insert().values().returning()`).
+
+### File Conventions
+- **Extension**: Always use `.spec.ts` or `.spec.tsx`. DO NOT use `.test.ts`.
+- **Location**: Colocate tests with the source file.
+- **Naming**: Use descriptive `describe` (Component/Service name) and `it` (Behavior description).
+
+## Mandatory Testing
+
+- Every new Service in `libs/business` or `apps/api` MUST have a corresponding `.spec.ts` file.
+- Every new shared UI Component in `libs/ui` MUST have a corresponding `.spec.tsx` file for its core interactions.
+
+## Running Tests
+
+- Run all: `pnpm nx run-many --target=test`
+- Specific project: `pnpm nx test <project-name>`

@@ -94,16 +94,6 @@ export function PlatformLogo({
     lg: 'h-8',
   };
 
-  // Platform colors for styling
-  const platformColors: Record<string, string> = {
-    tiktok: '#00F2EA',
-    instagram: '#E4405F',
-    youtube: '#FF0000',
-    twitter: '#1DA1F2',
-    snapchat: '#FFFC00',
-    reddit: '#FF4500',
-  };
-
   // Platform emoji/icons as fallback for missing SVGs
   const platformIcons: Record<string, string> = {
     tiktok: '🎵',

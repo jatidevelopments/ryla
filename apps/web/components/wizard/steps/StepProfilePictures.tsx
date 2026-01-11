@@ -2,9 +2,11 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { useProfilePictureGeneration } from './hooks/use-profile-picture-generation';
-import { useProfilePictureHandlers } from './hooks/use-profile-picture-handlers';
-import { useProfilePictureInitialization } from './hooks/use-profile-picture-initialization';
+import {
+  useProfilePictureGeneration,
+  useProfilePictureHandlers,
+  useProfilePictureInitialization,
+} from '../hooks';
 import {
   ProfilePictureHeader,
   ProfilePictureNSFWToggle,
@@ -20,13 +22,17 @@ import {
  * Shows skeleton loaders and updates images progressively as they complete
  */
 export function StepProfilePictures() {
-  const selectedBaseImageId = useCharacterWizardStore((s) => s.selectedBaseImageId);
+  const selectedBaseImageId = useCharacterWizardStore(
+    (s) => s.selectedBaseImageId
+  );
   const baseImages = useCharacterWizardStore((s) => s.baseImages);
   const form = useCharacterWizardStore((s) => s.form);
   const setField = useCharacterWizardStore((s) => s.setField);
 
   const safeBaseImages = Array.isArray(baseImages) ? baseImages : [];
-  const selectedBaseImage = safeBaseImages.find((img) => img.id === selectedBaseImageId);
+  const selectedBaseImage = safeBaseImages.find(
+    (img) => img.id === selectedBaseImageId
+  );
 
   // Generation logic hook
   const {
@@ -55,7 +61,6 @@ export function StepProfilePictures() {
     handleEditPrompt,
     handleSavePrompt,
   } = useProfilePictureHandlers({
-    handleRegenerateImage,
     handleRegenerateWithPrompt,
   });
 
@@ -70,14 +75,18 @@ export function StepProfilePictures() {
   if (!selectedBaseImage) {
     return (
       <div className="flex flex-col items-center justify-center py-12">
-        <p className="text-white/60 text-sm">Please select a base image first</p>
+        <p className="text-white/60 text-sm">
+          Please select a base image first
+        </p>
       </div>
     );
   }
 
   const isGeneratingWithSkeletons = isGenerating || skeletonImages.length > 0;
   const hasImages = regularImages.length > 0 || nsfwImages.length > 0;
-  const editingImage = safeProfileImages.find((img) => img.id === showPromptEditor);
+  const editingImage = safeProfileImages.find(
+    (img) => img.id === showPromptEditor
+  );
 
   return (
     <div className="flex flex-col items-center w-full">
@@ -110,7 +119,9 @@ export function StepProfilePictures() {
         <div className="w-full mb-6">
           <div className="flex items-center gap-2 mb-4">
             <div className="h-px flex-1 bg-white/10" />
-            <p className="text-white/40 text-sm font-medium px-4">18+ Content</p>
+            <p className="text-white/40 text-sm font-medium px-4">
+              18+ Content
+            </p>
             <div className="h-px flex-1 bg-white/10" />
           </div>
           <ProfilePictureGrid

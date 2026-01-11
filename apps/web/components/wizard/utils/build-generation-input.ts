@@ -1,18 +1,18 @@
-import type { CharacterWizardForm } from '@ryla/business';
+import type { CharacterFormData } from '@ryla/business';
 
 /**
  * Builds the generation input from wizard form data
  * Handles both prompt-based and presets-based flows
  */
 export function buildGenerationInput(
-  form: CharacterWizardForm,
+  form: CharacterFormData,
   fineTuneAdjustment?: string
 ): any {
   const isPromptBased = form.creationMethod === 'prompt-based' && form.promptInput;
 
   if (isPromptBased) {
     // Prompt-based flow
-    let prompt = form.promptInput.trim();
+    let prompt = form.promptInput!.trim();
     if (fineTuneAdjustment?.trim()) {
       prompt = `${prompt}. Additional adjustments: ${fineTuneAdjustment.trim()}`;
     }

@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { cn } from '@ryla/ui';
-import type { StudioImage } from '../../studio-image-card';
+import type { StudioImage } from '../../../../studio-image-card';
 
 interface ObjectCardProps {
   image: StudioImage;
@@ -11,7 +11,12 @@ interface ObjectCardProps {
   onSelect: () => void;
 }
 
-export function ObjectCard({ image, isSelected, isDisabled, onSelect }: ObjectCardProps) {
+export function ObjectCard({
+  image,
+  isSelected,
+  isDisabled,
+  onSelect,
+}: ObjectCardProps) {
   const aspectClass =
     image.aspectRatio === '9:16'
       ? 'aspect-[9/16]'
@@ -34,7 +39,12 @@ export function ObjectCard({ image, isSelected, isDisabled, onSelect }: ObjectCa
         )}
       >
         {/* Image */}
-        <div className={cn('relative w-full bg-white/5 overflow-hidden', aspectClass)}>
+        <div
+          className={cn(
+            'relative w-full bg-white/5 overflow-hidden',
+            aspectClass
+          )}
+        >
           {image.imageUrl ? (
             <>
               <Image
@@ -67,7 +77,9 @@ export function ObjectCard({ image, isSelected, isDisabled, onSelect }: ObjectCa
           {/* Name overlay */}
           {image.prompt && (
             <div className="absolute bottom-0 left-0 right-0 p-2">
-              <div className="text-xs font-medium text-white line-clamp-1">{image.prompt}</div>
+              <div className="text-xs font-medium text-white line-clamp-1">
+                {image.prompt}
+              </div>
             </div>
           )}
         </div>
@@ -75,7 +87,12 @@ export function ObjectCard({ image, isSelected, isDisabled, onSelect }: ObjectCa
         {/* Selection indicator */}
         {isSelected && (
           <div className="absolute top-2 left-2 flex h-6 w-6 items-center justify-center rounded-full bg-[var(--purple-500)]">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4 text-white">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="h-4 w-4 text-white"
+            >
               <path
                 fillRule="evenodd"
                 d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
@@ -88,4 +105,3 @@ export function ObjectCard({ image, isSelected, isDisabled, onSelect }: ObjectCa
     </div>
   );
 }
-

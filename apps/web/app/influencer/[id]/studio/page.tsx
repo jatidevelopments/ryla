@@ -19,6 +19,7 @@ import {
   FEATURE_CREDITS,
   OutfitComposition,
   getPieceById,
+  AspectRatio,
 } from '@ryla/shared';
 import { ProtectedRoute } from '../../../../components/auth/ProtectedRoute';
 import { ZeroCreditsModal } from '../../../../components/credits';
@@ -45,12 +46,10 @@ import {
   X,
 } from 'lucide-react';
 import {
-  deleteImage,
   generateStudioImages,
   getCharacterImages,
   getComfyUIResults,
   inpaintEdit,
-  likeImage,
 } from '../../../../lib/api';
 import { InpaintEditModal } from '../../../../components/studio/inpaint-edit-modal';
 import { OutfitCompositionPicker } from '../../../../components/studio/generation/pickers/OutfitCompositionPicker';
@@ -70,11 +69,11 @@ interface StudioSettings {
   scene: string;
   environment: string;
   outfit: string | null | OutfitComposition;
-  aspectRatio: '1:1' | '9:16' | '2:3';
+  aspectRatio: AspectRatio;
   qualityMode: 'draft' | 'hq';
   nsfwEnabled: boolean;
   modelProvider: 'comfyui' | 'fal';
-  modelId: 'fal-ai/flux/schnell' | 'fal-ai/flux/dev';
+  modelId: string;
 }
 
 const DEFAULT_SETTINGS: StudioSettings = {
@@ -156,7 +155,7 @@ function StudioContent() {
   );
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generatedPost, setGeneratedPost] = React.useState<Post | null>(null);
-  const [caption, setCaption] = React.useState('');
+  const [_caption, setCaption] = React.useState('');
   const [selectedExistingPost, setSelectedExistingPost] =
     React.useState<Post | null>(null);
   const [isEditOpen, setIsEditOpen] = React.useState(false);
@@ -229,14 +228,6 @@ function StudioContent() {
       });
     }
   }, [influencer?.nsfwEnabled, influencer]);
-
-  if (!influencer && isLoading) {
-    return null;
-  }
-
-  if (!influencer && !character) {
-    notFound();
-  }
 
   const refreshExistingImages = React.useCallback(async () => {
     const rows = await getCharacterImages(influencerId);
@@ -357,6 +348,22 @@ function StudioContent() {
       router.replace(`/influencer/${influencerId}/studio`, { scroll: false });
     }
   }, [templateId, influencerId, router, handleTemplateApply]);
+
+  if (!influencer && isLoading) {
+    return (
+      <div className="flex flex-col min-h-screen">
+        <LoadingState
+          title="Loading Studio"
+          message="Preparing your creative workspace..."
+          fullPage
+        />
+      </div>
+    );
+  }
+
+  if (!influencer && !character) {
+    notFound();
+  }
 
   const handleGenerate = async () => {
     if (balance < creditCost) {
@@ -768,8 +775,8 @@ function StudioContent() {
                         </button>
                       </div>
                       <p className="text-xs text-[var(--text-muted)]">
-                        Click "Compose Outfit" to select individual pieces from
-                        different categories
+                        Click &quot;Compose Outfit&quot; to select individual
+                        pieces from different categories
                       </p>
                     </div>
                   </SettingsSection>
@@ -1105,8 +1112,8 @@ function StudioContent() {
           config={{
             scene: settings.scene,
             environment: settings.environment,
-            outfit: settings.outfit,
-            aspectRatio: settings.aspectRatio,
+            outfit: settings.outfit as any,
+            aspectRatio: settings.aspectRatio as any,
             qualityMode: settings.qualityMode,
             nsfw: settings.nsfwEnabled,
             poseId: null, // TODO: Get from settings when pose selector is added
@@ -1348,7 +1355,7 @@ function OptionChip({
 }
 
 // Option Pill Component
-function OptionPill({
+function _OptionPill({
   label,
   selected,
   onSelect,

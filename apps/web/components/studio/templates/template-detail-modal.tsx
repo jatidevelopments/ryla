@@ -12,10 +12,9 @@ import {
 } from '@ryla/ui';
 import { RylaButton } from '@ryla/ui';
 import { trpc } from '../../../lib/trpc';
-import { cn } from '@ryla/ui';
+
 import { Sparkles, TrendingUp, Users, Calendar } from 'lucide-react';
 import { LoadingState } from '../../ui/loading-state';
-import type { Template } from '@ryla/data/schema/templates.schema';
 
 export interface TemplateDetailModalProps {
   templateId: string | null;

@@ -58,6 +58,21 @@ export function BugReportModal({
     handleCloseRef.current = onClose;
   }, [onClose]);
 
+  const countdown = useBugReportCountdown({
+    enabled: submission.submitSuccess,
+    duration: 5,
+    onComplete: () => {
+      // Re-implementing handleCloseWithReset logic here or calling it after definition
+      if (submission.isSubmitting && !submission.submitSuccess) return;
+
+      form.reset();
+      screenshot.reset();
+      submission.reset();
+      // countdown is now available
+      handleCloseRef.current();
+    },
+  });
+
   const handleCloseWithReset = React.useCallback(() => {
     if (submission.isSubmitting && !submission.submitSuccess) return;
 
@@ -66,13 +81,7 @@ export function BugReportModal({
     submission.reset();
     countdown.reset();
     handleCloseRef.current();
-  }, [form, screenshot, submission]);
-
-  const countdown = useBugReportCountdown({
-    enabled: submission.submitSuccess,
-    duration: 5,
-    onComplete: handleCloseWithReset,
-  });
+  }, [form, screenshot, submission, countdown]);
 
   // Handle screenshot upload
   const handleScreenshotUpload = React.useCallback(
@@ -137,10 +146,12 @@ export function BugReportModal({
               <div className="flex items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 p-4">
                 <CheckCircle2 className="h-5 w-5 text-green-400 shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-green-400">Thank you!</p>
+                  <p className="text-sm font-medium text-green-400">
+                    Thank you!
+                  </p>
                   <p className="text-xs text-green-400/70">
-                    Your bug report has been submitted successfully. We'll review it and get back to
-                    you if needed.
+                    Your bug report has been submitted successfully. We&apos;ll
+                    review it and get back to you if needed.
                   </p>
                 </div>
               </div>
@@ -150,7 +161,8 @@ export function BugReportModal({
                   onClick={handleClose}
                   className="bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)] hover:opacity-90"
                 >
-                  Close{countdown.countdown > 0 ? ` (${countdown.countdown})` : ''}
+                  Close
+                  {countdown.countdown > 0 ? ` (${countdown.countdown})` : ''}
                 </Button>
               </div>
             </div>
@@ -162,7 +174,9 @@ export function BugReportModal({
               <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
               <div className="flex-1">
                 <p className="text-sm font-medium text-red-400">
-                  {submission.submitError ? 'Failed to submit bug report' : 'Error'}
+                  {submission.submitError
+                    ? 'Failed to submit bug report'
+                    : 'Error'}
                 </p>
                 <p className="text-xs text-red-400/70">{displayError}</p>
               </div>
@@ -183,7 +197,9 @@ export function BugReportModal({
                   onChange={(e) => form.setDescription(e.target.value)}
                   placeholder="Please describe the bug or issue you encountered..."
                   rows={4}
-                  error={form.description.length > 0 && !form.isDescriptionValid}
+                  error={
+                    form.description.length > 0 && !form.isDescriptionValid
+                  }
                   disabled={submission.isSubmitting}
                   className="resize-none"
                 />
@@ -285,4 +301,3 @@ export function BugReportModal({
     </Dialog>
   );
 }
-

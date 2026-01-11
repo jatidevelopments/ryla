@@ -121,7 +121,7 @@ export function LightboxModal({
         {/* Caption */}
         {image.caption && (
           <p className="text-sm text-white/70 max-w-lg text-center line-clamp-2 px-4 italic">
-            "{image.caption}"
+            &quot;{image.caption}&quot;
           </p>
         )}
 

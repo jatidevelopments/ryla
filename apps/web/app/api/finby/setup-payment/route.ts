@@ -46,8 +46,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Use NEXT_PUBLIC_SITE_URL or fallback to origin, default to app.ryla.ai
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-      (request.headers.get('origin') || 'http://localhost:3000');
+      request.headers.get('origin') ||
+      (process.env.NODE_ENV === 'production' ? 'https://app.ryla.ai' : 'http://localhost:3000');
 
     if (body.type === 'subscription') {
       // Handle subscription purchase
@@ -91,6 +93,11 @@ export async function POST(request: NextRequest) {
       const price = body.isYearly ? plan.priceYearly : plan.priceMonthly;
       const reference = generateSubscriptionReference(ctx.user.id, body.planId);
 
+      // #region agent log
+      const logData1 = {location:'api/finby/setup-payment/route.ts:94',message:'Creating subscription checkout session',data:{planId:body.planId,isYearly:body.isYearly,price,reference},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'};
+      await fetch('http://127.0.0.1:7242/ingest/185298ab-d099-4773-bf17-95514dda8b29',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData1)}).catch(()=>{});
+      // #endregion
+
       const session = await finby.createCheckoutSession({
         priceId: body.isYearly
           ? plan.finbyProductIdYearly || `price_${plan.id}_yearly`
@@ -111,6 +118,11 @@ export async function POST(request: NextRequest) {
           isSubscription: 'true',
         },
       });
+
+      // #region agent log
+      const logData2 = {location:'api/finby/setup-payment/route.ts:115',message:'Checkout session created successfully',data:{hasUrl:!!session.url,urlLength:session.url?.length||0},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'D'};
+      await fetch('http://127.0.0.1:7242/ingest/185298ab-d099-4773-bf17-95514dda8b29',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(logData2)}).catch(()=>{});
+      // #endregion
 
       return NextResponse.json({
         paymentUrl: session.url,
@@ -175,6 +187,8 @@ export async function POST(request: NextRequest) {
       }
 
       const session = await finby.createCheckoutSession({
+        priceId: package_.finbyProductId || `price_${package_.id}`,
+        userId: ctx.user.id,
         productId, // Required for Finby API v3
         amount: Math.round(package_.price * 100), // Convert to cents
         email: ctx.user.email,
@@ -204,10 +218,38 @@ export async function POST(request: NextRequest) {
       );
     }
   } catch (error: any) {
+    // #region agent log
+    const errorLog = {location:'api/finby/setup-payment/route.ts:208',message:'Error caught in route handler',data:{errorType:error?.constructor?.name,hasMessage:!!error?.message,messageLength:error?.message?.length||0,messagePreview:error?.message?.substring(0,200)||'',containsHtml:error?.message?.includes('<')||false},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'};
+    await fetch('http://127.0.0.1:7242/ingest/185298ab-d099-4773-bf17-95514dda8b29',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(errorLog)}).catch(()=>{});
+    // #endregion
+
     console.error('Finby setup payment error:', error);
+    
+    // Sanitize error message - remove any HTML tags
+    let errorMessage = error.message || 'Internal server error';
+    // Strip HTML tags and decode HTML entities
+    errorMessage = errorMessage
+      .replace(/<[^>]*>/g, '') // Remove HTML tags
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .replace(/&quot;/g, '"')
+      .replace(/&#39;/g, "'")
+      .trim();
+    
+    // If message is too long or contains suspicious content, use generic message
+    if (errorMessage.length > 500 || errorMessage.includes('<!DOCTYPE') || errorMessage.includes('<html')) {
+      errorMessage = 'Payment service error. Please try again or contact support.';
+    }
+
+    // #region agent log
+    const sanitizedLog = {location:'api/finby/setup-payment/route.ts:225',message:'Error message sanitized',data:{originalLength:error?.message?.length||0,sanitizedLength:errorMessage.length,sanitizedPreview:errorMessage.substring(0,200)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'E'};
+    await fetch('http://127.0.0.1:7242/ingest/185298ab-d099-4773-bf17-95514dda8b29',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(sanitizedLog)}).catch(()=>{});
+    // #endregion
+
     return NextResponse.json(
       {
-        error: error.message || 'Internal server error',
+        error: errorMessage,
         details: process.env.NODE_ENV === 'development' ? error.stack : undefined,
       },
       { status: 500 }

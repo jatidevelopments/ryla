@@ -2,7 +2,7 @@
 
 import { X, Sparkles } from 'lucide-react';
 import { RylaButton, cn } from '@ryla/ui';
-import type { CreditPackage } from '../../../constants/pricing';
+import type { CreditPackage } from '@ryla/shared';
 
 interface PurchaseConfirmationModalProps {
   package_: CreditPackage;
@@ -43,20 +43,24 @@ export function PurchaseConfirmationModal({
             Confirm Purchase
           </h2>
           <p className="text-sm text-[var(--text-secondary)] mb-6">
-            You're about to purchase credits
+            You&apos;re about to purchase credits
           </p>
 
           {/* Summary card */}
           <div className="p-5 rounded-xl bg-white/5 border border-[var(--border-default)] mb-5">
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm text-[var(--text-secondary)]">Credits</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Credits
+              </span>
               <span className="text-2xl font-bold text-[var(--text-primary)]">
                 {package_.credits}
               </span>
             </div>
             <div className="h-px bg-[var(--border-default)] mb-3" />
             <div className="flex items-center justify-between">
-              <span className="text-sm text-[var(--text-secondary)]">Total</span>
+              <span className="text-sm text-[var(--text-secondary)]">
+                Total
+              </span>
               <span className="text-3xl font-extrabold text-[var(--text-primary)]">
                 ${package_.price}
               </span>
@@ -66,7 +70,8 @@ export function PurchaseConfirmationModal({
           {/* Payment notice */}
           <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 mb-6">
             <p className="text-blue-300/80 text-xs">
-              You will be redirected to our secure payment page to complete your purchase.
+              You will be redirected to our secure payment page to complete your
+              purchase.
             </p>
           </div>
 
@@ -94,4 +99,3 @@ export function PurchaseConfirmationModal({
     </div>
   );
 }
-

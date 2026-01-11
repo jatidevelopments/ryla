@@ -18,7 +18,7 @@ const TOOLTIPS: Record<AdultFilter, string> = {
   'not-adult': 'Show only safe content images',
 };
 
-export function AdultFilter({ adult, onAdultChange }: AdultFilterProps) {
+export function AdultFilterGroup({ adult, onAdultChange }: AdultFilterProps) {
   return (
     <div className="flex rounded-lg md:rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] p-0.5">
       {ADULT_OPTIONS.map((a) => (

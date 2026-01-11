@@ -6,7 +6,7 @@ import { Shield, Lock, CreditCard, Check, Sparkles } from 'lucide-react';
 import { PageContainer, FadeInUp } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
-import { CREDIT_PACKAGES, type CreditPackage } from '../../constants/pricing';
+import { CREDIT_PACKAGES, type CreditPackage } from '@ryla/shared';
 import { useCreditPurchase } from './hooks';
 import {
   PurchaseConfirmationModal,
@@ -32,7 +32,9 @@ function BuyCreditsContent() {
   const searchParams = useSearchParams();
   useEffect(() => {
     if (searchParams.get('success') === 'true') {
-      setSuccessMessage('Payment successful! Your credits have been added.');
+      setTimeout(() => {
+        setSuccessMessage('Payment successful! Your credits have been added.');
+      }, 0);
       // Remove success param from URL without refreshing
       window.history.replaceState({}, '', window.location.pathname);
     }

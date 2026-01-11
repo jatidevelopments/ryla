@@ -1,6 +1,6 @@
 import { Injectable, Inject, NotFoundException, BadRequestException } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, eq, sql, desc, asc } from 'drizzle-orm';
+import { and, eq, sql, desc } from 'drizzle-orm';
 import * as schema from '@ryla/data/schema';
 import { CreateOutfitPresetDto } from './dto/create-outfit-preset.dto';
 import { UpdateOutfitPresetDto } from './dto/update-outfit-preset.dto';
@@ -10,7 +10,7 @@ export class OutfitPresetsService {
   constructor(
     @Inject('DRIZZLE_DB')
     private readonly db: NodePgDatabase<typeof schema>,
-  ) {}
+  ) { }
 
   private assertValidUserId(userId: unknown): asserts userId is string {
     if (typeof userId !== 'string' || userId.trim().length === 0) {

@@ -3,6 +3,17 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "libs/analytics/src",
-  "tags": ["type:lib", "scope:analytics"]
+  "tags": ["type:lib", "scope:analytics"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/analytics",
+        "main": "libs/analytics/src/index.ts",
+        "tsConfig": "libs/analytics/tsconfig.lib.json",
+        "assets": ["libs/analytics/*.md"]
+      }
+    }
+  }
 }
-

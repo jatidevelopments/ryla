@@ -11,6 +11,8 @@ import { useAuth } from '../../lib/auth-context';
 import { useSubscription } from '../../lib/hooks';
 import { CreditsBadge } from '../credits';
 import { BugReportModal } from '../bug-report';
+import { trpc } from '../../lib/trpc';
+import { LockIcon } from './sidebar-icons';
 
 // Sidebar Footer imports logic - reused inline or imported
 // Since SidebarFooter is specific to the sidebar layout (with expand/collapse),
@@ -28,8 +30,20 @@ export function MobileNavigationSheet({
 }: MobileNavigationSheetProps) {
   const pathname = usePathname();
   const { user } = useAuth();
-  const { isPro, tier } = useSubscription();
+  const { tier } = useSubscription();
   const [isBugReportOpen, setIsBugReportOpen] = React.useState(false);
+
+  // Check if user has any influencers
+  const { data: charactersData } = trpc.character.list.useQuery();
+  const hasInfluencers = (charactersData?.items?.length ?? 0) > 0;
+
+  // Add lock status to menu items
+  const itemsWithLocks = menuItems.map((item) => {
+    if (item.url === '/studio' || item.url === '/templates') {
+      return { ...item, isLocked: !hasInfluencers };
+    }
+    return item;
+  });
 
   // Close sheet when path changes (navigation)
   const lastPathname = React.useRef(pathname);
@@ -105,9 +119,10 @@ export function MobileNavigationSheet({
               <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
                 {/* Navigation Links */}
                 <div className="grid grid-cols-1 gap-1.5">
-                  {menuItems.map((item, index) => {
+                  {itemsWithLocks.map((item, index) => {
                     const isActive = item.isActive(pathname || '');
                     const Icon = item.icon;
+                    const isLocked = item.isLocked;
                     return (
                       <Link
                         key={item.title}
@@ -119,7 +134,8 @@ export function MobileNavigationSheet({
                             : 'text-white/70 hover:bg-white/5 hover:text-white',
                           item.highlight &&
                             !isActive &&
-                            'bg-gradient-to-r from-[var(--purple-600)]/10 to-[var(--pink-500)]/10 text-[var(--purple-300)] border border-white/5'
+                            'bg-gradient-to-r from-[var(--purple-600)]/10 to-[var(--pink-500)]/10 text-[var(--purple-300)] border border-white/5',
+                          isLocked && 'opacity-60'
                         )}
                         style={{ animationDelay: `${index * 50}ms` }}
                       >
@@ -145,6 +161,9 @@ export function MobileNavigationSheet({
                         <span className="flex-1">{item.title}</span>
                         {isActive && (
                           <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        )}
+                        {isLocked && (
+                          <LockIcon className="h-4 w-4 text-white/40 shrink-0" />
                         )}
                       </Link>
                     );

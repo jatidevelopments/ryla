@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { getAccessToken } from '../../../lib/auth';
-import type { CreditPackage } from '../../../constants/pricing';
+import { paymentService } from '../../../lib/services/payment.service';
 
 interface UseCreditPurchaseOptions {
   onSuccess?: () => void;
@@ -21,32 +21,9 @@ export function useCreditPurchase({ onSuccess, onError }: UseCreditPurchaseOptio
           throw new Error('You must be logged in to purchase credits');
         }
 
-        const response = await fetch('/api/finby/setup-payment', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            type: 'credit',
-            packageId,
-          }),
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Failed to create payment session');
-        }
-
-        const data = await response.json();
-
-        // Redirect to Finby payment page
-        if (data.paymentUrl) {
-          window.location.href = data.paymentUrl;
+        // Use payment service to create session and open payment URL
+        await paymentService.createCreditSession(packageId);
           onSuccess?.();
-        } else {
-          throw new Error('No payment URL received');
-        }
       } catch (error: any) {
         console.error('Purchase error:', error);
         const errorObj = error instanceof Error ? error : new Error(error.message || 'Failed to start payment. Please try again.');

@@ -5,6 +5,16 @@
   "projectType": "library",
   "tags": ["scope:shared", "type:lib"],
   "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/email",
+        "main": "libs/email/src/index.ts",
+        "tsConfig": "libs/email/tsconfig.lib.json",
+        "assets": []
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },

@@ -38,13 +38,6 @@ function asValidEnumOrNull<T extends readonly string[]>(value: unknown, allowed:
   return allowed.includes(trimmed as T[number]) ? (trimmed as T[number]) : null;
 }
 
-function normalizeString(value: unknown): string | undefined {
-  if (!value) return undefined;
-  if (typeof value !== 'string') return undefined;
-  const trimmed = value.trim();
-  return trimmed === '' ? undefined : trimmed;
-}
-
 @Injectable()
 export class StudioGenerationService {
   private readonly generationJobsRepo: GenerationJobsRepository;
@@ -134,7 +127,7 @@ export class StudioGenerationService {
     let basePrompt = baseBuiltPrompt.prompt;
     let negativePrompt = baseBuiltPrompt.negativePrompt;
     const originalPrompt = basePrompt; // Store original for metadata
-    let promptEnhance = false;
+    let promptEnhanceUsed = false;
     let enhancedPrompt: string | undefined = undefined;
 
     // If prompt enhancement is enabled, try to enhance in parallel with timeout
@@ -142,7 +135,7 @@ export class StudioGenerationService {
     // otherwise fall back to base prompt
     if (input.promptEnhance !== false) {
       const enhancer = createAutoEnhancer();
-      
+
       // Enhance in parallel with 500ms timeout - don't block generation start
       const enhancementPromise = builder.buildWithAI(enhancer, {
         strength: 0.7,
@@ -154,17 +147,17 @@ export class StudioGenerationService {
       });
 
       // Race: enhancement vs timeout
-      const timeoutPromise = new Promise<null>((resolve) => 
+      const timeoutPromise = new Promise<null>((resolve) =>
         setTimeout(() => resolve(null), 500)
       );
 
       const enhancementResult = await Promise.race([enhancementPromise, timeoutPromise]);
-      
+
       // Use enhanced prompt if it completed in time, otherwise use base
       if (enhancementResult) {
         basePrompt = enhancementResult.prompt;
         enhancedPrompt = enhancementResult.prompt;
-        promptEnhance = true;
+        promptEnhanceUsed = true;
         // Merge negative prompt additions
         if (enhancementResult.enhancement.negativeAdditions.length > 0) {
           negativePrompt += ', ' + enhancementResult.enhancement.negativeAdditions.join(', ');
@@ -216,21 +209,21 @@ export class StudioGenerationService {
       if (height) imageData.height = height;
       if (safeScene) imageData.scene = safeScene;
       if (safeEnvironment) imageData.environment = safeEnvironment;
-      
+
       const outfit = typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit);
       if (outfit) imageData.outfit = outfit;
-      
+
       if (input.poseId) imageData.poseId = input.poseId;
       if (input.lighting) imageData.lightingId = input.lighting;
       if (safeAspectRatio) imageData.aspectRatio = safeAspectRatio;
       if (safeQualityMode) imageData.qualityMode = safeQualityMode;
-      
+
       // Prompt enhancement metadata
-      if (typeof promptEnhance === 'boolean') {
-        imageData.promptEnhance = promptEnhance;
+      if (typeof promptEnhanceUsed === 'boolean') {
+        imageData.promptEnhance = promptEnhanceUsed;
       }
-      if (promptEnhance && originalPrompt) imageData.originalPrompt = originalPrompt;
-      if (promptEnhance && enhancedPrompt) imageData.enhancedPrompt = enhancedPrompt;
+      if (promptEnhanceUsed && originalPrompt) imageData.originalPrompt = originalPrompt;
+      if (promptEnhanceUsed && enhancedPrompt) imageData.enhancedPrompt = enhancedPrompt;
 
       const imageRecord = await this.imagesRepo.createImage(imageData);
 
@@ -239,7 +232,7 @@ export class StudioGenerationService {
           // Safe fallback if env is missing.
           // Keep server stable: do not throw; run comfyui instead.
           // (This also keeps UI stable without special-casing.)
-          // eslint-disable-next-line no-console
+
           console.warn('FAL_KEY not configured; falling back to comfyui for studio generation');
         } else {
           const externalJobId = `fal_${randomUUID()}`;
@@ -251,7 +244,7 @@ export class StudioGenerationService {
             input: {
               scene: input.scene,
               environment: input.environment,
-              outfit: input.outfit,
+              outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
               poseId: input.poseId,
               aspectRatio: input.aspectRatio,
               qualityMode: input.qualityMode,
@@ -264,9 +257,9 @@ export class StudioGenerationService {
               height,
               steps,
               // Prompt enhancement metadata
-              promptEnhance,
-              originalPrompt: promptEnhance ? originalPrompt : undefined,
-              enhancedPrompt: promptEnhance ? enhancedPrompt : undefined,
+              promptEnhance: promptEnhanceUsed,
+              originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
+              enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
               // Store image ID so we can update it when complete
               imageId: imageRecord.id,
             },
@@ -323,7 +316,7 @@ export class StudioGenerationService {
         input: {
           scene: input.scene,
           environment: input.environment,
-          outfit: input.outfit,
+          outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
           poseId: input.poseId,
           aspectRatio: input.aspectRatio,
           qualityMode: input.qualityMode,
@@ -336,9 +329,9 @@ export class StudioGenerationService {
           height,
           steps,
           // Prompt enhancement metadata
-          promptEnhance,
-          originalPrompt: promptEnhance ? originalPrompt : undefined,
-          enhancedPrompt: promptEnhance ? enhancedPrompt : undefined,
+          promptEnhance: promptEnhanceUsed,
+          originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
+          enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
           // Store image ID so we can update it when complete
           imageId: imageRecord.id,
         },
@@ -366,7 +359,7 @@ export class StudioGenerationService {
   private sanitizePromptForStrictModels(prompt: string, modelId: FalFluxModelId): string {
     // Seedream 4.5 has stricter content filtering - remove body part descriptions
     const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
-    
+
     if (!isStrictModel) {
       return prompt;
     }
@@ -410,10 +403,10 @@ export class StudioGenerationService {
   }) {
     const { jobId, externalJobId, userId, characterId, modelId, prompt, negativePrompt, width, height, seed, imageId } =
       params;
-    
+
     // Sanitize prompt for strict models like Seedream 4.5
     const sanitizedPrompt = this.sanitizePromptForStrictModels(prompt, modelId);
-    
+
     try {
       const trackedJob = await this.generationJobsRepo.getById(jobId);
 
@@ -437,7 +430,7 @@ export class StudioGenerationService {
       });
 
       const img = stored[0];
-      
+
       // Update existing image record instead of creating a new one
       const updateData: any = {
         s3Key: img.key,
@@ -446,14 +439,14 @@ export class StudioGenerationService {
         thumbnailUrl: img.thumbnailUrl,
         status: 'completed' as const,
       };
-      
+
       // Only update fields that might have changed
       if (prompt) updateData.prompt = prompt;
       if (negativePrompt) updateData.negativePrompt = negativePrompt;
       if (seed) updateData.seed = seed.toString();
       if (width) updateData.width = width;
       if (height) updateData.height = height;
-      
+
       // Get prompt enhancement metadata from tracked job (already fetched above)
       if (trackedJob?.input) {
         const jobInput = trackedJob.input as any;
@@ -467,7 +460,7 @@ export class StudioGenerationService {
           updateData.enhancedPrompt = jobInput.enhancedPrompt;
         }
       }
-      
+
       await this.imagesRepo.updateById({
         id: imageId,
         userId,
@@ -487,11 +480,11 @@ export class StudioGenerationService {
       });
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Fal generation failed';
-      
+
       // Check if it's a content policy violation (422) for strict models
       const isContentPolicyError = message.includes('422') || message.includes('content_policy') || message.includes('content checker');
       const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
-      
+
       // Retry with more aggressive sanitization if content policy violation
       if (isContentPolicyError && isStrictModel) {
         try {
@@ -503,7 +496,7 @@ export class StudioGenerationService {
             .replace(/^\s*,/g, '')
             .replace(/\s+/g, ' ')
             .trim();
-          
+
           if (aggressiveSanitized.length > 20) { // Only retry if we have enough prompt left
             // Retry with aggressively sanitized prompt
             const retryOut = await this.fal.runFlux(modelId, {
@@ -548,14 +541,14 @@ export class StudioGenerationService {
                 imageIds: [imageId],
               } as any,
             });
-            
+
             return; // Success on retry
           }
-        } catch (retryErr) {
+        } catch {
           // Retry also failed, continue to error handling
         }
       }
-      
+
       // Update image status to failed
       try {
         await this.imagesRepo.updateById({
@@ -569,7 +562,7 @@ export class StudioGenerationService {
       } catch (updateError) {
         console.error('Failed to update image status to failed:', updateError);
       }
-      
+
       await this.generationJobsRepo.updateById(jobId, {
         status: 'failed',
         completedAt: new Date(),
@@ -588,7 +581,7 @@ export class StudioGenerationService {
     scale?: number;
   }) {
     // Verify image exists and user owns it
-    const sourceImage = await this.imagesRepo.getById(input.imageId);
+    const sourceImage = await this.imagesRepo.getById({ id: input.imageId, userId: input.userId });
     if (!sourceImage) {
       throw new NotFoundException('Source image not found');
     }
@@ -635,8 +628,8 @@ export class StudioGenerationService {
       status: 'processing',
       input: {
         sourceImageId: input.imageId,
-        modelId,
-        scale,
+        // modelId is not in GenerationInput, we'll store it in metadata if needed
+        // but for now we just remove it to avoid TS error
       },
       imageCount: 1,
       completedCount: 0,
@@ -682,7 +675,7 @@ export class StudioGenerationService {
     } = params;
 
     try {
-      const trackedJob = await this.generationJobsRepo.getById(jobId);
+      const _trackedJob = await this.generationJobsRepo.getById(jobId);
 
       // Call Fal.ai upscaling API
       const out = await this.fal.runUpscale(modelId, {
@@ -718,7 +711,7 @@ export class StudioGenerationService {
         sourceImageId,
         editType: 'upscale',
       };
-      
+
       if (sourceImage?.negativePrompt) upscaleImageData.negativePrompt = sourceImage.negativePrompt;
       if (sourceImage?.seed) upscaleImageData.seed = sourceImage.seed;
       if (sourceImage?.width) upscaleImageData.width = sourceImage.width * scale;

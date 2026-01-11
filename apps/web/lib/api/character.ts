@@ -89,7 +89,7 @@ export interface RegenerateProfilePictureInput {
   height?: number;
 }
 
-export type JobStatus = 'queued' | 'in_progress' | 'completed' | 'failed';
+export type JobStatus = 'queued' | 'in_progress' | 'completed' | 'failed' | 'partial';
 
 export interface GeneratedImage {
   id: string;
@@ -97,7 +97,12 @@ export interface GeneratedImage {
   thumbnailUrl: string;
   s3Key?: string;
   variation?: string;
-  model?: string; // Model/provider that generated this image (e.g., "Schnell", "Dev", "Danrisi")
+  model?: string;
+  prompt?: string;
+  negativePrompt?: string;
+  isNSFW?: boolean;
+  positionId?: string;
+  positionName?: string;
 }
 
 export interface JobResult {
@@ -260,7 +265,7 @@ export async function pollForJobCompletion(
 
   while (Date.now() - startTime < MAX_POLL_TIME) {
     const result = await getResults(jobId);
-    
+
     if (onProgress) {
       onProgress(result.status);
     }
@@ -321,7 +326,7 @@ export async function generateBaseImagesAndWait(
   onImageComplete?: (image: GeneratedImage, index: number) => void
 ): Promise<GeneratedImage[]> {
   const { jobId, allJobIds } = await generateBaseImages(input);
-  
+
   // If we have all job IDs, poll individually for progressive loading
   if (allJobIds && allJobIds.length > 1) {
     return pollBaseImagesProgressively(
@@ -383,7 +388,7 @@ async function pollBaseImagesProgressively(
         const imageIndex = jobIds.indexOf(jobId);
         result.images.forEach((img) => {
           completedImages.push(img);
-          
+
           // Notify that an image is complete
           if (onImageComplete) {
             onImageComplete(img, imageIndex);
@@ -424,7 +429,7 @@ export async function generateCharacterSheetAndWait(
   onProgress?: (status: JobStatus) => void
 ): Promise<GeneratedImage[]> {
   const { jobId } = await generateCharacterSheet(input);
-  
+
   const result = await pollForJobCompletion(
     jobId,
     getCharacterSheetResults,
@@ -538,7 +543,7 @@ export async function regenerateProfilePictureAndWait(
   onProgress?: (status: JobStatus) => void
 ): Promise<GeneratedImage> {
   const { jobId } = await regenerateProfilePicture(input);
-  
+
   // Poll for the regenerated image
   const result = await pollForJobCompletion(
     jobId,
@@ -564,7 +569,7 @@ export async function generateProfilePictureSetAndWait(
   onImageComplete?: (image: GeneratedImage, positionId: string, positionName: string) => void
 ): Promise<{ jobIds: string[]; jobPositions: any[] }> {
   const { jobId, allJobIds, jobPositions } = await generateProfilePictureSet(input);
-  
+
   // If we have job positions, start polling in background (non-blocking)
   if (jobPositions && jobPositions.length > 0 && allJobIds && allJobIds.length > 0) {
     // Start polling in background - don't wait for completion
@@ -657,7 +662,7 @@ async function pollProfilePicturesProgressively(
               negativePrompt: position.negativePrompt,
             };
             completedImages.push(imageWithPosition);
-            
+
             // Notify that an image is complete
             if (onImageComplete) {
               onImageComplete(imageWithPosition, position.positionId, position.positionName);

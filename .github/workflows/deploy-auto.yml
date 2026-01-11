@@ -1,0 +1,295 @@
+name: Auto Deploy (Nx Affected)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  detect-changes:
+    name: Detect Changed Apps
+    runs-on: ubuntu-latest
+    outputs:
+      web: ${{ steps.affected.outputs.web }}
+      api: ${{ steps.affected.outputs.api }}
+      funnel: ${{ steps.affected.outputs.funnel }}
+      landing: ${{ steps.affected.outputs.landing }}
+      has-changes: ${{ steps.affected.outputs.has-changes }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Need full history for Nx affected
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Detect affected apps
+        id: affected
+        run: |
+          # Get base commit (previous commit on main, or main branch if first commit)
+          BASE=$(git merge-base HEAD origin/main 2>/dev/null || git rev-parse HEAD~1 2>/dev/null || echo "origin/main")
+          HEAD=$(git rev-parse HEAD)
+          
+          echo "Base: $BASE"
+          echo "Head: $HEAD"
+          
+          # Check which apps are affected using Nx affected command
+          # Nx affected returns projects that changed
+          AFFECTED=$(pnpm nx affected --base=$BASE --head=$HEAD --plain 2>/dev/null || echo "")
+          
+          echo "Affected projects: $AFFECTED"
+          
+          # Set outputs for each app
+          if echo "$AFFECTED" | grep -qE "(^|\s)web(\s|$)"; then
+            echo "web=true" >> $GITHUB_OUTPUT
+            echo "✓ Web app affected"
+          else
+            echo "web=false" >> $GITHUB_OUTPUT
+            echo "✗ Web app not affected"
+          fi
+          
+          if echo "$AFFECTED" | grep -qE "(^|\s)api(\s|$)"; then
+            echo "api=true" >> $GITHUB_OUTPUT
+            echo "✓ API app affected"
+          else
+            echo "api=false" >> $GITHUB_OUTPUT
+            echo "✗ API app not affected"
+          fi
+          
+          if echo "$AFFECTED" | grep -qE "(^|\s)funnel(\s|$)"; then
+            echo "funnel=true" >> $GITHUB_OUTPUT
+            echo "✓ Funnel app affected"
+          else
+            echo "funnel=false" >> $GITHUB_OUTPUT
+            echo "✗ Funnel app not affected"
+          fi
+          
+          if echo "$AFFECTED" | grep -qE "(^|\s)landing(\s|$)"; then
+            echo "landing=true" >> $GITHUB_OUTPUT
+            echo "✓ Landing app affected"
+          else
+            echo "landing=false" >> $GITHUB_OUTPUT
+            echo "✗ Landing app not affected"
+          fi
+          
+          if [ -z "$AFFECTED" ] || ! echo "$AFFECTED" | grep -qE "(^|\s)(web|api|funnel|landing)(\s|$)"; then
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No app changes detected"
+          else
+            echo "has-changes=true" >> $GITHUB_OUTPUT
+            echo "App changes detected"
+          fi
+
+  deploy-web:
+    name: Deploy Web App
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy Web App to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/web/fly.toml \
+            --dockerfile apps/web/Dockerfile \
+            --app ryla-web-prod \
+            --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}" \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ryla-web-prod
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: production ${{ github.ref_name }} - web app success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
+
+  deploy-api:
+    name: Deploy API App
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy API App to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/api/fly.toml \
+            --dockerfile apps/api/Dockerfile \
+            --app ryla-api-prod
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ryla-api-prod
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: production ${{ github.ref_name }} - api app success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
+
+  deploy-funnel:
+    name: Deploy Funnel App
+    needs: detect-changes
+    if: needs.detect-changes.outputs.funnel == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy Funnel App to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/funnel/fly.toml \
+            --dockerfile apps/funnel/Dockerfile \
+            --app ryla-funnel-prod \
+            --build-arg NEXT_PUBLIC_CDN_URL="${{ secrets.NEXT_PUBLIC_CDN_URL }}" \
+            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}" \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL_FUNNEL }}" \
+            --build-arg NEXT_PUBLIC_API_BASE_URL="${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" \
+            --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT="${{ secrets.NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ryla-funnel-prod
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: production ${{ github.ref_name }} - funnel app success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
+
+  deploy-landing:
+    name: Deploy Landing App
+    needs: detect-changes
+    if: needs.detect-changes.outputs.landing == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Deploy Landing App to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/landing/fly.toml \
+            --dockerfile apps/landing/Dockerfile \
+            --app ryla-landing-prod \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL_LANDING }}" \
+            --build-arg NEXT_PUBLIC_CDN_URL="${{ secrets.NEXT_PUBLIC_CDN_URL }}" \
+            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ryla-landing-prod
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: production ${{ github.ref_name }} - landing app success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true

@@ -108,21 +108,22 @@ export interface AIProvider {
 
 const ENHANCER_SYSTEM_PROMPT = `You are an expert AI image prompt engineer specializing in photorealistic AI influencer images.
 
-Your task is to enhance prompts to produce high-quality, realistic images that look like authentic photographs rather than AI-generated content.
+Your task is to enhance prompts to produce high-quality, realistic images that look like authentic photographs.
 
-Key principles:
-1. SUBJECT FIRST: Always start with the subject description (age, ethnicity, features)
-2. NATURAL IMPERFECTIONS: Include subtle skin texture, pores, natural lighting
-3. PHOTOGRAPHY TERMS: Use real photography terminology (shallow DOF, bokeh, etc.)
-4. AVOID AI CLICHÉS: Never use "perfect", "flawless", "porcelain" - these create fake-looking images
-5. CONTEXT MATCHING: Ensure outfit, pose, and expression match the scene
-6. CANDID FEEL: Prefer natural, candid moments over posed studio shots
+Key principles for Photorealism:
+1. SUBJECT & ANATOMY: Start with the subject (age, ethnicity, features). Preserve slight natural asymmetries. Ensure gravity-based compression on soft tissue and realistic muscle definition.
+2. CAMERA & OPTICS: Use high-end specs: "Shot on Fujifilm GFX 100S, 80mm prime lens, f/2.8". Include "shallow depth of field", "sharp focus on eyes", and "natural background bokeh".
+3. LIGHTING: Use "high-key butterfly lighting", "large softboxes", and "subsurface scattering". Avoid artificial rim light, bloom, or glow.
+4. MICRO-TEXTURES: Mention individual hair strands, pores, fine wrinkles, follicles, and tear-film reflections. Include "wet mucosa" and "subdermal depth".
+5. AVOID AI CLICHÉS: Never use "perfect", "flawless", "porcelain", or "beauty filter".
+6. CANDID FEEL: Focus on authentic, candid moments and natural skin imperfections.
+7. IDENTITY PRESERVATION: Enforce strict facial identity preservation, bone structure consistency, and avoid beautification bias or softened morphology.
 
 Format your response as JSON:
 {
-  "enhancedPrompt": "the improved prompt",
-  "negativeAdditions": ["terms to add to negative prompt"],
-  "changes": ["explanation of each major change"],
+  "enhancedPrompt": "the improved prompt incorporating specific optics and micro-details",
+  "negativeAdditions": ["anime", "cartoon", "cgi", "plastic skin", "airbrushed", "waxy", "smooth polygons", "excessive smoothing"],
+  "changes": ["explanation of changes"],
   "confidence": 0.85
 }`;
 
@@ -178,7 +179,7 @@ export class AIPromptEnhancer {
       /** Enable caching of results */
       enableCache?: boolean;
     } = {}
-  ) {}
+  ) { }
 
   /**
    * Check if the enhancer is available
@@ -223,7 +224,7 @@ export class AIPromptEnhancer {
 
       // Parse the JSON response
       const result = this.parseResponse(response.text, request.prompt);
-      
+
       return {
         ...result,
         originalPrompt: request.prompt,
@@ -682,10 +683,10 @@ export function createAutoEnhancer(env?: {
   OPENAI_API_KEY?: string;
   OPENROUTER_DEFAULT_MODEL?: string;
 }): AIPromptEnhancer {
-  const openrouterKey = env?.OPENROUTER_API_KEY || (typeof process !== 'undefined' ? process.env?.OPENROUTER_API_KEY : undefined);
-  const geminiKey = env?.GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env?.GEMINI_API_KEY : undefined);
-  const openaiKey = env?.OPENAI_API_KEY || (typeof process !== 'undefined' ? process.env?.OPENAI_API_KEY : undefined);
-  const openrouterModel = env?.OPENROUTER_DEFAULT_MODEL || (typeof process !== 'undefined' ? process.env?.OPENROUTER_DEFAULT_MODEL : undefined);
+  const openrouterKey = env?.['OPENROUTER_API_KEY'] || (typeof process !== 'undefined' ? process.env?.['OPENROUTER_API_KEY'] : undefined);
+  const geminiKey = env?.['GEMINI_API_KEY'] || (typeof process !== 'undefined' ? process.env?.['GEMINI_API_KEY'] : undefined);
+  const openaiKey = env?.['OPENAI_API_KEY'] || (typeof process !== 'undefined' ? process.env?.['OPENAI_API_KEY'] : undefined);
+  const openrouterModel = env?.['OPENROUTER_DEFAULT_MODEL'] || (typeof process !== 'undefined' ? process.env?.['OPENROUTER_DEFAULT_MODEL'] : undefined);
 
   // Prefer OpenRouter (best prices, reliability, automatic fallback)
   if (openrouterKey) {

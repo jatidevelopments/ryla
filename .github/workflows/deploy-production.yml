@@ -16,20 +16,19 @@ jobs:
           - name: landing
             config: apps/landing/fly.toml
             dockerfile: apps/landing/Dockerfile
-            fly_app: ryla-landing
+            fly_app: ryla-landing-prod
           - name: funnel
             config: apps/funnel/fly.toml
             dockerfile: apps/funnel/Dockerfile
-            fly_app: funnel-v3-adult
+            fly_app: ryla-funnel-prod
           - name: web
             config: apps/web/fly.toml
             dockerfile: apps/web/Dockerfile
-            fly_app: ryla-web
-          # TODO: Add API when Dockerfile and fly.toml are created
-          # - name: api
-          #   config: apps/api/fly.toml
-          #   dockerfile: apps/api/Dockerfile
-          #   fly_app: ryla-api
+            fly_app: ryla-web-prod
+          - name: api
+            config: apps/api/fly.toml
+            dockerfile: apps/api/Dockerfile
+            fly_app: ryla-api-prod
     steps:
       - uses: actions/checkout@v4
       

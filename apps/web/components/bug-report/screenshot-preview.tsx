@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { Camera, RefreshCw } from 'lucide-react';
-import { cn } from '@ryla/ui';
 
 export interface ScreenshotPreviewProps {
   screenshot: string | null;
@@ -31,8 +30,12 @@ export function ScreenshotPreview({
       <div className="flex items-center gap-2 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-3">
         <Camera className="h-4 w-4 text-yellow-400" />
         <div className="flex-1">
-          <p className="text-xs font-medium text-yellow-400">Screenshot capture failed</p>
-          <p className="text-xs text-yellow-400/70">You can still submit without a screenshot</p>
+          <p className="text-xs font-medium text-yellow-400">
+            Screenshot capture failed
+          </p>
+          <p className="text-xs text-yellow-400/70">
+            You can still submit without a screenshot
+          </p>
         </div>
       </div>
     );
@@ -57,4 +60,3 @@ export function ScreenshotPreview({
     </div>
   );
 }
-

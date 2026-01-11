@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 
-interface PasswordStrengthProps {
+export interface PasswordStrengthProps {
   password: string;
   className?: string;
 }
@@ -31,11 +31,14 @@ const requirements: Requirement[] = [
   },
   {
     label: 'Contains special character',
-    test: (pw) => /[!@#$%^&*(),.?":{}|<>_\-+=\[\]\\\/`~]/.test(pw),
+    test: (pw) => /[!@#$%^&*(),.?":{}|<>_\-+=[\]\\/`~]/.test(pw),
   },
 ];
 
-export function PasswordStrength({ password, className = '' }: PasswordStrengthProps) {
+export function PasswordStrength({
+  password,
+  className = '',
+}: PasswordStrengthProps) {
   const strength = useMemo(() => {
     if (!password) return { score: 0, passed: [] as boolean[] };
 
@@ -98,10 +101,7 @@ export function PasswordStrength({ password, className = '' }: PasswordStrengthP
         {requirements.map((req, index) => {
           const passed = strength.passed[index];
           return (
-            <div
-              key={req.label}
-              className="flex items-center gap-2 text-xs"
-            >
+            <div key={req.label} className="flex items-center gap-2 text-xs">
               {passed ? (
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -150,9 +150,7 @@ export function PasswordStrength({ password, className = '' }: PasswordStrengthP
 export function isPasswordValid(password: string): boolean {
   // At minimum: 8 chars, 1 lowercase, 1 number
   return (
-    password.length >= 8 &&
-    /[a-z]/.test(password) &&
-    /[0-9]/.test(password)
+    password.length >= 8 && /[a-z]/.test(password) && /[0-9]/.test(password)
   );
 }
 
@@ -162,4 +160,3 @@ export function isPasswordValid(password: string): boolean {
 export function isPasswordStrong(password: string): boolean {
   return requirements.every((req) => req.test(password));
 }
-

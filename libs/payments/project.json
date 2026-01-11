@@ -5,6 +5,16 @@
   "projectType": "library",
   "tags": ["scope:shared", "type:lib"],
   "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/payments",
+        "tsConfig": "libs/payments/tsconfig.lib.json",
+        "main": "libs/payments/src/index.ts",
+        "assets": ["libs/payments/*.md"]
+      }
+    },
     "lint": {
       "executor": "@nx/eslint:lint"
     },

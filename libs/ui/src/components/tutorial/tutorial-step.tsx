@@ -50,7 +50,7 @@ export function TutorialStep({
 
   return (
     <div
-      className="flex flex-col gap-3"
+      className="flex flex-col gap-2 md:gap-3"
       onKeyDown={handleKeyDown}
       role="dialog"
       aria-labelledby="tutorial-title"
@@ -59,28 +59,32 @@ export function TutorialStep({
       aria-live="polite"
     >
       {/* Step Indicator - "1 OF 5" format */}
-      <div className="text-sm font-medium text-white/60 uppercase tracking-wider">
+      <div className="text-xs md:text-sm font-medium text-white/60 uppercase tracking-wider">
         {stepNumber} OF {totalSteps}
       </div>
 
       {/* Message - Large bold text */}
       <p
         id="tutorial-message"
-        className="text-2xl font-bold text-white leading-tight"
+        className="text-lg md:text-2xl font-bold text-white leading-tight"
       >
         {step.message}
       </p>
 
       {/* Actions */}
-      <div className="flex flex-col gap-3 pt-2">
+      <div className="flex flex-col gap-2 md:gap-3 pt-1 md:pt-2">
         {/* Got it button - RYLA gradient */}
         <button
           onClick={onNext}
           className={cn(
-            'w-full py-3 px-6 rounded-full',
+            'w-full rounded-full',
+            // Mobile: smaller padding and text
+            'py-2.5 px-4 text-sm',
+            // Desktop: original size
+            'md:py-3 md:px-6 md:text-base',
             'bg-gradient-to-r from-purple-500 to-pink-500',
             'hover:from-purple-400 hover:to-pink-400',
-            'text-white font-semibold text-base',
+            'text-white font-semibold',
             'transition-all duration-200',
             'shadow-lg shadow-purple-500/30',
             'focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#1a1a1d]'
@@ -94,7 +98,7 @@ export function TutorialStep({
         {step.showSkip !== false && (
           <button
             onClick={onSkip}
-            className="text-sm text-white/50 hover:text-white/80 underline underline-offset-2 transition-colors text-center py-1"
+            className="text-xs md:text-sm text-white/50 hover:text-white/80 underline underline-offset-2 transition-colors text-center py-1"
             aria-label="Skip tutorial"
           >
             Skip tutorial

@@ -9,7 +9,7 @@ export class MailService {
 
   constructor(
     @Inject(ConfigService) private readonly configService: ConfigService<Config>,
-  ) {}
+  ) { }
 
   /**
    * Send email via Brevo (formerly Sendinblue)

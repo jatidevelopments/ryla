@@ -1,6 +1,38 @@
-/**
- * AI Influencer types
- */
+import { AspectRatio } from '../constants/platforms';
+
+export interface CharacterConfig {
+  gender?: 'female' | 'male';
+  style?: 'realistic' | 'anime';
+  ethnicity?: string;
+  age?: number;
+  eyeColor?: string;
+  hairStyle?: string;
+  hairColor?: string;
+  bodyType?: string;
+  breastSize?: string;
+  defaultOutfit?: string;
+  archetype?: string;
+  personalityTraits?: string[];
+  bio?: string;
+  handle?: string;
+  nsfwEnabled?: boolean;
+  profilePictureSetId?: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
+}
+
+export interface Character {
+  id: string;
+  userId?: string;
+  name: string;
+  handle: string | null;
+  config: CharacterConfig;
+  status: string | null;
+  baseImageUrl: string | null;
+  postCount: string | null;
+  likedCount: string | null;
+  imageCount?: number;
+  createdAt: Date | null;
+  updatedAt?: Date | null;
+}
 
 export interface AIInfluencer {
   id: string;
@@ -44,7 +76,7 @@ export interface Post {
   scene?: string;
   environment?: string;
   outfit?: string;
-  aspectRatio: '1:1' | '9:16' | '2:3';
+  aspectRatio: AspectRatio;
   // Timestamps
   createdAt: string;
 }

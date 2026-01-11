@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { FunnelSchema } from '@/features/funnel/hooks/useFunnelForm';
 import { safePostHogCapture } from '@/lib/analytics/posthog-utils';
 import Image from 'next/image';
-import { cn } from '@/lib/utils';
 
 export function AIDescriptionStep() {
   const { nextStep } = useStepperContext();

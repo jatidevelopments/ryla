@@ -3,7 +3,11 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useParams, notFound } from 'next/navigation';
-import { useInfluencer, useInfluencerStore, useLikedPosts } from '@ryla/business';
+import {
+  useInfluencer,
+  useInfluencerStore,
+  useLikedPosts,
+} from '@ryla/business';
 import { PageContainer, Button, Checkbox } from '@ryla/ui';
 import { LikedPostRow } from '../../../../components/posts/LikedPostRow';
 import { ProtectedRoute } from '../../../../components/auth/ProtectedRoute';
@@ -35,7 +39,9 @@ function LikedPostsContent() {
       addInfluencer({
         id: character.id,
         name: character.name,
-        handle: character.handle || `@${character.name.toLowerCase().replace(/\s+/g, '.')}`,
+        handle:
+          character.handle ||
+          `@${character.name.toLowerCase().replace(/\s+/g, '.')}`,
         bio: character.config?.bio || 'New AI influencer ✨',
         avatar: character.baseImageUrl || null,
         gender: character.config?.gender || 'female',
@@ -55,8 +61,10 @@ function LikedPostsContent() {
         postCount: parseInt(character.postCount || '0', 10),
         imageCount: 0,
         likedCount: parseInt(character.likedCount || '0', 10),
-        createdAt: character.createdAt?.toISOString() || new Date().toISOString(),
-        updatedAt: character.updatedAt?.toISOString() || new Date().toISOString(),
+        createdAt:
+          character.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt:
+          character.updatedAt?.toISOString() || new Date().toISOString(),
       });
     }
   }, [addInfluencer, character, influencer]);
@@ -121,7 +129,7 @@ function LikedPostsContent() {
               clipRule="evenodd"
             />
           </svg>
-          Back to {influencer.name}
+          Back to {influencer?.name || 'Influencer'}
         </Link>
 
         <div className="flex items-center justify-between">
@@ -189,8 +197,8 @@ function LikedPostsContent() {
             No shortlisted posts yet
           </h3>
           <p className="mb-6 max-w-sm text-sm text-white/60">
-            Shortlist posts from {influencer.name}&apos;s profile to add them
-            here for easy export.
+            Shortlist posts from {influencer?.name || 'the influencer'}&apos;s
+            profile to add them here for easy export.
           </p>
           <Button asChild variant="outline">
             <Link href={`/influencer/${influencerId}`}>View Profile</Link>

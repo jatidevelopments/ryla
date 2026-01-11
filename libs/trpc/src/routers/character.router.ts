@@ -12,14 +12,14 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { characters, images, influencerRequests, users, NotificationsRepository, type CharacterConfig } from '@ryla/data';
-import type { NotificationType } from '@ryla/data/schema';
+
 import { sendEmail, InfluencerRequestNotificationEmail } from '@ryla/email';
 
 import { router, protectedProcedure } from '../trpc';
 
 function tryExtractS3KeyFromStoredUrl(url: string): string | null {
   if (!url) return null;
-  
+
   try {
     // If it's already just a key (no protocol), return as-is
     if (!url.includes('://') && !url.startsWith('/')) {
@@ -31,7 +31,7 @@ function tryExtractS3KeyFromStoredUrl(url: string): string | null {
     }
 
     const u = new URL(url);
-    
+
     // Handle MinIO path-style: http://localhost:9000/ryla-images/<key>
     const marker = '/ryla-images/';
     const idx = u.pathname.indexOf(marker);
@@ -39,13 +39,13 @@ function tryExtractS3KeyFromStoredUrl(url: string): string | null {
       const key = u.pathname.slice(idx + marker.length);
       if (key) return decodeURIComponent(key);
     }
-    
+
     // Handle virtual-hosted style: http://ryla-images.localhost:9000/<key>
     if (u.hostname.includes('ryla-images')) {
       const key = u.pathname.slice(1); // Remove leading /
       if (key) return decodeURIComponent(key);
     }
-    
+
     // Handle AWS S3 URLs: https://bucket.s3.region.amazonaws.com/key
     // or https://s3.region.amazonaws.com/bucket/key
     if (u.hostname.includes('amazonaws.com') || u.hostname.includes('s3')) {
@@ -54,7 +54,7 @@ function tryExtractS3KeyFromStoredUrl(url: string): string | null {
       // Remove leading / and bucket name if present
       let key = pathWithoutQuery;
       if (key.startsWith('/')) key = key.slice(1);
-      
+
       // If hostname contains bucket name, path is just the key
       // Otherwise, path might be /bucket/key
       const bucketMarker = '/ryla-images/';
@@ -62,17 +62,17 @@ function tryExtractS3KeyFromStoredUrl(url: string): string | null {
       if (bucketIdx !== -1) {
         key = key.slice(bucketIdx + bucketMarker.length);
       }
-      
+
       if (key) return decodeURIComponent(key);
     }
-    
+
     // Handle generic S3-compatible URLs: extract path after bucket name
     // Try to find /ryla-images/ or use the path directly
     if (u.pathname.includes('/ryla-images/')) {
       const key = u.pathname.split('/ryla-images/')[1];
       if (key) return decodeURIComponent(key);
     }
-    
+
     return null;
   } catch {
     return null;
@@ -80,12 +80,12 @@ function tryExtractS3KeyFromStoredUrl(url: string): string | null {
 }
 
 function createS3ClientForSigning() {
-  const accessKeyId = process.env.AWS_S3_ACCESS_KEY;
-  const secretAccessKey = process.env.AWS_S3_SECRET_KEY;
-  const endpoint = process.env.AWS_S3_ENDPOINT;
-  const region = process.env.AWS_S3_REGION || 'us-east-1';
-  const bucketName = process.env.AWS_S3_BUCKET_NAME || 'ryla-images';
-  const urlTtl = Number(process.env.AWS_S3_URL_TTL) || 3600;
+  const accessKeyId = process.env['AWS_S3_ACCESS_KEY'];
+  const secretAccessKey = process.env['AWS_S3_SECRET_KEY'];
+  const endpoint = process.env['AWS_S3_ENDPOINT'];
+  const region = process.env['AWS_S3_REGION'] || 'us-east-1';
+  const bucketName = process.env['AWS_S3_BUCKET_NAME'] || 'ryla-images';
+  const urlTtl = Number(process.env['AWS_S3_URL_TTL']) || 3600;
 
   if (!accessKeyId || !secretAccessKey) return null;
 
@@ -93,7 +93,7 @@ function createS3ClientForSigning() {
     region,
     endpoint,
     credentials: { accessKeyId, secretAccessKey },
-    forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true',
+    forcePathStyle: process.env['AWS_S3_FORCE_PATH_STYLE'] === 'true',
   });
 
   return { client, bucketName, urlTtl };
@@ -197,12 +197,12 @@ export const characterRouter = router({
       // Get image counts for all characters in one query
       const characterIds = items.map((char) => char.id);
       const imageCountsMap: Record<string, number> = {};
-      
+
       // Initialize all characters with 0 count
       for (const char of items) {
         imageCountsMap[char.id] = 0;
       }
-      
+
       if (characterIds.length > 0) {
         try {
           const imageCounts = await ctx.db
@@ -248,12 +248,12 @@ export const characterRouter = router({
 
           // Try to extract S3 key from stored URL
           let key = tryExtractS3KeyFromStoredUrl(baseImageUrl);
-          
+
           // If extraction failed, check if stored value is already a key
           if (!key && !baseImageUrl.includes('://') && !baseImageUrl.startsWith('/')) {
             key = baseImageUrl;
           }
-          
+
           if (!key) return item;
 
           try {
@@ -402,12 +402,12 @@ export const characterRouter = router({
       const notificationsRepo = new NotificationsRepository(ctx.db);
       await notificationsRepo.create({
         userId: ctx.user.id,
-        type: 'character.created' as NotificationType,
+        type: 'character.created',
         title: 'Character created!',
         body: `${input.name} is ready. Start generating images!`,
         href: `/influencer/${character.id}`,
-        metadata: { 
-          characterId: character.id, 
+        metadata: {
+          characterId: character.id,
           characterName: input.name,
           baseImageUrl: input.baseImageUrl,
         },
@@ -451,7 +451,7 @@ export const characterRouter = router({
       // Validate handle uniqueness if provided
       if (handle !== undefined && handle !== existing.handle) {
         const cleanHandle = handle.trim().toLowerCase();
-        
+
         // Check if handle is already taken by another character of this user
         const existingWithHandle = await ctx.db.query.characters.findFirst({
           where: and(

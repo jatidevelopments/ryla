@@ -2,15 +2,27 @@
 
 // Load dotenv FIRST before any other imports
 import { config } from 'dotenv';
-import { resolve, dirname } from 'path';
-import { fileURLToPath } from 'url';
+import { resolve } from 'path';
 
-// Get __dirname equivalent for ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirnameLocal = dirname(__filename);
+// Set up module aliases for @ryla/* packages at runtime
+// This allows Node.js to resolve @ryla/* imports to dist/libs/* paths
+// Must be done before any other imports that use @ryla/* packages
+// __dirname is /app/dist/apps/api/src, so we need to go up 4 levels to /app/dist
+const moduleAlias = require('module-alias');
+const distPath = resolve(__dirname, '../../../../dist');
+moduleAlias.addAliases({
+  '@ryla/shared': resolve(distPath, 'libs/shared/src'),
+  '@ryla/data': resolve(distPath, 'libs/data/src'),
+  '@ryla/business': resolve(distPath, 'libs/business/src'),
+  '@ryla/ui': resolve(distPath, 'libs/ui/src'),
+  '@ryla/analytics': resolve(distPath, 'libs/analytics/src'),
+  '@ryla/trpc': resolve(distPath, 'libs/trpc/src'),
+  '@ryla/payments': resolve(distPath, 'libs/payments/src'),
+  '@ryla/email': resolve(distPath, 'libs/email/src'),
+});
 
 // Load .env file from apps/api directory - MUST be before other imports
-config({ path: resolve(__dirnameLocal, '../.env') });
+config({ path: resolve(__dirname, '../.env') });
 
 import chalk from 'chalk';
 import { ValidationPipe } from '@nestjs/common';
@@ -19,9 +31,9 @@ import { NestFactory } from '@nestjs/core';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+
 const cookieParser = require('cookie-parser');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
+
 const basicAuth = require('express-basic-auth');
 // import * as socketIo from 'socket.io';
 
@@ -104,7 +116,7 @@ async function bootstrap() {
     app.enableCors({
       origin: (
         _origin: string,
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
         callback: (_err: Error | null, _allow?: boolean) => void,
       ) => {
         return callback(null, true);

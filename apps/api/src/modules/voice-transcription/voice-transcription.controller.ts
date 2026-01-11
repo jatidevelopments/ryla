@@ -18,7 +18,7 @@ import { VoiceTranscriptionService } from './services/voice-transcription.servic
 export class VoiceTranscriptionController {
   constructor(
     private readonly voiceTranscriptionService: VoiceTranscriptionService,
-  ) {}
+  ) { }
 
   @Post('transcribe')
   @HttpCode(HttpStatus.OK)
@@ -115,7 +115,7 @@ export class VoiceTranscriptionController {
     } catch (error) {
       // Send error event
       res.write(
-        `data: ${JSON.stringify({ type: 'error', message: error.message })}\n\n`,
+        `data: ${JSON.stringify({ type: 'error', message: (error as any).message })}\n\n`,
       );
       res.end();
     }

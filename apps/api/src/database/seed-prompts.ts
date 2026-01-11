@@ -18,7 +18,7 @@ import { drizzle } from 'drizzle-orm/node-postgres';
 import { Pool } from 'pg';
 import * as schema from '@ryla/data/schema';
 // Import from business prompts (exported via index)
-import { promptTemplates } from '../../../../libs/business/src/prompts/templates';
+import { promptTemplates } from '@ryla/business';
 
 async function seedPrompts() {
   // Get database connection from env (same as API config)

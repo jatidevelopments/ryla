@@ -1,18 +1,17 @@
-"use client";
+'use client';
 
-import { Badge } from "@/components/ui/badge";
-import Marquee from "@/components/ui/marquee";
-import { ArrowRight } from "lucide-react";
+import { Badge } from '@/components/ui/badge';
+import Marquee from '@/components/ui/marquee';
 
 interface AnnouncementBarProps {
-  variant?: "default" | "overlay";
+  variant?: 'default' | 'overlay';
 }
 
-export function AnnouncementBar({ variant = "default" }: AnnouncementBarProps) {
+export function AnnouncementBar({ variant = 'default' }: AnnouncementBarProps) {
   const bgClasses =
-    variant === "overlay"
-      ? "bg-linear-to-r from-purple-600/90 to-pink-600/90 backdrop-blur-md"
-      : "bg-linear-to-r from-purple-600 to-pink-600 dark:from-purple-500 dark:to-pink-500";
+    variant === 'overlay'
+      ? 'bg-linear-to-r from-purple-600/90 to-pink-600/90 backdrop-blur-md'
+      : 'bg-linear-to-r from-purple-600 to-pink-600 dark:from-purple-500 dark:to-pink-500';
 
   return (
     <div className={`overflow-hidden ${bgClasses} text-white`}>

@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCharacterWizardStore } from '@ryla/business';
-import { cn } from '@ryla/ui';
 
 /**
  * Step 2 (AI Flow): AI Generation

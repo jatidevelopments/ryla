@@ -42,7 +42,7 @@ export function useAutoAdvanceOnSingleOption<T extends Record<string, any>>(
                     setTimeout(() => {
                         // Verify form value is set before calling nextStep
                         // This ensures validation will pass
-                        const formValues = form.getValues();
+                        const _formValues = form.getValues();
 
                         if (process.env.NODE_ENV === "development") {
                             console.log("[AutoAdvance] Calling nextStep after form value set");

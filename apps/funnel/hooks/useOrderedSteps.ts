@@ -1,4 +1,4 @@
-import { buildFunnelSteps, FUNNEL_STEPS, type StepInfo } from "@/features/funnel/config/steps";
+import { buildFunnelSteps, type StepInfo } from "@/features/funnel/config/steps";
 import { useFormContext } from "react-hook-form";
 import { FunnelSchema } from "@/features/funnel/hooks/useFunnelForm";
 import { useMemo } from "react";

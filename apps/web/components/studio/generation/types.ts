@@ -1,6 +1,7 @@
 // Generation types for the studio toolbar
 
-export type AspectRatio = '1:1' | '9:16' | '3:4' | '2:3' | '4:3' | '16:9' | '3:2';
+import { AspectRatio } from '@ryla/shared';
+export type { AspectRatio };
 
 export type Quality = '1.5k' | '2k' | '4k';
 
@@ -22,11 +23,11 @@ export interface AIModel {
 }
 
 // Import model registry helpers
-import { 
-  getAllModels, 
+import {
+  getAllModels,
   getModelsForStudioMode,
   type ModelDefinition,
-  type UIModelId 
+  type UIModelId
 } from '@ryla/shared';
 
 export interface VisualStyle {
@@ -36,7 +37,7 @@ export interface VisualStyle {
   category: StyleCategory;
 }
 
-export type StyleCategory = 
+export type StyleCategory =
   | 'all'
   | 'trending'
   | 'tiktok'
@@ -47,7 +48,7 @@ export type StyleCategory =
   | 'surreal'
   | 'artistic';
 
-export type SceneCategory = 
+export type SceneCategory =
   | 'outdoor'
   | 'indoor'
   | 'studio'
@@ -62,7 +63,7 @@ export interface Scene {
   category: SceneCategory;
 }
 
-export type LightingType = 
+export type LightingType =
   | 'natural'
   | 'studio'
   | 'golden-hour'
@@ -146,45 +147,45 @@ export interface AspectRatioOption {
 }
 
 export const ASPECT_RATIOS: AspectRatioOption[] = [
-  { 
-    value: '9:16', 
-    label: '9:16', 
+  {
+    value: '9:16',
+    label: '9:16',
     icon: 'portrait',
     platforms: getPlatformsForAspectRatio('9:16').map(p => p.id),
   },
-  { 
-    value: '3:4', 
-    label: '3:4', 
+  {
+    value: '3:4',
+    label: '3:4',
     icon: 'portrait',
     platforms: getPlatformsForAspectRatio('3:4').map(p => p.id),
   },
-  { 
-    value: '2:3', 
-    label: '2:3', 
+  {
+    value: '2:3',
+    label: '2:3',
     icon: 'portrait',
     platforms: getPlatformsForAspectRatio('2:3').map(p => p.id),
   },
-  { 
-    value: '1:1', 
-    label: '1:1', 
+  {
+    value: '1:1',
+    label: '1:1',
     icon: 'square',
     platforms: getPlatformsForAspectRatio('1:1').map(p => p.id),
   },
-  { 
-    value: '4:3', 
-    label: '4:3', 
+  {
+    value: '4:3',
+    label: '4:3',
     icon: 'landscape',
     platforms: getPlatformsForAspectRatio('4:3').map(p => p.id),
   },
-  { 
-    value: '16:9', 
-    label: '16:9', 
+  {
+    value: '16:9',
+    label: '16:9',
     icon: 'landscape',
     platforms: getPlatformsForAspectRatio('16:9').map(p => p.id),
   },
-  { 
-    value: '3:2', 
-    label: '3:2', 
+  {
+    value: '3:2',
+    label: '3:2',
     icon: 'landscape',
     platforms: getPlatformsForAspectRatio('3:2').map(p => p.id),
   },

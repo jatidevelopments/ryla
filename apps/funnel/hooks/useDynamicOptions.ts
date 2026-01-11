@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { FunnelSchema } from "@/features/funnel/hooks/useFunnelForm";
-import { OPTION_RULES, OptionRule } from "@/constants/option-rules";
+import { OPTION_RULES } from "@/constants/option-rules";
 
 export interface FilteredOption<T = any> {
     option: T;

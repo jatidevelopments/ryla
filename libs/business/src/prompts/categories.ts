@@ -190,6 +190,14 @@ export const styleModifiers = {
     'rule of thirds',
     'perfect framing',
   ],
+  optics: [
+    'Shot on Fujifilm GFX 100S',
+    '80mm prime lens',
+    'f/2.8',
+    'realistic lens falloff',
+    'accurate optical perspective',
+    'subsurface scattering',
+  ],
   realism: [
     'photorealistic',
     'hyperrealistic',
@@ -213,7 +221,10 @@ export const styleModifiers = {
     'amateur photo camera style',
     'candid moment captured',
     'authentic natural lighting',
+    'high-key butterfly lighting',
     'raw unedited aesthetic',
+    'microtextures visible',
+    'preserved natural asymmetries',
   ],
   /**
    * Skin texture modifiers for natural-looking skin
@@ -224,6 +235,9 @@ export const styleModifiers = {
     'subtle skin imperfections',
     'realistic skin lighting',
     'authentic complexion',
+    'tear-film reflections',
+    'wet mucosa',
+    'follicular detail',
   ],
   /**
    * Smartphone/selfie aesthetic for casual content
@@ -303,6 +317,11 @@ export const negativePromptElements = {
     'stock photo look',
     'unnaturally smooth skin',
     'porcelain doll',
+    'beautification bias',
+    'softened morphology',
+    'smooth polygons',
+    'rim light',
+    'glow',
   ],
   /**
    * Flux model specific negatives

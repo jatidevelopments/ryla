@@ -7,11 +7,13 @@ import { ArrowLeft, CreditCard, Shield, Lock, Check } from 'lucide-react';
 import { cn } from '@ryla/ui';
 import { trpc } from '../../lib/trpc';
 import { PlanCard } from '../../components/pricing';
-import { SUBSCRIPTION_PLANS } from '../../constants/pricing';
+import { SUBSCRIPTION_PLANS } from '@ryla/shared';
+import { paymentService } from '@/lib/services/payment.service';
 import { getAccessToken } from '../../lib/auth';
 
-export default function PricingPage() {
-  const utils = trpc.useUtils();
+import { Suspense } from 'react';
+
+function PricingContent() {
   const [isYearly, setIsYearly] = useState(true);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -50,32 +52,8 @@ export default function PricingPage() {
         throw new Error('You must be logged in to subscribe');
       }
 
-      const response = await fetch('/api/finby/setup-payment', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          type: 'subscription',
-          planId: planId as 'starter' | 'pro' | 'unlimited',
-          isYearly: yearly,
-        }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create payment session');
-      }
-
-      const data = await response.json();
-
-      // Redirect to Finby payment page
-      if (data.paymentUrl) {
-        window.location.href = data.paymentUrl;
-      } else {
-        throw new Error('No payment URL received');
-      }
+      // Use payment service to create session and open payment URL
+      await paymentService.createSubscriptionSession(planId, yearly);
     } catch (error: any) {
       console.error('Subscription error:', error);
       alert(error.message || 'Failed to start subscription. Please try again.');
@@ -228,6 +206,14 @@ export default function PricingPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function PricingPage() {
+  return (
+    <Suspense>
+      <PricingContent />
+    </Suspense>
   );
 }
 

@@ -3,7 +3,6 @@
 import * as React from 'react';
 import type { StudioMode } from '../types';
 import { getAIModelsForMode } from '../types';
-import type { GenerationSettings } from '../types';
 
 interface UseModelSelectionOptions {
   mode: StudioMode;

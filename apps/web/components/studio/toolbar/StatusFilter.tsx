@@ -26,7 +26,10 @@ const LABELS: Record<StatusFilter, string> = {
   failed: '✕ Failed',
 };
 
-export function StatusFilter({ status, onStatusChange }: StatusFilterProps) {
+export function StatusFilterGroup({
+  status,
+  onStatusChange,
+}: StatusFilterProps) {
   return (
     <div className="flex rounded-lg md:rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] p-0.5">
       {STATUS_OPTIONS.map((s) => (

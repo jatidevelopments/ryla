@@ -1,6 +1,5 @@
 'use client';
 
-import { cn } from '@ryla/ui';
 import type { Post } from '@ryla/shared';
 import { useLightbox } from './hooks/useLightbox';
 import { useImageActions } from './hooks/useImageActions';
@@ -9,7 +8,7 @@ import { GalleryImage } from './components/GalleryImage';
 import { LightboxModal } from './components/LightboxModal';
 import { StudioDetailPanel, type StudioImage } from '../studio';
 import * as React from 'react';
-import { useIsMobile } from '@ryla/ui';
+import { useIsMobile, cn } from '@ryla/ui';
 
 export interface ImageGalleryProps {
   images: Post[];
@@ -88,7 +87,7 @@ export function ImageGallery({
           }
           onClose={() => setDetailImageIndex(null)}
           onLike={onLike}
-          onDownload={(img) =>
+          onDownload={(_img) =>
             actions.handleDownload(
               { stopPropagation: () => {} } as any,
               images[detailImageIndex]

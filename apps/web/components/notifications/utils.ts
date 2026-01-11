@@ -1,4 +1,4 @@
-import { FEATURE_CREDITS } from '../../constants/pricing';
+import { FEATURE_CREDITS } from '@ryla/shared';
 
 export interface Notification {
   id: string;

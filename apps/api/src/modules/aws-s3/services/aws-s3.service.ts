@@ -198,7 +198,7 @@ export class AwsS3Service {
       return await getSignedUrl(this.s3Client, command, {
         expiresIn: this.awsConfig.urlTtl,
       });
-    } catch (error: any) {
+    } catch (_error: any) {
       throw new ServiceUnavailableException(
         'Failed to get file URL, try again',
       );
@@ -249,16 +249,12 @@ export class AwsS3Service {
   public async deleteFile(filePath: string): Promise<void> {
     this.ensureInitialized();
 
-    try {
-      await this.s3Client.send(
-        new DeleteObjectCommand({
-          Bucket: this.awsConfig.bucketName,
-          Key: filePath,
-        }),
-      );
-    } catch (error: any) {
-      throw error;
-    }
+    await this.s3Client.send(
+      new DeleteObjectCommand({
+        Bucket: this.awsConfig.bucketName,
+        Key: filePath,
+      }),
+    );
   }
 
   /**

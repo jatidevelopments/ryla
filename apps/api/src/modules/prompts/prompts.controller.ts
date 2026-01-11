@@ -5,7 +5,6 @@ import {
   Delete,
   Param,
   Query,
-  Body,
   UseGuards,
   HttpCode,
   HttpStatus,
@@ -22,7 +21,7 @@ import { GetPromptsDto } from './dto/get-prompts.dto';
 @UseGuards(JwtAccessGuard)
 @ApiBearerAuth()
 export class PromptsController {
-  constructor(private readonly promptsService: PromptsService) {}
+  constructor(private readonly promptsService: PromptsService) { }
 
   /**
    * Get all prompts (favorites appear first for authenticated users)

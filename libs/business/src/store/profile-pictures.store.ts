@@ -5,16 +5,8 @@ import { useShallow } from 'zustand/react/shallow';
 
 export type ProfilePicturesStatus = 'idle' | 'generating' | 'completed' | 'failed';
 
-export interface ProfilePictureImage {
-  id: string;
-  url: string;
-  thumbnailUrl?: string;
-  positionId: string;
-  positionName: string;
-  prompt?: string;
-  negativePrompt?: string;
-  isNSFW?: boolean;
-}
+import { ProfilePictureImage } from './types';
+
 
 export interface ProfilePicturesState {
   byInfluencerId: Record<

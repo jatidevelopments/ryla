@@ -2,8 +2,7 @@
 
 import { FadeInUp } from '@ryla/ui';
 import { CreditPackageCard } from '../../../components/pricing';
-import { CREDIT_PACKAGES } from '../../../constants/pricing';
-import type { CreditPackage } from '../../../constants/pricing';
+import { CREDIT_PACKAGES } from '@ryla/shared';
 
 interface CreditPackagesGridProps {
   selectedPackageId: string | null;
@@ -36,4 +35,3 @@ export function CreditPackagesGrid({
     </FadeInUp>
   );
 }
-

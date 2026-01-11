@@ -45,6 +45,9 @@
         "buildTarget": "funnel:build:production",
         "dev": false
       }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
     }
   }
 }

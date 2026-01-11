@@ -10,7 +10,7 @@ export class HealthService {
     @Inject('DRIZZLE_DB')
     private readonly db: NodePgDatabase,
     private readonly redisService: RedisService,
-  ) {}
+  ) { }
 
   async checkDatabase() {
     const startTime = Date.now();

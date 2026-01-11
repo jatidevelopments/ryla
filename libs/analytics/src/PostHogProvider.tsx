@@ -1,7 +1,7 @@
-"use client";
-import posthog from "posthog-js";
-import { PostHogProvider } from "posthog-js/react";
-import { useEffect, useState, ReactNode } from "react";
+'use client';
+import posthog from 'posthog-js';
+import { PostHogProvider } from 'posthog-js/react';
+import { useEffect, useState, ReactNode } from 'react';
 
 export interface PostHogConfig {
   apiKey?: string;
@@ -12,15 +12,15 @@ export interface PostHogConfig {
 
 /**
  * PostHog Analytics Provider
- * 
+ *
  * Wraps your app with PostHog analytics. Handles initialization,
  * environment detection, and opt-out in development.
- * 
+ *
  * @example
  * ```tsx
  * // In your app layout
  * import { ClientPostHogProvider } from '@ryla/analytics';
- * 
+ *
  * export default function RootLayout({ children }) {
  *   return (
  *     <ClientPostHogProvider>
@@ -30,22 +30,25 @@ export interface PostHogConfig {
  * }
  * ```
  */
-export function ClientPostHogProvider({ 
+export function ClientPostHogProvider({
   children,
-  config = {}
-}: { 
+  config = {},
+}: {
   children: ReactNode;
   config?: PostHogConfig;
 }) {
   const [isInitialized, setIsInitialized] = useState(false);
-  const [posthogClient, setPosthogClient] = useState<typeof posthog | null>(null);
+  const [posthogClient, setPosthogClient] = useState<typeof posthog | null>(
+    null
+  );
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     // Check if PostHog is already initialized
     const isAlreadyLoaded =
-      (window as any).posthog && typeof (window as any).posthog.capture === "function";
+      (window as any).posthog &&
+      typeof (window as any).posthog.capture === 'function';
 
     if (isAlreadyLoaded) {
       setPosthogClient((window as any).posthog);
@@ -53,8 +56,8 @@ export function ClientPostHogProvider({
       return;
     }
 
-    const isProduction = process.env.NODE_ENV === "production";
-    
+    const isProduction = process.env.NODE_ENV === 'production';
+
     // Get PostHog key from config or environment
     const posthogToken =
       config.apiKey ||
@@ -63,7 +66,7 @@ export function ClientPostHogProvider({
 
     if (!posthogToken) {
       console.warn(
-        "⚠️ PostHog token not found (NEXT_PUBLIC_POSTHOG_KEY), skipping analytics initialization"
+        '⚠️ PostHog token not found (NEXT_PUBLIC_POSTHOG_KEY), skipping analytics initialization'
       );
       setIsInitialized(true);
       return;
@@ -73,44 +76,46 @@ export function ClientPostHogProvider({
     const posthogHost =
       config.apiHost ||
       process.env.NEXT_PUBLIC_POSTHOG_HOST ||
-      "https://eu.i.posthog.com";
+      'https://eu.i.posthog.com';
 
     try {
       posthog.init(posthogToken, {
         api_host: posthogHost,
-        person_profiles: "identified_only",
+        person_profiles: 'identified_only',
         capture_pageview: config.capturePageview ?? false,
         loaded: (posthogInstance) => {
-          console.log("✅ PostHog initialized successfully");
+          console.log('✅ PostHog initialized successfully');
 
           // Make posthog available on window
           (window as any).posthog = posthogInstance;
-          setPosthogClient(posthogInstance);
+          setPosthogClient(posthogInstance as any);
 
-          const enableInDev = config.enableInDev || 
-            process.env.NEXT_PUBLIC_ENABLE_DEV_ANALYTICS === "true";
+          const enableInDev =
+            config.enableInDev ||
+            process.env.NEXT_PUBLIC_ENABLE_DEV_ANALYTICS === 'true';
 
           if (!isProduction && !enableInDev) {
             posthogInstance.opt_out_capturing();
-            console.log("PostHog opted out in development mode");
+            console.log('PostHog opted out in development mode');
           } else {
             posthogInstance.opt_in_capturing();
-            console.log("✅ PostHog tracking enabled");
+            console.log('✅ PostHog tracking enabled');
           }
 
           setIsInitialized(true);
         },
       });
     } catch (error) {
-      console.error("❌ PostHog initialization failed:", error);
+      console.error('❌ PostHog initialization failed:', error);
       setIsInitialized(true);
     }
   }, [config]);
 
   // Check if posthog is available on window
-  if (!isInitialized && typeof window !== "undefined") {
+  if (!isInitialized && typeof window !== 'undefined') {
     const isAvailable =
-      (window as any).posthog && typeof (window as any).posthog.capture === "function";
+      (window as any).posthog &&
+      typeof (window as any).posthog.capture === 'function';
     if (isAvailable) {
       setPosthogClient((window as any).posthog);
       setIsInitialized(true);
@@ -124,4 +129,3 @@ export function ClientPostHogProvider({
 
   return <PostHogProvider client={posthogClient}>{children}</PostHogProvider>;
 }
-

@@ -1,13 +1,12 @@
 'use client';
 
 import * as React from 'react';
-import type { 
-  GenerationSettings, 
-  StudioMode, 
+import type {
+  GenerationSettings,
+  StudioMode,
   ContentType,
   Quality,
 } from '../types';
-import { DEFAULT_GENERATION_SETTINGS } from '../types';
 import type { StudioImage } from '../../studio-image-card';
 import { usePersistedSettings } from './use-persisted-settings';
 import { useModelSelection } from './use-model-selection';
@@ -32,24 +31,24 @@ interface UseGenerationSettingsReturn {
   // Settings state
   settings: GenerationSettings;
   updateSetting: <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => void;
-  
+
   // NSFW state (studio-level)
   studioNsfwEnabled: boolean;
   setStudioNsfwEnabled: (enabled: boolean) => void;
   canEnableNSFW: boolean;
-  
+
   // Model selection
   availableModels: ReturnType<typeof import('../types').getAIModelsForMode>;
   selectedModel: ReturnType<typeof import('../types').getAIModelsForMode>[number] | null;
-  
+
   // Computed values
   creditsCost: number;
   canGenerate: boolean;
-  
+
   // Outfit helpers
   outfitDisplayText: string;
   hasOutfitComposition: boolean;
-  
+
   // Clear styles helper
   clearStyles: () => void;
 }
@@ -70,14 +69,14 @@ export function useGenerationSettings({
 }: UseGenerationSettingsOptions): UseGenerationSettingsReturn {
   // Local NSFW toggle state (separate from influencer-level nsfwEnabled)
   const [studioNsfwEnabled, setStudioNsfwEnabled] = React.useState(false);
-  
+
   // Disable NSFW toggle if influencer doesn't have NSFW enabled
   const canEnableNSFW = nsfwEnabled;
 
   // Use extracted hook for localStorage persistence
   const {
     persistedSettings,
-    setPersistedSettings,
+
     updatePersistedSetting,
   } = usePersistedSettings();
 
@@ -228,7 +227,7 @@ export function useGenerationSettings({
         return updated;
       });
     },
-    [updatePersistedSetting, persistedSettings]
+    [updatePersistedSetting]
   );
 
   // Validation: can we generate?

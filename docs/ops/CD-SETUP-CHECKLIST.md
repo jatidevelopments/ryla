@@ -14,8 +14,8 @@ This checklist covers the setup required to enable Continuous Deployment (CD) fo
 - [x] Fly.io account created
 - [x] Fly.io CLI installed (`flyctl`)
 - [x] All apps have Dockerfiles
-- [x] Fly.io configs (`fly.toml`) for landing, funnel, web
-- [ ] API Dockerfile and fly.toml (TODO)
+- [x] Fly.io configs (`fly.toml`) for landing, funnel, web, api
+- [x] API Dockerfile and fly.toml created
 - [ ] GitHub repository access
 - [ ] Slack workspace configured
 
@@ -38,9 +38,9 @@ flyctl apps create funnel-v3-adult
 flyctl apps create ryla-web-staging
 flyctl apps create ryla-web
 
-# API (when ready)
-# flyctl apps create ryla-api-staging
-# flyctl apps create ryla-api
+# API
+flyctl apps create ryla-api-staging
+flyctl apps create ryla-api
 ```
 
 - [ ] Landing staging app created
@@ -49,8 +49,8 @@ flyctl apps create ryla-web
 - [ ] Funnel production app created
 - [ ] Web staging app created
 - [ ] Web production app created
-- [ ] API staging app created (when ready)
-- [ ] API production app created (when ready)
+- [ ] API staging app created
+- [ ] API production app created
 
 ### 1.2 Configure Domains
 
@@ -60,14 +60,14 @@ flyctl domains add www.ryla.ai --app ryla-landing
 flyctl domains add ryla.ai --app ryla-landing
 flyctl domains add goviral.ryla.ai --app funnel-v3-adult
 flyctl domains add app.ryla.ai --app ryla-web
-flyctl domains add end.ryla.ai --app ryla-api  # When ready
+flyctl domains add end.ryla.ai --app ryla-api
 ```
 
 - [ ] www.ryla.ai configured
 - [ ] ryla.ai configured
 - [ ] goviral.ryla.ai configured
 - [ ] app.ryla.ai configured
-- [ ] end.ryla.ai configured (when ready)
+- [ ] end.ryla.ai configured
 
 ### 1.3 Set Secrets
 
@@ -121,8 +121,8 @@ flyctl secrets set \
 - [ ] Funnel production secrets set
 - [ ] Web staging secrets set
 - [ ] Web production secrets set
-- [ ] API staging secrets set (when ready)
-- [ ] API production secrets set (when ready)
+- [ ] API staging secrets set
+- [ ] API production secrets set
 
 ---
 
@@ -180,7 +180,7 @@ health() {
 - [ ] Landing health endpoint added
 - [ ] Funnel health endpoint added
 - [ ] Web health endpoint added
-- [ ] API health endpoint added (when ready)
+- [ ] API health endpoint added
 
 ### 3.2 Configure Fly.io Health Checks
 
@@ -198,7 +198,7 @@ Update `fly.toml` files:
 - [ ] Landing fly.toml updated
 - [ ] Funnel fly.toml updated
 - [ ] Web fly.toml updated
-- [ ] API fly.toml updated (when ready)
+- [ ] API fly.toml updated
 
 ---
 
@@ -217,6 +217,7 @@ flyctl deploy \
 - [ ] Landing staging manual deploy successful
 - [ ] Funnel staging manual deploy successful
 - [ ] Web staging manual deploy successful
+- [ ] API staging manual deploy successful
 - [ ] Health checks working
 
 ### 4.2 GitHub Actions Test
@@ -247,16 +248,16 @@ flyctl deploy \
 
 ---
 
-## Phase 6: API Setup (Future)
+## Phase 6: API Setup ✅
 
-When API is ready for deployment:
+API deployment setup completed:
 
-- [ ] Create `apps/api/Dockerfile`
-- [ ] Create `apps/api/fly.toml`
-- [ ] Add API to GitHub Actions workflows
+- [x] Create `apps/api/Dockerfile`
+- [x] Create `apps/api/fly.toml`
+- [x] Add API to GitHub Actions workflows
 - [ ] Configure API secrets
 - [ ] Test API deployment
-- [ ] Update documentation
+- [x] Update documentation
 
 ---
 

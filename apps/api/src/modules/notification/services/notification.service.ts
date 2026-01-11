@@ -8,22 +8,22 @@ export class NotificationService {
   constructor(
     // TODO: Add NotificationRepository when available
     // private readonly notificationRepository: NotificationRepository,
-  ) {}
+  ) { }
 
   // TODO: Implement notification methods
-  public async getUserNotifications(userId: number, pageOptions: any): Promise<any> {
+  public async getUserNotifications(_userId: string, _pageOptions: any): Promise<any> {
     throw new Error('Not implemented - requires NotificationRepository');
   }
 
-  public async markOneNotificationAsRead(userId: number, notificationId: number): Promise<void> {
+  public async markOneNotificationAsRead(_userId: string, _notificationId: number): Promise<void> {
     throw new Error('Not implemented - requires NotificationRepository');
   }
 
-  public async markAllUserNotificationsAsRead(userId: number): Promise<void> {
+  public async markAllUserNotificationsAsRead(_userId: string): Promise<void> {
     throw new Error('Not implemented - requires NotificationRepository');
   }
 
-  public async sendNotification(userId: number, message: string, type: string): Promise<void> {
+  public async sendNotification(_userId: string, _message: string, _type: string): Promise<void> {
     // TODO: Implement WebSocket notification sending
     throw new Error('Not implemented');
   }

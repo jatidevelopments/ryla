@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import type {
   PaymentProvider,
   FinbyConfig,
@@ -44,8 +44,10 @@ export class FinbyProvider implements PaymentProvider {
     this.merchantId = config.merchantId;
 
     this.webhookSecret = config.webhookSecret;
-    // REST API uses aapi.finby.eu, popup API uses amapi.finby.eu
-    this.baseUrl = config.baseUrl || (this.apiVersion === 'v3' ? 'https://amapi.finby.eu/mapi5' : 'https://aapi.finby.eu');
+    // MAPI5 API uses amapi.finby.eu/mapi5 for both v3 and v1
+    // v3 is for popup-based one-time payments
+    // v1 is for URL-based payments (subscriptions and credits)
+    this.baseUrl = config.baseUrl || 'https://amapi.finby.eu/mapi5';
   }
 
   /**
@@ -101,7 +103,7 @@ export class FinbyProvider implements PaymentProvider {
     if (this.apiVersion === 'v3') {
       // Check if subscription is requested - not supported in v3
       const isSubscription =
-        params.metadata?.isSubscription === 'true' ||
+        params.metadata?.['isSubscription'] === 'true' ||
         params.mode === 'subscription';
 
       if (isSubscription) {
@@ -210,148 +212,215 @@ export class FinbyProvider implements PaymentProvider {
   }
 
   /**
-   * Create checkout session using Finby REST API (aapi.finby.eu)
+   * Create checkout session using Finby MAPI5 API (amapi.finby.eu/mapi5/Card/PayPopup)
    * Supports both subscriptions and one-time payments
-   * Uses OAuth authentication with ProjectID/SecretKey
-   * Based on: https://doc.finby.eu/aapi
+   * Uses URL query parameters (not REST JSON API)
+   * Based on: https://doc.finby.eu (MAPI5 documentation)
    */
   private async createCheckoutSessionV1(params: CheckoutSessionParams): Promise<CheckoutSession> {
-    // Use OAuth if ProjectID/SecretKey are available, otherwise fall back to apiKey/merchantId
-    let accessToken: string;
-    let useOAuth = false;
-
-    if (this.projectId && this.secretKey) {
-      // Use OAuth with ProjectID/SecretKey (preferred method)
-      accessToken = await this.getOAuthToken();
-      useOAuth = true;
-    } else if (this.apiKey && this.merchantId) {
-      // Fall back to direct API key (legacy)
-      accessToken = this.apiKey;
-    } else {
-      throw new Error('Finby REST API requires either (projectId + secretKey) or (apiKey + merchantId)');
+    if (!this.projectId || !this.secretKey) {
+      throw new Error('Finby MAPI5 API requires projectId and secretKey');
     }
 
-    // Determine if this is a subscription or one-time payment
+    // Determine if this is a subscription or one-time payment (credit purchase)
     const isSubscription =
-      params.metadata?.isSubscription === 'true' ||
+      params.metadata?.['isSubscription'] === 'true' ||
       params.mode === 'subscription' ||
-      params.metadata?.subscription === 'true';
+      params.metadata?.['subscription'] === 'true';
 
-    // Build request body based on Finby REST API documentation
-    const requestBody: Record<string, any> = {
-      MerchantIdentification: {
-        ProjectId: parseInt(this.projectId || '0', 10),
-      },
-      CustomerIdentification: {
-        Email: params.email,
-      },
-      PaymentRequest: {
-        Amount: params.amount ? (params.amount / 100).toFixed(2) : undefined, // Convert cents to decimal
-        Currency: params.currency || 'EUR',
-        Reference: params.reference || generateFinbyReference(),
-      },
-      ReturnUrls: {
-        SuccessUrl: params.successUrl,
-        CancelUrl: params.cancelUrl,
-        ErrorUrl: params.errorUrl,
-      },
-      NotificationUrl: params.notificationUrl,
-      Metadata: {
-        user_id: params.userId,
-        ...params.metadata,
-      },
-    };
+    const isCreditPurchase = !isSubscription; // Credit purchases are one-time payments
 
-    // Add subscription-specific parameters if it's a subscription
-    if (isSubscription) {
-      // For subscriptions, we may need to use a different endpoint or add subscription parameters
-      // Check Finby docs for subscription-specific fields
-      requestBody.Subscription = {
-        Recurring: true,
-        // Add billing cycle if provided
-        ...(params.metadata?.billing_cycle && { BillingCycle: params.metadata.billing_cycle }),
-      };
+    // Generate reference if not provided
+    const reference = params.reference || generateFinbyReference();
+
+    // Convert amount from cents to decimal (exactly 2 decimal places)
+    const amount = params.amount ? (params.amount / 100).toFixed(2) : '0.00';
+    const currency = params.currency || 'EUR';
+
+    // PaymentType: 0 = Purchase, 1 = Register Card, 3 = Recurring Initial
+    // Per feedback: Use PaymentType=3 for subscriptions (Recurring Initial)
+    // Per feedback: Use PaymentType=1 for credit purchases (RegisterCard to save card)
+    const paymentType = isSubscription ? 3 : (isCreditPurchase ? 1 : 0);
+
+    // Required billing fields (from SCA requirements)
+    const billingCity = params.billingCity || 'Unknown';
+    const billingCountry = params.billingCountry || 'US';
+    const billingPostcode = params.billingPostcode || '00000';
+    const billingStreet = params.billingStreet || 'Unknown';
+    const cardHolder = params.cardHolder || (params.email ? params.email.split('@')[0] : 'Customer');
+    const email = params.email || '';
+
+    // Build signature data according to Finby documentation
+    // For PaymentType 3 (Recurring Initial): AccountId/Amount/Currency/Reference/PaymentType
+    // For PaymentType 1 (Register Card): AccountId/Amount/Currency/Reference/PaymentType/BillingCity/BillingCountry/BillingPostcode/BillingStreet/CardHolder/Email
+    let sigData: string;
+    if (paymentType === 3) {
+      // Recurring initial payment - simpler signature
+      sigData = `${this.projectId}/${amount}/${currency}/${reference}/${paymentType}`;
+    } else {
+      // Purchase or Register Card - full signature with billing details
+      sigData = `${this.projectId}/${amount}/${currency}/${reference}/${paymentType}/${billingCity}/${billingCountry}/${billingPostcode}/${billingStreet}/${cardHolder}/${email}`;
     }
 
-    // Remove undefined fields
-    Object.keys(requestBody).forEach(key => {
-      if (requestBody[key] === undefined) {
-        delete requestBody[key];
-      }
+    const signature = this.generateSignature(this.secretKey, sigData);
+
+    // Build URL with query parameters (Finby uses URL parameters, not JSON body)
+    const baseUrl = 'https://amapi.finby.eu/mapi5/Card/PayPopup';
+
+    const urlParams = new URLSearchParams({
+      AccountId: this.projectId,
+      Amount: amount,
+      Currency: currency,
+      Reference: reference,
+      PaymentType: paymentType.toString(),
+      Signature: signature,
     });
 
-    // Use the payment initiation endpoint from Finby REST API
-    // Based on: https://doc.finby.eu/aapi
-    // Note: If subscriptions aren't supported natively, we'll handle as recurring one-time payments
-    const endpoint = `${this.baseUrl}/api/Payments/InitiatePayment`;
+    // Add billing fields (required for card payments)
+    if (paymentType !== 3) {
+      // For recurring initial (PaymentType=3), billing fields might not be required
+      // But we'll include them for consistency
+      urlParams.append('BillingCity', billingCity);
+      urlParams.append('BillingCountry', billingCountry);
+      urlParams.append('BillingPostcode', billingPostcode);
+      urlParams.append('BillingStreet', billingStreet);
+      urlParams.append('CardHolder', cardHolder);
+      urlParams.append('Email', email);
+    }
 
-    const response = await fetch(endpoint, {
+    // Add optional URLs
+    if (params.successUrl) {
+      urlParams.append('ReturnUrl', params.successUrl);
+    }
+    if (params.cancelUrl) {
+      urlParams.append('CancelUrl', params.cancelUrl);
+    }
+    if (params.errorUrl) {
+      urlParams.append('ErrorUrl', params.errorUrl);
+    }
+    if (params.notificationUrl) {
+      urlParams.append('NotificationUrl', params.notificationUrl);
+    }
+
+    // For subscriptions, add IsRedirect=true to allow redirect flow
+    if (isSubscription) {
+      urlParams.append('IsRedirect', 'True');
+    }
+
+    const paymentUrl = `${baseUrl}?${urlParams.toString()}`;
+
+    // For Finby MAPI5, we return the URL directly (not a JSON response)
+    // The URL can be used for redirect or popup
+    return {
+      id: reference,
+      url: paymentUrl,
+      provider: 'finby',
+      reference,
+      transactionId: reference, // Will be updated from webhook notification
+    };
+  }
+
+  // ===========================================================================
+  // Recurring Payments
+  // ===========================================================================
+
+  /**
+   * Create a recurring payment using PaymentRequestId (subsequent recurring payment)
+   * For subsequent subscription charges after initial payment
+   * Based on Finby MAPI5 documentation: PaymentType=4
+   * This is a background call (not a redirect)
+   */
+  async createRecurringPayment(params: {
+    amount: number; // in cents
+    currency?: string;
+    userId: string;
+    email: string;
+    originalPaymentRequestId: string; // Initial payment request ID (PaymentRequestId from notification)
+    reference?: string;
+    notificationUrl?: string;
+    cardHash?: string; // Not used for Finby - we use PaymentRequestId instead
+  }): Promise<{ resultCode: number; paymentRequestId?: string; acquirerResponseId?: string }> {
+    if (!this.projectId || !this.secretKey) {
+      throw new Error('Finby MAPI5 API requires projectId and secretKey');
+    }
+
+    const currency = params.currency || 'EUR';
+    const reference = params.reference || generateFinbyReference();
+
+    // Convert amount from cents to decimal (exactly 2 decimal places)
+    const amount = (params.amount / 100).toFixed(2);
+
+    // PaymentType=4 for subsequent recurring payment
+    const paymentType = 4;
+
+    // Required billing fields (from SCA requirements)
+    const billingCity = 'Unknown'; // Not required for subsequent payments, but included for signature
+    const billingCountry = 'US';
+    const billingPostcode = '00000';
+    const billingStreet = 'Unknown';
+    const cardHolder = params.email ? params.email.split('@')[0] : 'Customer';
+    const email = params.email || '';
+
+    // Build signature data according to Finby documentation
+    // For PaymentType 4 (Recurring Subsequent): AccountId/Amount/Currency/Reference/PaymentType/BillingCity/BillingCountry/BillingPostcode/BillingStreet/CardHolder/Email/PaymentRequestId
+    const sigData = `${this.projectId}/${amount}/${currency}/${reference}/${paymentType}/${billingCity}/${billingCountry}/${billingPostcode}/${billingStreet}/${cardHolder}/${email}/${params.originalPaymentRequestId}`;
+
+    const signature = this.generateSignature(this.secretKey, sigData);
+
+    // Build URL with query parameters
+    const baseUrl = 'https://amapi.finby.eu/mapi5/Card/PayPopup';
+    const urlParams = new URLSearchParams({
+      AccountId: this.projectId,
+      Amount: amount,
+      Currency: currency,
+      Reference: reference,
+      PaymentType: paymentType.toString(),
+      PaymentRequestId: params.originalPaymentRequestId,
+      Signature: signature,
+    });
+
+    // Add billing fields (required for signature calculation)
+    urlParams.append('BillingCity', billingCity);
+    urlParams.append('BillingCountry', billingCountry);
+    urlParams.append('BillingPostcode', billingPostcode);
+    urlParams.append('BillingStreet', billingStreet);
+    urlParams.append('CardHolder', cardHolder);
+    urlParams.append('Email', email);
+
+    if (params.notificationUrl) {
+      urlParams.append('NotificationUrl', params.notificationUrl);
+    }
+
+    const paymentUrl = `${baseUrl}?${urlParams.toString()}`;
+
+    // For subsequent recurring payments, this is a background call (not a redirect)
+    // POST to the URL and get JSON response
+    const response = await fetch(paymentUrl, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${accessToken}`,
-        ...(useOAuth ? {} : { 'X-Merchant-Id': this.merchantId! }),
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
-      body: JSON.stringify(requestBody),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`[Finby Checkout] Initiation failed: ${response.status} ${response.statusText}`, errorText);
-      console.error('[Finby Checkout] Request body:', JSON.stringify(requestBody, null, 2));
-      let errorMessage = `Finby checkout error: ${errorText}`;
-
-      // If subscription endpoint doesn't exist, fall back to one-time payment
-      if (isSubscription && response.status === 404) {
-        console.warn('[Finby] Subscription endpoint not found, using one-time payment');
-        // Remove subscription-specific fields and retry as one-time payment
-        delete requestBody.Subscription;
-        const retryResponse = await fetch(endpoint, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: JSON.stringify(requestBody),
-        });
-
-        if (!retryResponse.ok) {
-          throw new Error(`Finby payment error: ${await retryResponse.text()}`);
-        }
-
-        const retryData = (await retryResponse.json()) as any;
-        return {
-          id: retryData.PaymentRequestId || params.reference || '',
-          url: retryData.CheckoutUrl || '',
-          provider: 'finby',
-          reference: params.reference || retryData.PaymentRequestId || '',
-          transactionId: retryData.PaymentRequestId,
-        };
-      }
-
-      throw new Error(errorMessage);
+      const sanitizedError = errorText.includes('<')
+        ? `Payment service error (${response.status}). Please try again.`
+        : errorText.substring(0, 200);
+      throw new Error(`Finby recurring payment error: ${sanitizedError}`);
     }
 
+    // Response should be JSON with ResultCode
     const data = (await response.json()) as {
+      ResultCode?: number;
+      AcquirerResponseId?: string;
       PaymentRequestId?: string;
-      CheckoutUrl?: string;
-      SubscriptionId?: string;
-      ResultInfo?: { ResultCode: number; AdditionalInfo?: string };
     };
 
-    // Handle Finby response format
-    if (data.ResultInfo && data.ResultInfo.ResultCode !== 0) {
-      throw new Error(
-        `Finby payment error: ResultCode ${data.ResultInfo.ResultCode}. ${data.ResultInfo.AdditionalInfo || ''}`
-      );
-    }
-
     return {
-      id: data.PaymentRequestId || data.SubscriptionId || params.reference || '',
-      url: data.CheckoutUrl || '',
-      provider: 'finby',
-      reference: params.reference || data.PaymentRequestId || data.SubscriptionId || '',
-      transactionId: data.PaymentRequestId || data.SubscriptionId,
+      resultCode: data.ResultCode ?? -1,
+      paymentRequestId: data.PaymentRequestId,
+      acquirerResponseId: data.AcquirerResponseId,
     };
   }
 
@@ -457,7 +526,7 @@ export class FinbyProvider implements PaymentProvider {
     }
 
     // Verify signature
-    const providedSignature = params.Signature || signature;
+    const providedSignature = params['Signature'] || signature;
     if (!providedSignature) {
       throw new Error('Missing signature in Finby notification');
     }
@@ -506,17 +575,17 @@ export class FinbyProvider implements PaymentProvider {
    */
   private verifySignatureV3(secretKey: string, params: Record<string, string>, signature: string): boolean {
     const sigData = [
-      params.AccountId,
-      params.Amount,
-      params.Currency,
-      params.Type,
-      params.ResultCode,
-      params.CounterAccount || '',
-      params.CounterAccountName || '',
-      params.OrderId || '',
-      params.PaymentId || '',
-      params.Reference,
-      params.RefuseReason || '',
+      params['AccountId'],
+      params['Amount'],
+      params['Currency'],
+      params['Type'],
+      params['ResultCode'],
+      params['CounterAccount'] || '',
+      params['CounterAccountName'] || '',
+      params['OrderId'] || '',
+      params['PaymentId'] || '',
+      params['Reference'],
+      params['RefuseReason'] || '',
     ].join('/');
 
     const calculatedSignature = this.generateSignature(secretKey, sigData);
@@ -551,11 +620,11 @@ export class FinbyProvider implements PaymentProvider {
    * Map Finby API v3 webhook notification to PaymentEvent
    */
   private mapWebhookEventV3(params: Record<string, string>): PaymentEvent {
-    const resultCode = parseInt(params.ResultCode || '0', 10);
-    const reference = params.Reference;
-    const paymentId = params.PaymentId || params.PaymentRequestId || '';
-    const amount = parseFloat(params.Amount || '0');
-    const currency = params.Currency || 'EUR';
+    const resultCode = parseInt(params['ResultCode'] || '0', 10);
+    const reference = params['Reference'];
+    const paymentId = params['PaymentId'] || params['PaymentRequestId'] || '';
+    const amount = parseFloat(params['Amount'] || '0');
+    const currency = params['Currency'] || 'EUR';
 
     const baseEvent = {
       id: paymentId || reference || `finby-${Date.now()}`,
@@ -566,18 +635,13 @@ export class FinbyProvider implements PaymentProvider {
 
     // ResultCode 0 = success
     if (resultCode === 0) {
-      // Parse reference to extract userId if in format "sub_{userId}_{planId}"
-      const refParts = reference?.split('_') || [];
-      const userId = refParts[1] || params.userId || '';
-      const planId = refParts[2] || params.planId || '';
-
       return {
         ...baseEvent,
         type: 'payment.succeeded',
         data: {
           invoiceId: paymentId,
           subscriptionId: reference, // Use reference as subscription ID for v3
-          customerId: params.CounterAccount || '',
+          customerId: params['CounterAccount'] || '',
           amount: amount * 100, // Convert to cents
           currency: currency.toLowerCase(),
         },
@@ -590,8 +654,8 @@ export class FinbyProvider implements PaymentProvider {
         data: {
           invoiceId: paymentId,
           subscriptionId: reference,
-          customerId: params.CounterAccount || '',
-          error: params.RefuseReason || `Payment failed with result code: ${resultCode}`,
+          customerId: params['CounterAccount'] || '',
+          error: params['RefuseReason'] || `Payment failed with result code: ${resultCode}`,
         },
       };
     }
@@ -649,6 +713,9 @@ export class FinbyProvider implements PaymentProvider {
             customerId: event.data.customer_id,
             amount: event.data.amount || 0,
             currency: event.data.currency || 'usd',
+            currentPeriodEnd: event.data.current_period_end
+              ? new Date(event.data.current_period_end)
+              : undefined,
           },
         };
 

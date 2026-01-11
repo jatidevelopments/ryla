@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import type {
   PaymentProvider,
   TrustPayConfig,
@@ -79,7 +79,7 @@ export class TrustPayProvider implements PaymentProvider {
 
   async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession> {
     const accessToken = await this.getAccessToken();
-    const isSubscription = params.mode === 'subscription' || params.metadata?.isSubscription === 'true';
+    const isSubscription = params.mode === 'subscription' || params.metadata?.['isSubscription'] === 'true';
 
     // TrustPay uses redirect-based checkout
     const checkoutData = {

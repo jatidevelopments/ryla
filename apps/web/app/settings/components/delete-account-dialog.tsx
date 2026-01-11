@@ -30,7 +30,6 @@ export function DeleteAccountDialog({
     confirmText,
     setConfirmText,
     isDeleting,
-    reset,
     handleOfferClick,
     handleSelectReason,
     handleFeedbackContinue,
@@ -65,7 +64,8 @@ export function DeleteAccountDialog({
     <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4">
       <Label className="text-red-200">Delete account</Label>
       <p className="mt-1 text-sm text-white/60">
-        This action is permanent. Before we delete your account, we'll ask a few quick questions.
+        This action is permanent. Before we delete your account, we&apos;ll ask
+        a few quick questions.
       </p>
 
       <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -138,4 +138,3 @@ export function DeleteAccountDialog({
     </div>
   );
 }
-

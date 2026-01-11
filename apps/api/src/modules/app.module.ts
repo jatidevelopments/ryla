@@ -20,6 +20,7 @@ import { CronModule } from './cron/cron.module';
 import { PromptsModule } from './prompts/prompts.module';
 import { OutfitPresetsModule } from './outfit-presets/outfit-presets.module';
 import { VoiceTranscriptionModule } from './voice-transcription/voice-transcription.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { VoiceTranscriptionModule } from './voice-transcription/voice-transcript
     PromptsModule,
     OutfitPresetsModule,
     VoiceTranscriptionModule,
+    PaymentsModule,
     ThrottlerConfigModule,
   ],
   providers: [

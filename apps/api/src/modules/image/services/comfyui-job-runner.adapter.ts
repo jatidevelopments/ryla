@@ -13,7 +13,6 @@ import {
   ComfyUIPodClient,
   ComfyUIJobRunner,
   PromptBuilder,
-  buildWorkflow,
   getRecommendedWorkflow,
   WorkflowId,
   CharacterDNA,

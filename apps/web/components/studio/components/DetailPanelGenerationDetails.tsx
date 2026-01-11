@@ -47,7 +47,9 @@ export function DetailPanelGenerationDetails({
             >
               <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684z" />
             </svg>
-            <span className="text-xs font-medium text-[var(--purple-400)]">AI Enhanced</span>
+            <span className="text-xs font-medium text-[var(--purple-400)]">
+              AI Enhanced
+            </span>
           </div>
         )}
 
@@ -55,7 +57,9 @@ export function DetailPanelGenerationDetails({
         {image.promptEnhance && image.originalPrompt && (
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs text-[var(--text-muted)]">Original Prompt</span>
+              <span className="text-xs text-[var(--text-muted)]">
+                Original Prompt
+              </span>
             </div>
             <p className="rounded-xl bg-[var(--bg-base)] p-3 text-sm text-[var(--text-secondary)] leading-relaxed border border-[var(--border-default)] opacity-75">
               {image.originalPrompt}
@@ -138,158 +142,181 @@ export function DetailPanelGenerationDetails({
         {/* Generation Assets - Pose, Outfit, Scene, Environment */}
         <div className="space-y-3">
           {/* Pose */}
-          {image.poseId && (() => {
-            const pose = ALL_POSES.find((p) => p.id === image.poseId);
-            const poseThumbnail = pose?.thumbnail || `/poses/${image.poseId}.webp`;
-            return (
-              <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
-                <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
-                  <Image
-                    src={poseThumbnail}
-                    alt={pose?.name || image.poseId}
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-[var(--text-muted)] mb-0.5">Pose</div>
-                  <div className="text-sm font-medium text-[var(--text-primary)] truncate">
-                    {pose?.name ||
-                      image.poseId
-                        .replace(/-/g, ' ')
-                        .replace(/\b\w/g, (l) => l.toUpperCase())}
+          {image.poseId &&
+            (() => {
+              const pose = ALL_POSES.find((p) => p.id === image.poseId);
+              const poseThumbnail =
+                pose?.thumbnail || `/poses/${image.poseId}.webp`;
+              return (
+                <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                  <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                    <Image
+                      src={poseThumbnail}
+                      alt={pose?.name || image.poseId}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-[var(--text-muted)] mb-0.5">
+                      Pose
+                    </div>
+                    <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                      {pose?.name ||
+                        image.poseId
+                          .replace(/-/g, ' ')
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
 
           {/* Outfit */}
-          {image.outfit && (() => {
-            let outfitName = '';
-            let outfitThumbnail = '';
+          {image.outfit &&
+            (() => {
+              let outfitName = '';
+              let outfitThumbnail = '';
 
-            // Try to parse as OutfitComposition JSON first
-            try {
-              const parsed =
-                typeof image.outfit === 'string' ? JSON.parse(image.outfit) : image.outfit;
-              if (parsed && typeof parsed === 'object' && 'pieces' in parsed) {
-                // It's an OutfitComposition - build name from pieces
-                const pieces = parsed.pieces || [];
-                outfitName =
-                  pieces.length > 0
-                    ? pieces.map((p: any) => p.label || p.id).join(' + ')
-                    : 'Custom Outfit';
-                // Use first piece thumbnail or fallback
-                outfitThumbnail = pieces[0]?.thumbnail || '/outfits/custom.webp';
-              } else {
-                throw new Error('Not a composition');
+              // Try to parse as OutfitComposition JSON first
+              try {
+                const parsed =
+                  typeof image.outfit === 'string'
+                    ? JSON.parse(image.outfit)
+                    : image.outfit;
+                if (
+                  parsed &&
+                  typeof parsed === 'object' &&
+                  'pieces' in parsed
+                ) {
+                  // It's an OutfitComposition - build name from pieces
+                  const pieces = parsed.pieces || [];
+                  outfitName =
+                    pieces.length > 0
+                      ? pieces.map((p: any) => p.label || p.id).join(' + ')
+                      : 'Custom Outfit';
+                  // Use first piece thumbnail or fallback
+                  outfitThumbnail =
+                    pieces[0]?.thumbnail || '/outfits/custom.webp';
+                } else {
+                  throw new Error('Not a composition');
+                }
+              } catch {
+                // It's a legacy string outfit
+                const outfitId = image.outfit
+                  .toLowerCase()
+                  .replace(/\s+/g, '-');
+                const outfit = OUTFIT_OPTIONS.find(
+                  (o) =>
+                    o.label.toLowerCase().replace(/\s+/g, '-') === outfitId ||
+                    o.label.toLowerCase() === image.outfit!.toLowerCase()
+                );
+                outfitName = outfit?.label || image.outfit;
+                outfitThumbnail =
+                  outfit?.thumbnail || `/outfits/${outfitId}.webp`;
               }
-            } catch {
-              // It's a legacy string outfit
-              const outfitId = image.outfit.toLowerCase().replace(/\s+/g, '-');
-              const outfit = OUTFIT_OPTIONS.find(
-                (o) =>
-                  o.label.toLowerCase().replace(/\s+/g, '-') === outfitId ||
-                  o.label.toLowerCase() === image.outfit.toLowerCase()
-              );
-              outfitName = outfit?.label || image.outfit;
-              outfitThumbnail = outfit?.thumbnail || `/outfits/${outfitId}.webp`;
-            }
 
-            return (
-              <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
-                <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
-                  <Image
-                    src={outfitThumbnail}
-                    alt={outfitName}
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-[var(--text-muted)] mb-0.5">Outfit</div>
-                  <div className="text-sm font-medium text-[var(--text-primary)] truncate">
-                    {outfitName}
+              return (
+                <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                  <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                    <Image
+                      src={outfitThumbnail}
+                      alt={outfitName}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-[var(--text-muted)] mb-0.5">
+                      Outfit
+                    </div>
+                    <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                      {outfitName}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
 
           {/* Scene */}
-          {image.scene && (() => {
-            // Convert snake_case to kebab-case for lookup
-            const sceneId = image.scene.replace(/_/g, '-');
-            const scene = SCENES.find((s) => s.id === sceneId);
-            const sceneThumbnail = scene?.thumbnail || `/scenes/${sceneId}.webp`;
-            return (
-              <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
-                <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
-                  <Image
-                    src={sceneThumbnail}
-                    alt={scene?.name || image.scene}
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
+          {image.scene &&
+            (() => {
+              // Convert snake_case to kebab-case for lookup
+              const sceneId = image.scene.replace(/_/g, '-');
+              const scene = SCENES.find((s) => s.id === sceneId);
+              const sceneThumbnail =
+                scene?.thumbnail || `/scenes/${sceneId}.webp`;
+              return (
+                <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                  <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                    <Image
+                      src={sceneThumbnail}
+                      alt={scene?.name || image.scene}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-[var(--text-muted)] mb-0.5">
+                      Scene
+                    </div>
+                    <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                      {scene?.name ||
+                        image.scene
+                          .replace(/_/g, ' ')
+                          .replace(/-/g, ' ')
+                          .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </div>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-[var(--text-muted)] mb-0.5">Scene</div>
-                  <div className="text-sm font-medium text-[var(--text-primary)] truncate">
-                    {scene?.name ||
-                      image.scene
+              );
+            })()}
+
+          {/* Environment */}
+          {image.environment &&
+            (() => {
+              // Convert snake_case to kebab-case
+              const envId = image.environment.replace(/_/g, '-');
+              // Environment presets don't have a separate constant, so we'll use a generic path
+              const envThumbnail = `/environments/${envId}.webp`;
+              return (
+                <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
+                  <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
+                    <Image
+                      src={envThumbnail}
+                      alt={image.environment}
+                      fill
+                      className="object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs text-[var(--text-muted)] mb-0.5">
+                      Environment
+                    </div>
+                    <div className="text-sm font-medium text-[var(--text-primary)] truncate">
+                      {image.environment
                         .replace(/_/g, ' ')
                         .replace(/-/g, ' ')
                         .replace(/\b\w/g, (l) => l.toUpperCase())}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })()}
-
-          {/* Environment */}
-          {image.environment && (() => {
-            // Convert snake_case to kebab-case
-            const envId = image.environment.replace(/_/g, '-');
-            // Environment presets don't have a separate constant, so we'll use a generic path
-            const envThumbnail = `/environments/${envId}.webp`;
-            return (
-              <div className="flex items-center gap-3 rounded-xl bg-[var(--bg-base)] border border-[var(--border-default)] p-3">
-                <div className="relative h-16 w-12 flex-shrink-0 overflow-hidden rounded-lg bg-[var(--bg-elevated)]">
-                  <Image
-                    src={envThumbnail}
-                    alt={image.environment}
-                    fill
-                    className="object-cover"
-                    onError={(e) => {
-                      e.currentTarget.style.display = 'none';
-                    }}
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs text-[var(--text-muted)] mb-0.5">Environment</div>
-                  <div className="text-sm font-medium text-[var(--text-primary)] truncate">
-                    {image.environment
-                      .replace(/_/g, ' ')
-                      .replace(/-/g, ' ')
-                      .replace(/\b\w/g, (l) => l.toUpperCase())}
-                  </div>
-                </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
         </div>
       </div>
     </div>
   );
 }
-

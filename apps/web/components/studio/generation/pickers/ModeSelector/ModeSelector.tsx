@@ -21,7 +21,7 @@ export function ModeSelector({
   contentType,
   onModeChange,
   onContentTypeChange,
-  hasSelectedImage = false,
+
   creditsAvailable = 0,
   className,
 }: ModeSelectorProps) {
@@ -33,7 +33,10 @@ export function ModeSelector({
       )}
     >
       {/* Mode Tabs - Scrollable on mobile */}
-      <div className="flex items-center gap-0.5 md:gap-1 flex-shrink-0" data-tutorial-target="mode-tabs">
+      <div
+        className="flex items-center gap-0.5 md:gap-1 flex-shrink-0"
+        data-tutorial-target="mode-tabs"
+      >
         {(Object.keys(MODE_CONFIG) as StudioMode[]).map((modeKey) => (
           <ModeButton
             key={modeKey}
@@ -72,4 +75,3 @@ export function getModeBorderColor(mode: StudioMode): string {
 
 // Re-export constants for external use
 export { MODE_CONFIG, COLOR_CLASSES } from './constants';
-

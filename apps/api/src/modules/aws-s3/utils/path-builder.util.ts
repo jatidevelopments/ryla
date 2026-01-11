@@ -11,13 +11,13 @@ interface PathBuilderConfig {
    * @default false
    */
   useFolderStructure?: boolean;
-  
+
   /**
    * Whether to include user ID in the path
    * @default true
    */
   includeUserId?: boolean;
-  
+
   /**
    * Custom separator between path segments
    * @default '/'
@@ -59,19 +59,19 @@ export class S3PathBuilder {
     config: PathBuilderConfig = {},
   ): string {
     const finalConfig = { ...this.DEFAULT_CONFIG, ...config };
-    
+
     // Validate inputs
     this.validateInputs(itemType, itemId, fileName);
-    
+
     // Extract file extension
     const extension = path.extname(fileName);
     if (!extension) {
       throw new Error(`File name must have an extension: ${fileName}`);
     }
-    
+
     // Generate unique identifier
     const uniqueId = randomUUID();
-    
+
     // Build path based on configuration
     if (finalConfig.useFolderStructure) {
       return this.buildFolderPath(
@@ -82,7 +82,7 @@ export class S3PathBuilder {
         finalConfig,
       );
     }
-    
+
     return this.buildFlatPath(
       itemType,
       itemId,
@@ -103,11 +103,11 @@ export class S3PathBuilder {
     config: Required<PathBuilderConfig>,
   ): string {
     const parts: string[] = [itemType, uniqueId];
-    
+
     if (config.includeUserId) {
       parts.push(`user-${itemId}`);
     }
-    
+
     return `${parts.join('-')}${extension}`;
   }
 
@@ -122,13 +122,13 @@ export class S3PathBuilder {
     config: Required<PathBuilderConfig>,
   ): string {
     const parts: string[] = [itemType];
-    
+
     if (config.includeUserId) {
       parts.push(`user-${itemId}`);
     }
-    
+
     parts.push(`${uniqueId}${extension}`);
-    
+
     return parts.join(config.separator);
   }
 
@@ -143,11 +143,11 @@ export class S3PathBuilder {
     if (!itemType || typeof itemType !== 'string') {
       throw new Error('itemType must be a valid ContentType');
     }
-    
+
     if (!Number.isInteger(itemId) || itemId <= 0) {
       throw new Error(`itemId must be a positive integer, got: ${itemId}`);
     }
-    
+
     if (!fileName || typeof fileName !== 'string' || fileName.trim().length === 0) {
       throw new Error(`fileName must be a non-empty string, got: ${fileName}`);
     }
@@ -158,13 +158,13 @@ export class S3PathBuilder {
    * Useful for parsing existing paths
    */
   static extractContentTypeFromPath(filePath: string): ContentType | null {
-    const parts = filePath.split(/[\/\-]/);
+    const parts = filePath.split(/[/-]/);
     const contentType = parts[0] as ContentType;
-    
+
     if (Object.values(ContentType).includes(contentType)) {
       return contentType;
     }
-    
+
     return null;
   }
 
@@ -180,4 +180,3 @@ export class S3PathBuilder {
     return null;
   }
 }
-

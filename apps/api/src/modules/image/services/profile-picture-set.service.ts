@@ -10,12 +10,14 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import {
   getProfilePictureSet,
+  buildProfilePicturePrompt,
   ProfilePictureSet,
   buildWorkflow,
   buildZImageInstantIDWorkflow,
   WorkflowId,
   PromptBuilder,
   CharacterDNA,
+  ProfilePicturePosition,
 } from '@ryla/business';
 import { CharacterConfig } from '@ryla/data/schema';
 import { characterConfigToDNA } from './character-config-to-dna';
@@ -29,8 +31,10 @@ export interface ProfilePictureSetGenerationInput {
   baseImageUrl: string;
   characterId?: string;
   userId?: string;
-  setId: 'classic-influencer' | 'professional-model' | 'natural-beauty';
+  setId: string; // Use string to allow any valid set ID
   nsfwEnabled: boolean;
+  characterConfig?: CharacterConfig; // Optional character config
+  characterName?: string; // Optional character name for DNA conversion
   generationMode?: 'fast' | 'consistent';
   workflowId?: WorkflowId;
   steps?: number;
@@ -121,7 +125,7 @@ export class ProfilePictureSetService {
       const environment = position.environment || this.mapPositionToEnvironment(position);
       const outfit = position.outfit || input.characterConfig?.defaultOutfit || 'casual';
       const lighting = position.lighting || this.mapPositionToLighting(position);
-      
+
       // Use PromptBuilder with character DNA and position-specific settings
       const promptBuilder = new PromptBuilder()
         .withCharacter(characterDNA)
@@ -130,7 +134,7 @@ export class ProfilePictureSetService {
         .withOutfit(outfit)
         .withLighting(lighting)
         .withExpression(this.mapPositionToExpression(position));
-      
+
       // Add pose using actual poseId if available, otherwise use pose description
       if (position.poseId) {
         const posePrompt = getPosePrompt(position.poseId);
@@ -140,12 +144,12 @@ export class ProfilePictureSetService {
       } else {
         promptBuilder.addDetails(this.mapPositionToPose(position));
       }
-      
+
       // Add activity/personality element if specified
       if (position.activity) {
         promptBuilder.addDetails(position.activity);
       }
-      
+
       const builtPrompt = promptBuilder
         .withStylePreset('quality')
         .build();
@@ -167,11 +171,11 @@ export class ProfilePictureSetService {
     // Generate NSFW images if enabled (3 additional) using PromptBuilder
     const nsfwImages = input.nsfwEnabled
       ? this.generateNSFWPositions().map((position) => {
-        const scene = position.scene || this.mapPositionToScene(position);
-        const environment = position.environment || this.mapPositionToEnvironment(position);
+        const scene = (position as any).scene || this.mapPositionToScene(position);
+        const environment = (position as any).environment || this.mapPositionToEnvironment(position);
         const outfit = 'intimate'; // NSFW appropriate outfit
         const lighting = position.lighting || this.mapPositionToLighting(position);
-        
+
         const promptBuilder = new PromptBuilder()
           .withCharacter(characterDNA)
           .withTemplate('portrait-selfie-casual')
@@ -179,17 +183,18 @@ export class ProfilePictureSetService {
           .withOutfit(outfit)
           .withLighting(lighting)
           .withExpression(this.mapPositionToExpression(position));
-        
+
         // Add pose using actual poseId if available
-        if (position.poseId) {
-          const posePrompt = getPosePrompt(position.poseId);
+        const poseId = (position as any).poseId;
+        if (poseId) {
+          const posePrompt = getPosePrompt(poseId);
           if (posePrompt) {
             promptBuilder.addDetails(posePrompt);
           }
         } else {
           promptBuilder.addDetails(this.mapPositionToPose(position));
         }
-        
+
         const builtPrompt = promptBuilder
           .withStylePreset('quality')
           .build();
@@ -204,7 +209,7 @@ export class ProfilePictureSetService {
           environment,
           outfit,
           lighting,
-          poseId: position.poseId || null,
+          poseId: (position as any).poseId || null,
         };
       })
       : [];
@@ -308,15 +313,15 @@ export class ProfilePictureSetService {
         // Map aspect ratio from position to valid enum value
         const aspectRatio = imageData.position.aspectRatio === '1:1' ? '1:1' :
           imageData.position.aspectRatio === '4:5' ? '2:3' : '9:16';
-        
+
         // Convert scene/environment to snake_case (as studio does)
-        const sceneSnakeCase = (imageData as any).scene 
+        const sceneSnakeCase = (imageData as any).scene
           ? (imageData as any).scene.replace(/-/g, '_')
           : null;
         const environmentSnakeCase = (imageData as any).environment
           ? (imageData as any).environment.replace(/-/g, '_')
           : null;
-        
+
         // Validate scene/environment against enum values
         const scene = sceneSnakeCase && schema.scenePresetEnum.enumValues.includes(sceneSnakeCase as any)
           ? sceneSnakeCase
@@ -324,7 +329,7 @@ export class ProfilePictureSetService {
         const environment = environmentSnakeCase && schema.environmentPresetEnum.enumValues.includes(environmentSnakeCase as any)
           ? environmentSnakeCase
           : null;
-        
+
         await this.generationJobsRepo.createJob({
           userId, // This should be the authenticated user's ID
           characterId: input.characterId || undefined,
@@ -402,7 +407,7 @@ export class ProfilePictureSetService {
     prompt?: string;
     negativePrompt?: string;
     nsfwEnabled: boolean;
-    setId: 'classic-influencer' | 'professional-model' | 'natural-beauty';
+    setId: string;
     generationMode?: 'fast' | 'consistent';
     workflowId?: WorkflowId;
     steps?: number;
@@ -619,7 +624,7 @@ export class ProfilePictureSetService {
             const trimmed = value.trim();
             return trimmed === '' ? null : trimmed;
           };
-          
+
           // Validate enum values before inserting - ensure they're valid enum values or null
           const aspectRatio = (() => {
             const val = jobInput?.aspectRatio;
@@ -629,7 +634,7 @@ export class ProfilePictureSetService {
             }
             return null;
           })();
-          
+
           const qualityMode = (() => {
             const val = jobInput?.qualityMode;
             if (!val) return null;
@@ -638,7 +643,7 @@ export class ProfilePictureSetService {
             }
             return null;
           })();
-          
+
           const scene = (() => {
             const val = normalizeString((jobInput as any)?.scene);
             if (!val) return null;
@@ -647,7 +652,7 @@ export class ProfilePictureSetService {
             }
             return null;
           })();
-          
+
           const environment = (() => {
             const val = normalizeString((jobInput as any)?.environment);
             if (!val) return null;
@@ -656,13 +661,13 @@ export class ProfilePictureSetService {
             }
             return null;
           })();
-          
+
           // Ensure outfit is null if empty string or invalid
           const outfit = normalizeString(jobInput?.outfit);
-          
+
           // Ensure poseId is null if empty string or invalid
           const poseId = normalizeString((jobInput as any)?.poseId);
-          
+
           // Ensure lightingId is null if empty string or invalid
           const lightingId = normalizeString((jobInput as any)?.lightingId);
 
@@ -796,7 +801,7 @@ export class ProfilePictureSetService {
               editType?: string; // generationMode indicator
               cfg?: number; // CFG scale
             };
-            
+
             const workflow = await this.rebuildWorkflowFromJobInput(
               jobInput,
               trackedJob.characterId
@@ -867,7 +872,7 @@ export class ProfilePictureSetService {
     if (position.scene) {
       return position.scene;
     }
-    
+
     // Fallback: Map position framing and angle to appropriate scenes from available options
     if (position.framing === 'close-up') {
       // Close-ups work well with clean backgrounds
@@ -903,7 +908,7 @@ export class ProfilePictureSetService {
     if (position.environment) {
       return position.environment;
     }
-    
+
     // Fallback: Infer from scene
     const scene = position.scene || this.mapPositionToScene(position);
     if (scene.includes('studio') || scene.includes('gym') || scene.includes('cafe') || scene.includes('bedroom') || scene.includes('office') || scene.includes('gallery') || scene.includes('boutique') || scene.includes('library') || scene.includes('kitchen') || scene.includes('bathroom')) {
@@ -913,7 +918,7 @@ export class ProfilePictureSetService {
     } else if (scene.includes('rooftop') || scene.includes('street') || scene.includes('alley') || scene.includes('subway') || scene.includes('market') || scene.includes('bridge') || scene.includes('garage')) {
       return 'urban';
     }
-    
+
     return 'indoor'; // Default to indoor
   }
 
@@ -922,7 +927,7 @@ export class ProfilePictureSetService {
    */
   private mapPositionToLighting(position: ProfilePicturePosition): string {
     // Convert position lighting description to actual lighting preset IDs
-    const lightingLower = position.lighting.toLowerCase();
+    const lightingLower = (position.lighting || 'natural-daylight').toLowerCase();
     if (lightingLower.includes('natural') || lightingLower.includes('window')) {
       return 'natural-daylight'; // Maps to natural.soft in PromptBuilder
     } else if (lightingLower.includes('golden') || lightingLower.includes('sunlight') || lightingLower.includes('golden hour')) {
@@ -960,7 +965,7 @@ export class ProfilePictureSetService {
   private mapPositionToPose(position: ProfilePicturePosition): string {
     // Map position pose to actual pose prompts from available poses
     const poseLower = position.pose.toLowerCase();
-    
+
     // Map common pose descriptions to actual pose prompts
     if (poseLower.includes('standing') && poseLower.includes('confident')) {
       return 'confident power stance';
@@ -975,7 +980,7 @@ export class ProfilePictureSetService {
     } else if (poseLower.includes('slightly turned')) {
       return 'slightly turned, natural angle';
     }
-    
+
     // Fallback: combine angle and pose for detailed prompt
     return `${position.angle}, ${position.pose}`;
   }
@@ -993,7 +998,7 @@ export class ProfilePictureSetService {
   ): Promise<unknown> {
     const generationMode = jobInput.editType === 'inpaint' ? 'consistent' : 'fast';
     let baseImageUrl = jobInput.sourceImageId; // baseImageUrl was stored in sourceImageId
-    
+
     if (!baseImageUrl && characterId) {
       // Try to fetch from character if not stored
       const character = await this.db.query.characters.findFirst({
@@ -1004,7 +1009,7 @@ export class ProfilePictureSetService {
         baseImageUrl = character.baseImageUrl;
       }
     }
-    
+
     if (!baseImageUrl && generationMode === 'consistent') {
       throw new BadRequestException('Cannot retry: base image URL not available for consistent mode');
     }

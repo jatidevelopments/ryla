@@ -3,9 +3,7 @@
 import * as React from 'react';
 import {
   VISUAL_STYLES,
-  STYLE_CATEGORIES,
   SCENES,
-  SCENE_CATEGORIES,
   LIGHTING_SETTINGS,
   type StyleCategory,
   type SceneCategory,

@@ -9,7 +9,6 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
-  ForbiddenException,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
@@ -42,7 +41,7 @@ export class CharacterController {
     @Inject(CharacterSheetService) private readonly characterSheetService: CharacterSheetService,
     @Inject(ProfilePictureSetService) private readonly profilePictureSetService: ProfilePictureSetService,
     @Inject(CreditManagementService) private readonly creditService: CreditManagementService,
-  ) {}
+  ) { }
 
   /**
    * Map generation mode to feature ID for credit pricing
@@ -64,6 +63,12 @@ export class CharacterController {
     }
     // Character sheets use quality generation (PuLID)
     return 'profile_set_quality';
+  }
+
+  @Get('my')
+  @ApiOperation({ summary: 'Get all characters for the current user' })
+  async getMyCharacters(@CurrentUser() user: IJwtPayload) {
+    return this.characterService.findAll(user.userId);
   }
 
   @Post('generate-base-images')
@@ -120,7 +125,7 @@ export class CharacterController {
   ) {
     // TODO: Verify job ownership via DB lookup when jobs are persisted
     // Pass userId for proper S3 storage organization
-    
+
     // If allJobIds query param is provided, use batch method
     if (allJobIds) {
       const jobIds = allJobIds.split(',').filter((id) => id.trim());
@@ -213,7 +218,7 @@ export class CharacterController {
     // Profile set is a FLAT cost (1 set = 200 or 300 credits), not per-image
     // NSFW adds extra cost if enabled
     const featureId = this.getFeatureId(dto.generationMode, 'profile_picture');
-    
+
     // Base cost is flat per set (count=1), plus NSFW addon if enabled
     const nsfwExtraCost = dto.nsfwEnabled ? 50 : 0;
 

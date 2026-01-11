@@ -59,7 +59,7 @@ export function useBaseImageInitialization({
     } else {
       handleGenerateAll();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [
     hasValidImages,
     isGenerating,

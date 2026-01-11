@@ -1,8 +1,6 @@
 import { Navigation, Footer } from '@/components/sections';
 import type { Metadata } from 'next';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.ryla.ai';
-
 export const metadata: Metadata = {
   title: 'Imprint (Impressum)',
   description: 'RYLA Imprint - Legal information about the service provider.',

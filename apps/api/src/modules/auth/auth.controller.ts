@@ -29,7 +29,7 @@ import { IJwtPayload } from './interfaces/jwt-payload.interface';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+   
   constructor(
     @Inject(AuthService) private readonly authService: AuthService,
   ) { }

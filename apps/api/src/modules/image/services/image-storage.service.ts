@@ -59,7 +59,7 @@ export class ImageStorageService {
 
   constructor(
     @Inject(AwsS3Service) private readonly s3Service: AwsS3Service,
-  ) {}
+  ) { }
 
   /**
    * Upload base64 images to S3/MinIO storage with proper folder structure

@@ -1,9 +1,8 @@
-"use client";
-import mixpanel from "mixpanel-browser";
+// import mixpanel from "mixpanel-browser";
 import { SignUpEventProps, PaymentEventProps } from "@/utils/types/analytics";
-import { 
-    trackTikTokEvent, 
-    trackTikTokPurchase, 
+import {
+    trackTikTokEvent,
+    trackTikTokPurchase,
     trackTikTokCompleteRegistration,
     trackTikTokStartTrial,
     identifyTikTok,

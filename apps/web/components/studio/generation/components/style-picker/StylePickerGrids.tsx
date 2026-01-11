@@ -16,7 +16,6 @@ interface StyleCardProps {
 }
 
 function StyleCard({
-  id,
   name,
   thumbnail,
   isSelected,

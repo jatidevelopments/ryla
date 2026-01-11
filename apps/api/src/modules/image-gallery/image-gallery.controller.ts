@@ -6,7 +6,6 @@ import {
   Param,
   UseGuards,
   Inject,
-  ForbiddenException,
   ParseUUIDPipe,
   Redirect,
 } from '@nestjs/common';

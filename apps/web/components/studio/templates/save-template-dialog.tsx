@@ -11,7 +11,7 @@ import {
   DialogFooter,
 } from '@ryla/ui';
 import { RylaButton, Label } from '@ryla/ui';
-import { trpc } from '../../../lib/trpc';
+
 import { cn } from '@ryla/ui';
 import { Switch } from '@ryla/ui';
 import type { TemplateConfig } from '@ryla/data/schema/templates.schema';
@@ -41,7 +41,6 @@ export function SaveTemplateDialog({
   defaultDescription = '',
   previewImages,
   config,
-  influencerId,
 }: SaveTemplateDialogProps) {
   const [name, setName] = React.useState(defaultName);
   const [description, setDescription] = React.useState(defaultDescription);
@@ -89,8 +88,8 @@ export function SaveTemplateDialog({
         <DialogHeader>
           <DialogTitle>Save as Template</DialogTitle>
           <DialogDescription>
-            Save this generation configuration for reuse. You can find it later in "My
-            Templates".
+            Save this generation configuration for reuse. You can find it later
+            in "My Templates".
           </DialogDescription>
         </DialogHeader>
 
@@ -195,7 +194,11 @@ export function SaveTemplateDialog({
         </div>
 
         <DialogFooter>
-          <RylaButton variant="glassy-outline" onClick={onClose} disabled={isSaving}>
+          <RylaButton
+            variant="glassy-outline"
+            onClick={onClose}
+            disabled={isSaving}
+          >
             Cancel
           </RylaButton>
           <RylaButton
@@ -210,4 +213,3 @@ export function SaveTemplateDialog({
     </Dialog>
   );
 }
-

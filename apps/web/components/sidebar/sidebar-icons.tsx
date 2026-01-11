@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@ryla/ui';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, Lock } from 'lucide-react';
 
 export const UsersIcon = ({ className }: { className?: string }) => (
   <svg
@@ -139,5 +139,9 @@ export const BugIcon = ({ className }: { className?: string }) => (
 
 export const TemplatesIcon = ({ className }: { className?: string }) => (
   <LayoutGrid className={cn('h-5 w-5 shrink-0', className)} />
+);
+
+export const LockIcon = ({ className }: { className?: string }) => (
+  <Lock className={cn('h-5 w-5 shrink-0', className)} />
 );
 

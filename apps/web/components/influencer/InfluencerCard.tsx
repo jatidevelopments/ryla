@@ -5,7 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { cn } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
-import { ImageIcon, Heart, Sparkles, LayoutGrid, Images } from 'lucide-react';
+import { Heart, Sparkles, LayoutGrid, Images } from 'lucide-react';
 
 export interface InfluencerCardProps {
   influencer: AIInfluencer;
@@ -36,7 +36,7 @@ export function InfluencerCard({ influencer, className }: InfluencerCardProps) {
           {hasValidImage ? (
             <>
               <Image
-                src={influencer.avatar}
+                src={influencer.avatar!}
                 alt={influencer.name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -78,13 +78,17 @@ export function InfluencerCard({ influencer, className }: InfluencerCardProps) {
               {/* Posts */}
               <div className="flex items-center gap-1" title="Posts">
                 <LayoutGrid className="h-3 w-3 text-[var(--purple-400)]" />
-                <span className="text-[11px] font-medium text-white">{influencer.postCount}</span>
+                <span className="text-[11px] font-medium text-white">
+                  {influencer.postCount}
+                </span>
               </div>
               <div className="w-px h-3 bg-white/20" />
               {/* Images */}
               <div className="flex items-center gap-1" title="Images">
                 <Images className="h-3 w-3 text-[var(--purple-400)]" />
-                <span className="text-[11px] font-medium text-white">{influencer.imageCount}</span>
+                <span className="text-[11px] font-medium text-white">
+                  {influencer.imageCount}
+                </span>
               </div>
               {influencer.likedCount > 0 && (
                 <>
@@ -92,7 +96,9 @@ export function InfluencerCard({ influencer, className }: InfluencerCardProps) {
                   {/* Liked */}
                   <div className="flex items-center gap-1" title="Liked">
                     <Heart className="h-3 w-3 text-[var(--pink-400)] fill-[var(--pink-400)]" />
-                    <span className="text-[11px] font-medium text-white">{influencer.likedCount}</span>
+                    <span className="text-[11px] font-medium text-white">
+                      {influencer.likedCount}
+                    </span>
                   </div>
                 </>
               )}
@@ -116,7 +122,9 @@ export function InfluencerCard({ influencer, className }: InfluencerCardProps) {
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--purple-500)]/10 px-3 py-1.5 text-xs font-medium text-[var(--purple-400)] border border-[var(--purple-500)]/20 transition-colors duration-200 group-hover:bg-[var(--purple-500)]/15 group-hover:border-[var(--purple-500)]/30">
               <Sparkles className="h-3 w-3" />
-              <span className="capitalize">{influencer.archetype.replace(/-/g, ' ')}</span>
+              <span className="capitalize">
+                {influencer.archetype.replace(/-/g, ' ')}
+              </span>
             </span>
           </div>
         </div>

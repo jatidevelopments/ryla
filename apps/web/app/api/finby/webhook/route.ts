@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createFinbyWebhookHandler, createFinbyV3WebhookHandler } from '@ryla/payments';
-import { grantCredits, grantSubscriptionCredits } from '@ryla/payments';
-import { createDrizzleDb } from '@ryla/data';
+import { grantCredits, grantSubscriptionCredits, getCreditsForPlan } from '@ryla/payments';
+import { createDrizzleDb, PaymentRepository } from '@ryla/data';
 import { eq } from 'drizzle-orm';
 import { subscriptions } from '@ryla/data';
 import { parsePaymentReference } from '../../../../lib/utils/payment-reference';
@@ -103,7 +103,7 @@ const v3Handler = createFinbyV3WebhookHandler({
 
     const db = getDb();
     const reference = event.data.subscriptionId; // In v3, subscriptionId is actually the reference
-    const parsed = parsePaymentReference(reference);
+    const parsed = reference ? parsePaymentReference(reference) : null;
 
     if (!parsed) {
       console.warn('[Finby Webhook] Invalid payment reference (v3):', reference);
@@ -156,6 +156,30 @@ const v3Handler = createFinbyV3WebhookHandler({
         });
 
         console.log(`[Finby Webhook] Granted ${package_.credits} credits to user ${userId} for package ${packageId}`);
+
+        // Save card if RegisterCard was used (for credit purchases)
+        // Note: v3 webhook might not include card info, but we check anyway
+        const rawData = event.raw as any;
+        const cardHash = (event.data as any).cardHash || (event.data as any).card?.token || rawData?.data?.cardHash || rawData?.data?.card?.token;
+        if (cardHash) {
+          const paymentRepo = new PaymentRepository(db);
+          const existingCard = await paymentRepo.findCardByHash(userId, cardHash);
+          if (!existingCard) {
+            const userCards = await paymentRepo.getUserCards(userId);
+            const isDefault = userCards.length === 0;
+            
+            await paymentRepo.saveCard({
+              userId,
+              cardHash,
+              last4: (event.data as any).card?.last4 || (event.data as any).last4 || rawData?.data?.card?.last4 || rawData?.data?.last4,
+              cardType: (event.data as any).card?.type || (event.data as any).cardType || rawData?.data?.card?.type || rawData?.data?.cardType,
+              expiryDate: (event.data as any).card?.expiryDate || (event.data as any).expiryDate || rawData?.data?.card?.expiryDate || rawData?.data?.expiryDate,
+              isDefault,
+            });
+            
+            console.log(`[Finby Webhook] Saved card for user ${userId}, isDefault: ${isDefault}`);
+          }
+        }
       } catch (error) {
         console.error('[Finby Webhook] Error processing credit purchase:', error);
         throw error;
@@ -182,7 +206,7 @@ const v1Handler = process.env.FINBY_API_KEY && process.env.FINBY_MERCHANT_ID
 
       const db = getDb();
       const reference = event.data.subscriptionId;
-      const parsed = parsePaymentReference(reference);
+      const parsed = reference ? parsePaymentReference(reference) : null;
 
       if (!parsed || parsed.type !== 'subscription') {
         console.warn('[Finby Webhook] Invalid subscription reference:', reference);
@@ -209,7 +233,7 @@ const v1Handler = process.env.FINBY_API_KEY && process.env.FINBY_MERCHANT_ID
 
       const db = getDb();
       const reference = event.data.subscriptionId;
-      const parsed = parsePaymentReference(reference);
+      const parsed = reference ? parsePaymentReference(reference) : null;
 
       if (!parsed) {
         console.warn('[Finby Webhook] Invalid payment reference:', reference);
@@ -233,15 +257,17 @@ const v1Handler = process.env.FINBY_API_KEY && process.env.FINBY_MERCHANT_ID
           console.log(`[Finby Webhook] Granted ${credits} credits for subscription renewal`);
         }
 
-        // Update subscription period
-        await db
-          .update(subscriptions)
-          .set({
-            currentPeriodStart: new Date(),
-            currentPeriodEnd: event.data.currentPeriodEnd,
-            updatedAt: new Date(),
-          })
-          .where(eq(subscriptions.finbySubscriptionId, event.data.subscriptionId));
+        if (event.data.subscriptionId) {
+          // Update subscription period
+          await db
+            .update(subscriptions)
+            .set({
+              currentPeriodStart: new Date(),
+              currentPeriodEnd: event.data.currentPeriodEnd,
+              updatedAt: new Date(),
+            })
+            .where(eq(subscriptions.finbySubscriptionId, event.data.subscriptionId));
+        }
       }
     },
     onPaymentFailed: async (event) => {

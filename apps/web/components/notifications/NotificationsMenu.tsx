@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { capture } from '@ryla/analytics';
 import { useNotifications } from '../../lib/hooks/use-notifications';
 import { ClockIcon } from './ClockIcon';

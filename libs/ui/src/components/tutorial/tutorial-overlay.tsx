@@ -41,18 +41,23 @@ export function TutorialOverlay({
         const targetElement = document.querySelector(currentStepData.target);
         if (!targetElement) {
           // Fallback to center position
+          const isMobile = window.innerWidth < 768;
+          const cardWidth = isMobile ? 320 : 380;
+          const cardHeight = isMobile ? 200 : 180;
           setCardPosition({
-            x: window.innerWidth / 2,
-            y: window.innerHeight / 2,
+            x: window.innerWidth / 2 - cardWidth / 2,
+            y: window.innerHeight / 2 - cardHeight / 2,
             placement: 'bottom',
           });
           return;
         }
 
         const rect = targetElement.getBoundingClientRect();
-        const cardWidth = 380;
-        const cardHeight = 180;
-        const offset = 80; // Distance from pointer
+        // Mobile: ~320px width, Desktop: 380px width
+        const isMobile = window.innerWidth < 768;
+        const cardWidth = isMobile ? 320 : 380;
+        const cardHeight = isMobile ? 200 : 180;
+        const offset = isMobile ? 60 : 80; // Distance from pointer
 
         // Determine best placement based on available space
         const spaceTop = rect.top;
@@ -99,9 +104,12 @@ export function TutorialOverlay({
         setCardPosition({ x, y, placement });
       } catch (error) {
         console.warn('Tutorial overlay: Could not position card');
+        const isMobile = window.innerWidth < 768;
+        const cardWidth = isMobile ? 320 : 380;
+        const cardHeight = isMobile ? 200 : 180;
         setCardPosition({
-          x: window.innerWidth / 2 - 190,
-          y: window.innerHeight / 2 - 90,
+          x: window.innerWidth / 2 - cardWidth / 2,
+          y: window.innerHeight / 2 - cardHeight / 2,
           placement: 'bottom',
         });
       }
@@ -204,7 +212,10 @@ export function TutorialOverlay({
           'fixed z-[60]',
           'bg-[#18181b]/95 border border-white/10',
           'rounded-2xl shadow-2xl',
-          'p-6 w-[380px]',
+          // Mobile: smaller width and padding
+          'p-4 w-[calc(100vw-32px)] max-w-[320px]',
+          // Desktop: original size
+          'md:p-6 md:w-[380px] md:max-w-[380px]',
           'transition-all duration-250 ease-out',
           'animate-in fade-in-0 slide-in-from-bottom-4'
         )}

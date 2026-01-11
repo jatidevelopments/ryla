@@ -8,7 +8,7 @@ import {
   PLAN_CREDIT_LIMITS,
   NotificationsRepository,
 } from '@ryla/data';
-import type { NotificationType } from '@ryla/data/schema';
+
 
 // Map subscription tiers to plan credit limits
 const TIER_TO_PLAN: Record<string, keyof typeof PLAN_CREDIT_LIMITS> = {
@@ -31,7 +31,7 @@ export class CreditRefreshService {
   constructor(
     @Inject('DRIZZLE_DB')
     private readonly db: NodePgDatabase<any>
-  ) {}
+  ) { }
 
   /**
    * Refresh credits for all subscriptions whose billing period has ended.
@@ -95,7 +95,7 @@ export class CreditRefreshService {
    */
   private async refreshSubscriptionCredits(subscription: typeof subscriptions.$inferSelect): Promise<void> {
     const { userId, tier } = subscription;
-    
+
     // Skip free tier (they only get one-time credits on signup)
     if (tier === 'free') {
       this.logger.debug(`Skipping free tier user ${userId}`);
@@ -164,7 +164,7 @@ export class CreditRefreshService {
     const notificationsRepo = new NotificationsRepository(this.db);
     await notificationsRepo.create({
       userId,
-      type: 'credits.subscription_granted' as NotificationType,
+      type: 'credits.subscription_granted' as any,
       title: 'Monthly credits refreshed',
       body: `You received ${creditsToGrant} credits for your ${tier} subscription`,
       href: '/activity',

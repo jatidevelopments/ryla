@@ -21,7 +21,7 @@ export function usePickerState() {
   const [showMobileSettingsMenu, setShowMobileSettingsMenu] = React.useState(false);
 
   // Close all pickers
-  const closeAll = React.useCallback(() => {
+  const _closeAll = React.useCallback(() => {
     setShowModelPicker(false);
     setShowAspectRatioPicker(false);
     setShowQualityPicker(false);
@@ -107,8 +107,9 @@ export function usePickerState() {
     setShowMobileSettingsMenu,
 
     // Utilities
-    closeAll,
   };
 }
+
+export type PickerState = ReturnType<typeof usePickerState>;
 
 

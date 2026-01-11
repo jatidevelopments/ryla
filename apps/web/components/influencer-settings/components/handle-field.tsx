@@ -17,7 +17,7 @@ export function HandleField({ value, error, hasChanged, isSaving, onChange, onSa
     <div className="space-y-2">
       <Label htmlFor="handle-input">Handle / Slug</Label>
       <p className="text-sm text-[var(--text-muted)]">
-        Your AI Influencer's unique identifier. Must be unique, 3-30 characters, letters, numbers,
+        Your AI Influencer&apos;s unique identifier. Must be unique, 3-30 characters, letters, numbers,
         hyphens, and underscores only.
       </p>
       <div className="flex gap-3">

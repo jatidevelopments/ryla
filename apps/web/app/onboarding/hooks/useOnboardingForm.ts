@@ -7,6 +7,7 @@ import type { ReferralSource, AiInfluencerExperience } from '../constants';
 
 export function useOnboardingForm() {
   const router = useRouter();
+  const [step, setStep] = useState<1 | 2>(1);
   const [referralSource, setReferralSource] = useState<ReferralSource | null>(null);
   const [referralSourceOther, setReferralSourceOther] = useState('');
   const [experience, setExperience] = useState<AiInfluencerExperience | null>(null);
@@ -39,17 +40,38 @@ export function useOnboardingForm() {
         aiInfluencerExperience: experience,
         referralSourceOther: referralSource === 'other' ? referralSourceOther.trim() : undefined,
       });
-    } catch (error) {
+    } catch (_error) {
       // Error handled in onError
     }
   }, [referralSource, experience, referralSourceOther, completeOnboarding]);
 
-  const canSubmit =
-    referralSource !== null &&
-    experience !== null &&
-    (referralSource !== 'other' || referralSourceOther.trim().length > 0);
+  const handleNext = useCallback(() => {
+    if (step === 1) {
+      // Validate step 1 before moving to step 2
+      if (!referralSource) {
+        return;
+      }
+      // If "other" is selected, require the text input
+      if (referralSource === 'other' && !referralSourceOther.trim()) {
+        return;
+      }
+      setStep(2);
+    } else if (step === 2) {
+      // Step 2: Submit the form
+      if (!experience) {
+        return;
+      }
+      handleSubmit();
+    }
+  }, [step, referralSource, referralSourceOther, experience, handleSubmit]);
+
+  const canProceed = step === 1
+    ? referralSource !== null && (referralSource !== 'other' || referralSourceOther.trim().length > 0)
+    : experience !== null;
 
   return {
+    step,
+    setStep,
     referralSource,
     setReferralSource,
     referralSourceOther,
@@ -57,7 +79,8 @@ export function useOnboardingForm() {
     experience,
     setExperience,
     isSubmitting,
-    canSubmit,
+    canProceed,
+    handleNext,
     handleSubmit,
   };
 }

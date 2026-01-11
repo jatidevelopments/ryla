@@ -15,19 +15,19 @@
     "strict": true,
     "baseUrl": ".",
     "paths": {
-      "@ryla/shared": ["libs/shared/src/index.ts"],
-      "@ryla/business": ["libs/business/src/index.ts"],
-      "@ryla/business/*": ["libs/business/src/*"],
-      "@ryla/data": ["libs/data/src/index.ts"],
-      "@ryla/data/*": ["libs/data/src/*"],
-      "@ryla/ui": ["libs/ui/src/index.ts"],
-      "@ryla/analytics": ["libs/analytics/src/index.ts"],
-      "@ryla/trpc": ["libs/trpc/src/index.ts"],
-      "@ryla/trpc/*": ["libs/trpc/src/*"],
-      "@ryla/payments": ["libs/payments/src/index.ts"],
-      "@ryla/payments/*": ["libs/payments/src/*"],
-      "@ryla/email": ["libs/email/src/index.ts"],
-      "@ryla/email/*": ["libs/email/src/*"]
+      "@ryla/shared": ["dist/libs/shared/src/index"],
+      "@ryla/business": ["dist/libs/business/src/index"],
+      "@ryla/business/*": ["dist/libs/business/src/*"],
+      "@ryla/data": ["dist/libs/data/src/index"],
+      "@ryla/data/*": ["dist/libs/data/src/*"],
+      "@ryla/ui": ["dist/libs/ui/src/index"],
+      "@ryla/analytics": ["dist/libs/analytics/src/index"],
+      "@ryla/trpc": ["dist/libs/trpc/src/index"],
+      "@ryla/trpc/*": ["dist/libs/trpc/src/*"],
+      "@ryla/payments": ["dist/libs/payments/src/index"],
+      "@ryla/payments/*": ["dist/libs/payments/src/*"],
+      "@ryla/email": ["dist/libs/email/src/index"],
+      "@ryla/email/*": ["dist/libs/email/src/*"]
     }
   },
   "exclude": ["node_modules", "tmp"]

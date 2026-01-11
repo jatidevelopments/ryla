@@ -9,9 +9,7 @@ import {
   generateBaseImagesAndWait,
   type JobStatus,
 } from '../../../lib/api/character';
-import { FEATURE_CREDITS } from '../../../constants/pricing';
 
-const BASE_IMAGE_CREDITS = FEATURE_CREDITS.base_images.credits;
 
 interface UseWizardGenerationOptions {
   balance: number;
@@ -33,8 +31,6 @@ interface UseWizardGenerationReturn {
  * Hook for wizard character generation logic
  */
 export function useWizardGeneration({
-  balance,
-  creditCost,
   hasEnoughCredits,
   onShowCreditModal,
   onRefetchCredits,

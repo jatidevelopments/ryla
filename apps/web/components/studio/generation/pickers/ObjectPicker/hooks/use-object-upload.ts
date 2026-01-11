@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { StudioImage } from '../../studio-image-card';
+import type { StudioImage } from '../../../../studio-image-card';
 
 interface UseObjectUploadOptions {
   onUploadImage?: (file: File) => Promise<StudioImage | null>;

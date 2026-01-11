@@ -1,6 +1,6 @@
 'use client';
 
-import * as React from 'react';
+import * as _React from 'react';
 import type { StudioMode } from '../types';
 
 /**

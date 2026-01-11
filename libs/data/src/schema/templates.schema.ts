@@ -23,11 +23,11 @@ export interface TemplateConfig {
   // Core settings
   scene: string | null;
   environment: string | null;
-  outfit: string | null;
+  outfit: string | Record<string, unknown> | null;
   aspectRatio: '1:1' | '9:16' | '2:3' | '3:4' | '4:3' | '16:9' | '3:2';
   qualityMode: 'draft' | 'hq';
   nsfw: boolean;
-  
+
   // Style and composition settings
   poseId: string | null;
   styleId: string | null;
@@ -39,7 +39,7 @@ export interface TemplateConfig {
     thumbnailUrl?: string;
     name?: string;
   }> | null;
-  
+
   // Prompt settings
   prompt?: string;
   promptEnhance?: boolean;
@@ -62,10 +62,10 @@ export const templates = pgTable(
     description: text('description'),
     previewImageUrl: text('preview_image_url').notNull(),
     thumbnailUrl: text('thumbnail_url').notNull(),
-    
+
     // Complete template configuration (JSONB for flexibility)
     config: jsonb('config').notNull().$type<TemplateConfig>(),
-    
+
     // Metadata
     sourceImageId: uuid('source_image_id').references(() => images.id, {
       onDelete: 'set null',
@@ -78,7 +78,7 @@ export const templates = pgTable(
     tags: text('tags').array(),
     usageCount: integer('usage_count').default(0),
     successRate: decimal('success_rate', { precision: 5, scale: 2 }),
-    
+
     createdAt: timestamp('created_at').defaultNow(),
     updatedAt: timestamp('updated_at').defaultNow(),
   },

@@ -5,7 +5,7 @@ import { cn } from '@ryla/ui';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { SCENE_OPTIONS, ENVIRONMENT_OPTIONS } from '@ryla/shared';
 
-export interface TemplateFilters {
+export interface TemplateFiltersData {
   category?: 'all' | 'my_templates' | 'curated' | 'popular';
   scene?: string;
   environment?: string;
@@ -15,23 +15,23 @@ export interface TemplateFilters {
 }
 
 export interface TemplateFiltersProps {
-  filters: TemplateFilters;
-  onFiltersChange: (filters: TemplateFilters) => void;
-  influencerId?: string;
+  filters: TemplateFiltersData;
+  onFiltersChange: (filters: TemplateFiltersData) => void;
+
   collapsible?: boolean;
 }
 
 export function TemplateFilters({
   filters,
   onFiltersChange,
-  influencerId,
+
   collapsible = false,
 }: TemplateFiltersProps) {
   const [isExpanded, setIsExpanded] = React.useState(!collapsible);
 
-  const updateFilter = <K extends keyof TemplateFilters>(
+  const updateFilter = <K extends keyof TemplateFiltersData>(
     key: K,
-    value: TemplateFilters[K]
+    value: TemplateFiltersData[K]
   ) => {
     onFiltersChange({
       ...filters,
@@ -47,23 +47,25 @@ export function TemplateFilters({
           Category
         </label>
         <div className="space-y-1">
-          {(['all', 'my_templates', 'curated', 'popular'] as const).map((category) => (
-            <button
-              key={category}
-              onClick={() => updateFilter('category', category)}
-              className={cn(
-                'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-                filters.category === category
-                  ? 'bg-[var(--purple-500)]/20 text-[var(--purple-400)] border border-[var(--purple-500)]/30'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] border border-transparent'
-              )}
-            >
-              {category === 'all' && 'All Templates'}
-              {category === 'my_templates' && 'My Templates'}
-              {category === 'curated' && 'Curated'}
-              {category === 'popular' && 'Popular'}
-            </button>
-          ))}
+          {(['all', 'my_templates', 'curated', 'popular'] as const).map(
+            (category) => (
+              <button
+                key={category}
+                onClick={() => updateFilter('category', category)}
+                className={cn(
+                  'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
+                  filters.category === category
+                    ? 'bg-[var(--purple-500)]/20 text-[var(--purple-400)] border border-[var(--purple-500)]/30'
+                    : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] border border-transparent'
+                )}
+              >
+                {category === 'all' && 'All Templates'}
+                {category === 'my_templates' && 'My Templates'}
+                {category === 'curated' && 'Curated'}
+                {category === 'popular' && 'Popular'}
+              </button>
+            )
+          )}
         </div>
       </div>
 
@@ -98,7 +100,9 @@ export function TemplateFilters({
         </label>
         <select
           value={filters.environment || ''}
-          onChange={(e) => updateFilter('environment', e.target.value || undefined)}
+          onChange={(e) =>
+            updateFilter('environment', e.target.value || undefined)
+          }
           className={cn(
             'w-full px-3 py-2 rounded-md text-sm',
             'bg-[var(--bg-surface)] border border-[var(--border-default)]',
@@ -122,7 +126,9 @@ export function TemplateFilters({
         </label>
         <select
           value={filters.aspectRatio || ''}
-          onChange={(e) => updateFilter('aspectRatio', e.target.value || undefined)}
+          onChange={(e) =>
+            updateFilter('aspectRatio', e.target.value || undefined)
+          }
           className={cn(
             'w-full px-3 py-2 rounded-md text-sm',
             'bg-[var(--bg-surface)] border border-[var(--border-default)]',
@@ -187,4 +193,3 @@ export function TemplateFilters({
     </div>
   );
 }
-

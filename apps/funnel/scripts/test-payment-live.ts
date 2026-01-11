@@ -8,6 +8,7 @@
  *   npx tsx scripts/test-payment-live.ts
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, no-console */
 import axios from 'axios';
 
 const DEPLOYED_URL = 'https://funnel-v3-adult.fly.dev';
@@ -73,11 +74,11 @@ async function testPaymentSetup() {
             // Verify the payment URL is a valid Finby URL
             const isValidFinbyUrl = response.data.paymentUrl.includes('amapi.finby.eu');
             const hasSignature = response.data.paymentUrl.includes('Signature=');
-            
+
             logResult({
                 name: 'Payment Setup',
                 success: isValidFinbyUrl && hasSignature,
-                message: isValidFinbyUrl && hasSignature 
+                message: isValidFinbyUrl && hasSignature
                     ? 'Payment setup successful - valid Finby URL generated'
                     : 'Payment setup returned response but URL may be invalid',
                 data: {
@@ -168,11 +169,11 @@ async function testNotificationEndpoint() {
 
         // The endpoint should return 400 (bad request) for invalid notifications, not 404
         const isEndpointAvailable = response.status !== 404;
-        
+
         logResult({
             name: 'Notification Endpoint',
             success: isEndpointAvailable,
-            message: isEndpointAvailable 
+            message: isEndpointAvailable
                 ? `Notification endpoint is accessible (Status: ${response.status})`
                 : 'Notification endpoint not found',
             data: {
@@ -225,7 +226,7 @@ async function runTests() {
 function printSummary(paymentSetup?: any) {
     console.log('─'.repeat(60));
     console.log('\n📊 Test Summary:\n');
-    
+
     const passed = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
     const total = results.length;

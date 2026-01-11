@@ -19,14 +19,11 @@ interface EmailStepProps {
 
 export function EmailStep({
   email,
-  onEmailChange,
   onEmailCheck,
-  onEmailKeyDown,
   isLoading,
   isChecking,
-  emailError,
   onGoogleAuth,
-}: EmailStepProps) {
+}: Omit<EmailStepProps, 'onEmailChange' | 'onEmailKeyDown' | 'emailError'>) {
   return (
     <motion.div
       key="email-form"
@@ -69,4 +66,3 @@ export function EmailStep({
     </motion.div>
   );
 }
-

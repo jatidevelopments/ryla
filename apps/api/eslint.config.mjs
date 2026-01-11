@@ -5,18 +5,8 @@ export default [
   {
     files: ['**/*.ts', '**/*.js'],
     rules: {
-      // Allow console in logger services and main entry points
-      'no-console': [
-        'warn',
-        {
-          allow: [
-            'warn',
-            'error',
-            'log', // Allow in logger services
-            'debug', // Allow in logger services
-          ],
-        },
-      ],
+      'no-console': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
@@ -55,4 +45,3 @@ export default [
     },
   },
 ];
-

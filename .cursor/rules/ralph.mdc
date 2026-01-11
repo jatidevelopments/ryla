@@ -1,0 +1,239 @@
+---
+description: Iterative development pattern (Ralph-style) for complex features requiring multiple iterations
+alwaysApply: false
+---
+
+# Iterative Development Pattern (Ralph-Style)
+
+## When to Use This Pattern
+
+Use this pattern when:
+
+- Building complex features that might break existing functionality
+- Implementing UI-heavy features requiring screenshot verification
+- Working on features with multiple acceptance criteria
+- Context window might fill up during development
+- Feature requires test-driven development (TDD)
+
+## Core Principles
+
+1. **Explicit Completion Conditions**: Define ALL conditions that must be met before marking task complete
+2. **Test-First Approach**: Write tests before implementation (TDD)
+3. **Iterative Improvement**: Continue until ALL conditions are met
+4. **Verification Protocol**: Systematically verify all requirements
+5. **State Tracking**: Document each iteration's outcomes
+
+## Workflow
+
+### Phase 1: Setup (Before Starting)
+
+**Define Completion Conditions**:
+
+```
+- [ ] All tests in [test-files] pass
+- [ ] Screenshots in [screenshot-folder] verified (if UI feature)
+- [ ] No TypeScript/linter errors
+- [ ] Acceptance criteria met: [list AC]
+- [ ] Code review checklist complete
+```
+
+**Set Max Iterations**:
+
+- Simple features: 5 iterations
+- Complex features: 10 iterations
+- Critical features: 15 iterations
+
+### Phase 2: Test-Driven Development
+
+1. **Write Tests First**
+
+   - Create test files before implementation
+   - Tests should fail initially (expected)
+   - Tests define requirements clearly
+
+2. **Structure Tests**
+   - Functional tests for behavior
+   - Screenshot tests for UI (if applicable)
+   - Integration tests for complex flows
+
+### Phase 3: Iterative Implementation
+
+**For Each Iteration**:
+
+1. **Implement Minimum Code**
+
+   - Write code to pass tests
+   - Focus on one concern at a time
+   - Small, focused changes
+
+2. **Run Verification**
+
+   ```bash
+   # Run tests
+   pnpm nx test [project]
+
+   # Check linter
+   pnpm nx lint [project]
+
+   # Verify screenshots (if UI)
+   # Review screenshot folder
+   ```
+
+3. **Check Completion Conditions**
+
+   - Review each condition
+   - Document issues found
+   - List fixes applied
+
+4. **State Tracking**
+
+   - Document iteration number
+   - List tests passing/failing
+   - Note screenshots verified
+   - Track issues found and fixed
+
+5. **Decision Point**
+   - If ALL conditions met → Output completion statement
+   - If conditions NOT met → Continue to next iteration
+   - If max iterations reached → Escalate or adjust approach
+
+### Phase 4: Completion
+
+**Only mark complete when**:
+
+- ✅ All tests pass
+- ✅ Screenshots verified (if UI feature)
+- ✅ No linter errors
+- ✅ All acceptance criteria met
+- ✅ Code review checklist complete
+
+**Output explicit completion**:
+
+```
+✅ TASK COMPLETE - All conditions met
+- Iteration: [N]
+- Tests: All passing
+- Screenshots: All verified
+- Linter: No errors
+- Acceptance Criteria: All met
+```
+
+## Screenshot Verification Protocol (UI Features)
+
+### Two-Iteration Minimum
+
+**Iteration 1: Mark Screenshots**
+
+- Review all screenshots in folder
+- Add "verified" prefix to each screenshot filename
+- Document any issues found
+- **DO NOT output completion promise yet**
+
+**Iteration 2: Confirm Verification**
+
+- Check all screenshots have "verified" prefix
+- If any missing, review and fix
+- Only then output completion promise
+
+### Screenshot Organization
+
+- Folder: `docs/screenshots/[feature-name]/`
+- Naming: `[feature]-[state]-verified.png`
+- Review systematically, don't skip files
+
+## State Tracking Template
+
+```markdown
+## Iteration [N]
+
+### Status
+
+- Tests Passing: [X/Y]
+- Screenshots Verified: [X/Y]
+- Linter Errors: [N]
+- Issues Found: [List]
+
+### Changes Made
+
+- [Change 1]
+- [Change 2]
+
+### Next Steps
+
+- [Action 1]
+- [Action 2]
+```
+
+## Integration with 10-Phase Pipeline
+
+This pattern enhances **P6 (Implementation)** phase:
+
+1. **Before P6**: Define completion conditions
+2. **During P6**: Use iterative pattern
+3. **End of P6**: Verify all conditions met
+4. **P7 (Testing)**: Tests already written (TDD)
+
+## Best Practices
+
+1. **Start Small**: Test pattern on simple feature first
+2. **Be Explicit**: Never assume completion - verify everything
+3. **Document**: Track each iteration's outcomes
+4. **Don't Rush**: Better to iterate more than complete prematurely
+5. **Verify Systematically**: Don't skip verification steps
+
+## Common Pitfalls to Avoid
+
+❌ **Premature Completion**: Marking complete before all conditions met
+❌ **Skipping Verification**: Not checking all screenshots/tests
+❌ **Ignoring Issues**: Seeing problems but not fixing them
+❌ **No State Tracking**: Not documenting iterations
+❌ **Max Iterations**: Not setting limits (can loop forever)
+
+## Example Usage
+
+```markdown
+# Feature: Command Palette
+
+## Completion Conditions
+
+- [ ] All 25 tests in `apps/web/__e2e__/command-palette.spec.ts` pass
+- [ ] Screenshots in `docs/screenshots/command-palette/` verified
+- [ ] No TypeScript errors
+- [ ] No linter errors
+- [ ] Acceptance criteria met:
+  - [ ] Opens on Cmd+K
+  - [ ] Searches through app
+  - [ ] Executes commands
+
+## Max Iterations: 10
+
+## Current Status
+
+- Iteration: 0
+- Tests Passing: 0/25
+- Screenshots Verified: 0/5
+- Issues: []
+
+## Workflow
+
+1. Write tests first
+2. Implement to pass tests
+3. Verify screenshots
+4. Check all conditions
+5. Continue until complete
+```
+
+---
+
+## Related Documentation
+
+- `docs/learnings/AI-AGENT-TDD-RALPH-LOOP.md` - Learnings from video
+- `docs/research/CURSOR-RALPH-LOOP-RESEARCH.md` - Research findings
+- `docs/templates/ralph-style-prompt.md` - Prompt template
+- `.cursor/rules/pipeline-enforcement.mdc` - Pipeline rules
+
+## Quick Reference
+
+**To use this pattern, simply reference**: `@ralph`
+
+**Note**: Cursor rules use `@` syntax, not `/` commands. Use `@ralph` (not `/ralph`).

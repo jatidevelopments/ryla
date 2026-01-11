@@ -7,7 +7,7 @@ import {
   ArrowUp,
   ArrowDown,
 } from 'lucide-react';
-import type { ActivityItem, ActivityType } from '@ryla/shared';
+import type { ActivityItem } from '@ryla/shared';
 
 interface ActivityMeta {
   icon: React.ReactNode;
@@ -71,4 +71,3 @@ export function getActivityMeta(item: ActivityItem): ActivityMeta {
       };
   }
 }
-

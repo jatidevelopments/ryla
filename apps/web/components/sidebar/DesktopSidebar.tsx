@@ -9,7 +9,7 @@ import {
   SidebarFooter as UISidebarFooter,
   useSidebar,
 } from '@ryla/ui';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@ryla/ui';
 import { useSubscription } from '../../lib/hooks';
 import { useAuth } from '../../lib/auth-context';
@@ -19,6 +19,7 @@ import { menuItems, SidebarNavigation } from './sidebar-navigation';
 import { SidebarHeader } from './sidebar-header';
 import { SidebarFooter } from './sidebar-footer';
 import { MobileNavigationSheet } from './MobileNavigationSheet';
+import { trpc } from '../../lib/trpc';
 
 export function DesktopSidebar() {
   const pathname = usePathname();
@@ -28,6 +29,18 @@ export function DesktopSidebar() {
   const isExpanded = isMobile ? openMobile : open;
   const isSettingsActive = pathname === '/settings';
   const [isBugReportOpen, setIsBugReportOpen] = React.useState(false);
+
+  // Check if user has any influencers
+  const { data: charactersData } = trpc.character.list.useQuery();
+  const hasInfluencers = (charactersData?.items?.length ?? 0) > 0;
+
+  // Add lock status to menu items
+  const itemsWithLocks = menuItems.map((item) => {
+    if (item.url === '/studio' || item.url === '/templates') {
+      return { ...item, isLocked: !hasInfluencers };
+    }
+    return item;
+  });
 
   const handleLinkClick = () => {
     if (isMobile) {
@@ -68,7 +81,7 @@ export function DesktopSidebar() {
       {/* Main Navigation */}
       <SidebarContent className="px-4 py-4 flex flex-col">
         <SidebarNavigation
-          items={menuItems}
+          items={itemsWithLocks}
           pathname={pathname || ''}
           isExpanded={isExpanded}
           onLinkClick={handleLinkClick}

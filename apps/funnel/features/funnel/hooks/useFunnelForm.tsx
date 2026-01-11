@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useDebouncedCallback } from 'use-debounce';
 
-import { getFunnelStore, useFunnelStore } from '@/store/states/funnel';
+import { getFunnelStore } from '@/store/states/funnel';
 
 import { funnelV3Schema } from '@/features/funnel/validation';
 import { subscriptions } from '@/constants/subscriptions';
@@ -57,29 +57,31 @@ export type FunnelSchema = z.infer<typeof funnelV3Schema>;
 // Step 32: Feature Summary (info) - NO VALIDATION
 // Step 33: Subscription (payment) - NO VALIDATION
 // Step 34: Payment (payment) - validate email
-const triggers: Record<number, keyof FunnelSchema | Array<keyof FunnelSchema>> =
-  {
-    2: 'ai_influencer_experience',
-    3: 'use_cases',
-    4: 'influencer_ethnicity',
-    6: 'influencer_age',
-    7: 'influencer_skin_color',
-    9: 'influencer_eye_color', // Step 9: Choose Eye Color
-    10: ['influencer_hair_style', 'influencer_hair_color'], // Step 10: Hair Style & Color
-    11: 'influencer_face_shape', // Step 11: Face Shape
-    13: 'influencer_freckles', // Step 13: Freckles
-    14: 'influencer_scars', // Step 14: Scars
-    15: 'influencer_beauty_marks', // Step 15: Beauty Marks
-    17: 'influencer_body_type', // Step 17: Body Type
-    20: 'influencer_piercings', // Step 20: Piercings
-    21: 'influencer_tattoos', // Step 21: Tattoos
-    22: 'influencer_ass_size', // Step 22: Ass Size
-    23: 'influencer_breast_type', // Step 23: Breast Type
-    24: 'influencer_voice', // Step 24: Voice
-    26: 'video_content_options', // Step 26: Video Content Options
-    27: 'enable_nsfw', // Step 27: NSFW Content
-    34: 'email', // Step 34: Payment
-  };
+const _triggers: Record<
+  number,
+  keyof FunnelSchema | Array<keyof FunnelSchema>
+> = {
+  2: 'ai_influencer_experience',
+  3: 'use_cases',
+  4: 'influencer_ethnicity',
+  6: 'influencer_age',
+  7: 'influencer_skin_color',
+  9: 'influencer_eye_color', // Step 9: Choose Eye Color
+  10: ['influencer_hair_style', 'influencer_hair_color'], // Step 10: Hair Style & Color
+  11: 'influencer_face_shape', // Step 11: Face Shape
+  13: 'influencer_freckles', // Step 13: Freckles
+  14: 'influencer_scars', // Step 14: Scars
+  15: 'influencer_beauty_marks', // Step 15: Beauty Marks
+  17: 'influencer_body_type', // Step 17: Body Type
+  20: 'influencer_piercings', // Step 20: Piercings
+  21: 'influencer_tattoos', // Step 21: Tattoos
+  22: 'influencer_ass_size', // Step 22: Ass Size
+  23: 'influencer_breast_type', // Step 23: Breast Type
+  24: 'influencer_voice', // Step 24: Voice
+  26: 'video_content_options', // Step 26: Video Content Options
+  27: 'enable_nsfw', // Step 27: NSFW Content
+  34: 'email', // Step 34: Payment
+};
 
 export const defaultValues = {
   // Basic Attributes

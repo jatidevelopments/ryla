@@ -6,7 +6,8 @@ import { Pool } from 'pg';
 import { Config, PostgresConfig } from '../../config/config.type';
 
 // Import schemas from @ryla/data - the single source of truth
-import * as schema from '@ryla/data/schema';
+// Using @ryla/data package import (TypeScript resolves via path mappings, runtime resolves via copied dist/libs)
+import * as schema from '@ryla/data';
 
 @Global()
 @Module({

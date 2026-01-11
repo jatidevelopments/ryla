@@ -17,38 +17,38 @@ interface UseStudioFiltersReturn {
   // View mode
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
-  
+
   // Aspect ratio filter (multi-select)
   aspectRatios: AspectRatio[];
   setAspectRatios: (ratios: AspectRatio[] | ((prev: AspectRatio[]) => AspectRatio[])) => void;
-  
+
   // Status filter
   status: StatusFilter;
   setStatus: (status: StatusFilter) => void;
-  
+
   // Liked filter
   liked: LikedFilter;
   setLiked: (liked: LikedFilter) => void;
-  
+
   // Adult content filter
   adult: AdultFilter;
   setAdult: (adult: AdultFilter) => void;
-  
+
   // Sort order
   sortBy: SortBy;
   setSortBy: (sort: SortBy) => void;
-  
+
   // Search
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  
+
   // Panel visibility
   showPanel: boolean;
   setShowPanel: (show: boolean) => void;
-  
+
   // Filter images
   filterImages: (images: StudioImage[]) => StudioImage[];
-  
+
   // Reset all filters
   resetFilters: () => void;
 }
@@ -56,13 +56,13 @@ interface UseStudioFiltersReturn {
 export function useStudioFilters(): UseStudioFiltersReturn {
   // Search query - not persisted, always start fresh
   const [searchQuery, setSearchQuery] = React.useState('');
-  
+
   // View mode
   const [viewMode, setViewMode] = useLocalStorage<ViewMode>(
     'ryla-gallery-view-mode',
     'grid'
   );
-  
+
   // Handle migration from old single value format to array format for aspect ratios
   const [aspectRatioRaw, setAspectRatioRaw] = useLocalStorage<
     AspectRatioFilter | AspectRatio[]
@@ -108,7 +108,7 @@ export function useStudioFilters(): UseStudioFiltersReturn {
     'ryla-gallery-sort-by',
     'newest'
   );
-  
+
   // Panel visibility
   const [showPanel, setShowPanel] = useLocalStorage(
     'ryla-gallery-show-panel',
@@ -147,14 +147,14 @@ export function useStudioFilters(): UseStudioFiltersReturn {
       // Liked filter
       if (liked === 'liked') {
         filtered = filtered.filter((img) => img.isLiked);
-      } else if (liked === 'unliked') {
+      } else if (liked === 'not-liked') {
         filtered = filtered.filter((img) => !img.isLiked);
       }
 
       // Adult content filter
-      if (adult === 'sfw') {
+      if (adult === 'not-adult') {
         filtered = filtered.filter((img) => !img.nsfw);
-      } else if (adult === 'nsfw') {
+      } else if (adult === 'adult') {
         filtered = filtered.filter((img) => img.nsfw);
       }
 

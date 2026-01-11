@@ -36,7 +36,7 @@ export function WizardLayout({ children }: WizardLayoutProps) {
     }
   }, [form.creationMethod, steps.length, updateSteps]);
 
-  const isFirstStep = step === 0 || step === 1;
+  const _isFirstStep = step === 0 || step === 1;
   const isLastStep = step === steps.length;
 
   const handleNext = () => {

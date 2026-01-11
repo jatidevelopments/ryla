@@ -79,10 +79,10 @@ export class BaseImageGenerationService {
   // Store external job results with model info for display
   private readonly externalResults = new Map<
     string,
-    { 
-      status: 'queued' | 'in_progress' | 'completed' | 'failed'; 
+    {
+      status: 'queued' | 'in_progress' | 'completed' | 'failed';
       images: Array<{ id: string; url: string; thumbnailUrl: string; s3Key?: string; model?: string }>;
-      error?: string; 
+      error?: string;
       createdAt: number;
       model?: string; // Human-friendly model name
     }
@@ -102,7 +102,7 @@ export class BaseImageGenerationService {
     private readonly imageStorage: ImageStorageService,
     @Inject(forwardRef(() => FalImageService))
     private readonly fal: FalImageService,
-  ) {}
+  ) { }
 
   /**
    * Clean up expired idempotency cache entries
@@ -147,18 +147,18 @@ export class BaseImageGenerationService {
 
     let basePrompt: string;
     let negativePrompt: string;
-    let originalPrompt: string | undefined;
-    let enhancedPrompt: string | undefined;
-    let promptEnhance = false;
+    let _originalPrompt: string | undefined;
+    let _enhancedPrompt: string | undefined;
+    let _promptEnhance = false;
 
     // Handle prompt-based flow (raw prompt input)
     if (input.promptInput) {
       basePrompt = input.promptInput.trim();
-      originalPrompt = basePrompt;
-      
+      _originalPrompt = basePrompt;
+
       // Add SFW requirements to the prompt
       basePrompt += ', fully clothed, appropriate attire, professional appearance, modest clothing';
-      
+
       // Base images are ALWAYS SFW - strong negative prompt
       negativePrompt = 'nude, naked, topless, bottomless, exposed breasts, nipples, genitals, ' +
         'see-through clothing, lingerie, underwear visible, revealing clothing, ' +
@@ -170,7 +170,7 @@ export class BaseImageGenerationService {
       if (input.promptEnhance !== false) {
         try {
           const enhancer = createAutoEnhancer();
-          
+
           // Wizard-specific enhancement: Focus on creating unique character from minimal input
           // Use a custom enhancement request that emphasizes character uniqueness
           const enhancementPromise = enhancer.enhance({
@@ -186,29 +186,29 @@ export class BaseImageGenerationService {
           });
 
           // Race: enhancement vs timeout (1.5 seconds for wizard - more time for character creation)
-          const timeoutPromise = new Promise<null>((resolve) => 
+          const timeoutPromise = new Promise<null>((resolve) =>
             setTimeout(() => resolve(null), 1500)
           );
 
           const enhancementResult = await Promise.race([enhancementPromise, timeoutPromise]);
-          
+
           // Use enhanced prompt if it completed in time, otherwise use base with quality keywords
           if (enhancementResult && enhancementResult.enhancedPrompt) {
             basePrompt = enhancementResult.enhancedPrompt;
             // Ensure quality keywords are present (add if not already there)
             const lowerPrompt = basePrompt.toLowerCase();
             if (!lowerPrompt.includes('8k') && !lowerPrompt.includes('hyper-realistic') && !lowerPrompt.includes('ultra-detailed')) {
-              basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, sharp focus, high resolution, photorealistic';
+              basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, Shot on Fujifilm GFX 100S, sharp focus, high resolution, photorealistic';
             }
-            enhancedPrompt = enhancementResult.enhancedPrompt;
-            promptEnhance = true;
+            _enhancedPrompt = enhancementResult.enhancedPrompt;
+            _promptEnhance = true;
             // Merge negative prompt additions
             if (enhancementResult.negativeAdditions.length > 0) {
               negativePrompt += ', ' + enhancementResult.negativeAdditions.join(', ');
             }
           } else {
             // Enhancement timed out or failed - add quality keywords to base prompt
-            basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, sharp focus, high resolution, photorealistic';
+            basePrompt += ', 8K hyper-realistic, ultra-detailed, professional photography, Shot on Fujifilm GFX 100S, sharp focus, high resolution, photorealistic';
           }
         } catch (err) {
           this.logger.warn('Wizard prompt enhancement failed, using base prompt with quality keywords:', err);
@@ -261,14 +261,14 @@ export class BaseImageGenerationService {
       // Force outfit to be appropriate (never allow nudity/NSFW for base images)
       const outfit = input.identity.defaultOutfit || 'casual';
       const safeOutfit = this.ensureSafeOutfit(outfit);
-      
+
       const builtPrompt = new PromptBuilder()
         .withCharacter(characterDNA)
         .withTemplate('portrait-selfie-casual') // Default template for base images
         .withOutfit(safeOutfit)
         .withLighting('natural.soft')
         .withExpression('positive.confident')
-        .withStylePreset('quality')
+        .withGoldStandard() // Apply professional photography and identity preservation rules
         .addDetails('fully clothed, appropriate attire, professional appearance, modest clothing') // Explicitly add clothing requirement
         .withNegativePrompt(
           // Strong SFW negative prompt for base images - always enforce no nudity
@@ -310,7 +310,7 @@ export class BaseImageGenerationService {
       // This gives users variety from different model architectures
       const falModels: FalFluxModelId[] = ['fal-ai/bytedance/seedream/v4.5/text-to-image', 'fal-ai/flux/dev'];
       const imagesPerModel = 2;
-      
+
       // Create job IDs for all Fal images (2 per model = 4 total)
       const falJobIds: string[] = [];
       for (let modelIdx = 0; modelIdx < falModels.length; modelIdx++) {
@@ -461,7 +461,7 @@ export class BaseImageGenerationService {
    */
   private ensureSafeOutfit(outfit: string): string {
     const outfitLower = outfit.toLowerCase();
-    
+
     // List of NSFW/intimate outfits that should be replaced
     const nsfwOutfits = [
       'nude', 'topless', 'bottomless', 'lingerie', 'bikini', 'swimsuit',
@@ -472,14 +472,14 @@ export class BaseImageGenerationService {
       'leather outfit', 'latex', 'corset', 'fishnet', 'garter belt',
       'thigh highs', 'collar', 'pvc outfit', 'harness', 'cage bra'
     ];
-    
+
     // Check if outfit is NSFW/intimate
     if (nsfwOutfits.some(nsfw => outfitLower.includes(nsfw))) {
       // Replace with safe casual outfit
       this.logger.warn(`Base image generation: Replaced NSFW outfit "${outfit}" with safe "casual" outfit`);
       return 'casual';
     }
-    
+
     return outfit;
   }
 
@@ -491,24 +491,24 @@ export class BaseImageGenerationService {
     const { appearance, identity } = input;
 
     // Build descriptive strings from detailed config
-    const hairDesc = `${appearance.hairColor} ${appearance.hairStyle} hair`;
-    const eyesDesc = `${appearance.eyeColor} eyes`;
-    const skinDesc = appearance.ethnicity.toLowerCase().includes('asian')
+    const hairDesc = appearance ? `${appearance.hairColor} ${appearance.hairStyle} hair` : 'Unknown hair';
+    const eyesDesc = appearance ? `${appearance.eyeColor} eyes` : 'Unknown eyes';
+    const skinDesc = appearance?.ethnicity?.toLowerCase().includes('asian')
       ? 'fair smooth skin'
       : 'smooth skin with natural complexion';
 
     return {
       name: 'Character',
-      age: `${appearance.age}-year-old`,
-      ethnicity: appearance.ethnicity,
+      age: `${appearance?.age}-year-old`,
+      ethnicity: appearance?.ethnicity || 'Unknown',
       hair: hairDesc,
       eyes: eyesDesc,
       skin: skinDesc,
-      bodyType: appearance.bodyType,
-      facialFeatures: identity.personalityTraits.length > 0
+      bodyType: appearance?.bodyType,
+      facialFeatures: identity?.personalityTraits && identity.personalityTraits.length > 0
         ? identity.personalityTraits.join(', ')
         : undefined,
-      style: `${identity.archetype} ${appearance.style}`,
+      style: identity && appearance ? `${identity.archetype} ${appearance.style}` : undefined,
     };
   }
 
@@ -629,7 +629,7 @@ export class BaseImageGenerationService {
   private sanitizePromptForStrictModels(prompt: string, modelId: FalFluxModelId): string {
     // Seedream 4.5 has stricter content filtering - remove body part descriptions
     const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
-    
+
     if (!isStrictModel) {
       return prompt;
     }
@@ -674,10 +674,10 @@ export class BaseImageGenerationService {
   }) {
     const { jobId, modelId, prompt, negativePrompt, width, height, seed, userId } = params;
     const modelName = this.getFalModelDisplayName(modelId);
-    
+
     // Sanitize prompt for strict models like Seedream 4.5
     const sanitizedPrompt = this.sanitizePromptForStrictModels(prompt, modelId);
-    
+
     try {
       this.logger.log(`Fal base image started jobId=${jobId} model=${modelId} (${modelName})`);
       const out = await this.fal.runFlux(modelId, {
@@ -698,7 +698,7 @@ export class BaseImageGenerationService {
       // Download -> base64 data URL -> upload to our storage for stable URLs.
       this.logger.log(`Fal base image downloading jobId=${jobId} model=${modelId} url=${out.imageUrls[0].substring(0, 50)}...`);
       const base64 = await this.fal.downloadToBase64DataUrl(out.imageUrls[0]);
-      
+
       this.logger.log(`Fal base image uploading jobId=${jobId} model=${modelId}`);
       const { images: stored } = await this.imageStorage.uploadImages([base64], {
         userId,
@@ -725,19 +725,19 @@ export class BaseImageGenerationService {
         model: modelName,
         createdAt: Date.now(),
       });
-      
+
       this.logger.log(`Fal base image completed jobId=${jobId} model=${modelId} (${modelName}) url=${img.url}`);
     } catch (e) {
       const message = e instanceof Error ? e.message : 'Fal generation failed';
       const stack = e instanceof Error ? e.stack : undefined;
-      
+
       // Check if it's a content policy violation (422) for strict models
       const isContentPolicyError = message.includes('422') || message.includes('content_policy') || message.includes('content checker');
       const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
-      
+
       if (isContentPolicyError && isStrictModel) {
         this.logger.warn(`Content policy violation for ${modelId}, trying more aggressive sanitization...`);
-        
+
         // Try again with more aggressive sanitization
         try {
           // Remove all potentially problematic terms
@@ -748,7 +748,7 @@ export class BaseImageGenerationService {
             .replace(/^\s*,/g, '')
             .replace(/\s+/g, ' ')
             .trim();
-          
+
           if (aggressiveSanitized.length > 20) { // Only retry if we have enough prompt left
             this.logger.log(`Retrying ${modelId} with aggressively sanitized prompt`);
             const retryOut = await this.fal.runFlux(modelId, {
@@ -759,7 +759,7 @@ export class BaseImageGenerationService {
               seed,
               numImages: 1,
             });
-            
+
             if (retryOut.imageUrls && retryOut.imageUrls.length > 0) {
               const base64 = await this.fal.downloadToBase64DataUrl(retryOut.imageUrls[0]);
               const { images: stored } = await this.imageStorage.uploadImages([base64], {
@@ -767,7 +767,7 @@ export class BaseImageGenerationService {
                 category: 'base-images',
                 jobId,
               });
-              
+
               const img = stored[0];
               this.externalResults.set(jobId, {
                 status: 'completed',
@@ -781,7 +781,7 @@ export class BaseImageGenerationService {
                 model: modelName,
                 createdAt: Date.now(),
               });
-              
+
               this.logger.log(`Fal base image completed (retry) jobId=${jobId} model=${modelId} (${modelName})`);
               return; // Success on retry
             }
@@ -790,7 +790,7 @@ export class BaseImageGenerationService {
           this.logger.warn(`Retry also failed for ${modelId}: ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`);
         }
       }
-      
+
       this.logger.error(`Fal base image failed jobId=${jobId} model=${modelId} (${modelName}): ${message}`, stack);
       this.externalResults.set(jobId, {
         status: 'failed',

@@ -35,7 +35,7 @@ export interface TemplateListResult {
 }
 
 export class TemplatesRepository {
-  constructor(private readonly db: NodePgDatabase<typeof schema>) {}
+  constructor(private readonly db: NodePgDatabase<typeof schema>) { }
 
   /**
    * Create a new template
@@ -56,9 +56,10 @@ export class TemplatesRepository {
    * Find template by ID
    */
   async findById(id: string): Promise<Template | null> {
-    return this.db.query.templates.findFirst({
+    const result = await this.db.query.templates.findFirst({
       where: eq(schema.templates.id, id),
     });
+    return result ?? null;
   }
 
   /**
@@ -261,7 +262,7 @@ export class TemplatesRepository {
       userId: string | null;
       jobId: string | null;
       successful: boolean | null;
-      createdAt: Date;
+      createdAt: Date | null;
     }>;
   }> {
     const template = await this.findById(id);
@@ -283,7 +284,7 @@ export class TemplatesRepository {
       totalWithResult > 0 ? (successfulCount / totalWithResult) * 100 : null;
 
     return {
-      usageCount: template.usageCount,
+      usageCount: template.usageCount || 0,
       successRate: successRate !== null ? Number(successRate.toFixed(2)) : null,
       recentUsage: recentUsage.map((u) => ({
         userId: u.userId,

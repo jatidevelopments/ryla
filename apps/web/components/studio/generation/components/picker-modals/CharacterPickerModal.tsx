@@ -14,7 +14,10 @@ interface CharacterPickerModalProps {
   influencers: Influencer[];
   selectedInfluencerId: string | null;
   settings: GenerationSettings;
-  updateSetting: <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => void;
+  updateSetting: <K extends keyof GenerationSettings>(
+    key: K,
+    value: GenerationSettings[K]
+  ) => void;
   onInfluencerChange?: (influencerId: string | null) => void;
   onClose: () => void;
 }
@@ -22,7 +25,7 @@ interface CharacterPickerModalProps {
 export function CharacterPickerModal({
   influencers,
   selectedInfluencerId,
-  settings,
+
   updateSetting,
   onInfluencerChange,
   onClose,
@@ -43,4 +46,3 @@ export function CharacterPickerModal({
     />
   );
 }
-

@@ -1,5 +1,5 @@
 /** @type {import('next').NextConfig} */
-const path = require("path");
+const path = require('path');
 
 // Temporarily disable next-intl to fix React 18 compatibility
 const withNextIntl = (config) => config; // No-op for now
@@ -7,125 +7,135 @@ const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL;
 const CDN_HOST = CDN_URL ? new URL(CDN_URL).hostname : undefined;
 
 const remoteImagePatterns = [
-    {
-        protocol: "https",
-        hostname: "s3mdc.b-cdn.net",
-        port: "",
-        pathname: "/**",
-    },
-    {
-        protocol: "https",
-        hostname: "cdn.mydreamcompanion.com",
-        port: "",
-        pathname: "/**",
-    },
-    {
-        protocol: "https",
-        hostname: "dqc6twgow1yyh.cloudfront.net",
-        port: "",
-        pathname: "/**",
-    },
-    {
-        protocol: "https",
-        hostname: "dk1lw6jc39ysu.cloudfront.net",
-        port: "",
-        pathname: "/**",
-    },
+  {
+    protocol: 'https',
+    hostname: 's3mdc.b-cdn.net',
+    port: '',
+    pathname: '/**',
+  },
+  {
+    protocol: 'https',
+    hostname: 'cdn.mydreamcompanion.com',
+    port: '',
+    pathname: '/**',
+  },
+  {
+    protocol: 'https',
+    hostname: 'dqc6twgow1yyh.cloudfront.net',
+    port: '',
+    pathname: '/**',
+  },
+  {
+    protocol: 'https',
+    hostname: 'dk1lw6jc39ysu.cloudfront.net',
+    port: '',
+    pathname: '/**',
+  },
 ];
 
 if (CDN_HOST) {
-    remoteImagePatterns.push({
-        protocol: "https",
-        hostname: CDN_HOST,
-        port: "",
-        pathname: "/**",
-    });
+  remoteImagePatterns.push({
+    protocol: 'https',
+    hostname: CDN_HOST,
+    port: '',
+    pathname: '/**',
+  });
 }
 
 const nextConfig = {
-    output: "standalone",
-    // Fix standalone output path structure for Nx monorepo
-    outputFileTracingRoot: path.join(__dirname, "../../"),
-    // Transpile shared libs from monorepo
-    transpilePackages: ["@ryla/shared", "@ryla/analytics", "@ryla/business", "@ryla/ui", "@ryla/payments"],
-    /* config options here */
-    
-    // Skip static optimization to avoid React bundling issues during build
-    // All pages will be rendered dynamically at request time
-    generateBuildId: async () => {
-        return 'build-' + Date.now();
-    },
+  output: 'standalone',
+  // Fix standalone output path structure for Nx monorepo
+  outputFileTracingRoot: path.join(__dirname, '../../'),
+  // Transpile shared libs from monorepo
+  transpilePackages: [
+    '@ryla/shared',
+    '@ryla/analytics',
+    '@ryla/business',
+    '@ryla/ui',
+    '@ryla/payments',
+    'posthog-js',
+  ],
+  /* config options here */
 
-    // PostHog proxy configuration
-    async rewrites() {
-        return [
-            {
-                source: "/ingest/:path*",
-                destination: "https://eu.i.posthog.com/:path*", // Proxy to PostHog EU cloud service
-            },
-        ];
-    },
+  // Skip static optimization to avoid React bundling issues during build
+  // All pages will be rendered dynamically at request time
+  generateBuildId: async () => {
+    return 'build-' + Date.now();
+  },
 
-    webpack(config) {
-        // Ensure node_modules resolution includes root for monorepo
-        config.resolve.modules = [
-            ...(config.resolve.modules || []),
-            path.resolve(__dirname, "../../node_modules"),
-        ];
+  // PostHog proxy configuration
+  async rewrites() {
+    return [
+      {
+        source: '/ingest/:path*',
+        destination: 'https://eu.i.posthog.com/:path*', // Proxy to PostHog EU cloud service
+      },
+    ];
+  },
 
-        // Grab the existing rule that handles SVG imports
-        const fileLoaderRule = config.module.rules.find((rule) => rule.test?.test?.(".svg"));
+  webpack(config) {
+    // Ensure node_modules resolution includes root for monorepo
+    config.resolve.modules = [
+      ...(config.resolve.modules || []),
+      path.resolve(__dirname, '../../node_modules'),
+    ];
 
-        // Exclude SVG files from the default file-loader
-        if (fileLoaderRule) {
-            fileLoaderRule.exclude = /\.svg$/i;
-        }
+    // Grab the existing rule that handles SVG imports
+    const fileLoaderRule = config.module.rules.find((rule) =>
+      rule.test?.test?.('.svg')
+    );
 
-        // Add a new rule for @svgr/webpack
-        config.module.rules.push({
-            test: /\.svg$/i,
-            issuer: { not: /\.(css|scss|sass)$/ }, // Exclude SVGs imported from CSS
-            use: ["@svgr/webpack"],
-        });
+    // Exclude SVG files from the default file-loader
+    if (fileLoaderRule) {
+      fileLoaderRule.exclude = /\.svg$/i;
+    }
 
-        return config;
-    },
+    // Add a new rule for @svgr/webpack
+    config.module.rules.push({
+      test: /\.svg$/i,
+      issuer: { not: /\.(css|scss|sass)$/ }, // Exclude SVGs imported from CSS
+      use: ['@svgr/webpack'],
+    });
 
-    assetPrefix: CDN_URL || undefined,
+    return config;
+  },
 
-    images: {
-        // 🔥 IMAGE OPTIMIZATION ENHANCEMENTS
-        formats: ["image/webp", "image/avif"], // Modern formats (up to 50% smaller file size)
+  assetPrefix: CDN_URL || undefined,
 
-        // Extended size ranges for better responsive image selection
-        deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-        imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+  images: {
+    // 🔥 IMAGE OPTIMIZATION ENHANCEMENTS
+    formats: ['image/webp', 'image/avif'], // Modern formats (up to 50% smaller file size)
 
-        // Performance and security settings
-        minimumCacheTTL: 31536000, // 1 year cache TTL for static images
-        dangerouslyAllowSVG: false, // Security: disable SVG optimization
+    // Extended size ranges for better responsive image selection
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 
-        // Your existing remote patterns + new CloudFront domain
-        remotePatterns: remoteImagePatterns,
+    // Performance and security settings
+    minimumCacheTTL: 31536000, // 1 year cache TTL for static images
+    dangerouslyAllowSVG: false, // Security: disable SVG optimization
 
-        // 🚀 IMAGE OPTIMIZATION ENABLED FOR ALL ENVIRONMENTS
-        // Next.js will automatically optimize images in production
-        // Formats: WebP/AVIF for modern browsers, fallback to original format
-    },
+    // Your existing remote patterns + new CloudFront domain
+    remotePatterns: remoteImagePatterns,
 
-    // 🔥 ADDITIONAL PERFORMANCE OPTIMIZATIONS
-    experimental: {
-        optimizePackageImports: ["lucide-react"], // Tree-shake icon libraries
-        scrollRestoration: true, // Better navigation UX
-    },
+    // 🚀 IMAGE OPTIMIZATION ENABLED FOR ALL ENVIRONMENTS
+    // Next.js will automatically optimize images in production
+    // Formats: WebP/AVIF for modern browsers, fallback to original format
+  },
 
-    // Enable gzip/brotli compression
-    compress: true,
+  // 🔥 ADDITIONAL PERFORMANCE OPTIMIZATIONS
+  experimental: {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+    // optimizePackageImports: ['lucide-react'], // Tree-shake icon libraries
+    scrollRestoration: true, // Better navigation UX
+  },
 
-    // CDN asset prefix for production builds
-    // ...(process.env.NODE_ENV === "production" && {
-    //   assetPrefix: process.env.NEXT_PUBLIC_CDN_URL || "",
-    // }),
+  // Enable gzip/brotli compression
+  compress: true,
+
+  // CDN asset prefix for production builds
+  // ...(process.env.NODE_ENV === "production" && {
+  //   assetPrefix: process.env.NEXT_PUBLIC_CDN_URL || "",
+  // }),
 };
 
 module.exports = withNextIntl(nextConfig);

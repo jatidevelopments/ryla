@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { cn, Badge } from '@ryla/ui';
-import type { Pose } from '../../types';
+import type { Pose } from '../../../types';
 
 interface PoseCardProps {
   pose: Pose;
@@ -45,16 +45,24 @@ export function PoseCard({
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
               {/* Name overlay */}
               <div className="absolute bottom-0 left-0 right-0 p-3">
-                <div className="text-sm font-semibold text-white mb-1">{pose.name}</div>
-                <div className="text-xs text-white/60 line-clamp-1">{pose.prompt}</div>
+                <div className="text-sm font-semibold text-white mb-1">
+                  {pose.name}
+                </div>
+                <div className="text-xs text-white/60 line-clamp-1">
+                  {pose.prompt}
+                </div>
               </div>
             </>
           ) : (
             <div className="flex flex-col items-center justify-center p-6 h-full">
               <div className="text-5xl mb-3">{pose.icon}</div>
               <div className="text-center">
-                <div className="text-sm font-semibold text-white mb-1">{pose.name}</div>
-                <div className="text-xs text-white/50 line-clamp-2">{pose.prompt}</div>
+                <div className="text-sm font-semibold text-white mb-1">
+                  {pose.name}
+                </div>
+                <div className="text-xs text-white/50 line-clamp-2">
+                  {pose.prompt}
+                </div>
               </div>
             </div>
           )}
@@ -114,4 +122,3 @@ export function PoseCard({
     </div>
   );
 }
-

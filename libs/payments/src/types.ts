@@ -14,14 +14,14 @@ export interface FinbyConfig {
   // API v3 (Popup-based) - Required for funnel
   projectId?: string;
   secretKey?: string;
-  
+
   // REST API v1 (Subscription-based) - Future
   apiKey?: string;
   merchantId?: string;
-  
+
   webhookSecret?: string;
   baseUrl?: string;
-  
+
   // API version selection
   apiVersion?: 'v3' | 'v1';
 }
@@ -83,10 +83,10 @@ export interface CheckoutSessionParams {
   cancelUrl: string;
   metadata?: Record<string, string>;
   allowPromotionCodes?: boolean;
-  
+
   // Payment mode (Stripe only)
   mode?: 'subscription' | 'payment'; // 'subscription' for recurring, 'payment' for one-time
-  
+
   // Finby API v3 specific (popup-based)
   productId?: number; // Product ID for API v3
   amount?: number; // Amount in cents
@@ -99,6 +99,10 @@ export interface CheckoutSessionParams {
   errorUrl?: string;
   notificationUrl?: string;
   reference?: string; // Custom reference (will be generated if not provided)
+
+  // For recurring payments (Finby API v1)
+  originalPaymentRequestId?: string; // Original payment request ID for subsequent recurring charges
+  cardHash?: string; // Card token/hash for recurring payments
 }
 
 export interface CheckoutSession {
@@ -191,6 +195,7 @@ export interface PaymentSucceededEvent extends BasePaymentEvent {
     customerId: string;
     amount: number;
     currency: string;
+    currentPeriodEnd?: Date;
   };
 }
 

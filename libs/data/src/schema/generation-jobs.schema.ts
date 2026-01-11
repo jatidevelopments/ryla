@@ -58,6 +58,13 @@ export interface GenerationInput {
   triggerWord?: string;
   // For HD generation
   loraModelId?: string;
+  // Metadata for studio/profile pictures
+  promptEnhance?: boolean;
+  originalPrompt?: string;
+  enhancedPrompt?: string;
+  poseId?: string;
+  lightingId?: string;
+  imageId?: string;
 }
 
 /**

@@ -29,8 +29,8 @@ function InfluencerProfileContent() {
     allPosts,
     likedPosts,
     profilePicturesState,
-    isGeneratingProfilePictures,
-    imageCount,
+    isGeneratingProfilePictures: _isGeneratingProfilePictures,
+    imageCount: _imageCount,
     updateInfluencer,
   } = useInfluencerData();
 
@@ -40,10 +40,10 @@ function InfluencerProfileContent() {
     likedImages,
     isLoadingImages,
     handleImageLike,
-    refreshImages,
+    refreshImages: _refreshImages,
   } = useInfluencerImages({
     influencerId,
-    onImageCountUpdate: (count) => {
+    onImageCountUpdate: (_count) => {
       // Image count is handled in useInfluencerData
     },
     profilePicturesState,

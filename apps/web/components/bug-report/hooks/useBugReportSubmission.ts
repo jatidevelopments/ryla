@@ -70,7 +70,7 @@ export function useBugReportSubmission({
         consoleLogs: consoleLogs.length > 0 ? consoleLogs : undefined,
         browserMetadata: browserMetadata || getBrowserMetadata(),
       });
-    } catch (error) {
+    } catch (_error) {
       // Error handled in onError callback
     }
   }, [description, email, screenshot, consoleLogs, browserMetadata, submitMutation]);

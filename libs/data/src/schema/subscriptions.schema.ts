@@ -33,6 +33,7 @@ export const subscriptions = pgTable('subscriptions', {
   status: subscriptionStatusEnum('status').default('active'),
   currentPeriodStart: timestamp('current_period_start'),
   currentPeriodEnd: timestamp('current_period_end'),
+  expiredAt: timestamp('expired_at'), // When subscription expires (set when cancelled)
   cancelAtPeriodEnd: boolean('cancel_at_period_end').default(false),
   cancelledAt: timestamp('cancelled_at'),
   createdAt: timestamp('created_at').defaultNow(),

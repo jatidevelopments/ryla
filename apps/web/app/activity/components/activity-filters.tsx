@@ -5,7 +5,6 @@ import { createPortal } from 'react-dom';
 import {
   Calendar,
   Filter,
-  Clock,
   Settings2,
   Check,
   X,
@@ -44,7 +43,9 @@ export function ActivityFilters({
 
   // Handle mounting
   useEffect(() => {
-    setMounted(true);
+    setTimeout(() => {
+      setMounted(true);
+    }, 0);
   }, []);
 
   // Lock scroll when modal is open

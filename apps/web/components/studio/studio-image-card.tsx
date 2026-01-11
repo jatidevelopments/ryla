@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { cn, useIsMobile } from '@ryla/ui';
 import { Tooltip } from '../ui/tooltip';
 import { MoreHorizontal } from 'lucide-react';
+import { AspectRatio } from '@ryla/shared';
 
 export interface StudioImage {
   id: string;
@@ -18,7 +19,7 @@ export interface StudioImage {
   environment?: string;
   outfit?: string; // Can be a string or JSON stringified OutfitComposition
   poseId?: string; // Pose ID (e.g., "standing-casual")
-  aspectRatio: '1:1' | '9:16' | '2:3';
+  aspectRatio: AspectRatio;
   status: 'completed' | 'generating' | 'failed';
   createdAt: string;
   isLiked?: boolean;

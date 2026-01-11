@@ -14,7 +14,7 @@ export class StorageTestController {
   constructor(
     @Inject(ImageStorageService)
     private readonly imageStorage: ImageStorageService,
-  ) {}
+  ) { }
 
   /**
    * Test S3/MinIO storage upload

@@ -9,7 +9,6 @@ import {
   UseGuards,
   HttpCode,
   HttpStatus,
-  Inject,
 } from '@nestjs/common';
 import { OutfitPresetsService } from './outfit-presets.service';
 import { CreateOutfitPresetDto } from './dto/create-outfit-preset.dto';
@@ -21,10 +20,7 @@ import type { IJwtPayload } from '../auth/interfaces/jwt-payload.interface';
 @Controller('outfit-presets')
 @UseGuards(JwtAccessGuard)
 export class OutfitPresetsController {
-  constructor(
-    @Inject(OutfitPresetsService)
-    private readonly outfitPresetsService: OutfitPresetsService,
-  ) {}
+  constructor(private readonly outfitPresetsService: OutfitPresetsService) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

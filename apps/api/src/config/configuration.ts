@@ -252,4 +252,13 @@ export default (): Config => ({
     albumPurchasePrice: Number(process.env.ALBUM_PURCHASE_PRICE) || 0,
     imagePromptPurchasePrice: Number(process.env.IMAGE_PROMPT_PURCHASE_PRICE) || 0,
   },
+  finbyConfig: {
+    projectId: process.env.FINBY_PROJECT_ID || '',
+    secretKey: process.env.FINBY_SECRET_KEY || '',
+    apiKey: process.env.FINBY_API_KEY || undefined,
+    merchantId: process.env.FINBY_MERCHANT_ID || undefined,
+    baseUrl: process.env.FINBY_BASE_URL || 'https://aapi.finby.eu',
+    webhookSecret: process.env.FINBY_WEBHOOK_SECRET || undefined,
+    apiVersion: (process.env.FINBY_API_VERSION as 'v1' | 'v3') || 'v1',
+  },
 });

@@ -3,10 +3,10 @@
 import * as React from 'react';
 import { trpc } from '../../../lib/trpc';
 import { TemplateSearch } from './template-search';
-import { TemplateFilters } from './template-filters';
+import { TemplateFilters, type TemplateFiltersData } from './template-filters';
 import { TemplateGrid } from './template-grid';
 import { TemplateDetailModal } from './template-detail-modal';
-import { cn } from '@ryla/ui';
+
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,13 +19,13 @@ export function TemplateLibraryTab({
   influencerId,
   onTemplateApply,
 }: TemplateLibraryTabProps) {
-  const [filters, setFilters] = React.useState({
-    category: 'all' as const,
-    scene: undefined as string | undefined,
-    environment: undefined as string | undefined,
-    aspectRatio: undefined as string | undefined,
-    qualityMode: undefined as 'draft' | 'hq' | undefined,
-    nsfw: undefined as boolean | undefined,
+  const [filters, setFilters] = React.useState<TemplateFiltersData>({
+    category: 'all',
+    scene: undefined,
+    environment: undefined,
+    aspectRatio: undefined,
+    qualityMode: undefined,
+    nsfw: undefined,
   });
   const [searchQuery, setSearchQuery] = React.useState('');
 
@@ -42,7 +42,9 @@ export function TemplateLibraryTab({
     limit: 20,
   });
 
-  const [selectedTemplateId, setSelectedTemplateId] = React.useState<string | null>(null);
+  const [selectedTemplateId, setSelectedTemplateId] = React.useState<
+    string | null
+  >(null);
 
   const handleTemplateClick = (templateId: string) => {
     setSelectedTemplateId(templateId);
@@ -70,11 +72,7 @@ export function TemplateLibraryTab({
       <div className="flex gap-4">
         {/* Filters sidebar */}
         <div className="hidden lg:block w-64 flex-shrink-0">
-          <TemplateFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-            influencerId={influencerId}
-          />
+          <TemplateFilters filters={filters} onFiltersChange={setFilters} />
         </div>
 
         {/* Template grid */}
@@ -99,7 +97,6 @@ export function TemplateLibraryTab({
         <TemplateFilters
           filters={filters}
           onFiltersChange={setFilters}
-          influencerId={influencerId}
           collapsible
         />
       </div>
@@ -117,4 +114,3 @@ export function TemplateLibraryTab({
     </div>
   );
 }
-

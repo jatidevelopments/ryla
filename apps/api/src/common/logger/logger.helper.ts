@@ -2,7 +2,7 @@ import chalk from 'chalk';
 
 export class LoggerHelper {
   static formatMethod(method: string): string {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+     
     const methodColors: Record<string, (text: string) => string> = {
       GET: chalk.green,
       POST: chalk.blue,

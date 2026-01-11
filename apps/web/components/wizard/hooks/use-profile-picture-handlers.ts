@@ -4,7 +4,7 @@ import * as React from 'react';
 import { useCharacterWizardStore, type ProfilePictureImage } from '@ryla/business';
 
 interface UseProfilePictureHandlersOptions {
-  handleRegenerateImage: (imageId: string) => Promise<void>;
+
   handleRegenerateWithPrompt: (imageId: string, prompt: string) => Promise<void>;
 }
 
@@ -28,7 +28,7 @@ interface UseProfilePictureHandlersReturn {
  * Hook for profile picture action handlers and computed values
  */
 export function useProfilePictureHandlers({
-  handleRegenerateImage,
+
   handleRegenerateWithPrompt,
 }: UseProfilePictureHandlersOptions): UseProfilePictureHandlersReturn {
   const profilePictureSet = useCharacterWizardStore((s) => s.profilePictureSet);

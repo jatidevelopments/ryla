@@ -2,8 +2,8 @@
 
 import { Check, Sparkles, Crown, Zap } from 'lucide-react';
 import { cn, Button } from '@ryla/ui';
-import type { SubscriptionPlan } from '../../constants/pricing';
-import { FEATURE_CREDITS } from '../../constants/pricing';
+import type { SubscriptionPlan } from '@ryla/shared';
+import { FEATURE_CREDITS } from '@ryla/shared';
 
 interface PlanCardProps {
   plan: SubscriptionPlan;

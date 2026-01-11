@@ -96,6 +96,13 @@ Use the YouTube Tools MCP server to:
 
 ### Recent Additions (January 2025)
 
+#### [Best Ways to Create Viral Videos for AI Influencers](./664uByVYBk8/)
+
+- **Published**: Jan 2025
+- **Topic**: Comprehensive guide on creating viral videos for AI influencers - three workflows (dancing videos, image-to-video edited content, talking head videos)
+- **Relevance**: EP-005 (Content Studio), video generation, viral content strategy, model selection
+- **Key Insights**: ✅ Three distinct video workflows: dancing (Clink Motion Control), image-to-video edited (most versatile), talking head (11 Labs + Clink Avatars 2.0). Wave Speed AI recommended provider. Content strategy (controversial/emotional) > technical quality for views. Expect 4 videos → 1 good one (iteration required). Never post fake-looking videos - can destroy reputation.
+
 #### [Hyperrealistic Consistent Characters Workflow](./PhiPASFYBmk/)
 
 - **Published**: Jan 2025

@@ -32,7 +32,13 @@ export const useFunnelStore = create<IFunnelState>()(
         })),
         {
             name: "funnel-storage",
-            storage: createJSONStorage(() => localStorage),
+            storage: createJSONStorage(() =>
+                typeof window !== "undefined" ? localStorage : {
+                    getItem: () => null,
+                    setItem: () => { },
+                    removeItem: () => { },
+                }
+            ),
             partialize: (state) => ({
                 form: state.form,
                 step: state.step,
@@ -42,5 +48,5 @@ export const useFunnelStore = create<IFunnelState>()(
 );
 
 export const getFunnelStore = () => {
-  return useFunnelStore.getState();
+    return useFunnelStore.getState();
 };

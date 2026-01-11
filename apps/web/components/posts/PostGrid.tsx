@@ -4,7 +4,7 @@ import * as React from 'react';
 import { cn } from '@ryla/ui';
 import { PostCard } from './PostCard';
 import type { Post } from '@ryla/shared';
-import { ImageIcon, Plus, Sparkles } from 'lucide-react';
+import { ImageIcon, Plus } from 'lucide-react';
 import Link from 'next/link';
 
 export interface PostGridProps {

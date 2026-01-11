@@ -46,8 +46,25 @@ function ActivityContent() {
     capture('activity_viewed');
   }, []);
 
-  // Fetch summary
-  const { data: summary } = trpc.activity.summary.useQuery();
+  // Fetch summary with same filters as list (excluding pagination)
+  const summaryParams = {
+    filter,
+    timeRange,
+    startDate:
+      timeRange === 'custom' && customRange.start
+        ? new Date(customRange.start).toISOString()
+        : undefined,
+    endDate:
+      timeRange === 'custom' && customRange.end
+        ? (() => {
+            const d = new Date(customRange.end);
+            d.setHours(23, 59, 59, 999);
+            return d.toISOString();
+          })()
+        : undefined,
+  };
+
+  const { data: summary } = trpc.activity.summary.useQuery(summaryParams);
 
   // Fetch activity list with pagination
   const { data, isLoading } = trpc.activity.list.useQuery(queryParams, {
@@ -79,7 +96,9 @@ function ActivityContent() {
       {/* Header */}
       <FadeInUp>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-[var(--text-primary)]">Activity</h1>
+          <h1 className="text-3xl font-bold text-[var(--text-primary)]">
+            Activity
+          </h1>
           <p className="mt-1 text-[var(--text-secondary)]">
             Your generation history and credit usage
           </p>

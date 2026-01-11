@@ -17,14 +17,14 @@ export const useInfluencerStore = create<InfluencerStore>()(
 
       // Influencer actions
       addInfluencer: (influencer: AIInfluencer) => {
-        set((state) => {
+        set((state: any) => {
           state.influencers.push(influencer);
         });
       },
 
       updateInfluencer: (id: string, data: Partial<AIInfluencer>) => {
-        set((state) => {
-          const index = state.influencers.findIndex((i) => i.id === id);
+        set((state: any) => {
+          const index = state.influencers.findIndex((i: AIInfluencer) => i.id === id);
           if (index !== -1) {
             state.influencers[index] = {
               ...state.influencers[index],
@@ -36,20 +36,20 @@ export const useInfluencerStore = create<InfluencerStore>()(
       },
 
       deleteInfluencer: (id: string) => {
-        set((state) => {
-          state.influencers = state.influencers.filter((i) => i.id !== id);
+        set((state: any) => {
+          state.influencers = state.influencers.filter((i: AIInfluencer) => i.id !== id);
           // Also delete all posts for this influencer
-          state.posts = state.posts.filter((p) => p.influencerId !== id);
+          state.posts = state.posts.filter((p: Post) => p.influencerId !== id);
         });
       },
 
       // Post actions
       addPost: (post: Post) => {
-        set((state) => {
+        set((state: any) => {
           state.posts.unshift(post); // Add to beginning
           // Update influencer stats
           const influencer = state.influencers.find(
-            (i) => i.id === post.influencerId
+            (i: AIInfluencer) => i.id === post.influencerId
           );
           if (influencer) {
             influencer.postCount += 1;
@@ -60,14 +60,14 @@ export const useInfluencerStore = create<InfluencerStore>()(
       },
 
       toggleLike: (postId: string) => {
-        set((state) => {
-          const post = state.posts.find((p) => p.id === postId);
+        set((state: any) => {
+          const post = state.posts.find((p: Post) => p.id === postId);
           if (post) {
             const wasLiked = post.isLiked;
             post.isLiked = !wasLiked;
             // Update influencer liked count
             const influencer = state.influencers.find(
-              (i) => i.id === post.influencerId
+              (i: AIInfluencer) => i.id === post.influencerId
             );
             if (influencer) {
               influencer.likedCount += wasLiked ? -1 : 1;
@@ -77,12 +77,12 @@ export const useInfluencerStore = create<InfluencerStore>()(
       },
 
       deletePost: (postId: string) => {
-        set((state) => {
-          const post = state.posts.find((p) => p.id === postId);
+        set((state: any) => {
+          const post = state.posts.find((p: Post) => p.id === postId);
           if (post) {
             // Update influencer stats
             const influencer = state.influencers.find(
-              (i) => i.id === post.influencerId
+              (i: AIInfluencer) => i.id === post.influencerId
             );
             if (influencer) {
               influencer.postCount -= 1;
@@ -92,30 +92,30 @@ export const useInfluencerStore = create<InfluencerStore>()(
               }
             }
             // Remove post
-            state.posts = state.posts.filter((p) => p.id !== postId);
+            state.posts = state.posts.filter((p: Post) => p.id !== postId);
           }
         });
       },
 
       // Selectors
       getInfluencer: (id: string) => {
-        return get().influencers.find((i) => i.id === id);
+        return get().influencers.find((i: AIInfluencer) => i.id === id);
       },
 
       getInfluencerPosts: (influencerId: string) => {
         return get()
-          .posts.filter((p) => p.influencerId === influencerId)
+          .posts.filter((p: Post) => p.influencerId === influencerId)
           .sort(
-            (a, b) =>
+            (a: Post, b: Post) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
       },
 
       getLikedPosts: (influencerId: string) => {
         return get()
-          .posts.filter((p) => p.influencerId === influencerId && p.isLiked)
+          .posts.filter((p: Post) => p.influencerId === influencerId && p.isLiked)
           .sort(
-            (a, b) =>
+            (a: Post, b: Post) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
           );
       },
@@ -129,17 +129,16 @@ export const useInfluencerStore = create<InfluencerStore>()(
 
 // Helper hooks for common patterns - use useShallow to prevent infinite re-renders
 export const useInfluencer = (id: string) => {
-  return useInfluencerStore((state) => state.influencers.find((i) => i.id === id));
+  return useInfluencerStore((state) => state.influencers.find((i: AIInfluencer) => i.id === id));
 };
 
 export const useInfluencerPosts = (influencerId: string) => {
   return useInfluencerStore(
     useShallow((state) =>
       state.posts
-        .filter((p) => p.influencerId === influencerId)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        .filter((p: Post) => p.influencerId === influencerId)
+        .sort((a: Post, b: Post) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
     )
   );
@@ -149,10 +148,9 @@ export const useLikedPosts = (influencerId: string) => {
   return useInfluencerStore(
     useShallow((state) =>
       state.posts
-        .filter((p) => p.influencerId === influencerId && p.isLiked)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        .filter((p: Post) => p.influencerId === influencerId && p.isLiked)
+        .sort((a: Post, b: Post) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
     )
   );
@@ -166,10 +164,9 @@ export const useInfluencerImages = (influencerId: string) => {
   return useInfluencerStore(
     useShallow((state) =>
       state.posts
-        .filter((p) => p.influencerId === influencerId)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        .filter((p: Post) => p.influencerId === influencerId)
+        .sort((a: Post, b: Post) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
     )
   );

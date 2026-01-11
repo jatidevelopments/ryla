@@ -1,5 +1,7 @@
 //@ts-check
 
+const path = require('path');
+
 const withSerwist = require('@serwist/next').default({
   swSrc: 'app/sw.ts',
   swDest: 'public/sw.js',
@@ -8,7 +10,8 @@ const withSerwist = require('@serwist/next').default({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business'],
+  output: 'standalone',
+  transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business', '@ryla/trpc', '@ryla/payments', '@ryla/analytics'],
   // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
   images: {
     remotePatterns: [
@@ -31,6 +34,27 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer, webpack }) => {
+    // Resolve @ryla/* packages to dist folder
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      // @/ alias for app directory
+      '@': path.resolve(__dirname, './'),
+      // @ryla/* package aliases
+      // Point to directories, webpack will resolve index.js automatically
+      '@ryla/ui': path.resolve(__dirname, '../../dist/libs/ui/src'),
+      '@ryla/shared': path.resolve(__dirname, '../../dist/libs/shared/src'),
+      '@ryla/business': path.resolve(__dirname, '../../dist/libs/business/src'),
+      '@ryla/trpc': path.resolve(__dirname, '../../dist/libs/trpc/src'),
+      '@ryla/trpc/client': path.resolve(__dirname, '../../dist/libs/trpc/src/client'),
+      '@ryla/trpc/context': path.resolve(__dirname, '../../dist/libs/trpc/src/context'),
+      '@ryla/payments': path.resolve(__dirname, '../../dist/libs/payments/src'),
+      '@ryla/analytics': path.resolve(__dirname, '../../dist/libs/analytics/src'),
+      // @ryla/data is server-only, but we need the alias for build-time resolution
+      '@ryla/data': path.resolve(__dirname, '../../dist/libs/data/src'),
+      // @ryla/email is server-only, but we need the alias for build-time resolution
+      '@ryla/email': path.resolve(__dirname, '../../dist/libs/email/src'),
+    };
+
     // Exclude server-only modules from client bundle
     if (!isServer) {
       // Add all Node.js built-ins to fallback
@@ -65,6 +89,13 @@ const nextConfig = {
            * @param {string} context
            */
           checkResource(resource, context) {
+            // Ignore @ryla/data and @ryla/email on client side (server-only)
+            if (resource === '@ryla/data' || resource.includes('@ryla/data')) {
+              return true;
+            }
+            if (resource === '@ryla/email' || resource.includes('@ryla/email')) {
+              return true;
+            }
             // Ignore pg and related packages
             if (resource === 'pg' || resource === 'pg-native') {
               return true;
@@ -102,6 +133,20 @@ const nextConfig = {
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /^pg$/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+
+      // Replace @ryla/data and @ryla/email with empty module on client side (server-only)
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^@ryla\/data$/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^@ryla\/email$/,
           require.resolve('./lib/trpc/empty-module.js')
         )
       );

@@ -4,8 +4,8 @@ import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { useCredits } from '../../../lib/hooks/use-credits';
 import { ZeroCreditsModal } from '../../credits';
-import { FEATURE_CREDITS } from '../../../constants/pricing';
-import { useWizardGeneration } from './hooks/use-wizard-generation';
+import { FEATURE_CREDITS } from '@ryla/shared';
+import { useWizardGeneration } from '../hooks';
 import {
   GenerateLoadingState,
   GenerateErrorState,
@@ -26,11 +26,16 @@ export function StepGenerate() {
   const setField = useCharacterWizardStore((s) => s.setField);
 
   // Credit management
-  const { balance, isLoading: isLoadingCredits, refetch: refetchCredits } = useCredits();
+  const {
+    balance,
+    isLoading: isLoadingCredits,
+    refetch: refetchCredits,
+  } = useCredits();
   const [showCreditModal, setShowCreditModal] = React.useState(false);
 
   // Calculate cost based on quality mode
-  const creditCost = form.qualityMode === 'hq' ? BASE_IMAGE_CREDITS * 2 : BASE_IMAGE_CREDITS;
+  const creditCost =
+    form.qualityMode === 'hq' ? BASE_IMAGE_CREDITS * 2 : BASE_IMAGE_CREDITS;
   const hasEnoughCredits = balance >= creditCost;
 
   // Generation logic hook
@@ -47,16 +52,18 @@ export function StepGenerate() {
   const summaryItems = React.useMemo(
     () =>
       [
-        { label: 'Gender', value: form.gender },
-        { label: 'Style', value: form.style },
-        { label: 'Ethnicity', value: form.ethnicity },
+        { label: 'Gender', value: form.gender ?? undefined },
+        { label: 'Style', value: form.style ?? undefined },
+        { label: 'Ethnicity', value: form.ethnicity ?? undefined },
         { label: 'Age', value: form.age },
         {
           label: 'Hair',
-          value: `${form.hairColor || ''} ${form.hairStyle || ''}`.trim(),
+          value:
+            `${form.hairColor || ''} ${form.hairStyle || ''}`.trim() ||
+            undefined,
         },
-        { label: 'Eyes', value: form.eyeColor },
-        { label: 'Body', value: form.bodyType },
+        { label: 'Eyes', value: form.eyeColor ?? undefined },
+        { label: 'Body', value: form.bodyType ?? undefined },
       ].filter((item) => item.value),
     [form]
   );
@@ -71,14 +78,19 @@ export function StepGenerate() {
 
   return (
     <div className="flex flex-col items-center">
-      <GenerateHeader name={form.name || 'Your AI Influencer'} personalityTraits={form.personalityTraits} />
+      <GenerateHeader
+        name={form.name || 'Your AI Influencer'}
+        personalityTraits={form.personalityTraits}
+      />
       <CharacterSummary items={summaryItems} />
       <GenerationSettings
         aspectRatio={form.aspectRatio || '1:1'}
         qualityMode={form.qualityMode || 'draft'}
         nsfwEnabled={form.nsfwEnabled}
         onAspectRatioChange={(ratio) => setField('aspectRatio', ratio)}
-        onQualityModeChange={(checked) => setField('qualityMode', checked ? 'hq' : 'draft')}
+        onQualityModeChange={(checked) =>
+          setField('qualityMode', checked ? 'hq' : 'draft')
+        }
         onNsfwChange={(checked) => setField('nsfwEnabled', checked)}
       />
       <GenerateButton

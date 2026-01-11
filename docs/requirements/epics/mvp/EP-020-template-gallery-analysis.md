@@ -329,3 +329,4 @@ CREATE INDEX idx_templates_config ON templates USING GIN (config); -- For filter
    - **Recommendation**: Opt-in (is_public = false by default)
 
 
+

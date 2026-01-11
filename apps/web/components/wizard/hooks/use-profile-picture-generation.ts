@@ -79,13 +79,13 @@ export function useProfilePictureGeneration(): UseProfilePictureGenerationReturn
             ...image,
             positionId,
             positionName,
-            isNSFW: positionId.startsWith('nsfw-'),
+            isNSFW: image.isNSFW ?? positionId.startsWith('nsfw-'),
           };
 
           const currentImages = profilePictureSet.images;
-          const skeletonIndex = currentImages.findIndex(
-            (img) => img.positionId === positionId && img.url === 'skeleton'
-          );
+          const skeletonIndex = Array.isArray(currentImages)
+            ? currentImages.findIndex((img) => img.positionId === positionId && img.url === 'skeleton')
+            : -1;
 
           if (skeletonIndex !== -1) {
             const updatedImages = [...currentImages];
@@ -134,7 +134,7 @@ export function useProfilePictureGeneration(): UseProfilePictureGenerationReturn
             nsfwEnabled: form.nsfwEnabled,
             setId: 'classic-influencer',
           },
-          () => {}
+          () => { }
         );
 
         updateProfilePicture(imageId, {
@@ -165,7 +165,7 @@ export function useProfilePictureGeneration(): UseProfilePictureGenerationReturn
             nsfwEnabled: form.nsfwEnabled,
             setId: 'classic-influencer',
           },
-          () => {}
+          () => { }
         );
 
         updateProfilePicture(imageId, {

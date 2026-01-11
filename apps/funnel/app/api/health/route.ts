@@ -1,0 +1,19 @@
+/**
+ * Health Check Endpoint
+ * Used by Fly.io for health checks and monitoring
+ */
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+export async function GET() {
+  return Response.json(
+    {
+      status: 'ok',
+      timestamp: Date.now(),
+      service: 'funnel',
+    },
+    { status: 200 }
+  );
+}
+

@@ -3,11 +3,11 @@
 import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { RylaButton, cn } from '@ryla/ui';
+import { RylaButton } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
 import {
   ArrowLeft,
-  Plus,
+  
   Sparkles,
   Heart,
   Images,
@@ -30,12 +30,12 @@ function getInitials(name: string): string {
 
 export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
   const [imageError, setImageError] = React.useState(false);
-  
+
   // Guard against undefined influencer
   if (!influencer) {
     return null;
   }
-  
+
   const hasValidImage = influencer.avatar && !imageError;
 
   return (
@@ -64,7 +64,7 @@ export function InfluencerProfile({ influencer }: InfluencerProfileProps) {
             <div className="relative h-28 w-28 overflow-hidden rounded-2xl border border-[var(--border-default)] bg-[var(--bg-subtle)] shadow-xl">
               {hasValidImage ? (
                 <Image
-                  src={influencer.avatar}
+                  src={influencer.avatar!}
                   alt={influencer.name}
                   fill
                   className="object-cover"

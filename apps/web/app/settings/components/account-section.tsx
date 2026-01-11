@@ -51,16 +51,27 @@ export function AccountSection({
 
         <div className="border-t border-white/10 pt-4">
           <Label className="text-white">Email</Label>
-          <p className="mt-1 text-sm text-white/60">{user?.email || 'Not set'}</p>
-          <p className="mt-1 text-xs text-white/40">Email changes aren't supported yet.</p>
+          <p className="mt-1 text-sm text-white/60">
+            {user?.email || 'Not set'}
+          </p>
+          <p className="mt-1 text-xs text-white/40">
+            Email changes aren&apos;t supported yet.
+          </p>
         </div>
 
         <div className="flex flex-col gap-3 border-t border-white/10 pt-4 md:flex-row md:items-center md:justify-between">
           <div>
             <Label className="text-white">Profile</Label>
-            <p className="text-sm text-white/60">Update your name and username</p>
+            <p className="text-sm text-white/60">
+              Update your name and username
+            </p>
           </div>
-          <Button variant="outline" size="sm" onClick={onSave} disabled={isSaving}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onSave}
+            disabled={isSaving}
+          >
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </div>
@@ -68,4 +79,3 @@ export function AccountSection({
     </section>
   );
 }
-

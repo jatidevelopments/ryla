@@ -52,7 +52,7 @@ export function StepInfluencerRequest() {
         tiktok: form.influencerRequestTikTok || undefined,
         description: form.influencerRequestDescription || undefined,
       });
-    } catch (err) {
+    } catch (_err) {
       // Error handled in onError
     }
   };

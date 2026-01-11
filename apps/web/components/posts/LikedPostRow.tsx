@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Image from "next/image";
-import { cn, Button, Checkbox } from "@ryla/ui";
+import { cn, Checkbox } from "@ryla/ui";
 import { useInfluencerStore } from "@ryla/business";
 import type { Post } from "@ryla/shared";
 

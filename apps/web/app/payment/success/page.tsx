@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Check, Sparkles, ArrowRight } from 'lucide-react';
+import { Check, ArrowRight } from 'lucide-react';
 import { PageContainer, FadeInUp, RylaButton } from '@ryla/ui';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 
-export default function PaymentSuccessPage() {
+function SuccessContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
@@ -33,71 +33,79 @@ export default function PaymentSuccessPage() {
   };
 
   return (
-    <ProtectedRoute>
-      <PageContainer className="flex items-center justify-center min-h-screen">
-        <FadeInUp>
-          <div className="max-w-md w-full text-center">
-            {/* Success Icon */}
-            <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30">
-              <Check className="h-10 w-10 text-emerald-400" />
-            </div>
+    <PageContainer className="flex items-center justify-center min-h-screen">
+      <FadeInUp>
+        <div className="max-w-md w-full text-center">
+          {/* Success Icon */}
+          <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-500/20 border border-emerald-500/30">
+            <Check className="h-10 w-10 text-emerald-400" />
+          </div>
 
-            {/* Title */}
-            <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
-              Payment Successful!
-            </h1>
+          {/* Title */}
+          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-2">
+            Payment Successful!
+          </h1>
 
-            {/* Message */}
-            <p className="text-[var(--text-secondary)] mb-8">
-              {isLoading
-                ? 'Processing your payment...'
-                : type === 'subscription'
-                ? 'Your subscription has been activated. Credits have been added to your account.'
-                : 'Your credits have been added to your account and are ready to use.'}
-            </p>
+          {/* Message */}
+          <p className="text-[var(--text-secondary)] mb-8">
+            {isLoading
+              ? 'Processing your payment...'
+              : type === 'subscription'
+              ? 'Your subscription has been activated. Credits have been added to your account.'
+              : 'Your credits have been added to your account and are ready to use.'}
+          </p>
 
-            {/* Reference */}
-            {reference && (
-              <div className="mb-8 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)]">
-                <p className="text-xs text-[var(--text-muted)] mb-1">
-                  Payment Reference
-                </p>
-                <p className="text-sm font-mono text-[var(--text-secondary)]">
-                  {reference}
-                </p>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div className="space-y-3">
-              <RylaButton
-                onClick={handleContinue}
-                variant="glassy"
-                className="w-full"
-                size="lg"
-              >
-                {type === 'subscription'
-                  ? 'View Subscription'
-                  : 'Buy More Credits'}
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </RylaButton>
-
-              <RylaButton asChild variant="ghost" className="w-full">
-                <Link href="/dashboard">Go to Dashboard</Link>
-              </RylaButton>
-            </div>
-
-            {/* Help */}
-            <div className="mt-8 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)]">
-              <p className="text-xs text-[var(--text-muted)]">
-                If you don't see your credits or subscription, please wait a few
-                moments and refresh the page. If the issue persists, contact
-                support.
+          {/* Reference */}
+          {reference && (
+            <div className="mb-8 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)]">
+              <p className="text-xs text-[var(--text-muted)] mb-1">
+                Payment Reference
+              </p>
+              <p className="text-sm font-mono text-[var(--text-secondary)]">
+                {reference}
               </p>
             </div>
+          )}
+
+          {/* Actions */}
+          <div className="space-y-3">
+            <RylaButton
+              onClick={handleContinue}
+              variant="glassy"
+              className="w-full"
+              size="lg"
+            >
+              {type === 'subscription'
+                ? 'View Subscription'
+                : 'Buy More Credits'}
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </RylaButton>
+
+            <RylaButton asChild variant="ghost" className="w-full">
+              <Link href="/dashboard">Go to Dashboard</Link>
+            </RylaButton>
           </div>
-        </FadeInUp>
-      </PageContainer>
+
+          {/* Help */}
+          <div className="mt-8 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)]">
+            <p className="text-xs text-[var(--text-muted)]">
+              If you don&apos;t see your credits or subscription, please wait a
+              few moments and refresh the page. If the issue persists, contact
+              support.
+            </p>
+          </div>
+        </div>
+      </FadeInUp>
+    </PageContainer>
+  );
+}
+
+export default function PaymentSuccessPage() {
+  return (
+    <ProtectedRoute>
+      <Suspense>
+        <SuccessContent />
+      </Suspense>
     </ProtectedRoute>
   );
 }

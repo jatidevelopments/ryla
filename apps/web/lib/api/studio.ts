@@ -6,11 +6,11 @@
  */
 
 import { authFetch } from '../auth';
-import { OutfitComposition, buildOutfitPrompt } from '@ryla/shared';
+import { OutfitComposition, AspectRatio } from '@ryla/shared';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-export type AspectRatio = '1:1' | '9:16' | '2:3';
+export type { AspectRatio } from '@ryla/shared';
 export type QualityMode = 'draft' | 'hq';
 
 export interface GenerateStudioImagesInput {
@@ -29,7 +29,7 @@ export interface GenerateStudioImagesInput {
   promptEnhance?: boolean; // Enable AI prompt enhancement (uses OpenRouter/Gemini/OpenAI)
   seed?: number;
   modelProvider?: 'comfyui' | 'fal';
-  modelId?: 'fal-ai/flux/schnell' | 'fal-ai/flux/dev';
+  modelId?: string;
   isRetry?: boolean; // Indicates this is a retry of a failed image (should not charge credits)
   retryImageId?: string; // ID of the failed image being retried
 }
@@ -67,10 +67,10 @@ export async function generateStudioImages(input: GenerateStudioImagesInput): Pr
   jobs: Array<{ jobId: string; promptId: string }>;
 }> {
   // Send outfit as-is (backend will handle both string and object)
-  const outfitPayload = typeof input.outfit === 'string' 
-    ? input.outfit 
+  const outfitPayload = typeof input.outfit === 'string'
+    ? input.outfit
     : input.outfit; // Send object directly, backend will handle it
-  
+
   const response = await authFetch(`${API_BASE_URL}/image/generate/studio`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

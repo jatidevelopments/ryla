@@ -32,6 +32,7 @@ export type Config = {
   affiliateConfig: AffiliateConfig;
   trustpayConfig: TrustpayConfig;
   trustpayCacheConfig: TrustpayCacheConfig;
+  finbyConfig: FinbyConfig;
   metaConfig: MetaConfig;
   externalAuth: ExternalAuth;
   abTestConfig: AbTestConfig;
@@ -327,5 +328,15 @@ export type CharacterGenerationConfig = {
 export type ImageGalleryConfig = {
   albumPurchasePrice: number;
   imagePromptPurchasePrice: number;
+};
+
+export type FinbyConfig = {
+  projectId: string;
+  secretKey: string;
+  apiKey?: string;
+  merchantId?: string;
+  baseUrl?: string;
+  webhookSecret?: string;
+  apiVersion?: 'v1' | 'v3';
 };
 

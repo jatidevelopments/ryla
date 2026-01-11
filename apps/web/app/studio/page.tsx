@@ -14,6 +14,7 @@ import {
   StudioMainContent,
   StudioTutorial,
 } from './components';
+import { LockScreen } from '../../components/ui/lock-screen';
 
 export default function StudioPage() {
   return (
@@ -31,6 +32,23 @@ function StudioContent() {
 
   // Consolidated state management
   const state = useStudioState();
+
+  // Check if user has any influencers
+  const hasInfluencers = state.influencerList.length > 0;
+
+  // Show lock screen if no influencers exist
+  if (!hasInfluencers) {
+    return (
+      <div className="flex flex-1 flex-col overflow-hidden bg-[var(--bg-base)] h-full">
+        <LockScreen
+          title="Studio Locked"
+          description="Create your first AI influencer to unlock the Studio and start generating amazing content."
+          createButtonText="Create Influencer"
+          createButtonHref="/wizard/step-0"
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden bg-[var(--bg-base)] pb-[200px] md:pb-[180px] h-full">

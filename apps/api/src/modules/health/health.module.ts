@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 
 // import { RedisModule } from '../redis/redis.module';
-import { HealthController } from './health.controller';
 // import { HealthService } from './services/health.service';
 
 // Minimal health controller for debugging

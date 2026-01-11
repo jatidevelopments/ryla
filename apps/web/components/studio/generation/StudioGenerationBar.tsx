@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { cn } from '@ryla/ui';
 import type { GenerationSettings } from './types';
-import { QUALITY_OPTIONS, ALL_POSES } from './types';
+import { ALL_POSES } from './types';
 import type { StudioImage } from '../studio-image-card';
 import { ModeSelector } from './pickers/ModeSelector';
 import type { StudioMode, ContentType } from './types';
@@ -48,7 +48,7 @@ export function StudioGenerationBar({
   selectedInfluencer,
   onInfluencerChange,
   onGenerate,
-  isGenerating = false,
+  isGenerating: _isGenerating = false,
   creditsAvailable = 250,
   selectedImage = null,
   onClearSelectedImage,

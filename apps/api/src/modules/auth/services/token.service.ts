@@ -65,7 +65,7 @@ export class TokenService {
       return await this.jwtService.verifyAsync(token, {
         secret: this.getSecret(type),
       });
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid token');
     }
   }
@@ -78,7 +78,7 @@ export class TokenService {
       return await this.jwtService.verifyAsync(token, {
         secret: this.getActionSecret(type),
       });
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException(
         'Incorrect magic_token. Please request another one.',
       );
@@ -104,7 +104,7 @@ export class TokenService {
   public async generateDevToken(payload: IJwtPayload): Promise<string> {
     // 10 years in seconds (315360000 seconds)
     const tenYearsInSeconds = 10 * 365 * 24 * 60 * 60;
-    
+
     return await this.jwtService.signAsync(payload, {
       secret: this.jwtConfig.accessSecret,
       expiresIn: tenYearsInSeconds,

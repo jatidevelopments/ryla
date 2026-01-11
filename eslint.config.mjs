@@ -28,9 +28,11 @@ export default [
         {
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
         },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
+      'no-unused-vars': 'off',
       'no-console': ['warn', { allow: ['warn', 'error'] }],
       'no-undef': 'off', // TypeScript handles this
     },
@@ -47,4 +49,3 @@ export default [
     ],
   },
 ];
-

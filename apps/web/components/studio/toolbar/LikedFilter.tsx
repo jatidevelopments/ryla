@@ -18,7 +18,7 @@ const TOOLTIPS: Record<LikedFilter, string> = {
   'not-liked': "Show images you haven't liked",
 };
 
-export function LikedFilter({ liked, onLikedChange }: LikedFilterProps) {
+export function LikedFilterGroup({ liked, onLikedChange }: LikedFilterProps) {
   return (
     <div className="flex rounded-lg md:rounded-lg border border-[var(--border-default)] bg-[var(--bg-base)] p-0.5">
       {LIKED_OPTIONS.map((l) => (

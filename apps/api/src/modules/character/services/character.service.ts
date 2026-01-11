@@ -1,16 +1,15 @@
-// Placeholder CharacterService - to be fully implemented
 import { Injectable } from '@nestjs/common';
 import { CharacterCacheService } from './character-cache.service';
+import { CharacterRepository } from '@ryla/data';
 
 @Injectable()
 export class CharacterService {
   constructor(
     private readonly characterCacheService: CharacterCacheService,
-    // TODO: Add CharacterRepository, ImageService, etc. when available
-  ) {}
+    private readonly characterRepository: CharacterRepository,
+  ) { }
 
-  // TODO: Implement character creation methods
-  // TODO: Implement character retrieval methods
-  // TODO: Implement character update methods
+  async findAll(userId: string) {
+    return this.characterRepository.findAll(userId);
+  }
 }
-

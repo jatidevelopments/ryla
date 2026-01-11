@@ -12,12 +12,12 @@ export function characterConfigToDNA(
   const hairParts: string[] = [];
   if (config.hairColor) hairParts.push(config.hairColor);
   if (config.hairStyle) hairParts.push(config.hairStyle);
-  const hairDesc = hairParts.length > 0 
+  const hairDesc = hairParts.length > 0
     ? `${hairParts.join(' ')} hair`
     : 'natural hair';
 
   // Build eye description
-  const eyesDesc = config.eyeColor 
+  const eyesDesc = config.eyeColor
     ? `${config.eyeColor} eyes`
     : 'expressive eyes';
 
@@ -36,7 +36,8 @@ export function characterConfigToDNA(
     }
   } else if (config.ethnicity) {
     const ethnicityLower = config.ethnicity.toLowerCase();
-    if (ethnicityLower.includes('asian')) {
+    // Precise matching to avoid "caucasian" matching "asian"
+    if (ethnicityLower.includes('asian') && !ethnicityLower.includes('caucasian')) {
       skinDesc = 'fair smooth skin';
     } else if (ethnicityLower.includes('african') || ethnicityLower.includes('black')) {
       skinDesc = 'rich dark skin';
@@ -89,29 +90,29 @@ export function characterConfigToDNA(
   const styleParts: string[] = [];
   if (config.archetype) styleParts.push(config.archetype);
   if (config.style) styleParts.push(config.style);
-  const styleDesc = styleParts.length > 0 
+  const styleDesc = styleParts.length > 0
     ? styleParts.join(' ')
     : undefined;
 
   // Build enhanced body type description
   let bodyTypeDesc = config.bodyType;
   if (config.assSize && config.assSize !== 'none') {
-    bodyTypeDesc = bodyTypeDesc 
+    bodyTypeDesc = bodyTypeDesc
       ? `${bodyTypeDesc}, ${config.assSize} ass`
       : `${config.assSize} ass`;
   }
   if (config.breastSize && config.breastSize !== 'none') {
-    const breastDesc = config.breastType 
+    const breastDesc = config.breastType
       ? `${config.breastSize} ${config.breastType} breasts`
       : `${config.breastSize} breasts`;
-    bodyTypeDesc = bodyTypeDesc 
+    bodyTypeDesc = bodyTypeDesc
       ? `${bodyTypeDesc}, ${breastDesc}`
       : breastDesc;
   }
 
   // Add tattoos to body description if present
   if (config.tattoos && config.tattoos !== 'none') {
-    bodyTypeDesc = bodyTypeDesc 
+    bodyTypeDesc = bodyTypeDesc
       ? `${bodyTypeDesc}, ${config.tattoos} tattoos`
       : `${config.tattoos} tattoos`;
   }
@@ -128,4 +129,3 @@ export function characterConfigToDNA(
     style: styleDesc,
   };
 }
-

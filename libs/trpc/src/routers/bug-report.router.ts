@@ -17,12 +17,12 @@ import type { ConsoleLogEntry, BrowserMetadata } from '@ryla/data/schema/bug-rep
 // Simple S3 client creation for screenshot upload
 // Note: This is a simplified approach for MVP
 function createS3Client() {
-  const accessKeyId = process.env.AWS_S3_ACCESS_KEY;
-  const secretAccessKey = process.env.AWS_S3_SECRET_KEY;
-  const endpoint = process.env.AWS_S3_ENDPOINT;
-  const region = process.env.AWS_S3_REGION || 'us-east-1';
+  const accessKeyId = process.env['AWS_S3_ACCESS_KEY'];
+  const secretAccessKey = process.env['AWS_S3_SECRET_KEY'];
+  const endpoint = process.env['AWS_S3_ENDPOINT'];
+  const region = process.env['AWS_S3_REGION'] || 'us-east-1';
   // Use the main bucket (ryla-images) - bug reports are stored in bug-reports/ prefix
-  const bucketName = process.env.AWS_S3_BUCKET_NAME || 'ryla-images';
+  const bucketName = process.env['AWS_S3_BUCKET_NAME'] || 'ryla-images';
 
   if (!accessKeyId || !secretAccessKey) {
     console.error('S3 credentials not configured');
@@ -37,7 +37,7 @@ function createS3Client() {
         accessKeyId,
         secretAccessKey,
       },
-      forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true', // For MinIO
+      forcePathStyle: process.env['AWS_S3_FORCE_PATH_STYLE'] === 'true', // For MinIO
     }),
     bucketName,
   };

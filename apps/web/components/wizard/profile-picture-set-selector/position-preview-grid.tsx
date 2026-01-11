@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { cn } from '@ryla/ui';
 
 interface PositionPreviewGridProps {
-  positions: string[];
+  positions: readonly string[];
   setId: string;
   isVisible: boolean;
 }
@@ -32,7 +32,9 @@ export function PositionPreviewGrid({
               key={positionId}
               className={cn(
                 'relative aspect-square rounded-lg overflow-hidden transition-all duration-300 ring-1 ring-white/10 hover:ring-2 hover:ring-white/30',
-                isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
+                isVisible
+                  ? 'opacity-100 translate-y-0'
+                  : 'opacity-0 translate-y-4'
               )}
               style={{ transitionDelay: `${Math.min(idx, 4) * 40}ms` }}
             >
@@ -56,4 +58,3 @@ export function PositionPreviewGrid({
     </div>
   );
 }
-

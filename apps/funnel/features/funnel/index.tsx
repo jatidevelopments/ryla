@@ -1,7 +1,7 @@
 'use client';
 
 import { FormProvider } from 'react-hook-form';
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 import Stepper from '@/components/stepper';
@@ -42,7 +42,7 @@ export default function FunnelView() {
   const { orderedSteps } = useOrderedSteps();
 
   // Get creation method to determine flow
-  const creationMethod = form.watch('creation_method') as
+  const _creationMethod = form.watch('creation_method') as
     | 'presets'
     | 'ai'
     | 'custom'
@@ -52,7 +52,7 @@ export default function FunnelView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  const authToken = useAuthStore((s) => s.authToken);
+  const _authToken = useAuthStore((s) => s.authToken);
   const setStepInStore = useFunnelStore((s) => s.setStep);
 
   // Track last known values to prevent circular updates

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { createPortal } from 'react-dom';
-import { cn } from '@ryla/ui';
+// import { cn } from '@ryla/ui';
 
 interface UploadConsentDialogProps {
   onAccept: () => void;

@@ -64,7 +64,7 @@ function mapJobToActivity(
   let thumbnailUrl: string | null = null;
   if (job.output && typeof job.output === 'object') {
     const out = job.output as Record<string, unknown>;
-    
+
     // Try thumbnailUrls array first (most common)
     if (Array.isArray(out['thumbnailUrls']) && out['thumbnailUrls'].length > 0) {
       thumbnailUrl = out['thumbnailUrls'][0] as string;
@@ -124,6 +124,55 @@ function mapTxToActivity(
 // Router
 // ---------------------------------------------------------------------------
 
+// Shared schema for filtering
+const activityFilterSchema = z.object({
+  filter: z.enum(['all', 'generations', 'credits']).default('all'),
+  timeRange: z.enum(['all', 'today', 'week', 'month', 'custom']).default('all'),
+  startDate: z.string().datetime().nullish(),
+  endDate: z.string().datetime().nullish(),
+});
+
+/**
+ * Calculates time range boundaries based on input
+ */
+function getTimeBoundaries(
+  timeRange: string,
+  startDate?: string | null,
+  endDate?: string | null
+): { timeStart: Date | null; timeEnd: Date | null } {
+  let timeStart: Date | null = null;
+  let timeEnd: Date | null = null;
+  const now = new Date();
+
+  switch (timeRange) {
+    case 'today':
+      timeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      timeEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+      break;
+    case 'week': {
+      const dayOfWeek = now.getDay();
+      const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+      timeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
+      timeEnd = new Date(timeStart.getTime() + 7 * 24 * 60 * 60 * 1000);
+      break;
+    }
+    case 'month':
+      timeStart = new Date(now.getFullYear(), now.getMonth(), 1);
+      timeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+      break;
+    case 'custom':
+      if (startDate) timeStart = new Date(startDate);
+      if (endDate) timeEnd = new Date(endDate);
+      break;
+  }
+
+  return { timeStart, timeEnd };
+}
+
+// ---------------------------------------------------------------------------
+// Router
+// ---------------------------------------------------------------------------
+
 export const activityRouter = router({
   /**
    * List unified activity feed (paginated via cursor or page)
@@ -135,16 +184,8 @@ export const activityRouter = router({
           limit: z.number().min(1).max(100).default(20),
           cursor: z.string().nullish(), // base64-encoded cursor (for backward compatibility)
           page: z.number().min(1).nullish(), // page number (1-indexed)
-          filter: z
-            .enum(['all', 'generations', 'credits'])
-            .default('all'),
-          // Time range filtering
-          timeRange: z
-            .enum(['all', 'today', 'week', 'month', 'custom'])
-            .default('all'),
-          startDate: z.string().datetime().nullish(), // ISO date string for custom range
-          endDate: z.string().datetime().nullish(), // ISO date string for custom range
         })
+        .merge(activityFilterSchema)
         .optional()
     )
     .query(async ({ ctx, input }) => {
@@ -152,30 +193,7 @@ export const activityRouter = router({
       const userId = ctx.user.id;
 
       // Calculate time range boundaries
-      let timeStart: Date | null = null;
-      let timeEnd: Date | null = null;
-      const now = new Date();
-      
-      switch (timeRange) {
-        case 'today':
-          timeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-          timeEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-          break;
-        case 'week':
-          const dayOfWeek = now.getDay();
-          const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-          timeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
-          timeEnd = new Date(timeStart.getTime() + 7 * 24 * 60 * 60 * 1000);
-          break;
-        case 'month':
-          timeStart = new Date(now.getFullYear(), now.getMonth(), 1);
-          timeEnd = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-          break;
-        case 'custom':
-          if (startDate) timeStart = new Date(startDate);
-          if (endDate) timeEnd = new Date(endDate);
-          break;
-      }
+      const { timeStart, timeEnd } = getTimeBoundaries(timeRange, startDate, endDate);
 
       // Calculate offset if page is provided
       const offset = page ? (page - 1) * limit : undefined;
@@ -237,7 +255,7 @@ export const activityRouter = router({
             const jobTime = job.createdAt ?? job.startedAt ?? new Date();
             const timeBefore = new Date(jobTime.getTime() - 60000); // 60 seconds before (credits deducted before generation)
             const timeAfter = new Date(jobTime.getTime() + 30000); // 30 seconds after
-            
+
             // Try to find transaction by:
             // 1. characterId match (most reliable)
             // 2. Time proximity
@@ -247,19 +265,19 @@ export const activityRouter = router({
               gte(creditTransactions.createdAt, timeBefore),
               lte(creditTransactions.createdAt, timeAfter)
             ];
-            
+
             // Add characterId match if available
             if (job.characterId) {
               conditions.push(eq(creditTransactions.referenceId, job.characterId));
             }
-            
+
             const txRows = await ctx.db
               .select({ balanceAfter: creditTransactions.balanceAfter })
               .from(creditTransactions)
               .where(and(...conditions))
               .orderBy(desc(creditTransactions.createdAt))
               .limit(1);
-            
+
             let tx = txRows[0] ?? null;
 
             // Fallback: if no transaction found by time, try to get the most recent one for this character
@@ -277,7 +295,7 @@ export const activityRouter = router({
                 )
                 .orderBy(desc(creditTransactions.createdAt))
                 .limit(1);
-              
+
               tx = fallbackRows[0] ?? null;
             }
 
@@ -330,7 +348,7 @@ export const activityRouter = router({
         // Build conditions for count queries (include time range)
         const jobCountConditions = [eq(generationJobs.userId, userId)];
         const txCountConditions = [eq(creditTransactions.userId, userId)];
-        
+
         if (timeStart) {
           jobCountConditions.push(gte(generationJobs.createdAt, timeStart));
           txCountConditions.push(gte(creditTransactions.createdAt, timeStart));
@@ -344,15 +362,15 @@ export const activityRouter = router({
         const [jobCount, txCount] = await Promise.all([
           filter === 'all' || filter === 'generations'
             ? ctx.db
-                .select({ count: sql<number>`count(*)::int` })
-                .from(generationJobs)
-                .where(and(...jobCountConditions))
+              .select({ count: sql<number>`count(*)::int` })
+              .from(generationJobs)
+              .where(and(...jobCountConditions))
             : Promise.resolve([{ count: 0 }]),
           filter === 'all' || filter === 'credits'
             ? ctx.db
-                .select({ count: sql<number>`count(*)::int` })
-                .from(creditTransactions)
-                .where(and(...txCountConditions))
+              .select({ count: sql<number>`count(*)::int` })
+              .from(creditTransactions)
+              .where(and(...txCountConditions))
             : Promise.resolve([{ count: 0 }]),
         ]);
 
@@ -363,7 +381,7 @@ export const activityRouter = router({
       // Apply pagination
       let hasMore = false;
       let pageItems: ActivityItem[] = [];
-      
+
       if (page !== undefined) {
         // For page-based, apply offset and take limit
         const startIndex = offset!;
@@ -394,65 +412,84 @@ export const activityRouter = router({
         nextCursor,
         totalCount,
         hasNextPage: hasMore,
-        hasPreviousPage: page !== undefined ? page > 1 : false,
+        hasPreviousPage: !!page && page > 1,
       };
     }),
 
   /**
    * Get activity summary (counts) for the current user
    */
-  summary: protectedProcedure.query(async ({ ctx }) => {
-    const userId = ctx.user.id;
+  summary: protectedProcedure
+    .input(activityFilterSchema.optional())
+    .query(async ({ ctx, input }) => {
+      const { filter = 'all', timeRange = 'all', startDate, endDate } = input ?? {};
+      const userId = ctx.user.id;
 
-    // Count generation jobs by status
-    const jobCounts = await ctx.db
-      .select({
-        status: generationJobs.status,
-        count: sql<number>`count(*)::int`,
-      })
-      .from(generationJobs)
-      .where(eq(generationJobs.userId, userId))
-      .groupBy(generationJobs.status);
+      const { timeStart, timeEnd } = getTimeBoundaries(timeRange, startDate, endDate);
 
-    // Sum credit amounts by type (not count transactions)
-    // Amounts are: positive for added, negative for spent
-    const txSums = await ctx.db
-      .select({
-        type: creditTransactions.type,
-        total: sql<number>`COALESCE(SUM(${creditTransactions.amount}), 0)::int`,
-      })
-      .from(creditTransactions)
-      .where(eq(creditTransactions.userId, userId))
-      .groupBy(creditTransactions.type);
+      // Build conditions for count/sum queries
+      const jobConditions = [eq(generationJobs.userId, userId)];
+      const txConditions = [eq(creditTransactions.userId, userId)];
 
-    const generations = {
-      completed: jobCounts.find((j) => j.status === 'completed')?.count ?? 0,
-      failed: jobCounts.find((j) => j.status === 'failed')?.count ?? 0,
-      processing: jobCounts.find((j) => j.status === 'processing')?.count ?? 0,
-      queued: jobCounts.find((j) => j.status === 'queued')?.count ?? 0,
-    };
+      if (timeStart) {
+        jobConditions.push(gte(generationJobs.createdAt, timeStart));
+        txConditions.push(gte(creditTransactions.createdAt, timeStart));
+      }
+      if (timeEnd) {
+        jobConditions.push(lte(generationJobs.createdAt, timeEnd));
+        txConditions.push(lte(creditTransactions.createdAt, timeEnd));
+      }
 
-    // Sum actual credit amounts
-    // Added: positive amounts from subscription, purchase, admin_grant, bonus
-    // Spent: negative amounts from generation (take absolute value)
-    // Refunded: positive amounts from refund
-    const credits = {
-      added:
-        (txSums.find((t) => t.type === 'subscription')?.total ?? 0) +
-        (txSums.find((t) => t.type === 'purchase')?.total ?? 0) +
-        (txSums.find((t) => t.type === 'admin_grant')?.total ?? 0) +
-        (txSums.find((t) => t.type === 'bonus')?.total ?? 0),
-      spent: Math.abs(txSums.find((t) => t.type === 'generation')?.total ?? 0),
-      refunded: txSums.find((t) => t.type === 'refund')?.total ?? 0,
-    };
+      // Count generation jobs by status
+      const jobCounts =
+        filter === 'all' || filter === 'generations'
+          ? await ctx.db
+            .select({
+              status: generationJobs.status,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(generationJobs)
+            .where(and(...jobConditions))
+            .groupBy(generationJobs.status)
+          : [];
 
-    return {
-      generations,
-      credits,
-      totalEvents:
-        Object.values(generations).reduce((a, b) => a + b, 0) +
-        Object.values(credits).reduce((a, b) => a + b, 0),
-    };
-  }),
+      // Sum credit amounts by type
+      const txSums =
+        filter === 'all' || filter === 'credits'
+          ? await ctx.db
+            .select({
+              type: creditTransactions.type,
+              total: sql<number>`COALESCE(SUM(${creditTransactions.amount}), 0)::int`,
+            })
+            .from(creditTransactions)
+            .where(and(...txConditions))
+            .groupBy(creditTransactions.type)
+          : [];
+
+      const generations = {
+        completed: jobCounts.find((j) => j.status === 'completed')?.count ?? 0,
+        failed: jobCounts.find((j) => j.status === 'failed')?.count ?? 0,
+        processing: jobCounts.find((j) => j.status === 'processing')?.count ?? 0,
+        queued: jobCounts.find((j) => j.status === 'queued')?.count ?? 0,
+      };
+
+      const credits = {
+        added:
+          (txSums.find((t) => (t.type as string) === 'subscription_grant')?.total ?? 0) +
+          (txSums.find((t) => (t.type as string) === 'purchase')?.total ?? 0) +
+          (txSums.find((t) => (t.type as string) === 'admin_adjustment')?.total ?? 0) +
+          (txSums.find((t) => (t.type as string) === 'bonus')?.total ?? 0),
+        spent: Math.abs(txSums.find((t) => t.type === 'generation')?.total ?? 0),
+        refunded: txSums.find((t) => t.type === 'refund')?.total ?? 0,
+      };
+
+      return {
+        generations,
+        credits,
+        totalEvents:
+          Object.values(generations).reduce((a, b) => a + b, 0) +
+          Object.values(credits).reduce((a, b) => a + b, 0),
+      };
+    }),
 });
 

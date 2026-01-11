@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { HAIR_STYLE_OPTIONS, HAIR_COLOR_OPTIONS } from '@ryla/shared';
-import { WizardOptionCard } from '../WizardOptionCard';
+
 import { WizardImageCard } from '../WizardImageCard';
 import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
 

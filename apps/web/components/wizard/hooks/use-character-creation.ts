@@ -15,7 +15,7 @@ import { generateProfilePictureSetAndWait } from '../../../lib/api/character';
 export function useCharacterCreation() {
   const router = useRouter();
   const form = useCharacterWizardStore((s) => s.form);
-  const setField = useCharacterWizardStore((s) => s.setField);
+
   const setStatus = useCharacterWizardStore((s) => s.setStatus);
   const setCharacterId = useCharacterWizardStore((s) => s.setCharacterId);
   const resetForm = useCharacterWizardStore((s) => s.resetForm);
@@ -146,7 +146,7 @@ export function useCharacterCreation() {
           const totalCount = regularCount + nsfwCount;
 
           // Start tracking generation in store
-          const { start, updateProgress, complete, fail, upsertImage } = useProfilePicturesStore.getState();
+          const { start, complete, fail, upsertImage } = useProfilePicturesStore.getState();
 
           // Generate in background - track progress via store
           generateProfilePictureSetAndWait(
@@ -183,7 +183,7 @@ export function useCharacterCreation() {
             .then(({ jobIds }) => {
               // Start tracking with job IDs and total count
               start(character.id, {
-                setId: form.selectedProfilePictureSetId,
+                setId: form.selectedProfilePictureSetId!,
                 jobIds: jobIds,
                 totalCount,
               });

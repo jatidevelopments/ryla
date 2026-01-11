@@ -127,9 +127,9 @@ export class AuthService {
           loginUrl: appUrl,
         },
       });
-    } catch (error) {
+    } catch (_error) {
       // Log but don't fail registration
-      console.error('Failed to send welcome email:', error);
+      console.error('Failed to send welcome email:', _error);
     }
 
     // Generate tokens
@@ -289,9 +289,9 @@ export class AuthService {
           expiresIn: '1 hour',
         },
       });
-    } catch (error) {
+    } catch (_error) {
       // Log but don't fail the request (security: don't reveal if email exists)
-      console.error('Failed to send password reset email:', error);
+      console.error('Failed to send password reset email:', _error);
     }
   }
 
@@ -306,7 +306,7 @@ export class AuthService {
         dto.token,
         ActionTokenType.FORGOT_PASSWORD,
       ) as any; // Token service returns IJwtPayload which has userId
-    } catch (error) {
+    } catch (_error) {
       throw new UnauthorizedException('Invalid or expired reset token');
     }
 

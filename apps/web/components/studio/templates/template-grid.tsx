@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { TemplateCard } from './template-card';
-import { cn } from '@ryla/ui';
+
 import type { Template } from '@ryla/data/schema/templates.schema';
 
 export interface TemplateGridProps {
@@ -20,17 +20,17 @@ export function TemplateGrid({
 }: TemplateGridProps) {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-4">
         {Array.from({ length: 8 }).map((_, i) => (
           <div
             key={i}
-            className="rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)] animate-pulse"
+            className="rounded-2xl border border-[var(--border-default)] bg-[var(--bg-surface)] animate-pulse"
           >
             <div className="aspect-[9/16] bg-[var(--bg-subtle)]" />
             <div className="p-4 space-y-2">
               <div className="h-4 bg-[var(--bg-subtle)] rounded w-3/4" />
               <div className="h-4 bg-[var(--bg-subtle)] rounded w-1/2" />
-              <div className="h-8 bg-[var(--bg-subtle)] rounded" />
+              <div className="h-8 bg-[var(--bg-subtle)] rounded-xl" />
             </div>
           </div>
         ))}
@@ -79,4 +79,3 @@ export function TemplateGrid({
     </div>
   );
 }
-

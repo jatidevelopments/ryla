@@ -96,12 +96,13 @@ RUN addgroup --system --gid 1001 nodejs && \
 RUN mkdir -p /data && chown nextjs:nodejs /data
 
 # Copy built application from standalone output
-COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/funnel/.next/standalone ./
+# Nx builds Next.js in the source directory (apps/funnel/.next), not dist
+COPY --from=builder --chown=nextjs:nodejs /app/apps/funnel/.next/standalone ./
 
-# Static files need to be at dist/apps/funnel/.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/dist/apps/funnel/.next/static ./dist/apps/funnel/.next/static
+# Static files need to be at apps/funnel/.next/static (relative to server.js location)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/funnel/.next/static ./apps/funnel/.next/static
 
-# Public files need to be at apps/funnel/public
+# Public files need to be at apps/funnel/public (relative to server.js location)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/funnel/public ./apps/funnel/public
 
 USER nextjs

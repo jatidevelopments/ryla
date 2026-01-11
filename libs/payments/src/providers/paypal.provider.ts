@@ -29,7 +29,7 @@ export class PayPalProvider implements PaymentProvider {
     } catch {
       throw new Error('@paypal/checkout-server-sdk is not installed. Install it to use PayPalProvider.');
     }
-    
+
     this.webhookId = config.webhookId;
     this.baseUrl = config.url;
     this.client = new paypal.core.PayPalHttpClient(this.getEnvironment(config, paypal));
@@ -41,7 +41,7 @@ export class PayPalProvider implements PaymentProvider {
 
   async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession> {
     const accessToken = await this.getAccessToken();
-    const isSubscription = params.metadata?.isSubscription === 'true';
+    const isSubscription = params.metadata?.['isSubscription'] === 'true';
 
     if (isSubscription) {
       // Create subscription
@@ -89,7 +89,7 @@ export class PayPalProvider implements PaymentProvider {
       } catch {
         throw new Error('@paypal/checkout-server-sdk is not installed.');
       }
-      
+
       // Create one-time order
       const request = new paypal.orders.OrdersCreateRequest();
       request.requestBody({
@@ -270,7 +270,7 @@ export class PayPalProvider implements PaymentProvider {
     } catch {
       throw new Error('@paypal/checkout-server-sdk is not installed.');
     }
-    
+
     const accessToken = await this.getAccessToken();
     const request = new paypal.payments.CapturesRefundRequest(captureId);
 

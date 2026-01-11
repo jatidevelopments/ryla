@@ -12,28 +12,8 @@
     "outDir": "../../dist/apps/api",
     "baseUrl": "../..",
     "jsx": "react",
-    "skipLibCheck": true,
-    "paths": {
-      "@ryla/shared": ["libs/shared/src/index.ts"],
-      "@ryla/business": ["libs/business/src/index.ts"],
-      "@ryla/business/*": ["libs/business/src/*"],
-      "@ryla/data": ["libs/data/src/index.ts"],
-      "@ryla/data/*": ["libs/data/src/*"],
-      "@ryla/ui": ["libs/ui/src/index.ts"],
-      "@ryla/analytics": ["libs/analytics/src/index.ts"],
-      "@ryla/trpc": ["libs/trpc/src/index.ts"],
-      "@ryla/trpc/*": ["libs/trpc/src/*"],
-      "@ryla/email": ["libs/email/src/index.ts"],
-      "@ryla/email/*": ["libs/email/src/*"]
-    }
+    "skipLibCheck": true
   },
   "include": ["src/**/*.ts"],
-  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts"],
-  "references": [
-    { "path": "../../libs/shared" },
-    { "path": "../../libs/data" },
-    { "path": "../../libs/business" },
-    { "path": "../../libs/trpc" },
-    { "path": "../../libs/email" }
-  ]
+  "exclude": ["jest.config.ts", "src/**/*.spec.ts", "src/**/*.test.ts", "src/test/**/*"]
 }

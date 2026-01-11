@@ -3,7 +3,7 @@
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { ETHNICITY_OPTIONS } from '@ryla/shared';
-import { WizardOptionCard } from '../WizardOptionCard';
+
 import { WizardImageCard } from '../WizardImageCard';
 import {
   INFLUENCER_AGE_RANGES,

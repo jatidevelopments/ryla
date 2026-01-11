@@ -18,7 +18,7 @@ import {
   NotificationsRepository,
   type GenerationInput,
 } from '@ryla/data';
-import type { NotificationType } from '@ryla/data/schema';
+
 
 import { router, protectedProcedure } from '../trpc';
 
@@ -119,7 +119,7 @@ export const generationRouter = router({
         const notificationsRepo = new NotificationsRepository(ctx.db);
         await notificationsRepo.create({
           userId: ctx.user.id,
-          type: 'credits.low_balance' as NotificationType,
+          type: 'credits.low_balance',
           title: 'Low credits warning',
           body: `You have ${newBalance} credits remaining. Consider purchasing more.`,
           href: '/buy-credits',

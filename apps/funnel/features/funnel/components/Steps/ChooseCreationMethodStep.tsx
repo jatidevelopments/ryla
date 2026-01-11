@@ -3,7 +3,6 @@
 import { useEffect, useRef } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { Button } from '@/components/ui/button';
-import { Video } from '@/components/ui/video';
 import { useStepperContext } from '@/components/stepper/Stepper.context';
 import StepWrapper from '@/components/layouts/StepWrapper';
 import Image from 'next/image';

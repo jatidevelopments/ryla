@@ -7,6 +7,8 @@ import { CreditsModule } from '../credits/credits.module';
 import { CharacterController } from './character.controller';
 import { CharacterService } from './services/character.service';
 import { CharacterCacheService } from './services/character-cache.service';
+import { CharacterRepository } from '@ryla/data';
+import { DrizzleModule } from '../drizzle/drizzle.module';
 
 @Module({
   imports: [
@@ -14,15 +16,18 @@ import { CharacterCacheService } from './services/character-cache.service';
     RedisModule,
     forwardRef(() => ImageModule), // Import ImageModule for generation services
     CreditsModule, // Import for credit management
+    DrizzleModule,
   ],
   controllers: [CharacterController],
   providers: [
     CharacterService,
     CharacterCacheService,
+    CharacterRepository,
   ],
   exports: [
     CharacterService,
     CharacterCacheService,
+    CharacterRepository,
   ],
 })
 export class CharacterModule {}

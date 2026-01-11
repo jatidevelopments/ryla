@@ -235,7 +235,7 @@ export class TemplateService {
       userId: string | null;
       jobId: string | null;
       successful: boolean | null;
-      createdAt: Date;
+      createdAt: Date | null;
     }>;
   }> {
     return this.templatesRepo.getStats(id);

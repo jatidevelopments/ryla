@@ -17,6 +17,7 @@ export class UserService {
   constructor(
     @Inject('DRIZZLE_DB')
     private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(AuthCacheService)
     private readonly authCacheService: AuthCacheService,
   ) {
     this.usersRepository = new UsersRepository(this.db);
@@ -69,7 +70,7 @@ export class UserService {
    */
   public async getUserProfile(id: string): Promise<Omit<User, 'password'>> {
     const user = await this.getUserById(id);
-    const { password: _, ...profile } = user;
+    const { password: _password, ...profile } = user;
     return profile;
   }
 
@@ -95,7 +96,7 @@ export class UserService {
       throw new NotFoundException('User not found');
     }
 
-    const { password: _, ...profile } = user;
+    const { password: _password, ...profile } = user;
     return profile;
   }
 

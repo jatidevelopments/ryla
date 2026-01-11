@@ -7,14 +7,12 @@ import { useStepperContext } from '@/components/stepper/Stepper.context';
 import { Button } from '@/components/ui/button';
 import { FunnelSchema } from '@/features/funnel/hooks/useFunnelForm';
 import { safePostHogCapture } from '@/lib/analytics/posthog-utils';
-import { cn } from '@/lib/utils';
 
 export function AIReviewEditStep() {
   const { nextStep } = useStepperContext();
   const form = useFormContext<FunnelSchema>();
 
   const ai_generated_config = form.watch('ai_generated_config') as any;
-  const ai_description = form.watch('ai_description');
 
   const handleContinue = () => {
     if (!ai_generated_config) return;

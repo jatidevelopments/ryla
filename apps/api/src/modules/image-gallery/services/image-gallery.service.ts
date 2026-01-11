@@ -19,7 +19,7 @@ export class ImageGalleryService {
     private readonly redisService: RedisService,
     @Inject(AwsS3Service)
     private readonly s3: AwsS3Service,
-  ) {}
+  ) { }
 
   /**
    * Get images for a character - verifies user owns the character
@@ -205,7 +205,7 @@ export class ImageGalleryService {
       throw new NotFoundException('Image not found');
     }
 
-    const nextLiked = !Boolean(image.liked);
+    const nextLiked = !image.liked;
     await this.db
       .update(schema.images)
       .set({ liked: nextLiked, updatedAt: new Date() })

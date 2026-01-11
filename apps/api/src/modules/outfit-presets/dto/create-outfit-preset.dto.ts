@@ -30,11 +30,11 @@ export class OutfitCompositionDto {
 export class CreateOutfitPresetDto {
   @IsString()
   @IsNotEmpty()
-  influencerId: string;
+  influencerId!: string;
 
   @IsString()
   @IsNotEmpty()
-  name: string;
+  name!: string;
 
   @IsOptional()
   @IsString()
@@ -43,7 +43,7 @@ export class CreateOutfitPresetDto {
   @IsObject()
   @ValidateNested()
   @Type(() => OutfitCompositionDto)
-  composition: OutfitCompositionDto;
+  composition!: OutfitCompositionDto;
 
   @IsOptional()
   @IsBoolean()

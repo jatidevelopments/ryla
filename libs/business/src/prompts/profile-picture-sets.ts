@@ -476,7 +476,7 @@ export const classicInfluencerSet: ProfilePictureSet = {
   id: 'classic-influencer',
   name: 'Classic Influencer',
   description: 'Lifestyle profile pictures with activities - café, beach, park with dog, gym, and more',
-  characterDNA: characterDNATemplates.classicInfluencer,
+  characterDNA: characterDNATemplates['classicInfluencer'],
   style: 'Instagram influencer aesthetic',
   positions: classicInfluencerPositions,
   basePromptTemplate:
@@ -494,7 +494,7 @@ export const professionalModelSet: ProfilePictureSet = {
   id: 'professional-model',
   name: 'Professional Model',
   description: 'High-fashion editorial profile pictures - studio, gallery, boutique, runway, and more',
-  characterDNA: characterDNATemplates.highFashionModel,
+  characterDNA: characterDNATemplates['highFashionModel'],
   style: 'high fashion editorial',
   positions: professionalModelPositions,
   basePromptTemplate:
@@ -512,7 +512,7 @@ export const naturalBeautySet: ProfilePictureSet = {
   id: 'natural-beauty',
   name: 'Natural Beauty',
   description: 'Natural beauty profile pictures - garden, lake, forest, mountain, and nature scenes',
-  characterDNA: characterDNATemplates.asianBeauty,
+  characterDNA: characterDNATemplates['asianBeauty'],
   style: 'K-beauty aesthetic',
   positions: naturalBeautyPositions,
   basePromptTemplate:
@@ -545,40 +545,24 @@ export function buildProfilePicturePrompt(
   set: ProfilePictureSet,
   position: ProfilePicturePosition
 ): { prompt: string; negativePrompt: string } {
-  // Build character description from DNA
-  const characterParts: string[] = [];
-  if (set.characterDNA.ethnicity) {
-    characterParts.push(`${set.characterDNA.age} ${set.characterDNA.ethnicity} woman`);
-  } else {
-    characterParts.push(`${set.characterDNA.age} woman`);
-  }
-  characterParts.push(set.characterDNA.hair);
-  characterParts.push(set.characterDNA.eyes);
-  characterParts.push(set.characterDNA.skin);
-  if (set.characterDNA.facialFeatures) {
-    characterParts.push(set.characterDNA.facialFeatures);
-  }
-  if (set.characterDNA.bodyType) {
-    characterParts.push(set.characterDNA.bodyType);
-  }
-  const characterDescription = characterParts.join(', ');
+  const builder = new PromptBuilder()
+    .withCharacter(set.characterDNA)
+    .withTemplate(set.basePromptTemplate)
+    .withGoldStandard() // Enforce high-fidelity realism and identity preservation
+    .addDetails(position.angle, position.pose, position.expression, position.activity || '')
+    .addDetails(position.framing)
+    .forModel('flux-dev'); // Optimized for Flux-dev by default
 
-  // Replace template placeholders
-  let prompt = set.basePromptTemplate
-    .replace('{{character}}', characterDescription)
-    .replace('{{angle}}', position.angle)
-    .replace('{{pose}}', position.pose)
-    .replace('{{expression}}', position.expression)
-    .replace('{{lighting}}', position.lighting)
-    .replace('{{framing}}', position.framing)
-    .replace('{{activity}}', position.activity || '');
+  // Apply specific inputs if they exist in the position
+  if (position.lighting) builder.withLighting(position.lighting);
+  if (position.scene) builder.withScene(position.scene);
+  if (position.outfit) builder.withOutfit(position.outfit);
 
-  // Add style modifiers
-  prompt += ', ultra-detailed, high resolution, 8k quality, professional photography, masterpiece, best quality';
+  const result = builder.build();
 
   return {
-    prompt,
-    negativePrompt: set.negativePrompt,
+    prompt: result.prompt,
+    negativePrompt: result.negativePrompt,
   };
 }
 

@@ -4,7 +4,7 @@ import * as React from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { RylaInput, RylaCheckbox } from '@ryla/ui';
-import { PasswordStrength, isPasswordValid } from '../../../components/auth/PasswordStrength';
+import { PasswordStrength } from '../../../components/auth/PasswordStrength';
 import { GoogleButton } from './google-button';
 import { PrimaryButton } from './primary-button';
 import { slideIn } from '../constants';
@@ -19,7 +19,10 @@ interface RegisterFormData {
 
 interface RegisterFormProps {
   registerData: RegisterFormData;
-  onRegisterChange: (field: keyof RegisterFormData, value: string | boolean) => void;
+  onRegisterChange: (
+    field: keyof RegisterFormData,
+    value: string | boolean
+  ) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   onGoogleAuth: () => void;
@@ -123,8 +126,8 @@ export function RegisterForm({
           value={registerData.confirmPassword}
           onChange={(e) => onRegisterChange('confirmPassword', e.target.value)}
           disabled={isLoading}
-          error={passwordsDontMatch}
-          success={passwordsMatch}
+          error={!!passwordsDontMatch}
+          success={!!passwordsMatch}
           aria-label="Confirm password"
         />
         {registerData.confirmPassword && (
@@ -215,4 +218,3 @@ export function RegisterForm({
     </motion.form>
   );
 }
-

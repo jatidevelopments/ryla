@@ -1,7 +1,7 @@
 'use client';
 
 import { X } from 'lucide-react';
-import type { OutfitComposition } from '@ryla/shared';
+// import type { OutfitComposition } from '@ryla/shared';
 
 interface SavePresetDialogProps {
   isOpen: boolean;

@@ -2,7 +2,7 @@
 
 import { Sparkles } from 'lucide-react';
 import { cn, Button } from '@ryla/ui';
-import type { CreditPackage } from '../../constants/pricing';
+import type { CreditPackage } from '@ryla/shared';
 
 interface CreditPackageCardProps {
   package_: CreditPackage;

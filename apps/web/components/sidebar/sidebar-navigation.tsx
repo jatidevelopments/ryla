@@ -8,6 +8,7 @@ import {
   PhotoIcon,
   ClockIcon,
   TemplatesIcon,
+  LockIcon,
 } from './sidebar-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -17,6 +18,7 @@ export interface MenuItem {
   icon: React.ComponentType<{ className?: string }>;
   isActive: (pathname: string) => boolean;
   highlight?: boolean;
+  isLocked?: boolean;
 }
 
 export const menuItems: MenuItem[] = [
@@ -72,6 +74,7 @@ export function SidebarNavigation({
       {items.map((item) => {
         const isActive = item.isActive(pathname || '');
         const Icon = item.icon;
+        const isLocked = item.isLocked;
         return (
           <Link
             key={item.title}
@@ -81,6 +84,7 @@ export function SidebarNavigation({
               'group relative flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium transition-all duration-300',
               isActive ? 'text-white' : 'text-white/60 hover:text-white',
               item.highlight && !isActive && 'text-[var(--purple-300)]',
+              isLocked && 'opacity-60 cursor-not-allowed',
               !isExpanded && 'justify-center px-0'
             )}
           >
@@ -152,6 +156,16 @@ export function SidebarNavigation({
               <span className="relative z-10 truncate transition-transform duration-300 group-hover:translate-x-0.5">
                 {item.title}
               </span>
+            )}
+
+            {isLocked && (
+              <motion.div
+                className="relative z-10 shrink-0 ml-auto"
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+              >
+                <LockIcon className="h-4 w-4 text-white/40" />
+              </motion.div>
             )}
           </Link>
         );

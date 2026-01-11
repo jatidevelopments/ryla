@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 import type {
   PaymentProvider,
   Shift4Config,
@@ -54,7 +54,7 @@ export class Shift4Provider implements PaymentProvider {
       .createHmac('sha256', this.secretKey)
       .update(jsonRequest)
       .digest('base64');
-    
+
     const signedRequest = `${signature}|${jsonRequest}`;
     return Buffer.from(signedRequest).toString('base64');
   }
@@ -64,7 +64,7 @@ export class Shift4Provider implements PaymentProvider {
   // ===========================================================================
 
   async createCheckoutSession(params: CheckoutSessionParams): Promise<CheckoutSession> {
-    const isSubscription = params.mode === 'subscription' || params.metadata?.isSubscription === 'true';
+    const isSubscription = params.mode === 'subscription' || params.metadata?.['isSubscription'] === 'true';
 
     if (isSubscription) {
       // Create subscription checkout

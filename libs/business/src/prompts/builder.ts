@@ -263,9 +263,30 @@ export class PromptBuilder {
       // Add realism modifiers
       this.modifiers.push(
         ...styleModifiers.ultraRealistic,
-        ...styleModifiers.naturalSkin
+        ...styleModifiers.naturalSkin,
+        ...styleModifiers.optics
       );
     }
+    return this;
+  }
+
+  /**
+   * Apply "Gold Standard" realism constraints
+   * Focuses on identity preservation, fabric physics, and anti-bias enforcement.
+   * 
+   * @example
+   *   builder.withGoldStandard()
+   */
+  withGoldStandard(): this {
+    this.modifiers.push(
+      'strict facial identity preservation',
+      'avoiding beautification bias',
+      'no softened morphology',
+      'preserving natural facial tension',
+      'credible musculature',
+      'realistic fabric physics and interaction'
+    );
+    this.withRealismMode(true);
     return this;
   }
 
@@ -739,7 +760,7 @@ export function buildOutfitPrompt(composition: OutfitComposition | null | undefi
   // Accessories (multiple)
   if (composition.accessories && composition.accessories.length > 0) {
     const accessoryLabels = composition.accessories
-      .map(id => {
+      .map((id: string) => {
         const piece = getPieceById(id);
         return piece ? piece.label.toLowerCase() : id;
       })

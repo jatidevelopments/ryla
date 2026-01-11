@@ -21,7 +21,7 @@ export function useBaseImageGeneration({
 }: UseBaseImageGenerationOptions = {}) {
   const form = useCharacterWizardStore((s) => s.form);
   const baseImages = useCharacterWizardStore((s) => s.baseImages);
-  const baseImageAllJobIds = useCharacterWizardStore((s) => s.baseImageAllJobIds);
+  const _baseImageAllJobIds = useCharacterWizardStore((s) => s.baseImageAllJobIds);
   const setBaseImages = useCharacterWizardStore((s) => s.setBaseImages);
   const clearBaseImageJobIds = useCharacterWizardStore((s) => s.clearBaseImageJobIds);
   const selectBaseImage = useCharacterWizardStore((s) => s.selectBaseImage);

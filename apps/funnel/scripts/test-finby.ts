@@ -13,6 +13,7 @@
  * Make sure .env.local file exists with required variables
  */
 
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars, no-console */
 import axios from 'axios';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
@@ -263,7 +264,7 @@ async function runTests() {
 function printSummary() {
     console.log('─'.repeat(60));
     console.log('\n📊 Test Summary:\n');
-    
+
     const passed = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success).length;
     const total = results.length;

@@ -1,14 +1,12 @@
-"use client";
+'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { AnimatedBeam } from "@/components/ui/animated-beam";
-import { User, Wand2, Share2, DollarSign, ArrowRight } from "lucide-react";
-import { motion } from "framer-motion";
-import { useRef } from "react";
-import Image from "next/image";
-import type { ComponentProps } from "@/data/landing-pages/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { User, Wand2, Share2, DollarSign, ArrowRight } from 'lucide-react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import type { ComponentProps } from '@/data/landing-pages/types';
 
 interface HowItWorksProps extends ComponentProps {
   content?: {
@@ -31,28 +29,28 @@ interface HowItWorksProps extends ComponentProps {
 
 const defaultSteps = [
   {
-    id: "create",
-    title: "Create Persona",
+    id: 'create',
+    title: 'Create Persona',
     description:
       "Define your AI influencer's personality, style, and target audience",
-    icon: "User",
-    image: "/assets/images/features/clone-clothing-feature.jpg",
+    icon: 'User',
+    image: '/assets/images/features/clone-clothing-feature.jpg',
   },
   {
-    id: "generate",
-    title: "Generate Content",
+    id: 'generate',
+    title: 'Generate Content',
     description:
-      "AI creates engaging posts, captions, and media tailored to your persona",
-    icon: "Wand2",
-    image: "/assets/images/features/youtube-platform-feature.jpg",
+      'AI creates engaging posts, captions, and media tailored to your persona',
+    icon: 'Wand2',
+    image: '/assets/images/features/youtube-platform-feature.jpg',
   },
   {
-    id: "post",
-    title: "Auto-Post & Earn",
+    id: 'post',
+    title: 'Auto-Post & Earn',
     description:
-      "Schedule and publish across platforms, then monetize with built-in tools",
-    icon: "Share2",
-    image: "/assets/images/features/instagram-shorts-feature.jpg",
+      'Schedule and publish across platforms, then monetize with built-in tools',
+    icon: 'Share2',
+    image: '/assets/images/features/instagram-shorts-feature.jpg',
   },
 ];
 
@@ -64,19 +62,14 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 };
 
 export function HowItWorks({ content: contentProp }: HowItWorksProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const createRef = useRef<HTMLDivElement>(null);
-  const generateRef = useRef<HTMLDivElement>(null);
-  const postRef = useRef<HTMLDivElement>(null);
-
   const content = {
-    title: "How It Works",
+    title: 'How It Works',
     description:
-      "Three simple steps to create, generate, and monetize your AI influencer content",
+      'Three simple steps to create, generate, and monetize your AI influencer content',
     steps: defaultSteps,
     cta: {
-      text: "Create your first persona",
-      href: "#pricing",
+      text: 'Create your first persona',
+      href: '#pricing',
     },
     ...contentProp,
   };
@@ -96,7 +89,7 @@ export function HowItWorks({ content: contentProp }: HowItWorksProps) {
         </div>
 
         <div className="max-w-6xl mx-auto">
-          <Tabs defaultValue={steps[0]?.id || "create"} className="w-full">
+          <Tabs defaultValue={steps[0]?.id || 'create'} className="w-full">
             <TabsList className="grid w-full grid-cols-3 mb-8">
               {steps.map((step, index) => {
                 const IconComponent =
@@ -138,7 +131,7 @@ export function HowItWorks({ content: contentProp }: HowItWorksProps) {
                             </p>
                           </div>
                         </div>
-                        {"content" in step && step.content && (
+                        {'content' in step && step.content && (
                           <div>{(step as any).content}</div>
                         )}
                       </motion.div>
@@ -184,7 +177,7 @@ export function HowItWorks({ content: contentProp }: HowItWorksProps) {
                                 </div>
                               </div>
                               <div className="text-sm text-muted-foreground">
-                                See the actual {step.title.toLowerCase()}{" "}
+                                See the actual {step.title.toLowerCase()}{' '}
                                 interface in action.
                               </div>
                             </div>

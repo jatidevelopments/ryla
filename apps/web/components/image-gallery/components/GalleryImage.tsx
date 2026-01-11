@@ -13,7 +13,6 @@ import {
 } from 'lucide-react';
 import type { Post } from '@ryla/shared';
 import { useIsMobile } from '@ryla/ui';
-import { PickerDrawer } from '../../studio/generation/pickers/PickerDrawer';
 
 interface GalleryImageProps {
   image: Post;

@@ -1,4 +1,4 @@
-import { FEATURE_CREDITS } from '../../../constants/pricing';
+import { FEATURE_CREDITS } from '@ryla/shared';
 
 /**
  * Estimate credit cost from quality mode

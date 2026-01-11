@@ -24,11 +24,10 @@ jobs:
             config: apps/web/fly.toml
             dockerfile: apps/web/Dockerfile
             fly_app: ryla-web-staging
-          # TODO: Add API when Dockerfile and fly.toml are created
-          # - name: api
-          #   config: apps/api/fly.toml
-          #   dockerfile: apps/api/Dockerfile
-          #   fly_app: ryla-api-staging
+          - name: api
+            config: apps/api/fly.toml
+            dockerfile: apps/api/Dockerfile
+            fly_app: ryla-api-staging
     steps:
       - uses: actions/checkout@v4
       

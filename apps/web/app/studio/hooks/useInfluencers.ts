@@ -32,8 +32,8 @@ export function useInfluencers(charactersData: { items?: Character[] } | undefin
       postCount: parseInt(char.postCount || '0', 10),
       imageCount: (char as any).imageCount ?? 0, // imageCount from backend
       likedCount: parseInt(char.likedCount || '0', 10),
-      createdAt: char.createdAt?.toISOString() || new Date().toISOString(),
-      updatedAt: char.createdAt?.toISOString() || new Date().toISOString(),
+      createdAt: char.createdAt instanceof Date ? char.createdAt.toISOString() : (char.createdAt || new Date().toISOString()),
+      updatedAt: char.updatedAt instanceof Date ? char.updatedAt.toISOString() : (char.updatedAt || new Date().toISOString()),
     }));
   }, [charactersData]);
 

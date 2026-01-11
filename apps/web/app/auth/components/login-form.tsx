@@ -24,14 +24,13 @@ interface LoginFormProps {
 }
 
 export function LoginForm({
-  email,
   loginData,
   onLoginChange,
   onSubmit,
   isLoading,
   onGoogleAuth,
   onSwitchToRegister,
-}: LoginFormProps) {
+}: Omit<LoginFormProps, 'email'>) {
   return (
     <motion.form
       key="login-form"
@@ -105,4 +104,3 @@ export function LoginForm({
     </motion.form>
   );
 }
-

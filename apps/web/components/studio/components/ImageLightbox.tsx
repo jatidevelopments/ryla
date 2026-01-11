@@ -60,3 +60,4 @@ export function ImageLightbox({ image, isOpen, onClose }: ImageLightboxProps) {
     </div>
   );
 }
+

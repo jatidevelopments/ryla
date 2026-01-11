@@ -18,6 +18,7 @@ export default function OnboardingPage() {
 function OnboardingContent() {
   const { user } = useAuth();
   const {
+    step,
     referralSource,
     setReferralSource,
     referralSourceOther,
@@ -25,8 +26,8 @@ function OnboardingContent() {
     experience,
     setExperience,
     isSubmitting,
-    canSubmit,
-    handleSubmit,
+    canProceed,
+    handleNext,
   } = useOnboardingForm();
 
   return (
@@ -56,63 +57,68 @@ function OnboardingContent() {
               </p>
             </div>
 
-            {/* Question 1: Where did you hear about us? */}
-            <div className="w-full mb-4">
-              <p className="text-white text-base font-semibold mb-3 px-1">Where did you hear about us?</p>
-              <div className="grid grid-cols-2 gap-2">
-                {REFERRAL_OPTIONS.map((option) => (
+            {/* Step 1: Where did you hear about us? */}
+            {step === 1 && (
+              <div className="w-full mb-4">
+                <p className="text-white text-base font-semibold mb-3 px-1">Where did you hear about us?</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {REFERRAL_OPTIONS.map((option) => (
+                    <OptionCard
+                      key={option.value}
+                      option={option}
+                      selected={referralSource === option.value}
+                      onClick={() => setReferralSource(option.value)}
+                    />
+                  ))}
+                </div>
+                
+                {/* Other text input - shown when "other" is selected */}
+                {referralSource === 'other' && (
+                  <div className="mt-3">
+                    <Input
+                      type="text"
+                      value={referralSourceOther}
+                      onChange={(e) => setReferralSourceOther(e.target.value)}
+                      placeholder="Please specify where you heard about us..."
+                      className="w-full h-11 rounded-xl border-2 border-white/10 bg-white/5 placeholder-white/40 focus:border-purple-400/50 focus:bg-white/10"
+                      autoFocus
+                    />
+                    {referralSourceOther.trim().length === 0 && (
+                      <p className="text-xs text-red-400 mt-1.5 px-1">
+                        This field is required
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Step 2: AI Influencer Experience */}
+            {step === 2 && (
+              <div className="w-full space-y-2">
+                <p className="text-white text-base font-semibold mb-3 px-1">Have you created AI influencers before?</p>
+                {EXPERIENCE_OPTIONS.map((option) => (
                   <OptionCard
                     key={option.value}
                     option={option}
-                    selected={referralSource === option.value}
-                    onClick={() => setReferralSource(option.value)}
+                    selected={experience === option.value}
+                    onClick={() => setExperience(option.value)}
+                    showDescription
                   />
                 ))}
               </div>
-              
-              {/* Other text input - shown when "other" is selected */}
-              {referralSource === 'other' && (
-                <div className="mt-3">
-                  <Input
-                    type="text"
-                    value={referralSourceOther}
-                    onChange={(e) => setReferralSourceOther(e.target.value)}
-                    placeholder="Please specify where you heard about us..."
-                    className="w-full h-11 rounded-xl border-2 border-white/10 bg-white/5 placeholder-white/40 focus:border-purple-400/50 focus:bg-white/10"
-                    autoFocus
-                  />
-                  {referralSourceOther.trim().length === 0 && (
-                    <p className="text-xs text-red-400 mt-1.5 px-1">
-                      This field is required
-                    </p>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Question 2: AI Influencer Experience */}
-            <div className="w-full space-y-2">
-              <p className="text-white text-base font-semibold mb-3 px-1">Have you created AI influencers before?</p>
-              {EXPERIENCE_OPTIONS.map((option) => (
-                <OptionCard
-                  key={option.value}
-                  option={option}
-                  selected={experience === option.value}
-                  onClick={() => setExperience(option.value)}
-                  showDescription
-                />
-              ))}
-            </div>
+            )}
           </div>
 
           {/* Continue Button - Same as wizard */}
           <div className="mt-5 pb-4">
             <SubmitButton
-              canSubmit={canSubmit}
+              canSubmit={canProceed}
               isSubmitting={isSubmitting}
-              onSubmit={handleSubmit}
+              onSubmit={handleNext}
             />
             <ProgressDots
+              currentStep={step}
               step1Complete={!!referralSource}
               step2Complete={!!experience}
             />

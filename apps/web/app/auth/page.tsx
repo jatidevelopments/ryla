@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import {} from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,7 +9,9 @@ import { useAuthFlow } from './hooks';
 import { EmailStep, LoginForm, RegisterForm } from './components';
 import { fadeIn } from './constants';
 
-export default function AuthPage() {
+import { Suspense } from 'react';
+
+function AuthContent() {
   const {
     mode,
     email,
@@ -105,7 +107,8 @@ export default function AuthPage() {
               {mode === 'register' && 'Create your account'}
             </h1>
             <p className="text-white/50 text-lg">
-              {mode === 'email' && 'Start creating AI influencers that earn 24/7'}
+              {mode === 'email' &&
+                'Start creating AI influencers that earn 24/7'}
               {mode === 'login' && 'Sign in to continue to your dashboard'}
               {mode === 'register' && 'Join thousands of creators worldwide'}
             </p>
@@ -172,19 +175,15 @@ export default function AuthPage() {
                 {mode === 'email' && (
                   <EmailStep
                     email={email}
-                    onEmailChange={handleEmailChange}
                     onEmailCheck={handleEmailCheck}
-                    onEmailKeyDown={handleEmailKeyDown}
                     isLoading={isLoading}
                     isChecking={isChecking}
-                    emailError={emailError}
                     onGoogleAuth={handleGoogleAuth}
                   />
                 )}
 
                 {mode === 'login' && (
                   <LoginForm
-                    email={email}
                     loginData={loginData}
                     onLoginChange={handleLoginChange}
                     onSubmit={handleLoginSubmit}
@@ -249,5 +248,13 @@ export default function AuthPage() {
         }
       `}</style>
     </div>
+  );
+}
+
+export default function AuthPage() {
+  return (
+    <Suspense>
+      <AuthContent />
+    </Suspense>
   );
 }

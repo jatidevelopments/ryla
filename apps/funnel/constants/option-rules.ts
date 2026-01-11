@@ -25,7 +25,7 @@ function filterByAllowedValues<T extends { value: string }>(
 }
 
 // Helper to mark options as disabled
-function markAsDisabled<T extends { value: string }>(
+function _markAsDisabled<T extends { value: string }>(
     options: T[],
     valuesToDisable: string[],
     reason?: string

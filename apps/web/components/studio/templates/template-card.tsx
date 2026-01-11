@@ -24,9 +24,9 @@ export function TemplateCard({
   return (
     <div
       className={cn(
-        'rounded-lg border border-[var(--border-default)] overflow-hidden',
+        'rounded-2xl border border-[var(--border-default)] overflow-hidden',
         'bg-[var(--bg-surface)] hover:border-[var(--purple-500)]/50',
-        'transition-all cursor-pointer group'
+        'transition-all cursor-pointer group hover:shadow-[0_0_20px_rgba(168,85,247,0.15)]'
       )}
       onClick={() => onViewDetails(template.id)}
     >
@@ -56,7 +56,8 @@ export function TemplateCard({
           )}
           {config.outfit && (
             <div className="text-sm text-[var(--text-secondary)]">
-              Outfit: {typeof config.outfit === 'string' ? config.outfit : 'Custom'}
+              Outfit:{' '}
+              {typeof config.outfit === 'string' ? config.outfit : 'Custom'}
             </div>
           )}
         </div>
@@ -70,14 +71,14 @@ export function TemplateCard({
             {config.qualityMode.toUpperCase()}
           </span>
           {config.modelId && (
-            <span className="px-2 py-1 rounded text-xs bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-default)]">
+            <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-[var(--purple-500)]/10 text-[var(--purple-400)] border border-[var(--purple-500)]/20">
               {config.modelId}
             </span>
           )}
         </div>
 
         {/* Stats (optional) */}
-        {showStats && template.usageCount > 0 && (
+        {showStats && (template.usageCount ?? 0) > 0 && (
           <div className="text-xs text-[var(--text-muted)]">
             Used {template.usageCount} times
           </div>
@@ -89,8 +90,9 @@ export function TemplateCard({
             e.stopPropagation();
             onApply(template.id);
           }}
-          className="w-full"
+          className="w-full gap-2"
           size="sm"
+          variant="glassy-outline"
         >
           Try Template
         </RylaButton>
@@ -98,4 +100,3 @@ export function TemplateCard({
     </div>
   );
 }
-

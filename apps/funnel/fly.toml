@@ -1,7 +1,7 @@
 # fly.toml - RYLA Funnel App Configuration
 # Deploy from project root: fly deploy --config apps/funnel/fly.toml --dockerfile apps/funnel/Dockerfile
 
-app = 'funnel-v3-adult'
+app = 'ryla-funnel-prod'
 primary_region = 'fra'
 
 [build]
@@ -14,6 +14,13 @@ primary_region = 'fra'
   auto_start_machines = true
   min_machines_running = 1
   max_machines_running = 1
+  
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/api/health"
 
 [[vm]]
   size = 'shared-cpu-2x'

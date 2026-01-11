@@ -3,7 +3,6 @@
 import * as React from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useInfluencer, useInfluencerStore } from '@ryla/business';
-import { PageContainer } from '@ryla/ui';
 import { ProtectedRoute } from '../../../../components/auth/ProtectedRoute';
 import { InfluencerSettingsContent } from '../../../../components/influencer-settings/InfluencerSettings';
 import { trpc } from '../../../../lib/trpc';
@@ -33,7 +32,9 @@ function InfluencerSettingsPageContent() {
       addInfluencer({
         id: character.id,
         name: character.name,
-        handle: character.handle || `@${character.name.toLowerCase().replace(/\s+/g, '.')}`,
+        handle:
+          character.handle ||
+          `@${character.name.toLowerCase().replace(/\s+/g, '.')}`,
         bio: character.config?.bio || 'New AI influencer ✨',
         avatar: character.baseImageUrl || null,
         gender: character.config?.gender || 'female',
@@ -53,8 +54,10 @@ function InfluencerSettingsPageContent() {
         postCount: parseInt(character.postCount || '0', 10),
         imageCount: 0,
         likedCount: parseInt(character.likedCount || '0', 10),
-        createdAt: character.createdAt?.toISOString() || new Date().toISOString(),
-        updatedAt: character.updatedAt?.toISOString() || new Date().toISOString(),
+        createdAt:
+          character.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt:
+          character.updatedAt?.toISOString() || new Date().toISOString(),
       });
     }
   }, [addInfluencer, character, influencer]);
@@ -69,11 +72,12 @@ function InfluencerSettingsPageContent() {
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)]">
-      <InfluencerSettingsContent
-        influencer={influencer}
-        onBack={() => router.push(`/influencer/${influencerId}`)}
-      />
+      {influencer && (
+        <InfluencerSettingsContent
+          influencer={influencer}
+          onBack={() => router.push(`/influencer/${influencerId}`)}
+        />
+      )}
     </div>
   );
 }
-

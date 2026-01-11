@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Badge } from "@/components/ui/badge";
+} from '@/components/ui/tooltip';
+import { Badge } from '@/components/ui/badge';
 import {
   Instagram,
   Youtube,
@@ -21,10 +21,10 @@ import {
   DollarSign,
   Clock,
   Heart,
-} from "lucide-react";
-import { motion } from "framer-motion";
-import Image from "next/image";
-import type { ComponentProps } from "@/data/landing-pages/types";
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import type { ComponentProps } from '@/data/landing-pages/types';
 
 interface IntegrationsProps extends ComponentProps {
   content?: {
@@ -52,7 +52,7 @@ interface IntegrationsProps extends ComponentProps {
       ctas?: Array<{
         text: string;
         href: string;
-        variant?: "default" | "outline";
+        variant?: 'default' | 'outline';
       }>;
     };
   };
@@ -74,130 +74,130 @@ const iconMap: Record<string, React.ComponentType<any>> = {
 
 const defaultPlatforms = [
   {
-    name: "Instagram",
+    name: 'Instagram',
     icon: <Instagram className="h-8 w-8" />,
-    color: "from-pink-500 to-purple-500",
-    features: ["Posts", "Stories", "Reels", "IGTV"],
-    status: "Active",
-    posts: "2.3M+",
-    earnings: "$1.2M+",
+    color: 'from-pink-500 to-purple-500',
+    features: ['Posts', 'Stories', 'Reels', 'IGTV'],
+    status: 'Active',
+    posts: '2.3M+',
+    earnings: '$1.2M+',
   },
   {
-    name: "TikTok",
+    name: 'TikTok',
     icon: <MessageCircle className="h-8 w-8" />,
-    color: "from-black to-gray-800",
-    features: ["Videos", "Live", "Shorts", "Trends"],
-    status: "Active",
-    posts: "1.8M+",
-    earnings: "$980K+",
+    color: 'from-black to-gray-800',
+    features: ['Videos', 'Live', 'Shorts', 'Trends'],
+    status: 'Active',
+    posts: '1.8M+',
+    earnings: '$980K+',
   },
   {
-    name: "Twitter/X",
+    name: 'Twitter/X',
     icon: <Twitter className="h-8 w-8" />,
-    color: "from-blue-400 to-blue-600",
-    features: ["Tweets", "Threads", "Spaces", "Moments"],
-    status: "Active",
-    posts: "3.1M+",
-    earnings: "$750K+",
+    color: 'from-blue-400 to-blue-600',
+    features: ['Tweets', 'Threads', 'Spaces', 'Moments'],
+    status: 'Active',
+    posts: '3.1M+',
+    earnings: '$750K+',
   },
   {
-    name: "YouTube",
+    name: 'YouTube',
     icon: <Youtube className="h-8 w-8" />,
-    color: "from-red-500 to-red-700",
-    features: ["Videos", "Shorts", "Live", "Community"],
-    status: "Active",
-    posts: "890K+",
-    earnings: "$1.5M+",
+    color: 'from-red-500 to-red-700',
+    features: ['Videos', 'Shorts', 'Live', 'Community'],
+    status: 'Active',
+    posts: '890K+',
+    earnings: '$1.5M+',
   },
   {
-    name: "Fansly",
+    name: 'Fansly',
     icon: <Heart className="h-8 w-8" />,
-    color: "from-orange-500 to-red-500",
-    features: ["Posts", "Messages", "Live", "Tips"],
-    status: "Active",
-    posts: "450K+",
-    earnings: "$2.1M+",
+    color: 'from-orange-500 to-red-500',
+    features: ['Posts', 'Messages', 'Live', 'Tips'],
+    status: 'Active',
+    posts: '450K+',
+    earnings: '$2.1M+',
   },
   {
-    name: "OnlyFans",
+    name: 'OnlyFans',
     icon: <Heart className="h-8 w-8" />,
-    color: "from-pink-500 to-red-500",
-    features: ["Content", "Messages", "Live", "Tips"],
-    status: "Active",
-    posts: "320K+",
-    earnings: "$1.8M+",
+    color: 'from-pink-500 to-red-500',
+    features: ['Content', 'Messages', 'Live', 'Tips'],
+    status: 'Active',
+    posts: '320K+',
+    earnings: '$1.8M+',
   },
   {
-    name: "Discord",
+    name: 'Discord',
     icon: <MessageCircle className="h-8 w-8" />,
-    color: "from-indigo-500 to-purple-500",
-    features: ["Servers", "Channels", "Voice", "Events"],
-    status: "Beta",
-    posts: "180K+",
-    earnings: "$420K+",
+    color: 'from-indigo-500 to-purple-500',
+    features: ['Servers', 'Channels', 'Voice', 'Events'],
+    status: 'Beta',
+    posts: '180K+',
+    earnings: '$420K+',
   },
 ];
 
 const defaultFeatures = [
   {
-    icon: "Zap",
-    customIcon: "/assets/icons/icon-1.png",
-    title: "Auto-Posting",
+    icon: 'Zap',
+    customIcon: '/assets/icons/icon-1.png',
+    title: 'Auto-Posting',
     description:
-      "Schedule and publish content across all platforms automatically",
-    color: "text-yellow-500",
+      'Schedule and publish content across all platforms automatically',
+    color: 'text-yellow-500',
   },
   {
-    icon: "Shield",
-    customIcon: "/assets/icons/icon-2.png",
-    title: "Content Moderation",
-    description: "AI-powered content filtering and platform compliance",
-    color: "text-green-500",
+    icon: 'Shield',
+    customIcon: '/assets/icons/icon-2.png',
+    title: 'Content Moderation',
+    description: 'AI-powered content filtering and platform compliance',
+    color: 'text-green-500',
   },
   {
-    icon: "BarChart3",
-    customIcon: "/assets/icons/icon-3.png",
-    title: "Analytics Dashboard",
-    description: "Real-time performance tracking and insights",
-    color: "text-blue-500",
+    icon: 'BarChart3',
+    customIcon: '/assets/icons/icon-3.png',
+    title: 'Analytics Dashboard',
+    description: 'Real-time performance tracking and insights',
+    color: 'text-blue-500',
   },
   {
-    icon: "Users",
-    title: "Audience Insights",
-    description: "Deep analytics on your followers and engagement",
-    color: "text-purple-500",
+    icon: 'Users',
+    title: 'Audience Insights',
+    description: 'Deep analytics on your followers and engagement',
+    color: 'text-purple-500',
   },
   {
-    icon: "DollarSign",
-    title: "Revenue Tracking",
-    description: "Monitor earnings across all monetization channels",
-    color: "text-green-600",
+    icon: 'DollarSign',
+    title: 'Revenue Tracking',
+    description: 'Monitor earnings across all monetization channels',
+    color: 'text-green-600',
   },
   {
-    icon: "Clock",
-    title: "Smart Scheduling",
-    description: "Optimal posting times based on audience activity",
-    color: "text-orange-500",
+    icon: 'Clock',
+    title: 'Smart Scheduling',
+    description: 'Optimal posting times based on audience activity',
+    color: 'text-orange-500',
   },
 ];
 
 export function Integrations({ content: contentProp }: IntegrationsProps) {
   const content = {
-    title: "Connect Your Socials",
+    title: 'Connect Your Socials',
     description:
-      "Seamlessly integrate with all major platforms. Schedule, grow, and monetize across your entire social media presence.",
+      'Seamlessly integrate with all major platforms. Schedule, grow, and monetize across your entire social media presence.',
     platforms: defaultPlatforms,
     features: defaultFeatures,
     cta: {
-      title: "Ready to Connect Your Platforms?",
+      title: 'Ready to Connect Your Platforms?',
       description:
-        "Join thousands of creators who are already using AURA to manage their entire social media presence from one powerful dashboard.",
+        'Join thousands of creators who are already using AURA to manage their entire social media presence from one powerful dashboard.',
       ctas: [
-        { text: "Connect Platforms", href: "#connect" },
+        { text: 'Connect Platforms', href: '#connect' },
         {
-          text: "View Integration Guide",
-          href: "#guide",
-          variant: "outline" as const,
+          text: 'View Integration Guide',
+          href: '#guide',
+          variant: 'outline' as const,
         },
       ],
     },
@@ -223,8 +223,9 @@ export function Integrations({ content: contentProp }: IntegrationsProps) {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
           {platforms.map((platform, index) => {
             const iconKey =
-              typeof platform.icon === "string" ? platform.icon : undefined;
-            const IconComponent = iconKey && iconMap[iconKey] ? iconMap[iconKey] : Instagram;
+              typeof platform.icon === 'string' ? platform.icon : undefined;
+            const IconComponent =
+              iconKey && iconMap[iconKey] ? iconMap[iconKey] : Instagram;
             return (
               <motion.div
                 key={index}
@@ -239,7 +240,7 @@ export function Integrations({ content: contentProp }: IntegrationsProps) {
                         <CardContent className="p-6 text-center">
                           <div
                             className={`w-16 h-16 bg-linear-to-r ${
-                              platform.color || "from-purple-500 to-pink-500"
+                              platform.color || 'from-purple-500 to-pink-500'
                             } rounded-full flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform`}
                           >
                             <div className="text-white">
@@ -253,21 +254,22 @@ export function Integrations({ content: contentProp }: IntegrationsProps) {
                             {platform.status && (
                               <Badge
                                 variant={
-                                  platform.status === "Active" ||
-                                  platform.status === "connected"
-                                    ? "default"
-                                    : "secondary"
+                                  platform.status === 'Active' ||
+                                  platform.status === 'connected'
+                                    ? 'default'
+                                    : 'secondary'
                                 }
                                 className="text-xs"
                               >
                                 {platform.status}
                               </Badge>
                             )}
-                            {"description" in platform && (platform as any).description && (
-                              <div className="text-sm text-muted-foreground">
-                                {(platform as any).description}
-                              </div>
-                            )}
+                            {'description' in platform &&
+                              (platform as any).description && (
+                                <div className="text-sm text-muted-foreground">
+                                  {(platform as any).description}
+                                </div>
+                              )}
                             {platform.posts && (
                               <div className="text-sm text-muted-foreground">
                                 {platform.posts} posts
@@ -288,11 +290,14 @@ export function Integrations({ content: contentProp }: IntegrationsProps) {
                           {platform.name}
                           {platform.features &&
                             platform.features.length > 0 &&
-                            " Features:"}
+                            ' Features:'}
                         </div>
-                        {"description" in platform && (platform as any).description && (
-                          <p className="text-sm">{(platform as any).description}</p>
-                        )}
+                        {'description' in platform &&
+                          (platform as any).description && (
+                            <p className="text-sm">
+                              {(platform as any).description}
+                            </p>
+                          )}
                         {platform.features && platform.features.length > 0 && (
                           <ul className="text-sm space-y-1">
                             {platform.features.map((feature, featureIndex) => (
@@ -327,7 +332,7 @@ export function Integrations({ content: contentProp }: IntegrationsProps) {
                   <CardContent className="p-6">
                     <div className="flex items-start space-x-4">
                       <div
-                        className={feature.color || "text-yellow-500 shrink-0"}
+                        className={feature.color || 'text-yellow-500 shrink-0'}
                       >
                         {feature.customIcon ? (
                           <div className="relative w-6 h-6">
@@ -376,11 +381,11 @@ export function Integrations({ content: contentProp }: IntegrationsProps) {
                   {content.cta.ctas.map((cta, index) => (
                     <Button
                       key={index}
-                      variant={cta.variant || "default"}
+                      variant={cta.variant || 'default'}
                       className={
-                        cta.variant === "outline"
-                          ? "border-white/30 text-white hover:bg-white/10"
-                          : "bg-white text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-100"
+                        cta.variant === 'outline'
+                          ? 'border-white/30 text-white hover:bg-white/10'
+                          : 'bg-white text-purple-600 hover:bg-purple-50 dark:hover:bg-purple-100'
                       }
                       asChild
                     >

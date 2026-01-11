@@ -33,9 +33,9 @@ export const promptTemplates: PromptTemplate[] = [
     description: 'Instagram-style casual selfie portrait',
     // Token ordering: subject first, then shot type, expression, lighting, style
     template:
-      '{{character}}, close-up selfie, {{expression}}, looking at camera, {{lighting}}, amateur photo camera style, natural makeup, candid moment, Instagram aesthetic',
+      '{{character}}, close-up selfie, {{expression}}, looking at camera, {{lighting}}, Shot on Fujifilm GFX 100S, 80mm lens, f/2.8, shallow depth of field, natural background bokeh, natural skin texture with visible pores, candid moment, Instagram aesthetic',
     negativePrompt:
-      'blurry, deformed, ugly, bad anatomy, bad hands, missing fingers, extra fingers, watermark, signature, plastic skin, airbrushed, uncanny valley, CGI, illustration',
+      'blurry, deformed, ugly, bad anatomy, bad hands, missing fingers, extra fingers, watermark, signature, plastic skin, airbrushed, uncanny valley, CGI, illustration, smooth polygons, waxy texture',
     requiredDNA: ['age', 'hair', 'eyes', 'skin'],
     tags: ['selfie', 'casual', 'instagram', 'portrait'],
     rating: 'sfw',
@@ -50,9 +50,9 @@ export const promptTemplates: PromptTemplate[] = [
     description: 'High-detail beauty/makeup portrait',
     // Token ordering: subject first, then shot type, features, lighting
     template:
-      '{{character}}, close-up beauty portrait, {{expression}}, natural skin texture with visible pores, detailed expressive eyes, {{lighting}}, professional beauty photography, authentic complexion',
+      '{{character}}, close-up beauty portrait, {{expression}}, natural skin texture with visible pores, follicular detail, tear-film reflections, detailed eyes with wet mucosa, subsurface scattering, {{lighting}}, professional beauty photography, authentic complexion, Shot on Fujifilm GFX 100S, sharp focus',
     negativePrompt:
-      'plastic skin, flat lighting, blurry, deformed, bad makeup, unnatural colors, airbrushed perfection, waxy appearance, uncanny valley, CGI',
+      'plastic skin, flat lighting, blurry, deformed, bad makeup, unnatural colors, airbrushed perfection, waxy appearance, uncanny valley, CGI, porcelain doll effect, excessive smoothing',
     requiredDNA: ['age', 'hair', 'eyes', 'skin', 'facialFeatures'],
     tags: ['beauty', 'close-up', 'professional', 'makeup'],
     rating: 'sfw',

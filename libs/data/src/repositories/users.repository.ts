@@ -7,7 +7,7 @@ import type { User, NewUser } from '../schema/users.schema';
 export type { User, NewUser };
 
 export class UsersRepository {
-  constructor(private readonly db: NodePgDatabase<typeof schema>) {}
+  constructor(private readonly db: NodePgDatabase<typeof schema>) { }
 
   /**
    * Create a new user
@@ -141,11 +141,12 @@ export class UsersRepository {
    * Delete user by ID (hard delete)
    */
   async deleteById(id: string): Promise<boolean> {
-    const result = await this.db
+    const [row] = await this.db
       .delete(schema.users)
-      .where(eq(schema.users.id, id));
+      .where(eq(schema.users.id, id))
+      .returning();
 
-    return (result.rowCount ?? 0) > 0;
+    return !!row;
   }
 
   /**

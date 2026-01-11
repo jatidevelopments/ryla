@@ -14,7 +14,7 @@ import {
   creditTransactions,
   NotificationsRepository,
 } from '@ryla/data';
-import type { NotificationType } from '@ryla/data/schema';
+
 import {
   PLAN_CREDITS as SHARED_PLAN_CREDITS,
   CREDIT_PACKAGES as SHARED_CREDIT_PACKAGES,
@@ -156,7 +156,7 @@ export const subscriptionRouter = router({
         const notificationsRepo = new NotificationsRepository(ctx.db);
         await notificationsRepo.create({
           userId: ctx.user.id,
-          type: 'subscription.created' as NotificationType,
+          type: 'subscription.created',
           title: 'Subscription activated',
           body: `Welcome to ${planId.charAt(0).toUpperCase() + planId.slice(1)}! Your monthly credits will refresh automatically.`,
           href: '/settings',
@@ -240,7 +240,7 @@ export const subscriptionRouter = router({
         const notificationsRepo = new NotificationsRepository(ctx.db);
         await notificationsRepo.create({
           userId: ctx.user.id,
-          type: 'credits.purchased' as NotificationType,
+          type: 'credits.purchased',
           title: 'Credits purchased',
           body: `You purchased ${creditsToAdd} credits`,
           href: '/activity',
@@ -282,7 +282,7 @@ export const subscriptionRouter = router({
     const endDate = subscription.currentPeriodEnd?.toISOString() || new Date().toISOString();
     await notificationsRepo.create({
       userId: ctx.user.id,
-      type: 'subscription.cancelled' as NotificationType,
+      type: 'subscription.cancelled',
       title: 'Subscription cancelled',
       body: `Your subscription will end on ${new Date(endDate).toLocaleDateString()}. You'll keep access until then.`,
       href: '/settings',

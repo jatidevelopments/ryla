@@ -16,7 +16,7 @@ interface UseProfilePictureInitializationOptions {
  */
 export function useProfilePictureInitialization({
   selectedBaseImageId,
-  isGenerating,
+
   safeProfileImages,
   handleGenerateProfilePictures,
 }: UseProfilePictureInitializationOptions) {

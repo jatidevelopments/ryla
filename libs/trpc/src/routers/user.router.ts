@@ -340,11 +340,11 @@ export const userRouter = router({
       };
     }
 
-      return {
-        success: true,
-        acceptedAt: currentSettings.uploadConsent?.acceptedAt || null,
-        alreadyAccepted: true,
-      };
+    return {
+      success: true,
+      acceptedAt: currentSettings.uploadConsent?.acceptedAt || null,
+      alreadyAccepted: true,
+    };
   }),
 
   /**
@@ -386,11 +386,11 @@ export const userRouter = router({
       const buffer = Buffer.from(base64Data, 'base64');
 
       // Create S3 client (same pattern as bug-report router)
-      const accessKeyId = process.env.AWS_S3_ACCESS_KEY;
-      const secretAccessKey = process.env.AWS_S3_SECRET_KEY;
-      const endpoint = process.env.AWS_S3_ENDPOINT;
-      const region = process.env.AWS_S3_REGION || 'us-east-1';
-      const bucketName = process.env.AWS_S3_BUCKET_NAME || 'ryla-images';
+      const accessKeyId = process.env['AWS_S3_ACCESS_KEY'];
+      const secretAccessKey = process.env['AWS_S3_SECRET_KEY'];
+      const endpoint = process.env['AWS_S3_ENDPOINT'];
+      const region = process.env['AWS_S3_REGION'] || 'us-east-1';
+      const bucketName = process.env['AWS_S3_BUCKET_NAME'] || 'ryla-images';
 
       if (!accessKeyId || !secretAccessKey) {
         throw new TRPCError({
@@ -406,7 +406,7 @@ export const userRouter = router({
           accessKeyId,
           secretAccessKey,
         },
-        forcePathStyle: process.env.AWS_S3_FORCE_PATH_STYLE === 'true', // For MinIO
+        forcePathStyle: process.env['AWS_S3_FORCE_PATH_STYLE'] === 'true', // For MinIO
       });
 
       // Build storage path: users/{userId}/user-uploads/{filename}
@@ -469,7 +469,7 @@ export const userRouter = router({
           imageUrl: url,
           thumbnailUrl: url,
           name: input.name || 'Uploaded Image',
-          createdAt: imageRow.createdAt.toISOString(),
+          createdAt: imageRow.createdAt?.toISOString() || new Date().toISOString(),
         };
       } catch (error: any) {
         throw new TRPCError({

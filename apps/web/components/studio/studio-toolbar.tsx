@@ -51,8 +51,6 @@ export function StudioToolbar({
   onAdultChange,
   sortBy,
   onSortByChange,
-  selectedCount,
-  onClearSelection,
   className,
 }: StudioToolbarProps) {
   const [showFilterSheet, setShowFilterSheet] = React.useState(false);

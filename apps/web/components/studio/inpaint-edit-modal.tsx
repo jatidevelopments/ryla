@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import * as React from 'react';
@@ -8,7 +7,10 @@ type Props = {
   open: boolean;
   imageUrl: string;
   onClose: () => void;
-  onApply: (args: { maskedImageBase64Png: string; prompt: string }) => Promise<void>;
+  onApply: (args: {
+    maskedImageBase64Png: string;
+    prompt: string;
+  }) => Promise<void>;
   className?: string;
 };
 
@@ -16,7 +18,13 @@ function clamp(n: number, min: number, max: number) {
   return Math.max(min, Math.min(max, n));
 }
 
-export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }: Props) {
+export function InpaintEditModal({
+  open,
+  imageUrl,
+  onClose,
+  onApply,
+  className,
+}: Props) {
   const [prompt, setPrompt] = React.useState('');
   const [isApplying, setIsApplying] = React.useState(false);
   const [brushSize, setBrushSize] = React.useState(32);
@@ -118,14 +126,18 @@ export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }
     setIsEraser(false);
     setBrushSize(32);
     clearMask();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
-      <div className={cn('w-full max-w-4xl rounded-2xl bg-[#0b0b0d] border border-white/10 overflow-hidden', className)}>
+      <div
+        className={cn(
+          'w-full max-w-4xl rounded-2xl bg-[#0b0b0d] border border-white/10 overflow-hidden',
+          className
+        )}
+      >
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <div className="text-sm font-semibold text-white">Edit (Inpaint)</div>
           <button onClick={onClose} className="text-white/60 hover:text-white">
@@ -149,7 +161,9 @@ export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }
                 className="absolute inset-0 h-full w-full touch-none"
                 onPointerDown={(e) => {
                   drawingRef.current = true;
-                  (e.currentTarget as HTMLCanvasElement).setPointerCapture(e.pointerId);
+                  (e.currentTarget as HTMLCanvasElement).setPointerCapture(
+                    e.pointerId
+                  );
                   const { x, y } = canvasPoint(e);
                   draw(x, y);
                 }}
@@ -181,13 +195,17 @@ export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs text-white/70">Brush size: {brushSize}px</label>
+              <label className="text-xs text-white/70">
+                Brush size: {brushSize}px
+              </label>
               <input
                 type="range"
                 min={8}
                 max={128}
                 value={brushSize}
-                onChange={(e) => setBrushSize(clamp(Number(e.target.value), 8, 128))}
+                onChange={(e) =>
+                  setBrushSize(clamp(Number(e.target.value), 8, 128))
+                }
                 className="w-full"
               />
             </div>
@@ -197,7 +215,9 @@ export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }
                 onClick={() => setIsEraser(false)}
                 className={cn(
                   'flex-1 rounded-xl border px-3 py-2 text-xs font-medium transition',
-                  !isEraser ? 'bg-white/10 border-white/20 text-white' : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                  !isEraser
+                    ? 'bg-white/10 border-white/20 text-white'
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                 )}
               >
                 Paint
@@ -206,7 +226,9 @@ export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }
                 onClick={() => setIsEraser(true)}
                 className={cn(
                   'flex-1 rounded-xl border px-3 py-2 text-xs font-medium transition',
-                  isEraser ? 'bg-white/10 border-white/20 text-white' : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
+                  isEraser
+                    ? 'bg-white/10 border-white/20 text-white'
+                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10'
                 )}
               >
                 Erase
@@ -231,7 +253,8 @@ export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }
             </RylaButton>
 
             <p className="text-[11px] text-white/50 leading-relaxed">
-              Mask rule: paint the area you want to change. The original image stays unchanged; a new edited image is created.
+              Mask rule: paint the area you want to change. The original image
+              stays unchanged; a new edited image is created.
             </p>
           </div>
         </div>
@@ -239,5 +262,3 @@ export function InpaintEditModal({ open, imageUrl, onClose, onApply, className }
     </div>
   );
 }
-
-

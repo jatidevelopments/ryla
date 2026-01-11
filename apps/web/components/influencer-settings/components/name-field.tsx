@@ -17,7 +17,7 @@ export function NameField({ value, error, hasChanged, isSaving, onChange, onSave
     <div className="space-y-2">
       <Label htmlFor="name-input">Name</Label>
       <p className="text-sm text-[var(--text-muted)]">
-        Your AI Influencer's display name. Must be 1-100 characters.
+        Your AI Influencer&apos;s display name. Must be 1-100 characters.
       </p>
       <div className="flex gap-3">
         <div className="flex-1">
