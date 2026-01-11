@@ -1,4 +1,5 @@
 // import './instrument';
+// Test deployment trigger - 2025-01-11
 
 // Load dotenv FIRST before any other imports
 import { config } from 'dotenv';
