@@ -5,6 +5,10 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   detect-changes:
     name: Detect Changed Apps
@@ -19,14 +23,15 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Need full history for Nx affected
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -35,8 +40,16 @@ jobs:
         id: affected
         run: |
           # Get base commit (previous commit on main, or main branch if first commit)
-          BASE=$(git merge-base HEAD origin/main 2>/dev/null || git rev-parse HEAD~1 2>/dev/null || echo "origin/main")
-          HEAD=$(git rev-parse HEAD)
+          # For push events, compare with previous commit
+          if [ "${{ github.event_name }}" = "push" ]; then
+            BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "${{ github.event.before }}")
+            HEAD=$(git rev-parse HEAD)
+          else
+            # For workflow_dispatch, compare with origin/main
+            git fetch origin main || true
+            BASE=$(git merge-base HEAD origin/main 2>/dev/null || echo "origin/main")
+            HEAD=$(git rev-parse HEAD)
+          fi
           
           echo "Base: $BASE"
           echo "Head: $HEAD"
@@ -102,8 +115,8 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -155,8 +168,8 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -202,8 +215,8 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -258,8 +271,8 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - name: Install pnpm
-        run: npm install -g pnpm
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile

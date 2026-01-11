@@ -37,26 +37,40 @@ RYLA_DB_NAME=ryla
 | **Source** | Copied from MDC backend |
 | **Docs** | https://nestjs.com |
 
-### AWS S3 / Supabase Storage
+### Cloudflare R2 Storage (Production)
 | | |
 |---|---|
-| **Purpose** | File/image storage |
-| **Used For** | Generated images, user uploads |
-| **Options** | AWS S3 (MDC pattern) or Supabase Storage |
+| **Purpose** | File/image/video storage |
+| **Used For** | Generated images, user uploads, videos |
+| **Decision** | See [ADR-005: Cloudflare R2 Storage](../decisions/ADR-005-cloudflare-r2-storage.md) |
+| **Setup** | See [Storage Setup Guide](../ops/STORAGE-SETUP.md) |
 
-**Env Vars (S3):**
+**Env Vars (Production):**
 ```
-AWS_REGION=us-east-1
-AWS_ACCESS_KEY_ID=
-AWS_SECRET_ACCESS_KEY=
-AWS_S3_BUCKET=ryla-images
+AWS_S3_ENDPOINT=https://[account-id].r2.cloudflarestorage.com
+AWS_S3_ACCESS_KEY=your_r2_access_key
+AWS_S3_SECRET_KEY=your_r2_secret_key
+AWS_S3_BUCKET_NAME=ryla-images
+AWS_S3_REGION=auto
+AWS_S3_FORCE_PATH_STYLE=false
+AWS_S3_URL_TTL=3600
 ```
 
-**Env Vars (Supabase Storage alternative):**
+**Env Vars (Local Dev - MinIO):**
 ```
-NEXT_PUBLIC_SUPABASE_URL=
-SUPABASE_SERVICE_ROLE_KEY=
+AWS_S3_ENDPOINT=http://localhost:9000
+AWS_S3_ACCESS_KEY=ryla_minio
+AWS_S3_SECRET_KEY=ryla_minio_secret
+AWS_S3_BUCKET_NAME=ryla-images
+AWS_S3_REGION=us-east-1
+AWS_S3_FORCE_PATH_STYLE=true
 ```
+
+**Why Cloudflare R2:**
+- ✅ Zero egress fees (critical for video-heavy apps)
+- ✅ S3-compatible API (no code changes)
+- ✅ Global CDN included
+- ✅ Cost-effective: $1.50/month vs $92-362 for AWS S3 at scale
 
 ### Vercel
 | | |
@@ -285,6 +299,29 @@ Configured in `.cursor/mcp.json` for Cursor IDE integration. Provides real-time 
 - Search: Fuzzy search within package documentation
 - Version checking: Verify latest versions and breaking changes
 
+#### Snyk MCP Server
+| | |
+|---|---|
+| **Purpose** | Security vulnerability scanning for repositories and projects |
+| **Used For** | Scanning GitHub/GitLab repositories, Snyk projects for security issues |
+| **Package** | `github:sammcj/mcp-snyk` |
+| **Docs** | See [Snyk MCP Rules](../../.cursor/rules/mcp-snyk.mdc) |
+| **Features** | Repository scanning, project scanning, token verification |
+
+**MCP Configuration:**
+Configured in `.cursor/mcp.json` for Cursor IDE integration. Provides security scanning capabilities to identify vulnerabilities before deployment.
+
+**Capabilities:**
+- Repository scanning: Scan GitHub/GitLab repositories for vulnerabilities
+- Project scanning: Scan Snyk projects by project ID
+- Token verification: Verify API token and show user information
+- Organization support: Multiple organization ID configuration options
+- CLI integration: Works with Snyk CLI configuration
+
+**Environment Variables:**
+- `SNYK_API_KEY` - Required: Snyk API token
+- `SNYK_ORG_ID` - Optional: Default organization ID
+
 ---
 
 ## Dependency Matrix
@@ -333,13 +370,15 @@ Configured in `.cursor/mcp.json` for Cursor IDE integration. Provides real-time 
 | Service | Free Tier | Estimated Cost |
 |---------|-----------|----------------|
 | PostgreSQL (Neon) | 512MB storage | $0-19/mo |
-| S3 Storage | 5GB free tier | $0-10/mo |
+| Cloudflare R2 Storage | 10GB free tier | $0.15-1.50/mo (100GB) |
 | Finby | Per transaction fees | Variable |
 | Replicate | Pay per use | $0.01-0.05 per image |
 | PostHog | 1M events/mo | $0 |
-| Vercel | Hobby free | $0-20/mo |
+| Fly.io | Free tier available | $5-20/mo (apps) |
 
-**Estimated MVP monthly cost**: $20-70 + Finby fees
+**Estimated MVP monthly cost**: $5-40 + Finby fees
+
+**Note**: Cloudflare R2 chosen for zero egress fees (critical for video content). See [ADR-005](../decisions/ADR-005-cloudflare-r2-storage.md) for details.
 
 ---
 
