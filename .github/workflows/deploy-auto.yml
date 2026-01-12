@@ -39,9 +39,14 @@ jobs:
         id: affected
         run: |
           # Get base commit (previous commit on main, or main branch if first commit)
-          # For push events, compare with previous commit
+          # For push events, use github.event.before if available, otherwise HEAD~1
           if [ "${{ github.event_name }}" = "push" ]; then
-            BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "${{ github.event.before }}")
+            # Use github.event.before if it exists and is valid, otherwise use HEAD~1
+            if [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+              BASE="${{ github.event.before }}"
+            else
+              BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "origin/main")
+            fi
             HEAD=$(git rev-parse HEAD)
           else
             # For workflow_dispatch, compare with origin/main
