@@ -1,8 +1,3 @@
-# Declare build args at the top level for use across stages
-# GHCR_IMAGE is used to extract assets from a Docker image
-# If not set or empty, we'll skip the ghcr-assets stage
-ARG GHCR_IMAGE
-
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
