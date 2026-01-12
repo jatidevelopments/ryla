@@ -21,12 +21,13 @@ alwaysApply: true
 
 ## Naming
 
-**Epics**: `EP-XXX` → `[EPIC] EP-XXX: Title`
+**Initiatives**: `IN-XXX` → `[INITIATIVE] IN-XXX: Title`
+**Epics**: `EP-XXX` → `[EPIC] EP-XXX: Title (IN-XXX)` - Include initiative if part of one
 **Stories**: `ST-XXX` → `[STORY] ST-XXX: Title (EP-XXX)`
 **Tasks**: `TSK-XXX` → `[TASK] TSK-XXX: Title (ST-XXX)`
 
-**Branches**: `epic/ep-001-scope` or `feat/st-010-feature`
-**Commits**: `feat(ep-001 st-010): description`
+**Branches**: `initiative/in-001-name`, `epic/ep-001-scope`, or `feat/st-010-feature`
+**Commits**: `feat(in-001 ep-001 st-010): description` - Include initiative if applicable
 
 ## Epic Locations
 

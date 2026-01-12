@@ -20,11 +20,18 @@ You MUST follow the 10-phase pipeline. Never skip phases. Never guess missing in
 
 ### 1. State Current Phase
 ```
-Working in PHASE X – [NAME] on Epic EP-XXX, Story ST-XXX.
+Working in PHASE X – [NAME] on Initiative IN-XXX, Epic EP-XXX, Story ST-XXX.
 ```
+
+**Note**: If epic is part of an initiative, include initiative ID. If no initiative, omit it.
 
 ### 2. Check Inputs
 List inputs used. If missing → STOP and ask.
+
+**If working on Epic/Story:**
+- Check if epic is part of an Initiative (IN-XXX)
+- If yes, read initiative document to understand context and success criteria
+- Ensure work aligns with initiative goals
 
 ### 3. Plan Before Coding
 Outline steps + files to change. No giant rewrites.

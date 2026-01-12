@@ -25,36 +25,42 @@ export function buildGenerationInput(
   }
 
   // Traditional presets flow
+  // Ensure gender is always a valid value ('female' or 'male'), never null
+  const gender = form.gender === 'female' || form.gender === 'male' ? form.gender : 'female';
+  
+  // Ensure all required fields have valid defaults
+  const appearance = {
+    gender,
+    style: form.style === 'realistic' || form.style === 'anime' ? form.style : 'realistic',
+    ethnicity: form.ethnicity || 'caucasian',
+    age: form.age || 25, // Default age if not set
+    ...(form.ageRange && { ageRange: form.ageRange }),
+    ...(form.skinColor && { skinColor: form.skinColor }),
+    eyeColor: form.eyeColor || 'brown',
+    ...(form.faceShape && { faceShape: form.faceShape }),
+    hairStyle: form.hairStyle || 'long-straight',
+    hairColor: form.hairColor || 'brown',
+    bodyType: form.bodyType || 'slim',
+    ...(form.assSize && { assSize: form.assSize }),
+    ...(form.breastSize && { breastSize: form.breastSize }),
+    ...(form.breastType && { breastType: form.breastType }),
+    ...(form.freckles && { freckles: form.freckles }),
+    ...(form.scars && { scars: form.scars }),
+    ...(form.beautyMarks && { beautyMarks: form.beautyMarks }),
+    ...(form.piercings && { piercings: form.piercings }),
+    ...(form.tattoos && { tattoos: form.tattoos }),
+  };
+
   return {
-    appearance: {
-      gender: form.gender || 'female',
-      style: form.style || 'realistic',
-      ethnicity: form.ethnicity || 'caucasian',
-      age: form.age,
-      ageRange: form.ageRange || undefined,
-      skinColor: form.skinColor || undefined,
-      eyeColor: form.eyeColor || 'brown',
-      faceShape: form.faceShape || undefined,
-      hairStyle: form.hairStyle || 'long-straight',
-      hairColor: form.hairColor || 'brown',
-      bodyType: form.bodyType || 'slim',
-      assSize: form.assSize || undefined,
-      breastSize: form.breastSize || undefined,
-      breastType: form.breastType || undefined,
-      freckles: form.freckles || undefined,
-      scars: form.scars || undefined,
-      beautyMarks: form.beautyMarks || undefined,
-      piercings: form.piercings || undefined,
-      tattoos: form.tattoos || undefined,
-    },
+    appearance,
     identity: {
       defaultOutfit: form.outfit || 'casual',
       archetype: form.archetype || 'girl-next-door',
       personalityTraits:
         form.personalityTraits.length > 0 ? form.personalityTraits : ['friendly'],
-      bio: form.bio,
+      bio: form.bio || '',
     },
-    nsfwEnabled: form.nsfwEnabled,
+    nsfwEnabled: form.nsfwEnabled || false,
     // Add fine-tune adjustment to bio for presets flow
     ...(fineTuneAdjustment?.trim() && {
       promptInput: fineTuneAdjustment.trim(),

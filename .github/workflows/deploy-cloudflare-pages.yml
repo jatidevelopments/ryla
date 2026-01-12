@@ -1,0 +1,86 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/landing/**'
+      - 'apps/funnel/**'
+      - 'apps/web/**'
+  workflow_dispatch:
+    inputs:
+      app:
+        description: 'App to deploy'
+        required: true
+        type: choice
+        options:
+          - landing
+          - funnel
+          - web
+          - all
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Deploy to Cloudflare Pages
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app:
+          - name: landing
+            project: ryla-landing
+            output: dist/apps/landing/.next
+          - name: funnel
+            project: ryla-funnel
+            output: dist/apps/funnel/.next
+          - name: web
+            project: ryla-web
+            output: dist/apps/web/.next
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
+      
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+      
+      - name: Build app
+        run: pnpm nx build ${{ matrix.app.name }} --configuration=production
+        env:
+          # Landing app env vars
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL_LANDING || 'https://www.ryla.ai' }}
+          NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL || 'https://cdn.ryla.ai' }}
+          NEXT_PUBLIC_DEBUG_CDN: ${{ secrets.NEXT_PUBLIC_DEBUG_CDN || 'false' }}
+          # Funnel app env vars
+          NEXT_PUBLIC_SITE_URL_FUNNEL: ${{ secrets.NEXT_PUBLIC_SITE_URL_FUNNEL || 'https://goviral.ryla.ai' }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL || 'https://end.ryla.ai' }}
+          NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT: ${{ secrets.NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT || '/' }}
+          # Web app env vars
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL || 'https://app.ryla.ai' }}
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL || 'https://end.ryla.ai' }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
+          NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com' }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+      
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ${{ matrix.app.project }}
+          directory: ${{ matrix.app.output }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Deployment Status
+        run: |
+          echo "✅ Deployed ${{ matrix.app.name }} to Cloudflare Pages"
+          echo "Project: ${{ matrix.app.project }}"
+          echo "Output: ${{ matrix.app.output }}"

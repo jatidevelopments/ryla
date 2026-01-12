@@ -322,6 +322,38 @@ Configured in `.cursor/mcp.json` for Cursor IDE integration. Provides security s
 - `SNYK_API_KEY` - Required: Snyk API token
 - `SNYK_ORG_ID` - Optional: Default organization ID
 
+#### Cloudflare MCP Servers
+| | |
+|---|---|
+| **Purpose** | Cloudflare services integration and management |
+| **Used For** | Workers observability, R2 bindings, documentation, browser rendering |
+| **Package** | `mcp-remote` with Cloudflare server URLs |
+| **Docs** | See [Cloudflare MCP Rules](../../.cursor/rules/mcp-cloudflare.mdc) |
+| **Servers** | Observability, Bindings, Docs, Browser |
+
+**MCP Configuration:**
+Configured in `.cursor/mcp.json` for Cursor IDE integration. Provides access to Cloudflare services for monitoring, debugging, and managing R2 storage and Workers.
+
+**Available Servers:**
+- **Observability** (`https://observability.mcp.cloudflare.com/mcp`) - Debug Workers, view logs and analytics
+- **Bindings** (`https://bindings.mcp.cloudflare.com/mcp`) - Manage R2, KV, D1, and Workers bindings
+- **Docs** (`https://docs.mcp.cloudflare.com/mcp`) - Cloudflare documentation reference
+- **Browser** (`https://browser.mcp.cloudflare.com/mcp`) - Web page rendering and screenshots
+
+**Capabilities:**
+- R2 storage management: List buckets, manage objects, configure settings
+- Workers monitoring: Debug applications, view logs, track performance
+- Documentation access: Look up API docs, examples, best practices
+- Browser rendering: Fetch pages, convert to markdown, take screenshots
+
+**Environment Variables:**
+- `CLOUDFLARE_API_TOKEN` - Required for observability and bindings servers
+
+**Relevant for RYLA:**
+- R2 storage management (see [ADR-005](../decisions/ADR-005-cloudflare-r2-storage.md))
+- CDN Workers configuration
+- Storage bucket operations and monitoring
+
 ---
 
 ## Dependency Matrix

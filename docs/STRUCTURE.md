@@ -5,6 +5,7 @@ This document outlines the organization of the RYLA documentation.
 ## Overview
 
 The documentation is organized by purpose and topic, with clear separation between:
+- **Initiatives** - Strategic business goals that drive product development
 - **Requirements** - Product requirements and epics
 - **Architecture** - System architecture (general vs epic-specific)
 - **Specs** - Technical specifications (general vs epic-specific)
@@ -63,6 +64,7 @@ docs/
 │
 ├── analytics/          # Analytics tracking
 ├── decisions/          # Architecture decision records
+├── initiatives/        # Business initiatives (strategic goals)
 ├── journeys/           # User journeys
 ├── process/            # Process documentation
 ├── planning/           # Planning documents

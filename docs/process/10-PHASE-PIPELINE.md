@@ -2,6 +2,18 @@
 
 Every feature follows this pipeline. **No phase skipped.**
 
+## Initiative Context
+
+**Before starting the pipeline**, check if the epic is part of a business initiative:
+- If yes, read the initiative document (`docs/initiatives/IN-XXX-*.md`) first
+- Understand the "why" and success criteria
+- Ensure the epic contributes to initiative goals
+- Reference the initiative in the epic document
+
+**Initiative → Epic → Story → Task**
+
+Initiatives are strategic business goals that span multiple epics. Epics implement parts of initiatives. This pipeline applies to epics and stories.
+
 ---
 
 ## P1: Requirements

@@ -1,0 +1,279 @@
+# Business Initiatives Guidelines
+
+## Context
+
+Business initiatives are strategic goals that drive product development and span multiple epics. They provide the "why" behind features and help coordinate work across teams.
+
+## Initiative System
+
+### Location
+- **Directory**: `docs/initiatives/`
+- **Template**: `docs/initiatives/INITIATIVE-TEMPLATE.md`
+- **Naming**: `IN-XXX-[short-description].md` (e.g., `IN-001-cloudflare-migration.md`)
+
+### When to Create an Initiative
+
+**Create an initiative when:**
+- ✅ Strategic business goal requires multiple epics
+- ✅ Need to coordinate work across teams/areas
+- ✅ Success requires measurable business outcomes
+- ✅ Goal spans multiple quarters or phases
+- ✅ Need to track progress against business metrics
+
+**Don't create an initiative for:**
+- ❌ Single epic or feature (use epic instead)
+- ❌ Technical refactoring (use ADR instead)
+- ❌ Bug fixes or small improvements
+
+### Initiative vs Epic
+
+| Aspect | Initiative | Epic |
+|--------|-----------|------|
+| **Scope** | Strategic business goal | Feature area |
+| **Duration** | Months/quarters | Weeks/months |
+| **Output** | Business outcomes | Product features |
+| **Contains** | Multiple epics | Multiple stories |
+| **Success** | Business metrics | Feature completion |
+
+## Creating an Initiative
+
+### Step 1: Use the Template
+
+Always start with the template:
+```bash
+cp docs/initiatives/INITIATIVE-TEMPLATE.md docs/initiatives/IN-XXX-[name].md
+```
+
+### Step 2: Fill Required Sections
+
+**Mandatory sections:**
+1. **Why (Business Rationale)** - Problem statement, current state, desired state
+2. **How (Approach & Strategy)** - Strategy, principles, phases
+3. **When (Timeline & Priority)** - Timeline, milestones, priority
+4. **Who (Stakeholders & Ownership)** - Owner, stakeholders, teams
+5. **Success Criteria** - Primary metrics, business impact, indicators
+6. **Definition of Done** - Completion criteria, not done criteria
+
+**Optional but recommended:**
+- Risks & Mitigation
+- Progress Tracking
+- Lessons Learned
+
+### Step 3: Link to Related Work
+
+- Link to related epics in "Related Work" section
+- Reference ADRs if architectural decisions are needed
+- Link to research or technical docs if applicable
+
+### Step 4: Update Index
+
+Update `docs/initiatives/README.md` with the new initiative:
+```markdown
+| [IN-XXX](./IN-XXX-name.md) | [Name] | [Status] | [Metric] | [Owner] |
+```
+
+## Working with Initiatives
+
+### When Starting Work on an Initiative
+
+1. **Read the initiative document** - Understand the "why"
+2. **Check success criteria** - Know what success looks like
+3. **Review related epics** - Understand what needs to be built
+4. **Check dependencies** - Ensure prerequisites are met
+5. **Update progress** - Add current phase and status
+
+### When Creating Epics from an Initiative
+
+1. **Reference the initiative** - Link epic to initiative
+2. **Align with success criteria** - Ensure epic contributes to initiative goals
+3. **Follow initiative principles** - Adhere to strategy and constraints
+4. **Update initiative** - Add epic to "Related Work" section
+
+### When Updating Initiative Status
+
+**Status values:**
+- **Proposed** - Initiative identified, template filled out
+- **Active** - Initiative is driving current work
+- **On Hold** - Temporarily paused, may resume
+- **Completed** - Success criteria met, initiative closed
+- **Cancelled** - Initiative abandoned, reason documented
+
+**Update when:**
+- Status changes (e.g., Proposed → Active)
+- Milestones reached
+- Risks identified or mitigated
+- Success criteria met
+- Initiative completed or cancelled
+
+### Progress Tracking
+
+**Update "Progress Tracking" section:**
+- Current phase and status
+- Recent updates (date + description)
+- Next steps
+
+**Status values:**
+- **On Track** - Progressing as planned
+- **At Risk** - May not meet timeline/success criteria
+- **Blocked** - Cannot proceed due to dependency/issue
+
+## Success Criteria
+
+### Business Metrics
+
+Every initiative must target at least one business metric (A-E):
+- **A - Activation**: Signup → first core action
+- **B - Retention**: E7/E30 engagement signal
+- **C - Core Value**: North Star usage metric
+- **D - Conversion**: Trial → paid
+- **E - CAC**: Acquisition cost optimization
+
+### Measurable Outcomes
+
+Success criteria must be:
+- ✅ **Specific** - Clear, unambiguous targets
+- ✅ **Measurable** - Quantifiable metrics
+- ✅ **Achievable** - Realistic given constraints
+- ✅ **Relevant** - Aligned with business goals
+- ✅ **Time-bound** - Timeline for measurement
+
+**Example:**
+```markdown
+| Metric | Target | Measurement Method | Timeline |
+|--------|--------|-------------------|----------|
+| Activation Rate | +15% | PostHog funnel: signup → first_generation | 3 months |
+| Cost per User | -20% | Infrastructure spend / active users | 6 months |
+```
+
+## Definition of Done
+
+### Initiative Complete When:
+- [ ] All success criteria met
+- [ ] All related epics completed
+- [ ] Documentation updated
+- [ ] Stakeholders notified
+- [ ] Post-mortem/retrospective completed
+- [ ] Metrics validated
+- [ ] Lessons learned documented
+
+### Not Done Criteria
+
+**This initiative is NOT done if:**
+- [ ] Success criteria not met
+- [ ] Related epics incomplete
+- [ ] Documentation missing
+- [ ] Metrics not validated
+- [ ] Stakeholders not aligned
+- [ ] Technical debt introduced without plan
+
+## Integration with Development Process
+
+### Initiative → Epic → Story → Task Flow
+
+1. **Initiative** defines the strategic goal
+2. **Epic** implements part of the initiative
+3. **Story** implements part of the epic
+4. **Task** implements part of the story
+
+### When Creating Epics
+
+**Reference the initiative:**
+```markdown
+## Related Initiative
+
+This epic is part of [IN-XXX: Initiative Name](./docs/initiatives/IN-XXX-name.md).
+
+**Initiative Goal**: [Brief description]
+**This Epic's Contribution**: [How this epic contributes to the initiative]
+```
+
+### When Working on Stories
+
+**Check initiative alignment:**
+- Does this story contribute to initiative success criteria?
+- Does this story follow initiative principles?
+- Does this story respect initiative constraints?
+
+## Best Practices
+
+### 1. Keep Initiatives Focused
+
+- One clear business goal per initiative
+- Avoid scope creep - if it doesn't contribute to success criteria, it's out of scope
+- Split large initiatives into phases if needed
+
+### 2. Regular Updates
+
+- Update progress at least monthly
+- Document blockers and risks immediately
+- Celebrate milestones and wins
+
+### 3. Clear Ownership
+
+- One clear owner per initiative
+- Owner responsible for updates and communication
+- Stakeholders clearly identified
+
+### 4. Data-Driven
+
+- Success criteria must be measurable
+- Track leading and lagging indicators
+- Validate assumptions with data
+
+### 5. Learn and Adapt
+
+- Document lessons learned
+- Update strategy based on learnings
+- Share insights with team
+
+## Examples
+
+### Good Initiative
+- **Clear problem**: "High infrastructure costs limiting growth"
+- **Measurable success**: "Reduce costs by 30% while maintaining performance"
+- **Specific timeline**: "Complete migration by Q2 2026"
+- **Clear ownership**: "Infrastructure team, led by [Name]"
+
+### Bad Initiative
+- **Vague goal**: "Improve the product"
+- **Unmeasurable success**: "Make it better"
+- **No timeline**: "When it's done"
+- **No owner**: "Everyone"
+
+## Related Documentation
+
+- **Initiative Template**: `docs/initiatives/INITIATIVE-TEMPLATE.md`
+- **Initiative Index**: `docs/initiatives/README.md`
+- **Business Metrics**: `docs/process/BUSINESS-METRICS.md`
+- **Epic Structure**: `docs/requirements/epics/`
+- **ADR Template**: `docs/decisions/ADR-TEMPLATE.md`
+
+## Quick Reference
+
+**Create initiative:**
+```bash
+cp docs/initiatives/INITIATIVE-TEMPLATE.md docs/initiatives/IN-XXX-name.md
+# Fill template, update README.md index
+```
+
+**Update initiative:**
+- Change status when appropriate
+- Update progress tracking section
+- Add recent updates with dates
+- Document risks and mitigations
+
+**Link epic to initiative:**
+```markdown
+## Related Initiative
+
+This epic is part of [IN-XXX: Initiative Name](../../initiatives/IN-XXX-name.md).
+```
+
+**Check initiative alignment:**
+- Does this work contribute to initiative success criteria?
+- Does this work follow initiative principles?
+- Does this work respect initiative constraints?
+
+---
+
+**Last Updated**: 2026-01-XX

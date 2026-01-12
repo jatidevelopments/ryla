@@ -19,6 +19,7 @@ alwaysApply: true
 **Before starting, you MUST:**
 
 1. **Identify Task Type**
+   - Initiative (IN-XXX) - Strategic business goal spanning multiple epics
    - Epic (EP-XXX) - Large feature
    - Story (ST-XXX) - Feature component
    - Task (TSK-XXX) - Specific implementation
@@ -33,7 +34,10 @@ alwaysApply: true
    ```
 
 3. **Gather Required Inputs**
-   - Read related documentation (epic, story, architecture docs)
+   - **If working on Epic/Story**: Check if it's part of an Initiative (IN-XXX)
+     - Read initiative document to understand "why" and success criteria
+     - Ensure work aligns with initiative goals
+   - Read related documentation (initiative, epic, story, architecture docs)
    - Review acceptance criteria
    - Check existing code patterns
    - Identify dependencies
@@ -206,28 +210,75 @@ alwaysApply: true
 
 ## Task Types and Specific Workflows
 
+### Creating an Initiative
+
+**When to create an initiative:**
+- Strategic business goal requiring multiple epics
+- Need to coordinate work across teams/areas
+- Success requires measurable business outcomes
+- Goal spans multiple quarters or phases
+
+**Workflow:**
+1. **Check if initiative already exists**
+   - Review `docs/initiatives/README.md`
+   - Check if similar initiative exists
+
+2. **Use the template**
+   - Copy `docs/initiatives/INITIATIVE-TEMPLATE.md`
+   - Name: `IN-XXX-[short-description].md`
+
+3. **Fill required sections**
+   - Why (Business Rationale) - Problem, current state, desired state
+   - How (Approach & Strategy) - Strategy, principles, phases
+   - When (Timeline & Priority) - Timeline, milestones, priority
+   - Who (Stakeholders & Ownership) - Owner, stakeholders, teams
+   - Success Criteria - Primary metrics, business impact
+   - Definition of Done - Completion criteria, not done criteria
+
+4. **Update index**
+   - Add to `docs/initiatives/README.md` index table
+
+5. **Link to related work**
+   - Link to related epics when they're created
+   - Reference ADRs if architectural decisions needed
+
+**See**: `.cursor/rules/initiatives.mdc` for detailed guidance
+
 ### New Feature (Epic/Story)
 
-1. **Follow 10-Phase Pipeline**
+1. **Check Initiative Context**
+   - **If epic is part of an initiative**: Read initiative document first
+   - Understand the "why" and success criteria
+   - Ensure epic contributes to initiative goals
+   - Follow initiative principles and constraints
+   - Link epic to initiative in "Related Work" section
+
+2. **Follow 10-Phase Pipeline**
    - Start at appropriate phase
    - Complete phase outputs before moving to next
    - Never skip phases
 
-2. **Architecture First**
+3. **Architecture First**
    - Design data model
    - Define API contracts
    - Plan component structure
 
-3. **Implementation**
+4. **Implementation**
    - Start with data layer
    - Then business logic
    - Then presentation layer
    - Follow Apps → Business → Data flow
 
-4. **Testing**
+5. **Testing**
    - Write tests as you go (TDD when applicable)
    - Test critical paths
    - Verify analytics events
+
+6. **Initiative Alignment Check**
+   - Does this work contribute to initiative success criteria?
+   - Does this work follow initiative principles?
+   - Does this work respect initiative constraints?
+   - Update initiative progress if applicable
 
 ### Bug Fix
 
@@ -389,6 +440,7 @@ alwaysApply: true
 
 ## Related Documentation
 
+- Initiatives: `initiatives.mdc` (when and how to create initiatives)
 - Pipeline: `pipeline-enforcement.mdc` (10-phase pipeline)
 - Iterative Development: `ralph.mdc` (for complex features)
 - Way of Work: `way-of-work.mdc` (communication patterns)

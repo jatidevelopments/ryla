@@ -10,15 +10,15 @@ primary_region = "fra"
 [env]
   NODE_ENV = "production"
   PORT = "3000"
-  # Replace with actual URL after first deploy or DNS setup
-  NEXT_PUBLIC_SITE_URL = "https://ryla-web.fly.dev"
+  NEXT_PUBLIC_SITE_URL = "https://app.ryla.ai"
+  NEXT_PUBLIC_API_URL = "https://end.ryla.ai"
 
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = false
   auto_start_machines = true
-  min_machines_running = 0
+  min_machines_running = 1
   processes = ["app"]
   
   [[http_service.checks]]

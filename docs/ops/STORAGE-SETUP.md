@@ -24,12 +24,17 @@ See [ADR-005](../decisions/ADR-005-cloudflare-r2-storage.md) for full decision r
 
 ### 2. Create R2 Bucket
 
-**Via Dashboard:**
+**Method 1: Cloudflare MCP (Recommended)**
+- Use `cloudflare-bindings` MCP server in Cursor
+- Ask: "Create an R2 bucket named ryla-images in Europe (Warsaw) location"
+- See [R2 Setup via MCP](./CLOUDFLARE-R2-SETUP.md) for details
+
+**Method 2: Cloudflare Dashboard**
 1. Go to: R2 → Create bucket
 2. Name: `ryla-images`
 3. Location: Choose closest to your users (e.g., `Europe (Warsaw)`)
 
-**Via CLI:**
+**Method 3: Wrangler CLI**
 ```bash
 # Install wrangler
 npm install -g wrangler
@@ -353,9 +358,23 @@ AWS_S3_FORCE_PATH_STYLE=true
 
 ---
 
+## MCP Setup
+
+For automated setup using Cloudflare MCP tools, see:
+- [Cloudflare MCP Usage Guide](./CLOUDFLARE-MCP-USAGE.md)
+- [R2 Setup via MCP](./CLOUDFLARE-R2-SETUP.md)
+
+**Quick MCP Commands:**
+- Create bucket: "Create an R2 bucket named ryla-images in Europe (Warsaw)"
+- List buckets: "List all R2 buckets in my Cloudflare account"
+- Configure bucket: "Configure ryla-images bucket settings"
+
 ## Related Documentation
 
 - [ADR-005: Cloudflare R2 Storage Decision](../decisions/ADR-005-cloudflare-r2-storage.md)
+- [Cloudflare MCP Usage Guide](./CLOUDFLARE-MCP-USAGE.md)
+- [R2 Setup via MCP](./CLOUDFLARE-R2-SETUP.md)
+- [CDN Worker Setup](./CLOUDFLARE-CDN-WORKER.md)
 - [External Dependencies](../specs/general/EXTERNAL-DEPENDENCIES.md)
 - [Image Storage Service](../../apps/api/src/modules/image/services/image-storage.service.ts)
 - [AWS S3 Service](../../apps/api/src/modules/aws-s3/services/aws-s3.service.ts)
