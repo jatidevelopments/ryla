@@ -102,25 +102,52 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 # We use a RUN command to conditionally extract assets since FROM can't be conditional
 ARG GHCR_IMAGE
 RUN if [ -n "$GHCR_IMAGE" ]; then \
+      echo "========================================="; \
       echo "Extracting assets from $GHCR_IMAGE"; \
-      # Create a temporary container to extract files
-      CONTAINER_ID=$(docker create "$GHCR_IMAGE" 2>/dev/null || echo ""); \
-      if [ -n "$CONTAINER_ID" ]; then \
-        docker cp "$CONTAINER_ID:/public" ./apps/web/public-temp/ 2>/dev/null || true; \
-        if [ -d "./apps/web/public-temp" ] && [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
-          cp -r ./apps/web/public-temp/* ./apps/web/public/ 2>/dev/null || true; \
-          echo "Assets extracted successfully from $GHCR_IMAGE"; \
+      echo "========================================="; \
+      # Check if image exists locally first
+      if docker image inspect "$GHCR_IMAGE" >/dev/null 2>&1; then \
+        echo "Image $GHCR_IMAGE found locally"; \
+        # Create a temporary container to extract files
+        CONTAINER_ID=$(docker create "$GHCR_IMAGE" 2>/dev/null || echo ""); \
+        if [ -n "$CONTAINER_ID" ]; then \
+          echo "Created container: $CONTAINER_ID"; \
+          # Try /public first, then /assets, then root
+          for SOURCE_PATH in "/public" "/assets" "/"; do \
+            echo "Trying to extract from $SOURCE_PATH"; \
+            docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null && break || true; \
+          done; \
+          if [ -d "./apps/web/public-temp" ]; then \
+            echo "Contents of public-temp:"; \
+            ls -la ./apps/web/public-temp/ || true; \
+            if [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
+              echo "Copying files to apps/web/public/"; \
+              cp -r ./apps/web/public-temp/* ./apps/web/public/ 2>/dev/null || true; \
+              echo "Files in apps/web/public after copy:"; \
+              ls -la ./apps/web/public/ | head -20 || true; \
+              echo "Assets extracted successfully from $GHCR_IMAGE"; \
+            else \
+              echo "Warning: public-temp directory is empty"; \
+            fi; \
+            rm -rf ./apps/web/public-temp; \
+          else \
+            echo "Warning: Could not create public-temp directory"; \
+          fi; \
+          docker rm "$CONTAINER_ID" 2>/dev/null || true; \
         else \
-          echo "No assets found in $GHCR_IMAGE:/public"; \
+          echo "Warning: Could not create container from $GHCR_IMAGE"; \
         fi; \
-        rm -rf ./apps/web/public-temp; \
-        docker rm "$CONTAINER_ID" 2>/dev/null || true; \
       else \
-        echo "Warning: Could not create container from $GHCR_IMAGE, using default public folder"; \
+        echo "Warning: Image $GHCR_IMAGE not found locally, trying to pull..."; \
+        docker pull "$GHCR_IMAGE" 2>/dev/null || echo "Could not pull image, using default public folder"; \
       fi; \
     else \
       echo "GHCR_IMAGE not set, using default public folder"; \
-    fi
+    fi && \
+    echo "========================================="; \
+    echo "Final public folder contents:"; \
+    echo "========================================="; \
+    ls -la ./apps/web/public/ | head -30 || true
 
 USER nextjs
 
