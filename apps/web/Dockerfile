@@ -8,8 +8,7 @@ FROM node:20-alpine AS base
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-# Install docker-cli for extracting assets from ghcr image
-RUN apk add --no-cache libc6-compat docker-cli
+RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -73,9 +72,6 @@ WORKDIR /app
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
 
-# Install docker-cli for extracting assets from ghcr image
-RUN apk add --no-cache docker-cli
-
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
@@ -94,74 +90,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/
 
 # Copy public files
 # Public files should be at apps/web/public (relative to server.js location)
+# Note: Assets from ghcr image are extracted in CI/CD before build
+# The extracted assets are included in the build context via apps/web/public/
+# This ensures assets are available even in remote build contexts (like Depot)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
-
-# Extract and copy images from ghcr Docker image if available
-# GHCR_IMAGE build arg must be set and image must be available
-# CI/CD pulls the image and passes GHCR_IMAGE before building
-# We use a RUN command to conditionally extract assets since FROM can't be conditional
-ARG GHCR_IMAGE
-RUN if [ -n "$GHCR_IMAGE" ]; then \
-      echo "========================================="; \
-      echo "Extracting assets from $GHCR_IMAGE"; \
-      echo "========================================="; \
-      # Check if image exists locally first
-      if docker image inspect "$GHCR_IMAGE" >/dev/null 2>&1; then \
-        echo "Image $GHCR_IMAGE found locally"; \
-        # Create a temporary container to extract files
-        CONTAINER_ID=$(docker create "$GHCR_IMAGE" 2>/dev/null || echo ""); \
-        if [ -n "$CONTAINER_ID" ]; then \
-          echo "Created container: $CONTAINER_ID"; \
-          # List container filesystem to see what's available
-          echo "Container filesystem structure:"; \
-          docker exec "$CONTAINER_ID" ls -la / 2>/dev/null || docker run --rm "$GHCR_IMAGE" ls -la / 2>/dev/null || true; \
-          # Try /public first, then /assets, then root
-          EXTRACTED=false; \
-          for SOURCE_PATH in "/public" "/assets" "/"; do \
-            echo "Trying to extract from $SOURCE_PATH"; \
-            if docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null; then \
-              echo "Successfully copied from $SOURCE_PATH"; \
-              EXTRACTED=true; \
-              break; \
-            else \
-              echo "Failed to copy from $SOURCE_PATH"; \
-            fi; \
-          done; \
-          if [ "$EXTRACTED" = "true" ] && [ -d "./apps/web/public-temp" ]; then \
-            echo "Contents of public-temp:"; \
-            ls -la ./apps/web/public-temp/ || true; \
-            if [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
-              echo "Copying files to apps/web/public/"; \
-              # Ensure target directory exists
-              mkdir -p ./apps/web/public/; \
-              # Copy with verbose output
-              cp -rv ./apps/web/public-temp/* ./apps/web/public/ 2>&1 | head -20 || true; \
-              echo "Files in apps/web/public after copy:"; \
-              ls -la ./apps/web/public/ | head -30 || true; \
-              echo "Asset extraction completed from $GHCR_IMAGE"; \
-            else \
-              echo "Warning: public-temp directory is empty after extraction"; \
-            fi; \
-            rm -rf ./apps/web/public-temp; \
-          else \
-            echo "Warning: Could not extract from any source path"; \
-          fi; \
-          docker rm "$CONTAINER_ID" 2>/dev/null || true; \
-        else \
-          echo "Warning: Could not create container from $GHCR_IMAGE"; \
-        fi; \
-      else \
-        echo "Warning: Image $GHCR_IMAGE not found locally"; \
-        echo "Note: In remote build contexts (like Depot), the image must be available in the build environment"; \
-        echo "CI/CD should ensure the image is pulled and available before build starts"; \
-      fi; \
-    else \
-      echo "GHCR_IMAGE not set, using default public folder"; \
-    fi && \
-    echo "========================================="; \
-    echo "Final public folder contents:"; \
-    echo "========================================="; \
-    ls -la ./apps/web/public/ | head -30 || true
 
 USER nextjs
 
