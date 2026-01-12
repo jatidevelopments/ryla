@@ -27,10 +27,23 @@ export class AuthCacheService {
     deviceId: string,
     token: string,
   ): Promise<void> {
-    const key = this.getKey(userId, deviceId);
-    await this.redisService.setString(key, token, {
-      ttl: this.jwtConfig.accessExpiresIn,
-    });
+    try {
+      const key = this.getKey(userId, deviceId);
+      // Add timeout to prevent hanging (5 seconds)
+      await Promise.race([
+        this.redisService.setString(key, token, {
+          ttl: this.jwtConfig.accessExpiresIn,
+        }),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+        ),
+      ]);
+    } catch (error) {
+      // Log but don't fail login if Redis is unavailable
+      // Tokens are still valid (JWT is stateless), just not cached
+      console.warn('[AuthCacheService] Failed to save token to Redis:', error);
+      // Don't throw - allow login to proceed without Redis caching
+    }
   }
 
   public async isAccessTokenExist(
@@ -38,20 +51,60 @@ export class AuthCacheService {
     deviceId: string,
     token: string,
   ): Promise<boolean> {
-    const key = this.getKey(userId, deviceId);
-    const storedToken = await this.redisService.getString(key);
-    return storedToken === token;
+    try {
+      const key = this.getKey(userId, deviceId);
+      // Add timeout to prevent hanging (5 seconds)
+      const storedToken = await Promise.race([
+        this.redisService.getString(key),
+        new Promise<string | null>((_, reject) =>
+          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+        ),
+      ]);
+      return storedToken === token;
+    } catch (error) {
+      // If Redis fails, assume token is valid (graceful degradation)
+      // JWT validation will still work
+      console.warn('[AuthCacheService] Failed to check token in Redis:', error);
+      return true; // Allow request to proceed
+    }
   }
 
   public async deleteToken(userId: string, deviceId: string): Promise<void> {
-    const key = this.getKey(userId, deviceId);
-    await this.redisService.deleteByKey(key);
+    try {
+      const key = this.getKey(userId, deviceId);
+      // Add timeout to prevent hanging (5 seconds)
+      await Promise.race([
+        this.redisService.deleteByKey(key),
+        new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+        ),
+      ]);
+    } catch (error) {
+      // Log but don't fail logout if Redis is unavailable
+      console.warn('[AuthCacheService] Failed to delete token from Redis:', error);
+    }
   }
 
   public async deleteAllUserTokens(userId: string): Promise<void> {
-    const keys = await this.redisService.keys(this.getKey(userId, '*'));
-    if (keys.length > 0) {
-      await this.redisService.deleteByKeys(keys);
+    try {
+      // Add timeout to prevent hanging (5 seconds)
+      const keys = await Promise.race([
+        this.redisService.keys(this.getKey(userId, '*')),
+        new Promise<string[]>((_, reject) =>
+          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+        ),
+      ]);
+      if (keys.length > 0) {
+        await Promise.race([
+          this.redisService.deleteByKeys(keys),
+          new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+          ),
+        ]);
+      }
+    } catch (error) {
+      // Log but don't fail logout if Redis is unavailable
+      console.warn('[AuthCacheService] Failed to delete all tokens from Redis:', error);
     }
   }
 
