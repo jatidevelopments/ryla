@@ -99,13 +99,26 @@ Before complex operations, verify API connectivity:
 ```
 ryla_health
 ```
+This confirms the MCP is connected to the correct environment (local/production).
 
-### 2. Get Auth Token for Testing
+### 2. Verify Environment Configuration
+Use `ryla_server_info` to confirm:
+- Which API URL is being used
+- Current environment (local/production)
+- Token status
+
+### 3. Get Auth Token for Testing
 ```
-1. ryla_auth_login(email, password) → returns accessToken
-2. Set RYLA_DEV_TOKEN=<accessToken> in environment
-3. Or use ryla_auth_me to verify current token
+1. Ensure RYLA_ENV is set correctly (local or production)
+2. ryla_auth_login(email, password) → returns accessToken
+3. Set RYLA_DEV_TOKEN=<accessToken> in environment
+4. Or use ryla_auth_me to verify current token
 ```
+
+**For Production Testing:**
+- Set `RYLA_ENV=production` in MCP config
+- Use production user credentials
+- Get dev token for long-term use: `ryla_auth_dev_token(email, password)`
 
 ### 3. Use Job Polling Pattern
 Generation is async. Always poll for completion:
@@ -128,10 +141,17 @@ ryla_template_create with the same config
 
 ### Debug Auth Issues
 ```
-1. ryla_auth_me → Check if token is valid
-2. If invalid: ryla_auth_login → Get new token
-3. Update RYLA_DEV_TOKEN
+1. ryla_server_info → Check environment and API URL
+2. ryla_health → Verify API connectivity
+3. ryla_auth_me → Check if token is valid
+4. If invalid: ryla_auth_login → Get new token
+5. Update RYLA_DEV_TOKEN in MCP config
 ```
+
+**Common Issues:**
+- **401 Unauthorized**: Token expired or invalid → Use `ryla_auth_login` to get new token
+- **Wrong Environment**: Check `ryla_server_info` to see which API URL is being used
+- **Connection Failed**: Verify `RYLA_ENV` is set correctly (local/production)
 
 ### Generate Profile Picture Set
 ```
