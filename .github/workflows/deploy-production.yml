@@ -48,6 +48,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
+      - name: Pull ghcr assets image (for web app)
+        if: matrix.app.name == 'web'
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/jatidevelopments/ryla-web-assets:latest || echo "Warning: Could not pull ghcr assets image, will use default public folder"
+        continue-on-error: true
+      
       - name: Build apps
         run: pnpm nx build ${{ matrix.app.name }} --configuration=production
       
@@ -72,11 +79,16 @@ jobs:
       
       - name: Deploy to Fly.io
         run: |
+          BUILD_ARGS=""
+          if [ "${{ matrix.app.name }}" == "web" ]; then
+            BUILD_ARGS="--build-arg GHCR_IMAGE=ghcr.io/jatidevelopments/ryla-web-assets:latest"
+          fi
           flyctl deploy \
             --config ${{ matrix.app.config }} \
             --dockerfile ${{ matrix.app.dockerfile }} \
             --app ${{ matrix.app.fly_app }} \
-            --strategy immediate
+            --strategy immediate \
+            $BUILD_ARGS
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       
