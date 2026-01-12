@@ -61,6 +61,13 @@ const nextConfig = {
       '@ryla/email': path.resolve(__dirname, '../../dist/libs/email/src'),
     };
 
+    // Ensure tw-animate-css is properly resolved for CSS imports
+    // The package exports CSS that needs to be resolved correctly
+    if (!isServer) {
+      // Add alias to help resolve tw-animate-css CSS imports
+      config.resolve.alias['tw-animate-css'] = path.resolve(__dirname, '../../node_modules/tw-animate-css');
+    }
+
     // Exclude server-only modules from client bundle
     if (!isServer) {
       // Add all Node.js built-ins to fallback
