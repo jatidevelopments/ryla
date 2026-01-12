@@ -127,12 +127,29 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Stop old machines (if any)
+        run: |
+          # Install jq if not available
+          sudo apt-get update && sudo apt-get install -y jq || true
+          # Stop all machines for this app to ensure clean deployment
+          MACHINES=$(flyctl machines list --app ryla-web-prod --json 2>/dev/null || echo "[]")
+          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
+            if [ -n "$machine_id" ]; then
+              echo "Stopping machine: $machine_id"
+              flyctl machines stop "$machine_id" --app ryla-web-prod || true
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
       - name: Deploy Web App to Fly.io
         run: |
           flyctl deploy \
             --config apps/web/fly.toml \
             --dockerfile apps/web/Dockerfile \
             --app ryla-web-prod \
+            --strategy immediate \
             --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}" \
             --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL }}" \
             --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" \
@@ -179,12 +196,29 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Stop old machines (if any)
+        run: |
+          # Install jq if not available
+          sudo apt-get update && sudo apt-get install -y jq || true
+          # Stop all machines for this app to ensure clean deployment
+          MACHINES=$(flyctl machines list --app ryla-api-prod --json 2>/dev/null || echo "[]")
+          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
+            if [ -n "$machine_id" ]; then
+              echo "Stopping machine: $machine_id"
+              flyctl machines stop "$machine_id" --app ryla-api-prod || true
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
       - name: Deploy API App to Fly.io
         run: |
           flyctl deploy \
             --config apps/api/fly.toml \
             --dockerfile apps/api/Dockerfile \
-            --app ryla-api-prod
+            --app ryla-api-prod \
+            --strategy immediate
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -225,12 +259,29 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Stop old machines (if any)
+        run: |
+          # Install jq if not available
+          sudo apt-get update && sudo apt-get install -y jq || true
+          # Stop all machines for this app to ensure clean deployment
+          MACHINES=$(flyctl machines list --app ryla-funnel-prod --json 2>/dev/null || echo "[]")
+          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
+            if [ -n "$machine_id" ]; then
+              echo "Stopping machine: $machine_id"
+              flyctl machines stop "$machine_id" --app ryla-funnel-prod || true
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
       - name: Deploy Funnel App to Fly.io
         run: |
           flyctl deploy \
             --config apps/funnel/fly.toml \
             --dockerfile apps/funnel/Dockerfile \
             --app ryla-funnel-prod \
+            --strategy immediate \
             --build-arg NEXT_PUBLIC_CDN_URL="${{ secrets.NEXT_PUBLIC_CDN_URL }}" \
             --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}" \
             --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL_FUNNEL }}" \
@@ -280,12 +331,29 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Stop old machines (if any)
+        run: |
+          # Install jq if not available
+          sudo apt-get update && sudo apt-get install -y jq || true
+          # Stop all machines for this app to ensure clean deployment
+          MACHINES=$(flyctl machines list --app ryla-landing-prod --json 2>/dev/null || echo "[]")
+          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
+            if [ -n "$machine_id" ]; then
+              echo "Stopping machine: $machine_id"
+              flyctl machines stop "$machine_id" --app ryla-landing-prod || true
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
       - name: Deploy Landing App to Fly.io
         run: |
           flyctl deploy \
             --config apps/landing/fly.toml \
             --dockerfile apps/landing/Dockerfile \
             --app ryla-landing-prod \
+            --strategy immediate \
             --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL_LANDING }}" \
             --build-arg NEXT_PUBLIC_CDN_URL="${{ secrets.NEXT_PUBLIC_CDN_URL }}" \
             --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}"
