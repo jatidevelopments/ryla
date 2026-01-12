@@ -2,10 +2,19 @@
  * API Client Configuration
  *
  * Centralized API configuration and helper for making authenticated API calls.
+ * Supports both local and production environments.
  */
 
+// Determine environment
+const RYLA_ENV = process.env.RYLA_ENV || process.env.NODE_ENV || 'local';
+const isProduction = RYLA_ENV === 'production' || RYLA_ENV === 'prod';
+
 // API configuration
-export const API_BASE_URL = process.env.RYLA_API_URL || 'http://localhost:3001';
+// Priority: RYLA_API_URL env var > production default > local default
+export const API_BASE_URL = 
+  process.env.RYLA_API_URL || 
+  (isProduction ? 'https://end.ryla.ai' : 'http://localhost:3001');
+
 export const DEV_TOKEN = process.env.RYLA_DEV_TOKEN || '';
 
 export const apiConfig = {

@@ -14,18 +14,29 @@ Enable AI assistants to directly interact with RYLA APIs for:
 
 ### 1. Configure Environment
 
-Copy your API `.env` file or set the required variables:
+The MCP server automatically detects the environment:
+- **Local**: Uses `http://localhost:3001` (default)
+- **Production**: Uses `https://end.ryla.ai` when `RYLA_ENV=production`
+
+You can override with environment variables:
 
 ```bash
-# In apps/api/.env (will be loaded automatically)
+# Local development (default)
 RYLA_API_URL=http://localhost:3001
 RYLA_DEV_TOKEN=your-jwt-token  # Optional, or use ryla_auth_login
+
+# Production
+RYLA_ENV=production
+# OR explicitly set:
+RYLA_API_URL=https://end.ryla.ai
+RYLA_DEV_TOKEN=your-production-jwt-token
 ```
 
 ### 2. Add to Cursor MCP Configuration
 
 Add to your `~/.cursor/mcp.json` or `.cursor/mcp.json`:
 
+**For Local Development:**
 ```json
 {
   "mcpServers": {
@@ -35,6 +46,38 @@ Add to your `~/.cursor/mcp.json` or `.cursor/mcp.json`:
       "env": {
         "RYLA_API_URL": "http://localhost:3001",
         "RYLA_DEV_TOKEN": "your-jwt-token"
+      }
+    }
+  }
+}
+```
+
+**For Production:**
+```json
+{
+  "mcpServers": {
+    "ryla-api-prod": {
+      "command": "npx",
+      "args": ["tsx", "/path/to/RYLA/apps/mcp/src/main.ts"],
+      "env": {
+        "RYLA_ENV": "production",
+        "RYLA_API_URL": "https://end.ryla.ai",
+        "RYLA_DEV_TOKEN": "your-production-jwt-token"
+      }
+    }
+  }
+}
+```
+
+**Auto-detection (recommended):**
+```json
+{
+  "mcpServers": {
+    "ryla-api": {
+      "command": "npx",
+      "args": ["tsx", "/path/to/RYLA/apps/mcp/src/main.ts"],
+      "env": {
+        "RYLA_ENV": "production"
       }
     }
   }

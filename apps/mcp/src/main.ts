@@ -18,7 +18,12 @@ import { fileURLToPath } from 'url';
 // Load environment variables
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Load local .env if it exists (for local development)
 config({ path: resolve(__dirname, '../../../apps/api/.env') });
+
+// Also load from project root if exists
+config({ path: resolve(__dirname, '../../../.env') });
 
 import { FastMCP } from 'fastmcp';
 import { z } from 'zod';
@@ -80,8 +85,9 @@ This server provides direct access to ALL RYLA backend APIs for:
 
 **Authentication:**
 - Uses RYLA_DEV_TOKEN for authenticated endpoints
-- Connects to RYLA_API_URL (default: http://localhost:3001)
+- Connects to RYLA_API_URL (auto-detects: local or https://end.ryla.ai)
 - Use ryla_auth_login to get a dev token if needed
+- Set RYLA_ENV=production to use production API
 
 All tools return JSON. Check 'success' field for status.
 `.trim(),
@@ -109,6 +115,7 @@ server.addTool({
         name: 'ryla-api',
         version: '1.0.0',
         apiUrl: API_BASE_URL,
+        environment: process.env.RYLA_ENV || (API_BASE_URL.includes('localhost') ? 'local' : 'production'),
         hasToken: !!DEV_TOKEN,
         tokenPreview: DEV_TOKEN ? `${DEV_TOKEN.slice(0, 10)}...` : 'none',
       },
