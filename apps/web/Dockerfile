@@ -95,10 +95,16 @@ ARG GHCR_IMAGE
 # Copy assets from ghcr image if provided (overwrites existing files)
 # The image should have assets at /public or /assets
 # Note: COPY --from will fail if image doesn't exist, so CI/CD must pull it first
-# We try /public first, then /assets as fallback
-COPY --from=${GHCR_IMAGE} /public ./apps/web/public/ || \
-COPY --from=${GHCR_IMAGE} /assets ./apps/web/public/ || \
-echo "Warning: Could not extract assets from $GHCR_IMAGE, using default public folder"
+# If GHCR_IMAGE is set, try to copy from it (tries /public first, then /assets)
+# This requires the image to be available in the build context (pulled by CI/CD)
+RUN if [ -n "$GHCR_IMAGE" ]; then \
+      echo "GHCR_IMAGE is set to: $GHCR_IMAGE"; \
+    else \
+      echo "GHCR_IMAGE not set, skipping asset extraction from ghcr"; \
+    fi
+# Copy from ghcr image - Docker will fail if image doesn't exist
+# CI/CD ensures the image is pulled before this step
+COPY --from=${GHCR_IMAGE} /public ./apps/web/public/
 
 USER nextjs
 
