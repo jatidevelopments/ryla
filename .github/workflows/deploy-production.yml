@@ -79,16 +79,20 @@ jobs:
       
       - name: Deploy to Fly.io
         run: |
-          BUILD_ARGS=""
           if [ "${{ matrix.app.name }}" == "web" ]; then
-            BUILD_ARGS="--build-arg GHCR_IMAGE=ghcr.io/jatidevelopments/ryla-web-assets:latest"
+            flyctl deploy \
+              --config ${{ matrix.app.config }} \
+              --dockerfile ${{ matrix.app.dockerfile }} \
+              --app ${{ matrix.app.fly_app }} \
+              --strategy immediate \
+              --build-arg GHCR_IMAGE=ghcr.io/jatidevelopments/ryla-web-assets:latest
+          else
+            flyctl deploy \
+              --config ${{ matrix.app.config }} \
+              --dockerfile ${{ matrix.app.dockerfile }} \
+              --app ${{ matrix.app.fly_app }} \
+              --strategy immediate
           fi
-          flyctl deploy \
-            --config ${{ matrix.app.config }} \
-            --dockerfile ${{ matrix.app.dockerfile }} \
-            --app ${{ matrix.app.fly_app }} \
-            --strategy immediate \
-            $BUILD_ARGS
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
       

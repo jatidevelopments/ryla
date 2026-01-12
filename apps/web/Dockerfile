@@ -3,7 +3,7 @@ FROM node:20-alpine AS base
 # Install dependencies only when needed
 FROM base AS deps
 # Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat docker-cli
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -60,6 +60,17 @@ RUN npx nx build shared --skip-nx-cache && \
 # Build the project
 RUN npx nx build web --configuration=production --skip-nx-cache
 
+# Extract and copy images from ghcr Docker image if available
+# Create a stage that references the ghcr image (only if GHCR_IMAGE is set)
+# This stage will fail if GHCR_IMAGE is empty, so we need to handle that
+ARG GHCR_IMAGE
+# Create an intermediate stage from the ghcr image
+# This will only work if GHCR_IMAGE is set and the image exists
+# If GHCR_IMAGE is empty, this FROM will fail, so we make it conditional
+FROM ${GHCR_IMAGE} AS ghcr-assets
+FROM scratch
+COPY --from=ghcr-assets /public /public
+
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
@@ -89,22 +100,47 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 # Extract and copy images from ghcr Docker image if available
 # This uses COPY --from to extract assets from a Docker image in GitHub Container Registry
-# The image should contain assets in a /public or /assets directory
+# The image should contain assets in a /public directory
 # CI/CD will pull the image before building and pass it as GHCR_IMAGE build arg
 ARG GHCR_IMAGE
 # Copy assets from ghcr image if provided (overwrites existing files)
 # The image should have assets at /public directory
-# Note: COPY --from will fail if GHCR_IMAGE is empty or image doesn't exist
-# CI/CD ensures the image is pulled and GHCR_IMAGE is set before this step
-# Only copy if GHCR_IMAGE is set (CI/CD sets it for web app builds)
-RUN if [ -n "$GHCR_IMAGE" ]; then \
-      echo "Extracting assets from $GHCR_IMAGE"; \
-    else \
-      echo "GHCR_IMAGE not set, skipping asset extraction from ghcr"; \
-    fi
-# Copy from ghcr image - only runs if GHCR_IMAGE is set
-# CI/CD ensures the image is pulled before this step for web app builds
-COPY --from=${GHCR_IMAGE} /public ./apps/web/public/
+# Note: COPY --from requires the image/stage to exist
+# CI/CD ensures GHCR_IMAGE is set and image is pulled for web app builds
+# If GHCR_IMAGE is not set, this COPY will fail, so we make it conditional
+# Solution: Use a multi-stage build with a conditional stage name
+# We'll create an intermediate stage that conditionally references the ghcr image
+FROM ${GHCR_IMAGE} AS ghcr-assets
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copy the standalone output
+# With outputFileTracingRoot, the standalone structure is:
+#   standalone/
+#     apps/web/server.js
+#     apps/web/.next/server/...
+#     node_modules/...
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
+
+# Copy static files to the expected location
+# Static files must be at apps/web/.next/static (relative to server.js location)
+# The standalone build does NOT include static files, they must be copied separately
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
+
+# Copy public files
+# Public files should be at apps/web/public (relative to server.js location)
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
+
+# Extract and copy images from ghcr Docker image if available
+# Copy from the ghcr-assets stage (which references the ghcr image)
+# This will only work if GHCR_IMAGE is set and the image exists
+COPY --from=ghcr-assets /public ./apps/web/public/ || echo "Note: ghcr assets not available, using default public folder"
 
 USER nextjs
 
