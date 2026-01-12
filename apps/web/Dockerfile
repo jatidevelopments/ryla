@@ -93,17 +93,17 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 # CI/CD will pull the image before building and pass it as GHCR_IMAGE build arg
 ARG GHCR_IMAGE
 # Copy assets from ghcr image if provided (overwrites existing files)
-# The image should have assets at /public or /assets
-# Note: COPY --from will fail if image doesn't exist, so CI/CD must pull it first
-# If GHCR_IMAGE is set, try to copy from it (tries /public first, then /assets)
-# This requires the image to be available in the build context (pulled by CI/CD)
+# The image should have assets at /public directory
+# Note: COPY --from will fail if GHCR_IMAGE is empty or image doesn't exist
+# CI/CD ensures the image is pulled and GHCR_IMAGE is set before this step
+# Only copy if GHCR_IMAGE is set (CI/CD sets it for web app builds)
 RUN if [ -n "$GHCR_IMAGE" ]; then \
-      echo "GHCR_IMAGE is set to: $GHCR_IMAGE"; \
+      echo "Extracting assets from $GHCR_IMAGE"; \
     else \
       echo "GHCR_IMAGE not set, skipping asset extraction from ghcr"; \
     fi
-# Copy from ghcr image - Docker will fail if image doesn't exist
-# CI/CD ensures the image is pulled before this step
+# Copy from ghcr image - only runs if GHCR_IMAGE is set
+# CI/CD ensures the image is pulled before this step for web app builds
 COPY --from=${GHCR_IMAGE} /public ./apps/web/public/
 
 USER nextjs
