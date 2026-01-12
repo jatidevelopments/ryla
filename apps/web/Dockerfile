@@ -112,34 +112,48 @@ RUN if [ -n "$GHCR_IMAGE" ]; then \
         CONTAINER_ID=$(docker create "$GHCR_IMAGE" 2>/dev/null || echo ""); \
         if [ -n "$CONTAINER_ID" ]; then \
           echo "Created container: $CONTAINER_ID"; \
+          # List container filesystem to see what's available
+          echo "Container filesystem structure:"; \
+          docker exec "$CONTAINER_ID" ls -la / 2>/dev/null || docker run --rm "$GHCR_IMAGE" ls -la / 2>/dev/null || true; \
           # Try /public first, then /assets, then root
+          EXTRACTED=false; \
           for SOURCE_PATH in "/public" "/assets" "/"; do \
             echo "Trying to extract from $SOURCE_PATH"; \
-            docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null && break || true; \
+            if docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null; then \
+              echo "Successfully copied from $SOURCE_PATH"; \
+              EXTRACTED=true; \
+              break; \
+            else \
+              echo "Failed to copy from $SOURCE_PATH"; \
+            fi; \
           done; \
-          if [ -d "./apps/web/public-temp" ]; then \
+          if [ "$EXTRACTED" = "true" ] && [ -d "./apps/web/public-temp" ]; then \
             echo "Contents of public-temp:"; \
             ls -la ./apps/web/public-temp/ || true; \
             if [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
               echo "Copying files to apps/web/public/"; \
-              cp -r ./apps/web/public-temp/* ./apps/web/public/ 2>/dev/null || true; \
+              # Ensure target directory exists
+              mkdir -p ./apps/web/public/; \
+              # Copy with verbose output
+              cp -rv ./apps/web/public-temp/* ./apps/web/public/ 2>&1 | head -20 || true; \
               echo "Files in apps/web/public after copy:"; \
-              ls -la ./apps/web/public/ | head -20 || true; \
-              echo "Assets extracted successfully from $GHCR_IMAGE"; \
+              ls -la ./apps/web/public/ | head -30 || true; \
+              echo "Asset extraction completed from $GHCR_IMAGE"; \
             else \
-              echo "Warning: public-temp directory is empty"; \
+              echo "Warning: public-temp directory is empty after extraction"; \
             fi; \
             rm -rf ./apps/web/public-temp; \
           else \
-            echo "Warning: Could not create public-temp directory"; \
+            echo "Warning: Could not extract from any source path"; \
           fi; \
           docker rm "$CONTAINER_ID" 2>/dev/null || true; \
         else \
           echo "Warning: Could not create container from $GHCR_IMAGE"; \
         fi; \
       else \
-        echo "Warning: Image $GHCR_IMAGE not found locally, trying to pull..."; \
-        docker pull "$GHCR_IMAGE" 2>/dev/null || echo "Could not pull image, using default public folder"; \
+        echo "Warning: Image $GHCR_IMAGE not found locally"; \
+        echo "Note: In remote build contexts (like Depot), the image must be available in the build environment"; \
+        echo "CI/CD should ensure the image is pulled and available before build starts"; \
       fi; \
     else \
       echo "GHCR_IMAGE not set, using default public folder"; \
