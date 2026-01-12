@@ -41,9 +41,20 @@ const basicAuth = require('express-basic-auth');
 import { SwaggerHelper } from './common/helpers/swagger.helper';
 import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
 import { AppModule } from './modules/app.module';
+import { runMigrations } from './database/run-migrations';
 
 async function bootstrap() {
   try {
+    // Run database migrations before starting the app
+    // Only run in production (skip in development for faster startup)
+    if (process.env.NODE_ENV === 'production' && process.env.SKIP_MIGRATIONS !== 'true') {
+      try {
+        await runMigrations();
+      } catch (error) {
+        console.error('⚠️  Migration failed, but continuing startup:', error);
+        // Don't fail startup if migrations fail - allow manual migration
+      }
+    }
     const app = await NestFactory.create(AppModule, {
       logger: ['error', 'warn', 'log'],
       abortOnError: false,

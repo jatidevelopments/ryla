@@ -48,6 +48,9 @@ COPY --from=builder --chown=nestjs:nodejs /app/dist/libs ./dist/libs
 COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nestjs:nodejs /app/package.json ./package.json
 
+# Copy migrations directory (needed for automatic migrations on startup)
+COPY --from=builder --chown=nestjs:nodejs /app/drizzle ./drizzle
+
 USER nestjs
 
 EXPOSE 3001
