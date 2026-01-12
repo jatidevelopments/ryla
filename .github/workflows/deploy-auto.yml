@@ -53,9 +53,9 @@ jobs:
           echo "Base: $BASE"
           echo "Head: $HEAD"
           
-          # Check which apps are affected using Nx affected command
-          # Nx affected returns projects that changed
-          AFFECTED=$(pnpm nx affected --base=$BASE --head=$HEAD --plain 2>/dev/null || echo "")
+          # Check which apps are affected using Nx show projects
+          # Nx show projects --affected returns projects that changed
+          AFFECTED=$(pnpm nx show projects --affected --base=$BASE --head=$HEAD 2>/dev/null || echo "")
           
           echo "Affected projects: $AFFECTED"
           
