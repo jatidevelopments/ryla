@@ -48,7 +48,7 @@ vi.mock('@ryla/ui', () => ({
 }));
 
 vi.mock('@ryla/shared', () => ({
-  FEATURE_CREDITS: { base_images: { credits: 100 } },
+  FEATURE_CREDITS: { base_images: { credits: 80 } },
 }));
 
 describe('WizardStep0', () => {

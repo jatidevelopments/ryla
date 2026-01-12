@@ -193,15 +193,15 @@ export const ASPECT_RATIOS: AspectRatioOption[] = [
 
 /**
  * Quality options with credit costs (×10 scale)
- * Based on @ryla/shared credit pricing:
- * - studio_fast: 20 credits (1.5k)
- * - studio_standard: 50 credits (2k)
- * - studio_batch: 80 credits for 4 images (~20 each for 4k single)
+ * Based on @ryla/shared credit pricing (updated):
+ * - studio_fast: 15 credits (1.5k)
+ * - studio_standard: 40 credits (2k)
+ * - studio_batch: 50 credits for 4 images (~12.5 each for 4k single)
  */
 export const QUALITY_OPTIONS: QualityOption[] = [
-  { value: '1.5k', label: '1.5k', description: 'Fastest and Cheapest', credits: 20 },
-  { value: '2k', label: '2k', description: 'Best Visual Fidelity', credits: 50 },
-  { value: '4k', label: '4k', description: 'Ultra High Definition', credits: 80 },
+  { value: '1.5k', label: '1.5k', description: 'Fastest and Cheapest', credits: 15 },
+  { value: '2k', label: '2k', description: 'Best Visual Fidelity', credits: 40 },
+  { value: '4k', label: '4k', description: 'Ultra High Definition', credits: 50 },
 ];
 
 /**

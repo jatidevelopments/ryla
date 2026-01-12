@@ -89,7 +89,8 @@ export function useCharacterCreation() {
             bio: form.bio,
             handle,
             // Settings
-            nsfwEnabled: form.nsfwEnabled,
+            // Force NSFW disabled for existing-person creations (Phase 4: Real Person Upload Cleanup)
+            nsfwEnabled: form.creationMethod === 'existing-person' ? false : form.nsfwEnabled,
             // Store selected profile picture set ID (null = skip)
             profilePictureSetId: form.selectedProfilePictureSetId || undefined,
           },
@@ -114,7 +115,8 @@ export function useCharacterCreation() {
           personalityTraits:
             form.personalityTraits.length > 0 ? form.personalityTraits : ['friendly'],
           outfit: form.outfit || 'casual',
-          nsfwEnabled: form.nsfwEnabled,
+          // Force NSFW disabled for existing-person creations (Phase 4: Real Person Upload Cleanup)
+          nsfwEnabled: form.creationMethod === 'existing-person' ? false : form.nsfwEnabled,
           profilePictureSetId: form.selectedProfilePictureSetId || undefined,
           postCount: 0,
           imageCount: 0, // Profile pictures generated separately

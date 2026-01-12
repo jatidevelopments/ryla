@@ -190,7 +190,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     isUnlimited: true,
     supportsNSFW: true, // ComfyUI models support NSFW
     isMVP: true, // MVP model for creating/upscaling
-    estimatedCredits1MP: 20, // studio_fast
+    estimatedCredits1MP: 15, // studio_fast (updated to match new pricing)
   },
   'ryla-face-swap': {
     uiId: 'ryla-face-swap',
@@ -218,7 +218,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     isUnlimited: true,
     supportsNSFW: true, // ComfyUI models support NSFW
     isMVP: true, // MVP model for editing/variations
-    estimatedCredits1MP: 50, // studio_standard
+    estimatedCredits1MP: 40, // studio_standard (updated to match new pricing)
   },
   'comfyui-default': {
     uiId: 'comfyui-default',

@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { Label, cn } from '@ryla/ui';
+import { useSubscription } from '../../../lib/hooks/use-subscription';
 
 interface NSFWToggleSectionProps {
   nsfwEnabled: boolean;
@@ -10,6 +11,12 @@ interface NSFWToggleSectionProps {
 }
 
 export function NSFWToggleSection({ nsfwEnabled, isSaving, onToggle }: NSFWToggleSectionProps) {
+  const { isPro } = useSubscription();
+
+  // Hide for non-Pro users
+  if (!isPro) {
+    return null;
+  }
   return (
     <section className="space-y-4">
       <h2 className="text-xl font-semibold text-[var(--text-primary)]">Content Settings</h2>
@@ -17,11 +24,11 @@ export function NSFWToggleSection({ nsfwEnabled, isSaving, onToggle }: NSFWToggl
         <div className="flex items-center justify-between gap-4">
           <div className="flex-1 min-w-0">
             <Label htmlFor="nsfw-toggle" className="text-base font-medium text-[var(--text-primary)] cursor-pointer block mb-2">
-              Enable Adult Content
+              Enable 18+ Content
             </Label>
             <p className="text-sm text-[var(--text-muted)]">
               18+ only. When enabled, this allows generation of NSFW content and enables access to
-              adult models for this AI Influencer.
+              NSFW models for this AI Influencer.
             </p>
           </div>
           <div className="flex items-center gap-3 flex-shrink-0">

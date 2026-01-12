@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { cn } from '@ryla/ui';
 import { Tooltip } from '../../../../ui/tooltip';
+import { useSubscription } from '../../../../../lib/hooks/use-subscription';
 
 interface NSFWToggleProps {
   studioNsfwEnabled: boolean;
@@ -15,10 +16,16 @@ export function NSFWToggle({
   canEnableNSFW,
   onToggle,
 }: NSFWToggleProps) {
+  const { isPro } = useSubscription();
+
+  // Hide for non-Pro users
+  if (!isPro) {
+    return null;
+  }
   const handleClick = () => {
     if (!canEnableNSFW) {
       alert(
-        'Adult content generation requires enabling 18+ Adult Content in influencer settings.'
+        'NSFW generation requires enabling 18+ Content in influencer settings.'
       );
       return;
     }
@@ -29,10 +36,10 @@ export function NSFWToggle({
     <Tooltip
       content={
         !canEnableNSFW
-          ? 'Adult content generation requires enabling 18+ Adult Content in influencer settings.'
+          ? 'NSFW generation requires enabling 18+ Content in influencer settings.'
           : studioNsfwEnabled
-          ? 'Adult Content: Enabled. Only ComfyUI models (RYLA Soul, RYLA Character) are available. Click to disable.'
-          : 'Adult Content: Disabled. All models available. Click to enable adult content generation (18+).'
+          ? 'NSFW: Enabled. Only ComfyUI models (RYLA Soul, RYLA Character) are available. Click to disable.'
+          : 'NSFW: Disabled. All models available. Click to enable NSFW generation (18+).'
       }
     >
       <button
@@ -60,7 +67,7 @@ export function NSFWToggle({
           />
         </svg>
         <span className="hidden md:inline truncate max-w-[120px]">
-          Adult Content {studioNsfwEnabled ? 'On' : 'Off'}
+          NSFW {studioNsfwEnabled ? 'On' : 'Off'}
         </span>
         <span className="md:hidden font-bold">
           {studioNsfwEnabled ? '18+' : 'SFW'}

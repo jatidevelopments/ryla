@@ -1,6 +1,7 @@
 'use client';
 
 import { cn } from '@ryla/ui';
+import { useSubscription } from '../../../lib/hooks/use-subscription';
 
 interface NSFWToggleSectionProps {
   enabled: boolean;
@@ -13,10 +14,16 @@ export function NSFWToggleSection({
   onToggle,
   extraCredits,
 }: NSFWToggleSectionProps) {
+  const { isPro } = useSubscription();
+
+  // Hide for non-Pro users
+  if (!isPro) {
+    return null;
+  }
   return (
     <div className="w-full mb-5">
       <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
-        <p className="text-white/70 text-sm mb-4 font-medium">Adult Content</p>
+        <p className="text-white/70 text-sm mb-4 font-medium">18+ Content</p>
         <button
           onClick={onToggle}
           className={cn(
@@ -30,7 +37,7 @@ export function NSFWToggleSection({
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
                 <p className="text-base font-semibold text-white">
-                  Enable Adult Content
+                  Enable 18+ Content
                 </p>
                 {/* Credit cost badge - always show */}
                 <span
@@ -45,7 +52,7 @@ export function NSFWToggleSection({
                 </span>
               </div>
               <p className="text-sm text-white/60">
-                Allow generation of adult content
+                Allow generation of NSFW content
                 {enabled && (
                   <span className="block mt-1 text-pink-300/70">
                     3 extra 18+ profile images will be generated automatically

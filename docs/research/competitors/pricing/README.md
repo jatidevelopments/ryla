@@ -54,6 +54,7 @@ This directory is organized by threat level:
 ### Analysis & Insights
 
 - [Pricing Overview & Summary](./summary.md) - Complete pricing analysis, averages, and insights
+- [Pricing Strategy](./PRICING-STRATEGY.md) - RYLA competitive pricing strategy and recommendations
 
 ---
 
@@ -75,6 +76,7 @@ This directory is organized by threat level:
 
 ## Related Documents
 
+- [PRICING-STRATEGY.md](./PRICING-STRATEGY.md) - **RYLA competitive pricing strategy and recommendations**
 - [COMPETITOR-PRICING-STRATEGY.md](../COMPETITOR-PRICING-STRATEGY.md) - Research methodology and strategy
 - [COMPETITORS.md](../individual/COMPETITORS.md) - Full competitor list
 - [COMPETITORS-FULL-ANALYSIS.md](../individual/COMPETITORS-FULL-ANALYSIS.md) - Detailed competitor analysis

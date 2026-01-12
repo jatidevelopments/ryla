@@ -7,7 +7,7 @@ import { cn } from '@ryla/ui';
 import { FEATURE_CREDITS } from '@ryla/shared';
 
 // Character creation costs from shared pricing
-const CHARACTER_CREATION_COST = FEATURE_CREDITS.base_images.credits; // 100 credits for base images
+const CHARACTER_CREATION_COST = FEATURE_CREDITS.base_images.credits; // 80 credits for base images (3 images)
 
 const creationMethods = [
   {

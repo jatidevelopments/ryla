@@ -83,7 +83,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'base_images',
     name: 'Character Creation',
     description: 'Generate 3 base images for new character',
-    credits: 30, // 30 credits = $0.03 (Cost ~$0.006) - 5x margin
+    credits: 80, // 80 credits = $0.08 (Cost ~$0.006) - 13.3x margin (adjusted for competitive positioning)
     defaultImageCount: 3,
     costPerImage: 0.002,
   },
@@ -91,7 +91,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'profile_set_fast',
     name: 'Profile Set (Fast)',
     description: '8 profile pictures, speed-optimized',
-    credits: 50, // 50 credits = $0.05 (Cost ~$0.011) - 4.5x margin
+    credits: 120, // 120 credits = $0.12 (Cost ~$0.011) - 10.9x margin (adjusted for competitive positioning)
     defaultImageCount: 8,
     costPerImage: 0.0014,
   },
@@ -99,7 +99,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'profile_set_quality',
     name: 'Profile Set (Quality)',
     description: '8 profile pictures with face consistency',
-    credits: 100, // 100 credits = $0.10 (Cost ~$0.017) - 5.8x margin
+    credits: 250, // 250 credits = $0.25 (Cost ~$0.017) - 14.7x margin (adjusted for competitive positioning)
     defaultImageCount: 8,
     costPerImage: 0.0021,
   },
@@ -107,7 +107,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'studio_fast',
     name: 'Studio Quick',
     description: 'Single image, speed mode',
-    credits: 5, // 5 credits = $0.005 (Cost ~$0.001) - 5x margin
+    credits: 15, // 15 credits = $0.015 (Cost ~$0.0012) - 12.5x margin (adjusted for competitive positioning)
     defaultImageCount: 1,
     costPerImage: 0.001,
   },
@@ -115,7 +115,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'studio_standard',
     name: 'Studio Standard',
     description: 'Single image, balanced quality',
-    credits: 15, // 15 credits = $0.015 (Cost ~$0.003) - 5x margin
+    credits: 40, // 40 credits = $0.040 (Cost ~$0.003) - 13.3x margin (adjusted for competitive positioning)
     defaultImageCount: 1,
     costPerImage: 0.003,
   },
@@ -123,7 +123,7 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'studio_batch',
     name: 'Studio Batch',
     description: '4 images in one batch',
-    credits: 20, // 20 credits = $0.020 (Cost ~$0.005) - 4x margin
+    credits: 50, // 50 credits = $0.050 (Cost ~$0.005) - 10x margin (adjusted proportionally to studio_fast)
     defaultImageCount: 4,
     costPerImage: 0.00125,
   },
@@ -408,6 +408,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       '60,000 credits/month',
       'Unlimited characters',
       'All generation modes',
+      'NSFW Generator (18+ content)',
       'Advanced customization',
       'Priority support',
       'Early access to features',
@@ -429,6 +430,7 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       'Unlimited credits',
       'Unlimited characters',
       'All generation modes',
+      'NSFW Generator (18+ content)',
       'All customization options',
       'Priority 24/7 support',
       'API access (coming soon)',
@@ -579,8 +581,8 @@ export function getPackageCredits(packageId: string): number {
  * Legacy mapping for backward compatibility during migration
  */
 export const CREDIT_COSTS = {
-  draft: 5, // Maps to studio_fast
-  hq: 15, // Maps to studio_standard
+  draft: 15, // Maps to studio_fast (updated to match new pricing)
+  hq: 40, // Maps to studio_standard (updated to match new pricing)
 } as const;
 
 /**

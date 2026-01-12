@@ -1,6 +1,7 @@
 'use client';
 
 import { Switch, cn } from '@ryla/ui';
+import { useSubscription } from '../../../lib/hooks/use-subscription';
 
 interface GenerationSettingsProps {
   aspectRatio: string;
@@ -19,6 +20,7 @@ export function GenerationSettings({
   onQualityModeChange,
   onNsfwChange,
 }: GenerationSettingsProps) {
+  const { isPro } = useSubscription();
   return (
     <div className="w-full mb-5">
       <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm space-y-4">
@@ -54,14 +56,16 @@ export function GenerationSettings({
           <Switch checked={qualityMode === 'hq'} onCheckedChange={onQualityModeChange} />
         </div>
 
-        {/* NSFW */}
-        <div className="flex items-center justify-between py-2">
-          <div>
-            <p className="text-white text-sm font-medium">18+ Content</p>
-            <p className="text-white/40 text-xs">Enable adult content</p>
+        {/* NSFW - Only show for Pro users */}
+        {isPro && (
+          <div className="flex items-center justify-between py-2">
+            <div>
+              <p className="text-white text-sm font-medium">18+ Content</p>
+              <p className="text-white/40 text-xs">Enable NSFW content</p>
+            </div>
+            <Switch checked={nsfwEnabled} onCheckedChange={onNsfwChange} />
           </div>
-          <Switch checked={nsfwEnabled} onCheckedChange={onNsfwChange} />
-        </div>
+        )}
       </div>
     </div>
   );

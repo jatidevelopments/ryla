@@ -1,6 +1,7 @@
 'use client';
 
 import { Checkbox } from '@ryla/ui';
+import { useSubscription } from '../../../lib/hooks/use-subscription';
 
 interface ProfilePictureNSFWToggleProps {
   nsfwEnabled: boolean;
@@ -11,6 +12,12 @@ export function ProfilePictureNSFWToggle({
   nsfwEnabled,
   onNSFWChange,
 }: ProfilePictureNSFWToggleProps) {
+  const { isPro } = useSubscription();
+
+  // Hide for non-Pro users
+  if (!isPro) {
+    return null;
+  }
   return (
     <div className="w-full mb-4">
       <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
@@ -28,7 +35,7 @@ export function ProfilePictureNSFWToggle({
           </label>
         </div>
         <p className="text-white/40 text-xs mt-2 ml-7">
-          When enabled, profile pictures will include 3 adult-themed images
+          When enabled, profile pictures will include 3 18+ images
         </p>
       </div>
     </div>

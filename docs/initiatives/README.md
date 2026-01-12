@@ -73,6 +73,8 @@ Create an initiative when:
 | ID | Name | Status | Target Metric | Owner |
 |----|------|--------|---------------|-------|
 | [IN-001](./IN-001-cloudflare-infrastructure.md) | Cloudflare Infrastructure Migration | Active | E-CAC, A-Activation | Infrastructure Team |
+| [IN-002](./IN-002-character-dna-enhancement.md) | Character DNA Enhancement System | Proposed | C-Core Value, A-Activation | Product Team |
+| [IN-003](./IN-003-sfw-nsfw-separation.md) | SFW/NSFW Content Separation for Growth & Marketability | Proposed | A-Activation, D-Conversion, E-CAC | Product Team |
 
 ---
 

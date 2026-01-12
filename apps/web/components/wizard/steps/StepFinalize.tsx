@@ -12,6 +12,7 @@ import { NSFWToggleSection } from '../finalize/nsfw-toggle-section';
 import { CreditSummary } from '../finalize/credit-summary';
 import { CreateButton } from '../finalize/create-button';
 import { CreatingLoading } from '../finalize/creating-loading';
+import { useSubscription } from '../../../lib/hooks/use-subscription';
 
 /**
  * Step: Finalize
@@ -23,6 +24,7 @@ import { CreatingLoading } from '../finalize/creating-loading';
 export function StepFinalize() {
   const form = useCharacterWizardStore((s) => s.form);
   const setField = useCharacterWizardStore((s) => s.setField);
+  const { isPro } = useSubscription();
 
   const { balance, isLoading: isLoadingCredits, refetch: refetchCredits } = useCredits();
   const [showCreditModal, setShowCreditModal] = React.useState(false);
@@ -63,12 +65,14 @@ export function StepFinalize() {
         </div>
       </div>
 
-      {/* Adult Content Toggle */}
-      <NSFWToggleSection
-        enabled={form.nsfwEnabled}
-        onToggle={() => setField('nsfwEnabled', !form.nsfwEnabled)}
-        extraCredits={NSFW_EXTRA_CREDITS}
-      />
+      {/* Adult Content Toggle - Only show for Pro users */}
+      {isPro && (
+        <NSFWToggleSection
+          enabled={form.nsfwEnabled}
+          onToggle={() => setField('nsfwEnabled', !form.nsfwEnabled)}
+          extraCredits={NSFW_EXTRA_CREDITS}
+        />
+      )}
 
       {/* Credit Balance & Create Button */}
       <div className="w-full">

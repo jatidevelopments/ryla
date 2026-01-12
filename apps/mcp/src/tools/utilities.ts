@@ -261,15 +261,15 @@ export function registerUtilityTools(server: FastMCP) {
     description: 'Get credit costs for different features and operations.',
     parameters: z.object({}),
     execute: async () => {
-      // Return static feature costs from shared config
+      // Return static feature costs from shared config (updated to match new pricing)
       const costs = {
-        studio_fast: 2,
-        studio_standard: 5,
-        studio_hq: 10,
-        base_generation: 3,
-        face_swap: 5,
-        upscale: 20,
-        inpaint: 8,
+        studio_fast: 15, // Updated from 5
+        studio_standard: 40, // Updated from 15
+        studio_hq: 40, // Maps to studio_standard
+        base_generation: 80, // Updated from 30 (base_images)
+        face_swap: 10, // inpaint cost
+        upscale: 10, // unchanged
+        inpaint: 10, // unchanged
       };
 
       return JSON.stringify(

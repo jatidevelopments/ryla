@@ -96,7 +96,7 @@ export function DetailPanelMetadata({
           </span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-[var(--text-muted)]">Adult Content</span>
+          <span className="text-[var(--text-muted)]">NSFW</span>
           <span
             className={cn(
               'font-medium flex items-center gap-1.5',

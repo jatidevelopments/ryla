@@ -9,6 +9,7 @@ import {
   DEFAULT_SCENE,
   DEFAULT_ENVIRONMENT,
 } from '@ryla/shared';
+import { useSubscription } from '../../lib/hooks/use-subscription';
 
 export interface StudioSettings {
   scene: string;
@@ -42,6 +43,7 @@ export function StudioPanel({
   creditCost = 5,
   className,
 }: StudioPanelProps) {
+  const { isPro } = useSubscription();
   return (
     <div className={cn('flex flex-col gap-6', className)}>
       {/* Scene Selection */}
@@ -150,7 +152,10 @@ export function StudioPanel({
       </div>
 
       {/* Settings Row */}
-      <div className="flex items-center justify-between gap-4">
+      <div className={cn(
+        "flex items-center gap-4",
+        isPro ? "justify-between" : "justify-start"
+      )}>
         {/* Quality Mode */}
         <div className="flex items-center gap-3">
           <Label htmlFor="quality-mode" className="text-sm text-white/60">
@@ -165,19 +170,21 @@ export function StudioPanel({
           />
         </div>
 
-        {/* NSFW Toggle */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor="nsfw-mode" className="text-sm text-white/60">
-            18+ Content
-          </Label>
-          <Switch
-            id="nsfw-mode"
-            checked={settings.nsfwEnabled}
-            onCheckedChange={(checked) =>
-              onSettingsChange({ nsfwEnabled: checked })
-            }
-          />
-        </div>
+        {/* NSFW Toggle - Only show for Pro users */}
+        {isPro && (
+          <div className="flex items-center gap-3">
+            <Label htmlFor="nsfw-mode" className="text-sm text-white/60">
+              18+ Content
+            </Label>
+            <Switch
+              id="nsfw-mode"
+              checked={settings.nsfwEnabled}
+              onCheckedChange={(checked) =>
+                onSettingsChange({ nsfwEnabled: checked })
+              }
+            />
+          </div>
+        )}
       </div>
 
       {/* Generate Button */}

@@ -27,27 +27,39 @@ export class UsersRepository {
    * Find user by ID
    */
   async findById(id: string): Promise<User | undefined> {
-    return this.db.query.users.findFirst({
-      where: eq(schema.users.id, id),
-    });
+    const [row] = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.id, id))
+      .limit(1);
+
+    return row;
   }
 
   /**
    * Find user by email
    */
   async findByEmail(email: string): Promise<User | undefined> {
-    return this.db.query.users.findFirst({
-      where: eq(schema.users.email, email.toLowerCase()),
-    });
+    const [row] = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.email, email.toLowerCase()))
+      .limit(1);
+
+    return row;
   }
 
   /**
    * Find user by public name
    */
   async findByPublicName(publicName: string): Promise<User | undefined> {
-    return this.db.query.users.findFirst({
-      where: eq(schema.users.publicName, publicName),
-    });
+    const [row] = await this.db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.publicName, publicName))
+      .limit(1);
+
+    return row;
   }
 
   /**
@@ -57,13 +69,19 @@ export class UsersRepository {
     email: string,
     publicName: string
   ): Promise<{ emailExists: boolean; publicNameExists: boolean }> {
-    const existing = await this.db.query.users.findFirst({
-      where: or(
-        eq(schema.users.email, email.toLowerCase()),
-        eq(schema.users.publicName, publicName)
-      ),
-      columns: { email: true, publicName: true },
-    });
+    const [existing] = await this.db
+      .select({
+        email: schema.users.email,
+        publicName: schema.users.publicName,
+      })
+      .from(schema.users)
+      .where(
+        or(
+          eq(schema.users.email, email.toLowerCase()),
+          eq(schema.users.publicName, publicName)
+        )
+      )
+      .limit(1);
 
     return {
       emailExists: existing?.email?.toLowerCase() === email.toLowerCase(),

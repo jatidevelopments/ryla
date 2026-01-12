@@ -3,7 +3,7 @@
 import { useCharacterWizardStore } from '@ryla/business';
 import { FEATURE_CREDITS } from '@ryla/shared';
 
-const PROFILE_SET_CREDITS = FEATURE_CREDITS.profile_set_fast.credits; // 200 credits for profile set
+const PROFILE_SET_CREDITS = FEATURE_CREDITS.profile_set_fast.credits; // 120 credits for profile set (8 images)
 const NSFW_EXTRA_CREDITS = 50; // Extra credits for 3 NSFW images in profile set
 
 export function useFinalizeCredits(balance: number) {

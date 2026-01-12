@@ -275,8 +275,8 @@ function StudioContent() {
   // Credit costs from shared pricing (studio_standard for HQ, studio_fast for draft)
   const creditCost =
     settings.qualityMode === 'hq'
-      ? FEATURE_CREDITS.studio_standard.credits // 50 credits
-      : FEATURE_CREDITS.studio_fast.credits; // 20 credits
+      ? FEATURE_CREDITS.studio_standard.credits // 40 credits
+      : FEATURE_CREDITS.studio_fast.credits; // 15 credits
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
