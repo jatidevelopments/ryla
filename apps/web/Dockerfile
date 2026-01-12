@@ -71,15 +71,20 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy the standalone output
-# Nx builds Next.js in the source directory (apps/web/.next), not dist
-# Next.js standalone includes server.js and minimal dependencies
+# With outputFileTracingRoot, the standalone structure is:
+#   standalone/
+#     apps/web/server.js
+#     apps/web/.next/server/...
+#     node_modules/...
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/standalone ./
 
 # Copy static files to the expected location
-# The standalone build creates .next/static, copy it to where the server expects it
-COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./dist/apps/web/.next/static
+# Static files must be at apps/web/.next/static (relative to server.js location)
+# The standalone build does NOT include static files, they must be copied separately
+COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/.next/static
 
-# Public files need to be at apps/web/public (relative to server.js location)
+# Copy public files
+# Public files should be at apps/web/public (relative to server.js location)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
 USER nextjs

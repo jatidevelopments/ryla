@@ -11,6 +11,8 @@ const withSerwist = require('@serwist/next').default({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  // Fix standalone output path structure for monorepo
+  outputFileTracingRoot: path.join(__dirname, '../../'),
   transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business', '@ryla/trpc', '@ryla/payments', '@ryla/analytics'],
   // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
   images: {
