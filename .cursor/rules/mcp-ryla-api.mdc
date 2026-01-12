@@ -166,16 +166,102 @@ Common errors:
 ## Configuration
 
 ### Environment Variables
-- `RYLA_API_URL` - API base URL (default: `http://localhost:3001`)
+- `RYLA_API_URL` - API base URL (optional, auto-detected if not set)
 - `RYLA_DEV_TOKEN` - JWT access token for authenticated requests
+- `RYLA_ENV` - Environment mode: `local` (default) or `production`
+
+### Environment Detection
+
+The MCP server automatically detects the environment:
+
+**Local Development (Default):**
+- Uses `http://localhost:3001`
+- Set explicitly: `RYLA_ENV=local` or `RYLA_API_URL=http://localhost:3001`
+
+**Production:**
+- Uses `https://end.ryla.ai`
+- Set: `RYLA_ENV=production` (auto-uses production URL)
+- Or explicitly: `RYLA_API_URL=https://end.ryla.ai`
+
+**Priority Order:**
+1. `RYLA_API_URL` env var (explicit override)
+2. Production default (`https://end.ryla.ai`) if `RYLA_ENV=production`
+3. Local default (`http://localhost:3001`)
+
+### Cursor MCP Configuration
+
+**For Local Development:**
+```json
+{
+  "mcpServers": {
+    "ryla-api": {
+      "command": "npx",
+      "args": ["tsx", "/path/to/RYLA/apps/mcp/src/main.ts"],
+      "env": {
+        "RYLA_API_URL": "http://localhost:3001",
+        "RYLA_DEV_TOKEN": "<token-from-login>"
+      }
+    }
+  }
+}
+```
+
+**For Production:**
+```json
+{
+  "mcpServers": {
+    "ryla-api-prod": {
+      "command": "npx",
+      "args": ["tsx", "/path/to/RYLA/apps/mcp/src/main.ts"],
+      "env": {
+        "RYLA_ENV": "production",
+        "RYLA_DEV_TOKEN": "<production-token>"
+      }
+    }
+  }
+}
+```
+
+**Auto-detection (Recommended):**
+```json
+{
+  "mcpServers": {
+    "ryla-api": {
+      "command": "npx",
+      "args": ["tsx", "/path/to/RYLA/apps/mcp/src/main.ts"],
+      "env": {
+        "RYLA_ENV": "production"
+      }
+    }
+  }
+}
+```
 
 ### Getting a Token
-Option 1 - MCP Login:
+
+**Option 1 - MCP Login (Recommended):**
 ```
+# For local
+ryla_auth_login(email, password) → accessToken
+
+# For production (set RYLA_ENV=production first)
 ryla_auth_login(email, password) → accessToken
 ```
 
-Option 2 - From Web App:
-1. Login to web app
+**Option 2 - Dev Token (Long-lived, 10 years):**
+```
+# Perfect for MCP configuration - won't expire
+ryla_auth_dev_token(email, password) → accessToken
+```
+
+**Option 3 - From Web App:**
+1. Login to web app (local or production)
 2. Extract JWT from cookies/localStorage
-3. Set as RYLA_DEV_TOKEN
+3. Set as `RYLA_DEV_TOKEN` in MCP config
+
+### Checking Current Configuration
+
+Use `ryla_server_info` to see:
+- Current API URL
+- Environment (local/production)
+- Token status (configured/not set)
