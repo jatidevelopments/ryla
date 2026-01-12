@@ -728,6 +728,16 @@ textarea::selection {
   }
 }
 
+/* Pulse animation for loading states */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
 /* Pulse animations - updated to purple theme */
 @keyframes pulse-glow {
   0% {

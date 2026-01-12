@@ -32,7 +32,12 @@ export function LoadingState({
       {/* Animated Spinner Container */}
       <div className="relative mb-8">
         {/* Outer Glow */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl animate-pulse" />
+        <div 
+          className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl"
+          style={{
+            animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+          }}
+        />
 
         {/* Rotating Rings */}
         <div className="relative h-20 w-20">
@@ -41,19 +46,28 @@ export function LoadingState({
 
           {/* Fast outer ring */}
           <div
-            className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500 animate-spin"
-            style={{ animationDuration: '0.8s' }}
+            className="absolute inset-0 rounded-full border-4 border-transparent border-t-purple-500"
+            style={{ 
+              animation: 'spin 0.8s linear infinite',
+            }}
           />
 
           {/* Slower middle ring */}
           <div
-            className="absolute inset-2 rounded-full border-2 border-transparent border-r-pink-500/50 animate-spin"
-            style={{ animationDuration: '1.5s', animationDirection: 'reverse' }}
+            className="absolute inset-2 rounded-full border-2 border-transparent border-r-pink-500/50"
+            style={{ 
+              animation: 'spin 1.5s linear infinite reverse',
+            }}
           />
 
           {/* Inner spark icon */}
           <div className="absolute inset-5 rounded-full bg-gradient-to-br from-purple-500/10 to-pink-500/10 backdrop-blur-sm border border-white/10 flex items-center justify-center">
-            <Sparkles className="h-5 w-5 text-purple-400 animate-pulse" />
+            <Sparkles 
+              className="h-5 w-5 text-purple-400"
+              style={{
+                animation: 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+              }}
+            />
           </div>
         </div>
       </div>
