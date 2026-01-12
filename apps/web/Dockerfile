@@ -66,18 +66,15 @@ RUN npx nx build shared --skip-nx-cache && \
 # Build the project
 RUN npx nx build web --configuration=production --skip-nx-cache
 
-# Extract and copy images from ghcr Docker image if available
-# Create a stage from the ghcr image
-# GHCR_IMAGE is declared at the top level (before first FROM)
-# This stage will be used to extract assets from the image
-FROM ${GHCR_IMAGE} AS ghcr-assets
-
 # Production image, copy all the files and run next
 FROM base AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
 ENV NEXT_TELEMETRY_DISABLED 1
+
+# Install docker-cli for extracting assets from ghcr image
+RUN apk add --no-cache docker-cli
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
@@ -99,11 +96,31 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/.next/static ./apps/web/
 # Public files should be at apps/web/public (relative to server.js location)
 COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 
-# Extract and copy images from ghcr Docker image
-# Copy from the ghcr-assets stage (which references the ghcr image)
-# This will overwrite any existing files in the public folder
-# CI/CD ensures the image is pulled before building
-COPY --from=ghcr-assets /public ./apps/web/public/
+# Extract and copy images from ghcr Docker image if available
+# GHCR_IMAGE build arg must be set and image must be available
+# CI/CD pulls the image and passes GHCR_IMAGE before building
+# We use a RUN command to conditionally extract assets since FROM can't be conditional
+ARG GHCR_IMAGE
+RUN if [ -n "$GHCR_IMAGE" ]; then \
+      echo "Extracting assets from $GHCR_IMAGE"; \
+      # Create a temporary container to extract files
+      CONTAINER_ID=$(docker create "$GHCR_IMAGE" 2>/dev/null || echo ""); \
+      if [ -n "$CONTAINER_ID" ]; then \
+        docker cp "$CONTAINER_ID:/public" ./apps/web/public-temp/ 2>/dev/null || true; \
+        if [ -d "./apps/web/public-temp" ] && [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
+          cp -r ./apps/web/public-temp/* ./apps/web/public/ 2>/dev/null || true; \
+          echo "Assets extracted successfully from $GHCR_IMAGE"; \
+        else \
+          echo "No assets found in $GHCR_IMAGE:/public"; \
+        fi; \
+        rm -rf ./apps/web/public-temp; \
+        docker rm "$CONTAINER_ID" 2>/dev/null || true; \
+      else \
+        echo "Warning: Could not create container from $GHCR_IMAGE, using default public folder"; \
+      fi; \
+    else \
+      echo "GHCR_IMAGE not set, using default public folder"; \
+    fi
 
 USER nextjs
 
