@@ -90,18 +90,15 @@ COPY --from=builder --chown=nextjs:nodejs /app/apps/web/public ./apps/web/public
 # Extract and copy images from ghcr Docker image if available
 # This uses COPY --from to extract assets from a Docker image in GitHub Container Registry
 # The image should contain assets in a /public or /assets directory
+# CI/CD will pull the image before building and pass it as GHCR_IMAGE build arg
 ARG GHCR_IMAGE
 # Copy assets from ghcr image if provided (overwrites existing files)
 # The image should have assets at /public or /assets
-# This will fail gracefully if the image doesn't exist (CI/CD will pull it first)
-RUN if [ -n "$GHCR_IMAGE" ]; then \
-      echo "Extracting assets from $GHCR_IMAGE"; \
-      true; \
-    fi || true
-# Copy from ghcr image - tries /public first, then /assets
-COPY --from=${GHCR_IMAGE} /public ./apps/web/public/ 2>/dev/null || \
-COPY --from=${GHCR_IMAGE} /assets ./apps/web/public/ 2>/dev/null || \
-echo "No assets found in $GHCR_IMAGE, using default public folder" || true
+# Note: COPY --from will fail if image doesn't exist, so CI/CD must pull it first
+# We try /public first, then /assets as fallback
+COPY --from=${GHCR_IMAGE} /public ./apps/web/public/ || \
+COPY --from=${GHCR_IMAGE} /assets ./apps/web/public/ || \
+echo "Warning: Could not extract assets from $GHCR_IMAGE, using default public folder"
 
 USER nextjs
 
