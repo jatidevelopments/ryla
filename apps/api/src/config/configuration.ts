@@ -18,12 +18,30 @@ export default (): Config => ({
     dbName: process.env.POSTGRES_DB || 'ryla',
     environment: process.env.POSTGRES_ENVIRONMENT || 'local',
   },
-  redis: {
-    port: Number(process.env.REDIS_PORT) || 6379,
-    host: process.env.REDIS_HOST || 'localhost',
-    password: process.env.REDIS_PASSWORD || '',
-    environment: process.env.REDIS_ENVIRONMENT || 'local',
-  },
+  redis: (() => {
+    // Parse REDIS_URL if provided (Fly.io/Upstash format)
+    // Format: redis://default:password@host:port or rediss://default:password@host:port
+    if (process.env.REDIS_URL) {
+      try {
+        const url = new URL(process.env.REDIS_URL);
+        return {
+          port: Number(url.port) || 6379,
+          host: url.hostname,
+          password: url.password || '',
+          environment: process.env.REDIS_ENVIRONMENT || 'production',
+        };
+      } catch (error) {
+        console.warn('[Config] Failed to parse REDIS_URL, using individual variables:', error);
+      }
+    }
+    // Fallback to individual variables
+    return {
+      port: Number(process.env.REDIS_PORT) || 6379,
+      host: process.env.REDIS_HOST || 'localhost',
+      password: process.env.REDIS_PASSWORD || '',
+      environment: process.env.REDIS_ENVIRONMENT || 'local',
+    };
+  })(),
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET || 'secret',
     accessExpiresIn: Number(process.env.JWT_ACCESS_EXPIRES_IN) || 3600,

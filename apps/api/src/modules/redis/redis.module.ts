@@ -36,7 +36,12 @@ const redisProvider: Provider = {
     if (redisConfig.environment !== 'local' && redisConfig.password) {
       redisOptions.username = 'default';
     }
-    if (redisConfig.environment !== 'local') {
+    // Check if REDIS_URL uses TLS (rediss://) or if hostname suggests TLS is needed
+    const useTls = process.env.REDIS_URL?.startsWith('rediss://') || 
+                   redisConfig.host?.includes('upstash.io') ||
+                   redisConfig.environment !== 'local';
+    
+    if (useTls) {
       return new Redis({
         ...redisOptions,
         retryStrategy: (times) => Math.min(times * 100, 3000),
