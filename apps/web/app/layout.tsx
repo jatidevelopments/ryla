@@ -1,4 +1,4 @@
-// Test deployment trigger - 2025-01-11
+// Test deployment trigger - 2025-01-11 (updated)
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
