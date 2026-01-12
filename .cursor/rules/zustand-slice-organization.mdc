@@ -1,0 +1,314 @@
+---
+description: Best practices for structuring Zustand slices in complex stores
+globs: ["libs/business/src/store/**", "apps/*/store/**"]
+alwaysApply: false
+---
+
+# Zustand Slice Organization Guide
+
+This guide describes how to organize Zustand stores using modular slice architecture for managing complex application state in RYLA.
+
+## When to Use Slice Organization
+
+Use slice organization when:
+- Store has multiple related concerns (e.g., characters, posts, gallery)
+- Store is growing large (> 200 lines)
+- Multiple developers work on the same store
+- You need to share state logic across stores
+
+## Simple Store Pattern (Small Stores)
+
+For simple stores, keep everything in one file:
+
+```typescript
+// libs/business/src/store/influencer.store.ts
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+
+interface InfluencerStore {
+  influencers: AIInfluencer[];
+  activeId: string | null;
+  
+  addInfluencer: (influencer: AIInfluencer) => void;
+  setActiveId: (id: string | null) => void;
+}
+
+export const useInfluencerStore = create<InfluencerStore>()(
+  immer((set) => ({
+    influencers: [],
+    activeId: null,
+    
+    addInfluencer: (influencer) => {
+      set((state) => {
+        state.influencers.push(influencer);
+      });
+    },
+    
+    setActiveId: (id) => {
+      set((state) => {
+        state.activeId = id;
+      });
+    },
+  }))
+);
+```
+
+## Slice Organization Pattern (Complex Stores)
+
+For complex stores, split into slices:
+
+### Directory Structure
+
+```
+libs/business/src/store/
+└── character/
+    ├── slices/
+    │   ├── character/
+    │   │   ├── initialState.ts    # State interface and initial values
+    │   │   ├── actions.ts         # Character actions
+    │   │   └── selectors.ts       # Character selectors
+    │   ├── images/
+    │   │   ├── initialState.ts
+    │   │   ├── actions.ts
+    │   │   └── selectors.ts
+    │   └── posts/
+    │       ├── initialState.ts
+    │       ├── actions.ts
+    │       └── selectors.ts
+    ├── initialState.ts            # Aggregate all slice states
+    ├── store.ts                   # Combine all slices
+    └── selectors.ts               # Export all selectors
+```
+
+### Slice File Structure
+
+**1. initialState.ts** - Define state interface and initial values:
+
+```typescript
+// libs/business/src/store/character/slices/character/initialState.ts
+export interface CharacterSliceState {
+  characters: Character[];
+  activeCharacterId: string | null;
+  loading: Record<string, boolean>;
+  error: string | null;
+}
+
+export const initialCharacterState: CharacterSliceState = {
+  characters: [],
+  activeCharacterId: null,
+  loading: {},
+  error: null,
+};
+```
+
+**2. actions.ts** - Define actions for this slice:
+
+```typescript
+// libs/business/src/store/character/slices/character/actions.ts
+import type { StateCreator } from 'zustand';
+import type { CharacterStore } from '../../store';
+import { initialCharacterState, type CharacterSliceState } from './initialState';
+
+export interface CharacterSliceActions {
+  addCharacter: (character: Character) => void;
+  updateCharacter: (id: string, data: Partial<Character>) => void;
+  deleteCharacter: (id: string) => void;
+  setActiveCharacterId: (id: string | null) => void;
+  setLoading: (key: string, loading: boolean) => void;
+}
+
+export const createCharacterSlice: StateCreator<
+  CharacterStore,
+  [['zustand/immer', never]],
+  [],
+  CharacterSliceState & CharacterSliceActions
+> = (set, get) => ({
+  ...initialCharacterState,
+  
+  addCharacter: (character) => {
+    set((state) => {
+      state.characters.push(character);
+    });
+  },
+  
+  updateCharacter: (id, data) => {
+    set((state) => {
+      const index = state.characters.findIndex((c) => c.id === id);
+      if (index !== -1) {
+        Object.assign(state.characters[index], data);
+      }
+    });
+  },
+  
+  deleteCharacter: (id) => {
+    set((state) => {
+      state.characters = state.characters.filter((c) => c.id !== id);
+      if (state.activeCharacterId === id) {
+        state.activeCharacterId = null;
+      }
+    });
+  },
+  
+  setActiveCharacterId: (id) => {
+    set((state) => {
+      state.activeCharacterId = id;
+    });
+  },
+  
+  setLoading: (key, loading) => {
+    set((state) => {
+      state.loading[key] = loading;
+    });
+  },
+});
+```
+
+**3. selectors.ts** - Define selectors for this slice:
+
+```typescript
+// libs/business/src/store/character/slices/character/selectors.ts
+import type { CharacterStore } from '../../store';
+
+const activeCharacter = (state: CharacterStore): Character | undefined => {
+  return state.characters.find((c) => c.id === state.activeCharacterId);
+};
+
+const characterById = (id: string) => (state: CharacterStore): Character | undefined => {
+  return state.characters.find((c) => c.id === id);
+};
+
+const isLoading = (key: string) => (state: CharacterStore): boolean => {
+  return state.loading[key] ?? false;
+};
+
+// Export as object for easy access
+export const characterSelectors = {
+  activeCharacter,
+  characterById,
+  isLoading,
+};
+```
+
+### Aggregate Store
+
+**initialState.ts** - Combine all slice states:
+
+```typescript
+// libs/business/src/store/character/initialState.ts
+import { CharacterSliceState, initialCharacterState } from './slices/character/initialState';
+import { ImageSliceState, initialImageState } from './slices/images/initialState';
+import { PostSliceState, initialPostState } from './slices/posts/initialState';
+
+export type CharacterStoreState = CharacterSliceState &
+  ImageSliceState &
+  PostSliceState;
+
+export const initialState: CharacterStoreState = {
+  ...initialCharacterState,
+  ...initialImageState,
+  ...initialPostState,
+};
+```
+
+**store.ts** - Combine all slices:
+
+```typescript
+// libs/business/src/store/character/store.ts
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { createCharacterSlice, type CharacterSliceActions } from './slices/character/actions';
+import { createImageSlice, type ImageSliceActions } from './slices/images/actions';
+import { createPostSlice, type PostSliceActions } from './slices/posts/actions';
+import type { CharacterStoreState } from './initialState';
+
+export interface CharacterStore extends CharacterStoreState, CharacterSliceActions, ImageSliceActions, PostSliceActions {}
+
+export const useCharacterStore = create<CharacterStore>()(
+  immer((...params) => ({
+    ...createCharacterSlice(...params),
+    ...createImageSlice(...params),
+    ...createPostSlice(...params),
+  }))
+);
+```
+
+**selectors.ts** - Export all selectors:
+
+```typescript
+// libs/business/src/store/character/selectors.ts
+export { characterSelectors } from './slices/character/selectors';
+export { imageSelectors } from './slices/images/selectors';
+export { postSelectors } from './slices/posts/selectors';
+```
+
+## Usage Patterns
+
+### In Components
+
+```typescript
+import { useCharacterStore } from '@ryla/business';
+import { characterSelectors } from '@ryla/business';
+
+function CharacterList() {
+  // Use selectors for reactive updates
+  const characters = useCharacterStore((state) => state.characters);
+  const activeCharacter = useCharacterStore(characterSelectors.activeCharacter);
+  
+  // Use actions
+  const addCharacter = useCharacterStore((state) => state.addCharacter);
+  const setActiveId = useCharacterStore((state) => state.setActiveCharacterId);
+  
+  return (
+    // ... component JSX
+  );
+}
+```
+
+### Cross-Slice Communication
+
+When one slice needs to access another slice's state:
+
+```typescript
+// In character slice actions
+updateCharacter: (id, data) => {
+  set((state) => {
+    const character = state.characters.find((c) => c.id === id);
+    if (character) {
+      Object.assign(character, data);
+      // Access other slice state
+      if (state.activeCharacterId === id) {
+        // Update related state in other slices if needed
+      }
+    }
+  });
+},
+```
+
+## Best Practices
+
+1. **Slice by Domain**: Group related state and actions together (characters, images, posts)
+2. **Keep Slices Focused**: Each slice should manage one concern
+3. **Use Selectors**: Export selectors for computed/derived state
+4. **Type Safety**: Define clear TypeScript interfaces for each slice
+5. **Initial State**: Always define initial state explicitly
+6. **Actions Naming**: Use verb form for actions (`addCharacter`, not `characterAdd`)
+7. **Avoid Deep Nesting**: Keep state structure flat when possible
+
+## When NOT to Use Slices
+
+- Store is simple (< 100 lines)
+- Only one developer works on it
+- State is not complex enough to warrant splitting
+- Store has only a few related actions
+
+## Migration from Simple to Slice
+
+If a store grows complex, migrate gradually:
+
+1. Create `slices/` directory
+2. Move one concern at a time (e.g., start with `character` slice)
+3. Update store to combine slices
+4. Test thoroughly
+5. Repeat for other concerns
+
+This modular slice organization makes large application state management clear, maintainable, and easy to extend.

@@ -1,0 +1,278 @@
+---
+description: Style guide for defining Drizzle ORM schemas in RYLA
+globs: ["libs/data/src/schema/**"]
+alwaysApply: false
+---
+
+# Drizzle ORM Schema Style Guide for RYLA
+
+This document outlines the conventions and best practices for defining PostgreSQL Drizzle ORM schemas within the RYLA project.
+
+## Configuration
+
+- Drizzle configuration is managed in `drizzle.config.ts` at project root
+- Schema files are located in `libs/data/src/schema/` directory
+- Migration files are output to `drizzle/migrations/`
+- The project uses `postgresql` dialect
+- Schemas are imported via `@ryla/data` package
+
+## Import Pattern
+
+Schemas are imported from `@ryla/data`:
+
+```typescript
+import { characters, users, type Character, type User } from '@ryla/data';
+```
+
+## Naming Conventions
+
+- **Table Names**: Use plural snake_case (e.g., `users`, `characters`, `generation_jobs`)
+- **Column Names**: Use camelCase in TypeScript, snake_case in database (e.g., `userId` → `user_id`, `createdAt` → `created_at`)
+- **Schema Files**: Use kebab-case (e.g., `generation-jobs.schema.ts`, `prompt-sets.schema.ts`)
+
+## Column Definitions
+
+### Primary Keys (PKs)
+
+- Typically `uuid('id').defaultRandom().primaryKey()` for most tables
+- Use `text('id')` with custom generators if needed for specific ID formats
+- Composite PKs are defined using `primaryKey({ columns: [t.colA, t.colB] })`
+
+```typescript
+id: uuid('id').defaultRandom().primaryKey(),
+```
+
+### Foreign Keys (FKs)
+
+- Defined using `.references(() => otherTable.id, { onDelete: 'cascade' | 'set null' | 'no action' })`
+- FK columns use camelCase in TypeScript (e.g., `userId`, `characterId`)
+- Most tables include a `userId` column referencing `users.id` with `onDelete: 'cascade'`
+
+```typescript
+userId: uuid('user_id')
+  .notNull()
+  .references(() => users.id, { onDelete: 'cascade' }),
+```
+
+### Timestamps
+
+- Use `timestamp('created_at').defaultNow()` and `timestamp('updated_at').defaultNow()` consistently
+- Include `createdAt` and `updatedAt` on all tables
+- Use camelCase in TypeScript, snake_case in database
+
+```typescript
+createdAt: timestamp('created_at').defaultNow().notNull(),
+updatedAt: timestamp('updated_at').defaultNow().notNull(),
+```
+
+### Default Values
+
+- `.$defaultFn(() => expression)` for dynamic defaults
+- `.default(staticValue)` for static defaults
+- Use `.notNull()` for required fields
+
+```typescript
+status: characterStatusEnum('status').default('draft').notNull(),
+enabled: boolean('enabled').default(true).notNull(),
+```
+
+### Indexes
+
+- Defined in the table's second argument: `pgTable('name', {...columns}, (t) => ({ ... }))`
+- Use `uniqueIndex()` for unique constraints and `index()` for non-unique indexes
+- Naming pattern: `table_name_column(s)_idx` or `table_name_column(s)_unique`
+
+```typescript
+export const characters = pgTable(
+  'characters',
+  {
+    // ... columns
+  },
+  (t) => ({
+    userIdIdx: index('characters_user_id_idx').on(t.userId),
+    statusIdx: index('characters_status_idx').on(t.status),
+  }),
+);
+```
+
+### Data Types
+
+- Common types: `uuid`, `text`, `varchar`, `jsonb`, `boolean`, `integer`, `timestamp`
+- For `jsonb` fields, specify the TypeScript type using `.$type<MyType>()` for better type safety
+- Use `pgEnum` for status fields and other enums
+
+```typescript
+export const characterStatusEnum = pgEnum('character_status', [
+  'draft',
+  'generating',
+  'ready',
+  'failed',
+  'training',
+  'hd_ready',
+]);
+
+config: jsonb('config').notNull().$type<CharacterConfig>(),
+status: characterStatusEnum('status').default('draft').notNull(),
+```
+
+## Type Inference
+
+- Export inferred types for use in repositories and services
+- Use `typeof tableName.$inferInsert` for insert types
+- Use `typeof tableName.$inferSelect` for select types
+
+```typescript
+export type Character = typeof characters.$inferSelect;
+export type NewCharacter = typeof characters.$inferInsert;
+```
+
+## Relations
+
+- Table relationships are defined using `relations()` from `drizzle-orm`
+- Define relations in the same schema file or a dedicated relations file
+- Use `one` for belongs-to relationships and `many` for has-many relationships
+
+```typescript
+export const charactersRelations = relations(characters, ({ one, many }) => ({
+  user: one(users, {
+    fields: [characters.userId],
+    references: [users.id],
+  }),
+  images: many(images),
+  promptSets: many(promptSets),
+}));
+```
+
+## Code Style & Structure
+
+- **File Organization**: Each main database entity has its own schema file (e.g., `characters.schema.ts`, `users.schema.ts`)
+- All schemas are re-exported from `libs/data/src/schema/index.ts`
+- **Comments**: Use JSDoc-style comments to explain the purpose of tables and complex columns
+- Fields that are self-explanatory (id, userId, createdAt) do not require JSDoc
+
+## Example Pattern
+
+```typescript
+import {
+  pgTable,
+  uuid,
+  text,
+  jsonb,
+  timestamp,
+  pgEnum,
+  index,
+} from 'drizzle-orm/pg-core';
+import { relations } from 'drizzle-orm';
+import { users } from './users.schema';
+
+export const characterStatusEnum = pgEnum('character_status', [
+  'draft',
+  'generating',
+  'ready',
+  'failed',
+]);
+
+/**
+ * Characters table - AI Influencer definitions
+ */
+export const characters = pgTable(
+  'characters',
+  {
+    id: uuid('id').defaultRandom().primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    name: text('name').notNull(),
+    config: jsonb('config').notNull().$type<CharacterConfig>(),
+    status: characterStatusEnum('status').default('draft').notNull(),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+    updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  },
+  (t) => ({
+    userIdIdx: index('characters_user_id_idx').on(t.userId),
+    statusIdx: index('characters_status_idx').on(t.status),
+  }),
+);
+
+export const charactersRelations = relations(characters, ({ one }) => ({
+  user: one(users, {
+    fields: [characters.userId],
+    references: [users.id],
+  }),
+}));
+
+export type Character = typeof characters.$inferSelect;
+export type NewCharacter = typeof characters.$inferInsert;
+```
+
+## Common Patterns
+
+### 1. User Ownership Pattern
+
+Most tables include a `userId` column for user ownership:
+
+```typescript
+userId: uuid('user_id')
+  .notNull()
+  .references(() => users.id, { onDelete: 'cascade' }),
+```
+
+### 2. Status Enums
+
+Use PostgreSQL enums for status fields:
+
+```typescript
+export const jobStatusEnum = pgEnum('job_status', [
+  'queued',
+  'processing',
+  'completed',
+  'failed',
+  'cancelled',
+]);
+
+status: jobStatusEnum('status').default('queued').notNull(),
+```
+
+### 3. JSONB Configuration
+
+Use typed JSONB for flexible configuration:
+
+```typescript
+config: jsonb('config').notNull().$type<CharacterConfig>(),
+input: jsonb('input').$type<GenerationInput>(),
+output: jsonb('output').$type<GenerationOutput>(),
+```
+
+### 4. Junction Tables (Many-to-Many)
+
+Use composite primary keys for relationship tables:
+
+```typescript
+export const characterPromptSets = pgTable(
+  'character_prompt_sets',
+  {
+    characterId: uuid('character_id')
+      .notNull()
+      .references(() => characters.id, { onDelete: 'cascade' }),
+    promptSetId: uuid('prompt_set_id')
+      .notNull()
+      .references(() => promptSets.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at').defaultNow().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.characterId, t.promptSetId] })],
+);
+```
+
+## Best Practices
+
+1. **Always include timestamps**: `createdAt` and `updatedAt` on all tables
+2. **Use cascade deletes**: For user-owned data, use `onDelete: 'cascade'`
+3. **Type JSONB fields**: Always use `.$type<MyType>()` for JSONB columns
+4. **Index foreign keys**: Add indexes on foreign key columns for performance
+5. **Export types**: Export both select and insert types for use in repositories
+6. **Document complex fields**: Use JSDoc for non-obvious fields and configurations
+
+By following these guidelines, maintain consistency, type safety, and maintainability across database schema definitions.

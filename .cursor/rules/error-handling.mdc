@@ -1,0 +1,381 @@
+---
+description: Error handling patterns for React components, API routes, and async operations
+globs: ["**/*.tsx", "**/*.ts", "apps/api/**"]
+alwaysApply: false
+---
+
+# Error Handling Patterns
+
+## Context
+
+- Consistent error handling across frontend and backend
+- User-friendly error messages
+- Proper error logging and tracking
+- Error boundaries for React components
+- Secure error responses (no sensitive data leaks)
+
+## Requirements
+
+### React Error Boundaries
+
+- Use Error Boundaries for component tree error isolation
+- Implement fallback UI for error states
+- Log errors to error reporting service
+- Provide recovery mechanisms (retry, reset)
+- Use Next.js error.tsx for route-level errors
+
+### Async Error Handling
+
+- Always wrap async operations in try-catch
+- Use typed error handling (Result<T, E> pattern when applicable)
+- Provide user-friendly error messages
+- Log errors with context (userId, action, error)
+- Handle loading and error states in hooks
+
+### API Error Handling
+
+- Use consistent error response format
+- Sanitize error messages (no sensitive data)
+- Return appropriate HTTP status codes
+- Log errors server-side with full context
+- Use global exception filters (NestJS)
+
+### Error Message Sanitization
+
+- Remove HTML tags from error messages
+- Strip sensitive information (tokens, keys, paths)
+- Limit error message length
+- Use generic messages for production
+- Never expose stack traces to clients
+
+## Examples
+
+### React Error Boundary
+
+```tsx
+// ✅ Good: Error Boundary component
+'use client';
+
+import { Component, ReactNode } from 'react';
+import { AlertTriangle, RefreshCw } from 'lucide-react';
+
+interface Props {
+  children: ReactNode;
+  fallback?: ReactNode;
+  onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
+}
+
+interface State {
+  hasError: boolean;
+  error?: Error;
+}
+
+export class ErrorBoundary extends Component<Props, State> {
+  state: State = { hasError: false };
+
+  static getDerivedStateFromError(error: Error): State {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // Log to error reporting service
+    console.error('ErrorBoundary caught error:', error, errorInfo);
+    
+    // Call optional error handler
+    this.props.onError?.(error, errorInfo);
+  }
+
+  handleReset = () => {
+    this.setState({ hasError: false, error: undefined });
+  };
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback ?? (
+        <div className="flex flex-col items-center justify-center min-h-screen p-4">
+          <AlertTriangle className="h-12 w-12 text-red-500 mb-4" />
+          <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+          <p className="text-gray-600 mb-4">
+            {this.state.error?.message || 'An unexpected error occurred'}
+          </p>
+          <button
+            onClick={this.handleReset}
+            className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            <RefreshCw className="inline mr-2" />
+            Try again
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+```
+
+### Next.js Error Page
+
+```tsx
+// ✅ Good: Next.js error.tsx
+'use client';
+
+import { useEffect } from 'react';
+import Link from 'next/link';
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    // Log error to error reporting service
+    console.error('Page error:', error);
+  }, [error]);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-2xl font-bold mb-4">Something went wrong</h1>
+        <p className="text-gray-600 mb-6">
+          An error occurred while loading this page.
+        </p>
+        <div className="flex gap-4 justify-center">
+          <button
+            onClick={reset}
+            className="px-6 py-3 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Try again
+          </button>
+          <Link
+            href="/"
+            className="px-6 py-3 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+          >
+            Go home
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}
+```
+
+### Async Error Handling in Hooks
+
+```tsx
+// ✅ Good: Hook with error handling
+function useGenerateImage() {
+  const [state, setState] = useState<{
+    status: 'idle' | 'loading' | 'success' | 'error';
+    data: Image | null;
+    error: Error | null;
+  }>({ status: 'idle', data: null, error: null });
+
+  const generate = useCallback(async (params: GenerateParams) => {
+    setState({ status: 'loading', data: null, error: null });
+    
+    try {
+      const result = await trpc.generation.create.mutate(params);
+      setState({ status: 'success', data: result, error: null });
+      return result;
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error('Unknown error');
+      
+      // Log with context
+      console.error('Image generation failed:', {
+        params,
+        error: error.message,
+        stack: error.stack,
+      });
+      
+      setState({ status: 'error', data: null, error });
+      throw error;
+    }
+  }, []);
+
+  return { ...state, generate, isLoading: state.status === 'loading' };
+}
+
+// ❌ Bad: No error handling
+const generate = async (params: GenerateParams) => {
+  const result = await trpc.generation.create.mutate(params);
+  return result;
+};
+```
+
+### API Error Sanitization
+
+```tsx
+// ✅ Good: Sanitized error response
+export async function POST(request: NextRequest) {
+  try {
+    // API logic
+  } catch (error: any) {
+    console.error('API error:', error);
+    
+    // Sanitize error message
+    let errorMessage = error.message || 'Internal server error';
+    
+    // Remove HTML tags
+    errorMessage = errorMessage
+      .replace(/<[^>]*>/g, '')
+      .replace(/&lt;/g, '<')
+      .replace(/&gt;/g, '>')
+      .replace(/&amp;/g, '&')
+      .trim();
+    
+    // Limit length and check for suspicious content
+    if (
+      errorMessage.length > 500 ||
+      errorMessage.includes('<!DOCTYPE') ||
+      errorMessage.includes('<html')
+    ) {
+      errorMessage = 'An error occurred. Please try again or contact support.';
+    }
+    
+    return NextResponse.json(
+      { error: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+// ❌ Bad: Exposing raw error
+catch (error) {
+  return NextResponse.json({ error: error.message }, { status: 500 });
+}
+```
+
+### NestJS Global Exception Filter
+
+```typescript
+// ✅ Good: Global exception filter
+@Catch()
+export class GlobalExceptionFilter implements ExceptionFilter {
+  private readonly logger = new Logger(GlobalExceptionFilter.name);
+
+  catch(exception: unknown, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
+
+    let status: HttpStatus;
+    let messages: string | string[];
+    
+    if (exception instanceof HttpException) {
+      status = exception.getStatus();
+      messages = (exception as any).response?.message ?? exception.message;
+    } else {
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      messages = 'Internal server error';
+    }
+
+    messages = Array.isArray(messages) ? messages : [messages];
+
+    // Log error with full context
+    this.logger.error(
+      `[${status}] ${messages} ${request.method} ${request.url}`,
+      (exception as any).stack,
+    );
+
+    // Return sanitized response
+    response.status(status).json({
+      statusCode: status,
+      messages,
+      timestamp: new Date().toISOString(),
+      path: request.url,
+    });
+  }
+}
+```
+
+### Error Display Component
+
+```tsx
+// ✅ Good: Consistent error display
+interface ErrorMessageProps {
+  error: Error | string | null;
+  retry?: () => void;
+  className?: string;
+}
+
+export function ErrorMessage({ error, retry, className }: ErrorMessageProps) {
+  if (!error) return null;
+  
+  const message = typeof error === 'string' ? error : error.message;
+  
+  return (
+    <div
+      role="alert"
+      className={`rounded-lg bg-red-50 p-4 text-red-800 border border-red-200 ${className}`}
+    >
+      <p className="font-medium">{message}</p>
+      {retry && (
+        <button
+          onClick={retry}
+          className="mt-2 text-sm underline hover:text-red-900"
+        >
+          Try again
+        </button>
+      )}
+    </div>
+  );
+}
+```
+
+### tRPC Error Handling
+
+```typescript
+// ✅ Good: tRPC error handling
+import { TRPCError } from '@trpc/server';
+
+export const characterRouter = router({
+  getById: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ input, ctx }) => {
+      try {
+        const character = await ctx.db.query.characters.findFirst({
+          where: eq(characters.id, input.id),
+        });
+        
+        if (!character) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Character not found',
+          });
+        }
+        
+        return character;
+      } catch (error) {
+        if (error instanceof TRPCError) {
+          throw error;
+        }
+        
+        // Log unexpected errors
+        console.error('Unexpected error in getById:', error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to fetch character',
+        });
+      }
+    }),
+});
+```
+
+## Best Practices
+
+1. **Error Boundaries** - Use for component tree isolation
+2. **Try-Catch** - Always wrap async operations
+3. **Error Logging** - Log with context (userId, action, error)
+4. **Sanitization** - Never expose sensitive data or stack traces
+5. **User Messages** - Provide clear, actionable error messages
+6. **Recovery** - Provide retry/reset mechanisms
+7. **Type Safety** - Use typed errors (Error, TRPCError)
+8. **Consistent Format** - Use standardized error response structures
+
+## Related Documentation
+
+- Security: `security.mdc` (for error sanitization)
+- Logging: `logging.mdc` (for error logging patterns)
+- Testing: `testing-standards.mdc` (for error scenario testing)

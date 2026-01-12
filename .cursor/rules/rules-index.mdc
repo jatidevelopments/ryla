@@ -1,0 +1,107 @@
+---
+description: Catalog of all available Cursor rules in RYLA project
+alwaysApply: true
+---
+
+# Available Project Rules Index
+
+All following rules are saved under `.cursor/rules/` directory:
+
+## Core Architecture
+
+- `project-introduce.mdc` – Project overview and technology stack
+- `architecture.mdc` – Nx monorepo structure and layered architecture
+- `pipeline-enforcement.mdc` – 10-phase MVP development pipeline
+- `way-of-work.mdc` – Communication and workflow patterns
+- `mvp-principles.mdc` – MVP constraints and decision framework
+
+## Frontend
+
+- `code-style.mdc` – Code style and conventions
+- `typescript.mdc` – TypeScript code style and optimization guidelines
+- `presentation.mdc` – Presentation layer API and request handling patterns
+- `accessibility.mdc` – Accessibility (A11y) guidelines for inclusive UI
+- `performance.mdc` – Web performance optimization best practices
+- `tanstack-query.mdc` – TanStack Query (React Query) patterns for data fetching
+- `seo.mdc` – SEO optimization patterns for Next.js App Router
+- `react-patterns.mdc` – React component patterns, hooks, and composition
+- `react-hook-form.mdc` – React Hook Form patterns with Zod validation
+- `styling.mdc` – TailwindCSS patterns and design system usage
+
+## Backend
+
+- `business-logic.mdc` – Business logic layer patterns and practices
+- `data-access.mdc` – Data access layer patterns and repository implementation
+- `drizzle-schema-style-guide.mdc` – Style guide for defining Drizzle ORM schemas
+- `db-migrations.mdc` – Database migration patterns and best practices for Drizzle ORM
+- `presentation.mdc` – Presentation layer API patterns
+- `security.mdc` – Web application security best practices
+- `api-design.mdc` – API design patterns for tRPC and REST endpoints
+
+## State Management
+
+- `zustand-action-patterns.mdc` – Recommended patterns for organizing Zustand actions and state management
+- `zustand-slice-organization.mdc` – Best practices for structuring Zustand slices in complex stores
+
+## Testing
+
+- `testing-standards.mdc` – Standards and best practices for unit, integration, and E2E tests
+- `test-fixtures.mdc` – Test fixtures and accounts for MCP and development testing
+- `test-credentials.mdc` – Test credentials and authentication patterns
+
+## External Integrations
+
+- `dependencies.mdc` – External dependencies and service integrations
+- `mcp-ryla-api.mdc` – RYLA MCP Server usage guidelines
+- `mcp-snyk.mdc` – Snyk MCP Server usage guidelines for security scanning
+- `runpod-safety.mdc` – RunPod safety: confirmation-gated, create-only operations
+
+## Features
+
+- `analytics.mdc` – Analytics and metrics tracking guidelines
+- `notifications.mdc` – In-app notifications implementation guidelines
+- `image-optimization.mdc` – Image compression and optimization rules
+- `management.mdc` – Management layer for administration and system operations
+
+## Development Workflows
+
+- `ralph.mdc` – Iterative development pattern (Ralph-style) for complex features
+- `refactoring.mdc` – Refactoring guidelines and patterns
+- `cursor-rules.mdc` – Guidelines for writing and maintaining Cursor rules
+- `task-execution.mdc` – Standard Operating Procedure (SOP) for AI agents to complete tasks
+- `error-handling.mdc` – Error handling patterns for React and API routes
+- `logging.mdc` – Logging patterns and best practices
+- `environment-variables.mdc` – Environment variable management and validation
+- `git-workflow.mdc` – Git workflow patterns including branch naming and commits
+- `file-organization.mdc` – File organization patterns and directory structure
+
+## Quick Reference
+
+**Most commonly used:**
+- `task-execution.mdc` – How to approach and complete any task
+- `architecture.mdc` – Understanding project structure
+- `pipeline-enforcement.mdc` – Development workflow
+- `typescript.mdc` – TypeScript patterns
+- `testing-standards.mdc` – Testing guidelines
+
+**For specific tasks:**
+- Database schemas → `drizzle-schema-style-guide.mdc`
+- Database migrations → `db-migrations.mdc`
+- State management → `zustand-action-patterns.mdc`
+- Complex stores → `zustand-slice-organization.mdc`
+- Business logic → `business-logic.mdc`
+- Data access → `data-access.mdc`
+- Data fetching → `tanstack-query.mdc`
+- API design → `api-design.mdc`
+- Security → `security.mdc`
+- Accessibility → `accessibility.mdc`
+- Performance → `performance.mdc`
+- SEO → `seo.mdc`
+- React components → `react-patterns.mdc`
+- Forms → `react-hook-form.mdc`
+- Styling → `styling.mdc`
+- File organization → `file-organization.mdc`
+- Error handling → `error-handling.mdc`
+- Logging → `logging.mdc`
+- Environment variables → `environment-variables.mdc`
+- Git workflow → `git-workflow.mdc`

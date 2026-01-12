@@ -1,0 +1,406 @@
+---
+description: API design patterns for tRPC procedures, REST endpoints, and request/response handling
+globs: ["libs/trpc/**", "apps/api/**", "apps/web/app/api/**"]
+alwaysApply: false
+---
+
+# API Design Patterns
+
+## Context
+
+- Type-safe APIs using tRPC
+- Consistent request/response formats
+- Proper error handling and validation
+- Authentication and authorization patterns
+- Request/response logging
+
+## Requirements
+
+### tRPC Procedures
+
+- Use `publicProcedure` for unauthenticated endpoints
+- Use `protectedProcedure` for authenticated endpoints
+- Use `adminProcedure` for admin-only endpoints
+- Validate inputs with Zod schemas
+- Return typed responses
+- Handle errors with TRPCError
+
+### REST Endpoints (Next.js API Routes)
+
+- Use appropriate HTTP methods (GET, POST, PUT, DELETE)
+- Return consistent response formats
+- Use proper HTTP status codes
+- Validate request bodies
+- Handle errors gracefully
+
+### Request Validation
+
+- Validate all inputs with Zod schemas
+- Return clear validation error messages
+- Sanitize user inputs
+- Type-safe request/response handling
+
+### Error Responses
+
+- Use consistent error response format
+- Include appropriate HTTP status codes
+- Sanitize error messages (no sensitive data)
+- Provide actionable error messages
+
+## Examples
+
+### tRPC Router Structure
+
+```typescript
+// ✅ Good: tRPC router organization
+import { router } from '../trpc';
+import { z } from 'zod';
+import { protectedProcedure, publicProcedure } from '../trpc';
+
+export const characterRouter = router({
+  // Public procedure
+  list: publicProcedure
+    .input(z.object({
+      limit: z.number().min(1).max(100).default(10),
+      offset: z.number().min(0).default(0),
+    }))
+    .query(async ({ input, ctx }) => {
+      return ctx.db.query.characters.findMany({
+        limit: input.limit,
+        offset: input.offset,
+      });
+    }),
+
+  // Protected procedure (requires auth)
+  getById: protectedProcedure
+    .input(z.object({ id: z.string().uuid() }))
+    .query(async ({ input, ctx }) => {
+      const character = await ctx.db.query.characters.findFirst({
+        where: eq(characters.id, input.id),
+        where: eq(characters.userId, ctx.user.id), // User can only access their own
+      });
+      
+      if (!character) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Character not found',
+        });
+      }
+      
+      return character;
+    }),
+
+  // Mutation with validation
+  create: protectedProcedure
+    .input(z.object({
+      name: z.string().min(1).max(100),
+      config: z.object({
+        // Character config schema
+      }),
+    }))
+    .mutation(async ({ input, ctx }) => {
+      const character = await ctx.db.insert(characters).values({
+        userId: ctx.user.id,
+        name: input.name,
+        config: input.config,
+        status: 'draft',
+      }).returning();
+      
+      return character[0];
+    }),
+});
+```
+
+### tRPC Procedure Types
+
+```typescript
+// ✅ Good: Procedure definitions
+import { TRPCError } from '@trpc/server';
+import { z } from 'zod';
+
+// Public procedure - no auth required
+export const publicProcedure = t.procedure;
+
+// Protected procedure - requires authenticated user
+export const protectedProcedure = t.procedure.use(async (opts) => {
+  const { ctx } = opts;
+  
+  if (!ctx.user) {
+    throw new TRPCError({
+      code: 'UNAUTHORIZED',
+      message: 'Authentication required',
+    });
+  }
+  
+  return opts.next({
+    ctx: {
+      ...ctx,
+      user: ctx.user, // Now guaranteed to exist
+    },
+  });
+});
+
+// Admin procedure - requires admin role
+export const adminProcedure = protectedProcedure.use(async (opts) => {
+  const { ctx } = opts;
+  
+  if (ctx.user.role !== 'admin') {
+    throw new TRPCError({
+      code: 'FORBIDDEN',
+      message: 'Admin access required',
+    });
+  }
+  
+  return opts.next();
+});
+```
+
+### REST API Route (Next.js)
+
+```typescript
+// ✅ Good: Next.js API route
+import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+const createCharacterSchema = z.object({
+  name: z.string().min(1).max(100),
+  config: z.object({
+    // Config schema
+  }),
+});
+
+export async function POST(request: NextRequest) {
+  try {
+    // Parse and validate request body
+    const body = await request.json();
+    const validatedData = createCharacterSchema.parse(body);
+    
+    // Get user from session/auth
+    const user = await getCurrentUser(request);
+    if (!user) {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
+    
+    // Business logic
+    const character = await createCharacter({
+      userId: user.id,
+      ...validatedData,
+    });
+    
+    // Return success response
+    return NextResponse.json(
+      { data: character },
+      { status: 201 }
+    );
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', details: error.errors },
+        { status: 400 }
+      );
+    }
+    
+    // Log error
+    console.error('API error:', error);
+    
+    // Return sanitized error
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
+```
+
+### Consistent Response Format
+
+```typescript
+// ✅ Good: Consistent response format
+interface ApiResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: {
+    message: string;
+    code?: string;
+    details?: unknown;
+  };
+  meta?: {
+    timestamp: string;
+    requestId?: string;
+  };
+}
+
+// Success response
+function successResponse<T>(data: T, status = 200): NextResponse {
+  return NextResponse.json(
+    {
+      success: true,
+      data,
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    },
+    { status }
+  );
+}
+
+// Error response
+function errorResponse(
+  message: string,
+  status = 500,
+  code?: string,
+  details?: unknown
+): NextResponse {
+  return NextResponse.json(
+    {
+      success: false,
+      error: {
+        message,
+        code,
+        details,
+      },
+      meta: {
+        timestamp: new Date().toISOString(),
+      },
+    },
+    { status }
+  );
+}
+```
+
+### Input Validation
+
+```typescript
+// ✅ Good: Comprehensive input validation
+import { z } from 'zod';
+
+const createUserSchema = z.object({
+  email: z.string().email('Invalid email format'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Password must contain uppercase letter')
+    .regex(/[a-z]/, 'Password must contain lowercase letter')
+    .regex(/[0-9]/, 'Password must contain number'),
+  name: z.string().min(1).max(100),
+  age: z.number().int().min(18).max(120).optional(),
+});
+
+export const createUser = protectedProcedure
+  .input(createUserSchema)
+  .mutation(async ({ input, ctx }) => {
+    // Input is already validated and typed
+    // Use input.email, input.password, etc.
+  });
+```
+
+### Pagination Pattern
+
+```typescript
+// ✅ Good: Pagination in tRPC
+export const listCharacters = protectedProcedure
+  .input(z.object({
+    limit: z.number().min(1).max(100).default(10),
+    offset: z.number().min(0).default(0),
+    sortBy: z.enum(['createdAt', 'name']).default('createdAt'),
+    order: z.enum(['asc', 'desc']).default('desc'),
+  }))
+  .query(async ({ input, ctx }) => {
+    const [items, total] = await Promise.all([
+      ctx.db.query.characters.findMany({
+        where: eq(characters.userId, ctx.user.id),
+        limit: input.limit,
+        offset: input.offset,
+        orderBy: [orderBy(characters[input.sortBy], input.order)],
+      }),
+      ctx.db.select({ count: sql<number>`count(*)` })
+        .from(characters)
+        .where(eq(characters.userId, ctx.user.id)),
+    ]);
+    
+    return {
+      items,
+      total: total[0].count,
+      limit: input.limit,
+      offset: input.offset,
+      hasMore: input.offset + input.limit < total[0].count,
+    };
+  });
+```
+
+### Error Handling
+
+```typescript
+// ✅ Good: Proper error handling
+export const deleteCharacter = protectedProcedure
+  .input(z.object({ id: z.string().uuid() }))
+  .mutation(async ({ input, ctx }) => {
+    // Check ownership
+    const character = await ctx.db.query.characters.findFirst({
+      where: and(
+        eq(characters.id, input.id),
+        eq(characters.userId, ctx.user.id)
+      ),
+    });
+    
+    if (!character) {
+      throw new TRPCError({
+        code: 'NOT_FOUND',
+        message: 'Character not found',
+      });
+    }
+    
+    // Check if character can be deleted
+    if (character.status === 'generating') {
+      throw new TRPCError({
+        code: 'BAD_REQUEST',
+        message: 'Cannot delete character while generation is in progress',
+      });
+    }
+    
+    try {
+      await ctx.db.delete(characters).where(eq(characters.id, input.id));
+      return { success: true };
+    } catch (error) {
+      console.error('Failed to delete character:', error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to delete character',
+      });
+    }
+  });
+```
+
+## Best Practices
+
+1. **Type Safety** - Use tRPC for end-to-end type safety
+2. **Validation** - Always validate inputs with Zod
+3. **Error Handling** - Use TRPCError with appropriate codes
+4. **Consistency** - Use consistent response formats
+5. **Authentication** - Use protectedProcedure for authenticated endpoints
+6. **Authorization** - Check permissions in procedures
+7. **Pagination** - Implement pagination for list endpoints
+8. **Documentation** - Document API endpoints and schemas
+
+## HTTP Status Codes
+
+| Code | Use Case |
+|------|----------|
+| 200 | Success (GET, PUT, PATCH) |
+| 201 | Created (POST) |
+| 204 | No Content (DELETE) |
+| 400 | Bad Request (validation errors) |
+| 401 | Unauthorized (authentication required) |
+| 403 | Forbidden (authorization failed) |
+| 404 | Not Found |
+| 409 | Conflict (duplicate resource) |
+| 500 | Internal Server Error |
+
+## Related Documentation
+
+- Error Handling: `error-handling.mdc` (for API error patterns)
+- Logging: `logging.mdc` (for request/response logging)
+- Security: `security.mdc` (for API security)
+- tRPC: `libs/trpc/README.md`

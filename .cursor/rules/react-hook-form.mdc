@@ -1,0 +1,462 @@
+---
+description: React Hook Form patterns with Zod validation, form context, and multi-step forms
+globs: ["**/*.tsx", "**/*.ts"]
+alwaysApply: false
+---
+
+# React Hook Form Patterns
+
+## Context
+
+- RYLA uses React Hook Form with Zod for form validation
+- Multi-step forms (funnel) use `useFormContext` for shared form state
+- Forms integrate with tRPC mutations and Zustand state
+- Consistent error handling and validation patterns
+
+## Requirements
+
+### Form Setup
+
+- Use `useForm` with `zodResolver` for validation
+- Define Zod schemas for form validation
+- Set appropriate `mode` and `reValidateMode`
+- Provide default values
+- Use `shouldFocusError: false` for better UX
+
+### Form Context (Multi-step Forms)
+
+- Use `FormProvider` to wrap multi-step forms
+- Use `useFormContext` to access form in child components
+- Share form state across steps
+- Validate specific fields per step
+
+### Validation
+
+- Use Zod schemas for all form validation
+- Provide clear, user-friendly error messages
+- Validate on submit, not on change (for better UX)
+- Use `form.trigger()` for programmatic validation
+- Clear errors when navigating between steps
+
+### Error Handling
+
+- Display errors using `formState.errors`
+- Use `role="alert"` for error messages
+- Show field-level errors inline
+- Handle API errors separately from validation errors
+
+## Examples
+
+### Basic Form Setup
+
+```tsx
+// ✅ Good: Basic form with Zod validation
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const signUpSchema = z.object({
+  email: z.string().email('Please enter a valid email address'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters long')
+    .regex(
+      /^(?=.*[A-Za-z])(?=.*\d)/,
+      'Password must include at least one letter and one number'
+    ),
+  isAdult: z.literal(true, {
+    errorMap: () => ({
+      message: 'You must confirm that you are 18 years or older.',
+    }),
+  }),
+  acceptedTerms: z.literal(true, {
+    errorMap: () => ({
+      message: 'You must accept the Terms of Service and Privacy Policy.',
+    }),
+  }),
+});
+
+type SignUpFormValues = z.infer<typeof signUpSchema>;
+
+export function useSignUpForm() {
+  const form = useForm<SignUpFormValues>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: '',
+      password: '',
+      isAdult: undefined,
+      acceptedTerms: undefined,
+    },
+    mode: 'onSubmit', // Only validate on submit
+    reValidateMode: 'onSubmit', // Only re-validate on submit
+    shouldFocusError: false, // Don't auto-focus on validation errors
+  });
+
+  const onSubmit = form.handleSubmit(async (data) => {
+    // Handle form submission
+    await signUp(data);
+  });
+
+  return {
+    form,
+    onSubmit,
+    isSubmitting: form.formState.isSubmitting,
+    errors: form.formState.errors,
+  };
+}
+```
+
+### Multi-step Form with Context
+
+```tsx
+// ✅ Good: Multi-step form with FormProvider
+import { useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+
+const funnelSchema = z.object({
+  // Step 1 fields
+  name: z.string().min(1, 'Name is required'),
+  // Step 2 fields
+  age: z.number().min(18, 'Must be 18 or older'),
+  // Step 3 fields
+  preferences: z.array(z.string()),
+});
+
+type FunnelSchema = z.infer<typeof funnelSchema>;
+
+// Parent component with FormProvider
+export function FunnelForm() {
+  const form = useForm<FunnelSchema>({
+    resolver: zodResolver(funnelSchema),
+    defaultValues: {
+      name: '',
+      age: 18,
+      preferences: [],
+    },
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    shouldFocusError: false,
+  });
+
+  return (
+    <FormProvider {...form}>
+      <FunnelSteps />
+    </FormProvider>
+  );
+}
+
+// Child component using form context
+function StepComponent() {
+  const form = useFormContext<FunnelSchema>();
+  
+  return (
+    <form onSubmit={form.handleSubmit(onSubmit)}>
+      <input
+        {...form.register('name')}
+        aria-invalid={!!form.formState.errors.name}
+      />
+      {form.formState.errors.name && (
+        <span role="alert">{form.formState.errors.name.message}</span>
+      )}
+    </form>
+  );
+}
+```
+
+### Step-by-step Validation
+
+```tsx
+// ✅ Good: Validate specific fields per step
+export function useFunnelForm() {
+  const form = useForm<FunnelSchema>({
+    resolver: zodResolver(funnelSchema),
+    defaultValues,
+    mode: 'onSubmit',
+    reValidateMode: 'onSubmit',
+    shouldFocusError: false,
+  });
+
+  const nextStep = () => {
+    const currentStep = FUNNEL_STEPS[active];
+    const fieldsToValidate = currentStep.formField 
+      ? [currentStep.formField] 
+      : [];
+
+    if (fieldsToValidate.length === 0) {
+      // No validation needed for this step
+      setActive(prev => prev + 1);
+      return;
+    }
+
+    // Clear errors for fields we're about to validate
+    fieldsToValidate.forEach(field => {
+      form.clearErrors(field);
+    });
+
+    // Validate only current step's fields
+    const validationPromise = fieldsToValidate.length > 1
+      ? Promise.all(
+          fieldsToValidate.map(field => 
+            form.trigger(field as any, { shouldFocus: false })
+          )
+        ).then(results => results.every(r => r === true))
+      : form.trigger(fieldsToValidate[0] as any, { shouldFocus: false });
+
+    validationPromise
+      .then(isValid => {
+        if (isValid) {
+          setActive(prev => prev + 1);
+        } else {
+          // Errors are shown via formState.errors
+        }
+      })
+      .catch(error => {
+        console.error('Validation error:', error);
+      });
+  };
+
+  return { form, nextStep };
+}
+```
+
+### Form with tRPC Integration
+
+```tsx
+// ✅ Good: Form with tRPC mutation
+import { trpc } from '@/lib/trpc';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+
+const createCharacterSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100),
+  config: z.object({
+    // Character config
+  }),
+});
+
+export function useCreateCharacterForm() {
+  const utils = trpc.useUtils();
+  const createCharacter = trpc.character.create.useMutation({
+    onSuccess: () => {
+      utils.character.list.invalidate();
+    },
+  });
+
+  const form = useForm({
+    resolver: zodResolver(createCharacterSchema),
+    defaultValues: {
+      name: '',
+      config: {},
+    },
+  });
+
+  const onSubmit = form.handleSubmit(async (data) => {
+    try {
+      await createCharacter.mutateAsync(data);
+      form.reset(); // Reset form on success
+    } catch (error) {
+      // Error is handled by tRPC
+      // Validation errors are handled by form
+    }
+  });
+
+  return {
+    form,
+    onSubmit,
+    isSubmitting: form.formState.isSubmitting || createCharacter.isPending,
+    errors: form.formState.errors,
+  };
+}
+```
+
+### Error Display
+
+```tsx
+// ✅ Good: Consistent error display
+interface FormFieldProps {
+  name: string;
+  label: string;
+  type?: string;
+  form: UseFormReturn<any>;
+}
+
+export function FormField({ name, label, type = 'text', form }: FormFieldProps) {
+  const hasError = !!form.formState.errors[name];
+  
+  return (
+    <div>
+      <label htmlFor={name}>{label}</label>
+      <input
+        id={name}
+        type={type}
+        {...form.register(name)}
+        aria-invalid={hasError}
+        aria-describedby={hasError ? `${name}-error` : undefined}
+        className={hasError ? 'border-red-500' : ''}
+      />
+      {hasError && (
+        <span
+          id={`${name}-error`}
+          role="alert"
+          className="text-red-500 text-sm"
+        >
+          {form.formState.errors[name]?.message as string}
+        </span>
+      )}
+    </div>
+  );
+}
+```
+
+### Reset and Clear Fields
+
+```tsx
+// ✅ Good: Reset and clear field patterns
+export function useFormWithReset() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+  });
+
+  // Reset single field
+  const resetEmail = () => {
+    form.resetField('email');
+  };
+
+  // Reset entire form
+  const resetForm = () => {
+    form.reset();
+  };
+
+  // Reset to specific values
+  const resetToDefaults = () => {
+    form.reset({
+      email: '',
+      password: '',
+    });
+  };
+
+  // Clear errors for specific field
+  const clearEmailError = () => {
+    form.clearErrors('email');
+  };
+
+  return {
+    form,
+    resetEmail,
+    resetForm,
+    resetToDefaults,
+    clearEmailError,
+  };
+}
+```
+
+### Conditional Validation
+
+```tsx
+// ✅ Good: Conditional validation with Zod
+const formSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  confirmPassword: z.string(),
+  subscribe: z.boolean(),
+  newsletterType: z.enum(['daily', 'weekly']).optional(),
+}).refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  }
+).refine(
+  (data) => !data.subscribe || data.newsletterType !== undefined,
+  {
+    message: 'Please select a newsletter type',
+    path: ['newsletterType'],
+  }
+);
+```
+
+### Watch and Controlled Components
+
+```tsx
+// ✅ Good: Using watch for dependent fields
+export function useFormWithWatch() {
+  const form = useForm({
+    resolver: zodResolver(schema),
+  });
+
+  // Watch specific field
+  const email = form.watch('email');
+  
+  // Watch multiple fields
+  const { email, password } = form.watch(['email', 'password']);
+
+  // Watch all fields
+  const allValues = form.watch();
+
+  // Use watch for conditional rendering
+  const showPasswordField = form.watch('hasPassword');
+
+  return {
+    form,
+    email,
+    showPasswordField,
+  };
+}
+```
+
+## Best Practices
+
+1. **Zod Schemas** - Always use Zod for validation, not manual validation
+2. **Form Context** - Use `FormProvider` for multi-step forms
+3. **Validation Mode** - Use `onSubmit` mode for better UX (not `onChange`)
+4. **Error Display** - Use `role="alert"` and `aria-invalid` for accessibility
+5. **Default Values** - Always provide default values matching schema
+6. **Reset Patterns** - Use `reset()` after successful submission
+7. **Field Validation** - Validate only relevant fields per step
+8. **Error Clearing** - Clear errors when navigating between steps
+
+## Common Patterns
+
+### Pattern: Form with Loading State
+
+```tsx
+const form = useForm({ ... });
+const { mutate, isPending } = useMutation();
+
+const onSubmit = form.handleSubmit(async (data) => {
+  await mutate(data);
+});
+
+// isSubmitting includes both form and mutation loading
+const isSubmitting = form.formState.isSubmitting || isPending;
+```
+
+### Pattern: Form with Optimistic Updates
+
+```tsx
+const form = useForm({ ... });
+const utils = trpc.useUtils();
+
+const onSubmit = form.handleSubmit(async (data) => {
+  // Optimistic update
+  utils.character.list.setData(prev => [...(prev || []), { ...data, id: 'temp' }]);
+  
+  try {
+    await createCharacter.mutateAsync(data);
+    await utils.character.list.invalidate(); // Refetch to get real data
+  } catch (error) {
+    // Revert optimistic update on error
+    utils.character.list.invalidate();
+  }
+});
+```
+
+## Related Documentation
+
+- TypeScript: `typescript.mdc` (for type inference)
+- Error Handling: `error-handling.mdc` (for error display patterns)
+- Testing: `testing-standards.mdc` (for form testing)

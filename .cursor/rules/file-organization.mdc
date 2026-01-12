@@ -1,0 +1,279 @@
+---
+description: File organization patterns, co-location principles, and directory structure guidelines
+globs: []
+alwaysApply: true
+---
+
+# File Organization Patterns
+
+## Context
+
+- Co-location: Related files should be grouped together
+- Single Responsibility: Each file should have one clear purpose
+- Discoverability: File locations should be predictable
+- Scalability: Structure should support growth without reorganization
+
+## Requirements
+
+### When to Extract Files
+
+- Component exceeds **150 lines** (target: < 100)
+- Logic is reused in **2+ places**
+- File has **multiple responsibilities**
+- Testing becomes difficult due to complexity
+
+### Directory Structure
+
+- **Page routes**: `app/[route]/` with co-located `components/`, `hooks/`, `utils/`
+- **Shared components**: `components/[feature]/` with sub-components
+- **Shared utilities**: `lib/utils/` or `lib/hooks/`
+- **Constants**: Co-located with feature or in `constants.ts`
+
+### Naming Conventions
+
+- **Components**: PascalCase (e.g., `UserProfile.tsx`)
+- **Hooks**: camelCase with `use` prefix (e.g., `useUserProfile.ts`)
+- **Utilities**: camelCase (e.g., `formatDate.ts`)
+- **Constants**: kebab-case (e.g., `constants.ts`)
+- **Types**: kebab-case (e.g., `types.ts`)
+- **Directories**: kebab-case (e.g., `user-profile/`)
+
+### Barrel Exports
+
+- Always use `index.ts` for barrel exports
+- Export components, hooks, types from index
+- Keep imports clean and organized
+
+## Examples
+
+### Page with Extracted Components
+
+```tsx
+// ✅ Good: Page structure
+app/studio/
+├── page.tsx                  # Main page (orchestration only, < 150 lines)
+├── components/
+│   ├── StudioHeader.tsx
+│   ├── StudioContent.tsx
+│   ├── StudioFooter.tsx
+│   └── index.ts              # Barrel export
+├── hooks/
+│   ├── useStudioState.ts
+│   ├── useStudioHandlers.ts
+│   └── index.ts
+├── utils/
+│   ├── image-selection.ts
+│   └── index.ts
+└── constants.ts
+
+// page.tsx (orchestration only)
+import { StudioHeader, StudioContent } from './components';
+import { useStudioState } from './hooks';
+
+export default function StudioPage() {
+  const state = useStudioState();
+  
+  return (
+    <div>
+      <StudioHeader />
+      <StudioContent {...state} />
+    </div>
+  );
+}
+```
+
+### Feature Component with Sub-components
+
+```tsx
+// ✅ Good: Feature component structure
+components/studio/generation/
+├── StudioGenerationBar.tsx   # Main component (< 150 lines)
+├── components/
+│   ├── PromptInputRow.tsx
+│   ├── ControlButtonsRow.tsx
+│   └── index.ts
+├── hooks/
+│   ├── useGenerationSettings.ts
+│   └── index.ts
+└── index.ts                  # Barrel export
+
+// StudioGenerationBar.tsx
+import { PromptInputRow, ControlButtonsRow } from './components';
+import { useGenerationSettings } from './hooks';
+
+export function StudioGenerationBar() {
+  const settings = useGenerationSettings();
+  
+  return (
+    <div>
+      <PromptInputRow {...settings} />
+      <ControlButtonsRow {...settings} />
+    </div>
+  );
+}
+```
+
+### Simple Page (No Extraction)
+
+```tsx
+// ✅ Good: Simple page (no extraction needed if < 150 lines)
+app/dashboard/
+└── page.tsx                  # All code in one file
+
+// page.tsx
+export default function DashboardPage() {
+  return (
+    <div>
+      <h1>Dashboard</h1>
+      <p>Simple dashboard content</p>
+    </div>
+  );
+}
+```
+
+### Shared Component
+
+```tsx
+// ✅ Good: Shared component structure
+components/image-gallery/
+├── ImageGallery.tsx
+├── components/
+│   ├── GalleryGrid.tsx
+│   ├── GalleryItem.tsx
+│   └── index.ts
+├── hooks/
+│   ├── useImageSelection.ts
+│   └── index.ts
+└── index.ts
+
+// Usage across multiple pages
+import { ImageGallery } from '@/components/image-gallery';
+```
+
+### Barrel Exports
+
+```tsx
+// ✅ Good: Barrel export pattern
+// components/feature/index.ts
+export { FeatureComponent } from './FeatureComponent';
+export { SubComponent } from './components/SubComponent';
+export { useFeatureHook } from './hooks/useFeatureHook';
+export type { FeatureProps } from './types';
+
+// Usage
+import { FeatureComponent, useFeatureHook } from '@/components/feature';
+```
+
+### File Size Targets
+
+| File Type | Target | Max |
+|-----------|--------|-----|
+| **Page Component** | < 100 lines | 150 lines |
+| **Feature Component** | < 80 lines | 120 lines |
+| **UI Component** | < 60 lines | 100 lines |
+| **Hook** | < 100 lines | 150 lines |
+| **Utility Function** | < 50 lines | 100 lines |
+
+## Decision Tree
+
+```
+Is this a page route?
+├─ YES → app/[route]/
+│   ├─ Is it simple (< 150 lines)?
+│   │   ├─ YES → Just page.tsx
+│   │   └─ NO → Extract to components/, hooks/, utils/
+│   └─ Is it used by multiple pages?
+│       └─ NO → Keep in app/[route]/
+│
+└─ NO → Is it a shared component?
+    ├─ YES → components/[feature]/
+    │   ├─ Is it complex?
+    │   │   ├─ YES → Extract to components/, hooks/
+    │   │   └─ NO → Single file
+    │   └─ Is it used in 2+ places?
+    │       └─ YES → components/[feature]/
+    │
+    └─ NO → Is it a utility?
+        ├─ YES → lib/utils/ or [feature]/utils/
+        └─ NO → Is it a hook?
+            ├─ YES → lib/hooks/ or [feature]/hooks/
+            └─ NO → Review: Should it be extracted?
+```
+
+## Common Patterns
+
+### Pattern: Page with Filters
+
+```
+app/feature-page/
+├── page.tsx
+├── components/
+│   ├── FeatureFilters.tsx
+│   ├── FeatureList.tsx
+│   └── index.ts
+├── hooks/
+│   ├── useFeatureFilters.ts
+│   └── index.ts
+└── constants.ts
+```
+
+### Pattern: Form Page
+
+```
+app/form-page/
+├── page.tsx
+├── components/
+│   ├── FormSection.tsx
+│   ├── FormActions.tsx
+│   └── index.ts
+├── hooks/
+│   ├── useFormState.ts
+│   └── index.ts
+└── constants.ts
+```
+
+### Pattern: Wizard Step
+
+```
+components/wizard/step-name/
+├── StepName.tsx
+├── components/
+│   ├── StepHeader.tsx
+│   ├── StepContent.tsx
+│   └── index.ts
+├── hooks/
+│   ├── useStepLogic.ts
+│   └── index.ts
+└── utils/
+    └── step-helpers.ts
+```
+
+## Best Practices
+
+1. **Co-location** - Keep related files together
+2. **Extract Early** - Extract when file exceeds 150 lines
+3. **Barrel Exports** - Always use `index.ts` for clean imports
+4. **Single Responsibility** - Each file should do one thing
+5. **Predictable Locations** - Files should be easy to find
+6. **Naming Consistency** - Follow naming conventions
+7. **Avoid Deep Nesting** - Keep directory depth reasonable (< 4 levels)
+8. **Document Structure** - Update docs when structure changes
+
+## Quick Reference
+
+| What | Where | Example |
+|------|-------|---------|
+| **Page component** | `app/[route]/page.tsx` | `app/studio/page.tsx` |
+| **Page-specific component** | `app/[route]/components/` | `app/studio/components/` |
+| **Page-specific hook** | `app/[route]/hooks/` | `app/studio/hooks/` |
+| **Page-specific util** | `app/[route]/utils/` | `app/studio/utils/` |
+| **Shared component** | `components/[feature]/` | `components/studio/` |
+| **Shared hook** | `lib/hooks/` | `lib/hooks/use-studio-filters.ts` |
+| **Shared util** | `lib/utils/` | `lib/utils/format-date.ts` |
+| **Constants** | `[feature]/constants.ts` | `app/studio/constants.ts` |
+
+## Related Documentation
+
+- File Organization Guide: `docs/technical/FILE-ORGANIZATION-GUIDE.md`
+- Architecture: `architecture.mdc` (for monorepo structure)
+- Code Style: `code-style.mdc` (for naming conventions)

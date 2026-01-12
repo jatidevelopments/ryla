@@ -1,0 +1,467 @@
+---
+description: React component patterns, hooks patterns, and composition guidelines for Next.js App Router
+globs: ["**/*.tsx", "apps/web/**", "apps/funnel/**"]
+alwaysApply: false
+---
+
+# React Patterns
+
+## Context
+
+- Next.js 14+ App Router with Server and Client Components
+- React 18 with hooks and concurrent features
+- Component composition and reusability
+- Custom hooks for logic extraction
+- Server Components for data fetching
+
+## Requirements
+
+### Server vs Client Components
+
+- Use **Server Components** by default (no 'use client')
+- Use **Client Components** only when needed (interactivity, hooks, browser APIs)
+- Fetch data in Server Components
+- Pass data from Server to Client Components as props
+- Keep Client Components small and focused
+
+### Component Composition
+
+- Prefer composition over inheritance
+- Use children prop for flexible composition
+- Extract reusable UI patterns
+- Keep components small and focused (< 150 lines)
+- Use compound components for complex UI
+
+### Custom Hooks
+
+- Extract logic into custom hooks
+- Use hooks for state management, side effects, and data fetching
+- Keep hooks focused on single responsibility
+- Return objects for multiple values
+- Use TypeScript for hook return types
+
+### Component Patterns
+
+- Use function components (not class components)
+- Use TypeScript for props and state
+- Extract inline components to separate files
+- Use proper prop types and default values
+- Handle loading and error states
+
+## Examples
+
+### Server Component Pattern
+
+```tsx
+// ✅ Good: Server Component (default)
+// app/characters/page.tsx
+import { getCharacters } from '@ryla/data';
+import { CharacterList } from './components/CharacterList';
+
+export default async function CharactersPage() {
+  // Fetch data on server
+  const characters = await getCharacters();
+  
+  return (
+    <div>
+      <h1>Characters</h1>
+      <CharacterList characters={characters} />
+    </div>
+  );
+}
+
+// ✅ Good: Client Component for interactivity
+// app/characters/components/CharacterList.tsx
+'use client';
+
+import { useState } from 'react';
+
+export function CharacterList({ characters }: { characters: Character[] }) {
+  const [selected, setSelected] = useState<string | null>(null);
+  
+  return (
+    <ul>
+      {characters.map(character => (
+        <li
+          key={character.id}
+          onClick={() => setSelected(character.id)}
+        >
+          {character.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### Server Parent, Client Children
+
+```tsx
+// ✅ Good: Server parent with client children
+// app/studio/page.tsx (Server Component)
+import { getCharacters } from '@ryla/data';
+import { StudioClient } from './StudioClient';
+
+export default async function StudioPage() {
+  const characters = await getCharacters();
+  
+  return <StudioClient initialCharacters={characters} />;
+}
+
+// app/studio/StudioClient.tsx (Client Component)
+'use client';
+
+import { useState } from 'react';
+
+export function StudioClient({ 
+  initialCharacters 
+}: { 
+  initialCharacters: Character[] 
+}) {
+  const [selected, setSelected] = useState<string | null>(null);
+  
+  return (
+    <div>
+      {/* Interactive UI */}
+    </div>
+  );
+}
+```
+
+### Custom Hook Pattern
+
+```tsx
+// ✅ Good: Custom hook for logic extraction
+// hooks/useCharacterSelection.ts
+import { useState, useCallback } from 'react';
+
+export function useCharacterSelection(initialId?: string) {
+  const [selectedId, setSelectedId] = useState<string | null>(initialId || null);
+  
+  const selectCharacter = useCallback((id: string) => {
+    setSelectedId(id);
+  }, []);
+  
+  const clearSelection = useCallback(() => {
+    setSelectedId(null);
+  }, []);
+  
+  return {
+    selectedId,
+    selectCharacter,
+    clearSelection,
+    isSelected: (id: string) => selectedId === id,
+  };
+}
+
+// Usage in component
+function CharacterList({ characters }: Props) {
+  const { selectedId, selectCharacter, isSelected } = useCharacterSelection();
+  
+  return (
+    <ul>
+      {characters.map(character => (
+        <li
+          key={character.id}
+          onClick={() => selectCharacter(character.id)}
+          className={isSelected(character.id) ? 'selected' : ''}
+        >
+          {character.name}
+        </li>
+      ))}
+    </ul>
+  );
+}
+```
+
+### Component Composition
+
+```tsx
+// ✅ Good: Composition with children
+interface CardProps {
+  title: string;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+}
+
+export function Card({ title, children, footer }: CardProps) {
+  return (
+    <div className="card">
+      <h2>{title}</h2>
+      <div className="card-content">{children}</div>
+      {footer && <div className="card-footer">{footer}</div>}
+    </div>
+  );
+}
+
+// Usage
+<Card 
+  title="Character"
+  footer={<Button>Edit</Button>}
+>
+  <p>Character details...</p>
+</Card>
+```
+
+### Compound Components
+
+```tsx
+// ✅ Good: Compound component pattern
+interface ModalProps {
+  children: React.ReactNode;
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+export function Modal({ children, isOpen, onClose }: ModalProps) {
+  if (!isOpen) return null;
+  
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+Modal.Header = function ModalHeader({ children }: { children: React.ReactNode }) {
+  return <div className="modal-header">{children}</div>;
+};
+
+Modal.Body = function ModalBody({ children }: { children: React.ReactNode }) {
+  return <div className="modal-body">{children}</div>;
+};
+
+Modal.Footer = function ModalFooter({ children }: { children: React.ReactNode }) {
+  return <div className="modal-footer">{children}</div>;
+};
+
+// Usage
+<Modal isOpen={isOpen} onClose={onClose}>
+  <Modal.Header>Title</Modal.Header>
+  <Modal.Body>Content</Modal.Body>
+  <Modal.Footer>
+    <Button onClick={onClose}>Close</Button>
+  </Modal.Footer>
+</Modal>
+```
+
+### Props Patterns
+
+```tsx
+// ✅ Good: Typed props with defaults
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary';
+  size?: 'sm' | 'md' | 'lg';
+  isLoading?: boolean;
+}
+
+export function Button({
+  variant = 'primary',
+  size = 'md',
+  isLoading = false,
+  children,
+  disabled,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      {...props}
+      disabled={disabled || isLoading}
+      className={cn(
+        'button',
+        `button-${variant}`,
+        `button-${size}`,
+        isLoading && 'button-loading'
+      )}
+    >
+      {isLoading ? <Spinner /> : children}
+    </button>
+  );
+}
+```
+
+### Loading and Error States
+
+```tsx
+// ✅ Good: Loading and error handling
+export function CharacterDetails({ id }: { id: string }) {
+  const { data, isLoading, error } = trpc.character.getById.useQuery({ id });
+  
+  if (isLoading) {
+    return <LoadingSpinner />;
+  }
+  
+  if (error) {
+    return <ErrorMessage error={error} />;
+  }
+  
+  if (!data) {
+    return <NotFound />;
+  }
+  
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      {/* Character details */}
+    </div>
+  );
+}
+```
+
+### Memoization Patterns
+
+```tsx
+// ✅ Good: Memoization when needed
+import { memo, useMemo, useCallback } from 'react';
+
+// Memoize expensive computations
+function CharacterList({ characters }: Props) {
+  const sortedCharacters = useMemo(
+    () => characters.sort((a, b) => a.name.localeCompare(b.name)),
+    [characters]
+  );
+  
+  const handleSelect = useCallback((id: string) => {
+    // Handle selection
+  }, []);
+  
+  return (
+    <ul>
+      {sortedCharacters.map(character => (
+        <CharacterItem
+          key={character.id}
+          character={character}
+          onSelect={handleSelect}
+        />
+      ))}
+    </ul>
+  );
+}
+
+// Memoize expensive components
+export const CharacterItem = memo(function CharacterItem({
+  character,
+  onSelect,
+}: CharacterItemProps) {
+  return (
+    <li onClick={() => onSelect(character.id)}>
+      {character.name}
+    </li>
+  );
+});
+```
+
+### Effect Patterns
+
+```tsx
+// ✅ Good: Effect with cleanup
+import { useEffect, useRef } from 'react';
+
+export function useAutoSave(data: FormData, onSave: (data: FormData) => void) {
+  const timeoutRef = useRef<NodeJS.Timeout>();
+  
+  useEffect(() => {
+    // Clear previous timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    // Set new timeout
+    timeoutRef.current = setTimeout(() => {
+      onSave(data);
+    }, 1000);
+    
+    // Cleanup
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [data, onSave]);
+}
+```
+
+### Ref Patterns
+
+```tsx
+// ✅ Good: Using refs for DOM access
+import { useRef, useEffect } from 'react';
+
+export function AutoFocusInput() {
+  const inputRef = useRef<HTMLInputElement>(null);
+  
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+  
+  return <input ref={inputRef} />;
+}
+
+// ✅ Good: Using refs for values that don't trigger re-renders
+function usePrevious<T>(value: T): T | undefined {
+  const ref = useRef<T>();
+  
+  useEffect(() => {
+    ref.current = value;
+  }, [value]);
+  
+  return ref.current;
+}
+```
+
+### Context Patterns
+
+```tsx
+// ✅ Good: Context for shared state
+'use client';
+
+import { createContext, useContext, useState } from 'react';
+
+interface ThemeContextType {
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
+}
+
+const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+  
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+  
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  );
+}
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+  return context;
+}
+```
+
+## Best Practices
+
+1. **Server First** - Use Server Components by default
+2. **Client When Needed** - Only use 'use client' when necessary
+3. **Composition** - Prefer composition over inheritance
+4. **Small Components** - Keep components under 150 lines
+5. **Custom Hooks** - Extract logic into reusable hooks
+6. **Type Safety** - Use TypeScript for all props and state
+7. **Memoization** - Use memo/useMemo/useCallback appropriately
+8. **Cleanup** - Always cleanup effects and timeouts
+
+## Related Documentation
+
+- File Organization: `file-organization.mdc` (for component structure)
+- Performance: `performance.mdc` (for memoization patterns)
+- Testing: `testing-standards.mdc` (for component testing)

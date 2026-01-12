@@ -1,0 +1,305 @@
+---
+description: Web performance optimization best practices for React, Next.js, and database queries
+globs: ["**/*.tsx", "**/*.ts", "apps/api/**"]
+alwaysApply: false
+---
+
+# Performance Optimization Best Practices
+
+## Context
+
+- Optimize for Core Web Vitals (LCP, FID, CLS)
+- Improve user experience and SEO rankings
+- Reduce bundle size and load times
+- Optimize database queries and API responses
+
+## Requirements
+
+### React Optimization
+
+- Use React.memo for expensive component re-renders
+- Implement useMemo and useCallback for expensive computations
+- Avoid creating objects/functions in render (use refs or state)
+- Use useTransition for non-urgent updates
+- Implement virtual scrolling for large lists
+- Avoid unnecessary re-renders with proper dependency arrays
+- Use Suspense for data fetching and code splitting
+
+### Code Splitting and Lazy Loading
+
+- Use dynamic imports for code splitting
+- Implement lazy loading for heavy components
+- Use Next.js dynamic() for route-based splitting
+- Split vendor and app bundles appropriately
+- Lazy load non-critical components
+
+### Image Optimization
+
+- Use Next.js Image component for automatic optimization
+- Implement responsive images with srcset and sizes
+- Use modern formats (WebP, AVIF) with fallbacks
+- Implement lazy loading for images below the fold
+- Optimize image dimensions and compression
+- Use CDN for image delivery
+- Implement placeholder images or blur effects
+
+**Note:** See `image-optimization.mdc` for specific compression guidelines.
+
+### Caching Strategies
+
+- Implement browser caching with proper Cache-Control headers
+- Use service workers for offline-first applications (if applicable)
+- Implement stale-while-revalidate for data fetching
+- Use CDN caching for static assets
+- Implement Redis or similar for server-side caching
+- Cache API responses with proper invalidation strategies
+- Use React Query (TanStack Query) for client-side caching
+
+### Database Optimization
+
+- Use database indexing for frequently queried columns
+- Implement query optimization and avoid N+1 problems
+- Use connection pooling for database connections
+- Implement database query caching
+- Use pagination for large data sets
+- Optimize database schema design
+- Query only required columns, not entire rows
+
+### Bundle Optimization
+
+- Use dynamic imports for code splitting
+- Implement tree shaking to eliminate dead code
+- Optimize bundle size with webpack-bundle-analyzer or similar tools
+- Use production builds with minification and compression
+- Split vendor and app bundles appropriately
+- Use modern bundlers (Vite, esbuild, swc) for faster builds
+
+### Loading Performance
+
+- Minimize Time to First Byte (TTFB) with edge functions
+- Implement Critical CSS for above-the-fold content
+- Use preload for critical resources
+- Implement resource hints (prefetch, preconnect)
+- Minimize blocking resources in the critical path
+- Use streaming SSR for faster perceived performance
+- Implement proper loading states and skeletons
+
+### Runtime Optimization
+
+- Use Web Workers for CPU-intensive tasks (if needed)
+- Implement request deduplication for API calls
+- Use debouncing and throttling for user inputs
+- Optimize event listeners and clean up properly
+- Use requestAnimationFrame for animations
+- Implement virtual scrolling for large lists
+- Profile and monitor performance with tools
+
+## Examples
+
+### React Optimization
+
+```tsx
+// ✅ Good: Memoized component
+const ExpensiveComponent = memo(({ data }: { data: any[] }) => {
+  const processedData = useMemo(() => 
+    data.map(item => complexProcessing(item)),
+    [data]
+  );
+  
+  const handleClick = useCallback((id: string) => {
+    // Handle click logic
+  }, []);
+  
+  return (
+    <div>
+      {processedData.map(item => (
+        <Item key={item.id} data={item} onClick={handleClick} />
+      ))}
+    </div>
+  );
+});
+
+// ✅ Good: Using Suspense
+<Suspense fallback={<LoadingSkeleton />}>
+  <DataComponent />
+</Suspense>
+
+// ✅ Good: Concurrent features
+const [isPending, startTransition] = useTransition();
+
+const handleFilterChange = (newFilter: string) => {
+  startTransition(() => {
+    setFilter(newFilter);
+  });
+};
+
+// ❌ Bad: Creating functions in render
+function Component({ items }) {
+  return items.map(item => (
+    <Item onClick={() => handleClick(item.id)} />
+  ));
+}
+```
+
+### Code Splitting
+
+```tsx
+// ✅ Good: Dynamic imports
+const LazyComponent = lazy(() => import('./HeavyComponent'));
+
+// ✅ Good: Next.js dynamic
+const DashboardPage = dynamic(() => import('../components/Dashboard'), {
+  loading: () => <LoadingSpinner />,
+  ssr: false
+});
+
+// ❌ Bad: Importing everything upfront
+import HeavyComponent from './HeavyComponent';
+```
+
+### Image Optimization
+
+```tsx
+// ✅ Good: Next.js Image component
+import Image from 'next/image';
+
+<Image
+  src="/hero-image.jpg"
+  alt="Hero image"
+  width={1200}
+  height={600}
+  priority={true} // For above-the-fold images
+  placeholder="blur"
+  blurDataURL="data:image/jpeg;base64,..."
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+/>
+
+// ❌ Bad: Regular img tag
+<img src="/hero-image.jpg" alt="Hero" />
+```
+
+### Caching
+
+```tsx
+// ✅ Good: Next.js caching headers
+export async function getStaticProps() {
+  return {
+    props: { data },
+    revalidate: 3600, // ISR with 1 hour revalidation
+  };
+}
+
+// ✅ Good: API route caching
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=59');
+  // Handler logic
+}
+```
+
+### Database Optimization
+
+```typescript
+// ✅ Good: Efficient query with pagination
+const getUsersWithPosts = async (limit = 10, offset = 0) => {
+  return db
+    .select({
+      id: users.id,
+      email: users.email,
+      postCount: sql<number>`count(${posts.id})`,
+    })
+    .from(users)
+    .leftJoin(posts, eq(users.id, posts.userId))
+    .limit(limit)
+    .offset(offset)
+    .groupBy(users.id)
+    .execute();
+};
+
+// ✅ Good: Connection pooling
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+});
+
+// ❌ Bad: N+1 query problem
+const users = await db.select().from(users);
+for (const user of users) {
+  const posts = await db.select().from(posts).where(eq(posts.userId, user.id));
+}
+```
+
+### Loading States
+
+```tsx
+// ✅ Good: Loading skeletons
+const PostsSkeleton = () => (
+  <div className="animate-pulse">
+    {Array.from({ length: 5 }).map((_, i) => (
+      <div key={i} className="h-24 bg-gray-200 rounded mb-4" />
+    ))}
+  </div>
+);
+
+// ✅ Good: Streaming SSR
+export default function Page() {
+  return (
+    <div>
+      <Header />
+      <Suspense fallback={<PostsSkeleton />}>
+        <Posts />
+      </Suspense>
+      <Suspense fallback={<CommentsSkeleton />}>
+        <Comments />
+      </Suspense>
+    </div>
+  );
+}
+```
+
+### Debouncing
+
+```typescript
+// ✅ Good: Debounced search
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+  
+  useEffect(() => {
+    const handler = setTimeout(() => setDebouncedValue(value), delay);
+    return () => clearTimeout(handler);
+  }, [value, delay]);
+  
+  return debouncedValue;
+};
+
+// Usage
+const debouncedSearch = useDebounce(searchQuery, 300);
+```
+
+## Monitoring Tools
+
+- Use Lighthouse for performance audits
+- Implement Core Web Vitals monitoring
+- Use Performance API for custom metrics
+- Set up Real User Monitoring (RUM)
+- Use tools like Vercel Analytics or Google PageSpeed Insights
+- Profile with Chrome DevTools Performance tab
+- Monitor bundle size changes in CI/CD
+
+## Best Practices
+
+1. **Measure first** - Use tools to identify bottlenecks
+2. **Optimize critical path** - Focus on above-the-fold content
+3. **Lazy load below fold** - Defer non-critical resources
+4. **Cache aggressively** - Use appropriate caching strategies
+5. **Minimize bundle size** - Code split and tree shake
+6. **Optimize images** - Use modern formats and lazy loading
+7. **Database queries** - Index properly, avoid N+1, paginate
+8. **React performance** - Use memo, useMemo, useCallback appropriately
+
+## Related Documentation
+
+- Image Optimization: `image-optimization.mdc`
+- TanStack Query: `tanstack-query.mdc` (for caching patterns)
+- Testing: `testing-standards.mdc`

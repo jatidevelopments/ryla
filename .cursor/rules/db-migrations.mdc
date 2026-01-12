@@ -1,0 +1,372 @@
+---
+description: Database migration patterns and best practices for Drizzle ORM
+globs: ["drizzle/migrations/**", "libs/data/src/schema/**"]
+alwaysApply: false
+---
+
+# Database Migrations Guide
+
+This guide covers how to create, modify, and apply database migrations using Drizzle ORM in RYLA.
+
+## Migration Workflow
+
+### Step 1: Modify Schemas
+
+Make changes to schema files in `libs/data/src/schema/`:
+
+```typescript
+// libs/data/src/schema/characters.schema.ts
+export const characters = pgTable('characters', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  userId: uuid('user_id').notNull().references(() => users.id, { onDelete: 'cascade' }),
+  name: text('name').notNull(),
+  // Add new column
+  description: text('description'), // New field
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+});
+```
+
+### Step 2: Generate Migration
+
+Run Drizzle Kit to generate migration files:
+
+```bash
+pnpm db:generate
+```
+
+This will:
+- Analyze schema changes
+- Generate SQL migration files in `drizzle/migrations/`
+- Create files like: `0001_snapshot.json` and `0001_<random_name>.sql`
+- Update migration metadata
+
+**Output location**: `drizzle/migrations/`
+
+### Step 3: Review Generated Migration
+
+Check the generated SQL file:
+
+```sql
+-- drizzle/migrations/0001_<random_name>.sql
+ALTER TABLE "characters" ADD COLUMN "description" text;
+```
+
+**Important**: Review the SQL to ensure it matches your intent.
+
+### Step 4: Rename Migration File (Optional but Recommended)
+
+Drizzle generates random names. Rename for clarity:
+
+```bash
+# Before
+0001_snapshot.json
+0001_abc123xyz.sql
+
+# After
+0001_snapshot.json
+0001_add_description_to_characters.sql
+```
+
+**Note**: Only rename the `.sql` file, keep `snapshot.json` as-is.
+
+### Step 5: Apply Migration
+
+Run migrations against your database:
+
+```bash
+# Apply all pending migrations
+pnpm db:migrate
+```
+
+Or use Drizzle Kit directly:
+
+```bash
+drizzle-kit migrate
+```
+
+## Migration File Structure
+
+```
+drizzle/migrations/
+├── meta/
+│   ├── _journal.json          # Migration journal (auto-generated)
+│   └── 0000_snapshot.json     # Initial schema snapshot
+├── 0000_initial_schema.sql    # Initial migration
+├── 0001_add_description.sql  # Your migrations
+└── 0002_add_index.sql
+```
+
+## Best Practices
+
+### 1. Idempotent Operations
+
+Always use defensive clauses to make migrations idempotent (safe to run multiple times):
+
+```sql
+-- ✅ Good: Idempotent operations
+ALTER TABLE "characters" ADD COLUMN IF NOT EXISTS "description" text;
+DROP INDEX IF EXISTS "old_index_name";
+CREATE INDEX IF NOT EXISTS "characters_user_id_idx" ON "characters" ("user_id");
+ALTER TABLE "posts" DROP COLUMN IF EXISTS "deprecated_field";
+
+-- ❌ Bad: Non-idempotent operations (will fail on re-run)
+ALTER TABLE "characters" ADD COLUMN "description" text;
+DROP INDEX "old_index_name";
+CREATE INDEX "characters_user_id_idx" ON "characters" ("user_id");
+```
+
+### 2. Backward Compatibility
+
+When adding columns, make them nullable or provide defaults:
+
+```sql
+-- ✅ Good: Backward compatible
+ALTER TABLE "characters" ADD COLUMN "description" text; -- Nullable by default
+ALTER TABLE "characters" ADD COLUMN "status" text DEFAULT 'active';
+
+-- ⚠️ Risky: Requires default or existing data
+ALTER TABLE "characters" ADD COLUMN "required_field" text NOT NULL DEFAULT 'default_value';
+```
+
+### 3. Data Migrations
+
+For data transformations, add separate migration steps:
+
+```sql
+-- Step 1: Add new column
+ALTER TABLE "characters" ADD COLUMN "new_status" text;
+
+-- Step 2: Migrate data
+UPDATE "characters" SET "new_status" = "old_status" WHERE "old_status" IS NOT NULL;
+
+-- Step 3: Make column required (if needed)
+ALTER TABLE "characters" ALTER COLUMN "new_status" SET NOT NULL;
+
+-- Step 4: Drop old column (in separate migration)
+-- ALTER TABLE "characters" DROP COLUMN "old_status";
+```
+
+### 4. Index Creation
+
+Create indexes in separate migrations for large tables:
+
+```sql
+-- ✅ Good: Separate index creation
+CREATE INDEX CONCURRENTLY IF NOT EXISTS "characters_user_id_idx" ON "characters" ("user_id");
+
+-- Note: CONCURRENTLY requires separate transaction, may need manual execution
+```
+
+### 5. Foreign Key Constraints
+
+Add foreign keys after data exists:
+
+```sql
+-- Step 1: Ensure data exists
+-- Step 2: Add foreign key
+ALTER TABLE "images" 
+  ADD CONSTRAINT "images_character_id_fk" 
+  FOREIGN KEY ("character_id") 
+  REFERENCES "characters"("id") 
+  ON DELETE CASCADE;
+```
+
+## Migration Commands
+
+### Generate Migration
+
+```bash
+# Generate migration from schema changes
+pnpm db:generate
+
+# Or using drizzle-kit directly
+drizzle-kit generate
+```
+
+### Apply Migrations
+
+```bash
+# Apply all pending migrations
+pnpm db:migrate
+
+# Or using drizzle-kit directly
+drizzle-kit migrate
+```
+
+### Push Schema (Development Only)
+
+For development, you can push schema directly without migrations:
+
+```bash
+# ⚠️ WARNING: Only use in development
+# This bypasses migrations and directly modifies the database
+pnpm db:push
+```
+
+**Never use `db:push` in production!**
+
+### Studio (Database Browser)
+
+Open Drizzle Studio to browse your database:
+
+```bash
+pnpm db:studio
+```
+
+## Testing Migrations
+
+### In Tests
+
+Use PGlite for in-memory PostgreSQL testing:
+
+```typescript
+// apps/api/src/test/utils/test-db.ts
+import { PGlite } from '@electric-sql/pglite';
+import { drizzle } from 'drizzle-orm/pglite';
+import { migrate } from 'drizzle-orm/pglite/migrator';
+import * as schema from '@ryla/data/schema';
+import { resolve } from 'path';
+
+export async function createTestDb() {
+  const client = new PGlite();
+  const db = drizzle(client, { schema });
+
+  // Apply migrations
+  const migrationsPath = resolve(__dirname, '../../../../../drizzle/migrations');
+  await migrate(db, { migrationsFolder: migrationsPath });
+
+  return { db, client };
+}
+```
+
+### Manual Testing
+
+1. Test on local database first
+2. Verify migration SQL is correct
+3. Test rollback (if needed)
+4. Apply to staging
+5. Apply to production
+
+## Rollback Strategy
+
+Drizzle doesn't generate rollback migrations automatically. For rollbacks:
+
+### Option 1: Create Reverse Migration
+
+Create a new migration that reverses changes:
+
+```sql
+-- 0003_remove_description.sql (rollback)
+ALTER TABLE "characters" DROP COLUMN IF EXISTS "description";
+```
+
+### Option 2: Manual SQL
+
+Write manual SQL to reverse changes:
+
+```sql
+-- Rollback: Remove column
+ALTER TABLE "characters" DROP COLUMN IF EXISTS "description";
+```
+
+## Common Patterns
+
+### Adding a Column
+
+```sql
+ALTER TABLE "characters" ADD COLUMN IF NOT EXISTS "description" text;
+```
+
+### Removing a Column
+
+```sql
+ALTER TABLE "characters" DROP COLUMN IF EXISTS "old_column";
+```
+
+### Adding an Index
+
+```sql
+CREATE INDEX IF NOT EXISTS "characters_user_id_idx" ON "characters" ("user_id");
+```
+
+### Adding a Foreign Key
+
+```sql
+ALTER TABLE "images" 
+  ADD CONSTRAINT "images_character_id_fk" 
+  FOREIGN KEY ("character_id") 
+  REFERENCES "characters"("id") 
+  ON DELETE CASCADE;
+```
+
+### Renaming a Column
+
+```sql
+ALTER TABLE "characters" RENAME COLUMN "old_name" TO "new_name";
+```
+
+### Changing Column Type
+
+```sql
+-- ⚠️ Be careful with type changes - may require data migration
+ALTER TABLE "characters" ALTER COLUMN "status" TYPE text USING status::text;
+```
+
+## Migration Configuration
+
+Configuration is in `drizzle.config.ts`:
+
+```typescript
+export default defineConfig({
+  schema: './libs/data/src/schema/*.ts',
+  out: './drizzle/migrations',
+  dialect: 'postgresql',
+  strict: true, // Safer migrations
+  verbose: true, // Detailed logging
+});
+```
+
+## Troubleshooting
+
+### Migration Fails
+
+1. Check database connection in `drizzle.config.ts`
+2. Verify schema files are correct
+3. Check for syntax errors in generated SQL
+4. Ensure previous migrations were applied
+
+### Schema Drift
+
+If database and schemas are out of sync:
+
+1. **Development**: Use `db:push` to sync (destructive)
+2. **Production**: Create migration to align database
+
+### Migration Conflicts
+
+If multiple developers create migrations:
+
+1. Pull latest migrations
+2. Regenerate your migration (may create new number)
+3. Resolve any conflicts in SQL files
+4. Test locally before pushing
+
+## Best Practices Summary
+
+1. ✅ Always review generated SQL before applying
+2. ✅ Use idempotent operations (`IF NOT EXISTS`, `IF EXISTS`)
+3. ✅ Test migrations on local/staging first
+4. ✅ Keep migrations small and focused
+5. ✅ Document breaking changes in migration comments
+6. ✅ Never modify applied migrations (create new ones instead)
+7. ✅ Use descriptive migration file names
+8. ✅ Make backward-compatible changes when possible
+9. ❌ Never use `db:push` in production
+10. ❌ Never edit migration files after they've been applied
+
+## Related Documentation
+
+- Schema Style Guide: `drizzle-schema-style-guide.mdc`
+- Data Access Layer: `data-access.mdc`
+- ADR-001: Database Architecture decision

@@ -1,0 +1,358 @@
+---
+description: Logging patterns and best practices for structured logging, error tracking, and debugging
+globs: ["apps/api/**", "apps/web/**"]
+alwaysApply: false
+---
+
+# Logging Patterns
+
+## Context
+
+- Structured logging for better debugging and monitoring
+- Colorful logging for development (NestJS ColorfulLogger)
+- Consistent log levels and formats
+- Sensitive data filtering
+- Request/response logging
+
+## Requirements
+
+### Log Levels
+
+- **LOG** (info): General information, successful operations
+- **ERROR**: Error messages with stack traces
+- **WARN**: Warning messages for potential issues
+- **DEBUG**: Debug information for development
+- **VERBOSE**: Detailed verbose logging
+
+### Structured Logging
+
+- Use structured log objects with context
+- Include timestamps, context, and relevant metadata
+- Log errors with full context (userId, action, error)
+- Use consistent log format across services
+- Never log sensitive data (passwords, tokens, API keys)
+
+### Request/Response Logging
+
+- Log HTTP requests (method, URL, headers)
+- Log response status codes and timing
+- Color-code by HTTP method and status
+- Log slow requests (> 500ms)
+- Filter sensitive headers (Authorization, Cookie)
+
+### Error Logging
+
+- Log errors with stack traces
+- Include request context (method, URL, userId)
+- Log error timing and duration
+- Use appropriate log levels (ERROR for exceptions)
+- Include error metadata (status code, error type)
+
+## Examples
+
+### NestJS Colorful Logger
+
+```typescript
+// ✅ Good: Colorful logger service
+import { Injectable, LoggerService } from '@nestjs/common';
+import chalk from 'chalk';
+
+@Injectable()
+export class ColorfulLogger implements LoggerService {
+  private context?: string;
+
+  setContext(context: string) {
+    this.context = context;
+  }
+
+  log(message: string, context?: string) {
+    const ctx = context || this.context || 'Application';
+    const timestamp = new Date().toISOString();
+    console.log(
+      `${chalk.gray(timestamp)} ${chalk.blue('LOG')} ${chalk.cyan(`[${ctx}]`)} ${message}`,
+    );
+  }
+
+  error(message: string, trace?: string, context?: string) {
+    const ctx = context || this.context || 'Application';
+    const timestamp = new Date().toISOString();
+    console.error(
+      `${chalk.gray(timestamp)} ${chalk.red('ERROR')} ${chalk.cyan(`[${ctx}]`)} ${chalk.red(message)}`,
+    );
+    if (trace) {
+      console.error(chalk.red(trace));
+    }
+  }
+
+  warn(message: string, context?: string) {
+    const ctx = context || this.context || 'Application';
+    const timestamp = new Date().toISOString();
+    console.warn(
+      `${chalk.gray(timestamp)} ${chalk.yellow('WARN')} ${chalk.cyan(`[${ctx}]`)} ${chalk.yellow(message)}`,
+    );
+  }
+
+  debug(message: string, context?: string) {
+    const ctx = context || this.context || 'Application';
+    const timestamp = new Date().toISOString();
+    console.debug(
+      `${chalk.gray(timestamp)} ${chalk.magenta('DEBUG')} ${chalk.cyan(`[${ctx}]`)} ${chalk.gray(message)}`,
+    );
+  }
+}
+```
+
+### Request/Response Logging
+
+```typescript
+// ✅ Good: HTTP request/response logging
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor {
+  private readonly logger = new Logger(LoggingInterceptor.name);
+
+  intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+    const request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse();
+
+    const method = request.method;
+    const url = request.url;
+
+    // Log request
+    this.logger.log(LoggerHelper.formatRequest(method, url));
+
+    const now = Date.now();
+    return next.handle().pipe(
+      tap(() => {
+        const statusCode = response.statusCode;
+        const timeTaken = Date.now() - now;
+        
+        // Log response with timing
+        this.logger.log(
+          LoggerHelper.formatResponse(method, url, statusCode, timeTaken),
+        );
+        
+        // Log slow requests as warnings
+        if (timeTaken >= 500) {
+          this.logger.warn(`Slow request: ${method} ${url} took ${timeTaken}ms`);
+        }
+      }),
+      catchError((error) => {
+        const statusCode = error.status || 500;
+        const timeTaken = Date.now() - now;
+        
+        // Log error response
+        this.logger.error(
+          LoggerHelper.formatError(method, url, statusCode, timeTaken, error.message),
+        );
+        
+        return throwError(() => error);
+      }),
+    );
+  }
+}
+```
+
+### Structured Error Logging
+
+```typescript
+// ✅ Good: Structured error logging with context
+try {
+  await createCharacter(userId, characterData);
+} catch (error) {
+  // Log with full context
+  logger.error('Failed to create character', {
+    userId,
+    action: 'createCharacter',
+    error: error.message,
+    stack: error.stack,
+    characterData: {
+      name: characterData.name,
+      // Don't log sensitive fields
+    },
+    timestamp: new Date().toISOString(),
+  });
+  
+  throw error;
+}
+
+// ❌ Bad: Minimal logging
+catch (error) {
+  console.error(error);
+  throw error;
+}
+```
+
+### Sensitive Data Filtering
+
+```typescript
+// ✅ Good: Filter sensitive data from logs
+function sanitizeLogData(data: any): any {
+  const sensitiveKeys = [
+    'password',
+    'token',
+    'secret',
+    'apiKey',
+    'authorization',
+    'cookie',
+    'creditCard',
+    'ssn',
+  ];
+  
+  if (typeof data !== 'object' || data === null) {
+    return data;
+  }
+  
+  const sanitized = { ...data };
+  
+  for (const key in sanitized) {
+    const lowerKey = key.toLowerCase();
+    
+    if (sensitiveKeys.some(sk => lowerKey.includes(sk))) {
+      sanitized[key] = '[REDACTED]';
+    } else if (typeof sanitized[key] === 'object') {
+      sanitized[key] = sanitizeLogData(sanitized[key]);
+    }
+  }
+  
+  return sanitized;
+}
+
+// Usage
+logger.log('User action', sanitizeLogData({
+  userId: '123',
+  password: 'secret123', // Will be redacted
+  email: 'user@example.com',
+}));
+```
+
+### Console Log Buffer (Frontend)
+
+```typescript
+// ✅ Good: Console log buffer for bug reports
+class ConsoleLogBuffer {
+  private buffer: ConsoleLogEntry[] = [];
+  private maxSize = 100;
+  private originalConsole: Console;
+
+  constructor() {
+    this.originalConsole = { ...console };
+  }
+
+  start(): void {
+    // Intercept console methods
+    console.log = (...args: any[]) => {
+      this.addLog('log', args);
+      this.originalConsole.log(...args);
+    };
+    
+    console.error = (...args: any[]) => {
+      this.addLog('error', args, new Error().stack);
+      this.originalConsole.error(...args);
+    };
+  }
+
+  private addLog(level: string, args: any[], stack?: string): void {
+    // Filter sensitive data
+    const sanitized = this.sanitizeArgs(args);
+    
+    this.buffer.push({
+      level,
+      message: sanitized.join(' '),
+      timestamp: new Date().toISOString(),
+      stack,
+    });
+    
+    // Limit buffer size
+    if (this.buffer.length > this.maxSize) {
+      this.buffer.shift();
+    }
+  }
+
+  private sanitizeArgs(args: any[]): string[] {
+    return args.map(arg => {
+      const str = String(arg);
+      // Filter JWT tokens, API keys, etc.
+      return str.replace(/Bearer\s+[\w-]+\.[\w-]+\.[\w-]+/g, '[JWT_REDACTED]');
+    });
+  }
+
+  getLogs(): ConsoleLogEntry[] {
+    return [...this.buffer];
+  }
+}
+```
+
+### Log Helper Utilities
+
+```typescript
+// ✅ Good: Log formatting helpers
+export class LoggerHelper {
+  static formatRequest(method: string, url: string): string {
+    const methodColor = this.getMethodColor(method);
+    return `${methodColor(method)} ${chalk.gray(url)}`;
+  }
+
+  static formatResponse(
+    method: string,
+    url: string,
+    statusCode: number,
+    timeTaken: number,
+  ): string {
+    const statusColor = this.getStatusColor(statusCode);
+    const timeColor = this.getTimeColor(timeTaken);
+    
+    return `${methodColor(method)} ${chalk.gray(url)} ${statusColor(statusCode)} ${timeColor(`${timeTaken}ms`)}`;
+  }
+
+  static formatError(
+    method: string,
+    url: string,
+    statusCode: number,
+    timeTaken: number,
+    errorMessage: string,
+  ): string {
+    return `${chalk.red('✗')} ${chalk.red.bold(`[${statusCode}]`)} ${chalk.red(errorMessage)} ${chalk.gray(`${method} ${url}`)} ${chalk.gray(`${timeTaken}ms`)}`;
+  }
+
+  private static getMethodColor(method: string) {
+    const colors: Record<string, (s: string) => string> = {
+      GET: chalk.green,
+      POST: chalk.blue,
+      PUT: chalk.yellow,
+      PATCH: chalk.magenta,
+      DELETE: chalk.red,
+    };
+    return colors[method] || chalk.gray;
+  }
+
+  private static getStatusColor(statusCode: number) {
+    if (statusCode >= 200 && statusCode < 300) return chalk.green;
+    if (statusCode >= 300 && statusCode < 400) return chalk.yellow;
+    if (statusCode >= 400) return chalk.red;
+    return chalk.gray;
+  }
+
+  private static getTimeColor(timeTaken: number) {
+    if (timeTaken < 100) return chalk.green;
+    if (timeTaken < 500) return chalk.yellow;
+    return chalk.red;
+  }
+}
+```
+
+## Best Practices
+
+1. **Structured Logs** - Use objects with context, not just strings
+2. **Log Levels** - Use appropriate levels (LOG, ERROR, WARN, DEBUG)
+3. **Context** - Include userId, action, timestamp in error logs
+4. **Sensitive Data** - Never log passwords, tokens, API keys
+5. **Performance** - Log request timing and slow operations
+6. **Error Details** - Include stack traces and error metadata
+7. **Consistency** - Use consistent log format across services
+8. **Production** - Use structured logging (JSON) in production
+
+## Related Documentation
+
+- Error Handling: `error-handling.mdc` (for error logging patterns)
+- Security: `security.mdc` (for sensitive data handling)
+- API Design: `api-design.mdc` (for request/response logging)

@@ -1,0 +1,338 @@
+---
+description: TanStack Query (React Query) patterns for data fetching, mutations, and cache management
+globs: ["**/*.tsx", "**/*.ts"]
+alwaysApply: false
+---
+
+# TanStack Query (React Query) Patterns
+
+## Context
+
+- RYLA uses TanStack Query via tRPC integration
+- Provides client-side data fetching, caching, and synchronization
+- Used in both web app and funnel app
+- Integrates with tRPC for type-safe API calls
+
+## Requirements
+
+### Query Setup
+
+- Use unique, hierarchical query keys for proper caching
+- Always provide a queryFn function
+- Use query options: enabled, staleTime, cacheTime, refetchOnWindowFocus
+- Handle query states: isPending, isError, isSuccess, status
+- Use fetchStatus for background fetching detection
+- Implement proper error handling
+
+### Mutation Setup
+
+- Use useMutation with a mutationFn
+- Handle states: isIdle, isPending, isError, isSuccess
+- Utilize callbacks: onMutate, onSuccess, onError, onSettled
+- Use mutateAsync for promise-based execution
+- Reset mutation state with mutation.reset() if needed
+
+### Cache Invalidation
+
+- Invalidate queries via queryClient.invalidateQueries({ queryKey: [...] })
+- Use exact: true or predicate functions for finer control
+- Invalidate related queries after mutations
+- Use queryClient.setQueryData for optimistic updates
+
+### tRPC Integration
+
+- Use trpc hooks (trpc.router.procedure.useQuery, trpc.router.procedure.useMutation)
+- Access queryClient via trpc.useUtils()
+- Use utils for manual cache updates and invalidation
+- Leverage tRPC's type safety with React Query
+
+### Optimistic Updates
+
+- Use onMutate to update cache optimistically
+- Use onError to rollback on failure
+- Use onSettled to refetch for consistency
+- Provide loading states during optimistic updates
+
+## Examples
+
+### Basic Query
+
+```tsx
+// ✅ Good: tRPC query with React Query
+import { trpc } from '@/lib/trpc';
+
+function CharacterList() {
+  const { data: characters, isLoading, error } = trpc.character.list.useQuery();
+  
+  if (isLoading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+  
+  return (
+    <ul>
+      {characters?.map(character => (
+        <li key={character.id}>{character.name}</li>
+      ))}
+    </ul>
+  );
+}
+
+// ✅ Good: Query with options
+const { data } = trpc.character.getById.useQuery(
+  { id: characterId },
+  {
+    enabled: !!characterId, // Only fetch if ID exists
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
+  }
+);
+```
+
+### Mutations
+
+```tsx
+// ✅ Good: Mutation with invalidation
+import { trpc } from '@/lib/trpc';
+
+function CreateCharacterForm() {
+  const utils = trpc.useUtils();
+  
+  const createCharacter = trpc.character.create.useMutation({
+    onSuccess: () => {
+      // Invalidate and refetch
+      utils.character.list.invalidate();
+    },
+    onError: (error) => {
+      // Handle error
+      console.error('Failed to create character:', error);
+    },
+  });
+  
+  const handleSubmit = (data: CharacterData) => {
+    createCharacter.mutate(data);
+  };
+  
+  return (
+    <form onSubmit={handleSubmit}>
+      {/* Form fields */}
+      <button 
+        type="submit" 
+        disabled={createCharacter.isPending}
+      >
+        {createCharacter.isPending ? 'Creating...' : 'Create'}
+      </button>
+    </form>
+  );
+}
+```
+
+### Optimistic Updates
+
+```tsx
+// ✅ Good: Optimistic update pattern
+const updateCharacter = trpc.character.update.useMutation({
+  onMutate: async (newData) => {
+    // Cancel outgoing refetches
+    await utils.character.getById.cancel({ id: newData.id });
+    
+    // Snapshot previous value
+    const previous = utils.character.getById.getData({ id: newData.id });
+    
+    // Optimistically update
+    utils.character.getById.setData({ id: newData.id }, (old) => ({
+      ...old,
+      ...newData,
+    }));
+    
+    return { previous };
+  },
+  onError: (err, newData, context) => {
+    // Rollback on error
+    if (context?.previous) {
+      utils.character.getById.setData(
+        { id: newData.id },
+        context.previous
+      );
+    }
+  },
+  onSettled: (data, error, variables) => {
+    // Refetch to ensure consistency
+    utils.character.getById.invalidate({ id: variables.id });
+  },
+});
+```
+
+### Query Invalidation
+
+```tsx
+// ✅ Good: Invalidate related queries
+const deleteCharacter = trpc.character.delete.useMutation({
+  onSuccess: (_, deletedId) => {
+    // Invalidate list
+    utils.character.list.invalidate();
+    
+    // Remove from cache
+    utils.character.getById.setData({ id: deletedId }, undefined);
+  },
+});
+
+// ✅ Good: Invalidate with predicate
+const utils = trpc.useUtils();
+
+utils.character.list.invalidate(undefined, {
+  predicate: (query) => {
+    // Custom invalidation logic
+    return query.queryKey[0] === 'character' && query.queryKey[1] === 'list';
+  },
+});
+```
+
+### Dependent Queries
+
+```tsx
+// ✅ Good: Dependent query
+function CharacterDetails({ characterId }: { characterId: string }) {
+  // First query
+  const { data: character } = trpc.character.getById.useQuery(
+    { id: characterId },
+    { enabled: !!characterId }
+  );
+  
+  // Dependent query
+  const { data: images } = trpc.image.list.useQuery(
+    { characterId },
+    { 
+      enabled: !!characterId && !!character, // Only fetch if character exists
+    }
+  );
+  
+  return (
+    <div>
+      <h1>{character?.name}</h1>
+      <ImageGallery images={images} />
+    </div>
+  );
+}
+```
+
+### Manual Cache Updates
+
+```tsx
+// ✅ Good: Manual cache update
+const utils = trpc.useUtils();
+
+const updateCache = (characterId: string, updates: Partial<Character>) => {
+  utils.character.getById.setData({ id: characterId }, (old) => {
+    if (!old) return old;
+    return { ...old, ...updates };
+  });
+};
+
+// Use in mutation
+const updateCharacter = trpc.character.update.useMutation({
+  onMutate: async (newData) => {
+    updateCache(newData.id, newData);
+  },
+});
+```
+
+### Error Handling
+
+```tsx
+// ✅ Good: Comprehensive error handling
+function CharacterList() {
+  const { 
+    data, 
+    isLoading, 
+    isError, 
+    error,
+    refetch 
+  } = trpc.character.list.useQuery({
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+  
+  if (isLoading) return <LoadingSpinner />;
+  
+  if (isError) {
+    return (
+      <div>
+        <ErrorMessage error={error} />
+        <button onClick={() => refetch()}>Retry</button>
+      </div>
+    );
+  }
+  
+  return <CharacterGrid characters={data} />;
+}
+```
+
+### Query Client Setup
+
+```tsx
+// ✅ Good: QueryClient configuration
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      cacheTime: 10 * 60 * 1000, // 10 minutes
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+    mutations: {
+      retry: false,
+    },
+  },
+});
+
+export function QueryProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      {children}
+    </QueryClientProvider>
+  );
+}
+```
+
+## Best Practices
+
+1. **Unique query keys** - Always use unique, hierarchical keys
+2. **Error handling** - Handle all error states gracefully
+3. **Loading states** - Provide loading indicators
+4. **Optimistic updates** - Use for better UX on mutations
+5. **Cache invalidation** - Invalidate related queries after mutations
+6. **Dependent queries** - Use enabled option for dependent queries
+7. **Stale time** - Configure appropriate staleTime for your data
+8. **Type safety** - Leverage tRPC's type safety with React Query
+
+## Common Patterns
+
+### Pagination
+
+```tsx
+const { data, fetchNextPage, hasNextPage, isFetchingNextPage } = 
+  trpc.character.list.useInfiniteQuery(
+    { limit: 10 },
+    {
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+    }
+  );
+```
+
+### Prefetching
+
+```tsx
+const utils = trpc.useUtils();
+
+// Prefetch on hover
+const handleHover = (characterId: string) => {
+  utils.character.getById.prefetch({ id: characterId });
+};
+```
+
+## Related Documentation
+
+- tRPC: `libs/trpc/README.md`
+- State Management: `zustand-action-patterns.mdc` (for combining with Zustand)
+- Testing: `testing-standards.mdc`

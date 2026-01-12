@@ -1,0 +1,313 @@
+---
+description: Environment variable management, validation, and type safety patterns
+globs: ["**/*.ts", "apps/api/**", "apps/web/**", "apps/funnel/**"]
+alwaysApply: false
+---
+
+# Environment Variables
+
+## Context
+
+- Secure configuration management
+- Type-safe environment variable access
+- Validation of required variables
+- Documentation of all environment variables
+- Separation of public and private variables
+
+## Requirements
+
+### Naming Conventions
+
+- **Public variables** (exposed to browser): `NEXT_PUBLIC_*`
+- **Server-only variables**: No prefix (e.g., `DATABASE_URL`, `JWT_SECRET`)
+- **Service-specific**: Prefix with service name (e.g., `POSTGRES_*`, `REDIS_*`)
+- **UPPER_SNAKE_CASE**: All environment variable names
+- **Descriptive names**: Clear purpose (e.g., `JWT_ACCESS_SECRET` not `JWT_SECRET`)
+
+### Type Safety
+
+- Define environment variable types
+- Use Zod schemas for validation
+- Provide default values where appropriate
+- Validate required variables at startup
+- Type-safe access via configuration objects
+
+### Validation
+
+- Validate all required variables at startup
+- Check for empty values (not just undefined)
+- Provide clear error messages for missing variables
+- Use validation scripts for deployment
+- Document all required variables
+
+### Documentation
+
+- Maintain `env.example` or `env.template` files
+- Document purpose and format for each variable
+- Include links to service dashboards where applicable
+- Mark required vs optional variables
+- Document default values
+
+## Examples
+
+### Configuration Object (NestJS)
+
+```typescript
+// ✅ Good: Type-safe configuration
+import * as process from 'node:process';
+
+export interface Config {
+  app: {
+    port: number;
+    host: string;
+    environment: string;
+  };
+  postgres: {
+    port: number;
+    host: string;
+    user: string;
+    password: string;
+    dbName: string;
+  };
+  jwt: {
+    accessSecret: string;
+    accessExpiresIn: number;
+    refreshSecret: string;
+    refreshExpiresIn: number;
+  };
+}
+
+export default (): Config => ({
+  app: {
+    port: Number(process.env.APP_PORT) || 3001,
+    host: process.env.APP_HOST || 'localhost',
+    environment: process.env.APP_ENVIRONMENT || 'local',
+  },
+  postgres: {
+    port: Number(process.env.POSTGRES_PORT) || 5432,
+    host: process.env.POSTGRES_HOST || 'localhost',
+    user: process.env.POSTGRES_USER || 'postgres',
+    password: process.env.POSTGRES_PASSWORD || 'postgres',
+    dbName: process.env.POSTGRES_DB || 'ryla',
+  },
+  jwt: {
+    accessSecret: process.env.JWT_ACCESS_SECRET || 'secret',
+    accessExpiresIn: Number(process.env.JWT_ACCESS_EXPIRES_IN) || 3600,
+    refreshSecret: process.env.JWT_REFRESH_SECRET || 'refresh-secret',
+    refreshExpiresIn: Number(process.env.JWT_REFRESH_EXPIRES_IN) || 86400,
+  },
+});
+```
+
+### Zod Validation
+
+```typescript
+// ✅ Good: Zod schema validation
+import { z } from 'zod';
+
+const envSchema = z.object({
+  NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
+  DATABASE_URL: z.string().url(),
+  JWT_ACCESS_SECRET: z.string().min(32),
+  JWT_REFRESH_SECRET: z.string().min(32),
+  POSTGRES_HOST: z.string().default('localhost'),
+  POSTGRES_PORT: z.coerce.number().default(5432),
+  REDIS_URL: z.string().url().optional(),
+});
+
+export type Env = z.infer<typeof envSchema>;
+
+function validateEnv(): Env {
+  try {
+    return envSchema.parse(process.env);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      console.error('❌ Invalid environment variables:');
+      error.errors.forEach((err) => {
+        console.error(`  - ${err.path.join('.')}: ${err.message}`);
+      });
+      process.exit(1);
+    }
+    throw error;
+  }
+}
+
+export const env = validateEnv();
+```
+
+### Required Variables Validation
+
+```typescript
+// ✅ Good: Pre-deploy validation script
+const REQUIRED_ENV_VARS = [
+  'NEXT_PUBLIC_CDN_URL',
+  'NEXT_PUBLIC_SITE_URL',
+  'NEXT_PUBLIC_API_BASE_URL',
+  'NEXT_PUBLIC_POSTHOG_KEY',
+  'NEXT_PUBLIC_POSTHOG_HOST',
+] as const;
+
+function checkEnvVars(): { allValid: boolean; missing: string[]; empty: string[] } {
+  const checks = REQUIRED_ENV_VARS.map((varName) => {
+    const value = process.env[varName];
+    return {
+      name: varName,
+      value,
+      isSet: value !== undefined,
+      isEmpty: value === undefined || value.trim() === '',
+    };
+  });
+
+  const missing = checks.filter((check) => !check.isSet).map((check) => check.name);
+  const empty = checks.filter((check) => check.isEmpty).map((check) => check.name);
+  const allValid = missing.length === 0 && empty.length === 0;
+
+  return { allValid, missing, empty };
+}
+
+function main() {
+  const { allValid, missing, empty } = checkEnvVars();
+
+  if (allValid) {
+    console.log('✅ All required environment variables are set!');
+    process.exit(0);
+  } else {
+    console.error('❌ Environment validation failed!');
+    if (missing.length > 0) {
+      console.error('Missing:', missing.join(', '));
+    }
+    if (empty.length > 0) {
+      console.error('Empty:', empty.join(', '));
+    }
+    process.exit(1);
+  }
+}
+```
+
+### Environment Template
+
+```bash
+# ✅ Good: env.template with documentation
+# ===========================================
+# RYLA MVP - Environment Configuration
+# ===========================================
+# Copy this file to .env.local and fill in values
+# NEVER commit .env.local to version control
+# ===========================================
+
+# -------------------------------------------
+# Application
+# -------------------------------------------
+NODE_ENV=development
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# -------------------------------------------
+# Database (PostgreSQL)
+# Required: Yes
+# Format: postgresql://user:password@host:port/dbname
+# -------------------------------------------
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/ryla
+
+# -------------------------------------------
+# JWT Authentication
+# Required: Yes
+# Generate: openssl rand -base64 32
+# -------------------------------------------
+JWT_ACCESS_SECRET=your-access-secret-min-32-chars
+JWT_REFRESH_SECRET=your-refresh-secret-min-32-chars
+
+# -------------------------------------------
+# Supabase (Auth, Database, Storage)
+# Required: Yes
+# Dashboard: https://supabase.com/dashboard
+# -------------------------------------------
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# -------------------------------------------
+# Analytics (PostHog)
+# Required: Yes (for production)
+# Dashboard: https://us.posthog.com/project/settings
+# -------------------------------------------
+NEXT_PUBLIC_POSTHOG_KEY=phc_...
+NEXT_PUBLIC_POSTHOG_HOST=https://us.i.posthog.com
+```
+
+### Next.js Public Variables
+
+```typescript
+// ✅ Good: Public variables (exposed to browser)
+// These are available in the browser via process.env.NEXT_PUBLIC_*
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://ryla.ai';
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
+
+// ❌ Bad: Server-only variable exposed
+const SECRET_KEY = process.env.JWT_SECRET; // Never use NEXT_PUBLIC_ for secrets!
+```
+
+### Docker Build Args
+
+```dockerfile
+# ✅ Good: Build args for Next.js public variables
+# Build arguments for NEXT_PUBLIC_* variables (required at build time)
+ARG NEXT_PUBLIC_API_URL
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_POSTHOG_KEY
+ARG NEXT_PUBLIC_POSTHOG_HOST
+
+# Set as environment variables
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL}
+ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
+ENV NEXT_PUBLIC_POSTHOG_HOST=${NEXT_PUBLIC_POSTHOG_HOST}
+```
+
+### Runtime Validation
+
+```typescript
+// ✅ Good: Validate at module load
+const requiredEnvVars = [
+  'DATABASE_URL',
+  'JWT_ACCESS_SECRET',
+  'JWT_REFRESH_SECRET',
+] as const;
+
+for (const varName of requiredEnvVars) {
+  if (!process.env[varName]) {
+    throw new Error(
+      `Missing required environment variable: ${varName}. ` +
+      `Please check your .env file or environment configuration.`
+    );
+  }
+}
+
+// Validate format
+if (process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith('postgresql://')) {
+  throw new Error('DATABASE_URL must be a valid PostgreSQL connection string');
+}
+```
+
+## Best Practices
+
+1. **Naming** - Use `NEXT_PUBLIC_*` only for browser-exposed variables
+2. **Type Safety** - Use TypeScript types or Zod schemas
+3. **Validation** - Validate at startup, not at runtime
+4. **Documentation** - Maintain `env.example` with all variables
+5. **Defaults** - Provide sensible defaults for development
+6. **Secrets** - Never commit secrets, use secrets management
+7. **Required Check** - Validate required variables before app starts
+8. **Format Validation** - Validate URLs, numbers, enums
+
+## Security Considerations
+
+- Never expose secrets via `NEXT_PUBLIC_*`
+- Use secrets management services (AWS Secrets Manager, etc.)
+- Rotate secrets regularly
+- Use different secrets for different environments
+- Never log environment variable values
+
+## Related Documentation
+
+- Security: `security.mdc` (for secrets management)
+- API Design: `api-design.mdc` (for configuration usage)

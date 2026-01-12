@@ -1,0 +1,64 @@
+---
+description: RYLA project overview and technology stack
+alwaysApply: true
+---
+
+## Project Description
+
+You are developing **RYLA** - an AI Influencer platform that enables users to create, customize, and generate content with AI-powered virtual influencers.
+
+Supported platforms:
+
+- Web app (Next.js)
+- Landing page (Next.js)
+- Payment funnel (Next.js)
+- Backend API (NestJS)
+- Admin dashboard (Next.js)
+
+## Project Technologies Stack
+
+- **Framework**: Next.js 14 (App Router)
+- **Frontend**: React 18, TypeScript 5.9
+- **Backend**: NestJS 11, Node.js
+- **Monorepo**: Nx 22
+- **State Management**: Zustand 5
+- **Database**: PostgreSQL with Drizzle ORM
+- **Auth**: Supabase Auth
+- **Storage**: Cloudflare R2 (S3-compatible)
+- **Payments**: Finby
+- **Analytics**: PostHog
+- **Testing**: Vitest, Playwright
+- **UI Components**: Radix UI, Tailwind CSS
+- **Forms**: React Hook Form
+- **Data Fetching**: TanStack Query (React Query)
+- **API**: tRPC 11
+- **Icons**: Lucide React
+- **Animations**: Framer Motion
+- **Email**: React Email, Resend
+
+## Project Structure
+
+```
+apps/
+  web/       # Main web app (app.ryla.ai)
+  api/       # Backend API (end.ryla.ai)
+  funnel/    # Payment funnel (goviral.ryla.ai)
+  landing/   # Landing page (ryla.ai)
+  admin/     # Admin dashboard
+libs/
+  shared/    # @ryla/shared - Utils, types, constants
+  business/  # @ryla/business - Services, models, rules
+  data/      # @ryla/data - Repositories, Drizzle schemas
+  ui/        # @ryla/ui - Shared React components
+  analytics/ # @ryla/analytics - Event tracking
+  trpc/      # @ryla/trpc - tRPC routers
+  payments/  # @ryla/payments - Payment integration
+```
+
+## Key Principles
+
+- **MVP Focus**: Build fast, validate early, iterate on data
+- **Layered Architecture**: Apps → Business → Data → DB
+- **10-Phase Pipeline**: Strict development workflow
+- **Type Safety**: Strict TypeScript, no `any`
+- **Testing**: Business logic first, integration tests for critical paths

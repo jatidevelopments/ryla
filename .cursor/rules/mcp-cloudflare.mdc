@@ -1,0 +1,422 @@
+---
+description: Cloudflare MCP Server usage guidelines for Cloudflare services integration
+globs:
+alwaysApply: false
+---
+
+# Cloudflare MCP Servers Usage
+
+## When to Use Cloudflare MCP Tools
+
+Use the Cloudflare MCP tools when you need to:
+- Debug and monitor Cloudflare Workers applications
+- Manage R2 storage buckets and objects
+- Build Workers applications with bindings (R2, KV, D1, etc.)
+- Access Cloudflare documentation and reference materials
+- Render web pages and take screenshots for testing
+- Monitor application performance and logs
+- Manage DNS configurations and analytics
+
+## Available Servers
+
+The project includes several Cloudflare MCP servers:
+
+### 1. Observability Server (`cloudflare-observability`)
+**URL**: `https://observability.mcp.cloudflare.com/mcp`
+
+Debug and get insight into your application's logs and analytics.
+
+**Use Cases:**
+- Monitor Workers performance
+- Debug application issues
+- Analyze log data
+- Track request metrics
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 2. Workers Bindings Server (`cloudflare-bindings`)
+**URL**: `https://bindings.mcp.cloudflare.com/mcp`
+
+Build Workers applications with storage, AI, and compute primitives.
+
+**Use Cases:**
+- Manage R2 buckets and objects
+- Configure KV namespaces
+- Set up D1 databases
+- Manage Workers bindings
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+**Relevant for RYLA:**
+- R2 storage management (see [ADR-005](../docs/decisions/ADR-005-cloudflare-r2-storage.md))
+- CDN proxy Workers configuration
+- Storage bucket operations
+
+### 3. Documentation Server (`cloudflare-docs`)
+**URL**: `https://docs.mcp.cloudflare.com/mcp`
+
+Get up-to-date reference information on Cloudflare services.
+
+**Use Cases:**
+- Look up API documentation
+- Find configuration examples
+- Get best practices
+- Reference service capabilities
+
+**No authentication required** - Public documentation access
+
+### 4. Browser Rendering Server (`cloudflare-browser`)
+**URL**: `https://browser.mcp.cloudflare.com/mcp`
+
+Fetch web pages, convert them to markdown, and take screenshots.
+
+**Use Cases:**
+- Web scraping for testing
+- Screenshot generation
+- Page content extraction
+- E2E testing support
+
+**No authentication required** - Public service
+
+### 5. Workers Builds Server (`cloudflare-builds`)
+**URL**: `https://builds.mcp.cloudflare.com/mcp`
+
+Get insights and manage your Cloudflare Workers builds.
+
+**Use Cases:**
+- Monitor build status
+- View build history
+- Debug build failures
+- Track deployment progress
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 6. Radar Server (`cloudflare-radar`)
+**URL**: `https://radar.mcp.cloudflare.com/mcp`
+
+Get global Internet traffic insights, trends, URL scans, and other utilities.
+
+**Use Cases:**
+- Internet traffic analysis
+- URL scanning
+- Trend analysis
+- Global insights
+
+**No authentication required** - Public service
+
+### 7. Container Server (`cloudflare-container`)
+**URL**: `https://containers.mcp.cloudflare.com/mcp`
+
+Spin up a sandbox development environment.
+
+**Use Cases:**
+- Create isolated test environments
+- Sandbox development
+- Testing configurations
+- Temporary environments
+
+**No authentication required** - Public service
+
+### 8. Logpush Server (`cloudflare-logpush`)
+**URL**: `https://logs.mcp.cloudflare.com/mcp`
+
+Get quick summaries for Logpush job health.
+
+**Use Cases:**
+- Monitor logpush jobs
+- Check job health
+- Debug log delivery
+- View job status
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 9. AI Gateway Server (`cloudflare-ai-gateway`)
+**URL**: `https://ai-gateway.mcp.cloudflare.com/mcp`
+
+Search your logs, get details about the prompts and responses.
+
+**Use Cases:**
+- Monitor AI Gateway usage
+- Analyze prompts and responses
+- Track AI model usage
+- Debug AI Gateway issues
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 10. AutoRAG Server (`cloudflare-autorag`)
+**URL**: `https://autorag.mcp.cloudflare.com/mcp`
+
+List and search documents on your AutoRAGs.
+
+**Use Cases:**
+- Manage AutoRAG documents
+- Search document collections
+- Configure AutoRAG settings
+- Monitor document indexing
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 11. Audit Logs Server (`cloudflare-auditlogs`)
+**URL**: `https://auditlogs.mcp.cloudflare.com/mcp`
+
+Query audit logs and generate reports for review.
+
+**Use Cases:**
+- Query audit logs
+- Generate security reports
+- Track account changes
+- Compliance auditing
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 12. DNS Analytics Server (`cloudflare-dns-analytics`)
+**URL**: `https://dns-analytics.mcp.cloudflare.com/mcp`
+
+Optimize DNS performance and debug issues based on current set up.
+
+**Use Cases:**
+- Analyze DNS performance
+- Debug DNS issues
+- Optimize DNS configuration
+- Monitor DNS queries
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 13. Digital Experience Monitoring Server (`cloudflare-dex`)
+**URL**: `https://dex.mcp.cloudflare.com/mcp`
+
+Get quick insight on critical applications for your organization.
+
+**Use Cases:**
+- Monitor application performance
+- Track user experience metrics
+- Identify performance issues
+- Analyze application health
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 14. Cloudflare One CASB Server (`cloudflare-casb`)
+**URL**: `https://casb.mcp.cloudflare.com/mcp`
+
+Quickly identify any security misconfigurations for SaaS applications to safeguard users & data.
+
+**Use Cases:**
+- Security configuration checks
+- SaaS application security
+- Misconfiguration detection
+- Security compliance
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+### 15. GraphQL Server (`cloudflare-graphql`)
+**URL**: `https://graphql.mcp.cloudflare.com/mcp`
+
+Get analytics data using Cloudflare's GraphQL API.
+
+**Use Cases:**
+- Query analytics data
+- Custom analytics queries
+- Data aggregation
+- Performance metrics
+
+**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+
+## Configuration
+
+### Environment Variables
+
+- `CLOUDFLARE_API_TOKEN` - **Required** for authenticated servers (11 of 15 servers)
+  - Get from: [Cloudflare Dashboard → My Profile → API Tokens](https://dash.cloudflare.com/profile/api-tokens)
+  - **Servers requiring token**: Observability, Bindings, Builds, Logpush, AI Gateway, AutoRAG, Audit Logs, DNS Analytics, DEX, CASB, GraphQL
+  - **Servers without token**: Docs, Browser, Radar, Container
+  - Recommended scopes for full access:
+    - `Account:Read`
+    - `Zone:Read`
+    - `Workers:Read`, `Workers:Edit`
+    - `R2:Edit`
+    - `Analytics:Read`
+    - `Audit Logs:Read`
+
+### Getting a Cloudflare API Token
+
+1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com/profile/api-tokens)
+2. Click **Create Token**
+3. Use **Edit Cloudflare Workers** template or create custom token
+4. Add required permissions:
+   - Account: Read
+   - Zone: Read (if using zones)
+   - Workers: Read/Edit
+   - R2: Edit (for R2 bindings)
+5. Save the token securely
+
+### Setting Up in MCP Config
+
+Add to `.cursor/mcp.json`:
+
+```json
+{
+  "mcpServers": {
+    "cloudflare-observability": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://observability.mcp.cloudflare.com/mcp"],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
+      }
+    },
+    "cloudflare-bindings": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://bindings.mcp.cloudflare.com/mcp"],
+      "env": {
+        "CLOUDFLARE_API_TOKEN": "${CLOUDFLARE_API_TOKEN}"
+      }
+    },
+    "cloudflare-docs": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://docs.mcp.cloudflare.com/mcp"]
+    },
+    "cloudflare-browser": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote@latest", "https://browser.mcp.cloudflare.com/mcp"]
+    }
+  }
+}
+```
+
+## Best Practices
+
+### 1. Use Observability for Debugging
+When troubleshooting Workers or R2 issues:
+- Check logs via observability server
+- Monitor request patterns
+- Analyze error rates
+- Track performance metrics
+
+### 2. Use Bindings for R2 Management
+For R2 storage operations (RYLA uses R2 for images/videos):
+- List buckets
+- Manage objects
+- Configure bucket settings
+- Set up CDN Workers
+
+### 3. Use Docs for Reference
+Before implementing Cloudflare features:
+- Look up API documentation
+- Check configuration examples
+- Verify best practices
+- Understand service limits
+
+### 4. Use Browser for Testing
+For web scraping and testing:
+- Take screenshots of pages
+- Extract page content
+- Test CDN delivery
+- Verify public URLs
+
+## Common Workflows
+
+### Debug R2 Storage Issues
+```
+1. Use cloudflare-observability to check logs
+2. Use cloudflare-bindings to inspect R2 bucket
+3. Use cloudflare-docs to verify API usage
+```
+
+### Set Up CDN Worker for R2
+```
+1. Use cloudflare-docs to get Worker template
+2. Use cloudflare-bindings to create Worker
+3. Use cloudflare-observability to monitor performance
+```
+
+### Monitor Application Performance
+```
+1. Use cloudflare-observability to view metrics
+2. Analyze request patterns
+3. Identify bottlenecks
+4. Optimize based on insights
+```
+
+## RYLA-Specific Use Cases
+
+### R2 Storage Management
+RYLA uses Cloudflare R2 for:
+- AI-generated images (base images, character sheets, profile pictures)
+- User-generated videos (10-30s HD/4K videos)
+- User uploads (base images, reference photos)
+
+**Use bindings server to:**
+- Verify bucket configuration
+- Check object access
+- Monitor storage usage
+- Configure CDN settings
+
+### CDN Worker Setup
+RYLA may use Workers for:
+- R2 CDN proxy (see [Storage Setup Guide](../docs/ops/STORAGE-SETUP.md))
+- Custom domain routing
+- Advanced caching rules
+
+**Use bindings server to:**
+- Deploy CDN Worker
+- Configure R2 bindings
+- Set up custom domains
+
+## Error Handling
+
+Common errors:
+- "Invalid API token" - Check `CLOUDFLARE_API_TOKEN` is set correctly
+- "Insufficient permissions" - Verify token has required scopes
+- "Account not found" - Verify account ID is correct
+- "Rate limit exceeded" - Wait before retrying
+
+## Security Notes
+
+- Never commit `CLOUDFLARE_API_TOKEN` to version control
+- Use environment variables for all sensitive tokens
+- Rotate API tokens regularly
+- Use least-privilege tokens (only required permissions)
+- Store tokens securely (use secrets management)
+
+## Integration with RYLA Architecture
+
+### Storage Layer
+- **R2 Storage**: Managed via `cloudflare-bindings`
+- **CDN**: Configured via Workers (see ADR-005)
+- **Monitoring**: Tracked via `cloudflare-observability`
+
+### Development Workflow
+1. **Development**: Use docs server for reference
+2. **Testing**: Use browser server for screenshots
+3. **Debugging**: Use observability server for logs
+4. **Deployment**: Use bindings server for configuration
+
+## All Cloudflare Servers Summary
+
+All 15 Cloudflare MCP servers are now configured in the project:
+
+| Server | URL | Auth Required | Purpose |
+|--------|-----|---------------|---------|
+| **Observability** | `https://observability.mcp.cloudflare.com/mcp` | ✅ | Workers debugging and monitoring |
+| **Bindings** | `https://bindings.mcp.cloudflare.com/mcp` | ✅ | R2, KV, D1, Workers bindings |
+| **Docs** | `https://docs.mcp.cloudflare.com/mcp` | ❌ | Cloudflare documentation |
+| **Browser** | `https://browser.mcp.cloudflare.com/mcp` | ❌ | Web page rendering |
+| **Builds** | `https://builds.mcp.cloudflare.com/mcp` | ✅ | Workers builds management |
+| **Radar** | `https://radar.mcp.cloudflare.com/mcp` | ❌ | Internet traffic insights |
+| **Container** | `https://containers.mcp.cloudflare.com/mcp` | ❌ | Sandbox environments |
+| **Logpush** | `https://logs.mcp.cloudflare.com/mcp` | ✅ | Logpush job health |
+| **AI Gateway** | `https://ai-gateway.mcp.cloudflare.com/mcp` | ✅ | AI Gateway logs |
+| **AutoRAG** | `https://autorag.mcp.cloudflare.com/mcp` | ✅ | AutoRAG documents |
+| **Audit Logs** | `https://auditlogs.mcp.cloudflare.com/mcp` | ✅ | Audit log queries |
+| **DNS Analytics** | `https://dns-analytics.mcp.cloudflare.com/mcp` | ✅ | DNS performance |
+| **DEX** | `https://dex.mcp.cloudflare.com/mcp` | ✅ | Digital Experience Monitoring |
+| **CASB** | `https://casb.mcp.cloudflare.com/mcp` | ✅ | Security misconfigurations |
+| **GraphQL** | `https://graphql.mcp.cloudflare.com/mcp` | ✅ | Analytics data |
+
+## References
+
+- [Cloudflare MCP Server Repository](https://github.com/cloudflare/mcp-server-cloudflare)
+- [Cloudflare API Documentation](https://developers.cloudflare.com/api/)
+- [Cloudflare Workers Documentation](https://developers.cloudflare.com/workers/)
+- [Cloudflare R2 Documentation](https://developers.cloudflare.com/r2/)
+- [RYLA Storage Setup Guide](../docs/ops/STORAGE-SETUP.md)
+- [ADR-005: Cloudflare R2 Storage](../docs/decisions/ADR-005-cloudflare-r2-storage.md)

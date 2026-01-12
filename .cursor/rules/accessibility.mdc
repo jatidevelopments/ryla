@@ -1,0 +1,286 @@
+---
+description: Enforce accessibility guidelines when building or reviewing UI to ensure inclusive user experiences
+globs: ["**/*.tsx", "**/*.ts"]
+alwaysApply: false
+---
+
+# Accessibility (A11y) Standards
+
+## Context
+
+- Ensures all user-facing pages and components meet basic accessibility requirements
+- Applies to interactions, visual elements, and markup structure
+- Required for legal compliance (WCAG 2.1) and inclusive design
+
+## Requirements
+
+### Semantic HTML
+
+- Use semantic HTML elements (header, nav, main, section, article, aside, footer)
+- Use proper heading hierarchy (h1-h6) without skipping levels
+- Use button elements for interactive actions, not divs
+- Use links (a) for navigation, buttons for actions
+- Use form labels properly associated with inputs
+- Use lists (ul, ol) for grouped content
+- Use tables for tabular data with proper headers
+
+### ARIA Attributes
+
+- Use aria-label for elements without visible text
+- Use aria-labelledby to reference other elements
+- Use aria-describedby for additional descriptions
+- Use aria-expanded for collapsible content
+- Use aria-hidden="true" for decorative elements
+- Use aria-live for dynamic content updates
+- Use role attribute when semantic HTML isn't sufficient
+- Use aria-required for required form fields
+- Use aria-invalid for fields with validation errors
+
+### Keyboard Navigation
+
+- Ensure all interactive elements are keyboard accessible
+- Implement proper focus management and visible focus indicators
+- Use tabindex appropriately (-1 for programmatic focus, 0 for tab order)
+- Implement skip links for main content
+- Handle focus trapping in modals and menus
+- Support standard keyboard shortcuts (Escape, Enter, Space, Arrow keys)
+- Ensure custom components work with screen readers
+
+### Color Contrast
+
+- Ensure minimum contrast ratios (4.5:1 for normal text, 3:1 for large text)
+- Don't rely solely on color to convey information
+- Use patterns, icons, or text labels alongside color
+- Test with color blindness simulators
+- Provide high contrast mode support
+- Use focus indicators that meet contrast requirements
+
+### Images and Media
+
+- Provide meaningful alt text for images (empty alt="" for decorative)
+- Use captions and transcripts for videos
+- Provide audio descriptions for visual content
+- Use loading="lazy" for performance without affecting accessibility
+- Ensure media controls are keyboard accessible
+- Provide alternatives for audio-only content
+
+### Forms Accessibility
+
+- Use proper label association (for/id or wrap with label)
+- Group related form fields with fieldset and legend
+- Provide clear error messages linked to fields
+- Use aria-invalid for fields with errors
+- Indicate required fields clearly
+- Provide help text for complex inputs
+- Use autocomplete attributes appropriately
+
+## Examples
+
+### Semantic Structure
+
+```tsx
+// ✅ Good: Proper semantic structure
+<main>
+  <header>
+    <h1>Page Title</h1>
+    <nav aria-label="Main navigation">
+      <ul>
+        <li><a href="/home">Home</a></li>
+        <li><a href="/about">About</a></li>
+      </ul>
+    </nav>
+  </header>
+  
+  <section>
+    <h2>Section Title</h2>
+    <article>
+      <h3>Article Title</h3>
+      <p>Content here...</p>
+    </article>
+  </section>
+</main>
+
+// ❌ Bad: Missing semantic structure
+<div>
+  <div>Page Title</div>
+  <div>
+    <div>Home</div>
+    <div>About</div>
+  </div>
+</div>
+```
+
+### ARIA Best Practices
+
+```tsx
+// ✅ Good: ARIA attributes
+<button 
+  aria-expanded={isOpen}
+  aria-controls="menu"
+  aria-label="Toggle navigation menu"
+>
+  ☰
+</button>
+
+<div 
+  id="menu"
+  aria-hidden={!isOpen}
+  role="menu"
+>
+  <a href="/profile" role="menuitem">Profile</a>
+</div>
+
+<div aria-live="polite" id="status">
+  {statusMessage}
+</div>
+
+// ❌ Bad: Missing ARIA attributes
+<button onClick={toggleMenu}>
+  ☰
+</button>
+```
+
+### Keyboard Accessible Modal
+
+```tsx
+// ✅ Good: Keyboard accessible modal
+const Modal = ({ isOpen, onClose, children }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    if (isOpen) {
+      modalRef.current?.focus();
+    }
+  }, [isOpen]);
+  
+  const handleKeyDown = (e: KeyboardEvent<HTMLDivElement>) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+  
+  return (
+    <div
+      ref={modalRef}
+      role="dialog"
+      aria-modal="true"
+      tabIndex={-1}
+      onKeyDown={handleKeyDown}
+      className="focus:outline-none focus:ring-2 focus:ring-blue-500"
+    >
+      {children}
+    </div>
+  );
+};
+```
+
+### Accessible Forms
+
+```tsx
+// ✅ Good: Properly labeled form
+<form>
+  <fieldset>
+    <legend>Personal Information</legend>
+    
+    <div>
+      <label htmlFor="firstName">
+        First Name <span aria-label="required">*</span>
+      </label>
+      <input 
+        id="firstName"
+        type="text"
+        required
+        aria-required="true"
+        aria-describedby="firstName-error"
+        aria-invalid={hasError}
+        autoComplete="given-name"
+      />
+      {hasError && (
+        <div id="firstName-error" role="alert">
+          First name is required
+        </div>
+      )}
+    </div>
+  </fieldset>
+</form>
+
+// ❌ Bad: Missing labels and ARIA
+<input type="text" />
+```
+
+### Color-Accessible Status Indicators
+
+```tsx
+// ✅ Good: Color + icon + text
+const StatusBadge = ({ status }: { status: 'success' | 'warning' | 'error' }) => {
+  const variants = {
+    success: 'bg-green-100 text-green-800 border-green-200',
+    warning: 'bg-yellow-100 text-yellow-800 border-yellow-200', 
+    error: 'bg-red-100 text-red-800 border-red-200'
+  };
+  
+  const icons = {
+    success: '✓',
+    warning: '⚠',
+    error: '✗'
+  };
+  
+  return (
+    <span className={`inline-flex items-center px-2 py-1 border rounded ${variants[status]}`}>
+      <span className="mr-1" aria-hidden="true">{icons[status]}</span>
+      {status}
+    </span>
+  );
+};
+
+// ❌ Bad: Color only
+<div className={status === 'success' ? 'bg-green-500' : 'bg-red-500'} />
+```
+
+### Accessible Images
+
+```tsx
+// ✅ Good: Meaningful alt text
+<img 
+  src="/hero.jpg" 
+  alt="AI Influencer character Luna in a modern studio setting"
+  loading="lazy"
+/>
+
+// ✅ Good: Decorative image
+<img 
+  src="/decorative-pattern.svg" 
+  alt=""
+  aria-hidden="true"
+/>
+
+// ❌ Bad: Missing or generic alt text
+<img src="/hero.jpg" />
+<img src="/hero.jpg" alt="image" />
+```
+
+## Testing Tools
+
+- Use automated tools: axe-core, Lighthouse, WAVE
+- Test with screen readers (NVDA, JAWS, VoiceOver)
+- Test keyboard-only navigation
+- Test with high contrast mode
+- Test with zoom up to 200%
+- Validate HTML for semantic correctness
+- Use eslint-plugin-jsx-a11y for React projects
+
+## Best Practices
+
+1. **Start with semantic HTML** - Use correct elements before adding ARIA
+2. **Test with keyboard** - Navigate entire app using only keyboard
+3. **Test with screen reader** - Verify all content is announced correctly
+4. **Check color contrast** - Use tools to verify contrast ratios
+5. **Provide alternatives** - Don't rely on color, sound, or motion alone
+6. **Focus management** - Ensure focus is visible and logical
+7. **Error handling** - Provide clear, actionable error messages
+
+## Related Documentation
+
+- WCAG 2.1 Guidelines: https://www.w3.org/WAI/WCAG21/quickref/
+- React A11y: https://github.com/jsx-eslint/eslint-plugin-jsx-a11y
+- Testing: `testing-standards.mdc`

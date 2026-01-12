@@ -1,0 +1,344 @@
+---
+description: Web application security best practices for authentication, input validation, and API security
+globs: ["**/*.ts", "apps/api/**"]
+alwaysApply: false
+---
+
+# Security Best Practices
+
+## Context
+
+- Protect user data and prevent common vulnerabilities
+- Ensure secure authentication and authorization
+- Validate and sanitize all inputs
+- Implement proper API security measures
+- Follow OWASP Top 10 security guidelines
+
+## Requirements
+
+### Authentication Security
+
+- Always hash passwords with bcrypt (min 12 rounds) or Argon2
+- Implement proper session management with secure cookies
+- Use JWT with short expiration times (15-30 minutes)
+- Implement refresh token rotation
+- Never store sensitive data in localStorage or sessionStorage
+- Use HTTPS everywhere, especially for authentication endpoints
+- Implement rate limiting on authentication endpoints
+- Use CSRF tokens for state-changing operations
+
+### Input Validation
+
+- Validate all inputs on both client and server side
+- Use schema validation (Zod) for API endpoints
+- Sanitize user inputs to prevent XSS attacks
+- Use parameterized queries to prevent SQL injection
+- Validate file uploads (type, size, content)
+- Implement Content Security Policy (CSP) headers
+- Escape output when rendering user content
+
+### API Security
+
+- Implement proper CORS configuration
+- Use API rate limiting and throttling
+- Validate and sanitize all API inputs
+- Implement proper error handling (don't leak sensitive info)
+- Use API versioning for backward compatibility
+- Implement request/response logging for audit trails
+- Use security headers (HSTS, X-Frame-Options, etc.)
+- Implement API key rotation and expiration
+
+### Data Protection
+
+- Encrypt sensitive data at rest using AES-256
+- Use environment variables for secrets (never hardcode)
+- Implement proper access controls and permissions
+- Regular security audits and dependency updates
+- Use secrets management services (AWS Secrets Manager, etc.)
+- Implement data backup and recovery procedures
+- Follow GDPR/privacy regulations for user data
+- Use secure random number generation for tokens
+
+### Common Vulnerabilities Prevention
+
+- **XSS**: Sanitize inputs, use Content Security Policy
+- **CSRF**: Use anti-CSRF tokens, SameSite cookies
+- **SQL Injection**: Use parameterized queries, ORM validation
+- **Directory Traversal**: Validate file paths, use allowlists
+- **Insecure Direct Object References**: Implement authorization checks
+- **Security Misconfiguration**: Regular security reviews, automated scans
+- **Sensitive Data Exposure**: Encrypt data, secure transmission
+- **Broken Authentication**: Strong password policies, MFA
+
+## Examples
+
+### Password Hashing
+
+```typescript
+// ✅ Good: Secure password hashing
+import bcrypt from 'bcrypt';
+
+const hashPassword = async (password: string): Promise<string> => {
+  return bcrypt.hash(password, 12);
+};
+
+const verifyPassword = async (
+  password: string,
+  hash: string
+): Promise<boolean> => {
+  return bcrypt.compare(password, hash);
+};
+
+// ❌ Bad: Plain text or weak hashing
+const hashPassword = (password: string) => {
+  return password; // Never do this!
+};
+```
+
+### Secure Cookies
+
+```typescript
+// ✅ Good: Secure cookie configuration
+const cookieOptions = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  maxAge: 900000, // 15 minutes
+  path: '/',
+};
+
+// Set cookie
+res.cookie('session', token, cookieOptions);
+
+// ❌ Bad: Insecure cookies
+res.cookie('session', token); // Missing security flags
+```
+
+### Input Validation
+
+```typescript
+// ✅ Good: Zod schema validation
+import { z } from 'zod';
+import DOMPurify from 'dompurify';
+
+const UserSchema = z.object({
+  email: z.string().email(),
+  password: z.string()
+    .min(8)
+    .regex(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])/),
+  name: z.string().min(1).max(100),
+});
+
+// Validate input
+const result = UserSchema.safeParse(userInput);
+if (!result.success) {
+  throw new Error('Validation failed');
+}
+
+// Sanitize user content
+const sanitizeContent = (content: string): string => {
+  return DOMPurify.sanitize(content);
+};
+
+// ❌ Bad: No validation
+const createUser = (data: any) => {
+  // Directly use data without validation
+  return db.insert(users).values(data);
+};
+```
+
+### Security Headers
+
+```typescript
+// ✅ Good: Security headers middleware
+const securityHeaders = {
+  'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self' 'unsafe-inline'",
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+};
+
+// In Next.js middleware or API route
+export function middleware(request: NextRequest) {
+  const response = NextResponse.next();
+  
+  Object.entries(securityHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
+  });
+  
+  return response;
+}
+```
+
+### Parameterized Queries
+
+```typescript
+// ✅ Good: Parameterized queries (Drizzle)
+const getUser = async (email: string) => {
+  return db
+    .select()
+    .from(users)
+    .where(eq(users.email, email))
+    .limit(1);
+};
+
+// ✅ Good: Using Drizzle's SQL template
+import { sql } from 'drizzle-orm';
+
+const searchUsers = async (searchTerm: string) => {
+  return db
+    .select()
+    .from(users)
+    .where(sql`${users.name} ILIKE ${'%' + searchTerm + '%'}`);
+};
+
+// ❌ Bad: String concatenation (SQL injection risk)
+const getUser = async (email: string) => {
+  return db.query(`SELECT * FROM users WHERE email = '${email}'`);
+};
+```
+
+### Environment Variables
+
+```typescript
+// ✅ Good: Environment-based configuration
+const config = {
+  jwtSecret: process.env.JWT_SECRET!,
+  dbUrl: process.env.DATABASE_URL!,
+  apiKey: process.env.API_KEY!,
+};
+
+// Validate required env vars
+if (!config.jwtSecret) {
+  throw new Error('JWT_SECRET is required');
+}
+
+// ❌ Bad: Hardcoded secrets
+const config = {
+  jwtSecret: 'my-secret-key', // Never do this!
+};
+```
+
+### Secure Token Generation
+
+```typescript
+// ✅ Good: Secure token generation
+import crypto from 'crypto';
+
+const generateSecureToken = (): string => {
+  return crypto.randomBytes(32).toString('hex');
+};
+
+const generateSessionId = (): string => {
+  return crypto.randomUUID();
+};
+
+// ❌ Bad: Insecure token generation
+const generateToken = (): string => {
+  return Math.random().toString(36); // Not cryptographically secure
+};
+```
+
+### Rate Limiting
+
+```typescript
+// ✅ Good: Rate limiting (using NestJS Throttler)
+import { Throttle } from '@nestjs/throttler';
+
+@Controller('auth')
+export class AuthController {
+  @Post('login')
+  @Throttle({ default: { limit: 5, ttl: 60000 } }) // 5 requests per minute
+  async login(@Body() dto: LoginDto) {
+    // Login logic
+  }
+}
+
+// ❌ Bad: No rate limiting
+@Post('login')
+async login(@Body() dto: LoginDto) {
+  // Vulnerable to brute force attacks
+}
+```
+
+### File Upload Validation
+
+```typescript
+// ✅ Good: File upload validation
+const validateFileUpload = (file: Express.Multer.File) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/webp'];
+  const maxSize = 5 * 1024 * 1024; // 5MB
+  
+  if (!allowedTypes.includes(file.mimetype)) {
+    throw new Error('Invalid file type');
+  }
+  
+  if (file.size > maxSize) {
+    throw new Error('File too large');
+  }
+  
+  // Additional content validation
+  return true;
+};
+
+// ❌ Bad: No validation
+const uploadFile = (file: Express.Multer.File) => {
+  // Directly save without validation
+  return saveFile(file);
+};
+```
+
+### Error Handling
+
+```typescript
+// ✅ Good: Secure error handling
+try {
+  await authenticateUser(email, password);
+} catch (error) {
+  // Don't leak sensitive information
+  if (error instanceof AuthenticationError) {
+    throw new Error('Invalid credentials');
+  }
+  // Log full error server-side only
+  logger.error('Authentication failed', { error, email });
+  throw new Error('Authentication failed');
+}
+
+// ❌ Bad: Leaking sensitive info
+catch (error) {
+  throw new Error(`Database error: ${error.message}`); // May leak DB structure
+}
+```
+
+## Best Practices
+
+1. **Defense in depth** - Multiple layers of security
+2. **Principle of least privilege** - Minimum required permissions
+3. **Input validation** - Validate and sanitize all inputs
+4. **Secure defaults** - Secure by default, not opt-in
+5. **Regular updates** - Keep dependencies updated
+6. **Security audits** - Regular security reviews
+7. **Error handling** - Don't leak sensitive information
+8. **Logging** - Log security events for audit trails
+
+## Common Vulnerabilities Checklist
+
+- [ ] XSS prevention (input sanitization, CSP)
+- [ ] CSRF protection (tokens, SameSite cookies)
+- [ ] SQL injection prevention (parameterized queries)
+- [ ] Authentication security (password hashing, JWT)
+- [ ] Authorization checks (verify permissions)
+- [ ] Input validation (Zod schemas)
+- [ ] Secure headers (HSTS, CSP, etc.)
+- [ ] Rate limiting (prevent brute force)
+- [ ] Secure secrets management (env vars, not hardcoded)
+- [ ] Error handling (no sensitive info leaks)
+
+## Related Documentation
+
+- Testing: `testing-standards.mdc`
+- Data Access: `data-access.mdc` (for query security)
+- Dependencies: `dependencies.mdc` (for service security)

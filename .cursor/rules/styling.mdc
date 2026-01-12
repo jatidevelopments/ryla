@@ -1,0 +1,427 @@
+---
+description: TailwindCSS patterns, design system usage, and styling conventions for RYLA
+globs: ["**/*.tsx", "**/*.css"]
+alwaysApply: false
+---
+
+# Styling and Design System Patterns
+
+## Context
+
+- RYLA uses TailwindCSS 4 with custom design tokens
+- Design system based on purple/pink gradient theme
+- Components use `@ryla/ui` design tokens and variants
+- CVA (class-variance-authority) for component variants
+- Radix UI primitives with TailwindCSS styling
+
+## Requirements
+
+### Design Tokens
+
+- Use design tokens from `@ryla/ui` design system
+- Prefer CSS variables over hardcoded values
+- Use semantic color names (primary, accent, text, border)
+- Follow spacing scale (4px grid system)
+- Use typography tokens for consistent text styling
+
+### TailwindCSS Patterns
+
+- Use utility classes for styling
+- Prefer composition over custom CSS
+- Use responsive variants (sm:, md:, lg:)
+- Use dark mode variants when applicable
+- Keep class names organized and readable
+
+### Component Variants
+
+- Use CVA for component variants
+- Define variants in component files
+- Export variant types for type safety
+- Use consistent variant naming
+
+### Color System
+
+- Primary: Purple gradient theme (`#A855F7`, `#9333EA`)
+- Accent: Pink/orange (`#EC4899`, `#F472B6`)
+- Background: Dark theme (`#0A0A0B`, `#111113`)
+- Text: White with opacity variants
+- Borders: Subtle white with opacity
+
+## Examples
+
+### Design Tokens Usage
+
+```tsx
+// ✅ Good: Using design tokens
+import { colors } from '@ryla/ui/design-system/tokens';
+
+// In component
+<div className="bg-[var(--bg-primary)] text-[var(--text-primary)]">
+  Content
+</div>
+
+// Or using Tailwind with CSS variables
+<div className="bg-primary text-primary-foreground">
+  Content
+</div>
+
+// ❌ Bad: Hardcoded values
+<div className="bg-[#0A0A0B] text-white">
+  Content
+</div>
+```
+
+### TailwindCSS Utility Classes
+
+```tsx
+// ✅ Good: Organized Tailwind classes
+<button className="
+  flex items-center justify-center
+  px-4 py-2
+  bg-primary-gradient
+  text-white
+  rounded-lg
+  hover:bg-primary-gradient-hover
+  focus:outline-none focus:ring-2 focus:ring-primary
+  disabled:opacity-50 disabled:cursor-not-allowed
+  transition-colors
+">
+  Button
+</button>
+
+// ❌ Bad: Unorganized or inline styles
+<button style={{ background: '#A855F7', padding: '8px 16px' }}>
+  Button
+</button>
+```
+
+### Component Variants with CVA
+
+```tsx
+// ✅ Good: Component variants using CVA
+import { cva, type VariantProps } from 'class-variance-authority';
+import { cn } from '@ryla/ui/utils';
+
+const buttonVariants = cva(
+  // Base styles
+  'inline-flex items-center justify-center rounded-lg font-medium transition-colors',
+  {
+    variants: {
+      variant: {
+        default: 'bg-primary-gradient text-white hover:bg-primary-gradient-hover',
+        secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+        outline: 'border border-border bg-transparent hover:bg-accent',
+        ghost: 'hover:bg-accent hover:text-accent-foreground',
+      },
+      size: {
+        sm: 'h-8 px-3 text-sm',
+        md: 'h-10 px-4',
+        lg: 'h-12 px-6 text-lg',
+      },
+    },
+    defaultVariants: {
+      variant: 'default',
+      size: 'md',
+    },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  // Additional props
+}
+
+export function Button({ 
+  className, 
+  variant, 
+  size, 
+  ...props 
+}: ButtonProps) {
+  return (
+    <button
+      className={cn(buttonVariants({ variant, size }), className)}
+      {...props}
+    />
+  );
+}
+```
+
+### Color System Usage
+
+```tsx
+// ✅ Good: Using semantic color tokens
+<div className="
+  bg-background-primary      // #0A0A0B
+  text-text-primary          // #FFFFFF
+  border-border-default      // rgba(255, 255, 255, 0.08)
+">
+  Content
+</div>
+
+// Primary purple gradient
+<div className="bg-primary-gradient">
+  {/* Purple gradient background */}
+</div>
+
+// Accent pink
+<button className="bg-accent-pink text-white">
+  CTA Button
+</button>
+
+// ❌ Bad: Using arbitrary color values
+<div className="bg-[#0A0A0B] text-[#FFFFFF]">
+  Content
+</div>
+```
+
+### Spacing Patterns
+
+```tsx
+// ✅ Good: Using spacing scale (4px grid)
+<div className="
+  p-4        // 16px
+  gap-2      // 8px
+  mb-6       // 24px
+  space-y-4  // 16px vertical spacing
+">
+  Content
+</div>
+
+// Responsive spacing
+<div className="
+  p-4 md:p-6 lg:p-8
+  gap-2 md:gap-4
+">
+  Content
+</div>
+
+// ❌ Bad: Arbitrary spacing
+<div style={{ padding: '13px', gap: '7px' }}>
+  Content
+</div>
+```
+
+### Typography Patterns
+
+```tsx
+// ✅ Good: Using typography tokens
+<h1 className="text-5xl font-bold leading-tight">
+  Heading
+</h1>
+
+<p className="text-base text-text-secondary leading-relaxed">
+  Body text
+</p>
+
+<span className="text-sm text-text-muted">
+  Caption
+</span>
+
+// Responsive typography
+<h1 className="text-3xl md:text-4xl lg:text-5xl">
+  Responsive Heading
+</h1>
+
+// ❌ Bad: Inline font styles
+<h1 style={{ fontSize: '40px', fontWeight: 'bold' }}>
+  Heading
+</h1>
+```
+
+### Gradient Patterns
+
+```tsx
+// ✅ Good: Using gradient utilities
+<div className="bg-primary-gradient">
+  {/* Purple gradient */}
+</div>
+
+<div className="bg-gradient-to-r from-purple-500 to-pink-500">
+  {/* Custom gradient */}
+</div>
+
+// Gradient border
+<div className="gradient-border">
+  {/* Component with gradient border */}
+</div>
+
+// Gradient text
+<h1 className="bg-gradient-to-r from-purple-500 to-pink-500 bg-clip-text text-transparent">
+  Gradient Text
+</h1>
+```
+
+### Dark Mode Support
+
+```tsx
+// ✅ Good: Dark mode variants
+<div className="
+  bg-white dark:bg-background-primary
+  text-gray-900 dark:text-text-primary
+">
+  Content
+</div>
+
+// Using CSS variables (preferred)
+<div className="bg-background text-foreground">
+  {/* Automatically adapts to dark mode */}
+</div>
+```
+
+### Animation Patterns
+
+```tsx
+// ✅ Good: Using Tailwind animations
+<button className="
+  transition-colors
+  hover:bg-primary-hover
+  active:scale-95
+  animate-pulse
+">
+  Button
+</button>
+
+// Custom animations from design system
+<button className="pulse-button">
+  {/* Custom pulse animation */}
+</button>
+
+<div className="animate-shimmer">
+  {/* Shimmer loading effect */}
+</div>
+```
+
+### Responsive Design
+
+```tsx
+// ✅ Good: Mobile-first responsive design
+<div className="
+  flex flex-col
+  p-4
+  md:flex-row md:p-6
+  lg:p-8 lg:gap-8
+">
+  Content
+</div>
+
+// Grid responsive
+<div className="
+  grid grid-cols-1
+  md:grid-cols-2
+  lg:grid-cols-3
+  gap-4
+">
+  Items
+</div>
+```
+
+### Border Radius Patterns
+
+```tsx
+// ✅ Good: Using consistent border radius
+<div className="rounded-lg">     {/* 10px - default */}
+<div className="rounded-sm">     {/* 6px - small */}
+<div className="rounded-md">     {/* 8px - medium */}
+<div className="rounded-xl">     {/* 14px - large */}
+<div className="rounded-full">   {/* 50% - circular */}
+
+// Using CSS variables
+<div className="rounded-[var(--radius)]">
+  Content
+</div>
+```
+
+### Shadow Patterns
+
+```tsx
+// ✅ Good: Using design system shadows
+<div className="shadow-white-glow">
+  {/* Custom glow shadow */}
+</div>
+
+<div className="shadow-lg">
+  {/* Standard shadow */}
+</div>
+
+// Custom shadow
+<div className="shadow-[0px_0px_12.3px_rgba(255,255,255,0.1)]">
+  Content
+</div>
+```
+
+### Focus States
+
+```tsx
+// ✅ Good: Accessible focus states
+<button className="
+  focus:outline-none
+  focus:ring-2
+  focus:ring-primary
+  focus:ring-offset-2
+  focus:ring-offset-background
+">
+  Button
+</button>
+
+// Using CSS variables
+<input className="
+  focus:ring-[var(--ring)]
+  focus:ring-offset-[var(--ring-offset)]
+">
+```
+
+### Component Styling Pattern
+
+```tsx
+// ✅ Good: Component with variants and className merge
+import { cn } from '@ryla/ui/utils';
+
+interface CardProps {
+  variant?: 'default' | 'elevated' | 'outline';
+  className?: string;
+  children: React.ReactNode;
+}
+
+export function Card({ variant = 'default', className, children }: CardProps) {
+  return (
+    <div
+      className={cn(
+        'rounded-lg p-4',
+        {
+          'bg-background-elevated': variant === 'default',
+          'bg-background-elevated shadow-lg': variant === 'elevated',
+          'bg-transparent border border-border': variant === 'outline',
+        },
+        className
+      )}
+    >
+      {children}
+    </div>
+  );
+}
+```
+
+## Best Practices
+
+1. **Design Tokens** - Always use design tokens, never hardcode colors/spacing
+2. **Utility Classes** - Prefer Tailwind utilities over custom CSS
+3. **Responsive** - Use mobile-first responsive design
+4. **Variants** - Use CVA for component variants
+5. **Consistency** - Follow spacing scale and typography tokens
+6. **Accessibility** - Include focus states and proper contrast
+7. **Performance** - Use Tailwind's purging for production builds
+8. **Organization** - Keep class names organized and readable
+
+## Design System Reference
+
+- **Design Tokens**: `libs/ui/src/design-system/tokens.ts`
+- **CSS Variables**: `libs/ui/src/styles/design-tokens.css`
+- **Component Variants**: `libs/ui/src/components/`
+- **Global Styles**: `apps/web/app/globals.css`
+
+## Related Documentation
+
+- Design System: `docs/specs/general/DESIGN-SYSTEM.md`
+- Accessibility: `accessibility.mdc` (for focus states and contrast)
+- Performance: `performance.mdc` (for CSS optimization)

@@ -1,0 +1,395 @@
+---
+description: Standard Operating Procedure (SOP) for AI agents to complete tasks and initiatives systematically
+alwaysApply: true
+---
+
+# Task Execution SOP
+
+## Context
+
+- Every task must follow a systematic approach to ensure quality and completeness
+- AI agents must validate work incrementally and handle edge cases
+- Tasks must be broken down into manageable steps
+- Quality gates must be passed before completion
+
+## Mandatory Workflow (Every Task)
+
+### Step 1: Task Understanding
+
+**Before starting, you MUST:**
+
+1. **Identify Task Type**
+   - Epic (EP-XXX) - Large feature
+   - Story (ST-XXX) - Feature component
+   - Task (TSK-XXX) - Specific implementation
+   - Bug fix (BUG-XXX)
+   - Refactoring
+   - Documentation
+
+2. **State Current Context**
+   ```
+   Working in PHASE X – [NAME] on Epic EP-XXX, Story ST-XXX.
+   Task: [Brief description]
+   ```
+
+3. **Gather Required Inputs**
+   - Read related documentation (epic, story, architecture docs)
+   - Review acceptance criteria
+   - Check existing code patterns
+   - Identify dependencies
+   - List what you have vs. what's missing
+
+4. **Stop if Missing Inputs**
+   - If inputs are missing → STOP and ask user
+   - Never guess or assume
+   - List exactly what's needed
+
+### Step 2: Task Breakdown
+
+**Break down task into sub-tasks:**
+
+1. **Identify Subtasks**
+   - List all steps required
+   - Order by dependencies
+   - Estimate complexity per step
+
+2. **Identify Files to Change**
+   - List files to create
+   - List files to modify
+   - List files to review (for context)
+
+3. **Identify Dependencies**
+   - What needs to be done first?
+   - What blocks this task?
+   - What other tasks depend on this?
+
+4. **Create Execution Plan**
+   ```
+   Plan:
+   1. [Step 1] - [Files affected]
+   2. [Step 2] - [Files affected]
+   3. [Step 3] - [Files affected]
+   ```
+
+### Step 3: Implementation
+
+**For each sub-task:**
+
+1. **Implement Small Changes**
+   - One concern at a time
+   - Focused, atomic changes
+   - No giant rewrites
+
+2. **Validate Incrementally**
+   - Check TypeScript types after each change
+   - Verify imports resolve
+   - Test logic in isolation when possible
+
+3. **Handle Edge Cases**
+   - Consider null/undefined values
+   - Handle error states
+   - Validate inputs
+   - Check boundary conditions
+
+4. **Follow Patterns**
+   - Use existing code patterns
+   - Follow architecture layers
+   - Apply relevant Cursor rules
+   - Maintain consistency
+
+### Step 4: Quality Checks
+
+**Before marking complete:**
+
+1. **Type Safety**
+   - No TypeScript errors
+   - All types properly defined
+   - No `any` types (unless explicitly needed)
+
+2. **Code Quality**
+   - No linter errors
+   - Follows code style guidelines
+   - Proper error handling
+   - No console.logs (use proper logging)
+
+3. **Architecture Compliance**
+   - Follows layered architecture (Apps → Business → Data)
+   - No layer skipping
+   - Proper imports (`@ryla/<lib>`)
+
+4. **Testing**
+   - Critical paths have tests
+   - Tests pass
+   - Edge cases covered
+
+5. **Documentation**
+   - Code is self-documenting
+   - Complex logic has comments
+   - Updated relevant docs if needed
+
+### Step 5: Self-Review
+
+**Systematic review checklist:**
+
+1. **Functionality**
+   - [ ] Code works as expected
+   - [ ] Edge cases handled
+   - [ ] Error handling implemented
+   - [ ] No breaking changes (or documented)
+
+2. **Code Quality**
+   - [ ] Follows style guidelines
+   - [ ] No code duplication
+   - [ ] Proper abstractions
+   - [ ] Comments for complex logic
+
+3. **Type Safety**
+   - [ ] No TypeScript errors
+   - [ ] Types properly defined
+   - [ ] No implicit any
+
+4. **Architecture**
+   - [ ] Follows layered architecture
+   - [ ] No layer violations
+   - [ ] Proper separation of concerns
+
+5. **Testing**
+   - [ ] Tests added/updated
+   - [ ] Tests pass
+   - [ ] Coverage maintained
+
+### Step 6: Acceptance Criteria Validation
+
+**Check each acceptance criterion:**
+
+```
+[ACCEPTANCE CRITERIA STATUS]
+1. {Criterion}: ✅/⚠️/❌ – [explanation]
+2. {Criterion}: ✅/⚠️/❌ – [explanation]
+3. {Criterion}: ✅/⚠️/❌ – [explanation]
+```
+
+**Status meanings:**
+- ✅ **Complete** - Criterion fully met
+- ⚠️ **Partial** - Criterion partially met, explain what's missing
+- ❌ **Not Met** - Criterion not met, explain why and what's needed
+
+**If criteria cannot be met:**
+- State why clearly
+- List what's missing
+- Suggest alternatives if applicable
+- Never mark complete if criteria not met
+
+### Step 7: Completion
+
+**Only mark complete when:**
+
+1. **All Quality Checks Pass**
+   - TypeScript: No errors
+   - Linter: No errors
+   - Tests: All passing
+   - Architecture: Compliant
+
+2. **All Acceptance Criteria Met**
+   - All criteria marked ✅
+   - No ⚠️ or ❌ statuses
+
+3. **Documentation Updated**
+   - Code comments added
+   - Relevant docs updated
+   - README updated if needed
+
+4. **Next Steps Identified**
+   - Clear next action or phase
+   - Dependencies documented
+   - Blockers identified (if any)
+
+## Task Types and Specific Workflows
+
+### New Feature (Epic/Story)
+
+1. **Follow 10-Phase Pipeline**
+   - Start at appropriate phase
+   - Complete phase outputs before moving to next
+   - Never skip phases
+
+2. **Architecture First**
+   - Design data model
+   - Define API contracts
+   - Plan component structure
+
+3. **Implementation**
+   - Start with data layer
+   - Then business logic
+   - Then presentation layer
+   - Follow Apps → Business → Data flow
+
+4. **Testing**
+   - Write tests as you go (TDD when applicable)
+   - Test critical paths
+   - Verify analytics events
+
+### Bug Fix
+
+1. **Reproduce Bug**
+   - Understand the issue
+   - Identify root cause
+   - Create test case that reproduces bug
+
+2. **Fix**
+   - Implement minimal fix
+   - Don't refactor unnecessarily
+   - Fix root cause, not symptoms
+
+3. **Verify**
+   - Test case now passes
+   - No regressions introduced
+   - Edge cases handled
+
+### Refactoring
+
+1. **Identify Scope**
+   - What needs refactoring?
+   - Why? (maintainability, performance, etc.)
+   - What's the target state?
+
+2. **Plan Refactoring**
+   - Break into small steps
+   - Ensure tests exist first
+   - Refactor incrementally
+
+3. **Verify**
+   - All tests still pass
+   - Functionality unchanged
+   - Code quality improved
+
+### Documentation
+
+1. **Identify Audience**
+   - Who will read this?
+   - What do they need to know?
+   - What's the purpose?
+
+2. **Structure**
+   - Clear headings
+   - Examples where helpful
+   - Links to related docs
+
+3. **Review**
+   - Accurate and up-to-date
+   - Clear and concise
+   - Well-organized
+
+## Quality Gates
+
+### Gate 1: Input Validation
+- ✅ All required inputs available
+- ✅ Task clearly understood
+- ✅ Dependencies identified
+
+### Gate 2: Planning
+- ✅ Task broken down
+- ✅ Files identified
+- ✅ Execution plan created
+
+### Gate 3: Implementation
+- ✅ Code implemented
+- ✅ Incremental validation done
+- ✅ Edge cases handled
+
+### Gate 4: Quality
+- ✅ TypeScript: No errors
+- ✅ Linter: No errors
+- ✅ Tests: Passing
+- ✅ Architecture: Compliant
+
+### Gate 5: Acceptance
+- ✅ All AC met
+- ✅ Self-review complete
+- ✅ Documentation updated
+
+## Handling Blockers
+
+### When You Encounter a Blocker
+
+1. **Identify Blocker**
+   - What's blocking progress?
+   - Why is it blocking?
+   - What's needed to unblock?
+
+2. **Document Blocker**
+   ```
+   BLOCKER: [Description]
+   Reason: [Why it's blocking]
+   Required: [What's needed]
+   Workaround: [If any]
+   ```
+
+3. **Escalate if Needed**
+   - If blocker requires user input → ask user
+   - If blocker requires external dependency → document and continue other work
+   - If blocker is architectural → discuss with team
+
+4. **Continue Other Work**
+   - Work on unblocked parts
+   - Don't wait idly
+   - Make progress where possible
+
+## Error Recovery
+
+### When Something Breaks
+
+1. **Identify the Issue**
+   - What broke?
+   - When did it break?
+   - What changed recently?
+
+2. **Revert if Needed**
+   - If recent change caused issue → revert
+   - If unsure → ask user
+   - Don't make things worse
+
+3. **Fix Systematically**
+   - Understand root cause
+   - Fix properly, not with hacks
+   - Verify fix works
+
+4. **Learn and Document**
+   - Document what went wrong
+   - Document how it was fixed
+   - Update process if needed
+
+## Completion Checklist
+
+**Before marking any task complete:**
+
+- [ ] All required inputs were available
+- [ ] Task was broken down properly
+- [ ] Implementation follows patterns
+- [ ] TypeScript: No errors
+- [ ] Linter: No errors
+- [ ] Tests: All passing
+- [ ] Architecture: Compliant
+- [ ] Self-review: Complete
+- [ ] Acceptance criteria: All met
+- [ ] Documentation: Updated
+- [ ] Next steps: Identified
+- [ ] No blockers remaining
+
+## Best Practices
+
+1. **Start Small** - Break tasks into smallest possible units
+2. **Validate Often** - Check work incrementally
+3. **Ask Early** - Don't wait until stuck to ask questions
+4. **Document Decisions** - Explain why, not just what
+5. **Follow Patterns** - Use existing code as reference
+6. **Test Critical Paths** - Ensure main flows work
+7. **Handle Edge Cases** - Consider null, empty, error states
+8. **Review Systematically** - Use checklists, don't skip steps
+
+## Related Documentation
+
+- Pipeline: `pipeline-enforcement.mdc` (10-phase pipeline)
+- Iterative Development: `ralph.mdc` (for complex features)
+- Way of Work: `way-of-work.mdc` (communication patterns)
+- Process: `docs/process/10-PHASE-PIPELINE.md` (detailed phase guide)

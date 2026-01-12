@@ -1,0 +1,318 @@
+---
+description: SEO optimization patterns for Next.js App Router, metadata, and structured data
+globs: ["apps/landing/**", "apps/web/app/**"]
+alwaysApply: false
+---
+
+# SEO Optimization Best Practices
+
+## Context
+
+- Optimize landing page for search engines
+- Improve discoverability and rankings
+- Implement proper metadata and structured data
+- Ensure fast page loads and mobile-friendly design
+
+## Requirements
+
+### Metadata (Next.js App Router)
+
+- Export metadata object from layout.tsx or page.tsx
+- Include title, description, keywords, and Open Graph tags
+- Use generateMetadata for dynamic metadata
+- Implement canonical URLs
+- Add robots meta tags
+- Include Twitter Card metadata
+
+### Structured Data (JSON-LD)
+
+- Implement JSON-LD structured data for rich snippets
+- Use Schema.org vocabulary
+- Include Organization, WebSite, and WebPage schemas
+- Add Article schema for blog posts (if applicable)
+- Include BreadcrumbList for navigation
+
+### Technical SEO
+
+- Implement sitemap.xml generation
+- Create robots.txt file
+- Ensure proper URL structure (clean, descriptive)
+- Implement 301 redirects for moved content
+- Use HTTPS everywhere
+- Optimize page load speed (Core Web Vitals)
+- Ensure mobile responsiveness
+
+### Content Optimization
+
+- Use semantic HTML structure
+- Implement proper heading hierarchy (h1-h6)
+- Include alt text for all images
+- Use descriptive link text (avoid "click here")
+- Optimize content for target keywords
+- Ensure content is accessible and readable
+
+### Performance for SEO
+
+- Optimize images (WebP, lazy loading)
+- Minimize JavaScript bundle size
+- Implement code splitting
+- Use CDN for static assets
+- Enable compression (gzip/brotli)
+- Minimize render-blocking resources
+
+## Examples
+
+### Metadata Export
+
+```tsx
+// ✅ Good: Static metadata
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'RYLA - AI Influencer Platform | Create Your Virtual Influencer',
+  description: 'Create, customize, and generate content with AI-powered virtual influencers. Build your brand with cutting-edge AI technology.',
+  keywords: ['AI influencer', 'virtual influencer', 'AI content generation', 'character creation'],
+  authors: [{ name: 'RYLA' }],
+  openGraph: {
+    title: 'RYLA - AI Influencer Platform',
+    description: 'Create your virtual influencer with AI',
+    url: 'https://www.ryla.ai',
+    siteName: 'RYLA',
+    images: [
+      {
+        url: 'https://www.ryla.ai/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'RYLA AI Influencer Platform',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'RYLA - AI Influencer Platform',
+    description: 'Create your virtual influencer with AI',
+    images: ['https://www.ryla.ai/twitter-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://www.ryla.ai',
+  },
+};
+
+export default function LandingPage() {
+  return <div>...</div>;
+}
+```
+
+### Dynamic Metadata
+
+```tsx
+// ✅ Good: Dynamic metadata generation
+import type { Metadata } from 'next';
+
+type Props = {
+  params: { slug: string };
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const page = await getPageBySlug(params.slug);
+  
+  return {
+    title: `${page.title} | RYLA`,
+    description: page.description,
+    openGraph: {
+      title: page.title,
+      description: page.description,
+      images: [page.imageUrl],
+    },
+  };
+}
+```
+
+### Structured Data (JSON-LD)
+
+```tsx
+// ✅ Good: JSON-LD structured data
+export default function LandingPage() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: 'RYLA',
+    url: 'https://www.ryla.ai',
+    logo: 'https://www.ryla.ai/logo.png',
+    description: 'AI Influencer Platform',
+    sameAs: [
+      'https://twitter.com/ryla',
+      'https://linkedin.com/company/ryla',
+    ],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'Customer Service',
+      email: 'support@ryla.ai',
+    },
+  };
+  
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
+      {/* Page content */}
+    </>
+  );
+}
+```
+
+### Sitemap Generation
+
+```tsx
+// ✅ Good: Next.js sitemap.ts
+import { MetadataRoute } from 'next';
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = 'https://www.ryla.ai';
+  
+  return [
+    {
+      url: baseUrl,
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 1,
+    },
+    {
+      url: `${baseUrl}/features`,
+      lastModified: new Date(),
+      changeFrequency: 'weekly',
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/pricing`,
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+  ];
+}
+```
+
+### Robots.txt
+
+```tsx
+// ✅ Good: robots.txt
+import { MetadataRoute } from 'next';
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: [
+      {
+        userAgent: '*',
+        allow: '/',
+        disallow: ['/api/', '/admin/', '/_next/'],
+      },
+    ],
+    sitemap: 'https://www.ryla.ai/sitemap.xml',
+  };
+}
+```
+
+### Semantic HTML Structure
+
+```tsx
+// ✅ Good: Semantic HTML with proper headings
+export default function LandingPage() {
+  return (
+    <main>
+      <header>
+        <h1>RYLA - AI Influencer Platform</h1>
+        <nav aria-label="Main navigation">
+          <ul>
+            <li><a href="/features">Features</a></li>
+            <li><a href="/pricing">Pricing</a></li>
+          </ul>
+        </nav>
+      </header>
+      
+      <section>
+        <h2>Create Your AI Influencer</h2>
+        <article>
+          <h3>Why Choose RYLA</h3>
+          <p>Content here...</p>
+        </article>
+      </section>
+    </main>
+  );
+}
+
+// ❌ Bad: Non-semantic structure
+<div>
+  <div>RYLA</div>
+  <div>Content</div>
+</div>
+```
+
+### Image Optimization for SEO
+
+```tsx
+// ✅ Good: Optimized images with alt text
+import Image from 'next/image';
+
+<Image
+  src="/hero-image.jpg"
+  alt="AI Influencer character showcasing modern studio environment"
+  width={1200}
+  height={600}
+  priority={true}
+  sizes="(max-width: 768px) 100vw, 1200px"
+/>
+
+// ❌ Bad: Missing alt text or unoptimized
+<img src="/hero.jpg" />
+```
+
+## Best Practices
+
+1. **Unique titles** - Each page should have a unique, descriptive title
+2. **Meta descriptions** - Write compelling 150-160 character descriptions
+3. **Structured data** - Use JSON-LD for rich snippets
+4. **Fast loading** - Optimize for Core Web Vitals
+5. **Mobile-first** - Ensure responsive design
+6. **Clean URLs** - Use descriptive, keyword-rich URLs
+7. **Internal linking** - Link related content internally
+8. **Regular updates** - Keep content fresh and updated
+
+## SEO Checklist
+
+- [ ] Unique page titles (50-60 characters)
+- [ ] Meta descriptions (150-160 characters)
+- [ ] Open Graph tags for social sharing
+- [ ] Twitter Card metadata
+- [ ] Canonical URLs
+- [ ] Robots meta tags
+- [ ] Structured data (JSON-LD)
+- [ ] Sitemap.xml
+- [ ] Robots.txt
+- [ ] Semantic HTML structure
+- [ ] Proper heading hierarchy
+- [ ] Alt text for all images
+- [ ] Fast page load times
+- [ ] Mobile responsive design
+- [ ] HTTPS enabled
+
+## Related Documentation
+
+- Performance: `performance.mdc` (for Core Web Vitals)
+- Accessibility: `accessibility.mdc` (for semantic HTML)
+- Image Optimization: `image-optimization.mdc`

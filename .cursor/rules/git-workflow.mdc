@@ -1,0 +1,243 @@
+---
+description: Git workflow patterns including branch naming, commit messages, and PR guidelines
+globs: []
+alwaysApply: true
+---
+
+# Git Workflow
+
+## Context
+
+- Consistent branch naming and commit messages
+- Clear PR guidelines and review process
+- Integration with issue tracking (Epics, Stories, Tasks)
+- Conventional commits for automated tooling
+
+## Requirements
+
+### Branch Naming
+
+- Format: `<type>/<id>-<short-description>`
+- Use kebab-case for descriptions
+- Include issue ID (EP-XXX, ST-XXX, BUG-XXX)
+- Keep descriptions concise (< 50 chars)
+
+### Commit Messages
+
+- Format: `<type>(<epic> <story>): <description>`
+- Use conventional commit types
+- Reference issue IDs in parentheses
+- Keep descriptions clear and concise
+
+### Pull Request Guidelines
+
+- Link to related issues (Epics, Stories)
+- Include acceptance criteria checklist
+- Add screenshots for UI changes
+- Request specific reviewers
+- Update documentation if needed
+
+## Examples
+
+### Branch Naming
+
+```bash
+# ✅ Good: Branch names
+epic/ep-001-user-auth
+feat/st-010-login-form
+fix/bug-015-null-check
+refactor/tsk-120-api-cleanup
+docs/ep-001-requirements
+test/st-010-login-tests
+
+# ❌ Bad: Branch names
+feature/login
+fix/bug
+update
+my-changes
+```
+
+### Commit Messages
+
+```bash
+# ✅ Good: Commit messages
+feat(ep-001 st-010): add login form validation
+fix(ep-001 st-012): handle null user response
+refactor(ep-002): simplify auth middleware
+docs(ep-001): update requirements
+test(st-010): add login integration tests
+chore: update dependencies
+
+# With body for complex changes
+feat(ep-001 st-010): add login form validation
+
+- Add email format validation
+- Add password strength requirements
+- Show validation errors inline
+- Add unit tests for validation logic
+
+Closes ST-010
+
+# ❌ Bad: Commit messages
+fix stuff
+update
+WIP
+asdf
+```
+
+### Commit Types
+
+| Type | Use Case | Example |
+|------|----------|---------|
+| `feat` | New feature | `feat(ep-001 st-010): add character creation` |
+| `fix` | Bug fix | `fix(bug-015): handle null character data` |
+| `refactor` | Code restructuring | `refactor(ep-002): simplify auth service` |
+| `docs` | Documentation | `docs(ep-001): update API docs` |
+| `test` | Tests | `test(st-010): add login tests` |
+| `chore` | Maintenance | `chore: update dependencies` |
+| `style` | Formatting | `style: fix linting errors` |
+| `perf` | Performance | `perf(ep-005): optimize image loading` |
+
+### Pull Request Template
+
+```markdown
+## Description
+Brief description of changes
+
+## Related Issues
+- Closes EP-001
+- Related to ST-010
+
+## Type of Change
+- [ ] Bug fix
+- [ ] New feature
+- [ ] Refactoring
+- [ ] Documentation
+- [ ] Test
+
+## Acceptance Criteria
+- [ ] AC 1: Description
+- [ ] AC 2: Description
+
+## Testing
+- [ ] Unit tests added/updated
+- [ ] Integration tests added/updated
+- [ ] E2E tests added/updated
+- [ ] Manual testing completed
+
+## Screenshots (if applicable)
+<!-- Add screenshots for UI changes -->
+
+## Checklist
+- [ ] Code follows style guidelines
+- [ ] Self-review completed
+- [ ] Comments added for complex logic
+- [ ] Documentation updated
+- [ ] No new warnings generated
+- [ ] Tests pass locally
+```
+
+### Issue References
+
+```bash
+# ✅ Good: Reference issues in commits
+feat(ep-001 st-010): add login form
+
+Closes ST-010
+Related to EP-001
+
+# Multiple issues
+fix(bug-015 bug-016): handle edge cases
+
+Fixes BUG-015
+Fixes BUG-016
+```
+
+### Branch Workflow
+
+```bash
+# ✅ Good: Branch workflow
+# 1. Create branch from main
+git checkout main
+git pull origin main
+git checkout -b feat/st-010-login-form
+
+# 2. Make changes and commit
+git add .
+git commit -m "feat(ep-001 st-010): add login form validation"
+
+# 3. Push and create PR
+git push origin feat/st-010-login-form
+
+# 4. After PR merge, delete local branch
+git checkout main
+git pull origin main
+git branch -d feat/st-010-login-form
+```
+
+### Commit Message Guidelines
+
+1. **First line**: Type, issue IDs, and brief description (< 72 chars)
+2. **Body** (optional): Detailed explanation of what and why
+3. **Footer** (optional): Breaking changes, issue references
+
+```bash
+# ✅ Good: Multi-line commit
+feat(ep-001 st-010): add character creation wizard
+
+- Add multi-step form with validation
+- Integrate with character service
+- Add error handling and loading states
+- Include unit tests for form logic
+
+Closes ST-010
+```
+
+### PR Review Checklist
+
+```markdown
+## Code Review Checklist
+
+### Functionality
+- [ ] Code works as expected
+- [ ] Edge cases handled
+- [ ] Error handling implemented
+- [ ] No breaking changes (or documented)
+
+### Code Quality
+- [ ] Follows style guidelines
+- [ ] No code duplication
+- [ ] Proper abstractions
+- [ ] Comments for complex logic
+
+### Testing
+- [ ] Tests added/updated
+- [ ] Tests pass
+- [ ] Coverage maintained/improved
+
+### Documentation
+- [ ] Code comments added
+- [ ] README/docs updated
+- [ ] API docs updated (if applicable)
+
+### Security
+- [ ] No sensitive data exposed
+- [ ] Input validation implemented
+- [ ] Authentication/authorization checked
+```
+
+## Best Practices
+
+1. **Branch Names** - Use type prefix and issue ID
+2. **Commit Messages** - Reference issues, use conventional format
+3. **Small PRs** - Keep PRs focused and reviewable
+4. **Self-Review** - Review your own PR before requesting review
+5. **Issue Linking** - Always link PRs to related issues
+6. **Descriptive** - Clear commit messages help future debugging
+7. **Atomic Commits** - One logical change per commit
+8. **Clean History** - Use rebase to keep history clean (if team agrees)
+
+## Related Documentation
+
+- Naming Conventions: `docs/NAMING_CONVENTIONS.md`
+- Way of Work: `way-of-work.mdc` (for issue naming)

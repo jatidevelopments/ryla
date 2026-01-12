@@ -1,0 +1,378 @@
+---
+description: Recommended patterns for organizing Zustand actions and state management
+globs: ["libs/business/src/store/**", "apps/*/store/**"]
+alwaysApply: false
+---
+
+# RYLA Zustand Action Patterns
+
+This guide outlines best practices for organizing Zustand stores in RYLA, focusing on maintainability, type safety, and user experience.
+
+## Store Structure
+
+RYLA uses Zustand with Immer middleware for immutable updates:
+
+```typescript
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+export const useStore = create<StoreState>()(
+  persist(
+    immer((set, get) => ({
+      // State
+      items: [],
+      loading: false,
+      
+      // Actions
+      addItem: (item) => {
+        set((state) => {
+          state.items.push(item);
+        });
+      },
+    })),
+    {
+      name: 'store-storage',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+```
+
+## Action Naming Conventions
+
+### Public Actions (UI Calls These)
+
+- Naming: Verb form describing user intent
+- Examples: `addInfluencer`, `updateInfluencer`, `deleteInfluencer`, `toggleLike`
+- Responsibilities: Parameter validation, flow orchestration, state updates
+
+```typescript
+addInfluencer: (influencer: AIInfluencer) => {
+  set((state) => {
+    state.influencers.push(influencer);
+  });
+},
+
+updateInfluencer: (id: string, data: Partial<AIInfluencer>) => {
+  set((state) => {
+    const index = state.influencers.findIndex((i) => i.id === id);
+    if (index !== -1) {
+      state.influencers[index] = {
+        ...state.influencers[index],
+        ...data,
+        updatedAt: new Date().toISOString(),
+      };
+    }
+  });
+},
+```
+
+## Immer Pattern (Recommended)
+
+RYLA uses Immer middleware, which allows direct mutations in `set` callbacks:
+
+```typescript
+// ✅ Good: Direct mutation with Immer
+updateInfluencer: (id: string, data: Partial<AIInfluencer>) => {
+  set((state) => {
+    const influencer = state.influencers.find((i) => i.id === id);
+    if (influencer) {
+      Object.assign(influencer, data);
+      influencer.updatedAt = new Date().toISOString();
+    }
+  });
+},
+
+// ❌ Avoid: Manual immutability (not needed with Immer)
+updateInfluencer: (id: string, data: Partial<AIInfluencer>) => {
+  set((state) => ({
+    ...state,
+    influencers: state.influencers.map((i) =>
+      i.id === id ? { ...i, ...data } : i
+    ),
+  }));
+},
+```
+
+## When to Use Simple `set` vs Complex Logic
+
+### Use Simple `set` When
+
+- Toggling boolean values
+- Updating simple strings/numbers
+- Setting single state fields
+- Simple array operations (push, filter)
+
+```typescript
+toggleLoading: (loading: boolean) => {
+  set((state) => {
+    state.loading = loading;
+  });
+},
+
+setActiveId: (id: string | null) => {
+  set((state) => {
+    state.activeId = id;
+  });
+},
+```
+
+### Use Complex Logic When
+
+- Managing object lists or maps
+- Scenarios requiring optimistic updates
+- Complex state transition logic
+- Coordinating multiple state fields
+
+```typescript
+addPost: (post: Post) => {
+  set((state) => {
+    state.posts.unshift(post);
+    // Update related state
+    const influencer = state.influencers.find(
+      (i) => i.id === post.influencerId
+    );
+    if (influencer) {
+      influencer.postCount += 1;
+      influencer.imageCount += 1;
+      influencer.updatedAt = new Date().toISOString();
+    }
+  });
+},
+```
+
+## Optimistic Updates Pattern
+
+For operations that call backend services, use optimistic updates for better UX:
+
+```typescript
+interface StoreState {
+  influencers: AIInfluencer[];
+  loading: Record<string, boolean>;
+  
+  // Optimistic update pattern
+  updateInfluencerOptimistic: (id: string, data: Partial<AIInfluencer>) => Promise<void>;
+}
+
+updateInfluencerOptimistic: async (id: string, data: Partial<AIInfluencer>) => {
+  // 1. Immediately update frontend state (optimistic update)
+  set((state) => {
+    const influencer = state.influencers.find((i) => i.id === id);
+    if (influencer) {
+      Object.assign(influencer, data);
+    }
+    state.loading[id] = true;
+  });
+
+  try {
+    // 2. Call backend service
+    await influencerService.updateInfluencer(id, data);
+    
+    // 3. Refresh to ensure consistency (optional)
+    // await refreshInfluencers();
+  } catch (error) {
+    // 4. Revert on error (if needed)
+    set((state) => {
+      const influencer = state.influencers.find((i) => i.id === id);
+      if (influencer) {
+        // Revert to previous state or show error
+      }
+    });
+    throw error;
+  } finally {
+    set((state) => {
+      state.loading[id] = false;
+    });
+  }
+},
+```
+
+## Loading State Management
+
+Use a record/map for loading states when managing multiple concurrent operations:
+
+```typescript
+interface StoreState {
+  loading: Record<string, boolean>;
+  
+  setLoading: (key: string, loading: boolean) => void;
+}
+
+setLoading: (key: string, loading: boolean) => {
+  set((state) => {
+    state.loading[key] = loading;
+  });
+},
+
+// Usage in actions
+updateInfluencer: async (id: string, data: Partial<AIInfluencer>) => {
+  get().setLoading(id, true);
+  try {
+    await influencerService.update(id, data);
+    // Update state...
+  } finally {
+    get().setLoading(id, false);
+  }
+},
+```
+
+## Persistence Pattern
+
+Use Zustand persist middleware for client-side persistence:
+
+```typescript
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+export const useStore = create<StoreState>()(
+  persist(
+    immer((set, get) => ({
+      // ... store definition
+    })),
+    {
+      name: 'influencer-store', // localStorage key
+      storage: createJSONStorage(() => localStorage),
+      // Optional: partialize to persist only specific fields
+      partialize: (state) => ({
+        influencers: state.influencers,
+        // Don't persist loading states
+      }),
+    }
+  )
+);
+```
+
+## Type Safety
+
+Define store interfaces for type safety:
+
+```typescript
+import type { AIInfluencer, Post } from '@ryla/shared';
+
+export interface InfluencerStore {
+  // State
+  influencers: AIInfluencer[];
+  posts: Post[];
+  activeId: string | null;
+  loading: Record<string, boolean>;
+  
+  // Actions
+  addInfluencer: (influencer: AIInfluencer) => void;
+  updateInfluencer: (id: string, data: Partial<AIInfluencer>) => void;
+  deleteInfluencer: (id: string) => void;
+  setActiveId: (id: string | null) => void;
+}
+
+export const useInfluencerStore = create<InfluencerStore>()(
+  // ... implementation
+);
+```
+
+## React Query Integration (If Used)
+
+If using TanStack Query (React Query) with Zustand:
+
+```typescript
+import { useQuery, useMutation } from '@tanstack/react-query';
+
+// In component
+const { data: influencers } = useQuery({
+  queryKey: ['influencers'],
+  queryFn: () => influencerService.getAll(),
+  onSuccess: (data) => {
+    // Update Zustand store
+    useInfluencerStore.getState().setInfluencers(data);
+  },
+});
+
+const updateMutation = useMutation({
+  mutationFn: (data: UpdateData) => influencerService.update(data),
+  onSuccess: () => {
+    // Invalidate and refetch
+    queryClient.invalidateQueries({ queryKey: ['influencers'] });
+  },
+});
+```
+
+## Best Practices
+
+1. **Use Immer for complex updates**: Direct mutations are cleaner with Immer middleware
+2. **Type safety**: Define interfaces for all store state and actions
+3. **Optimistic updates**: Use for create/update operations for better UX
+4. **Loading states**: Use records/maps for managing multiple concurrent operations
+5. **Persistence**: Use persist middleware for client-side state that should survive page reloads
+6. **Separation of concerns**: Keep business logic in `@ryla/business`, use stores for UI state
+7. **Error handling**: Always handle errors in async actions, update state accordingly
+
+## Store Location
+
+- Business logic stores: `libs/business/src/store/`
+- App-specific stores: `apps/{app}/store/`
+- Import via `@ryla/business` for shared stores
+
+## Example: Complete Store Pattern
+
+```typescript
+import { create } from 'zustand';
+import { immer } from 'zustand/middleware/immer';
+import { persist, createJSONStorage } from 'zustand/middleware';
+import type { AIInfluencer } from '@ryla/shared';
+
+interface InfluencerStore {
+  influencers: AIInfluencer[];
+  activeId: string | null;
+  loading: Record<string, boolean>;
+  
+  addInfluencer: (influencer: AIInfluencer) => void;
+  updateInfluencer: (id: string, data: Partial<AIInfluencer>) => void;
+  deleteInfluencer: (id: string) => void;
+  setActiveId: (id: string | null) => void;
+}
+
+export const useInfluencerStore = create<InfluencerStore>()(
+  persist(
+    immer((set, get) => ({
+      influencers: [],
+      activeId: null,
+      loading: {},
+      
+      addInfluencer: (influencer) => {
+        set((state) => {
+          state.influencers.push(influencer);
+        });
+      },
+      
+      updateInfluencer: (id, data) => {
+        set((state) => {
+          const influencer = state.influencers.find((i) => i.id === id);
+          if (influencer) {
+            Object.assign(influencer, data);
+            influencer.updatedAt = new Date().toISOString();
+          }
+        });
+      },
+      
+      deleteInfluencer: (id) => {
+        set((state) => {
+          state.influencers = state.influencers.filter((i) => i.id !== id);
+          if (state.activeId === id) {
+            state.activeId = null;
+          }
+        });
+      },
+      
+      setActiveId: (id) => {
+        set((state) => {
+          state.activeId = id;
+        });
+      },
+    })),
+    {
+      name: 'influencer-store',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
+```
+
+This pattern ensures code consistency, maintainability, and provides excellent user experience.
