@@ -48,11 +48,34 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
-      - name: Pull ghcr assets image (for web app)
+      - name: Pull and extract ghcr assets (for web app)
         if: matrix.app.name == 'web'
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
           docker pull ghcr.io/jatidevelopments/ryla-web-assets:latest || echo "Warning: Could not pull ghcr assets image, will use default public folder"
+          # Extract assets from the image and copy to public folder
+          if docker image inspect ghcr.io/jatidevelopments/ryla-web-assets:latest >/dev/null 2>&1; then \
+            echo "Extracting assets from ghcr image..."; \
+            CONTAINER_ID=$(docker create ghcr.io/jatidevelopments/ryla-web-assets:latest); \
+            # Try multiple source paths
+            for SOURCE_PATH in "/public" "/assets" "/"; do \
+              echo "Trying to extract from $SOURCE_PATH"; \
+              if docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null; then \
+                echo "Successfully extracted from $SOURCE_PATH"; \
+                if [ -d "./apps/web/public-temp" ] && [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
+                  echo "Copying extracted assets to apps/web/public/"; \
+                  cp -r ./apps/web/public-temp/* ./apps/web/public/ 2>/dev/null || true; \
+                  echo "Assets extracted and copied successfully"; \
+                  ls -la ./apps/web/public/ | head -20; \
+                fi; \
+                rm -rf ./apps/web/public-temp; \
+                break; \
+              fi; \
+            done; \
+            docker rm "$CONTAINER_ID" 2>/dev/null || true; \
+          else \
+            echo "Image not available, using default public folder"; \
+          fi
         continue-on-error: true
       
       - name: Build apps
