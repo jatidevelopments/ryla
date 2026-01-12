@@ -15,6 +15,10 @@ const nextConfig = {
   outputFileTracingRoot: path.join(__dirname, '../../'),
   transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business', '@ryla/trpc', '@ryla/payments', '@ryla/analytics'],
   // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
+  // Optimize package imports to ensure animations work in production
+  experimental: {
+    optimizePackageImports: ['framer-motion', 'lucide-react'],
+  },
   images: {
     remotePatterns: [
       {
