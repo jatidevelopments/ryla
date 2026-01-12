@@ -1,3 +1,8 @@
+# Declare build args at the top level for use across stages
+# GHCR_IMAGE is used to extract assets from a Docker image
+# Default value prevents build errors when not set
+ARG GHCR_IMAGE=ghcr.io/jatidevelopments/ryla-web-assets:latest
+
 FROM node:20-alpine AS base
 
 # Install dependencies only when needed
@@ -61,10 +66,12 @@ RUN npx nx build shared --skip-nx-cache && \
 RUN npx nx build web --configuration=production --skip-nx-cache
 
 # Extract and copy images from ghcr Docker image if available
-# Create a stage that references the ghcr image
-# Default to a dummy value to prevent build errors when GHCR_IMAGE is not set
-# CI/CD will override this with the actual image name
+# Declare ARG before using it in FROM statement
+# Default value ensures build doesn't fail when GHCR_IMAGE is not set
+# CI/CD will override this with the actual image name via --build-arg
 ARG GHCR_IMAGE=ghcr.io/jatidevelopments/ryla-web-assets:latest
+# Create a stage from the ghcr image
+# This stage will be used to extract assets from the image
 FROM ${GHCR_IMAGE} AS ghcr-assets
 
 # Production image, copy all the files and run next
