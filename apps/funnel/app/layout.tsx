@@ -1,4 +1,4 @@
-// Test deployment trigger - 2025-01-11 (updated)
+// Test deployment trigger - 2025-01-11 (final test)
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
