@@ -131,9 +131,15 @@ jobs:
       - name: Pull and extract ghcr assets (for web app)
         run: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          docker pull ghcr.io/jatidevelopments/ryla-web-assets:latest || echo "Warning: Could not pull ghcr assets image, will use default public folder"
+          echo "========================================="; \
+          echo "Checking if GHCR image exists..."; \
+          echo "========================================="; \
+          docker pull ghcr.io/jatidevelopments/ryla-web-assets:latest 2>&1 || echo "Warning: Could not pull ghcr assets image, will use default public folder"; \
           # Extract assets from the image and copy to public folder
           if docker image inspect ghcr.io/jatidevelopments/ryla-web-assets:latest >/dev/null 2>&1; then \
+            echo "✅ GHCR image exists and was pulled successfully"; \
+            echo "Image details:"; \
+            docker image inspect ghcr.io/jatidevelopments/ryla-web-assets:latest --format '{{.RepoTags}} {{.Size}}' || true; \
             echo "========================================="; \
             echo "Extracting assets from ghcr image..."; \
             echo "========================================="; \
@@ -142,6 +148,9 @@ jobs:
             # List container filesystem to see what's available
             echo "Container filesystem structure:"; \
             docker run --rm ghcr.io/jatidevelopments/ryla-web-assets:latest ls -la / 2>/dev/null || true; \
+            echo ""; \
+            echo "Checking for common paths:"; \
+            docker run --rm ghcr.io/jatidevelopments/ryla-web-assets:latest sh -c "ls -la /public 2>/dev/null || echo 'No /public'; ls -la /assets 2>/dev/null || echo 'No /assets'; find / -maxdepth 2 -type d -name '*public*' -o -name '*images*' 2>/dev/null | head -10 || echo 'No matching directories'" || true; \
             # Try multiple source paths
             EXTRACTED=false; \
             for SOURCE_PATH in "/public" "/assets" "/"; do \
@@ -190,23 +199,6 @@ jobs:
             echo "Warning: ghcr image not found, using default public folder"; \
           fi
         continue-on-error: true
-
-      - name: Verify images before build
-        run: |
-          echo "========================================="; \
-          echo "Verifying images are present before build"; \
-          echo "========================================="; \
-          echo "Age range images:"; \
-          ls -la ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | wc -l || echo "0"; \
-          echo "Skin color images:"; \
-          ls -la ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | wc -l || echo "0"; \
-          echo "Ethnicity images:"; \
-          find ./apps/web/public/images/ethnicity -name "*.webp" 2>/dev/null | wc -l || echo "0"; \
-          echo "Skin colors by ethnicity:"; \
-          find ./apps/web/public/images/skin-colors -type d -mindepth 1 2>/dev/null | while read dir; do \
-            count=$(ls -1 "$dir"/*.webp 2>/dev/null | wc -l | tr -d ' '); \
-            echo "  $dir: $count files"; \
-          done || echo "  No ethnicity-specific directories found"
 
       - name: Verify images before build
         run: |
