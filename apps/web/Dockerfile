@@ -20,6 +20,15 @@ COPY --from=deps /app/nx.json ./nx.json
 COPY --from=deps /app/tsconfig.base.json ./tsconfig.base.json
 COPY . .
 
+# Pull Git LFS files if git-lfs is available
+# This ensures images are available even if LFS wasn't pulled in the build context
+RUN if command -v git-lfs >/dev/null 2>&1; then \
+      git lfs install && \
+      git lfs pull || echo "Warning: Git LFS pull failed, continuing..."; \
+    else \
+      echo "Git LFS not available, assuming files are already in place"; \
+    fi
+
 # Build arguments for NEXT_PUBLIC_* variables (required at build time for Next.js)
 ARG NEXT_PUBLIC_API_URL
 ARG NEXT_PUBLIC_SITE_URL
