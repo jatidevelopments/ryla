@@ -1,0 +1,86 @@
+name: Publish Web Assets to GHCR
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/web/public/**"
+      - "docker/web-assets/**"
+      - ".github/workflows/publish-web-assets-ghcr.yml"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # GitHub-hosted runners can run out of disk during large Docker builds.
+      # Free space aggressively before building.
+      - name: Free disk space
+        shell: bash
+        run: |
+          set -euxo pipefail
+          df -h
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo docker system prune -af || true
+          df -h
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify assets exist
+        run: |
+          echo "========================================="
+          echo "Checking for web app assets..."
+          echo "========================================="
+          if [ -d "apps/web/public/images" ]; then
+            echo "✅ Found apps/web/public/images/"
+            echo "Age ranges: $(find apps/web/public/images/age-ranges -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+            echo "Skin colors: $(find apps/web/public/images/skin-colors -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+            echo "Ethnicity: $(find apps/web/public/images/ethnicity -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+            echo "Total images: $(find apps/web/public/images -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+          else
+            echo "⚠️ Warning: apps/web/public/images/ not found"
+            echo "The image will be created but may be empty"
+          fi
+
+      - name: Build & push web assets image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/web-assets/Dockerfile
+          push: true
+          provenance: false
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/ryla-web-assets:latest
+            ghcr.io/${{ github.repository_owner }}/ryla-web-assets:${{ github.sha }}
+
+      - name: Verify published image
+        run: |
+          echo "========================================="
+          echo "Verifying published image..."
+          echo "========================================="
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/${{ github.repository_owner }}/ryla-web-assets:latest
+          echo "✅ Image pulled successfully"
+          CONTAINER_ID=$(docker create ghcr.io/${{ github.repository_owner }}/ryla-web-assets:latest)
+          echo "Container ID: $CONTAINER_ID"
+          echo "Image contents:"
+          docker run --rm ghcr.io/${{ github.repository_owner }}/ryla-web-assets:latest ls -la /public 2>/dev/null | head -20 || echo "No /public directory found"
+          docker rm "$CONTAINER_ID" 2>/dev/null || true
