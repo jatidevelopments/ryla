@@ -13,6 +13,7 @@ const nextConfig = {
   output: 'standalone',
   // Fix standalone output path structure for monorepo
   outputFileTracingRoot: path.join(__dirname, '../../'),
+  // Trigger rebuild to test ghcr asset extraction
   transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business', '@ryla/trpc', '@ryla/payments', '@ryla/analytics'],
   // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
   // Optimize package imports to ensure animations work in production
