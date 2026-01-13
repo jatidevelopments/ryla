@@ -33,6 +33,11 @@ These epics define the **MVP Product** — what users interact with after conver
 | [EP-024](./EP-024-contextual-page-tutorials.md) | Contextual Page Tutorials | P1 | A-Activation, C-Core Value | 📝 Defined |
 | [EP-026](./EP-026-lora-training.md) | LoRA Training for Character Consistency | P1 | C-Core Value | 📝 Defined |
 | [EP-027](./EP-027-hide-nsfw-for-non-pro-users.md) | Hide NSFW Toggles for Non-Pro Users (Phase 1) | P1 | D-Conversion, A-Activation | 📝 Defined |
+| [EP-028](./EP-028-dna-foundation-auto-generation.md) | DNA Foundation & Auto-Generation Engine | P1 | C-Core Value | 📝 Defined |
+| [EP-029](./EP-029-enhanced-prompt-builder.md) | Enhanced Prompt Builder | P1 | C-Core Value | 📝 Defined |
+| [EP-030](./EP-030-dna-integration-base-images.md) | DNA Integration - Base Image Generation | P1 | C-Core Value, A-Activation | 📝 Defined |
+| [EP-031](./EP-031-dna-integration-studio-profile.md) | DNA Integration - Studio & Profile Sets | P1 | C-Core Value | 📝 Defined |
+| [EP-032](./EP-032-progressive-disclosure-wizard.md) | Progressive Disclosure Wizard | P1 | A-Activation, C-Core Value | 📝 Defined |
 
 ## User Journey
 

@@ -278,8 +278,13 @@ Build a four-layer Character DNA system:
 
 | Epic | Name                        | Status | Link                                    |
 | ---- | ---------------------------- | ------ | --------------------------------------- |
-| EP-005 | Character Creation & Wizard  | Active | `docs/requirements/epics/mvp/EP-005.md` |
-| EP-007 | Image Generation System      | Active | `docs/requirements/epics/mvp/EP-007.md` |
+| EP-028 | DNA Foundation & Auto-Generation Engine | Defined | `docs/requirements/epics/mvp/EP-028-dna-foundation-auto-generation.md` |
+| EP-029 | Enhanced Prompt Builder | Defined | `docs/requirements/epics/mvp/EP-029-enhanced-prompt-builder.md` |
+| EP-030 | DNA Integration - Base Image Generation | Defined | `docs/requirements/epics/mvp/EP-030-dna-integration-base-images.md` |
+| EP-031 | DNA Integration - Studio & Profile Sets | Defined | `docs/requirements/epics/mvp/EP-031-dna-integration-studio-profile.md` |
+| EP-032 | Progressive Disclosure Wizard | Defined | `docs/requirements/epics/mvp/EP-032-progressive-disclosure-wizard.md` |
+| EP-001 | Character Creation & Wizard  | Active | `docs/requirements/epics/mvp/EP-001-influencer-wizard.md` |
+| EP-005 | Content Studio & Generation  | Active | `docs/requirements/epics/mvp/EP-005-content-studio.md` |
 
 ### Dependencies
 
