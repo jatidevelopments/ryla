@@ -20,13 +20,20 @@ COPY --from=deps /app/nx.json ./nx.json
 COPY --from=deps /app/tsconfig.base.json ./tsconfig.base.json
 COPY . .
 
-# Pull Git LFS files if git-lfs is available
-# This ensures images are available even if LFS wasn't pulled in the build context
-RUN if command -v git-lfs >/dev/null 2>&1; then \
-      git lfs install && \
-      git lfs pull || echo "Warning: Git LFS pull failed, continuing..."; \
+# Verify images are present (they should be pulled from Git LFS in CI/CD)
+# This helps debug if images are missing in the build context
+RUN echo "Verifying images in build context..." && \
+    if [ -d "./apps/web/public/images" ]; then \
+      echo "✅ Found apps/web/public/images/ directory"; \
+      echo "Age range images: $(find ./apps/web/public/images/age-ranges -name '*.webp' 2>/dev/null | wc -l | tr -d ' ') files"; \
+      echo "Skin color images: $(find ./apps/web/public/images/skin-colors -name '*.webp' 2>/dev/null | wc -l | tr -d ' ') files"; \
+      echo "Ethnicity images: $(find ./apps/web/public/images/ethnicity -name '*.webp' 2>/dev/null | wc -l | tr -d ' ') files"; \
+      ls -la ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | head -3 || echo "⚠️ No age range images found"; \
+      ls -la ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | head -3 || echo "⚠️ No skin color images found"; \
     else \
-      echo "Git LFS not available, assuming files are already in place"; \
+      echo "❌ ERROR: apps/web/public/images/ directory not found in build context!"; \
+      echo "Git LFS files may not have been pulled correctly in CI/CD."; \
+      exit 1; \
     fi
 
 # Build arguments for NEXT_PUBLIC_* variables (required at build time for Next.js)
