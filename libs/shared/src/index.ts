@@ -1,5 +1,6 @@
 // Shared utilities, types, and constants
 // Export public API here
+// Updated: Changed module format to CommonJS for API compatibility
 
 // Utils
 export * from './utils/index';
