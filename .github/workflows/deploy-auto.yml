@@ -131,94 +131,35 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Pull and extract ghcr assets (for web app)
+      - name: Verify images from Git LFS before build
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          echo "========================================="; \
-          echo "Checking if GHCR image exists..."; \
-          echo "========================================="; \
-          docker pull ghcr.io/jatidevelopments/ryla-web-assets:latest 2>&1 || echo "Warning: Could not pull ghcr assets image, will use default public folder"; \
-          # Extract assets from the image and copy to public folder
-          if docker image inspect ghcr.io/jatidevelopments/ryla-web-assets:latest >/dev/null 2>&1; then \
-            echo "✅ GHCR image exists and was pulled successfully"; \
-            echo "Image details:"; \
-            docker image inspect ghcr.io/jatidevelopments/ryla-web-assets:latest --format '{{.RepoTags}} {{.Size}}' || true; \
-            echo "========================================="; \
-            echo "Extracting assets from ghcr image..."; \
-            echo "========================================="; \
-            CONTAINER_ID=$(docker create ghcr.io/jatidevelopments/ryla-web-assets:latest); \
-            echo "Created container: $CONTAINER_ID"; \
-            # List container filesystem to see what's available
-            echo "Container filesystem structure:"; \
-            docker run --rm ghcr.io/jatidevelopments/ryla-web-assets:latest ls -la / 2>/dev/null || true; \
-            echo ""; \
-            echo "Checking for common paths:"; \
-            docker run --rm ghcr.io/jatidevelopments/ryla-web-assets:latest sh -c "ls -la /public 2>/dev/null || echo 'No /public'; ls -la /assets 2>/dev/null || echo 'No /assets'; find / -maxdepth 2 -type d -name '*public*' -o -name '*images*' 2>/dev/null | head -10 || echo 'No matching directories'" || true; \
-            # Try multiple source paths
-            EXTRACTED=false; \
-            for SOURCE_PATH in "/public" "/assets" "/"; do \
-              echo "Trying to extract from $SOURCE_PATH"; \
-              if docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null; then \
-                echo "Successfully extracted from $SOURCE_PATH"; \
-                echo "Contents of public-temp:"; \
-                ls -la ./apps/web/public-temp/ | head -20 || true; \
-                if [ -d "./apps/web/public-temp" ] && [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
-                  echo "Copying extracted assets to apps/web/public/"; \
-                  # Ensure target directory exists
-                  mkdir -p ./apps/web/public/; \
-                  # Copy with verbose output
-                  cp -rv ./apps/web/public-temp/* ./apps/web/public/ 2>&1 | head -30 || true; \
-                  echo "Files in apps/web/public/images after copy:"; \
-                  ls -la ./apps/web/public/images/ 2>/dev/null | head -20 || echo "No images directory found"; \
-                  echo "Ethnicity images:"; \
-                  ls -la ./apps/web/public/images/ethnicity/ 2>/dev/null | head -10 || echo "No ethnicity directory found"; \
-                  echo "Verifying critical image paths:"; \
-                  echo "  Age ranges:"; \
-                  ls -1 ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | head -5 || echo "    ❌ No age range images found"; \
-                  echo "  Skin colors:"; \
-                  ls -1 ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | head -5 || echo "    ❌ No skin color images found"; \
-                  echo "  Skin colors by ethnicity:"; \
-                  find ./apps/web/public/images/skin-colors -type d -mindepth 1 2>/dev/null | while read dir; do \
-                    count=$(ls -1 "$dir"/*.webp 2>/dev/null | wc -l | tr -d ' '); \
-                    echo "    $dir: $count files"; \
-                  done || echo "    ❌ No ethnicity-specific skin color images found"; \
-                  EXTRACTED=true; \
-                  break; \
-                else \
-                  echo "public-temp is empty, trying next path"; \
-                fi; \
-              else \
-                echo "Failed to extract from $SOURCE_PATH"; \
-              fi; \
-              rm -rf ./apps/web/public-temp; \
-            done; \
-            docker rm "$CONTAINER_ID" 2>/dev/null || true; \
-            if [ "$EXTRACTED" = "false" ]; then \
-              echo "Warning: Could not extract assets from any path, using default public folder"; \
-            else \
-              echo "✅ Assets extracted successfully!"; \
-            fi; \
-          else \
-            echo "Warning: ghcr image not found, using default public folder"; \
+          echo "========================================="
+          echo "Verifying images from Git LFS are present"
+          echo "========================================="
+          echo "Images should be pulled automatically via checkout with lfs: true"
+          echo ""
+          echo "Checking image directories:"
+          if [ -d "./apps/web/public/images" ]; then
+            echo "✅ Found apps/web/public/images/"
+            echo ""
+            echo "Age range images: $(find ./apps/web/public/images/age-ranges -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+            echo "Skin color images: $(find ./apps/web/public/images/skin-colors -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+            echo "Ethnicity images: $(find ./apps/web/public/images/ethnicity -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+            echo ""
+            echo "Sample files:"
+            ls -1 ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | head -3 || echo "  ⚠️ No age range images found"
+            ls -1 ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | head -3 || echo "  ⚠️ No skin color images found"
+            echo ""
+            echo "Skin colors by ethnicity:"
+            find ./apps/web/public/images/skin-colors -type d -mindepth 1 2>/dev/null | while read dir; do
+              count=$(find "$dir" -name "*.webp" 2>/dev/null | wc -l | tr -d ' ')
+              echo "  $dir: $count files"
+            done || echo "  No ethnicity-specific directories found"
+          else
+            echo "❌ ERROR: apps/web/public/images/ not found!"
+            echo "Git LFS files may not have been pulled correctly."
+            exit 1
           fi
-        continue-on-error: true
-
-      - name: Verify images before build
-        run: |
-          echo "========================================="; \
-          echo "Verifying images are present before build"; \
-          echo "========================================="; \
-          echo "Age range images:"; \
-          ls -la ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | wc -l || echo "0"; \
-          echo "Skin color images:"; \
-          ls -la ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | wc -l || echo "0"; \
-          echo "Ethnicity images:"; \
-          find ./apps/web/public/images/ethnicity -name "*.webp" 2>/dev/null | wc -l || echo "0"; \
-          echo "Skin colors by ethnicity:"; \
-          find ./apps/web/public/images/skin-colors -type d -mindepth 1 2>/dev/null | while read dir; do \
-            count=$(ls -1 "$dir"/*.webp 2>/dev/null | wc -l | tr -d ' '); \
-            echo "  $dir: $count files"; \
-          done || echo "  No ethnicity-specific directories found"
 
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
