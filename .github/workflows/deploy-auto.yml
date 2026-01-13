@@ -111,6 +111,10 @@ jobs:
     if: needs.detect-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     environment: production
+    # Cancel in-progress web app deployments when new commit affects web app
+    concurrency:
+      group: deploy-web-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
 
@@ -300,6 +304,10 @@ jobs:
     if: needs.detect-changes.outputs.funnel == 'true'
     runs-on: ubuntu-latest
     environment: production
+    # Cancel in-progress funnel app deployments when new commit affects funnel app
+    concurrency:
+      group: deploy-funnel-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
 
@@ -372,6 +380,10 @@ jobs:
     if: needs.detect-changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     environment: production
+    # Cancel in-progress landing app deployments when new commit affects landing app
+    concurrency:
+      group: deploy-landing-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
 
