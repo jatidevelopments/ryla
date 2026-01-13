@@ -31,10 +31,26 @@ export class HealthService {
     }
   }
 
-  private async checkRedis() {
+  async checkRedis() {
     const startTime = Date.now();
     try {
-      const pong = await this.redisService.ping();
+      // Check if Redis is ready first (fast synchronous check)
+      if (!this.redisService.isReady()) {
+        return {
+          isHealthy: false,
+          responseTime: Date.now() - startTime,
+          message: 'Redis client is not connected (status: not ready)',
+        };
+      }
+
+      // Try to ping Redis with timeout
+      const pong = await Promise.race([
+        this.redisService.ping(),
+        new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error('Redis ping timeout')), 1000)
+        ),
+      ]);
+
       return {
         isHealthy: pong === 'PONG',
         responseTime: Date.now() - startTime,

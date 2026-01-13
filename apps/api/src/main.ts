@@ -42,6 +42,7 @@ import { SwaggerHelper } from './common/helpers/swagger.helper';
 import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
 import { AppModule } from './modules/app.module';
 import { runMigrations } from './database/run-migrations';
+import { RedisService } from './modules/redis/services/redis.service';
 
 async function bootstrap() {
   try {
@@ -60,6 +61,35 @@ async function bootstrap() {
       abortOnError: false,
       bufferLogs: false,
     });
+
+    // Verify Redis connection on startup (non-blocking)
+    try {
+      const redisService = app.get(RedisService);
+      console.log(chalk.blue('🔍 Checking Redis connection...'));
+      
+      // Try to connect and ping Redis with timeout
+      const pingResult = await Promise.race([
+        redisService.ping(),
+        new Promise<string>((_, reject) =>
+          setTimeout(() => reject(new Error('Redis connection timeout')), 2000)
+        ),
+      ]);
+
+      if (pingResult === 'PONG') {
+        console.log(chalk.green('✅ Redis connection successful'));
+      } else {
+        console.warn(chalk.yellow('⚠️  Redis ping returned unexpected result:', pingResult));
+      }
+    } catch (error: any) {
+      // Don't fail startup if Redis is unavailable - graceful degradation
+      console.warn(
+        chalk.yellow('⚠️  Redis connection check failed (continuing without Redis):'),
+        error.message || error
+      );
+      console.warn(
+        chalk.gray('   The app will continue to run, but Redis features will be unavailable.')
+      );
+    }
 
     // Configure Socket.IO adapter with CORS
     const ioAdapter = new IoAdapter(app);

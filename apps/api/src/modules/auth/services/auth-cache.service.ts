@@ -4,6 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import { Config, JwtConfig } from '../../../config/config.type';
 import { RedisService } from '../../redis/services/redis.service';
 
+// Redis operation timeout - fail fast to avoid blocking requests
+// Reduced from 5s to 500ms for better UX
+const REDIS_OPERATION_TIMEOUT_MS = 500;
+
 @Injectable()
 export class AuthCacheService {
   private jwtConfig: JwtConfig;
@@ -29,13 +33,13 @@ export class AuthCacheService {
   ): Promise<void> {
     try {
       const key = this.getKey(userId, deviceId);
-      // Add timeout to prevent hanging (5 seconds)
+      // Add timeout to prevent hanging - fail fast
       await Promise.race([
         this.redisService.setString(key, token, {
           ttl: this.jwtConfig.accessExpiresIn,
         }),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+          setTimeout(() => reject(new Error('Redis operation timeout')), REDIS_OPERATION_TIMEOUT_MS)
         ),
       ]);
     } catch (error) {
@@ -51,13 +55,20 @@ export class AuthCacheService {
     deviceId: string,
     token: string,
   ): Promise<boolean> {
+    // Fast path: skip Redis check if not ready (fail fast)
+    if (!this.redisService.isReady()) {
+      // Redis not ready - assume token is valid (graceful degradation)
+      // JWT validation will still work
+      return true;
+    }
+
     try {
       const key = this.getKey(userId, deviceId);
-      // Add timeout to prevent hanging (5 seconds)
+      // Add timeout to prevent hanging - fail fast for better UX
       const storedToken = await Promise.race([
         this.redisService.getString(key),
         new Promise<string | null>((_, reject) =>
-          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+          setTimeout(() => reject(new Error('Redis operation timeout')), REDIS_OPERATION_TIMEOUT_MS)
         ),
       ]);
       return storedToken === token;
@@ -72,11 +83,11 @@ export class AuthCacheService {
   public async deleteToken(userId: string, deviceId: string): Promise<void> {
     try {
       const key = this.getKey(userId, deviceId);
-      // Add timeout to prevent hanging (5 seconds)
+      // Add timeout to prevent hanging - fail fast
       await Promise.race([
         this.redisService.deleteByKey(key),
         new Promise((_, reject) =>
-          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+          setTimeout(() => reject(new Error('Redis operation timeout')), REDIS_OPERATION_TIMEOUT_MS)
         ),
       ]);
     } catch (error) {
@@ -87,18 +98,18 @@ export class AuthCacheService {
 
   public async deleteAllUserTokens(userId: string): Promise<void> {
     try {
-      // Add timeout to prevent hanging (5 seconds)
+      // Add timeout to prevent hanging - fail fast
       const keys = await Promise.race([
         this.redisService.keys(this.getKey(userId, '*')),
         new Promise<string[]>((_, reject) =>
-          setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+          setTimeout(() => reject(new Error('Redis operation timeout')), REDIS_OPERATION_TIMEOUT_MS)
         ),
       ]);
       if (keys.length > 0) {
         await Promise.race([
           this.redisService.deleteByKeys(keys),
           new Promise((_, reject) =>
-            setTimeout(() => reject(new Error('Redis operation timeout')), 5000)
+            setTimeout(() => reject(new Error('Redis operation timeout')), REDIS_OPERATION_TIMEOUT_MS)
           ),
         ]);
       }

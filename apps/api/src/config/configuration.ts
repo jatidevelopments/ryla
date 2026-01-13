@@ -20,27 +20,51 @@ export default (): Config => ({
   },
   redis: (() => {
     // Parse REDIS_URL if provided (Fly.io/Upstash format)
-    // Format: redis://default:password@host:port or rediss://default:password@host:port
+    // Format: redis://username:password@host:port or rediss://username:password@host:port
+    // Also supports: redis://password@host:port (no username)
     if (process.env.REDIS_URL) {
       try {
         const url = new URL(process.env.REDIS_URL);
-        return {
-          port: Number(url.port) || 6379,
-          host: url.hostname,
-          password: url.password || '',
+        const port = Number(url.port) || 6379;
+        const host = url.hostname;
+        
+        // Handle username:password format (Fly.io/Upstash)
+        // If username is present, password is in url.password
+        // If no username, password might be in url.password or url.username
+        let password = '';
+        if (url.username && url.password) {
+          // Format: redis://username:password@host
+          password = url.password;
+        } else if (url.password) {
+          // Format: redis://:password@host (no username)
+          password = url.password;
+        } else if (url.username && !url.password) {
+          // Format: redis://password@host (password in username field)
+          password = url.username;
+        }
+
+        const config = {
+          port,
+          host,
+          password,
           environment: process.env.REDIS_ENVIRONMENT || 'production',
         };
+
+        console.log(`[Config] Redis configured from REDIS_URL: ${host}:${port} (env: ${config.environment})`);
+        return config;
       } catch (error) {
         console.warn('[Config] Failed to parse REDIS_URL, using individual variables:', error);
       }
     }
     // Fallback to individual variables
-    return {
+    const config = {
       port: Number(process.env.REDIS_PORT) || 6379,
       host: process.env.REDIS_HOST || 'localhost',
       password: process.env.REDIS_PASSWORD || '',
       environment: process.env.REDIS_ENVIRONMENT || 'local',
     };
+    console.log(`[Config] Redis configured from individual vars: ${config.host}:${config.port} (env: ${config.environment})`);
+    return config;
   })(),
   jwt: {
     accessSecret: process.env.JWT_ACCESS_SECRET || 'secret',

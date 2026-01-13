@@ -13,6 +13,9 @@ primary_region = "fra"
   APP_PORT = "3001"
   APP_HOST = "0.0.0.0"
   APP_ENVIRONMENT = "production"
+  # Note: REDIS_URL is automatically set when attaching Redis with:
+  #   flyctl redis attach <redis-name> --app ryla-api-prod
+  # If not using managed Redis, set REDIS_HOST, REDIS_PORT, REDIS_PASSWORD manually
 
 [http_service]
   internal_port = 3001

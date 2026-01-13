@@ -23,6 +23,16 @@ export class HealthController {
     return await this.healthService.checkDatabase();
   }
 
+  @Get('redis-check')
+  @ApiOperation({ summary: 'Check Redis health' })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns the health status of Redis',
+  })
+  async checkRedis() {
+    return await this.healthService.checkRedis();
+  }
+
   @Get('redis-keys')
   async getRedisDataDefault(): Promise<Record<string, any>> {
     return await this.healthService.getRedisData(100);

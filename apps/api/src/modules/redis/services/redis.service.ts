@@ -199,5 +199,13 @@ export class RedisService {
   public pipeline(): any {
     return this.redisClient.pipeline();
   }
+
+  /**
+   * Check if Redis client is connected and ready
+   * Returns true if status is 'ready', false otherwise
+   */
+  public isReady(): boolean {
+    return this.redisClient.status === 'ready';
+  }
 }
 
