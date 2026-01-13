@@ -54,23 +54,46 @@ jobs:
           docker pull ghcr.io/jatidevelopments/ryla-web-assets:latest || echo "Warning: Could not pull ghcr assets image, will use default public folder"
           # Extract assets from the image and copy to public folder
           if docker image inspect ghcr.io/jatidevelopments/ryla-web-assets:latest >/dev/null 2>&1; then \
+            echo "========================================="; \
             echo "Extracting assets from ghcr image..."; \
+            echo "========================================="; \
             CONTAINER_ID=$(docker create ghcr.io/jatidevelopments/ryla-web-assets:latest); \
+            echo "Created container: $CONTAINER_ID"; \
+            # List container filesystem to see what's available
+            echo "Container filesystem structure:"; \
+            docker run --rm ghcr.io/jatidevelopments/ryla-web-assets:latest ls -la / 2>/dev/null || true; \
             # Try multiple source paths
+            EXTRACTED=false; \
             for SOURCE_PATH in "/public" "/assets" "/"; do \
               echo "Trying to extract from $SOURCE_PATH"; \
               if docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null; then \
                 echo "Successfully extracted from $SOURCE_PATH"; \
+                echo "Contents of public-temp:"; \
+                ls -la ./apps/web/public-temp/ | head -20 || true; \
                 if [ -d "./apps/web/public-temp" ] && [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
                   echo "Copying extracted assets to apps/web/public/"; \
-                  cp -r ./apps/web/public-temp/* ./apps/web/public/ 2>/dev/null || true; \
+                  # Ensure target directory exists
+                  mkdir -p ./apps/web/public/; \
+                  # Copy with verbose output
+                  cp -rv ./apps/web/public-temp/* ./apps/web/public/ 2>&1 | head -30 || true; \
                   echo "Assets extracted and copied successfully"; \
-                  ls -la ./apps/web/public/ | head -20; \
+                  echo "Files in apps/web/public/images after copy:"; \
+                  ls -la ./apps/web/public/images/ | head -20 || true; \
+                  echo "Ethnicity images:"; \
+                  ls -la ./apps/web/public/images/ethnicity/female/ 2>/dev/null | head -10 || echo "No ethnicity images found"; \
+                  EXTRACTED=true; \
+                else \
+                  echo "Warning: public-temp directory is empty"; \
                 fi; \
                 rm -rf ./apps/web/public-temp; \
                 break; \
+              else \
+                echo "Failed to extract from $SOURCE_PATH"; \
               fi; \
             done; \
+            if [ "$EXTRACTED" = "false" ]; then \
+              echo "Warning: Could not extract assets from any source path"; \
+            fi; \
             docker rm "$CONTAINER_ID" 2>/dev/null || true; \
           else \
             echo "Image not available, using default public folder"; \
