@@ -160,6 +160,16 @@ jobs:
                   ls -la ./apps/web/public/images/ 2>/dev/null | head -20 || echo "No images directory found"; \
                   echo "Ethnicity images:"; \
                   ls -la ./apps/web/public/images/ethnicity/ 2>/dev/null | head -10 || echo "No ethnicity directory found"; \
+                  echo "Verifying critical image paths:"; \
+                  echo "  Age ranges:"; \
+                  ls -1 ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | head -5 || echo "    ❌ No age range images found"; \
+                  echo "  Skin colors:"; \
+                  ls -1 ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | head -5 || echo "    ❌ No skin color images found"; \
+                  echo "  Skin colors by ethnicity:"; \
+                  find ./apps/web/public/images/skin-colors -type d -mindepth 1 2>/dev/null | while read dir; do \
+                    count=$(ls -1 "$dir"/*.webp 2>/dev/null | wc -l | tr -d ' '); \
+                    echo "    $dir: $count files"; \
+                  done || echo "    ❌ No ethnicity-specific skin color images found"; \
                   EXTRACTED=true; \
                   break; \
                 else \
@@ -181,6 +191,40 @@ jobs:
           fi
         continue-on-error: true
 
+      - name: Verify images before build
+        run: |
+          echo "========================================="; \
+          echo "Verifying images are present before build"; \
+          echo "========================================="; \
+          echo "Age range images:"; \
+          ls -la ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | wc -l || echo "0"; \
+          echo "Skin color images:"; \
+          ls -la ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | wc -l || echo "0"; \
+          echo "Ethnicity images:"; \
+          find ./apps/web/public/images/ethnicity -name "*.webp" 2>/dev/null | wc -l || echo "0"; \
+          echo "Skin colors by ethnicity:"; \
+          find ./apps/web/public/images/skin-colors -type d -mindepth 1 2>/dev/null | while read dir; do \
+            count=$(ls -1 "$dir"/*.webp 2>/dev/null | wc -l | tr -d ' '); \
+            echo "  $dir: $count files"; \
+          done || echo "  No ethnicity-specific directories found"
+
+      - name: Verify images before build
+        run: |
+          echo "========================================="; \
+          echo "Verifying images are present before build"; \
+          echo "========================================="; \
+          echo "Age range images:"; \
+          ls -la ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | wc -l || echo "0"; \
+          echo "Skin color images:"; \
+          ls -la ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | wc -l || echo "0"; \
+          echo "Ethnicity images:"; \
+          find ./apps/web/public/images/ethnicity -name "*.webp" 2>/dev/null | wc -l || echo "0"; \
+          echo "Skin colors by ethnicity:"; \
+          find ./apps/web/public/images/skin-colors -type d -mindepth 1 2>/dev/null | while read dir; do \
+            count=$(ls -1 "$dir"/*.webp 2>/dev/null | wc -l | tr -d ' '); \
+            echo "  $dir: $count files"; \
+          done || echo "  No ethnicity-specific directories found"
+
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
@@ -199,6 +243,25 @@ jobs:
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         continue-on-error: true
+
+      - name: Verify images in build context
+        run: |
+          echo "========================================="; \
+          echo "Final verification before Docker build"; \
+          echo "========================================="; \
+          echo "Checking if images exist in apps/web/public/images:"; \
+          if [ -d "./apps/web/public/images" ]; then \
+            echo "✅ Images directory exists"; \
+            echo "Age ranges: $(find ./apps/web/public/images/age-ranges -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"; \
+            echo "Skin colors: $(find ./apps/web/public/images/skin-colors -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"; \
+            echo "Ethnicity: $(find ./apps/web/public/images/ethnicity -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"; \
+            echo "Sample paths:"; \
+            ls -1 ./apps/web/public/images/age-ranges/*.webp 2>/dev/null | head -3 || echo "  No age range images"; \
+            ls -1 ./apps/web/public/images/skin-colors/*.webp 2>/dev/null | head -3 || echo "  No skin color images"; \
+          else \
+            echo "❌ Images directory does not exist!"; \
+            exit 1; \
+          fi
 
       - name: Deploy Web App to Fly.io
         run: |
