@@ -124,6 +124,59 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Pull and extract ghcr assets (for web app)
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          docker pull ghcr.io/jatidevelopments/ryla-web-assets:latest || echo "Warning: Could not pull ghcr assets image, will use default public folder"
+          # Extract assets from the image and copy to public folder
+          if docker image inspect ghcr.io/jatidevelopments/ryla-web-assets:latest >/dev/null 2>&1; then \
+            echo "========================================="; \
+            echo "Extracting assets from ghcr image..."; \
+            echo "========================================="; \
+            CONTAINER_ID=$(docker create ghcr.io/jatidevelopments/ryla-web-assets:latest); \
+            echo "Created container: $CONTAINER_ID"; \
+            # List container filesystem to see what's available
+            echo "Container filesystem structure:"; \
+            docker run --rm ghcr.io/jatidevelopments/ryla-web-assets:latest ls -la / 2>/dev/null || true; \
+            # Try multiple source paths
+            EXTRACTED=false; \
+            for SOURCE_PATH in "/public" "/assets" "/"; do \
+              echo "Trying to extract from $SOURCE_PATH"; \
+              if docker cp "$CONTAINER_ID:$SOURCE_PATH" ./apps/web/public-temp/ 2>/dev/null; then \
+                echo "Successfully extracted from $SOURCE_PATH"; \
+                echo "Contents of public-temp:"; \
+                ls -la ./apps/web/public-temp/ | head -20 || true; \
+                if [ -d "./apps/web/public-temp" ] && [ "$(ls -A ./apps/web/public-temp 2>/dev/null)" ]; then \
+                  echo "Copying extracted assets to apps/web/public/"; \
+                  # Ensure target directory exists
+                  mkdir -p ./apps/web/public/; \
+                  # Copy with verbose output
+                  cp -rv ./apps/web/public-temp/* ./apps/web/public/ 2>&1 | head -30 || true; \
+                  echo "Files in apps/web/public/images after copy:"; \
+                  ls -la ./apps/web/public/images/ 2>/dev/null | head -20 || echo "No images directory found"; \
+                  echo "Ethnicity images:"; \
+                  ls -la ./apps/web/public/images/ethnicity/ 2>/dev/null | head -10 || echo "No ethnicity directory found"; \
+                  EXTRACTED=true; \
+                  break; \
+                else \
+                  echo "public-temp is empty, trying next path"; \
+                fi; \
+              else \
+                echo "Failed to extract from $SOURCE_PATH"; \
+              fi; \
+              rm -rf ./apps/web/public-temp; \
+            done; \
+            docker rm "$CONTAINER_ID" 2>/dev/null || true; \
+            if [ "$EXTRACTED" = "false" ]; then \
+              echo "Warning: Could not extract assets from any path, using default public folder"; \
+            else \
+              echo "✅ Assets extracted successfully!"; \
+            fi; \
+          else \
+            echo "Warning: ghcr image not found, using default public folder"; \
+          fi
+        continue-on-error: true
+
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
