@@ -22,10 +22,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true  # Pull Git LFS files (images are stored in LFS)
-        with:
           fetch-depth: 0  # Need full history for Nx affected
           token: ${{ secrets.GITHUB_TOKEN }}
+          lfs: true  # Pull Git LFS files (images are stored in LFS)
 
       - uses: actions/setup-node@v4
         with:
