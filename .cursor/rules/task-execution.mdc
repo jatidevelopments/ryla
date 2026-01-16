@@ -268,6 +268,7 @@ alwaysApply: true
    - Then business logic
    - Then presentation layer
    - Follow Apps → Business → Data flow
+   - **If adding secrets/config**: Use Infisical (see `infisical.mdc`) - never create `.env` files
 
 5. **Testing**
    - Write tests as you go (TDD when applicable)
@@ -444,4 +445,5 @@ alwaysApply: true
 - Pipeline: `pipeline-enforcement.mdc` (10-phase pipeline)
 - Iterative Development: `ralph.mdc` (for complex features)
 - Way of Work: `way-of-work.mdc` (communication patterns)
+- Secrets Management: `infisical.mdc` (RYLA uses Infisical for all secrets)
 - Process: `docs/process/10-PHASE-PIPELINE.md` (detailed phase guide)

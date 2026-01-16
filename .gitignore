@@ -31,9 +31,14 @@ out/
 .env
 .env.local
 .env.*.local
+.env.backup/
 
 # Credentials (never commit)
 config/credentials.csv
+config/.secrets.json
+
+# Infisical (project config is safe, but tokens are not)
+# .infisical.json is safe to commit (contains project ID, no secrets)
 
 # Logs
 logs/

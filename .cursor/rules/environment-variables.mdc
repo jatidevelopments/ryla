@@ -8,11 +8,21 @@ alwaysApply: false
 
 ## Context
 
-- Secure configuration management
+- **RYLA uses Infisical for all secrets management** - Never use `.env` files directly
+- Secure configuration management via Infisical
 - Type-safe environment variable access
 - Validation of required variables
 - Documentation of all environment variables
 - Separation of public and private variables
+
+## CRITICAL: Secrets Management
+
+**RYLA uses Infisical for all secrets. Never create or modify `.env` files directly.**
+
+- All secrets are stored in Infisical (see `infisical.mdc` rule)
+- Use `infisical run` to inject secrets when running applications
+- Use `infisical secrets set` to add/update secrets
+- Export to `.env` only for IDE autocomplete (gitignored)
 
 ## Requirements
 
@@ -295,19 +305,21 @@ if (process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith('postgresql
 3. **Validation** - Validate at startup, not at runtime
 4. **Documentation** - Maintain `env.example` with all variables
 5. **Defaults** - Provide sensible defaults for development
-6. **Secrets** - Never commit secrets, use secrets management
+6. **Secrets** - Never commit secrets, use Infisical (see `infisical.mdc`)
 7. **Required Check** - Validate required variables before app starts
 8. **Format Validation** - Validate URLs, numbers, enums
 
 ## Security Considerations
 
 - Never expose secrets via `NEXT_PUBLIC_*`
-- Use secrets management services (AWS Secrets Manager, etc.)
-- Rotate secrets regularly
-- Use different secrets for different environments
+- **Use Infisical for all secrets** - Never hardcode or use `.env` files directly
+- Rotate secrets regularly via Infisical
+- Use different secrets for different environments (dev/staging/prod in Infisical)
 - Never log environment variable values
+- Never commit `.env` files - they are gitignored
 
 ## Related Documentation
 
-- Security: `security.mdc` (for secrets management)
+- **Infisical Setup**: `infisical.mdc` - **READ THIS FIRST for secrets management**
+- Security: `security.mdc` (for general security practices)
 - API Design: `api-design.mdc` (for configuration usage)

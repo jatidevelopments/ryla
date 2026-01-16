@@ -54,7 +54,9 @@ All following rules are saved under `.cursor/rules/` directory:
 - `dependencies.mdc` – External dependencies and service integrations
 - `mcp-ryla-api.mdc` – RYLA MCP Server usage guidelines
 - `mcp-snyk.mdc` – Snyk MCP Server usage guidelines for security scanning
+- `mcp-cloudflare.mdc` – Cloudflare MCP Server usage guidelines
 - `runpod-safety.mdc` – RunPod safety: confirmation-gated, create-only operations
+- `infisical.mdc` – Infisical secrets management patterns and usage
 
 ## Features
 
@@ -104,4 +106,5 @@ All following rules are saved under `.cursor/rules/` directory:
 - Error handling → `error-handling.mdc`
 - Logging → `logging.mdc`
 - Environment variables → `environment-variables.mdc`
+- Secrets management → `infisical.mdc`
 - Git workflow → `git-workflow.mdc`

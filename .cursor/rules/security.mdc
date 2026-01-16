@@ -51,10 +51,11 @@ alwaysApply: false
 ### Data Protection
 
 - Encrypt sensitive data at rest using AES-256
-- Use environment variables for secrets (never hardcode)
+- **Use Infisical for all secrets** - Never hardcode or use `.env` files (see `infisical.mdc`)
+- Use environment variables for secrets (injected via Infisical at runtime)
 - Implement proper access controls and permissions
 - Regular security audits and dependency updates
-- Use secrets management services (AWS Secrets Manager, etc.)
+- **RYLA uses Infisical** for centralized, encrypted secrets management
 - Implement data backup and recovery procedures
 - Follow GDPR/privacy regulations for user data
 - Use secure random number generation for tokens
@@ -204,7 +205,8 @@ const getUser = async (email: string) => {
 ### Environment Variables
 
 ```typescript
-// ✅ Good: Environment-based configuration
+// ✅ Good: Environment-based configuration (secrets from Infisical)
+// Secrets are injected via `infisical run` - see infisical.mdc
 const config = {
   jwtSecret: process.env.JWT_SECRET!,
   dbUrl: process.env.DATABASE_URL!,
@@ -220,6 +222,9 @@ if (!config.jwtSecret) {
 const config = {
   jwtSecret: 'my-secret-key', // Never do this!
 };
+
+// ❌ Bad: Using .env files directly
+// RYLA uses Infisical - never create .env files manually
 ```
 
 ### Secure Token Generation
@@ -334,11 +339,13 @@ catch (error) {
 - [ ] Input validation (Zod schemas)
 - [ ] Secure headers (HSTS, CSP, etc.)
 - [ ] Rate limiting (prevent brute force)
-- [ ] Secure secrets management (env vars, not hardcoded)
+- [ ] Secure secrets management (Infisical - see `infisical.mdc`, never hardcode or use .env files)
 - [ ] Error handling (no sensitive info leaks)
 
 ## Related Documentation
 
+- **Secrets Management**: `infisical.mdc` - **RYLA uses Infisical for all secrets**
+- Environment Variables: `environment-variables.mdc` (for env var patterns)
 - Testing: `testing-standards.mdc`
 - Data Access: `data-access.mdc` (for query security)
 - Dependencies: `dependencies.mdc` (for service security)

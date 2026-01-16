@@ -1,0 +1,263 @@
+---
+description: Infisical secrets management patterns and usage guidelines
+globs: ["**/*.ts", "**/*.tsx", "**/.env*", "**/mcp.json*", "**/package.json"]
+alwaysApply: true
+---
+
+# Infisical Secrets Management
+
+## ⚠️ CRITICAL: RYLA Secrets Management
+
+**RYLA uses Infisical for ALL secrets. Never:**
+- ❌ Create or modify `.env` files directly
+- ❌ Hardcode secrets in code
+- ❌ Use `process.env` without Infisical injection
+- ❌ Commit secrets to git
+
+**Always:**
+- ✅ Use `infisical run` to inject secrets when running apps
+- ✅ Use `infisical secrets set` to add/update secrets
+- ✅ Access secrets via `process.env` (after Infisical injection)
+- ✅ Export to `.env` only for IDE autocomplete (gitignored)
+
+## Context
+
+RYLA uses Infisical for centralized secrets management with:
+- Hierarchical folder structure
+- Role-based access control (RBAC)
+- Environment separation (dev/staging/prod)
+- Machine identities for automated systems
+
+## Secrets Structure
+
+```
+RYLA Project
+├── /mcp          # MCP server secrets
+├── /apps/api     # Backend API secrets
+├── /apps/web     # Web app secrets
+├── /apps/funnel  # Funnel app secrets
+├── /apps/landing # Landing page secrets
+├── /shared       # Shared across all apps
+└── /test         # Test fixtures and credentials
+```
+
+## Requirements
+
+### Running Applications
+
+**Always use Infisical to inject secrets:**
+
+```bash
+# ✅ Good: Use infisical run
+infisical run --path=/apps/api --path=/shared --env=dev -- pnpm nx serve api
+
+# ❌ Bad: Hardcoded secrets or manual .env management
+DATABASE_URL=xxx pnpm nx serve api
+```
+
+### Environment Variables in Code
+
+**Access via `process.env` as normal:**
+
+```typescript
+// ✅ Good: Standard env access (Infisical injects at runtime)
+const dbUrl = process.env.DATABASE_URL;
+
+// ✅ Good: With validation
+const config = {
+  port: Number(process.env.APP_PORT) || 3001,
+  dbUrl: process.env.DATABASE_URL || throwError('DATABASE_URL required'),
+};
+```
+
+### Never Commit Secrets
+
+```bash
+# ✅ Good: Export to gitignored .env for IDE support
+infisical export --path=/apps/api --path=/shared --env=dev > apps/api/.env
+
+# ❌ Bad: Committing .env files
+git add apps/api/.env  # NEVER DO THIS
+```
+
+## MCP Server Configuration
+
+### Recommended: CLI Wrapper
+
+```json
+{
+  "mcpServers": {
+    "ryla-api": {
+      "command": "infisical",
+      "args": [
+        "run",
+        "--path=/mcp",
+        "--env=dev",
+        "--",
+        "npx", "tsx", "apps/mcp/src/main.ts"
+      ]
+    },
+    "github": {
+      "command": "infisical",
+      "args": [
+        "run",
+        "--path=/mcp",
+        "--env=dev",
+        "--",
+        "npx", "-y", "@modelcontextprotocol/server-github"
+      ]
+    }
+  }
+}
+```
+
+### Alternative: Machine Identity Token
+
+```json
+{
+  "mcpServers": {
+    "ryla-api": {
+      "command": "npx",
+      "args": ["tsx", "apps/mcp/src/main.ts"],
+      "env": {
+        "INFISICAL_TOKEN": "${INFISICAL_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+## Common Commands
+
+### View Secrets
+
+```bash
+# List secrets in a folder
+infisical secrets --path=/mcp --env=dev
+
+# Get specific secret value
+infisical secrets get GITHUB_TOKEN --path=/mcp --env=dev
+```
+
+### Set Secrets
+
+```bash
+# Set single secret
+infisical secrets set API_KEY=xxx --path=/apps/api --env=dev
+
+# Import from .env file
+infisical secrets set --path=/apps/api --env=dev < apps/api/.env
+```
+
+### Export Secrets
+
+```bash
+# Export to .env format
+infisical export --path=/apps/api --path=/shared --env=dev > apps/api/.env
+
+# Export as JSON
+infisical export --format=json --path=/apps/api --env=dev
+```
+
+### Run with Secrets
+
+```bash
+# Inject and run command
+infisical run --path=/apps/api --path=/shared --env=dev -- npm start
+
+# Multiple paths
+infisical run --path=/apps/web --path=/shared --env=dev -- pnpm nx serve web
+```
+
+## Folder Assignments
+
+| Application | Paths | Command |
+|-------------|-------|---------|
+| `apps/api` | `/apps/api`, `/shared` | `infisical run --path=/apps/api --path=/shared` |
+| `apps/web` | `/apps/web`, `/shared` | `infisical run --path=/apps/web --path=/shared` |
+| `apps/funnel` | `/apps/funnel`, `/shared` | `infisical run --path=/apps/funnel --path=/shared` |
+| `apps/landing` | `/apps/landing`, `/shared` | `infisical run --path=/apps/landing --path=/shared` |
+| `apps/mcp` | `/mcp` | `infisical run --path=/mcp` |
+
+## Adding New Secrets
+
+### When adding a new secret:
+
+1. **Determine the correct path:**
+   - MCP-only → `/mcp`
+   - App-specific → `/apps/{app-name}`
+   - Shared across apps → `/shared`
+   - Test fixtures → `/test`
+
+2. **Add to all environments:**
+   ```bash
+   infisical secrets set NEW_SECRET=dev_value --path=/apps/api --env=dev
+   infisical secrets set NEW_SECRET=staging_value --path=/apps/api --env=staging
+   infisical secrets set NEW_SECRET=prod_value --path=/apps/api --env=prod
+   ```
+
+3. **Update documentation if needed:**
+   - Add to `docs/technical/INFISICAL-SETUP.md` structure diagram
+   - Update `.env.example` files for reference
+
+## CI/CD Integration
+
+### GitHub Actions
+
+```yaml
+- name: Build with secrets
+  env:
+    INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+  run: |
+    infisical run --path=/apps/api --path=/shared --env=prod -- npm run build
+```
+
+### Fly.io
+
+```bash
+# Set token as Fly secret
+fly secrets set INFISICAL_TOKEN=$(infisical machine-identity get-token --name="fly-prod")
+```
+
+## Best Practices
+
+1. **Use narrowest scope** - Only request paths you need
+2. **Never hardcode secrets** - Always use environment variables
+3. **Use machine identities** - For MCP servers and CI/CD
+4. **Don't log secrets** - Never `console.log(process.env.SECRET)`
+5. **Rotate regularly** - Especially after team changes
+6. **Use correct environment** - `dev` for local, `staging` for testing, `prod` for production
+
+## Troubleshooting
+
+### Not logged in
+
+```bash
+infisical login
+```
+
+### Permission denied
+
+Contact admin to grant access to required path/environment.
+
+### Token expired
+
+```bash
+# Personal token
+infisical login
+
+# Machine identity
+infisical machine-identity rotate-token --name="mcp-server"
+```
+
+### Secrets not loading
+
+1. Check you're using correct path: `infisical secrets --path=/your/path --env=dev`
+2. Verify login: `infisical whoami`
+3. Check project init: `cat .infisical.json`
+
+## Related Documentation
+
+- Full Setup Guide: `docs/technical/INFISICAL-SETUP.md`
+- Environment Variables: `environment-variables.mdc`
+- Security: `security.mdc`
