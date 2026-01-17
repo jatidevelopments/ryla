@@ -199,6 +199,35 @@ jobs:
             exit 1; \
           fi
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Sync Runtime Secrets to Fly.io (via Infisical)
+        run: |
+          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          
+          # Export secrets from Infisical and set them in Fly.io
+          # Note: Using production environment
+          infisical export --path=/apps/web --path=/shared --env=prod --format=dotenv | while IFS='=' read -r key value; do
+            # Skip empty lines and comments
+            [[ -z "$key" || "$key" =~ ^# ]] && continue
+            # Remove quotes from value if present
+            value="${value%\"}"
+            value="${value#\"}"
+            echo "  Setting $key..."
+            flyctl secrets set "$key=$value" --app ryla-web-prod --stage
+          done
+          
+          # Deploy staged secrets
+          flyctl secrets deploy --app ryla-web-prod
+          echo "✅ Secrets synced successfully"
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
       - name: Deploy Web App to Fly.io
         run: |
           flyctl deploy \
@@ -271,6 +300,35 @@ jobs:
             fi
           done
         env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Sync Runtime Secrets to Fly.io (via Infisical)
+        run: |
+          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          
+          # Export secrets from Infisical and set them in Fly.io
+          # Note: Using production environment
+          infisical export --path=/apps/api --path=/shared --env=prod --format=dotenv | while IFS='=' read -r key value; do
+            # Skip empty lines and comments
+            [[ -z "$key" || "$key" =~ ^# ]] && continue
+            # Remove quotes from value if present
+            value="${value%\"}"
+            value="${value#\"}"
+            echo "  Setting $key..."
+            flyctl secrets set "$key=$value" --app ryla-api-prod --stage
+          done
+          
+          # Deploy staged secrets
+          flyctl secrets deploy --app ryla-api-prod
+          echo "✅ Secrets synced successfully"
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         continue-on-error: true
 

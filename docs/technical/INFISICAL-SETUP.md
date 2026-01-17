@@ -253,31 +253,52 @@ export INFISICAL_TOKEN=$(infisical machine-identity get-token --name="mcp-server
 
 ## CI/CD Integration
 
-### GitHub Actions
+### GitHub Actions Setup
+
+The deployment workflow (`.github/workflows/deploy-auto.yml`) uses Infisical to sync secrets to Fly.io.
+
+**Required GitHub Secret:**
+
+You must set `INFISICAL_TOKEN` in GitHub Secrets:
+
+1. Create a Machine Identity in Infisical Dashboard:
+   - Go to https://app.infisical.com → RYLA MAIN → Settings → Machine Identities
+   - Create a new identity with name "github-actions-prod"
+   - Grant access to `/apps/*`, `/shared` with `prod` environment
+
+2. Get the token:
+   ```bash
+   infisical machine-identity get-token --name="github-actions-prod"
+   ```
+
+3. Add to GitHub Secrets:
+   - Go to GitHub → Repository → Settings → Secrets and variables → Actions
+   - Add new secret: `INFISICAL_TOKEN` with the token value
+
+### How It Works
 
 ```yaml
-name: Deploy
-on: [push]
+# In deploy-auto.yml
+- name: Install Infisical CLI
+  run: |
+    curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+    sudo apt-get install infisical
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Install Infisical CLI
-        run: |
-          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-          sudo apt-get install infisical
-      
-      - name: Build with secrets
-        env:
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-        run: |
-          infisical run --path=/apps/api --path=/shared --env=prod -- npm run build
+- name: Sync Runtime Secrets to Fly.io (via Infisical)
+  run: |
+    # Export from Infisical and sync to Fly.io
+    infisical export --path=/apps/api --path=/shared --env=prod --format=dotenv | while IFS='=' read -r key value; do
+      flyctl secrets set "$key=$value" --app ryla-api-prod --stage
+    done
+    flyctl secrets deploy --app ryla-api-prod
+  env:
+    INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+    FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 ```
 
-### Fly.io
+### Fly.io Runtime
+
+For runtime secret injection (if not using Fly secrets):
 
 ```bash
 # Set machine identity token as Fly secret
@@ -285,6 +306,27 @@ fly secrets set INFISICAL_TOKEN=$(infisical machine-identity get-token --name="f
 
 # In Dockerfile or start script
 infisical run --env=prod -- node dist/main.js
+```
+
+### Build Args (Still Required)
+
+Build-time variables (NEXT_PUBLIC_*) are still passed as build args since they're baked into the Next.js bundle:
+
+```yaml
+flyctl deploy \
+  --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}" \
+  --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}"
+```
+
+These can be moved to Infisical too by exporting them before build:
+
+```yaml
+- name: Export build args from Infisical
+  run: |
+    export $(infisical export --path=/apps/web --env=prod --format=dotenv | xargs)
+    flyctl deploy \
+      --build-arg NEXT_PUBLIC_API_URL="$NEXT_PUBLIC_API_URL" \
+      --build-arg NEXT_PUBLIC_POSTHOG_KEY="$NEXT_PUBLIC_POSTHOG_KEY"
 ```
 
 ## Security Best Practices
