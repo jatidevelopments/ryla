@@ -54,7 +54,7 @@ export function useImageActions({
   const handleEditInStudio = useCallback(
     (e: React.MouseEvent, imageId: string) => {
       e.stopPropagation();
-      router.push(`/studio?influencer=${influencerId}&imageId=${imageId}&edit=true`);
+      router.push(`/studio?influencer=${influencerId}&imageId=${imageId}&mode=editing`);
     },
     [router, influencerId]
   );

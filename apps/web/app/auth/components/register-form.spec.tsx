@@ -41,7 +41,6 @@ describe('RegisterForm', () => {
   const defaultProps = {
     registerData: {
       name: '',
-      publicName: '',
       password: '',
       confirmPassword: '',
       acceptedTerms: false,
@@ -56,7 +55,6 @@ describe('RegisterForm', () => {
   it('should render all form fields', () => {
     render(<RegisterForm {...defaultProps} />);
     expect(screen.getByLabelText('Full Name')).toBeInTheDocument();
-    expect(screen.getByLabelText('Username')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(screen.getByLabelText('Confirm Password')).toBeInTheDocument();
     expect(screen.getByText(/agree to the/i)).toBeInTheDocument();
@@ -72,14 +70,6 @@ describe('RegisterForm', () => {
     expect(defaultProps.onRegisterChange).toHaveBeenCalledWith(
       'name',
       'John Doe'
-    );
-
-    fireEvent.change(screen.getByLabelText('Username'), {
-      target: { value: 'johndoe' },
-    });
-    expect(defaultProps.onRegisterChange).toHaveBeenCalledWith(
-      'publicName',
-      'johndoe'
     );
   });
 

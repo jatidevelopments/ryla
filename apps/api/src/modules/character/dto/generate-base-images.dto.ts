@@ -154,4 +154,14 @@ export class GenerateBaseImagesDto {
   @IsOptional()
   @IsString()
   idempotencyKey?: string;
+
+  /**
+   * Skip credit deduction for deferred billing (wizard flow).
+   * When true, credits are NOT deducted during base image generation.
+   * Credits should be deducted at character creation time instead.
+   * Default: false (backward compatible - credits deducted immediately)
+   */
+  @IsOptional()
+  @IsBoolean()
+  skipCreditDeduction?: boolean;
 }

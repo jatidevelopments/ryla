@@ -83,7 +83,7 @@ describe('StudioImageCard', () => {
   it('should render actions on desktop hover', () => {
     // Note: hover state logic is CSS-based (group-hover), which is hard to test with RTL without checking styles.
     // However, we can check if the buttons exist in the DOM.
-    render(<StudioImageCard {...defaultProps} isLiked={true} />);
+    render(<StudioImageCard {...defaultProps} image={{ ...mockImage, isLiked: true }} />);
 
     // Check like button
     const likeButton = screen.getByTitle('Like this image').parentElement; // Tooltip wraps button

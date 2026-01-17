@@ -25,6 +25,7 @@ export function WizardLayout({ children }: WizardLayoutProps) {
   const nextStep = useCharacterWizardStore((s) => s.nextStep);
   const prevStep = useCharacterWizardStore((s) => s.prevStep);
   const resetForm = useCharacterWizardStore((s) => s.resetForm);
+  const getEffectiveStepCount = useCharacterWizardStore((s) => s.getEffectiveStepCount);
   const progress = useWizardProgress();
   const currentStep = useCurrentStep();
   const canProceed = useCanProceed(); // Use derived hook that subscribes to form changes
@@ -37,40 +38,49 @@ export function WizardLayout({ children }: WizardLayoutProps) {
   }, [form.creationMethod, steps.length, updateSteps]);
 
   const _isFirstStep = step === 0 || step === 1;
-  const isLastStep = step === steps.length;
+  const isLastStep = (() => {
+    const getNextStepNumber = useCharacterWizardStore.getState().getNextStepNumber;
+    return getNextStepNumber() === null;
+  })();
 
   const handleNext = () => {
     if (canProceed) {
-      // Calculate next step number before updating store
-      const nextStepNumber = step + 1;
+      const getNextStepNumber = useCharacterWizardStore.getState().getNextStepNumber;
+      const nextStepNumber = getNextStepNumber();
 
-      // Update store state immediately for instant UI feedback
-      if (!isLastStep) {
+      if (nextStepNumber) {
+        // Update store state immediately for instant UI feedback
         nextStep();
-      }
 
-      // Navigate in a transition to make it feel instant
-      startTransition(() => {
-        router.push(`/wizard/step-${nextStepNumber}`);
-      });
+        // Navigate in a transition to make it feel instant
+        startTransition(() => {
+          router.push(`/wizard/step-${nextStepNumber}`);
+        });
+      }
     }
   };
 
   const handleBack = () => {
-    // Update store state immediately for instant UI feedback
-    if (step > 1) {
-      prevStep();
-    }
-
-    // Navigate in a transition to make it feel instant
-    startTransition(() => {
-      if (step === 1) {
-        // Go back to creation method selection
+    const getPrevStepNumber = useCharacterWizardStore.getState().getPrevStepNumber;
+    
+    if (step === 1) {
+      // Go back to creation method selection
+      startTransition(() => {
         router.push('/wizard/step-0');
-      } else if (step > 1) {
-        router.push(`/wizard/step-${step - 1}`);
+      });
+    } else {
+      const prevStepNumber = getPrevStepNumber();
+      
+      if (prevStepNumber) {
+        // Update store state immediately for instant UI feedback
+        prevStep();
+
+        // Navigate in a transition to make it feel instant
+        startTransition(() => {
+          router.push(`/wizard/step-${prevStepNumber}`);
+        });
       }
-    });
+    }
   };
 
   const handleCancel = () => {
@@ -121,7 +131,7 @@ export function WizardLayout({ children }: WizardLayoutProps) {
           <div className="text-right min-w-[50px]">
             {step > 0 && steps.length > 0 && (
               <span className="text-sm font-medium text-white/50">
-                {step}/{steps.length}
+                {step}/{getEffectiveStepCount()}
               </span>
             )}
           </div>

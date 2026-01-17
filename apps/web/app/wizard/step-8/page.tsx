@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepIdentity } from '../../../components/wizard/steps/StepIdentity';
+import { StepHairColor } from '../../../components/wizard/steps/StepHairColor';
 
 export default function WizardStep8() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -12,10 +12,10 @@ export default function WizardStep8() {
     setStep(8);
   }, [setStep]);
 
-  // Only presets flow uses step 8 (Identity)
+  // Only presets flow uses step 8 (Hair Color)
   if (creationMethod !== 'presets') {
     return null;
   }
 
-  return <StepIdentity />;
+  return <StepHairColor />;
 }

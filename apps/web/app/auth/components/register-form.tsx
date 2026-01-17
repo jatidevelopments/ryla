@@ -11,7 +11,6 @@ import { slideIn } from '../constants';
 
 interface RegisterFormData {
   name: string;
-  publicName: string;
   password: string;
   confirmPassword: string;
   acceptedTerms: boolean;
@@ -55,42 +54,23 @@ export function RegisterForm({
       onSubmit={onSubmit}
       className="space-y-5"
     >
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label
-            htmlFor="name"
-            className="block text-sm font-medium text-white/70 mb-2"
-          >
-            Full Name
-          </label>
-          <RylaInput
-            id="name"
-            type="text"
-            placeholder="John Doe"
-            value={registerData.name}
-            onChange={(e) => onRegisterChange('name', e.target.value)}
-            disabled={isLoading}
-            autoFocus
-            aria-label="Full name"
-          />
-        </div>
-        <div>
-          <label
-            htmlFor="publicName"
-            className="block text-sm font-medium text-white/70 mb-2"
-          >
-            Username
-          </label>
-          <RylaInput
-            id="publicName"
-            type="text"
-            placeholder="johndoe"
-            value={registerData.publicName}
-            onChange={(e) => onRegisterChange('publicName', e.target.value)}
-            disabled={isLoading}
-            aria-label="Username"
-          />
-        </div>
+      <div>
+        <label
+          htmlFor="name"
+          className="block text-sm font-medium text-white/70 mb-2"
+        >
+          Full Name
+        </label>
+        <RylaInput
+          id="name"
+          type="text"
+          placeholder="John Doe"
+          value={registerData.name}
+          onChange={(e) => onRegisterChange('name', e.target.value)}
+          disabled={isLoading}
+          autoFocus
+          aria-label="Full name"
+        />
       </div>
 
       <div>

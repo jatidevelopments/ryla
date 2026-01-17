@@ -7,7 +7,8 @@
 
 import { Injectable, Inject, Logger, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { Cron, CronExpression } from '@nestjs/schedule';
+// NOTE: @Cron removed temporarily to fix DI issue with ScheduleModule
+// import { Cron, CronExpression } from '@nestjs/schedule';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq, and, gte, lte } from 'drizzle-orm';
 import * as schema from '@ryla/data/schema';
@@ -18,14 +19,13 @@ import {
   type CheckoutSessionParams,
   grantCredits,
   getCreditsForPlan,
-  type CheckoutSession,
 } from '@ryla/payments';
 import type { Config } from '../../../config/config.type';
 import { SUBSCRIPTION_PLANS, CREDIT_PACKAGES } from '@ryla/shared';
 
 export interface CreatePaymentSessionDto {
-  userId: string;
-  email: string;
+  userId: string; // Required - will be set from JWT in controller
+  email?: string; // Optional - will use user email from JWT if not provided
   type: 'subscription' | 'credit';
   planId?: string; // For subscriptions
   packageId?: string; // For credits
@@ -47,15 +47,22 @@ export class FinbyService {
   private readonly notificationRecurringUrl: string;
 
   constructor(
-    @Inject('DRIZZLE_DB')
-    private readonly db: NodePgDatabase<typeof schema>,
-    @Inject(ConfigService)
-    private readonly configService: ConfigService<Config>,
+    @Inject('DRIZZLE_DB') private readonly db: NodePgDatabase<typeof schema>,
+    @Inject(ConfigService) private readonly configService: ConfigService<Config>,
   ) {
-    // Verify configService is injected
+    try {
+      // Verify dependencies are injected
     if (!this.configService) {
+        this.logger.error('ConfigService is not available. Make sure ConfigModule is imported.');
       throw new Error('ConfigService is not available. Make sure ConfigModule is imported.');
     }
+
+      if (!this.db) {
+        this.logger.error('Drizzle database is not available. Make sure DrizzleModule is imported.');
+        throw new Error('Drizzle database is not available. Make sure DrizzleModule is imported.');
+      }
+      
+      this.logger.log('FinbyService: Dependencies verified, initializing configuration...');
     
     // Get configs with proper error handling
     const finbyConfig = this.configService.get<FinbyConfig>('finbyConfig');
@@ -73,9 +80,11 @@ export class FinbyService {
       } as FinbyConfig;
     } else {
       this.finbyConfig = finbyConfig;
+        this.logger.log('FinbyService: Finby configuration loaded successfully');
     }
     
     if (!appConfig) {
+        this.logger.error('App configuration not found.');
       throw new Error('App configuration not found.');
     }
     
@@ -84,7 +93,8 @@ export class FinbyService {
     // Use full URL with protocol for notification URLs
     // Use FRONTEND_URL or fallback to app.ryla.ai for production, localhost for development
     const verificationsConfig = this.configService.get<Config['verifications']>('verifications');
-    const frontendUrl = verificationsConfig?.frontendUrl ||
+    // Note: frontendUrl is computed but not used in constructor - kept for future use
+    const _frontendUrl = verificationsConfig?.frontendUrl ||
       (this.appConfig.environment === 'production' 
         ? 'https://app.ryla.ai' 
         : `http://${this.appConfig.host}:3000`);
@@ -94,22 +104,39 @@ export class FinbyService {
       ? 'https://end.ryla.ai'
       : `http://${this.appConfig.host}:${this.appConfig.port || 3001}`;
     
-    this.notificationUrl = `${apiBaseUrl}/api/finby/webhook`;
-    this.notificationRecurringUrl = `${apiBaseUrl}/api/finby/recurring-webhook`;
+      this.notificationUrl = `${apiBaseUrl}/payments/finby/webhook`;
+      this.notificationRecurringUrl = `${apiBaseUrl}/payments/finby/recurring-webhook`;
+      
+      this.logger.log(`FinbyService: Initialized successfully. Notification URLs: ${this.notificationUrl}`);
+    } catch (error) {
+      this.logger.error('FinbyService: Failed to initialize', error);
+      // Re-throw to prevent service from being created in invalid state
+      throw error;
+    }
   }
 
   /**
    * Create payment session for subscription or credit purchase
    * Similar to MDC's tpSession method
+   * 
+   * If PAYMENT_DEV_BYPASS=true, skips actual payment and grants credits/subscription directly
    */
   async createPaymentSession(dto: CreatePaymentSessionDto): Promise<PaymentSessionResponse> {
+    this.logger.log(
+      `Creating payment session for userId: ${dto.userId}, type: ${dto.type}, planId: ${dto.planId || dto.packageId}`
+    );
+
+    // Development bypass mode - skip payment and grant directly
+    const devBypass = process.env.PAYMENT_DEV_BYPASS === 'true';
+    if (devBypass) {
+      this.logger.warn('⚠️ PAYMENT_DEV_BYPASS is enabled - skipping actual payment');
+      return this.handleDevBypass(dto);
+    }
+
     // Check if Finby is configured
     if (!this.finbyConfig.projectId || !this.finbyConfig.secretKey) {
       throw new Error('Finby payment is not configured. Please set FINBY_PROJECT_ID and FINBY_SECRET_KEY in environment variables.');
     }
-    this.logger.log(
-      `Creating payment session for userId: ${dto.userId}, type: ${dto.type}, planId: ${dto.planId || dto.packageId}`
-    );
 
     const user = await this.db.query.users.findFirst({
       where: eq(schema.users.id, dto.userId),
@@ -121,8 +148,8 @@ export class FinbyService {
 
     const paymentRepo = new PaymentRepository(this.db);
 
-    // Get current subscription if exists
-    const currentSubscription = await paymentRepo.getCurrentSubscription(dto.userId);
+    // Get current subscription if exists (reserved for upgrade/downgrade logic)
+    const _currentSubscription = await paymentRepo.getCurrentSubscription(dto.userId);
 
     let amount: number;
     let reference: string;
@@ -210,7 +237,27 @@ export class FinbyService {
       reference,
     };
 
+    this.logger.log(`Creating checkout session with params:`, JSON.stringify({
+      type: dto.type,
+      planId: dto.planId,
+      packageId: dto.packageId,
+      amount: checkoutParams.amount,
+      currency: checkoutParams.currency,
+      successUrl: checkoutParams.successUrl,
+      cancelUrl: checkoutParams.cancelUrl,
+      errorUrl: checkoutParams.errorUrl,
+      notificationUrl: checkoutParams.notificationUrl,
+      mode: checkoutParams.mode,
+      reference: checkoutParams.reference,
+    }));
+
     const session = await finby.createCheckoutSession(checkoutParams);
+
+    this.logger.log(`Payment session created successfully:`, JSON.stringify({
+      paymentUrl: session.url?.substring(0, 100) + '...', // Truncate for logging
+      paymentRequestId: session.id,
+      reference: session.reference || reference,
+    }));
 
     return {
       paymentUrl: session.url,
@@ -220,13 +267,106 @@ export class FinbyService {
   }
 
   /**
+   * Development bypass - skip actual payment and grant credits/subscription directly
+   * Only works when PAYMENT_DEV_BYPASS=true
+   */
+  private async handleDevBypass(dto: CreatePaymentSessionDto): Promise<PaymentSessionResponse> {
+    this.logger.log(`[DEV BYPASS] Processing ${dto.type} for user ${dto.userId}`);
+
+    const paymentRepo = new PaymentRepository(this.db);
+    const reference = `dev_bypass_${Date.now()}`;
+
+    if (dto.type === 'subscription') {
+      if (!dto.planId) {
+        throw new Error('planId is required for subscription');
+      }
+
+      const plan = SUBSCRIPTION_PLANS.find(p => p.id === dto.planId);
+      if (!plan) {
+        throw new NotFoundException(`Plan not found: ${dto.planId}`);
+      }
+
+      // Calculate period end based on yearly/monthly
+      const now = new Date();
+      const periodEnd = new Date(now);
+      if (dto.isYearly) {
+        periodEnd.setFullYear(periodEnd.getFullYear() + 1);
+      } else {
+        periodEnd.setMonth(periodEnd.getMonth() + 1);
+      }
+
+      // Create subscription record
+      await paymentRepo.createSubscription({
+        userId: dto.userId,
+        tier: dto.planId as any, // Map planId to tier (e.g., 'starter', 'pro', 'unlimited')
+        status: 'active',
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+        cancelAtPeriodEnd: false,
+        finbySubscriptionId: reference,
+      });
+
+      // Grant credits for the plan
+      const credits = getCreditsForPlan(dto.planId as any);
+      if (credits > 0 && credits !== Infinity) {
+        await grantCredits(this.db, {
+          userId: dto.userId,
+          amount: credits,
+          type: 'subscription_grant',
+          description: `Dev bypass subscription credits (${dto.planId})`,
+          referenceType: 'dev_bypass',
+          referenceId: reference,
+        });
+        this.logger.log(`[DEV BYPASS] Granted ${credits} credits for plan ${dto.planId}`);
+      }
+
+      this.logger.log(`[DEV BYPASS] Created subscription: ${dto.planId} (${dto.isYearly ? 'yearly' : 'monthly'})`);
+
+      // Return a fake success URL that will show success page
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return {
+        paymentUrl: `${frontendUrl}/payment/success?reference=${encodeURIComponent(reference)}&type=subscription&dev_bypass=true`,
+        paymentRequestId: reference,
+        reference,
+      };
+    } else {
+      // Credit purchase
+      if (!dto.packageId) {
+        throw new Error('packageId is required for credit purchase');
+      }
+
+      const creditPackage = CREDIT_PACKAGES.find(p => p.id === dto.packageId);
+      if (!creditPackage) {
+        throw new NotFoundException(`Credit package not found: ${dto.packageId}`);
+      }
+
+      // Grant credits directly
+      await grantCredits(this.db, {
+        userId: dto.userId,
+        amount: creditPackage.credits,
+        type: 'purchase',
+        description: `Dev bypass credit purchase (${dto.packageId})`,
+        referenceType: 'dev_bypass',
+        referenceId: reference,
+      });
+      this.logger.log(`[DEV BYPASS] Granted ${creditPackage.credits} credits for package ${dto.packageId}`);
+
+      // Return a fake success URL
+      const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:3000';
+      return {
+        paymentUrl: `${frontendUrl}/payment/success?reference=${encodeURIComponent(reference)}&type=credit&dev_bypass=true`,
+        paymentRequestId: reference,
+        reference,
+      };
+    }
+  }
+
+  /**
    * Handle payment webhook (initial subscription or credit purchase)
    * Similar to MDC's paymentWebhook method
    */
   async handlePaymentWebhook(webhookData: any): Promise<void> {
     this.logger.log('Payment webhook received:', JSON.stringify(webhookData));
-
-    const paymentRepo = new PaymentRepository(this.db);
     
     // Parse reference to determine type
     const reference = webhookData.PaymentInformation?.References?.MerchantReference || 
@@ -462,8 +602,11 @@ export class FinbyService {
   /**
    * Charge recurring payments (cron job)
    * Similar to MDC's chargeRecurringPayments method
+   * 
+   * NOTE: @Cron decorator removed temporarily to fix DI issue.
+   * This should be called via external cron (GitHub Actions, Vercel Cron) at /cron/payments/recurring
    */
-  @Cron(CronExpression.EVERY_DAY_AT_2AM)
+  // @Cron(CronExpression.EVERY_DAY_AT_2AM)
   async chargeRecurringPayments(): Promise<void> {
     this.logger.log('Starting recurring payment charge job');
 

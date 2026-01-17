@@ -79,7 +79,7 @@ export interface CharacterFormData {
   outfit: string | null;
   archetype: string | null;
   personalityTraits: string[];
-  bio: string;
+  bio: string; // Optional - can be empty string
 
   // Generation settings
   nsfwEnabled: boolean;
@@ -159,20 +159,37 @@ export interface CharacterWizardState {
   // Validation
   isStepValid: (step: number) => boolean;
   canProceed: () => boolean;
+  
+  // Navigation helpers
+  getNextStepNumber: () => number | null;
+  getPrevStepNumber: () => number | null;
+  getEffectiveStepCount: () => number;
 }
 
 /** Default wizard steps - will be dynamically built based on creation method */
 const PRESETS_STEPS: WizardStep[] = [
   { id: 1, title: 'Style', description: 'Choose gender and style' },
-  { id: 2, title: 'Basic Appearance', description: 'Ethnicity, age, and skin color' },
-  { id: 3, title: 'Facial Features', description: 'Eye color and face shape' },
-  { id: 4, title: 'Hair', description: 'Hair style and color' },
-  { id: 5, title: 'Body', description: 'Body type, ass size, and breast type' },
-  { id: 6, title: 'Skin Features', description: 'Freckles, scars, and beauty marks' },
-  { id: 7, title: 'Body Modifications', description: 'Piercings and tattoos' },
-  { id: 8, title: 'Identity', description: 'Add personality and outfit' },
-  { id: 9, title: 'Base Image', description: 'Select your character face' },
-  { id: 10, title: 'Finalize', description: 'Review and create' },
+  { id: 2, title: 'Ethnicity', description: 'Select ethnicity' },
+  { id: 3, title: 'Age Range', description: 'Select age range' },
+  { id: 4, title: 'Skin Color', description: 'Select skin color' },
+  { id: 5, title: 'Eye Color', description: 'Select eye color' },
+  { id: 6, title: 'Face Shape', description: 'Select face shape' },
+  { id: 7, title: 'Hair Style', description: 'Select hair style' },
+  { id: 8, title: 'Hair Color', description: 'Select hair color' },
+  { id: 9, title: 'Body Type', description: 'Select body type' },
+  { id: 10, title: 'Ass Size', description: 'Select ass size' },
+  { id: 11, title: 'Breast Size', description: 'Select breast size' },
+  { id: 12, title: 'Breast Type', description: 'Select breast type' },
+  { id: 13, title: 'Freckles', description: 'Select freckles' },
+  { id: 14, title: 'Scars', description: 'Select scars' },
+  { id: 15, title: 'Beauty Marks', description: 'Select beauty marks' },
+  { id: 16, title: 'Piercings', description: 'Select piercings' },
+  { id: 17, title: 'Tattoos', description: 'Select tattoos' },
+  { id: 18, title: 'Outfit', description: 'Choose default outfit' },
+  { id: 19, title: 'Archetype', description: 'Choose persona type' },
+  { id: 20, title: 'Personality', description: 'Add name and personality' },
+  { id: 21, title: 'Base Image', description: 'Select your character face' },
+  { id: 22, title: 'Finalize', description: 'Review and create' },
 ];
 
 const PROMPT_BASED_STEPS: WizardStep[] = [
@@ -248,41 +265,71 @@ function resetStepsFrom(
       form.style = null;
     }
     if (fromStep <= 2) {
-      // Reset basic appearance
+      // Reset ethnicity
       form.ethnicity = null;
-      form.ageRange = null;
-      form.age = 25; // Reset to default
-      form.skinColor = null;
     }
     if (fromStep <= 3) {
-      // Reset facial features
-      form.eyeColor = null;
-      form.faceShape = null;
+      // Reset age range
+      form.ageRange = null;
+      form.age = 25; // Reset to default
     }
     if (fromStep <= 4) {
-      // Reset hair
-      form.hairStyle = null;
-      form.hairColor = null;
+      // Reset skin color
+      form.skinColor = null;
     }
     if (fromStep <= 5) {
-      // Reset body
-      form.bodyType = null;
-      form.assSize = null;
-      form.breastSize = null;
-      form.breastType = null;
+      // Reset eye color
+      form.eyeColor = null;
     }
     if (fromStep <= 6) {
-      // Reset skin features
-      form.freckles = null;
-      form.scars = null;
-      form.beautyMarks = null;
+      // Reset face shape
+      form.faceShape = null;
     }
     if (fromStep <= 7) {
-      // Reset body modifications
-      form.piercings = null;
-      form.tattoos = null;
+      // Reset hair style
+      form.hairStyle = null;
     }
     if (fromStep <= 8) {
+      // Reset hair color
+      form.hairColor = null;
+    }
+    if (fromStep <= 9) {
+      // Reset body type
+      form.bodyType = null;
+    }
+    if (fromStep <= 10) {
+      // Reset ass size
+      form.assSize = null;
+    }
+    if (fromStep <= 11) {
+      // Reset breast size
+      form.breastSize = null;
+    }
+    if (fromStep <= 12) {
+      // Reset breast type
+      form.breastType = null;
+    }
+    if (fromStep <= 13) {
+      // Reset freckles
+      form.freckles = null;
+    }
+    if (fromStep <= 14) {
+      // Reset scars
+      form.scars = null;
+    }
+    if (fromStep <= 15) {
+      // Reset beauty marks
+      form.beautyMarks = null;
+    }
+    if (fromStep <= 16) {
+      // Reset piercings
+      form.piercings = null;
+    }
+    if (fromStep <= 17) {
+      // Reset tattoos
+      form.tattoos = null;
+    }
+    if (fromStep <= 18) {
       // Reset identity
       form.name = '';
       form.outfit = null;
@@ -290,7 +337,7 @@ function resetStepsFrom(
       form.personalityTraits = [];
       form.bio = '';
     }
-    if (fromStep <= 9) {
+    if (fromStep <= 19) {
       // Reset base image selection
       state.baseImages = [];
       state.selectedBaseImageId = null;
@@ -396,17 +443,40 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
       nextStep: () =>
         set((state) => {
           if (state.step < state.steps.length) {
-            state.step += 1;
+            let nextStepNum = state.step + 1;
+            const { form } = state;
+            
+            // Skip conditional steps for males (breast size/type)
+            if (form.gender === 'male') {
+              while (nextStepNum === 11 || nextStepNum === 12) {
+                nextStepNum += 1;
+              }
+            }
+            
+            if (nextStepNum <= state.steps.length) {
+              state.step = nextStepNum;
+            }
           }
         }),
 
       prevStep: () =>
         set((state) => {
           if (state.step > 0) {
-            const targetStep = state.step - 1;
-            // Reset all steps from targetStep onwards (including targetStep)
-            resetStepsFrom(state, targetStep);
-            state.step = targetStep;
+            let targetStep = state.step - 1;
+            const { form } = state;
+            
+            // Skip conditional steps for males (breast size/type) when going backwards
+            if (form.gender === 'male') {
+              while (targetStep === 11 || targetStep === 12) {
+                targetStep -= 1;
+              }
+            }
+            
+            if (targetStep >= 1) {
+              // Reset all steps from targetStep onwards (including targetStep)
+              resetStepsFrom(state, targetStep);
+              state.step = targetStep;
+            }
           }
         }),
 
@@ -589,45 +659,51 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
               return false;
           }
         } else {
-          // Presets flow
+          // Presets flow - each step now validates only its own field
           switch (step) {
             case 1: // Style
               return !!form.gender && !!form.style;
-            case 2: // Basic Appearance
-              return (
-                !!form.ethnicity &&
-                !!form.ageRange &&
-                !!form.skinColor
-              );
-            case 3: // Facial Features
-              return !!form.eyeColor && !!form.faceShape;
-            case 4: // Hair
-              return !!form.hairStyle && !!form.hairColor;
-            case 5: // Body
-              return (
-                !!form.bodyType &&
-                !!form.assSize &&
-                (form.gender === 'male' || (!!form.breastSize && !!form.breastType))
-              );
-            case 6: // Skin Features
-              return (
-                !!form.freckles &&
-                !!form.scars &&
-                !!form.beautyMarks
-              );
-            case 7: // Body Modifications
-              return !!form.piercings && !!form.tattoos;
-            case 8: // Identity
-              return (
-                !!form.name?.trim() &&
-                !!form.outfit &&
-                !!form.archetype &&
-                form.personalityTraits.length > 0 &&
-                !!form.bio?.trim()
-              );
-            case 9: // Base Image Selection
+            case 2: // Ethnicity
+              return !!form.ethnicity;
+            case 3: // Age Range
+              return !!form.ageRange;
+            case 4: // Skin Color
+              return !!form.skinColor;
+            case 5: // Eye Color
+              return !!form.eyeColor;
+            case 6: // Face Shape
+              return !!form.faceShape;
+            case 7: // Hair Style
+              return !!form.hairStyle;
+            case 8: // Hair Color
+              return !!form.hairColor;
+            case 9: // Body Type
+              return !!form.bodyType;
+            case 10: // Ass Size
+              return !!form.assSize;
+            case 11: // Breast Size (female only)
+              return form.gender === 'male' || !!form.breastSize;
+            case 12: // Breast Type (female only)
+              return form.gender === 'male' || !!form.breastType;
+            case 13: // Freckles
+              return !!form.freckles;
+            case 14: // Scars
+              return !!form.scars;
+            case 15: // Beauty Marks
+              return !!form.beautyMarks;
+            case 16: // Piercings
+              return !!form.piercings;
+            case 17: // Tattoos
+              return !!form.tattoos;
+            case 18: // Outfit
+              return !!form.outfit;
+            case 19: // Archetype
+              return !!form.archetype;
+            case 20: // Personality (name required, traits required, bio optional)
+              return !!form.name?.trim() && form.personalityTraits.length > 0;
+            case 21: // Base Image Selection
               return !!get().selectedBaseImageId;
-            case 10: // Finalize
+            case 22: // Finalize
               return true;
             default:
               return false;
@@ -639,24 +715,127 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
         const { step, isStepValid } = get();
         return isStepValid(step);
       },
+      
+      getNextStepNumber: () => {
+        const { step, steps, form } = get();
+        if (step >= steps.length) return null;
+        
+        let nextStepNum = step + 1;
+        
+        // Skip conditional steps for males (breast size/type)
+        if (form.gender === 'male') {
+          while (nextStepNum === 11 || nextStepNum === 12) {
+            nextStepNum += 1;
+          }
+        }
+        
+        return nextStepNum <= steps.length ? nextStepNum : null;
+      },
+      
+      getPrevStepNumber: () => {
+        const { step, form } = get();
+        if (step <= 1) return null;
+        
+        let prevStepNum = step - 1;
+        
+        // Skip conditional steps for males (breast size/type) when going backwards
+        if (form.gender === 'male') {
+          while (prevStepNum === 11 || prevStepNum === 12) {
+            prevStepNum -= 1;
+          }
+        }
+        
+        return prevStepNum >= 1 ? prevStepNum : null;
+      },
+      
+      getEffectiveStepCount: () => {
+        const { steps, form } = get();
+        // For males, subtract 2 steps (breast size/type)
+        if (form.gender === 'male') {
+          return steps.length - 2;
+        }
+        return steps.length;
+      },
     })),
     {
       name: 'ryla-character-wizard',
-      storage: createJSONStorage(() => localStorage),
-      partialize: (state) => ({
-        step: state.step,
-        status: state.status,
-        form: state.form,
-        characterId: state.characterId,
-        baseImages: state.baseImages,
-        selectedBaseImageId: state.selectedBaseImageId,
-        baseImageFineTunePrompt: state.baseImageFineTunePrompt,
-        // Persist job IDs for resume after refresh
-        baseImageJobId: state.baseImageJobId,
-        baseImageAllJobIds: state.baseImageAllJobIds,
-        baseImageGenerationStartedAt: state.baseImageGenerationStartedAt,
-        profilePictureSet: state.profilePictureSet,
+      storage: createJSONStorage(() => {
+        // Wrap localStorage with error handling for quota exceeded
+        const storage = localStorage;
+        return {
+          getItem: (name: string) => {
+            try {
+              return storage.getItem(name);
+            } catch (error) {
+              console.warn('Failed to read from localStorage:', error);
+              return null;
+            }
+          },
+          setItem: (name: string, value: string) => {
+            try {
+              storage.setItem(name, value);
+            } catch (error) {
+              // Handle quota exceeded error
+              if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+                console.error('localStorage quota exceeded. Clearing old wizard data...');
+                // Clear the wizard storage and try again
+                try {
+                  storage.removeItem('ryla-character-wizard');
+                  storage.setItem(name, value);
+                } catch (retryError) {
+                  console.error('Failed to save after clearing storage:', retryError);
+                  // If still failing, the data is too large - persist only essential data
+                  throw new Error('Storage quota exceeded. Please complete the wizard in one session or clear browser storage.');
+                }
+              } else {
+                throw error;
+              }
+            }
+          },
+          removeItem: (name: string) => {
+            try {
+              storage.removeItem(name);
+            } catch (error) {
+              console.warn('Failed to remove from localStorage:', error);
+            }
+          },
+        };
       }),
+      partialize: (state) => {
+        // Only persist minimal image data to avoid quota issues
+        // Store only IDs and essential metadata, not full image objects
+        const minimalBaseImages = state.baseImages.map((img) => ({
+          id: img.id,
+          url: img.thumbnailUrl || img.url, // Prefer thumbnail if available
+          s3Key: img.s3Key,
+        }));
+
+        const minimalProfilePictures = state.profilePictureSet.images.map((img) => ({
+          id: img.id,
+          positionId: img.positionId,
+          positionName: img.positionName,
+          url: img.thumbnailUrl || img.url, // Prefer thumbnail if available
+          s3Key: img.s3Key,
+        }));
+
+        return {
+          step: state.step,
+          status: state.status,
+          form: state.form,
+          characterId: state.characterId,
+          baseImages: minimalBaseImages,
+          selectedBaseImageId: state.selectedBaseImageId,
+          baseImageFineTunePrompt: state.baseImageFineTunePrompt,
+          // Persist job IDs for resume after refresh
+          baseImageJobId: state.baseImageJobId,
+          baseImageAllJobIds: state.baseImageAllJobIds,
+          baseImageGenerationStartedAt: state.baseImageGenerationStartedAt,
+          profilePictureSet: {
+            ...state.profilePictureSet,
+            images: minimalProfilePictures,
+          },
+        };
+      },
       onRehydrateStorage: () => (state) => {
         // Restore steps array based on creationMethod when rehydrating from localStorage
         if (state && state.form.creationMethod && state.steps.length === 0) {
@@ -682,9 +861,23 @@ export const useCurrentStep = () => {
 /** Helper: Get progress percentage */
 export const useWizardProgress = () => {
   const step = useCharacterWizardStore((s) => s.step);
+  const getEffectiveStepCount = useCharacterWizardStore((s) => s.getEffectiveStepCount);
   const steps = useCharacterWizardStore((s) => s.steps);
   if (steps.length === 0) return 0; // Return 0 if steps not initialized yet
-  return Math.round((step / steps.length) * 100);
+  const effectiveCount = getEffectiveStepCount();
+  return Math.round((step / effectiveCount) * 100);
+};
+
+/** Utility: Clear wizard storage (useful for debugging or quota issues) */
+export const clearWizardStorage = () => {
+  if (typeof window !== 'undefined') {
+    try {
+      localStorage.removeItem('ryla-character-wizard');
+      console.log('Wizard storage cleared');
+    } catch (error) {
+      console.error('Failed to clear wizard storage:', error);
+    }
+  }
 };
 
 /**
@@ -740,45 +933,51 @@ export const useCanProceed = () => {
         return false;
     }
   } else {
-    // Presets flow - match the isStepValid logic
+    // Presets flow - 20-step flow, each step validates only its own field
     switch (step) {
       case 1: // Style
         return !!form.gender && !!form.style;
-      case 2: // Basic Appearance
-        return (
-          !!form.ethnicity &&
-          !!form.ageRange &&
-          !!form.skinColor
-        );
-      case 3: // Facial Features
-        return !!form.eyeColor && !!form.faceShape;
-      case 4: // Hair
-        return !!form.hairStyle && !!form.hairColor;
-      case 5: // Body
-        return (
-          !!form.bodyType &&
-          !!form.assSize &&
-          (form.gender === 'male' || (!!form.breastSize && !!form.breastType))
-        );
-      case 6: // Skin Features
-        return (
-          !!form.freckles &&
-          !!form.scars &&
-          !!form.beautyMarks
-        );
-      case 7: // Body Modifications
-        return !!form.piercings && !!form.tattoos;
-      case 8: // Identity
-        return (
-          !!form.name?.trim() &&
-          !!form.outfit &&
-          !!form.archetype &&
-          form.personalityTraits.length > 0 &&
-          !!form.bio?.trim()
-        );
-      case 9: // Base Image Selection
+      case 2: // Ethnicity
+        return !!form.ethnicity;
+      case 3: // Age Range
+        return !!form.ageRange;
+      case 4: // Skin Color
+        return !!form.skinColor;
+      case 5: // Eye Color
+        return !!form.eyeColor;
+      case 6: // Face Shape
+        return !!form.faceShape;
+      case 7: // Hair Style
+        return !!form.hairStyle;
+      case 8: // Hair Color
+        return !!form.hairColor;
+      case 9: // Body Type
+        return !!form.bodyType;
+      case 10: // Ass Size
+        return !!form.assSize;
+      case 11: // Breast Size (female only)
+        return form.gender === 'male' || !!form.breastSize;
+      case 12: // Breast Type (female only)
+        return form.gender === 'male' || !!form.breastType;
+      case 13: // Freckles
+        return !!form.freckles;
+      case 14: // Scars
+        return !!form.scars;
+      case 15: // Beauty Marks
+        return !!form.beautyMarks;
+      case 16: // Piercings
+        return !!form.piercings;
+      case 17: // Tattoos
+        return !!form.tattoos;
+      case 18: // Outfit
+        return !!form.outfit;
+      case 19: // Archetype
+        return !!form.archetype;
+      case 20: // Personality (name required, traits required, bio optional)
+        return !!form.name?.trim() && form.personalityTraits.length > 0;
+      case 21: // Base Image Selection
         return !!selectedBaseImageId;
-      case 10: // Finalize
+      case 22: // Finalize
         return true;
       default:
         return false;

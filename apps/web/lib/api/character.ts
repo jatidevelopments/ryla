@@ -54,6 +54,7 @@ export interface GenerateBaseImagesInput {
   promptInput?: string; // Raw prompt for prompt-based flow
   promptEnhance?: boolean; // Enable AI prompt enhancement
   idempotencyKey?: string; // Prevent duplicate generation (recommended for prompt-based flow)
+  skipCreditDeduction?: boolean; // Skip credit deduction for deferred billing (wizard flow)
 }
 
 export interface GenerateCharacterSheetInput {
@@ -127,6 +128,12 @@ export interface GenerationResponse {
   status: string;
   message: string;
   imageCount?: number;
+  // Credit-related fields
+  creditsDeducted?: number;
+  creditBalance?: number;
+  // Deferred billing fields (when skipCreditDeduction=true)
+  creditSkipped?: boolean;
+  creditsToBeCharged?: number;
 }
 
 // ============================================================================

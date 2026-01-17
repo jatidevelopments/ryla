@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepGeneral } from '../../../components/wizard/steps/StepGeneral';
+import { StepEthnicity } from '../../../components/wizard/steps/StepEthnicity';
 import { StepIdentity } from '../../../components/wizard/steps/StepIdentity';
 
 export default function WizardStep2() {
@@ -18,9 +18,9 @@ export default function WizardStep2() {
     return <StepIdentity />;
   }
 
-  // For presets flow, step 2 is Basic Appearance
+  // For presets flow, step 2 is Ethnicity
   if (creationMethod === 'presets') {
-    return <StepGeneral />;
+    return <StepEthnicity />;
   }
 
   // Fallback: if no creation method selected, return null

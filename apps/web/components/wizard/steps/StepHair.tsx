@@ -6,6 +6,7 @@ import { HAIR_STYLE_OPTIONS, HAIR_COLOR_OPTIONS } from '@ryla/shared';
 
 import { WizardImageCard } from '../WizardImageCard';
 import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
+import { cn } from '@ryla/ui';
 
 /**
  * Step 4: Hair
@@ -31,9 +32,18 @@ export function StepHair() {
       <div className="w-full space-y-8">
         {/* Section 1: Hair Style */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.hairStyle
+                ? 'border-purple-400/50'
+                : form.hairColor
+                  ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                  : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Hair Style</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredHairStyles.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
                   ? getInfluencerImage(
@@ -51,7 +61,11 @@ export function StepHair() {
                       name: option.title,
                     }}
                     selected={form.hairStyle === option.value}
-                    onSelect={() => setField('hairStyle', option.value)}
+                    onSelect={() => {
+                      setField('hairStyle', option.value);
+                      // Clear other options in this step
+                      setField('hairColor', null);
+                    }}
                   />
                 );
               })}
@@ -61,9 +75,18 @@ export function StepHair() {
 
         {/* Section 2: Hair Color */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.hairColor
+                ? 'border-purple-400/50'
+                : form.hairStyle
+                  ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                  : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Hair Color</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {HAIR_COLOR_OPTIONS.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
                   ? getInfluencerImage(
@@ -85,7 +108,11 @@ export function StepHair() {
                         option.value.slice(1),
                     }}
                     selected={form.hairColor === option.value}
-                    onSelect={() => setField('hairColor', option.value)}
+                    onSelect={() => {
+                      setField('hairColor', option.value);
+                      // Clear other options in this step
+                      setField('hairStyle', null);
+                    }}
                   />
                 );
               })}

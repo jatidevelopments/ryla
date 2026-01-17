@@ -73,7 +73,7 @@ export class CharacterController {
 
   @Post('generate-base-images')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Generate 3 base image options from wizard config. Credits are deducted per image.' })
+  @ApiOperation({ summary: 'Generate 3 base image options from wizard config. Credits are deducted per image (unless skipCreditDeduction=true).' })
   async generateBaseImages(
     @CurrentUser() user: IJwtPayload,
     @Body() dto: GenerateBaseImagesDto,
@@ -81,14 +81,22 @@ export class CharacterController {
     const imageCount = 3; // Base images always generate 3 options
     const featureId = this.getFeatureId(undefined, 'base_image');
 
-    // Check and deduct credits upfront
-    const creditResult = await this.creditService.deductCredits(
-      user.userId,
-      featureId,
-      imageCount,
-      undefined,
-      `Base image generation (${dto.workflowId ?? 'default'})`,
-    );
+    // Calculate credit cost (needed for response even if skipping deduction)
+    const _creditCost = imageCount * 80 / 3; // base_images feature is 80 credits for 3 images (reserved for future use)
+    const totalCreditCost = 80; // Fixed cost for base images
+
+    let creditResult: { creditsDeducted: number; balanceAfter: number } | undefined;
+
+    // Check and deduct credits upfront (unless skipCreditDeduction is true)
+    if (!dto.skipCreditDeduction) {
+      creditResult = await this.creditService.deductCredits(
+        user.userId,
+        featureId,
+        imageCount,
+        undefined,
+        `Base image generation (${dto.workflowId ?? 'default'})`,
+      );
+    }
 
     const result = await this.baseImageGenerationService.generateBaseImages({
       appearance: dto.appearance,
@@ -105,14 +113,27 @@ export class CharacterController {
       idempotencyKey: dto.idempotencyKey,
     });
 
+    // Build response based on whether credits were deducted or skipped
+    if (dto.skipCreditDeduction) {
+      return {
+        jobId: result.jobId,
+        allJobIds: result.allJobIds || [result.jobId],
+        userId: user.userId,
+        status: 'queued',
+        message: 'Base image generation started (3 images, credits deferred)',
+        creditSkipped: true,
+        creditsToBeCharged: totalCreditCost,
+      };
+    }
+
     return {
       jobId: result.jobId,
-      allJobIds: result.allJobIds || [result.jobId], // Include all 3 job IDs
-      userId: user.userId, // Include for client-side tracking
+      allJobIds: result.allJobIds || [result.jobId],
+      userId: user.userId,
       status: 'queued',
       message: 'Base image generation started (3 images)',
-      creditsDeducted: creditResult.creditsDeducted,
-      creditBalance: creditResult.balanceAfter,
+      creditsDeducted: creditResult!.creditsDeducted,
+      creditBalance: creditResult!.balanceAfter,
     };
   }
 

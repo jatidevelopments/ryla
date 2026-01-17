@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { trpc } from '../../../lib/trpc';
 import { useCredits, useStudioFilters, useStudioImages } from '../../../lib/hooks';
 import { useLocalStorage } from '../../../lib/hooks/use-local-storage';
@@ -11,6 +12,7 @@ import { useStudioComputed } from './useStudioComputed';
 import { useStudioHandlers } from './useStudioHandlers';
 import { useStudioEffects } from './useStudioEffects';
 import { useStudioQueryParams } from './useStudioQueryParams';
+import { useStudioUrlSync } from './useStudioUrlSync';
 import { useUploadConsent } from './useUploadConsent';
 import { useInfluencersForHook } from './useInfluencersForHook';
 
@@ -19,6 +21,7 @@ import { useInfluencersForHook } from './useInfluencersForHook';
  * Combines data fetching, state, computed values, effects, and handlers
  */
 export function useStudioState() {
+  const router = useRouter();
   const utils = trpc.useUtils();
 
   // Upload consent
@@ -32,14 +35,11 @@ export function useStudioState() {
   // Map Character data to AIInfluencer format
   const influencers = useInfluencers(charactersData);
 
-  // Query params
-  const { influencerFromQuery, imageIdFromQuery, shouldOpenEdit } =
-    useStudioQueryParams();
+  // Query params (memoized internally)
+  const queryParams = useStudioQueryParams();
 
   // Influencer selection state
-  const [selectedInfluencerId, setSelectedInfluencerId] = React.useState<
-    string | null
-  >(null);
+  const [selectedInfluencerId, setSelectedInfluencerId] = React.useState<string | null>(null);
 
   // Use extracted filter hook for all filter-related state
   const filters = useStudioFilters();
@@ -63,19 +63,11 @@ export function useStudioState() {
   } = filters;
 
   // Detail panel state
-  const [selectedImage, setSelectedImage] = React.useState<StudioImage | null>(
-    null
-  );
+  const [selectedImage, setSelectedImage] = React.useState<StudioImage | null>(null);
 
-  // Mode state
-  const [mode, setMode] = useLocalStorage<StudioMode>(
-    'ryla-studio-mode',
-    'creating'
-  );
-  const [contentType, setContentType] = useLocalStorage<ContentType>(
-    'ryla-studio-content-type',
-    'image'
-  );
+  // Mode state (persisted to localStorage)
+  const [mode, setMode] = useLocalStorage<StudioMode>('ryla-studio-mode', 'creating');
+  const [contentType, setContentType] = useLocalStorage<ContentType>('ryla-studio-content-type', 'image');
 
   // Prepare influencers for hook (prevents infinite loops)
   const influencersForHook = useInfluencersForHook(influencers);
@@ -95,7 +87,7 @@ export function useStudioState() {
     influencers: influencersForHook,
   });
 
-  // Use computed values hook (needed before effects that use validInfluencers)
+  // Use computed values hook
   const {
     validInfluencers,
     influencerTabs,
@@ -116,12 +108,31 @@ export function useStudioState() {
     sortBy,
   });
 
-  // Use effects hook for initialization
+  // Stable template apply handler
+  const handleTemplateApply = React.useCallback(
+    async (templateIdToApply: string) => {
+      try {
+        await utils.templates.applyTemplate.fetch({ id: templateIdToApply });
+        // Clear template param from URL after applying
+        const params = new URLSearchParams(window.location.search);
+        params.delete('template');
+        const newQuery = params.toString();
+        const newUrl = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
+        router.replace(newUrl, { scroll: false });
+      } catch (error) {
+        console.error('Failed to apply template:', error);
+      }
+    },
+    [router, utils.templates.applyTemplate]
+  );
+
+  // URL → State initialization effects
   useStudioEffects({
     validInfluencers,
-    influencerFromQuery,
-    imageIdFromQuery,
-    shouldOpenEdit,
+    influencerFromQuery: queryParams.influencerFromQuery,
+    imageIdFromQuery: queryParams.imageIdFromQuery,
+    modeFromQuery: queryParams.modeFromQuery,
+    templateIdFromQuery: queryParams.templateIdFromQuery,
     selectedInfluencerId,
     allImages,
     mode,
@@ -129,6 +140,18 @@ export function useStudioState() {
     setSelectedImage,
     setShowPanel,
     setMode,
+    onTemplateApply: handleTemplateApply,
+  });
+
+  // Memoize selected image ID for URL sync (avoids object reference issues)
+  const selectedImageId = selectedImage?.id ?? null;
+
+  // State → URL synchronization
+  useStudioUrlSync({
+    selectedInfluencerId,
+    selectedImageId,
+    showPanel,
+    mode,
   });
 
   // Use handlers hook

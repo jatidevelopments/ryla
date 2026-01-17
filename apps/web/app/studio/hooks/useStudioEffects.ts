@@ -13,24 +13,28 @@ interface UseStudioEffectsOptions {
   validInfluencers: Influencer[];
   influencerFromQuery: string | null;
   imageIdFromQuery: string | null;
-  shouldOpenEdit: boolean;
+  modeFromQuery: StudioMode;
+  templateIdFromQuery: string | null;
   selectedInfluencerId: string | null;
   allImages: StudioImage[];
   mode: StudioMode;
   setSelectedInfluencerId: (id: string | null) => void;
-  setSelectedImage: React.Dispatch<React.SetStateAction<StudioImage | null>>;
+  setSelectedImage: (image: StudioImage | null) => void;
   setShowPanel: (show: boolean) => void;
   setMode: (mode: StudioMode) => void;
+  onTemplateApply?: (templateId: string) => void;
 }
 
 /**
  * Hook for managing studio initialization effects
+ * Handles URL → State synchronization on mount and navigation
  */
 export function useStudioEffects({
   validInfluencers,
   influencerFromQuery,
   imageIdFromQuery,
-  shouldOpenEdit,
+  modeFromQuery,
+  templateIdFromQuery,
   selectedInfluencerId,
   allImages,
   mode,
@@ -38,78 +42,107 @@ export function useStudioEffects({
   setSelectedImage,
   setShowPanel,
   setMode,
+  onTemplateApply,
 }: UseStudioEffectsOptions) {
-  // Reset variations mode to creating (coming soon)
+  // Track which imageId we've already processed to handle navigation
+  const lastProcessedImageId = React.useRef<string | null>(null);
+  const lastProcessedTemplateId = React.useRef<string | null>(null);
+  const hasInitializedInfluencer = React.useRef(false);
+
+  // Reset variations mode to creating (coming soon feature)
   React.useEffect(() => {
     if (mode === 'variations') {
       setMode('creating');
     }
   }, [mode, setMode]);
-  // Track if we've initialized to prevent auto-selection after user explicitly clicks "All Images"
-  const hasInitialized = React.useRef(false);
 
-  // Auto-select influencer from query params or first influencer if none selected (only on initial mount)
+  // Effect 1: Initialize influencer from query params (runs once per session)
   React.useEffect(() => {
-    // If already initialized, don't auto-select (user may have explicitly selected "All Images")
-    if (hasInitialized.current) return;
-
-    // Wait for influencers to load
+    if (hasInitializedInfluencer.current) return;
     if (validInfluencers.length === 0) return;
 
     if (influencerFromQuery && isUuid(influencerFromQuery)) {
-      // Check if the influencer exists in the list
-      const influencerExists = validInfluencers.some(
-        (i) => i.id === influencerFromQuery
-      );
-      if (influencerExists) {
+      const exists = validInfluencers.some((i) => i.id === influencerFromQuery);
+      if (exists) {
         setSelectedInfluencerId(influencerFromQuery);
-        hasInitialized.current = true;
+        hasInitializedInfluencer.current = true;
         return;
       }
     }
 
-    // Only auto-select first influencer on initial mount if no query param and no selection yet
-    // This only runs once on mount, so it won't interfere with user clicking "All Images"
+    // Auto-select first influencer if none in query
     if (!selectedInfluencerId && validInfluencers[0]?.id) {
       setSelectedInfluencerId(validInfluencers[0].id);
     }
 
-    // Mark as initialized after first run
-    hasInitialized.current = true;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [validInfluencers, influencerFromQuery]); // Only depend on influencers and query, not selectedInfluencerId
+    hasInitializedInfluencer.current = true;
+  }, [validInfluencers, influencerFromQuery, selectedInfluencerId, setSelectedInfluencerId]);
 
-  // Preselect image from query params and open edit mode if requested
+  // Effect 2: Handle image selection from query params
+  // This runs on navigation (when imageIdFromQuery changes)
   React.useEffect(() => {
-    if (!imageIdFromQuery || allImages.length === 0) return;
+    // Skip if no imageId in query
+    if (!imageIdFromQuery) {
+      lastProcessedImageId.current = null;
+      return;
+    }
+
+    // Skip if we already processed this imageId
+    if (lastProcessedImageId.current === imageIdFromQuery) {
+      return;
+    }
+
+    // Wait for images to load
+    if (allImages.length === 0) return;
 
     const imageToSelect = allImages.find((img) => img.id === imageIdFromQuery);
-    if (imageToSelect) {
-      setSelectedImage(imageToSelect);
-      setShowPanel(true);
+    if (!imageToSelect) {
+      // Image not found in current list - might need to wait for more data
+      return;
+    }
 
-      // Auto-select the influencer associated with the image
-      if (
-        imageToSelect.influencerId &&
-        imageToSelect.influencerId !== selectedInfluencerId
-      ) {
-        setSelectedInfluencerId(imageToSelect.influencerId);
-      }
+    // Mark as processed before state updates
+    lastProcessedImageId.current = imageIdFromQuery;
 
-      // Switch to editing mode if edit=true in query params
-      if (shouldOpenEdit) {
-        setMode('editing');
-      }
+    // Batch state updates
+    setSelectedImage(imageToSelect);
+    setShowPanel(true);
+
+    // Auto-select influencer if needed
+    if (imageToSelect.influencerId && imageToSelect.influencerId !== selectedInfluencerId) {
+      setSelectedInfluencerId(imageToSelect.influencerId);
+    }
+
+    // Set mode from query
+    if (modeFromQuery !== 'creating') {
+      setMode(modeFromQuery);
     }
   }, [
     imageIdFromQuery,
     allImages,
-    shouldOpenEdit,
+    modeFromQuery,
     selectedInfluencerId,
     setSelectedImage,
     setShowPanel,
     setSelectedInfluencerId,
     setMode,
   ]);
-}
 
+  // Effect 3: Apply template from query params (runs when templateId changes)
+  React.useEffect(() => {
+    if (!templateIdFromQuery) {
+      lastProcessedTemplateId.current = null;
+      return;
+    }
+
+    // Skip if we already processed this template
+    if (lastProcessedTemplateId.current === templateIdFromQuery) {
+      return;
+    }
+
+    if (!onTemplateApply) return;
+
+    lastProcessedTemplateId.current = templateIdFromQuery;
+    onTemplateApply(templateIdFromQuery);
+  }, [templateIdFromQuery, onTemplateApply]);
+}

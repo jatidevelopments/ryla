@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ScheduleModule } from '@nestjs/schedule';
 import { APP_FILTER } from '@nestjs/core';
 
 import { GlobalExceptionFilter } from '../common/http/global-exception.filter';
@@ -35,6 +36,7 @@ import { PaymentsModule } from './payments/payments.module';
         'apps/api/.env.local',
       ],
     }),
+    ScheduleModule.forRoot(), // For @Cron decorators in FinbyService and other scheduled tasks
     DrizzleModule,
     RedisModule,
     HealthModule,

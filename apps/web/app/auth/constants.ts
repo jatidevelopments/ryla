@@ -9,7 +9,6 @@ export interface LoginFormData {
 
 export interface RegisterFormData {
   name: string;
-  publicName: string;
   password: string;
   confirmPassword: string;
   acceptedTerms: boolean;

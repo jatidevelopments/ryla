@@ -29,13 +29,14 @@ These epics are **NOT in MVP** — planned for Phase 2 or later.
 | EP-025 | Lip-sync / Talking Head | P2 | Depends on video |
 | EP-026 | Voice Cloning | P2 | Complexity |
 
-### Platform Integration
+### Platform Integration & Export
 
 | Epic | Name | Phase | Reason for Delay |
 |------|------|-------|------------------|
 | EP-027 | Platform Auto-Posting | P2 | Integration complexity |
 | EP-028 | Content Scheduling | P2 | Needs platform integration |
 | EP-037 | Platform-Specific Export | P2 | OF/Fanvue/Instagram presets |
+| EP-052 | Share Links | P2 | Shareable URLs for content |
 
 ### AI Influencer Features
 
@@ -45,26 +46,33 @@ These epics are **NOT in MVP** — planned for Phase 2 or later.
 | EP-029 | Multi-Influencer Scenes | P2 | Complexity |
 | EP-030 | AI Influencer Chat | P3 | Different product territory |
 
-### Image Enhancement
+### Image Enhancement & Consistency
 
 | Epic | Name | Phase | Reason for Delay |
 |------|------|-------|------------------|
 | EP-044 | Face Repair | P2 | Auto-fix generation issues |
 | EP-045 | Image Upscaling | P2 | 2x/4x enhancement |
 | EP-046 | Image Editing | P2 | Inpainting, adjustments |
+| EP-049 | Reference Image Slots | P2 | Primary/optional reference images |
+| EP-050 | Consistency Score UI | P2 | Visual drift warnings |
+| EP-051 | One-Click Face Fix | P2 | Auto face repair/enhancement |
 
 ### Business & Growth
 
 | Epic | Name | Phase | Reason for Delay |
 |------|------|-------|------------------|
 | EP-031 | API Access | P3 | B2B, not MVP focus |
-| EP-032 | Team/Agency Features | P3 | B2B |
+| EP-032 | Team/Workspace Features | P3 | Solo accounts only for MVP |
 | EP-033 | Advanced NSFW Controls | P2 | Start with simple toggle |
 | EP-034 | Referral System | P2 | Optimize CAC later |
 | EP-035 | Mobile App | P3 | Web-first |
 | EP-036 | i18n (Multi-language) | P2 | English only for MVP |
 | EP-047 | Retention Offer Before Account Deletion | P2 | Requires billing rules + offer mechanics |
 | EP-048 | Competitor Pricing Intelligence | P2 | Business intelligence, not core product |
+| EP-053 | Prompt Text Templates | P2 | Hooks, CTA, caption templates |
+| EP-054 | Asset Folders/Tags | P2 | Organize images with folders/tags |
+| EP-055 | Feature Request Voting | P2 | In-app feature voting system |
+| EP-056 | Discord/Community Submit | P2 | Community integration |
 
 > **Note**: EP-009 to EP-014 are now used for MVP epics (Credits, Subscription, Legal, Onboarding, Education, Captions)
 

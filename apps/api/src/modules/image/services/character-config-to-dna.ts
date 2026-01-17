@@ -4,10 +4,22 @@
 import { CharacterConfig } from '@ryla/data/schema';
 import { CharacterDNA } from '@ryla/business/prompts';
 
+export interface CharacterConfigToDNAOptions {
+  /**
+   * When true, excludes NSFW body descriptions (breast size, ass size) from the DNA.
+   * Use this for SFW contexts like base image generation.
+   * Default: false
+   */
+  sfwMode?: boolean;
+}
+
 export function characterConfigToDNA(
   config: CharacterConfig,
   characterName: string,
+  options: CharacterConfigToDNAOptions = {},
 ): CharacterDNA {
+  const { sfwMode = false } = options;
+
   // Build hair description
   const hairParts: string[] = [];
   if (config.hairColor) hairParts.push(config.hairColor);
@@ -95,22 +107,29 @@ export function characterConfigToDNA(
     : undefined;
 
   // Build enhanced body type description
+  // In SFW mode, ONLY include the basic body type (e.g., "slim", "athletic")
+  // In non-SFW mode, include ass size and breast size
   let bodyTypeDesc = config.bodyType;
-  if (config.assSize && config.assSize !== 'none') {
-    bodyTypeDesc = bodyTypeDesc
-      ? `${bodyTypeDesc}, ${config.assSize} ass`
-      : `${config.assSize} ass`;
-  }
-  if (config.breastSize && config.breastSize !== 'none') {
-    const breastDesc = config.breastType
-      ? `${config.breastSize} ${config.breastType} breasts`
-      : `${config.breastSize} breasts`;
-    bodyTypeDesc = bodyTypeDesc
-      ? `${bodyTypeDesc}, ${breastDesc}`
-      : breastDesc;
-  }
 
-  // Add tattoos to body description if present
+  if (!sfwMode) {
+    // NSFW-capable contexts can include body part descriptions
+    if (config.assSize && config.assSize !== 'none') {
+      bodyTypeDesc = bodyTypeDesc
+        ? `${bodyTypeDesc}, ${config.assSize} ass`
+        : `${config.assSize} ass`;
+    }
+    if (config.breastSize && config.breastSize !== 'none') {
+      const breastDesc = config.breastType
+        ? `${config.breastSize} ${config.breastType} breasts`
+        : `${config.breastSize} breasts`;
+      bodyTypeDesc = bodyTypeDesc
+        ? `${bodyTypeDesc}, ${breastDesc}`
+        : breastDesc;
+    }
+  }
+  // Note: In SFW mode, we intentionally skip ass size and breast size
+
+  // Add tattoos to body description if present (tattoos are SFW-safe)
   if (config.tattoos && config.tattoos !== 'none') {
     bodyTypeDesc = bodyTypeDesc
       ? `${bodyTypeDesc}, ${config.tattoos} tattoos`

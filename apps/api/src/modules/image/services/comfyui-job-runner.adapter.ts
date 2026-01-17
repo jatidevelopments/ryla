@@ -8,7 +8,7 @@
  * @see ADR-003: Use Dedicated ComfyUI Pod Over Serverless
  */
 
-import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
+import { Injectable, OnModuleInit, Logger, Inject, Optional } from '@nestjs/common';
 import {
   ComfyUIPodClient,
   ComfyUIJobRunner,
@@ -17,8 +17,11 @@ import {
   WorkflowId,
   CharacterDNA,
   BuiltPrompt,
+  ComfyUIJobPersistenceService,
 } from '@ryla/business';
 import type { RunPodJobRunner, RunPodJobStatus } from '@ryla/business';
+import { REDIS_CLIENT } from '../../redis/redis.constants';
+import type { Redis } from 'ioredis';
 
 export interface GenerateFromDNAInput {
   character: CharacterDNA;
@@ -40,6 +43,12 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   private availableNodes: string[] = [];
   private isInitialized = false;
 
+  constructor(
+    @Optional()
+    @Inject(REDIS_CLIENT)
+    private readonly redisClient?: Redis,
+  ) {}
+
   async onModuleInit() {
     // Use process.env directly to avoid ConfigService DI timing issues
     const podUrl = process.env['COMFYUI_POD_URL'];
@@ -53,7 +62,34 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
     try {
       this.client = new ComfyUIPodClient({ baseUrl: podUrl });
-      this.runner = new ComfyUIJobRunner(this.client);
+
+      // Create persistence service if Redis is available
+      let persistenceService: ComfyUIJobPersistenceService | undefined;
+      if (this.redisClient) {
+        try {
+          // Test Redis connection (with timeout)
+          const pingPromise = this.redisClient.ping();
+          const timeoutPromise = new Promise((_, reject) =>
+            setTimeout(() => reject(new Error('Redis ping timeout')), 2000)
+          );
+          await Promise.race([pingPromise, timeoutPromise]);
+          
+          // Create persistence service using the imported class
+          persistenceService = new ComfyUIJobPersistenceService({
+            redisClient: this.redisClient,
+          });
+          this.logger.log('Redis job persistence enabled');
+        } catch (error) {
+          this.logger.warn('Redis not available, job persistence disabled:', error);
+        }
+      } else {
+        this.logger.warn('Redis client not injected, job persistence disabled');
+      }
+
+      this.runner = new ComfyUIJobRunner({
+        comfyui: this.client,
+        persistenceService,
+      });
 
       // Initialize runner with available nodes for optimal workflow selection
       await this.runner.initialize();

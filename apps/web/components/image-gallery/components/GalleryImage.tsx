@@ -97,30 +97,18 @@ export const GalleryImage = React.memo(
               </div>
             )}
 
-            {/* More actions button (Visible on mobile/hover) - Top Left to avoid like indicator */}
-            <div className="absolute top-2 left-2 z-10 flex items-center gap-2">
-              <button
-                onClick={handleMoreActions}
-                className={cn(
-                  'flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70',
-                  isMobile ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
-                )}
-                title="More actions"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
-
-              {/* Edit in Studio button (Desktop hover) */}
-              {!isMobile && (
+            {/* More actions button (Mobile only) - Top Left to avoid like indicator */}
+            {isMobile && (
+              <div className="absolute top-2 left-2 z-10">
                 <button
-                  onClick={handleEdit}
-                  className="opacity-0 group-hover:opacity-100 flex h-7 w-7 items-center justify-center rounded-full bg-white/20 text-white backdrop-blur-sm transition-all hover:bg-white/30 hover:scale-110"
-                  title="Edit in Studio"
+                  onClick={handleMoreActions}
+                  className="flex h-7 w-7 items-center justify-center rounded-full bg-black/50 text-white backdrop-blur-sm transition-all hover:bg-black/70"
+                  title="More actions"
                 >
-                  <Edit className="h-3.5 w-3.5" />
+                  <MoreHorizontal className="h-4 w-4" />
                 </button>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Hover actions (Desktop only) */}
@@ -159,6 +147,14 @@ export const GalleryImage = React.memo(
                   className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
                 >
                   <Download className="h-4 w-4" />
+                </button>
+                {/* Edit button */}
+                <button
+                  onClick={handleEdit}
+                  className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+                  title="Edit in Studio"
+                >
+                  <Edit className="h-4 w-4" />
                 </button>
               </div>
             </div>

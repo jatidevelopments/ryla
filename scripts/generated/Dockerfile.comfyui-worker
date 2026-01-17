@@ -1,0 +1,65 @@
+# RYLA ComfyUI Serverless Worker (Generated)
+FROM runpod/worker-comfyui:5.6.0-base
+
+# Install ComfyUI Manager nodes
+RUN comfy-node-install res4lyf controlaltai-nodes
+
+# Install GitHub custom nodes
+RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/*
+RUN set -e; \
+  for COMFYUI_DIR in /comfyui /workspace/ComfyUI /workspace/runpod-slim/ComfyUI; do \
+    if [ -d "$COMFYUI_DIR" ]; then \
+      echo "Found ComfyUI at: $COMFYUI_DIR"; \
+      cd "$COMFYUI_DIR/custom_nodes"; \
+      if [ ! -d "ComfyUI_PuLID" ]; then git clone https://github.com/cubiq/ComfyUI_PuLID.git ComfyUI_PuLID; fi; \
+      cd "ComfyUI_PuLID"; \
+      git fetch --all --tags; \
+      git checkout main; \
+      if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi; \
+      cd "$COMFYUI_DIR/custom_nodes"; \
+      if [ ! -d "ComfyUI_InstantID" ]; then git clone https://github.com/cubiq/ComfyUI_InstantID.git ComfyUI_InstantID; fi; \
+      cd "ComfyUI_InstantID"; \
+      git fetch --all --tags; \
+      git checkout main; \
+      if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi; \
+      cd "$COMFYUI_DIR/custom_nodes"; \
+      if [ ! -d "LoadImageBase64-ComfyUI" ]; then git clone https://github.com/Extraltodeus/LoadImageBase64-ComfyUI.git LoadImageBase64-ComfyUI; fi; \
+      cd "LoadImageBase64-ComfyUI"; \
+      git fetch --all --tags; \
+      git checkout main; \
+      if [ -f "requirements.txt" ]; then pip install -r requirements.txt; fi; \
+      cd "$COMFYUI_DIR/custom_nodes"; \
+      break; \
+    fi; \
+  done
+
+# Create startup script to link models from network volume
+RUN echo '#!/bin/bash\n\
+for COMFYUI_BASE in "/comfyui" "/workspace/ComfyUI" "/workspace/runpod-slim/ComfyUI"; do\n\
+  if [ -d "$COMFYUI_BASE" ]; then\n\
+    COMFYUI_MODELS="$COMFYUI_BASE/models"\n\
+    if [ -d "/runpod-volume/models" ]; then\n\
+      SOURCE_BASE="/runpod-volume/models"\n\
+    elif [ -d "/workspace/models" ]; then\n\
+      SOURCE_BASE="/workspace/models"\n\
+    else\n\
+      continue\n\
+    fi\n\
+    for dir in diffusion_models text_encoders vae pulid clip instantid controlnet; do\n\
+      SOURCE="$SOURCE_BASE/$dir"\n\
+      TARGET="$COMFYUI_MODELS/$dir"\n\
+      if [ -d "$SOURCE" ] && [ ! -e "$TARGET" ]; then\n\
+        ln -s "$SOURCE" "$TARGET"\n\
+      fi\n\
+    done\n\
+  fi\n\
+done\n' > /startup-link-models.sh && chmod +x /startup-link-models.sh
+
+# Wrapper entrypoint
+RUN echo '#!/bin/bash\n\
+set -e\n\
+/startup-link-models.sh\n\
+exec "$@"\n\
+' > /entrypoint-wrapper.sh && chmod +x /entrypoint-wrapper.sh
+
+ENTRYPOINT ["/entrypoint-wrapper.sh"]

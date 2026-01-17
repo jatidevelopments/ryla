@@ -156,8 +156,8 @@ export class BaseImageGenerationService {
       basePrompt = input.promptInput.trim();
       _originalPrompt = basePrompt;
 
-      // Add SFW requirements to the prompt
-      basePrompt += ', fully clothed, appropriate attire, professional appearance, modest clothing';
+      // Add SFW requirements and friendly expression to the prompt
+      basePrompt += ', smiling, friendly expression, warm smile, approachable, fully clothed, appropriate attire, professional appearance, modest clothing';
 
       // Base images are ALWAYS SFW - strong negative prompt
       negativePrompt = 'nude, naked, topless, bottomless, exposed breasts, nipples, genitals, ' +
@@ -254,7 +254,9 @@ export class BaseImageGenerationService {
       };
 
       // Convert to CharacterDNA using the enhanced converter
-      const characterDNA = characterConfigToDNA(characterConfig, 'Character');
+      // Use sfwMode: true to EXCLUDE breast size, ass size from the prompt
+      // Base images are ALWAYS SFW - we don't want body part descriptions triggering NSFW content
+      const characterDNA = characterConfigToDNA(characterConfig, 'Character', { sfwMode: true });
 
       // Build prompt using PromptBuilder with character DNA
       // Base images are ALWAYS SFW - ensure proper clothing and no nudity
@@ -267,9 +269,9 @@ export class BaseImageGenerationService {
         .withTemplate('portrait-selfie-casual') // Default template for base images
         .withOutfit(safeOutfit)
         .withLighting('natural.soft')
-        .withExpression('positive.confident')
+        .withExpression('positive.smiling') // Use smiling for more approachable base images
         .withGoldStandard() // Apply professional photography and identity preservation rules
-        .addDetails('fully clothed, appropriate attire, professional appearance, modest clothing') // Explicitly add clothing requirement
+        .addDetails('smiling, warm friendly expression, fully clothed, appropriate attire, professional appearance, modest clothing') // Add smiling and clothing requirement
         .withNegativePrompt(
           // Strong SFW negative prompt for base images - always enforce no nudity
           'nude, naked, topless, bottomless, exposed breasts, nipples, genitals, ' +
@@ -352,12 +354,17 @@ export class BaseImageGenerationService {
 
       // Internal ComfyUI jobs: 2 images for variety
       // Base images are ALWAYS SFW (nsfw: false)
+      // Add extra SFW enforcement for ComfyUI/Danrisi - this model needs stronger guidance
+      // Also add smiling for more approachable base images
+      const sfwEnforcedPrompt = basePrompt + ', smiling, friendly expression, warm smile, wearing clothes, fully dressed, appropriate attire, professional portrait';
+      const sfwEnforcedNegativePrompt = negativePrompt + ', nsfw, nude, naked, topless, bottomless, nipples, breasts exposed, revealing clothes, underwear, lingerie, bikini, adult content, serious expression, sad, frowning';
+      
       const internalJobIds: string[] = [];
       for (let i = 0; i < imagesPerModel; i++) {
         const internalSeed = baseSeed + seedOffset + i;
         const internalJobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
-          prompt: basePrompt,
-          negativePrompt: negativePrompt,
+          prompt: sfwEnforcedPrompt,
+          negativePrompt: sfwEnforcedNegativePrompt,
           nsfw: false, // Base images are always SFW
           seed: internalSeed,
           width,
@@ -384,14 +391,19 @@ export class BaseImageGenerationService {
 
     // Internal-only fallback (6 ComfyUI jobs for variety)
     // Base images are ALWAYS SFW (nsfw: false)
+    // Add extra SFW enforcement for ComfyUI/Danrisi - this model needs stronger guidance
+    // Also add smiling for more approachable base images
+    const sfwEnforcedPrompt = basePrompt + ', smiling, friendly expression, warm smile, wearing clothes, fully dressed, appropriate attire, professional portrait';
+    const sfwEnforcedNegativePrompt = negativePrompt + ', nsfw, nude, naked, topless, bottomless, nipples, breasts exposed, revealing clothes, underwear, lingerie, bikini, adult content, serious expression, sad, frowning';
+    
     const internalImageCount = 6;
     const jobs = Array.from({ length: internalImageCount }).map((_, i) => {
       const seed = baseSeed + i;
       return {
         seed,
         promise: this.comfyuiAdapter.submitBaseImageWithWorkflow({
-          prompt: basePrompt,
-          negativePrompt: negativePrompt,
+          prompt: sfwEnforcedPrompt,
+          negativePrompt: sfwEnforcedNegativePrompt,
           nsfw: false, // Base images are always SFW
           seed,
           width,

@@ -6,10 +6,11 @@ import { ProfilePictureSetSelectorHeader } from './header';
 import { SkipOption } from './skip-option';
 import { ProfileSetCard } from './profile-set-card';
 import { InfoNote } from './info-note';
+import type { ProfilePictureSetId } from '@ryla/shared';
 
 interface ProfilePictureSetSelectorProps {
-  selectedSetId: string | null;
-  onSelect: (setId: string | null) => void;
+  selectedSetId: ProfilePictureSetId | null;
+  onSelect: (setId: ProfilePictureSetId | null) => void;
   creditCost: number;
 }
 
@@ -42,7 +43,7 @@ export function ProfilePictureSetSelector({
               isSelected={isSelected}
               isHovered={isHovered}
               creditCost={creditCost}
-              onSelect={() => onSelect(set.id)}
+              onSelect={() => onSelect(set.id as ProfilePictureSetId)}
               onMouseEnter={() => setHoveredSet(set.id)}
               onMouseLeave={() => setHoveredSet(null)}
             />

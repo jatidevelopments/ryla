@@ -18,6 +18,7 @@ import { useSubscription } from '../../../lib/hooks/use-subscription';
  * Step: Finalize
  * Review selected base image and create character.
  *
+ * With deferred billing, ALL credits are charged here (base images + profile set + NSFW).
  * Profile pictures are generated on the Character Profile page after creation,
  * in the background, so users aren't blocked.
  */
@@ -29,9 +30,27 @@ export function StepFinalize() {
   const { balance, isLoading: isLoadingCredits, refetch: refetchCredits } = useCredits();
   const [showCreditModal, setShowCreditModal] = React.useState(false);
 
-  const { creditCost, profileSetCost, nsfwExtraCost, hasEnoughCredits, PROFILE_SET_CREDITS, NSFW_EXTRA_CREDITS } =
-    useFinalizeCredits(balance);
-  const { create, isCreating, error, selectedBaseImage } = useCharacterCreation();
+  // Get full credit breakdown (including base images with deferred billing)
+  const creditBreakdown = useFinalizeCredits(balance);
+  const {
+    totalCost,
+    baseImagesCost,
+    profileSetCost,
+    nsfwExtraCost,
+    hasEnoughCredits,
+    PROFILE_SET_CREDITS,
+    NSFW_EXTRA_CREDITS,
+  } = creditBreakdown;
+  
+  // Pass credit breakdown to useCharacterCreation for atomic deferred billing
+  const { create, isCreating, error, selectedBaseImage } = useCharacterCreation({
+    creditBreakdown: {
+      baseImagesCost,
+      profileSetCost,
+      nsfwExtraCost,
+      totalCost,
+    },
+  });
 
   const handleCreate = () => {
     create(hasEnoughCredits, () => setShowCreditModal(true), refetchCredits);
@@ -77,7 +96,8 @@ export function StepFinalize() {
       {/* Credit Balance & Create Button */}
       <div className="w-full">
         <CreditSummary
-          creditCost={creditCost}
+          totalCost={totalCost}
+          baseImagesCost={baseImagesCost}
           profileSetCost={profileSetCost}
           nsfwExtraCost={nsfwExtraCost}
           balance={balance}
@@ -90,7 +110,7 @@ export function StepFinalize() {
           disabled={isLoadingCredits || !selectedBaseImage}
           hasEnoughCredits={hasEnoughCredits}
           hasSelectedBaseImage={!!selectedBaseImage}
-          creditCost={creditCost}
+          creditCost={totalCost}
           balance={balance}
         />
       </div>
@@ -101,14 +121,18 @@ export function StepFinalize() {
         </div>
       )}
 
-      {/* Zero Credits Modal */}
+      {/* Zero Credits Modal - Enhanced with breakdown */}
       <ZeroCreditsModal
         isOpen={showCreditModal}
         onClose={() => setShowCreditModal(false)}
-        creditsNeeded={creditCost}
+        creditsNeeded={totalCost}
         currentBalance={balance}
+        breakdown={{
+          baseImages: baseImagesCost,
+          profileSet: profileSetCost,
+          nsfwExtra: nsfwExtraCost,
+        }}
       />
     </div>
   );
 }
-

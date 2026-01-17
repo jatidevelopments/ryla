@@ -77,9 +77,33 @@ Based on web searches conducted on 2026-01-XX:
 ## Next Steps
 
 1. **Contact Cloudflare Support**
-   - Ask: "Does Cloudflare R2 allow storage of adult/NSFW content?"
-   - Request written confirmation
-   - Document response
+   
+   **Primary Contact Methods:**
+   - **Support Portal** (Recommended): https://support.cloudflare.com
+     - Submit a support ticket through your Cloudflare dashboard
+     - Category: "R2 Storage" or "Product Question"
+     - Subject: "NSFW/Adult Content Policy for R2 Storage and CDN"
+   
+   - **Email**: privacyquestions@cloudflare.com
+     - For privacy/content policy questions
+     - Include: Your use case, content type, compliance measures
+   
+   - **Phone**: +1 888-274-3482 (US)
+     - For immediate assistance
+     - Business hours: Monday-Friday, 8am-5pm PST
+   
+   **What to Ask:**
+   - "Does Cloudflare R2 allow storage of adult/NSFW content?"
+   - "Are there any restrictions on adult content delivery via Cloudflare CDN?"
+   - "What compliance measures are required for adult content?"
+   - "Is written confirmation available for our records?"
+   
+   **Information to Provide:**
+   - Your use case: AI-generated influencer content platform
+   - Content type: AI-generated images/videos (not real people)
+   - Compliance: Age verification (18+), ToS acceptance, content moderation
+   - Storage: R2 for user-generated content
+   - Delivery: CDN for global content distribution
 
 2. **Update Initiative Decision**
    - If Cloudflare doesn't allow → Switch to Bunny
@@ -91,11 +115,58 @@ Based on web searches conducted on 2026-01-XX:
 
 ---
 
+## Contact Information
+
+### Cloudflare Support
+
+**Support Portal** (Recommended):
+- URL: https://support.cloudflare.com
+- Access: Log in to Cloudflare dashboard → Support → Open a ticket
+- Best for: Technical questions, product inquiries, account issues
+
+**Email**:
+- privacyquestions@cloudflare.com (for content policy questions)
+- support@cloudflare.com (general support)
+
+**Phone**:
+- US: +1 888-274-3482
+- Business hours: Monday-Friday, 8am-5pm PST
+
+**Support Ticket Template**:
+```
+Subject: NSFW/Adult Content Policy Inquiry for R2 Storage and CDN
+
+Hello Cloudflare Support,
+
+I'm reaching out to clarify Cloudflare's policy regarding storage and delivery of adult/NSFW content using R2 and CDN services.
+
+Our Use Case:
+- Platform: AI-generated influencer content platform (RYLA)
+- Content Type: AI-generated images and videos (not depicting real people)
+- Storage: R2 for user-generated content
+- Delivery: CDN for global content distribution
+- Compliance: Age verification (18+), Terms of Service acceptance, content moderation
+
+Questions:
+1. Does Cloudflare R2 allow storage of adult/NSFW content?
+2. Are there any restrictions on adult content delivery via Cloudflare CDN?
+3. What compliance measures are required for adult content?
+4. Can we receive written confirmation of your policy for our records?
+
+Thank you for your assistance.
+
+Best regards,
+[Your Name]
+[Company Name]
+[Email]
+```
+
 ## References
 
 - [Bunny Acceptable Use Policy](https://bunny.net/acceptable-use/)
 - [Cloudflare Terms](https://www.cloudflare.com/terms/)
 - [Cloudflare Service-Specific Terms](https://www.cloudflare.com/service-specific-terms-network-services/)
+- [Cloudflare Support Portal](https://support.cloudflare.com)
 
 ---
 

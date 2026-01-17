@@ -33,8 +33,8 @@ vi.mock('lucide-react', () => ({
 
 describe('LightboxModal', () => {
   const mockImages = [
-    { id: '1', imageUrl: 'img1.jpg', caption: 'Caption 1', isLiked: false },
-    { id: '2', imageUrl: 'img2.jpg', caption: 'Caption 2', isLiked: true },
+    { id: '1', imageUrl: 'img1.jpg', caption: 'Caption 1', isLiked: false, influencerId: 'inf-1', aspectRatio: '9:16' as const, createdAt: '2024-01-01T00:00:00Z' },
+    { id: '2', imageUrl: 'img2.jpg', caption: 'Caption 2', isLiked: true, influencerId: 'inf-1', aspectRatio: '9:16' as const, createdAt: '2024-01-02T00:00:00Z' },
   ];
 
   const defaultProps = {

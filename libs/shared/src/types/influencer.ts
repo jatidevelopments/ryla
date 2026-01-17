@@ -1,5 +1,10 @@
 import { AspectRatio } from '../constants/platforms';
 
+/**
+ * Profile picture set identifiers
+ */
+export type ProfilePictureSetId = 'classic-influencer' | 'professional-model' | 'natural-beauty';
+
 export interface CharacterConfig {
   gender?: 'female' | 'male';
   style?: 'realistic' | 'anime';
@@ -16,7 +21,7 @@ export interface CharacterConfig {
   bio?: string;
   handle?: string;
   nsfwEnabled?: boolean;
-  profilePictureSetId?: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
+  profilePictureSetId?: ProfilePictureSetId | null;
 }
 
 export interface Character {
@@ -56,7 +61,7 @@ export interface AIInfluencer {
   // Settings
   nsfwEnabled: boolean;
   // Profile picture set (null = skip)
-  profilePictureSetId?: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
+  profilePictureSetId?: ProfilePictureSetId | null;
   // Stats
   postCount: number;
   imageCount: number;

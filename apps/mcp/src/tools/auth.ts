@@ -118,12 +118,12 @@ This token will not expire for 10 years, so you won't need to refresh it regular
    */
   server.addTool({
     name: 'ryla_auth_register',
-    description: 'Register a new user account. Useful for creating test accounts. Both name and publicName are required.',
+    description: 'Register a new user account. Useful for creating test accounts. Username will be auto-generated if not provided.',
     parameters: z.object({
       email: z.string().email().describe('Email address'),
       password: z.string().min(8).describe('Password (min 8 chars)'),
       name: z.string().describe('Display name'),
-      publicName: z.string().describe('Unique public username/handle'),
+      publicName: z.string().optional().describe('Optional public username/handle (auto-generated if not provided)'),
     }),
     execute: async (args) => {
       try {
@@ -142,7 +142,7 @@ This token will not expire for 10 years, so you won't need to refresh it regular
             email: args.email,
             password: args.password,
             name: args.name,
-            publicName: args.publicName,
+            ...(args.publicName && { publicName: args.publicName }),
           }),
         });
 

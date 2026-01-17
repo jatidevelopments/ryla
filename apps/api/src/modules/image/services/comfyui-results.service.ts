@@ -324,21 +324,30 @@ export class ComfyUIResultsService {
     if (trackedJob.status !== 'completed') {
       // Get the first thumbnail for notification preview
       const firstThumbnail = storedImages[0]?.thumbnailUrl ?? storedImages[0]?.url ?? null;
+      const firstImageId = created[0]?.id ?? null;
+      
+      // Build href with imageId if available for direct navigation
+      let href = '/activity';
+      if (trackedJob.characterId) {
+        href = `/studio?influencer=${trackedJob.characterId}`;
+        if (firstImageId) {
+          href += `&imageId=${firstImageId}`;
+        }
+      }
       
       await this.notificationsRepo.create({
         userId,
         type: 'generation.completed',
         title: 'Your images are ready',
         body: `Generated ${storedImages.length} image${storedImages.length === 1 ? '' : 's'}.`,
-        href: trackedJob.characterId 
-          ? `/studio?influencer=${trackedJob.characterId}` 
-          : '/activity',
+        href,
         metadata: {
           generationJobId: trackedJob.id,
           externalJobId: promptId,
           characterId: trackedJob.characterId,
           imageCount: storedImages.length,
           thumbnailUrl: firstThumbnail,
+          imageId: firstImageId,
           // Include credit info from job input if available
           qualityMode: (trackedJob.input as any)?.qualityMode ?? null,
         },

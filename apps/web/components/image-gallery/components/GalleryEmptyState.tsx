@@ -28,10 +28,10 @@ export function GalleryEmptyState({ message, action }: GalleryEmptyStateProps) {
       {action && (
         <Link
           href={action.href}
-          className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-600)] px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-[var(--purple-500)]/20 transition-all hover:shadow-xl hover:shadow-[var(--purple-500)]/30 hover:scale-[1.02]"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-600)] px-5 py-2.5 text-sm font-medium text-white shadow-lg shadow-[var(--purple-500)]/20 transition-all hover:shadow-xl hover:shadow-[var(--purple-500)]/30 hover:scale-[1.02] whitespace-nowrap min-w-fit"
         >
-          <Sparkles className="h-4 w-4" />
-          {action.label}
+          <Sparkles className="h-4 w-4 flex-shrink-0" />
+          <span>{action.label}</span>
         </Link>
       )}
     </div>

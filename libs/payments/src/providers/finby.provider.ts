@@ -238,9 +238,10 @@ export class FinbyProvider implements PaymentProvider {
     const currency = params.currency || 'EUR';
 
     // PaymentType: 0 = Purchase, 1 = Register Card, 3 = Recurring Initial
-    // Per feedback: Use PaymentType=3 for subscriptions (Recurring Initial)
-    // Per feedback: Use PaymentType=1 for credit purchases (RegisterCard to save card)
-    const paymentType = isSubscription ? 3 : (isCreditPurchase ? 1 : 0);
+    // Use PaymentType=3 for subscriptions (Recurring Initial - saves card for future charges)
+    // Use PaymentType=0 for credit purchases (simple one-time Purchase)
+    // Note: PaymentType=1 (RegisterCard) was causing issues - use 0 for simple purchases
+    const paymentType = isSubscription ? 3 : 0;
 
     // Required billing fields (from SCA requirements)
     const billingCity = params.billingCity || 'Unknown';
@@ -277,16 +278,13 @@ export class FinbyProvider implements PaymentProvider {
     });
 
     // Add billing fields (required for card payments)
-    if (paymentType !== 3) {
-      // For recurring initial (PaymentType=3), billing fields might not be required
-      // But we'll include them for consistency
+    // Include for ALL payment types including PaymentType=3 (recurring initial)
       urlParams.append('BillingCity', billingCity);
       urlParams.append('BillingCountry', billingCountry);
       urlParams.append('BillingPostcode', billingPostcode);
       urlParams.append('BillingStreet', billingStreet);
       urlParams.append('CardHolder', cardHolder);
       urlParams.append('Email', email);
-    }
 
     // Add optional URLs
     if (params.successUrl) {

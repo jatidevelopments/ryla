@@ -110,15 +110,23 @@ export class ProfilePictureSetService {
     }
 
     // Convert character config to CharacterDNA if provided, otherwise use set's default DNA
-    let characterDNA: CharacterDNA;
+    // Create TWO versions: SFW (excludes breast/ass size) and NSFW (includes them)
+    let sfwCharacterDNA: CharacterDNA;
+    let nsfwCharacterDNA: CharacterDNA;
+    
     if (input.characterConfig && input.characterName) {
-      characterDNA = characterConfigToDNA(input.characterConfig, input.characterName);
+      // SFW DNA: excludes breast size and ass size from the prompt
+      sfwCharacterDNA = characterConfigToDNA(input.characterConfig, input.characterName, { sfwMode: true });
+      // NSFW DNA: includes breast size and ass size for adult content
+      nsfwCharacterDNA = characterConfigToDNA(input.characterConfig, input.characterName, { sfwMode: false });
     } else {
-      // Fall back to set's default character DNA
-      characterDNA = set.characterDNA;
+      // Fall back to set's default character DNA (used for both SFW and NSFW)
+      sfwCharacterDNA = set.characterDNA;
+      nsfwCharacterDNA = set.characterDNA;
     }
 
     // Generate regular images (7-10 based on set) using PromptBuilder
+    // Regular images are SFW - use sfwCharacterDNA (excludes breast/ass size)
     const regularImages = set.positions.map((position: ProfilePictureSet['positions'][0]) => {
       // Use actual studio components from position
       const scene = position.scene || this.mapPositionToScene(position);
@@ -126,23 +134,39 @@ export class ProfilePictureSetService {
       const outfit = position.outfit || input.characterConfig?.defaultOutfit || 'casual';
       const lighting = position.lighting || this.mapPositionToLighting(position);
 
-      // Use PromptBuilder with character DNA and position-specific settings
+      // Use PromptBuilder with SFW character DNA (excludes breast/ass size)
+      // Use a dynamic template based on framing - this ensures variety in shots
+      const template = this.getTemplateForFraming(position.framing);
+      
       const promptBuilder = new PromptBuilder()
-        .withCharacter(characterDNA)
-        .withTemplate('portrait-selfie-casual') // Base template
+        .withCharacter(sfwCharacterDNA)
+        .withTemplate(template)
         .withScene(scene)
         .withOutfit(outfit)
         .withLighting(lighting)
         .withExpression(this.mapPositionToExpression(position));
 
-      // Add pose using actual poseId if available, otherwise use pose description
+      // CRITICAL: Add framing/shot type to the prompt (full-body, medium, close-up)
+      // This is essential for variety in the generated images
+      promptBuilder.addDetails(this.getFramingPrompt(position.framing));
+      
+      // Add the angle explicitly (front view, back view, side view, three-quarter, etc.)
+      if (position.angle) {
+        promptBuilder.addDetails(position.angle);
+      }
+
+      // Add pose using actual poseId if available, otherwise use the FULL pose description
       if (position.poseId) {
         const posePrompt = getPosePrompt(position.poseId);
         if (posePrompt) {
           promptBuilder.addDetails(posePrompt);
         }
-      } else {
-        promptBuilder.addDetails(this.mapPositionToPose(position));
+      }
+      
+      // Always add the detailed pose description from the position
+      // This contains important information like "back to camera", "walking", "lying", etc.
+      if (position.pose) {
+        promptBuilder.addDetails(position.pose);
       }
 
       // Add activity/personality element if specified
@@ -169,6 +193,7 @@ export class ProfilePictureSetService {
     });
 
     // Generate NSFW images if enabled (3 additional) using PromptBuilder
+    // NSFW images can include breast/ass size - use nsfwCharacterDNA
     const nsfwImages = input.nsfwEnabled
       ? this.generateNSFWPositions().map((position) => {
         const scene = (position as any).scene || this.mapPositionToScene(position);
@@ -176,13 +201,25 @@ export class ProfilePictureSetService {
         const outfit = 'intimate'; // NSFW appropriate outfit
         const lighting = position.lighting || this.mapPositionToLighting(position);
 
+        // Use NSFW character DNA (includes breast/ass size for adult content)
+        // Use a dynamic template based on framing - this ensures variety in shots
+        const template = this.getTemplateForFraming(position.framing);
+        
         const promptBuilder = new PromptBuilder()
-          .withCharacter(characterDNA)
-          .withTemplate('portrait-selfie-casual')
+          .withCharacter(nsfwCharacterDNA)
+          .withTemplate(template)
           .withScene(scene)
           .withOutfit(outfit)
           .withLighting(lighting)
           .withExpression(this.mapPositionToExpression(position));
+
+        // CRITICAL: Add framing/shot type to the prompt (full-body, medium, close-up)
+        promptBuilder.addDetails(this.getFramingPrompt(position.framing));
+        
+        // Add the angle explicitly
+        if (position.angle) {
+          promptBuilder.addDetails(position.angle);
+        }
 
         // Add pose using actual poseId if available
         const poseId = (position as any).poseId;
@@ -191,8 +228,11 @@ export class ProfilePictureSetService {
           if (posePrompt) {
             promptBuilder.addDetails(posePrompt);
           }
-        } else {
-          promptBuilder.addDetails(this.mapPositionToPose(position));
+        }
+        
+        // Always add the detailed pose description
+        if (position.pose) {
+          promptBuilder.addDetails(position.pose);
         }
 
         const builtPrompt = promptBuilder
@@ -943,18 +983,54 @@ export class ProfilePictureSetService {
   }
 
   /**
+   * Get template ID based on framing type
+   * Different framings need different templates for best results
+   */
+  private getTemplateForFraming(framing: 'close-up' | 'medium' | 'full-body'): string {
+    switch (framing) {
+      case 'full-body':
+        return 'fullbody-standing-casual'; // Template optimized for full-body shots
+      case 'medium':
+        return 'lifestyle-coffee-shop'; // Template for waist-up/medium shots
+      case 'close-up':
+      default:
+        return 'portrait-selfie-casual'; // Template for face close-ups
+    }
+  }
+
+  /**
+   * Get framing prompt text for the shot type
+   * This is critical for generating the right camera distance
+   */
+  private getFramingPrompt(framing: 'close-up' | 'medium' | 'full-body'): string {
+    switch (framing) {
+      case 'full-body':
+        return 'full body shot, entire body visible from head to feet, wide framing, environmental portrait';
+      case 'medium':
+        return 'medium shot, waist-up framing, upper body visible, three-quarter length portrait';
+      case 'close-up':
+      default:
+        return 'close-up portrait, face and shoulders visible, intimate framing';
+    }
+  }
+
+  /**
    * Map position expression to PromptBuilder expression format
    */
   private mapPositionToExpression(position: ProfilePicturePosition): string {
     const exprLower = position.expression.toLowerCase();
-    if (exprLower.includes('smile') || exprLower.includes('warm') || exprLower.includes('genuine')) {
+    if (exprLower.includes('smile') || exprLower.includes('warm') || exprLower.includes('genuine') || exprLower.includes('happy')) {
       return 'positive.happy';
-    } else if (exprLower.includes('confident') || exprLower.includes('self-assured')) {
+    } else if (exprLower.includes('confident') || exprLower.includes('self-assured') || exprLower.includes('fierce')) {
       return 'positive.confident';
-    } else if (exprLower.includes('relaxed') || exprLower.includes('natural')) {
+    } else if (exprLower.includes('relaxed') || exprLower.includes('natural') || exprLower.includes('peaceful')) {
       return 'neutral.natural';
-    } else if (exprLower.includes('seductive') || exprLower.includes('alluring')) {
+    } else if (exprLower.includes('seductive') || exprLower.includes('alluring') || exprLower.includes('sultry')) {
       return 'suggestive.seductive';
+    } else if (exprLower.includes('playful') || exprLower.includes('joyful') || exprLower.includes('laughing')) {
+      return 'positive.playful';
+    } else if (exprLower.includes('thoughtful') || exprLower.includes('contemplative') || exprLower.includes('mysterious')) {
+      return 'neutral.thoughtful';
     }
     return 'positive.confident'; // Default
   }

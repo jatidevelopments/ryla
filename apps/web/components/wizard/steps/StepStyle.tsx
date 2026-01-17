@@ -11,6 +11,7 @@ const genderOptions = [
     gradient: 'from-pink-500 to-rose-500',
     disabled: false,
     comingSoon: false,
+    image: '/images/wizard/base/caucasian/female-portrait.webp',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
         <circle cx="12" cy="8" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -29,6 +30,7 @@ const genderOptions = [
     gradient: 'from-blue-500 to-indigo-600',
     disabled: true,
     comingSoon: true,
+    image: '/images/wizard/base/caucasian/male-portrait.webp',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
         <circle cx="10" cy="14" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -112,7 +114,7 @@ export function StepStyle() {
       <div className="w-full mb-6">
         <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
           <p className="text-white/70 text-sm mb-4">Select Gender</p>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
             {genderOptions.map((option) => {
               const isSelected = form.gender === option.value;
               const isDisabled = option.disabled;
@@ -131,6 +133,22 @@ export function StepStyle() {
                       : 'border-white/10 bg-white/5 hover:border-white/20 hover:bg-white/10'
                   )}
                 >
+                  {/* Background Image */}
+                  {option.image && (
+                    <div className="absolute inset-0 z-0">
+                      <img
+                        src={option.image}
+                        alt={option.label}
+                        className={cn(
+                          'w-full h-full object-cover',
+                          isDisabled && 'opacity-30 grayscale'
+                        )}
+                      />
+                      {/* Overlay gradient for better text visibility */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/20" />
+                    </div>
+                  )}
+
                   {/* Shimmer effect when selected */}
                   {isSelected && !isDisabled && (
                     <div className="absolute inset-0 w-[200%] animate-shimmer bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none z-20" />
@@ -140,17 +158,18 @@ export function StepStyle() {
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 z-10">
                     <div
                       className={cn(
-                        'w-12 h-12 rounded-lg flex items-center justify-center shadow-md transition-transform duration-200 bg-gradient-to-br',
+                        'w-12 h-12 rounded-lg flex items-center justify-center shadow-md transition-transform duration-200 bg-gradient-to-br backdrop-blur-sm',
                         option.gradient,
                         isSelected && !isDisabled && 'scale-110',
-                        isDisabled && 'opacity-50'
+                        isDisabled && 'opacity-50',
+                        option.image && 'bg-white/20'
                       )}
                     >
                       {option.icon}
                     </div>
                     <p
                       className={cn(
-                        'text-sm font-medium',
+                        'text-sm font-medium drop-shadow-lg',
                         isSelected ? 'text-white' : 'text-white/90',
                         isDisabled && 'opacity-50'
                       )}
@@ -158,7 +177,7 @@ export function StepStyle() {
                       {option.label}
                     </p>
                     {option.comingSoon && (
-                      <span className="text-xs text-white/40 font-medium">Coming Soon</span>
+                      <span className="text-xs text-white/60 font-medium bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm">Coming Soon</span>
                     )}
                   </div>
 

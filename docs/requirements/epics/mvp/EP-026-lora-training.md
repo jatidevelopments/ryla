@@ -1,5 +1,8 @@
 # [EPIC] EP-026: LoRA Training for Character Consistency
 
+> **Initiative**: [IN-006: LoRA Character Consistency System](../../../initiatives/IN-006-lora-character-consistency.md)  
+> **Implementation Plan**: [EP-026 Implementation Plan](./EP-026-lora-training/IMPLEMENTATION-PLAN.md)
+
 ## Overview
 
 Automated LoRA (Low-Rank Adaptation) training system that enables character-specific model fine-tuning for >95% face consistency. Users can enable LoRA training during influencer creation or later via settings, with training running in the background and notifications when complete.
@@ -15,6 +18,7 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
 **Hypothesis**: When users can train character-specific LoRAs, they will achieve higher consistency (>95% vs ~80%) and generate more content, increasing platform engagement and retention.
 
 **Success Criteria**:
+
 - LoRA training adoption: **>60%** of users with profile sets enable training
 - Training completion rate: **>90%** (successful trainings)
 - Character consistency improvement: **>95%** face match (vs ~80% without LoRA)
@@ -348,6 +352,7 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
 ### Data Model
 
 **LoRA Models Table** (already exists in `libs/data/src/schema/lora-models.schema.ts`):
+
 ```typescript
 interface LoraModel {
   id: string;
@@ -374,6 +379,7 @@ interface LoraModel {
 ```
 
 **Character Table** (add LoRA training preference):
+
 ```typescript
 interface Character {
   // ... existing fields
@@ -388,6 +394,7 @@ interface Character {
 ### Credit Cost Calculation
 
 **Cost Structure** (Per Model + Per Image):
+
 - **Base Cost** (per model - covers GPU training time):
   - Z-Image Turbo: 15,000 credits base (~$15, actual cost ~$3-4)
   - Flux Dev: 25,000 credits base (~$25, actual cost ~$5-6)
@@ -398,11 +405,13 @@ interface Character {
   - One 2.1/2.2: 1,000 credits per image (~$1, actual cost ~$0.10-0.15)
 
 **Total Cost Formula**:
+
 ```
 Total = Base Cost + (Image Count × Per-Image Cost)
 ```
 
 **Examples**:
+
 - Z-Image, 5 images: 15,000 + (5 × 1,000) = 20,000 credits (~$20)
 - Z-Image, 10 images: 15,000 + (10 × 1,000) = 25,000 credits (~$25)
 - Flux, 7 images: 25,000 + (7 × 1,000) = 32,000 credits (~$32)
@@ -411,6 +420,7 @@ Total = Base Cost + (Image Count × Per-Image Cost)
 **Margin**: 4-5x on base cost, 7-10x on per-image cost
 
 **Add to `libs/shared/src/credits/pricing.ts`**:
+
 ```typescript
 export type FeatureId =
   // ... existing
@@ -428,13 +438,14 @@ export function calculateLoraTrainingCost(
 ): number {
   const baseCost = model === 'z-image-turbo' ? 100 : 150;
   const perImageCost = model === 'z-image-turbo' ? 50 : 75;
-  return baseCost + (imageCount * perImageCost);
+  return baseCost + imageCount * perImageCost;
 }
 ```
 
 ### API Endpoints
 
 **Start LoRA Training**:
+
 - `POST /api/influencer/[id]/lora/train`
 - Payload:
   ```typescript
@@ -457,10 +468,12 @@ export function calculateLoraTrainingCost(
   ```
 
 **Get LoRA Status**:
+
 - `GET /api/influencer/[id]/lora/status`
 - Returns current LoRA model status
 
 **Update LoRA Settings**:
+
 - `PATCH /api/influencer/[id]/settings`
 - Payload:
   ```typescript
@@ -471,11 +484,17 @@ export function calculateLoraTrainingCost(
   ```
 
 **Get Available Images for Training**:
+
 - `GET /api/influencer/[id]/lora/available-images`
 - Returns:
   ```typescript
   {
-    profileSetImages: Array<{ id: string; url: string; thumbnailUrl: string; liked: boolean }>;
+    profileSetImages: Array<{
+      id: string;
+      url: string;
+      thumbnailUrl: string;
+      liked: boolean;
+    }>;
     likedImages: Array<{ id: string; url: string; thumbnailUrl: string }>;
     totalCount: number;
     canTrain: boolean; // true if >= 5 images
@@ -483,6 +502,7 @@ export function calculateLoraTrainingCost(
   ```
 
 **Check for New Liked Images**:
+
 - `GET /api/influencer/[id]/lora/new-images-available`
 - Returns:
   ```typescript
@@ -584,6 +604,7 @@ async onLoraTrainingFailed(loraModelId: string) {
 ### Notification Types
 
 **Add to notification types**:
+
 ```typescript
 type NotificationType =
   // ... existing
@@ -598,9 +619,11 @@ type NotificationType =
 ## Product Decisions (Confirmed)
 
 ### ✅ Q1: Credit Deduction Timing
+
 **Decision**: **Option C** - Deduct when training completes successfully (refund if fails)
 
 **Implementation**:
+
 - Credits are **reserved** when training starts (not deducted)
 - Credits are **deducted** when training completes successfully
 - Credits are **refunded** if training fails
@@ -609,9 +632,11 @@ type NotificationType =
 ---
 
 ### ✅ Q2: Enable Later in Settings
+
 **Decision**: **Option C** - Yes, but requires minimum X images
 
 **Implementation**:
+
 - Users can enable LoRA training later in settings
 - Requires minimum 5 images (profile set or liked images)
 - Shows validation message if insufficient images
@@ -620,9 +645,11 @@ type NotificationType =
 ---
 
 ### ✅ Q3: Minimum Image Requirement
+
 **Decision**: **Option A** - 5 images minimum
 
 **Implementation**:
+
 - Minimum 5 images required for training
 - Validates before allowing training to start
 - Shows clear error if insufficient images
@@ -630,9 +657,11 @@ type NotificationType =
 ---
 
 ### ✅ Q4: Retrain Availability
+
 **Decision**: **Anytime but with extra credits, on fail for free, also inform if new liked images are there that it can retrain the model for better image output**
 
 **Implementation**:
+
 - **Retrain Anytime**: User can retrain anytime (paid, costs credits)
 - **Retrain on Fail**: Free retry if previous training failed
 - **New Liked Images**: 
@@ -644,9 +673,11 @@ type NotificationType =
 ---
 
 ### ✅ Q5: Training Start Notification
+
 **Decision**: **Both A + B** - Notify when training starts AND when it completes
 
 **Implementation**:
+
 - **Start Notification**: `lora.training.started`
   - Title: "LoRA Training Started"
   - Body: "Training your character model... This will take ~1 hour. We'll notify you when it's ready!"
@@ -657,9 +688,11 @@ type NotificationType =
 ---
 
 ### ✅ Q6: Model Selection
+
 **Decision**: **Option A** - Z-Image Turbo default, but need to think about multiple models in studio and add info about which models support LoRA, expand in future
 
 **Implementation**:
+
 - **Default**: Z-Image Turbo
 - **Model Support Info**: 
   - Add `supportsLoRA: boolean` to model registry
@@ -674,9 +707,11 @@ type NotificationType =
 ---
 
 ### ✅ Q7: Liked Images Minimum
+
 **Decision**: **Option C** - Minimum 5 images and allow user to select which images to use for training
 
 **Implementation**:
+
 - **Minimum**: 5 images required
 - **Image Selection UI**: 
   - Show image picker/grid in wizard/settings
@@ -689,9 +724,11 @@ type NotificationType =
 ---
 
 ### ✅ Q8: Training Cost Display
+
 **Decision**: **Cost per training image and per model** - need to add this to our credits server/model cost source of truth
 
 **Implementation**:
+
 - **Cost Structure**: 
   - Base cost per model (e.g., Z-Image: 100 credits base)
   - Cost per image (e.g., 50 credits per image)
@@ -740,12 +777,14 @@ type NotificationType =
 ## Testing Requirements
 
 ### Unit Tests
+
 - Credit cost calculation
 - Image selection logic (liked → all)
 - Minimum image validation
 - Training config generation
 
 ### Integration Tests
+
 - LoRA training service
 - AI Toolkit API client
 - RunPod integration
@@ -753,6 +792,7 @@ type NotificationType =
 - Credit deduction
 
 ### E2E Tests (Playwright)
+
 - Enable LoRA in wizard
 - Training starts automatically
 - Notification received on completion
@@ -768,20 +808,21 @@ type NotificationType =
 - **EP-018**: Influencer Settings (settings page)
 - **EP-017**: In-App Notifications (notification system)
 - **EP-009**: Credits System (credit management)
-- **EP-005**: Content Studio (LoRA usage in generation)
+- **EP-038**: LoRA Usage in Image Generation (uses trained LoRAs)
+- **EP-005**: Content Studio (generation workflows)
 
 ---
 
 ## Success Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| LoRA training adoption | >60% | % of users with profile sets who enable training |
-| Training completion rate | >90% | % of trainings that complete successfully |
-| Character consistency | >95% | Face match accuracy with LoRA vs without |
-| User satisfaction | >80% | % of users reporting better consistency |
-| Training time | <2 hours | Average training completion time |
-| Credit cost accuracy | ±10% | Actual cost vs estimated cost |
+| Metric                   | Target   | Measurement                                      |
+| ------------------------ | -------- | ------------------------------------------------ |
+| LoRA training adoption   | >60%     | % of users with profile sets who enable training |
+| Training completion rate | >90%     | % of trainings that complete successfully        |
+| Character consistency    | >95%     | Face match accuracy with LoRA vs without         |
+| User satisfaction        | >80%     | % of users reporting better consistency          |
+| Training time            | <2 hours | Average training completion time                 |
+| Credit cost accuracy     | ±10%     | Actual cost vs estimated cost                    |
 
 ---
 
@@ -793,4 +834,3 @@ type NotificationType =
 - Credits should be refunded if training fails (if deducted upfront)
 - LoRA models expire after X days (TBD - for storage cleanup)
 - Training uses liked images by default for better quality
-

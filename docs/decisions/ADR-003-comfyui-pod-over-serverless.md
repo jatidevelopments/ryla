@@ -1,9 +1,12 @@
 # ADR-003: Use Dedicated ComfyUI Pod Over Serverless for Image Generation
 
-**Status**: Accepted  
+**Status**: ⚠️ Superseded by [ADR-006: Use RunPod Serverless Over Dedicated Pods](./ADR-006-runpod-serverless-over-dedicated-pods.md)  
 **Date**: 2025-12-21  
+**Superseded**: 2026-01-27  
 **Deciders**: Development Team  
 **Epic**: EP-005 (Content Studio)
+
+> **Note**: This ADR has been superseded by ADR-006 based on production experience and Maxim's feedback. See ADR-006 for the current decision to use RunPod Serverless.
 
 ## Context
 

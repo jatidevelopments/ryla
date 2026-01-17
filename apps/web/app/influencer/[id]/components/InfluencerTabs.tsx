@@ -153,6 +153,7 @@ function GalleryTab({
       influencerId={influencerId}
       emptyMessage="No images generated yet"
       emptyAction={{
+        label: 'Generate',
         href: `/studio?influencer=${influencerId}`,
       }}
       onLike={onLike}

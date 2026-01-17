@@ -52,8 +52,8 @@ vi.mock('../studio', () => ({
 
 describe('ImageGallery', () => {
   const mockImages = [
-    { id: '1', url: 'img1.jpg', aspectRatio: '1:1' },
-    { id: '2', url: 'img2.jpg', aspectRatio: '1:1' },
+    { id: '1', imageUrl: 'img1.jpg', caption: 'Image 1', isLiked: false, influencerId: 'inf-1', aspectRatio: '1:1' as const, createdAt: '2024-01-01T00:00:00Z' },
+    { id: '2', imageUrl: 'img2.jpg', caption: 'Image 2', isLiked: false, influencerId: 'inf-1', aspectRatio: '1:1' as const, createdAt: '2024-01-02T00:00:00Z' },
   ];
 
   const mockLightbox = {

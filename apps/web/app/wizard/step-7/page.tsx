@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepBodyModifications } from '../../../components/wizard/steps/StepBodyModifications';
+import { StepHairStyle } from '../../../components/wizard/steps/StepHairStyle';
 
 export default function WizardStep7() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -12,10 +12,10 @@ export default function WizardStep7() {
     setStep(7);
   }, [setStep]);
 
-  // Only presets flow uses step 7 (Body Modifications)
+  // Only presets flow uses step 7 (Hair Style)
   if (creationMethod !== 'presets') {
     return null;
   }
 
-  return <StepBodyModifications />;
+  return <StepHairStyle />;
 }

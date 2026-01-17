@@ -89,7 +89,9 @@ export class StudioGenerationService {
     if (!character) throw new NotFoundException('Character not found');
 
     // Convert CharacterConfig to CharacterDNA
-    const characterDNA = characterConfigToDNA(character.config, character.name);
+    // For SFW content, exclude breast/ass size from the prompt to avoid triggering NSFW content
+    // For NSFW content, include breast/ass size for adult content
+    const characterDNA = characterConfigToDNA(character.config, character.name, { sfwMode: !input.nsfw });
 
     // Build prompt using PromptBuilder
     const builder = new PromptBuilder()

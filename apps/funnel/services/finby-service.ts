@@ -24,10 +24,39 @@ export const finbyService = {
                 },
                 body: JSON.stringify(data),
             });
-            if (!response.ok) {
-                throw new Error(`Payment setup failed: ${response.statusText}`);
+            
+            // Parse response JSON to check for error field
+            const responseData = await response.json().catch(() => ({
+                error: `Failed to parse response: ${response.statusText}`,
+            }));
+            
+            // Check for error in response (even if status is 200)
+            if (!response.ok || responseData.error) {
+                const errorMessage = responseData.error || 
+                    responseData.message || 
+                    `Payment setup failed: ${response.statusText}`;
+                
+                // Log error for debugging
+                console.error("[FinbyService] Payment setup failed:", {
+                    status: response.status,
+                    statusText: response.statusText,
+                    error: errorMessage,
+                    details: responseData.details,
+                    productId: data.productId,
+                    email: data.email,
+                });
+                
+                throw new Error(errorMessage);
             }
-            return response.json();
+            
+            // Validate response structure
+            if (!responseData.paymentUrl || !responseData.reference) {
+                const errorMessage = "Invalid payment response: missing paymentUrl or reference";
+                console.error("[FinbyService] Invalid payment response:", responseData);
+                throw new Error(errorMessage);
+            }
+            
+            return responseData;
         } else {
             // Use backend API
             const response = await axios.post<FinbySetupResponse>("/finby/setup-payment", data);

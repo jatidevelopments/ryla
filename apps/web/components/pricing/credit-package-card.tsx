@@ -16,7 +16,7 @@ export function CreditPackageCard({
   isLoading,
 }: CreditPackageCardProps) {
   const isHighlighted = package_.highlighted;
-  
+
   return (
     <div
       className={cn(
@@ -41,7 +41,9 @@ export function CreditPackageCard({
           <Sparkles className="w-6 h-6 text-purple-400" />
         </div>
         <div className="flex items-baseline justify-center gap-1">
-          <span className="text-3xl font-bold text-white">{package_.credits}</span>
+          <span className="text-3xl font-bold text-white">
+            {package_.credits}
+          </span>
           <span className="text-white/50 text-sm">credits</span>
         </div>
       </div>
@@ -50,9 +52,13 @@ export function CreditPackageCard({
       <div className="text-center mb-4">
         <div className="flex items-baseline justify-center gap-2">
           {package_.originalPrice && (
-            <span className="text-white/40 text-lg line-through">${package_.originalPrice}</span>
+            <span className="text-white/40 text-lg line-through">
+              ${package_.originalPrice}
+            </span>
           )}
-          <span className="text-2xl font-bold text-white">${package_.price}</span>
+          <span className="text-2xl font-bold text-white">
+            ${package_.price}
+          </span>
         </div>
         {package_.savePercent && (
           <span className="inline-block mt-2 px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400">

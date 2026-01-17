@@ -36,7 +36,7 @@ describe('PromptInputRow', () => {
     prompt: '',
     onPromptChange: vi.fn(),
     onPromptSubmit: vi.fn(),
-    mode: 'text-to-image' as const,
+    mode: 'creating' as const,
     selectedImage: null,
     selectedObjects: [],
     influencers: [],

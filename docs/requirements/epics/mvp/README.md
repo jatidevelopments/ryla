@@ -38,6 +38,14 @@ These epics define the **MVP Product** — what users interact with after conver
 | [EP-030](./EP-030-dna-integration-base-images.md) | DNA Integration - Base Image Generation | P1 | C-Core Value, A-Activation | 📝 Defined |
 | [EP-031](./EP-031-dna-integration-studio-profile.md) | DNA Integration - Studio & Profile Sets | P1 | C-Core Value | 📝 Defined |
 | [EP-032](./EP-032-progressive-disclosure-wizard.md) | Progressive Disclosure Wizard | P1 | A-Activation, C-Core Value | 📝 Defined |
+| [EP-033](./EP-033-base-character-image-generation.md) | Base Character Image Generation | P1 | A-Activation, C-Core Value | 📝 Defined |
+| [EP-034](./EP-034-ethnicity-image-generation.md) | Ethnicity Image Generation | P1 | A-Activation, C-Core Value | 📝 Defined |
+| [EP-035](./EP-035-body-type-image-generation.md) | Body Type Image Generation | P1 | A-Activation, C-Core Value | 📝 Defined |
+| [EP-036](./EP-036-ethnicity-specific-feature-images.md) | Ethnicity-Specific Feature Images | P1 | A-Activation, C-Core Value | 📝 Defined |
+| [EP-037](./EP-037-profile-picture-generation-from-detail-page.md) | Profile Picture Generation from Detail Page | P1 | B-Retention, C-Core Value | 📝 Defined |
+| [EP-038](./EP-038-lora-usage-in-generation.md) | LoRA Usage in Image Generation | P1 | C-Core Value | 📝 Defined |
+| [EP-039](./EP-039-comfyui-dependency-management.md) | ComfyUI Dependency Management & Versioning | P1 | E-CAC, C-Core Value | 📝 Defined |
+| [EP-042](./EP-042-wizard-single-selection-layout.md) | Wizard Single Selection & Layout Optimization | P1 | A-Activation, C-Core Value | 📝 Defined |
 
 ## User Journey
 

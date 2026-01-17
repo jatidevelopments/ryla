@@ -17,6 +17,7 @@ export interface ActivityItem {
   sourceType: 'generation_job' | 'credit_transaction';
   sourceId: string;
   characterId?: string | null;
+  imageId?: string | null; // First image ID for direct navigation
   imageCount?: number | null;
   thumbnailUrl?: string | null;
   qualityMode?: string | null;

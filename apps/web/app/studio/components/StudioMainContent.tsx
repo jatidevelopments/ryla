@@ -34,7 +34,7 @@ export function StudioMainContent({
   onRetry,
 }: StudioMainContentProps) {
   return (
-    <div className="relative flex flex-1 overflow-hidden">
+    <div className="relative flex flex-1 h-full overflow-hidden">
       {/* Gallery */}
       <div className="flex-1 overflow-y-auto p-3 lg:p-4 transition-all duration-300 ease-in-out">
         <FadeInUp delay={100}>
@@ -50,17 +50,6 @@ export function StudioMainContent({
           />
         </FadeInUp>
       </div>
-
-      {/* Detail Panels (Desktop & Mobile) */}
-      <StudioDetailPanels
-        showPanel={showPanel}
-        selectedImage={selectedImage}
-        onClose={onClosePanel}
-        onLike={onLike}
-        onDelete={onDelete}
-        onDownload={onDownload}
-        onRetry={onRetry}
-      />
     </div>
   );
 }

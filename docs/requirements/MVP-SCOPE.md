@@ -108,6 +108,7 @@ Select AI Influencer → Choose Scene + Environment + Outfit → Generate → Pi
 | [EP-016](./epics/mvp/EP-016-activity-audit-log.md) | Generation Activity + Credit Audit Log | P0 | B-Retention | 📝 Defined |
 | [EP-018](./epics/mvp/EP-018-influencer-settings.md) | AI Influencer Settings | P0 | B-Retention | 📝 Defined |
 | [EP-025](./epics/mvp/EP-025-finby-payment-integration.md) | Finby Payment Integration | P0 | D-Conversion | 📝 Defined |
+| [EP-042](./epics/mvp/EP-042-moderation-safety.md) | Content Moderation & Safety | P0 | Risk | 📝 Defined |
 
 #### Funnel (`docs/requirements/epics/funnel/`)
 
@@ -159,6 +160,7 @@ See [future/README.md](./epics/future/README.md) for Phase 2+ planned features.
 
 - Email/password signup
 - Email/password login
+- **OAuth login (Google)**
 - Session management
 - Password reset (basic)
 - Guest → registered conversion
@@ -379,7 +381,16 @@ These are handled separately:
 | **Custom Environments**      | MVP has presets only                   | P2    |
 | **Scene Builder**            | Manual scene composition               | P2    |
 | **Props/Items**              | Objects in scenes                      | P2    |
-| Video generation             | Complexity, validate images first      | P2    |
+| **Video generation**         | Image-to-video, duration presets       | P2    |
+| **Platform export sizes**   | OnlyFans/Instagram specific formats    | P2    |
+| **Share links**              | Shareable URLs for content             | P2    |
+| **Reference image slots**    | Primary/optional reference images       | P2    |
+| **Consistency score UI**     | Visual drift warnings                  | P2    |
+| **One-click face fix**       | Auto face repair/enhancement            | P2    |
+| **Prompt text templates**    | Hooks, CTA, caption templates          | P2    |
+| **Asset folders/tags**      | Organize images with folders/tags      | P2    |
+| **Feature request voting**   | In-app feature voting system           | P2    |
+| **Discord/community submit** | Community integration                  | P2    |
 | Lip-sync / talking head      | Depends on video                       | P2    |
 | Voice cloning                | Complexity                             | P2    |
 | Platform auto-posting (OF)   | Integration complexity                 | P2    |
@@ -387,7 +398,7 @@ These are handled separately:
 | Multi-influencer scenes      | Complexity                             | P2    |
 | AI Influencer chat           | Different product (dFans.ai territory) | P3    |
 | API access                   | B2B, not MVP focus                     | P3    |
-| Team/agency features         | B2B                                    | P3    |
+| **Team/workspace features**  | Solo accounts only for MVP             | P3    |
 | Advanced NSFW controls       | Start with simple on/off               | P2    |
 | Referral system              | Optimize CAC later                     | P2    |
 | Mobile app                   | Web-first                              | P3    |
@@ -399,7 +410,7 @@ These are handled separately:
 
 | Feature               | MVP Version           | Full Version (Later)           |
 | --------------------- | --------------------- | ------------------------------ |
-| Auth                  | Email/password only   | + Social login, 2FA            |
+| Auth                  | Email/password + Google OAuth | + Apple, GitHub, 2FA |
 | Pricing               | 1-2 plans             | Multiple tiers, annual         |
 | AI Influencer editing | Regenerate only       | Full attribute editing         |
 | Images per pack       | 5-10                  | Unlimited/configurable         |
@@ -447,7 +458,8 @@ Users come to **create AI Influencers and generate content for monetization**. T
 | Aspect ratio selection           | P0       | EP-005 |
 | Quality mode (draft/HQ)          | P0       | EP-005 |
 | Form state persistence           | P0       | EP-001 |
-| Auth & settings                  | P0       | EP-002 |
+| Auth & settings (OAuth Google)   | P0       | EP-002 |
+| Content moderation & safety      | P0       | EP-042 |
 | Credit system & limits           | P0       | EP-009 |
 | Subscription management          | P0       | EP-010 |
 | Legal pages & compliance         | P0       | EP-011 |

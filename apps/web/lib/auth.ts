@@ -42,7 +42,7 @@ export interface RegisterCredentials {
   email: string;
   password: string;
   name: string;
-  publicName: string;
+  publicName?: string;
 }
 
 export interface ChangePasswordCredentials {

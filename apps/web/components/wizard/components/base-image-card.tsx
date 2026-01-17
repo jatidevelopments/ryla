@@ -2,7 +2,8 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { cn } from '@ryla/ui';
+import { ZoomIn, RefreshCw } from 'lucide-react';
+import { cn, useIsMobile } from '@ryla/ui';
 import type { GeneratedImage } from '@ryla/business';
 
 interface BaseImageCardProps {
@@ -13,6 +14,7 @@ interface BaseImageCardProps {
   isSkeleton: boolean;
   onSelect: () => void;
   onRegenerate: () => void;
+  onViewFull?: () => void;
 }
 
 export function BaseImageCard({
@@ -23,8 +25,9 @@ export function BaseImageCard({
   isSkeleton,
   onSelect,
   onRegenerate,
+  onViewFull,
 }: BaseImageCardProps) {
-  const [showActions, setShowActions] = React.useState(false);
+  const isMobile = useIsMobile();
 
   if (isSkeleton) {
     return (
@@ -58,8 +61,6 @@ export function BaseImageCard({
           : 'border-white/10 hover:border-white/20',
         isRegenerating && 'opacity-60'
       )}
-      onMouseEnter={() => !isRegenerating && setShowActions(true)}
-      onMouseLeave={() => setShowActions(false)}
       onClick={onSelect}
     >
       {/* Image */}
@@ -78,7 +79,7 @@ export function BaseImageCard({
             />
 
             {/* Image Number + Model Label */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-2.5">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-2.5 z-10">
               <p className="text-white text-[10px] md:text-sm font-semibold truncate">
                 #{index + 1}
                 {image.model ? ` - ${image.model}` : ''}
@@ -104,42 +105,48 @@ export function BaseImageCard({
               </div>
             )}
 
-            {/* Mobile Regenerate Button - Visible when selected or on hover */}
-            {((isSelected && !isSkeleton) || showActions) &&
-              !isRegenerating && (
+            {/* Action Buttons - Top Left */}
+            <div className="absolute top-2 left-2 flex items-center gap-1.5 z-20">
+              {/* View Full Width Button */}
+              {onViewFull && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    onRegenerate();
+                    onViewFull();
                   }}
                   className={cn(
-                    'absolute top-2 left-2 w-9 h-9 md:w-10 md:h-10 rounded-xl bg-black/60 backdrop-blur-md flex items-center justify-center text-white border border-white/10 shadow-lg transition-all active:scale-90',
-                    'md:opacity-0 md:group-hover:opacity-100' // Hide on desktop except hover
+                    'w-8 h-8 md:w-9 md:h-9 rounded-lg bg-black/60 backdrop-blur-md flex items-center justify-center text-white border border-white/10 shadow-lg transition-all hover:bg-black/80 active:scale-90',
+                    !isMobile && 'opacity-0 group-hover:opacity-100'
                   )}
-                  aria-label="Regenerate this image"
+                  aria-label="View full size"
                 >
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    className="md:w-5 md:h-5"
-                  >
-                    <path
-                      d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
+                  <ZoomIn className="w-4 h-4 md:w-[18px] md:h-[18px]" />
                 </button>
               )}
 
-            {/* Desktop Actions Overlay (Optional fallback) */}
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden md:flex items-center justify-center pointer-events-none">
-              {/* Just visual feedback on hover for desktop */}
+              {/* Regenerate Button */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onRegenerate();
+                }}
+                className={cn(
+                  'w-8 h-8 md:w-9 md:h-9 rounded-lg bg-black/60 backdrop-blur-md flex items-center justify-center text-white border border-white/10 shadow-lg transition-all hover:bg-black/80 active:scale-90',
+                  !isMobile && 'opacity-0 group-hover:opacity-100'
+                )}
+                aria-label="Regenerate this image"
+              >
+                <RefreshCw className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+              </button>
             </div>
+
+            {/* Hover Overlay - Click anywhere to select (but don't block buttons) */}
+            <div
+              className={cn(
+                'absolute inset-0 bg-black/0 transition-colors pointer-events-none',
+                !isSelected && 'group-hover:bg-black/10'
+              )}
+            />
           </>
         )}
       </div>

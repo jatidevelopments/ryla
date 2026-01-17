@@ -1,0 +1,278 @@
+{
+  "generatedAt": "2026-01-15T13:41:57.616Z",
+  "workflows": [
+    {
+      "id": "flux-inpaint",
+      "name": "flux1-fill-dev.safetensors",
+      "file": "libs/business/src/workflows/flux-inpaint.ts",
+      "nodes": [
+        "UNETLoader",
+        "DualCLIPLoader",
+        "VAELoader",
+        "CLIPTextEncode",
+        "FluxGuidance",
+        "LoadImage",
+        "InpaintModelConditioning",
+        "DifferentialDiffusion",
+        "KSampler",
+        "VAEDecode",
+        "SaveImage"
+      ],
+      "models": [
+        "flux1-fill-dev.safetensors",
+        "clip_l.safetensors",
+        "t5xxl_fp16.safetensors",
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": "flux-pulid",
+      "name": "ae.safetensors",
+      "file": "libs/business/src/workflows/flux-pulid.ts",
+      "nodes": [
+        "UNETLoader",
+        "DualCLIPLoader",
+        "VAELoader",
+        "PulidFluxModelLoader",
+        "PulidFluxInsightFaceLoader",
+        "PulidFluxEvaClipLoader",
+        "LoadImage",
+        "ApplyPulidFlux",
+        "FixPulidFluxPatch",
+        "CLIPTextEncode",
+        "FluxGuidance",
+        "EmptyLatentImage",
+        "KSampler",
+        "VAEDecode",
+        "SaveImage",
+        "LoraLoader"
+      ],
+      "models": [
+        "flux1-dev.safetensors",
+        "flux1-schnell.safetensors",
+        "clip_l.safetensors",
+        "t5xxl_fp16.safetensors",
+        "ae.safetensors",
+        "pulid_flux_v0.9.1.safetensors"
+      ]
+    },
+    {
+      "id": "index",
+      "name": "index",
+      "file": "libs/business/src/workflows/index.ts",
+      "nodes": [],
+      "models": []
+    },
+    {
+      "id": "registry",
+      "name": "registry",
+      "file": "libs/business/src/workflows/registry.ts",
+      "nodes": [],
+      "models": []
+    },
+    {
+      "id": "types",
+      "name": "types",
+      "file": "libs/business/src/workflows/types.ts",
+      "nodes": [],
+      "models": []
+    },
+    {
+      "id": "z-image-danrisi",
+      "name": "z_image_turbo_bf16.safetensors",
+      "file": "libs/business/src/workflows/z-image-danrisi.ts",
+      "nodes": [
+        "UNETLoader",
+        "CLIPLoader",
+        "VAELoader",
+        "CLIPTextEncode",
+        "ConditioningZeroOut",
+        "EmptySD3LatentImage",
+        "BetaSamplingScheduler",
+        "Sigmas Rescale",
+        "ClownsharKSampler_Beta",
+        "VAEDecode",
+        "SaveImage",
+        "LoraLoader"
+      ],
+      "models": [
+        "z_image_turbo_bf16.safetensors",
+        "qwen_3_4b.safetensors",
+        "z-image-turbo-vae.safetensors"
+      ]
+    },
+    {
+      "id": "z-image-instantid",
+      "name": "z_image_turbo_bf16.safetensors",
+      "file": "libs/business/src/workflows/z-image-instantid.ts",
+      "nodes": [
+        "UNETLoader",
+        "CLIPLoader",
+        "VAELoader",
+        "InsightFaceLoader",
+        "InstantIDModelLoader",
+        "InstantIDControlNetLoader",
+        "LoadImage",
+        "ApplyInstantID",
+        "CLIPTextEncode",
+        "ConditioningZeroOut",
+        "ConditioningCombine",
+        "ControlNetApplyAdvanced",
+        "EmptySD3LatentImage",
+        "KSampler",
+        "VAEDecode",
+        "SaveImage",
+        "LoraLoader"
+      ],
+      "models": [
+        "ip-adapter.bin",
+        "diffusion_pytorch_model.safetensors",
+        "z_image_turbo_bf16.safetensors",
+        "qwen_3_4b.safetensors",
+        "z-image-turbo-vae.safetensors"
+      ]
+    },
+    {
+      "id": "z-image-pulid-fallback",
+      "name": "z_image_turbo_bf16.safetensors",
+      "file": "libs/business/src/workflows/z-image-pulid-fallback.ts",
+      "nodes": [
+        "UNETLoader",
+        "CLIPLoader",
+        "VAELoader",
+        "PulidFluxModelLoader",
+        "PulidFluxInsightFaceLoader",
+        "PulidFluxEvaClipLoader",
+        "LoadImage",
+        "ApplyPulidFlux",
+        "FixPulidFluxPatch",
+        "CLIPTextEncode",
+        "ConditioningZeroOut",
+        "EmptySD3LatentImage",
+        "KSampler",
+        "VAEDecode",
+        "SaveImage",
+        "LoraLoader"
+      ],
+      "models": [
+        "z_image_turbo_bf16.safetensors",
+        "qwen_3_4b.safetensors",
+        "z-image-turbo-vae.safetensors",
+        "pulid_flux_v0.9.1.safetensors"
+      ]
+    },
+    {
+      "id": "z-image-pulid",
+      "name": "z_image_turbo_bf16.safetensors",
+      "file": "libs/business/src/workflows/z-image-pulid.ts",
+      "nodes": [
+        "UNETLoader",
+        "CLIPLoader",
+        "VAELoader",
+        "PulidFluxModelLoader",
+        "PulidFluxInsightFaceLoader",
+        "PulidFluxEvaClipLoader",
+        "LoadImage",
+        "ApplyPulidFlux",
+        "FixPulidFluxPatch",
+        "CLIPTextEncode",
+        "ConditioningZeroOut",
+        "EmptySD3LatentImage",
+        "BetaSamplingScheduler",
+        "Sigmas Rescale",
+        "ClownsharKSampler_Beta",
+        "VAEDecode",
+        "SaveImage",
+        "LoraLoader"
+      ],
+      "models": [
+        "pulid_flux_v0.9.1.safetensors",
+        "eva02_clip_l_14_plus.safetensors",
+        "z_image_turbo_bf16.safetensors",
+        "qwen_3_4b.safetensors",
+        "z-image-turbo-vae.safetensors",
+        "EVA02_CLIP_L_336_psz14_s6B.pt"
+      ]
+    },
+    {
+      "id": "z-image-simple",
+      "name": "z_image_turbo_bf16.safetensors",
+      "file": "libs/business/src/workflows/z-image-simple.ts",
+      "nodes": [
+        "UNETLoader",
+        "CLIPLoader",
+        "VAELoader",
+        "CLIPTextEncode",
+        "EmptySD3LatentImage",
+        "KSampler",
+        "VAEDecode",
+        "SaveImage",
+        "LoraLoader"
+      ],
+      "models": [
+        "z_image_turbo_bf16.safetensors",
+        "qwen_3_4b.safetensors",
+        "z-image-turbo-vae.safetensors"
+      ]
+    }
+  ],
+  "uniqueNodes": [
+    "UNETLoader",
+    "DualCLIPLoader",
+    "VAELoader",
+    "CLIPTextEncode",
+    "FluxGuidance",
+    "LoadImage",
+    "InpaintModelConditioning",
+    "DifferentialDiffusion",
+    "KSampler",
+    "VAEDecode",
+    "SaveImage",
+    "PulidFluxModelLoader",
+    "PulidFluxInsightFaceLoader",
+    "PulidFluxEvaClipLoader",
+    "ApplyPulidFlux",
+    "FixPulidFluxPatch",
+    "EmptyLatentImage",
+    "LoraLoader",
+    "CLIPLoader",
+    "ConditioningZeroOut",
+    "EmptySD3LatentImage",
+    "BetaSamplingScheduler",
+    "Sigmas Rescale",
+    "ClownsharKSampler_Beta",
+    "InsightFaceLoader",
+    "InstantIDModelLoader",
+    "InstantIDControlNetLoader",
+    "ApplyInstantID",
+    "ConditioningCombine",
+    "ControlNetApplyAdvanced"
+  ],
+  "uniqueModels": [
+    "flux1-fill-dev.safetensors",
+    "clip_l.safetensors",
+    "t5xxl_fp16.safetensors",
+    "ae.safetensors",
+    "flux1-dev.safetensors",
+    "flux1-schnell.safetensors",
+    "pulid_flux_v0.9.1.safetensors",
+    "z_image_turbo_bf16.safetensors",
+    "qwen_3_4b.safetensors",
+    "z-image-turbo-vae.safetensors",
+    "ip-adapter.bin",
+    "diffusion_pytorch_model.safetensors",
+    "eva02_clip_l_14_plus.safetensors",
+    "EVA02_CLIP_L_336_psz14_s6B.pt"
+  ],
+  "missingFromRegistry": {
+    "nodes": [],
+    "models": [
+      "flux1-fill-dev.safetensors",
+      "EVA02_CLIP_L_336_psz14_s6B.pt"
+    ]
+  },
+  "verificationStatus": {
+    "nodes": {},
+    "models": {}
+  }
+}

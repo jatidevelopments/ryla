@@ -149,6 +149,9 @@ importers:
       '@trpc/server':
         specifier: '11'
         version: 11.8.1(typescript@5.9.3)
+      '@types/ws':
+        specifier: ^8.18.1
+        version: 8.18.1
       '@xstate/react':
         specifier: ^6.0.0
         version: 6.0.0(@types/react@18.3.27)(react@18.3.1)(xstate@5.25.0)
@@ -308,6 +311,9 @@ importers:
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
+      ws:
+        specifier: ^8.19.0
+        version: 8.19.0
       xstate:
         specifier: ^5.25.0
         version: 5.25.0

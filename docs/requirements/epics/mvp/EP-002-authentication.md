@@ -66,7 +66,25 @@ User authentication system enabling signup, login, session management, and age v
 - Remember intended destination after login
 - Handle expired sessions gracefully
 
-### F7: Settings & Account Management (NEW)
+### F7: OAuth Login (Google)
+
+- Google OAuth button on login/signup pages
+- Integration with Supabase Auth OAuth providers
+- Handle OAuth callback and account creation
+- Link OAuth account to existing email account (if email matches)
+- Auto-login after OAuth success
+- Error handling for OAuth failures
+
+**OAuth Flow:**
+1. User clicks "Sign in with Google"
+2. Redirect to Google OAuth consent screen
+3. User authorizes RYLA
+4. Google redirects back with authorization code
+5. Supabase exchanges code for tokens
+6. User account created/authenticated
+7. Redirect to dashboard
+
+### F8: Settings & Account Management
 
 - **Account Settings Page** accessible from dashboard
 - **Change Password**: Update password with current password confirmation
@@ -132,7 +150,18 @@ User authentication system enabling signup, login, session management, and age v
 - [ ] After login, user returns to intended page
 - [ ] Expired sessions handled gracefully
 
-### AC-7: Settings & Account
+### AC-7: OAuth Login (Google)
+
+- [ ] "Sign in with Google" button visible on login/signup pages
+- [ ] Clicking button redirects to Google OAuth consent screen
+- [ ] User can authorize RYLA to access Google account
+- [ ] OAuth callback creates/authenticates user account
+- [ ] User is automatically logged in after OAuth success
+- [ ] OAuth account linked to email (if email matches existing account)
+- [ ] Error handling for OAuth failures (cancelled, network errors)
+- [ ] OAuth method tracked in analytics
+
+### AC-8: Settings & Account
 
 - [ ] Settings page accessible from dashboard header
 - [ ] User can view their email and account info
@@ -155,8 +184,11 @@ User authentication system enabling signup, login, session management, and age v
 | `auth_signup_completed` | Account created | `method` |
 | `auth_signup_failed` | Signup error | `error_type` |
 | `auth_login_started` | Login form opened | - |
-| `auth_login_completed` | Login success | `method` |
+| `auth_login_completed` | Login success | `method` (email/oauth_google) |
 | `auth_login_failed` | Login error | `error_type` |
+| `oauth_google_started` | Google OAuth initiated | - |
+| `oauth_google_completed` | Google OAuth success | - |
+| `oauth_google_failed` | Google OAuth error | `error_type` |
 | `auth_logout` | User logs out | - |
 | `auth_password_reset_requested` | Reset email sent | - |
 | `auth_password_reset_completed` | Password changed | - |
@@ -204,13 +236,21 @@ User authentication system enabling signup, login, session management, and age v
 
 **AC**: AC-5
 
+### ST-155: Sign In with Google
+
+**As a** user  
+**I want to** sign in with my Google account  
+**So that** I can quickly access RYLA without creating a password
+
+**AC**: AC-7
+
 ### ST-154: Manage Account Settings
 
 **As a** signed-in user  
 **I want to** view and manage my account settings and preferences  
 **So that** my account is secure and the app behaves the way I expect
 
-**AC**: AC-7
+**AC**: AC-8
 
 ---
 
@@ -225,6 +265,14 @@ import { createClient } from '@supabase/supabase-js'
 export const authService = {
   signUp: (email, password) => supabase.auth.signUp({ email, password }),
   signIn: (email, password) => supabase.auth.signInWithPassword({ email, password }),
+  signInWithOAuth: (provider: 'google') => {
+    return supabase.auth.signInWithOAuth({
+      provider,
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+  },
   signOut: () => supabase.auth.signOut(),
   resetPassword: (email) => supabase.auth.resetPasswordForEmail(email),
   getSession: () => supabase.auth.getSession(),
@@ -278,10 +326,9 @@ const isProtectedRoute = (path: string) =>
 
 ## Non-Goals (Phase 2+)
 
-- Social login (Google, Apple, etc.)
+- Additional OAuth providers (Apple, GitHub, etc.) - Google only for MVP
 - Two-factor authentication (2FA)
 - Email verification requirement
-- Account deletion self-service
 - Multiple sessions management
 - Magic link login
 

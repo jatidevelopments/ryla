@@ -3,6 +3,7 @@ export { useStudioHandlers } from './useStudioHandlers';
 export { useInfluencers } from './useInfluencers';
 export { useStudioEffects } from './useStudioEffects';
 export { useStudioQueryParams } from './useStudioQueryParams';
+export { useStudioUrlSync } from './useStudioUrlSync';
 export { useUploadConsent } from './useUploadConsent';
 export { useInfluencersForHook } from './useInfluencersForHook';
 export { useGenerationPolling } from './useGenerationPolling';

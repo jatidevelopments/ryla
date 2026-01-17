@@ -37,8 +37,8 @@ describe('NotificationsList', () => {
   });
 
   it('should render grouped notifications', () => {
-    const unread = [{ id: '1', title: 'New one', isRead: false }];
-    const read = [{ id: '2', title: 'Old one', isRead: true }];
+    const unread = [{ id: '1', title: 'New one', type: 'generation_complete', isRead: false }];
+    const read = [{ id: '2', title: 'Old one', type: 'generation_complete', isRead: true }];
 
     render(
       <NotificationsList
@@ -57,7 +57,7 @@ describe('NotificationsList', () => {
   });
 
   it('should call onMarkRead', () => {
-    const unread = [{ id: '1', title: 'New one', isRead: false }];
+    const unread = [{ id: '1', title: 'New one', type: 'generation_complete', isRead: false }];
     render(
       <NotificationsList
         {...defaultProps}

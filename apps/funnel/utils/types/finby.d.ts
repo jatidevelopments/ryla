@@ -23,6 +23,11 @@ interface FinbySetupResponse {
     paymentUrl: string;
     reference: string;
     transactionId?: string;
+    requestId?: string;
+    // Error handling fields
+    error?: string;
+    message?: string;
+    code?: string;
 }
 
 // Payment status response

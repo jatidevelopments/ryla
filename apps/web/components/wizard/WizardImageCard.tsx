@@ -14,6 +14,8 @@ interface WizardImageCardProps {
   onSelect: () => void;
   className?: string;
   aspectRatio?: 'square' | 'wide';
+  /** Fallback emoji to show when image is not available */
+  fallbackEmoji?: string;
 }
 
 /**
@@ -26,6 +28,7 @@ export function WizardImageCard({
   onSelect,
   className,
   aspectRatio = 'square',
+  fallbackEmoji,
 }: WizardImageCardProps) {
   return (
     <button
@@ -50,6 +53,10 @@ export function WizardImageCard({
             sizes="(max-width: 768px) 50vw, 33vw"
             unoptimized
           />
+        ) : fallbackEmoji ? (
+          <div className="w-full h-full bg-gradient-to-br from-white/10 to-white/5 flex items-center justify-center">
+            <span className="text-4xl">{fallbackEmoji}</span>
+          </div>
         ) : (
           <div className="w-full h-full bg-white/5 flex items-center justify-center">
             <span className="text-white/40 text-xs">No image</span>

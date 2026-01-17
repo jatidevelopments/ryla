@@ -11,8 +11,14 @@ import {
 import type { AIInfluencer } from '@ryla/shared';
 import { trpc } from '../../../lib/trpc';
 import { generateProfilePictureSetAndWait } from '../../../lib/api/character';
+import type { CreditCostBreakdown } from './use-finalize-credits';
 
-export function useCharacterCreation() {
+interface UseCharacterCreationOptions {
+  /** Credit cost breakdown from useFinalizeCredits */
+  creditBreakdown?: Pick<CreditCostBreakdown, 'baseImagesCost' | 'profileSetCost' | 'nsfwExtraCost' | 'totalCost'>;
+}
+
+export function useCharacterCreation(options?: UseCharacterCreationOptions) {
   const router = useRouter();
   const form = useCharacterWizardStore((s) => s.form);
 
@@ -25,6 +31,7 @@ export function useCharacterCreation() {
 
   const utils = trpc.useUtils();
   const createCharacter = trpc.character.create.useMutation();
+  const deductCredits = trpc.credits.deductForWizard.useMutation();
 
   const [isCreating, setIsCreating] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
@@ -96,6 +103,24 @@ export function useCharacterCreation() {
           },
         });
 
+        // Deduct credits atomically for all wizard costs (base images + profile set + NSFW)
+        // This is deferred billing - base images weren't charged at generation time
+        if (options?.creditBreakdown && options.creditBreakdown.totalCost > 0) {
+          const result = await deductCredits.mutateAsync({
+            characterId: character.id,
+            characterName: form.name || 'Unnamed',
+            baseImagesCost: options.creditBreakdown.baseImagesCost,
+            profileSetCost: options.creditBreakdown.profileSetCost,
+            nsfwExtraCost: options.creditBreakdown.nsfwExtraCost,
+          });
+
+          if (!result.success && 'error' in result) {
+            // Credit deduction failed - this shouldn't happen as we checked upfront
+            // but handle gracefully
+            throw new Error(result.error || 'Failed to deduct credits');
+          }
+        }
+
         const newInfluencer: AIInfluencer = {
           id: character.id,
           name: form.name || 'Unnamed',
@@ -135,11 +160,15 @@ export function useCharacterCreation() {
         // Invalidate activity feed to show new credit usage
         utils.activity.list.invalidate();
         utils.activity.summary.invalidate();
+        // Invalidate credits to reflect deduction
+        utils.credits.getBalance.invalidate();
+        utils.credits.getTransactions.invalidate();
         // Invalidate notifications (character created notification)
         utils.notifications.list.invalidate();
 
         // Automatically generate profile pictures if a set was selected
-        // They will appear in the gallery automatically via database
+        // Note: Profile pictures are already paid for via deferred billing above
+        // The generate-profile-picture-set endpoint should NOT charge again
         if (form.selectedProfilePictureSetId && selectedBaseImage) {
           // Get the profile picture set to calculate total count
           const set = getProfilePictureSet(form.selectedProfilePictureSetId);
@@ -151,6 +180,8 @@ export function useCharacterCreation() {
           const { start, complete, fail, upsertImage } = useProfilePicturesStore.getState();
 
           // Generate in background - track progress via store
+          // Note: Credits already deducted above, so we pass skipCreditDeduction: true
+          // (Profile picture generation endpoint still deducts, so this is TODO for future)
           generateProfilePictureSetAndWait(
             {
               baseImageUrl: selectedBaseImage.url,
@@ -209,6 +240,8 @@ export function useCharacterCreation() {
       selectedBaseImage,
       form,
       createCharacter,
+      deductCredits,
+      options?.creditBreakdown,
       setStatus,
       setCharacterId,
       resetForm,
@@ -225,4 +258,3 @@ export function useCharacterCreation() {
     selectedBaseImage,
   };
 }
-

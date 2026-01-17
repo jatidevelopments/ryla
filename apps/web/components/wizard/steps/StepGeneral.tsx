@@ -9,7 +9,10 @@ import {
   INFLUENCER_AGE_RANGES,
   INFLUENCER_SKIN_COLORS,
 } from '../../../constants';
-import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
+import {
+  getInfluencerImage,
+  getEthnicityImage,
+} from '../../../lib/utils/get-influencer-image';
 import { cn } from '@ryla/ui';
 
 /**
@@ -62,30 +65,58 @@ export function StepGeneral() {
       <div className="w-full space-y-8">
         {/* Section 1: Ethnicity */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.ethnicity
+                ? 'border-purple-400/50'
+                : form.ageRange || form.skinColor
+                ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Ethnicity</p>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-              {ethnicityOptions.map((option) => (
-                <WizardImageCard
-                  key={option.value}
-                  image={{
-                    src: option.imageSrc || '',
-                    alt: option.title,
-                    name: option.title,
-                  }}
-                  selected={form.ethnicity === option.value}
-                  onSelect={() => setField('ethnicity', option.value)}
-                />
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {ethnicityOptions.map((option) => {
+                const ethnicityImage = form.gender
+                  ? getEthnicityImage(option.value, form.gender, 'portrait')
+                  : null;
+                return (
+                  <WizardImageCard
+                    key={option.value}
+                    image={{
+                      src: ethnicityImage || option.imageSrc || '',
+                      alt: option.title,
+                      name: option.title,
+                    }}
+                    selected={form.ethnicity === option.value}
+                    onSelect={() => {
+                      setField('ethnicity', option.value);
+                      // Clear other options in this step
+                      setField('ageRange', null);
+                      setField('skinColor', null);
+                    }}
+                  />
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* Section 2: Age Range */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.ageRange
+                ? 'border-purple-400/50'
+                : form.ethnicity || form.skinColor
+                ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Age Range</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {INFLUENCER_AGE_RANGES.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
                   ? getInfluencerImage(
@@ -109,6 +140,9 @@ export function StepGeneral() {
                         'age',
                         Math.round((option.min + option.max) / 2)
                       );
+                      // Clear other options in this step
+                      setField('ethnicity', null);
+                      setField('skinColor', null);
                     }}
                     aspectRatio="wide"
                   />
@@ -175,9 +209,18 @@ export function StepGeneral() {
 
         {/* Section 3: Skin Color */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.skinColor
+                ? 'border-purple-400/50'
+                : form.ethnicity || form.ageRange
+                ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Skin Color</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {INFLUENCER_SKIN_COLORS.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
                   ? getInfluencerImage(
@@ -194,7 +237,12 @@ export function StepGeneral() {
                       src: ethnicityAwareImage || option.image.src,
                     }}
                     selected={form.skinColor === option.value}
-                    onSelect={() => setField('skinColor', option.value)}
+                    onSelect={() => {
+                      setField('skinColor', option.value);
+                      // Clear other options in this step
+                      setField('ethnicity', null);
+                      setField('ageRange', null);
+                    }}
                   />
                 );
               })}

@@ -29,7 +29,6 @@ export function useAuthFlow() {
   });
   const [registerData, setRegisterData] = useState<RegisterFormData>({
     name: '',
-    publicName: '',
     password: '',
     confirmPassword: '',
     acceptedTerms: false,
@@ -195,7 +194,6 @@ export function useAuthFlow() {
           email,
           password: registerData.password,
           name: registerData.name,
-          publicName: registerData.publicName,
         });
         await refreshUser();
         const returnUrl = searchParams.get('returnUrl') || '/dashboard';

@@ -103,34 +103,49 @@ export function useInfluencerImages({
 
   // Push-based refresh: Watch for new images being added to the store
   // When completedCount increases, trigger a gallery refresh
+  // Also track the actual image count from all jobs to detect changes
+  const currentImageCount = React.useMemo(() => {
+    if (!profilePicturesState) return 0;
+    // Count images across all jobs (new structure) or use completedCount (legacy)
+    if (profilePicturesState.jobs && profilePicturesState.jobs.length > 0) {
+      return profilePicturesState.jobs.reduce((sum, job) => sum + (job.images?.length || 0), 0);
+    }
+    return profilePicturesState.completedCount || 0;
+  }, [profilePicturesState]);
+
   React.useEffect(() => {
     if (!profilePicturesState || !influencerId) return;
 
-    const currentCompletedCount = profilePicturesState.completedCount || 0;
-
-    // If a new image was completed (count increased), refresh the gallery
+    // If image count increased, refresh the gallery
     if (
-      currentCompletedCount > previousCompletedCount.current &&
+      currentImageCount > previousCompletedCount.current &&
       !loadingRef.current
     ) {
-      previousCompletedCount.current = currentCompletedCount;
+      console.log('[useInfluencerImages] New images detected, refreshing gallery:', {
+        previous: previousCompletedCount.current,
+        current: currentImageCount,
+      });
+      previousCompletedCount.current = currentImageCount;
       loadImages();
     }
 
-    // Also refresh when generation completes to ensure all images are loaded
-    if (
-      profilePicturesState.status === 'completed' &&
-      previousCompletedCount.current < (profilePicturesState.totalCount || 0) &&
-      !loadingRef.current
-    ) {
-      previousCompletedCount.current = profilePicturesState.totalCount || 0;
-      loadImages();
+    // Also refresh when any job completes to ensure all images are loaded
+    const hasCompletedJob = profilePicturesState.jobs?.some(
+      (job) => job.status === 'completed'
+    );
+    if (hasCompletedJob && !loadingRef.current) {
+      // Small delay to ensure backend has saved all images
+      const timer = setTimeout(() => {
+        if (!loadingRef.current) {
+          loadImages();
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
-    profilePicturesState?.completedCount,
+    currentImageCount,
     profilePicturesState?.status,
-    profilePicturesState?.totalCount,
     influencerId,
     // Removed loadImages from deps - uses ref instead
   ]);

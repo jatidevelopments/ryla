@@ -1,0 +1,9 @@
+{
+  "value": {
+    "commit": "a91e3eb2eef4318d354cdf34c0f93e0a8468be7c",
+    "fileSize": 23782506688,
+    "verified": true,
+    "downloadUrl": "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/a91e3eb2eef4318d354cdf34c0f93e0a8468be7c/flux1-schnell.safetensors"
+  },
+  "expiresAt": 1768506703530
+}

@@ -232,6 +232,114 @@ export const creditsRouter = router({
     }),
 
   /**
+   * Deduct credits for wizard character creation (atomic deferred billing)
+   * 
+   * This handles all credit deductions for the wizard flow:
+   * - Base images (if generated)
+   * - Profile picture set (if selected)
+   * - NSFW extra (if enabled with profile set)
+   * 
+   * Returns new balance and breakdown of deductions.
+   */
+  deductForWizard: protectedProcedure
+    .input(
+      z.object({
+        characterId: z.string().uuid(),
+        characterName: z.string(),
+        baseImagesCost: z.number().min(0),
+        profileSetCost: z.number().min(0),
+        nsfwExtraCost: z.number().min(0),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const totalCost = input.baseImagesCost + input.profileSetCost + input.nsfwExtraCost;
+      
+      if (totalCost === 0) {
+        // Nothing to deduct
+        const credits = await ctx.db.query.userCredits.findFirst({
+          where: eq(userCredits.userId, ctx.user.id),
+        });
+        return {
+          success: true,
+          deducted: 0,
+          newBalance: credits?.balance ?? 0,
+          breakdown: input,
+        };
+      }
+
+      // Get current balance
+      const credits = await ctx.db.query.userCredits.findFirst({
+        where: eq(userCredits.userId, ctx.user.id),
+      });
+
+      const currentBalance = credits?.balance ?? 0;
+
+      if (currentBalance < totalCost) {
+        return {
+          success: false,
+          error: 'Insufficient credits',
+          required: totalCost,
+          available: currentBalance,
+          needed: totalCost - currentBalance,
+        };
+      }
+
+      const newBalance = currentBalance - totalCost;
+      const newTotalSpent = (credits?.totalSpent ?? 0) + totalCost;
+
+      // Atomically deduct credits
+      await ctx.db
+        .update(userCredits)
+        .set({
+          balance: newBalance,
+          totalSpent: newTotalSpent,
+          updatedAt: new Date(),
+        })
+        .where(eq(userCredits.userId, ctx.user.id));
+
+      // Build description for transaction
+      const parts: string[] = [];
+      if (input.baseImagesCost > 0) parts.push(`Base Images: ${input.baseImagesCost}`);
+      if (input.profileSetCost > 0) parts.push(`Profile Set: ${input.profileSetCost}`);
+      if (input.nsfwExtraCost > 0) parts.push(`NSFW: ${input.nsfwExtraCost}`);
+      const description = `Character creation: ${input.characterName} (${parts.join(', ')})`;
+
+      // Record single combined transaction
+      await ctx.db.insert(creditTransactions).values({
+        userId: ctx.user.id,
+        type: 'generation',
+        amount: -totalCost,
+        balanceAfter: newBalance,
+        referenceType: 'character',
+        referenceId: input.characterId,
+        description,
+      });
+
+      // Create notification for deduction
+      const notificationsRepo = new NotificationsRepository(ctx.db);
+      await notificationsRepo.create({
+        userId: ctx.user.id,
+        type: 'credits.used',
+        title: 'Credits used',
+        body: `${totalCost} credits used for ${input.characterName}`,
+        href: `/influencer/${input.characterId}`,
+        metadata: {
+          characterId: input.characterId,
+          characterName: input.characterName,
+          creditsUsed: totalCost,
+          breakdown: input,
+        },
+      });
+
+      return {
+        success: true,
+        deducted: totalCost,
+        newBalance,
+        breakdown: input,
+      };
+    }),
+
+  /**
    * Get credit transaction history
    */
   getTransactions: protectedProcedure

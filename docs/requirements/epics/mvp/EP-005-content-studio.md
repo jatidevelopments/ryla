@@ -1,12 +1,14 @@
 # [EPIC] EP-005: Content Studio & Generation
 
+> **Initiative**: [IN-006: LoRA Character Consistency System](../../../initiatives/IN-006-lora-character-consistency.md) (LoRA usage in generation)
+
 ## Overview
 
 The Content Studio is where users generate images for their AI Influencers. It combines scene presets, environment presets, and outfit options to create varied, consistent images.
 
 > ⚠️ **Scope**: This epic covers **image generation**. AI Influencer creation is EP-001.
 >
-> **MVP constraint**: “Posts” (image + caption as an export-ready entity) and caption generation (EP-014) are **Phase 2+**, not MVP.
+> **MVP constraint**: "Posts" (image + caption as an export-ready entity) and caption generation (EP-014) are **Phase 2+**, not MVP.
 
 ---
 
@@ -333,6 +335,17 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 - [ ] Edited image asset preserves the source’s structured metadata by default (scene, environment, outfit, aspect ratio, quality, nsfw)
 - [ ] (Nice-to-have) Persist the edit mask for debugging/replay (store `editMaskS3Key`)
 
+### AC-10: LoRA Integration with Z-Image/Denrisi
+
+- [ ] System checks for ready LoRA model when generating with Z-Image/Denrisi workflow
+- [ ] LoRA file automatically downloaded to ComfyUI pod if not present
+- [ ] Trigger word automatically included in prompt when LoRA is used
+- [ ] Z-Image/Denrisi workflow correctly applies LoRA via LoraLoader node
+- [ ] Generation succeeds with LoRA applied (no errors)
+- [ ] Face consistency improves when LoRA is used (>95% vs ~80% without)
+- [ ] System falls back gracefully if LoRA unavailable (generates without LoRA)
+- [ ] LoRA usage tracked in generation job metadata
+
 ---
 
 ## Analytics Events
@@ -431,9 +444,19 @@ const ENVIRONMENT_PROMPTS: Record<EnvironmentPreset, string> = {
 
 **As a** user refining an image  
 **I want to** select an image and apply an edit prompt to a masked region  
-**So that** I can add/remove elements (e.g., “add a nano banana”) without regenerating from scratch
+**So that** I can add/remove elements (e.g., "add a nano banana") without regenerating from scratch
 
 **AC**: AC-9
+
+### ST-031: Use LoRA in Z-Image/Denrisi Workflow
+
+**As a** user generating images  
+**I want to** have my trained LoRA automatically used when generating with Z-Image/Denrisi workflow  
+**So that** I get >95% face consistency in my generated images
+
+**AC**: AC-10
+
+**Note**: This story is part of [EP-038: LoRA Usage in Image Generation](../EP-038-lora-usage-in-generation.md), which covers LoRA integration across all workflows. This story focuses specifically on Z-Image/Denrisi as the first implementation target.
 
 ---
 

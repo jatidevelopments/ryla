@@ -7,6 +7,7 @@ import type { ReferralSource, AiInfluencerExperience } from '../constants';
 
 export function useOnboardingForm() {
   const router = useRouter();
+  const utils = trpc.useUtils();
   const [step, setStep] = useState<1 | 2>(1);
   const [referralSource, setReferralSource] = useState<ReferralSource | null>(null);
   const [referralSourceOther, setReferralSourceOther] = useState('');
@@ -14,7 +15,21 @@ export function useOnboardingForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const completeOnboarding = trpc.user.completeOnboarding.useMutation({
-    onSuccess: () => {
+    onSuccess: async (data) => {
+      // Optimistically update the query cache to mark onboarding as completed
+      // This prevents race conditions where ProtectedRoute checks before refetch completes
+      utils.user.isOnboardingCompleted.setData(undefined, {
+        completed: true,
+        completedAt: data.onboarding.completedAt,
+      });
+      
+      // Invalidate to ensure we refetch and get the latest data from server
+      await utils.user.isOnboardingCompleted.invalidate();
+      
+      // Refresh the router to ensure all components get updated data
+      router.refresh();
+      
+      // Navigate to dashboard
       router.push('/dashboard');
     },
     onError: (error) => {

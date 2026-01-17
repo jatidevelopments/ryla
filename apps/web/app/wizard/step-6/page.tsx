@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepSkinFeatures } from '../../../components/wizard/steps/StepSkinFeatures';
+import { StepFaceShape } from '../../../components/wizard/steps/StepFaceShape';
 
 export default function WizardStep6() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -12,10 +12,10 @@ export default function WizardStep6() {
     setStep(6);
   }, [setStep]);
 
-  // Only presets flow uses step 6 (Skin Features)
+  // Only presets flow uses step 6 (Face Shape)
   if (creationMethod !== 'presets') {
     return null;
   }
 
-  return <StepSkinFeatures />;
+  return <StepFaceShape />;
 }

@@ -17,6 +17,7 @@ import { trpc } from '../../../../lib/trpc';
 export function useInfluencerData() {
   const params = useParams();
   const influencerId = params.id as string;
+  const utils = trpc.useUtils();
 
   const influencer = useInfluencer(influencerId);
   const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
@@ -31,6 +32,36 @@ export function useInfluencerData() {
   // Check if profile pictures are being generated
   const profilePicturesState = useProfilePictures(influencerId);
   const isGeneratingProfilePictures = profilePicturesState?.status === 'generating';
+  
+  // Track completed images to detect new completions
+  const lastCompletedCountRef = React.useRef(0);
+  
+  // Auto-refresh character data when new images complete (to update imageCount stat)
+  React.useEffect(() => {
+    if (!profilePicturesState) return;
+    
+    // Calculate current completed count across all jobs
+    const currentCompleted = profilePicturesState.jobs?.reduce(
+      (sum, job) => sum + (job.images?.length || 0),
+      0
+    ) || profilePicturesState.completedCount || 0;
+    
+    // If new images completed, invalidate character query to refresh stats
+    if (currentCompleted > lastCompletedCountRef.current) {
+      console.log('[useInfluencerData] New images completed, refreshing character data:', {
+        previous: lastCompletedCountRef.current,
+        current: currentCompleted,
+      });
+      lastCompletedCountRef.current = currentCompleted;
+      
+      // Debounce the invalidation to avoid too many requests
+      const timer = setTimeout(() => {
+        utils.character.getById.invalidate({ id: influencerId });
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [profilePicturesState, influencerId, utils]);
 
   // Get image count from character query (includes imageCount) or fallback
   const imageCount = React.useMemo(() => {
@@ -66,7 +97,9 @@ export function useInfluencerData() {
         personalityTraits: character.config?.personalityTraits || [],
         outfit: character.config?.defaultOutfit || 'casual',
         nsfwEnabled: character.config?.nsfwEnabled || false,
-        profilePictureSetId: character.config?.profilePictureSetId || undefined,
+        // Preserve null values - don't convert to undefined
+        // null means user skipped, undefined means not set
+        profilePictureSetId: character.config?.profilePictureSetId ?? undefined,
         postCount: parseInt(character.postCount || '0', 10),
         imageCount: imageCount,
         likedCount: parseInt(character.likedCount || '0', 10),
@@ -120,6 +153,11 @@ export function useInfluencerData() {
   // Update image count when it changes (only if different from current value)
   React.useEffect(() => {
     if (influencer && imageCount !== undefined && influencer.imageCount !== imageCount) {
+      console.log('[useInfluencerData] Updating imageCount in store:', {
+        influencerId,
+        oldCount: influencer.imageCount,
+        newCount: imageCount,
+      });
       updateInfluencer(influencerId, { imageCount });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

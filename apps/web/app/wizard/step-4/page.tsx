@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepHair } from '../../../components/wizard/steps/StepHair';
+import { StepSkinColor } from '../../../components/wizard/steps/StepSkinColor';
 import { StepFinalize } from '../../../components/wizard/steps/StepFinalize';
 
 export default function WizardStep4() {
@@ -18,9 +18,9 @@ export default function WizardStep4() {
     return <StepFinalize />;
   }
 
-  // For presets flow, step 4 is Hair
+  // For presets flow, step 4 is Skin Color
   if (creationMethod === 'presets') {
-    return <StepHair />;
+    return <StepSkinColor />;
   }
 
   // Fallback: if no creation method selected, return null

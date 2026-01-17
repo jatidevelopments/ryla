@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepFace } from '../../../components/wizard/steps/StepFace';
+import { StepAgeRange } from '../../../components/wizard/steps/StepAgeRange';
 import { StepBaseImageSelection } from '../../../components/wizard/steps/StepBaseImageSelection';
 
 export default function WizardStep3() {
@@ -18,9 +18,9 @@ export default function WizardStep3() {
     return <StepBaseImageSelection />;
   }
 
-  // For presets flow, step 3 is Facial Features
+  // For presets flow, step 3 is Age Range
   if (creationMethod === 'presets') {
-    return <StepFace />;
+    return <StepAgeRange />;
   }
 
   // Fallback: if no creation method selected, return null

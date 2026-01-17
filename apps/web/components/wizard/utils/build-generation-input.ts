@@ -1,13 +1,26 @@
 import type { CharacterFormData } from '@ryla/business';
 
+interface BuildGenerationInputOptions {
+  /** Fine-tune adjustment text to add to prompt */
+  fineTuneAdjustment?: string;
+  /** Skip credit deduction for deferred billing (wizard flow) */
+  skipCreditDeduction?: boolean;
+}
+
 /**
  * Builds the generation input from wizard form data
  * Handles both prompt-based and presets-based flows
  */
 export function buildGenerationInput(
   form: CharacterFormData,
-  fineTuneAdjustment?: string
+  fineTuneAdjustmentOrOptions?: string | BuildGenerationInputOptions
 ): any {
+  // Handle both old signature (string) and new signature (options object)
+  const options: BuildGenerationInputOptions = typeof fineTuneAdjustmentOrOptions === 'string'
+    ? { fineTuneAdjustment: fineTuneAdjustmentOrOptions }
+    : fineTuneAdjustmentOrOptions || {};
+  
+  const { fineTuneAdjustment, skipCreditDeduction } = options;
   const isPromptBased = form.creationMethod === 'prompt-based' && form.promptInput;
 
   if (isPromptBased) {
@@ -21,6 +34,7 @@ export function buildGenerationInput(
       promptInput: prompt,
       promptEnhance: form.promptEnhance ?? true,
       nsfwEnabled: form.nsfwEnabled || false,
+      ...(skipCreditDeduction && { skipCreditDeduction: true }),
     };
   }
 
@@ -66,6 +80,8 @@ export function buildGenerationInput(
       promptInput: fineTuneAdjustment.trim(),
       promptEnhance: false, // Don't double-enhance
     }),
+    // Skip credit deduction for wizard flow (deferred billing)
+    ...(skipCreditDeduction && { skipCreditDeduction: true }),
   };
 }
 

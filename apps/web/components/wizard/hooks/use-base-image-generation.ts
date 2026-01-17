@@ -141,15 +141,19 @@ export function useBaseImageGeneration({
       setError(null);
       setCompletedCount(0);
 
+      // Always clear existing images and start with skeletons
+      selectBaseImage(null);
+      clearBaseImageJobIds();
+      setBaseImages(createSkeletonImages());
+
       if (isRegenerate) {
         setIsRegeneratingAll(true);
-        selectBaseImage(null);
-        clearBaseImageJobIds();
-        setBaseImages(createSkeletonImages());
       }
 
       try {
-        const input = buildGenerationInput(form);
+        // Use skipCreditDeduction: true for wizard flow (deferred billing)
+        // Credits will be deducted at character creation time instead
+        const input = buildGenerationInput(form, { skipCreditDeduction: true });
 
         generateBaseImagesAndWait(
           input,
@@ -168,12 +172,15 @@ export function useBaseImageGeneration({
             const skeletonIndex = safeCurrentImages.findIndex((img) => img.url === 'skeleton');
 
             if (skeletonIndex !== -1) {
+              // Replace skeleton with actual image
               const updatedImages = [...safeCurrentImages];
               updatedImages[skeletonIndex] = image;
               setBaseImages(updatedImages);
-            } else {
+            } else if (safeCurrentImages.length < expectedImageCount) {
+              // Only add if we haven't reached the expected count
               setBaseImages([...safeCurrentImages, image]);
             }
+            // Ignore images beyond expectedImageCount
 
             setCompletedCount((prev) => {
               const newCount = prev + 1;
@@ -222,7 +229,11 @@ export function useBaseImageGeneration({
       replaceBaseImage(imageId, { ...image, url: 'loading', thumbnailUrl: 'loading' });
 
       try {
-        const input = buildGenerationInput(form, fineTuneAdjustment);
+        // Use skipCreditDeduction: true for wizard flow (deferred billing)
+        const input = buildGenerationInput(form, { 
+          fineTuneAdjustment, 
+          skipCreditDeduction: true 
+        });
         const images = await generateBaseImagesAndWait(input, () => {});
 
         if (images.length > 0) {

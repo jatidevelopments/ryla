@@ -63,29 +63,38 @@ export class UsersRepository {
   }
 
   /**
+   * Check if public name already exists
+   */
+  async existsByPublicName(publicName: string): Promise<boolean> {
+    const user = await this.findByPublicName(publicName);
+    return !!user;
+  }
+
+  /**
    * Check if email or public name already exists
    */
   async existsByEmailOrPublicName(
     email: string,
-    publicName: string
+    publicName?: string
   ): Promise<{ emailExists: boolean; publicNameExists: boolean }> {
+    const conditions = [eq(schema.users.email, email.toLowerCase())];
+    
+    if (publicName) {
+      conditions.push(eq(schema.users.publicName, publicName));
+    }
+
     const [existing] = await this.db
       .select({
         email: schema.users.email,
         publicName: schema.users.publicName,
       })
       .from(schema.users)
-      .where(
-        or(
-          eq(schema.users.email, email.toLowerCase()),
-          eq(schema.users.publicName, publicName)
-        )
-      )
+      .where(or(...conditions))
       .limit(1);
 
     return {
       emailExists: existing?.email?.toLowerCase() === email.toLowerCase(),
-      publicNameExists: existing?.publicName === publicName,
+      publicNameExists: publicName ? existing?.publicName === publicName : false,
     };
   }
 

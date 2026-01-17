@@ -1,0 +1,346 @@
+---
+description: Mobile UX best practices for touch targets, responsive design, gestures, and mobile-specific patterns
+globs: ["**/*.tsx", "**/*.ts", "**/*.css"]
+alwaysApply: false
+---
+
+# Mobile UX Best Practices
+
+## Context
+
+- RYLA follows mobile-first design principles (MVP constraint)
+- All features must work on mobile devices (< 768px viewport)
+- Touch-first interactions with proper target sizes
+- Performance optimized for mobile networks (3G/4G)
+- See `docs/technical/mobile/MOBILE-RESPONSIVENESS-PLAN.md` for full strategy
+- See `docs/process/MOBILE-RESPONSIVENESS-PROCESS.md` for testing methodology
+
+## Requirements
+
+### Touch Targets
+
+- **Minimum**: 44x44px (Apple HIG, Material Design)
+- **Preferred**: 48x48px for primary actions
+- **Spacing**: 8px minimum between interactive elements
+- **Critical buttons** (Submit, Save, Delete) must always be ≥ 44px
+- **Acceptable threshold**: ≤ 5 small touch targets for non-critical elements (icons, links)
+
+### Text Sizes
+
+- **Minimum**: 14px for all text
+- **Recommended**: 16px for body text (prevents iOS zoom on input focus)
+- **Headings**: Responsive sizes (`text-2xl md:text-3xl lg:text-4xl`)
+- **Acceptable threshold**: ≤ 10 small text elements for labels/metadata only
+- **Body text, buttons, important labels** must always be ≥ 14px
+
+### Breakpoints
+
+- **Mobile**: < 640px (sm) - Primary target
+- **Tablet**: 640px - 1024px (sm to lg)
+- **Desktop**: > 1024px (lg+)
+- **Use mobile-first**: Start with mobile styles, add desktop with `md:`, `lg:`
+
+### Layout Principles
+
+1. **Touch-First**: All interactive elements ≥ 44px
+2. **Thumb-Friendly**: Primary actions in bottom 1/3 of screen
+3. **Progressive Disclosure**: Hide secondary features, show in modals/drawers
+4. **Vertical Stacking**: Single column on mobile, multi-column on desktop
+5. **Bottom Navigation**: Use bottom nav for primary navigation
+6. **Swipe Gestures**: Consider swipe for galleries, dismiss modals
+
+### Horizontal Scrolling
+
+- **Prevent**: Use `overflow-x-hidden` on containers
+- **Allow**: Only for intentional horizontal scroll (tabs, galleries)
+- **Critical**: Zero horizontal scroll on any page/component
+
+### Viewport & Safe Areas
+
+- **Viewport meta**: Ensure proper viewport meta tag in `layout.tsx`
+- **iOS Safe Areas**: Handle notch/home indicator
+  ```css
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  ```
+
+## Mobile Patterns
+
+### Responsive Grid
+
+```tsx
+// ✅ Good: Mobile-first responsive grid
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+  {/* Mobile: 1 column, Tablet: 2 columns, Desktop: 4 columns */}
+</div>
+
+// ❌ Bad: Desktop-first without mobile breakpoint
+<div className="grid grid-cols-4 gap-4">
+  {/* Breaks on mobile */}
+</div>
+```
+
+### Touch-Friendly Buttons
+
+```tsx
+// ✅ Good: Minimum 44px height
+<button className="min-h-[44px] px-4 py-2 text-base">
+  Button
+</button>
+
+// ✅ Good: Full-width on mobile
+<button className="w-full md:w-auto min-h-[44px]">
+  Mobile Full Width
+</button>
+
+// ❌ Bad: Too small for touch
+<button className="h-8 px-2 text-xs">
+  Too Small
+</button>
+```
+
+### Responsive Text
+
+```tsx
+// ✅ Good: Minimum 14px, responsive sizes
+<p className="text-sm md:text-base">
+  {/* text-sm = 14px, text-base = 16px */}
+</p>
+
+<h1 className="text-2xl md:text-3xl lg:text-4xl">
+  Responsive Heading
+</h1>
+
+// ❌ Bad: Too small or fixed size
+<p className="text-xs">Too Small</p>
+<h1 className="text-4xl">Fixed Size</h1>
+```
+
+### Bottom Sheet Modal (Mobile) / Side Panel (Desktop)
+
+```tsx
+// ✅ Good: Bottom sheet on mobile, side panel on desktop
+{isMobile ? (
+  <>
+    {/* Mobile: Bottom Sheet */}
+    <div className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm lg:hidden" onClick={onClose} />
+    <div className="fixed bottom-0 left-0 right-0 z-50 max-h-[90vh] rounded-t-3xl lg:hidden overflow-y-auto">
+      <div className="min-h-[44px] p-4">
+        {/* Content */}
+      </div>
+    </div>
+  </>
+) : (
+  {/* Desktop: Side Panel */}
+  <div className="hidden lg:flex w-[380px]">
+    {/* Content */}
+  </div>
+)}
+```
+
+### Responsive Form Inputs
+
+```tsx
+// ✅ Good: Full-width, minimum 16px font, proper input types
+<input
+  type="email"
+  className="w-full min-h-[44px] px-4 text-base"
+  placeholder="Email"
+/>
+
+// ✅ Good: Responsive input sizing
+<div className="w-full md:w-1/2">
+  <input className="w-full min-h-[44px] text-base" />
+</div>
+
+// ❌ Bad: Too small, fixed width
+<input className="w-64 h-8 text-xs" />
+```
+
+### Mobile Navigation
+
+```tsx
+// ✅ Good: Bottom navigation for mobile
+<nav className="fixed bottom-0 left-0 right-0 md:hidden">
+  <div className="flex justify-around items-center min-h-[60px]">
+    <button className="min-w-[44px] min-h-[44px]">Home</button>
+    <button className="min-w-[44px] min-h-[44px]">Studio</button>
+  </div>
+</nav>
+
+// ✅ Good: Hamburger menu for mobile sidebar
+<button className="md:hidden min-h-[44px] min-w-[44px]">
+  <MenuIcon />
+</button>
+```
+
+### Swipeable Content
+
+```tsx
+// ✅ Good: Horizontal scroll for tabs/galleries
+<div className="overflow-x-auto scrollbar-hide">
+  <div className="flex gap-4 min-w-max">
+    <div className="min-w-[100px]">Tab 1</div>
+    <div className="min-w-[100px]">Tab 2</div>
+  </div>
+</div>
+
+// ✅ Good: Swipeable image gallery
+<div className="overflow-x-scroll snap-x snap-mandatory">
+  <div className="flex gap-4">
+    {images.map(img => (
+      <img className="w-full snap-center flex-shrink-0" src={img} />
+    ))}
+  </div>
+</div>
+```
+
+### Responsive Spacing
+
+```tsx
+// ✅ Good: Responsive padding/margins
+<div className="p-4 md:p-6 lg:p-8">
+  {/* Mobile: 16px, Tablet: 24px, Desktop: 32px */}
+</div>
+
+// ✅ Good: Touch-friendly gaps
+<div className="flex gap-4">
+  {/* 16px gap between interactive elements */}
+</div>
+
+// ❌ Bad: Too tight spacing
+<div className="flex gap-1">
+  {/* 4px gap too small for touch */}
+</div>
+```
+
+### Mobile-Optimized Images
+
+```tsx
+// ✅ Good: Next.js Image with responsive sizes
+import Image from 'next/image';
+
+<Image
+  src="/image.jpg"
+  alt="Description"
+  width={800}
+  height={600}
+  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+  className="w-full h-auto"
+/>
+
+// ✅ Good: Lazy loading for below-fold images
+<Image loading="lazy" ... />
+```
+
+### Collapsible Sections
+
+```tsx
+// ✅ Good: Collapsible filter drawer on mobile
+<div className="lg:flex lg:flex-row">
+  {/* Desktop: Always visible */}
+  <div className="hidden lg:block">Filters</div>
+  
+  {/* Mobile: Collapsible */}
+  <button className="lg:hidden min-h-[44px]">Show Filters</button>
+  {isOpen && (
+    <div className="lg:hidden fixed inset-0 z-50 bg-background">
+      <div className="p-4">
+        {/* Filter content */}
+      </div>
+    </div>
+  )}
+</div>
+```
+
+## Success Criteria
+
+### Critical (Must Pass)
+
+1. **No Horizontal Scrolling** - Zero horizontal scroll on any page
+2. **Core Functionality Works** - All primary actions work (buttons clickable, forms submittable)
+3. **No Layout Breaking** - No fixed-width elements exceeding viewport, no content cut off
+
+### Acceptable Thresholds
+
+1. **Touch Targets**: ≤ 5 small targets (< 44px) for non-critical elements
+2. **Text Sizes**: ≤ 10 small text elements (< 14px) for labels/metadata only
+3. **User Flows**: ≤ 2 minor UX issues (spacing, alignment)
+
+### Performance Targets
+
+- **Page Load**: < 3 seconds on 3G connection
+- **Time to Interactive**: < 3 seconds
+- **Core Web Vitals**: All green (LCP, FID, CLS)
+
+## Testing Checklist
+
+When implementing mobile features:
+
+- [ ] Test on mobile viewport (375x812 - iPhone 12/13)
+- [ ] Verify no horizontal scrolling
+- [ ] Check all touch targets ≥ 44px
+- [ ] Verify text sizes ≥ 14px (16px for body)
+- [ ] Test user flows end-to-end
+- [ ] Test on real devices (iOS Safari, Chrome Mobile)
+- [ ] Verify modals/dialogs work correctly
+- [ ] Test form inputs (keyboard doesn't cover inputs)
+- [ ] Test orientation changes
+- [ ] Verify performance (Lighthouse mobile score > 90)
+
+## Common Anti-Patterns
+
+```tsx
+// ❌ Bad: Fixed width exceeding viewport
+<div className="w-[400px]">
+  {/* Breaks on 375px mobile */}
+</div>
+
+// ❌ Bad: Desktop-only grid
+<div className="grid grid-cols-4">
+  {/* Too cramped on mobile */}
+</div>
+
+// ❌ Bad: Small touch targets
+<button className="h-8 w-8">
+  {/* 32px too small */}
+</button>
+
+// ❌ Bad: Small text
+<p className="text-xs">
+  {/* 12px too small */}
+</p>
+
+// ❌ Bad: No mobile consideration
+<div className="flex flex-row">
+  {/* Should stack on mobile */}
+</div>
+```
+
+## Related Documentation
+
+- **Full Strategy**: `docs/technical/mobile/MOBILE-RESPONSIVENESS-PLAN.md`
+- **Testing Process**: `docs/process/MOBILE-RESPONSIVENESS-PROCESS.md`
+- **Epic Requirements**: `docs/requirements/epics/mvp/EP-020-mobile-readiness.md`
+- **Testing Findings**: `docs/technical/mobile/MOBILE-PLAYWRIGHT-FINDINGS.md`
+- **Styling Patterns**: `styling.mdc` (for TailwindCSS responsive patterns)
+- **Performance**: `performance.mdc` (for mobile performance optimization)
+- **Accessibility**: `accessibility.mdc` (for mobile accessibility considerations)
+
+## Quick Reference
+
+| Requirement | Minimum | Preferred | Notes |
+|------------|---------|-----------|-------|
+| **Touch Target** | 44x44px | 48x48px | All interactive elements |
+| **Text Size** | 14px | 16px | Body text should be 16px |
+| **Spacing** | 8px | 16px | Between touch targets |
+| **Page Load** | < 5s | < 3s | On 3G connection |
+| **Breakpoint Mobile** | < 640px | < 768px | Use `sm:` for 640px+ |
+| **Breakpoint Desktop** | > 1024px | > 1024px | Use `lg:` for 1024px+ |
+
+## Resources
+
+- [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/)
+- [Material Design Mobile](https://material.io/design)
+- [Web.dev Mobile](https://web.dev/mobile/)
+- [Touch Target Guidelines (WCAG)](https://www.w3.org/WAI/WCAG21/Understanding/target-size.html)

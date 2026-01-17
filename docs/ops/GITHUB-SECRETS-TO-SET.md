@@ -50,3 +50,35 @@ gh secret list --repo jatidevelopments/ryla
 - All `NEXT_PUBLIC_*` variables are build-time only (embedded in JavaScript bundle)
 - `FLY_API_TOKEN` is used for deployments
 - Secrets are encrypted by GitHub and only accessible to workflows
+
+## API App Runtime Secrets
+
+Runtime secrets are automatically synced from GitHub to Fly.io before each deployment. See the workflow file (`.github/workflows/deploy-auto.yml`) for the complete list. Key secrets include:
+
+- `APP_PORT`, `APP_HOST`, `APP_ENVIRONMENT`
+- `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET`, `JWT_*` (all JWT-related secrets)
+- `AWS_S3_*` (all S3-related secrets)
+- `BREVO_API_KEY`, `BREVO_API_URL`
+- `RUNPOD_API_KEY`, `RUNPOD_ENDPOINT_*`
+- `OPENROUTER_API_KEY`, `OPENROUTER_DEFAULT_MODEL`
+- `GEMINI_API_KEY`, `OPENAI_API_KEY` (optional)
+- `CRON_SECRET`, `SWAGGER_PASSWORD`
+
+**Note**: `DATABASE_URL` and `REDIS_URL` are automatically set by Fly.io when you attach managed services.
+
+## Web App Runtime Secrets
+
+Runtime secrets are automatically synced from GitHub to Fly.io before each deployment. Key secrets include:
+
+- `FINBY_*` (all Finby-related secrets)
+- `JWT_ACCESS_SECRET` (must match API app)
+- `POSTGRES_*` (all PostgreSQL-related secrets)
+
+## Updated Notes
+
+- **Build-time variables** (`NEXT_PUBLIC_*`): Passed as `--build-arg` during deployment, embedded in JavaScript bundle
+- **Runtime secrets**: Automatically synced from GitHub secrets to Fly.io before each deployment
+- **Single source of truth**: All secrets managed in GitHub, automatically synced to Fly.io
+- `FLY_API_TOKEN`: Used for deployments and secret sync
+- Secrets are encrypted by GitHub and only accessible to workflows
+- Secrets sync is conditional: Only secrets that are defined in GitHub will be synced

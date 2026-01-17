@@ -1,0 +1,14 @@
+[
+  {
+    "path": "flux1-dev-fp8.safetensors",
+    "oid": "abc123def456",
+    "size": 1234567890,
+    "type": "blob"
+  },
+  {
+    "path": "clip_l.safetensors",
+    "oid": "def456ghi789",
+    "size": 987654321,
+    "type": "blob"
+  }
+]

@@ -1,6 +1,10 @@
 // Business services (client-safe)
 export * from './comfyui-workflow-builder';
 export * from './comfyui-pod-client';
+export * from './comfyui-websocket-client';
+// Explicit export to ensure ComfyUIJobPersistenceService is available as a value (not just type)
+export { ComfyUIJobPersistenceService, createComfyUIJobPersistenceService, type ComfyUIJobPersistenceConfig } from './comfyui-job-persistence.service';
+export * from './comfyui-error-handler.service';
 export * from './subscription.service';
 export * from './card.service';
 export * from './comfyui-job-runner';

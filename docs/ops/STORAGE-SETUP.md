@@ -260,11 +260,20 @@ AWS_S3_FORCE_PATH_STYLE=true
 
 ### Expected Costs (MVP)
 
+**Storage + Egress Only:**
 | Usage | Storage | Egress | Total |
 |-------|---------|--------|-------|
 | 10GB, 100GB egress | $0.15 | $0 | **$0.15/month** |
 | 100GB, 1TB egress | $1.50 | $0 | **$1.50/month** |
 | 1TB, 10TB egress | $15 | $0 | **$15/month** |
+
+**With Image Optimization (500K requests/month):**
+| Service | Storage | Egress | Image Opt | Total |
+|---------|---------|--------|-----------|-------|
+| **R2 (no opt)** | $1.50 | $0 | $0 | **$1.50/month** |
+| **R2 + Images** | $1.50 | $0 | $5.00 | **$6.50/month** |
+| **R2 + Worker** | $1.50 | $0 | $5.00 | **$6.50/month** |
+| **Bunny CDN** | $1.00 | $0 | $9.50 | **$10.50/month** |
 
 **Compare to AWS S3:**
 - 100GB, 1TB egress: **$92.30/month** (vs $1.50)
@@ -341,7 +350,39 @@ AWS_S3_FORCE_PATH_STYLE=true
    - Include timestamps in filenames
    - Use UUIDs for uniqueness
 
-3. **Optimize Before Upload**
+3. **Image Optimization Options**
+
+   **Option A: Manual Optimization (Current Approach - Recommended)**
+   - Use existing Python scripts (`scripts/utils/compress-slider-images.py`)
+   - Optimize images before upload
+   - Cost: $0 (preprocessing)
+   - Best for: Static assets, predictable sizes
+   - Example: Compress to WebP, resize to max 800px width
+
+   **Option B: Cloudflare Images Service**
+   - Cost: $5/month base + $1 per 100K images stored + $1 per 100K transformations
+   - Features: Automatic WebP/AVIF conversion, resizing, quality adjustment
+   - Best for: Moderate usage, integrated solution
+   - Setup: Enable Cloudflare Images in dashboard
+
+   **Option C: Custom Worker for On-Demand Optimization**
+   - Cost: $5/month base + $0.30 per 1M requests + $0.02 per 1M CPU-ms
+   - Features: Full control over optimization logic
+   - Best for: High-volume, custom requirements
+   - Setup: Create Worker with image processing library (e.g., `@cloudflare/workers-image`)
+
+   **Alternative: Bunny CDN Built-in Optimization**
+   - Cost: $9.50/month (unlimited transformations)
+   - Features: URL-based transformations (`?width=800&format=webp`)
+   - Best for: Simple setup, staying under 1TB egress
+   - Note: Only available if using Bunny CDN for storage
+
+   **Recommendation for RYLA:**
+   - Start with Option A (manual optimization) - lowest cost, already implemented
+   - Consider Option C (Worker) if on-demand optimization needed at scale
+   - Bunny's built-in optimization is competitive if using Bunny CDN
+
+4. **Optimize Before Upload** (if using manual optimization)
    - Compress images (WebP format)
    - Optimize videos (appropriate bitrate)
    - Use appropriate resolutions
@@ -372,6 +413,7 @@ For automated setup using Cloudflare MCP tools, see:
 ## Related Documentation
 
 - [ADR-005: Cloudflare R2 Storage Decision](../decisions/ADR-005-cloudflare-r2-storage.md)
+- [Storage Cost Comparison](./STORAGE-COST-COMPARISON.md) - Detailed Bunny vs Cloudflare R2 cost analysis
 - [Cloudflare MCP Usage Guide](./CLOUDFLARE-MCP-USAGE.md)
 - [R2 Setup via MCP](./CLOUDFLARE-R2-SETUP.md)
 - [CDN Worker Setup](./CLOUDFLARE-CDN-WORKER.md)

@@ -1,0 +1,102 @@
+{
+  "nodes": {
+    "res4lyf": {
+      "verified": false,
+      "version": "latest",
+      "error": "Package not found"
+    },
+    "controlaltai-nodes": {
+      "verified": false,
+      "version": "latest",
+      "error": "Package not found"
+    },
+    "ComfyUI_PuLID": {
+      "verified": false,
+      "version": "main",
+      "availableVersions": [],
+      "error": "Version not found"
+    },
+    "ComfyUI_InstantID": {
+      "verified": false,
+      "version": "main",
+      "availableVersions": [],
+      "error": "Version not found"
+    },
+    "LoadImageBase64-ComfyUI": {
+      "verified": false,
+      "version": "main",
+      "availableVersions": [],
+      "error": "Version not found"
+    }
+  },
+  "models": {
+    "z_image_turbo_bf16.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    },
+    "qwen_3_4b.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    },
+    "z-image-turbo-vae.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    },
+    "flux1-dev.safetensors": {
+      "verified": true,
+      "commit": "19debd50d8f431809f22ec7c20cafdda4a861e78",
+      "fileSize": 23802932552
+    },
+    "flux1-schnell.safetensors": {
+      "verified": true,
+      "commit": "a91e3eb2eef4318d354cdf34c0f93e0a8468be7c",
+      "fileSize": 23782506688
+    },
+    "clip_l.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    },
+    "t5xxl_fp16.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    },
+    "ae.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    },
+    "pulid_flux_v0.9.1.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    },
+    "eva02_clip_l_14_plus.safetensors": {
+      "verified": true,
+      "commit": "ea0ba9075b54a7fec1ee6ebb5eff0557c511d347",
+      "fileSize": 856461210
+    },
+    "ip-adapter.bin": {
+      "verified": true,
+      "commit": "55c98e90c7047768538ad83e8f06f44c017fc329",
+      "fileSize": 1691134141
+    },
+    "diffusion_pytorch_model.safetensors": {
+      "verified": false,
+      "commit": "",
+      "fileSize": 0,
+      "error": "File not found"
+    }
+  }
+}

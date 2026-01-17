@@ -33,6 +33,7 @@ export interface ActivityItem {
 
   // Generation-specific
   characterId?: string | null;
+  imageId?: string | null; // First image ID for direct navigation
   imageCount?: number | null;
   thumbnailUrl?: string | null;
   qualityMode?: string | null;
@@ -59,9 +60,10 @@ function mapJobToActivity(
   const occurredAt =
     job.completedAt ?? job.startedAt ?? job.createdAt ?? new Date();
 
-  // Extract thumbnail from output if available
+  // Extract thumbnail and imageId from output if available
   // Check multiple possible output structures
   let thumbnailUrl: string | null = null;
+  let imageId: string | null = null;
   if (job.output && typeof job.output === 'object') {
     const out = job.output as Record<string, unknown>;
 
@@ -83,6 +85,11 @@ function mapJobToActivity(
     else if (Array.isArray(out['imageUrls']) && out['imageUrls'].length > 0) {
       thumbnailUrl = out['imageUrls'][0] as string;
     }
+
+    // Extract first imageId for direct navigation
+    if (Array.isArray(out['imageIds']) && out['imageIds'].length > 0) {
+      imageId = out['imageIds'][0] as string;
+    }
   }
 
   return {
@@ -92,6 +99,7 @@ function mapJobToActivity(
     sourceType: 'generation_job',
     sourceId: job.id,
     characterId: job.characterId,
+    imageId,
     imageCount: job.imageCount,
     thumbnailUrl,
     qualityMode: (job.input as Record<string, unknown> | null)?.['qualityMode'] as string | undefined ?? null,

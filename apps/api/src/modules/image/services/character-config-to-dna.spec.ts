@@ -97,4 +97,58 @@ describe('characterConfigToDNA', () => {
         const dna2 = characterConfigToDNA({} as any, defaultName);
         expect(dna2.age).toBe('24-year-old');
     });
+
+    describe('sfwMode option', () => {
+        it('should include breast size and ass size when sfwMode is false (default)', () => {
+            const config: CharacterConfig = {
+                bodyType: 'athletic',
+                assSize: 'large',
+                breastSize: 'medium',
+                breastType: 'natural',
+                tattoos: 'floral'
+            } as any;
+            const dna = characterConfigToDNA(config, defaultName, { sfwMode: false });
+            expect(dna.bodyType).toContain('athletic');
+            expect(dna.bodyType).toContain('large ass');
+            expect(dna.bodyType).toContain('medium natural breasts');
+            expect(dna.bodyType).toContain('floral tattoos');
+        });
+
+        it('should EXCLUDE breast size and ass size when sfwMode is true', () => {
+            const config: CharacterConfig = {
+                bodyType: 'athletic',
+                assSize: 'large',
+                breastSize: 'medium',
+                breastType: 'natural',
+                tattoos: 'floral'
+            } as any;
+            const dna = characterConfigToDNA(config, defaultName, { sfwMode: true });
+            // Body type and tattoos should be included
+            expect(dna.bodyType).toContain('athletic');
+            expect(dna.bodyType).toContain('floral tattoos');
+            // Ass and breast size should be EXCLUDED in SFW mode
+            expect(dna.bodyType).not.toContain('ass');
+            expect(dna.bodyType).not.toContain('breast');
+        });
+
+        it('should still include tattoos in sfwMode (tattoos are SFW-safe)', () => {
+            const config: CharacterConfig = {
+                bodyType: 'slim',
+                tattoos: 'geometric'
+            } as any;
+            const dna = characterConfigToDNA(config, defaultName, { sfwMode: true });
+            expect(dna.bodyType).toContain('slim');
+            expect(dna.bodyType).toContain('geometric tattoos');
+        });
+
+        it('should default to sfwMode false when no options provided', () => {
+            const config: CharacterConfig = {
+                bodyType: 'curvy',
+                breastSize: 'large'
+            } as any;
+            // No options parameter = default (sfwMode: false)
+            const dna = characterConfigToDNA(config, defaultName);
+            expect(dna.bodyType).toContain('large breasts');
+        });
+    });
 });

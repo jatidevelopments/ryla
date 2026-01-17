@@ -1,4 +1,5 @@
 export { BaseImageCard } from './base-image-card';
+export { BaseImageLightbox } from './base-image-lightbox';
 export { FineTuneSection } from './fine-tune-section';
 export { BaseImageHeader } from './base-image-header';
 export { MissingJobIdsWarning } from './missing-job-ids-warning';

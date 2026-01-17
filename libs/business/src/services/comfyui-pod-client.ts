@@ -16,12 +16,18 @@
  */
 
 import { ComfyUIWorkflow } from './comfyui-workflow-builder';
+import { ComfyUIWebSocketClient } from './comfyui-websocket-client';
+import type { ComfyUIErrorHandlerService } from './comfyui-error-handler.service';
 
 export interface ComfyUIPodConfig {
   /** Base URL of the ComfyUI pod (e.g., https://xyz-8188.proxy.runpod.net) */
   baseUrl: string;
   /** Optional timeout in milliseconds (default: 120000 = 2 minutes) */
   timeout?: number;
+  /** Optional WebSocket client for real-time progress tracking */
+  websocketClient?: ComfyUIWebSocketClient;
+  /** Optional error handler service for retry logic */
+  errorHandler?: ComfyUIErrorHandlerService;
 }
 
 export interface ComfyUIPromptResponse {
@@ -59,11 +65,22 @@ export interface ComfyUIJobResult {
 export class ComfyUIPodClient {
   private baseUrl: string;
   private timeout: number;
+  private websocketClient?: ComfyUIWebSocketClient;
+  private errorHandler?: ComfyUIErrorHandlerService;
 
   constructor(config: ComfyUIPodConfig) {
     // Remove trailing slash
     this.baseUrl = config.baseUrl.replace(/\/$/, '');
     this.timeout = config.timeout ?? 120000;
+    this.websocketClient = config.websocketClient;
+    this.errorHandler = config.errorHandler;
+  }
+
+  /**
+   * Get the base URL of the ComfyUI pod
+   */
+  getBaseUrl(): string {
+    return this.baseUrl;
   }
 
   /**
@@ -109,14 +126,33 @@ export class ComfyUIPodClient {
    * @param promptId - The prompt ID returned from queueWorkflow
    */
   async getJobStatus(promptId: string): Promise<ComfyUIJobResult> {
-    const response = await fetch(`${this.baseUrl}/history/${promptId}`);
+    // Use error handler for retry logic if available
+    if (this.errorHandler) {
+      return this.errorHandler.executeWithRetry(
+        async () => {
+          return this.getJobStatusInternal(promptId);
+        },
+        this.baseUrl
+      );
+    }
+
+    return this.getJobStatusInternal(promptId);
+  }
+
+  /**
+   * Internal method to get job status (without retry)
+   */
+  private async getJobStatusInternal(promptId: string): Promise<ComfyUIJobResult> {
+    const response = await fetch(`${this.baseUrl}/history/${promptId}`, {
+      signal: AbortSignal.timeout(10000), // 10 second timeout
+    });
 
     if (!response.ok) {
       // Job not found in history yet = still processing
       if (response.status === 404) {
         return { promptId, status: 'processing' };
       }
-      throw new Error(`ComfyUI history error: ${response.statusText}`);
+      throw new Error(`ComfyUI history error: ${response.status} ${response.statusText}`);
     }
 
     const history = (await response.json()) as Record<string, ComfyUIHistoryItem>;
@@ -197,13 +233,92 @@ export class ComfyUIPodClient {
   }
 
   /**
-   * Queue workflow and wait for completion
-   * Polls every 2 seconds until complete or timeout
+   * Execute workflow with WebSocket progress tracking (if available)
+   * Falls back to REST polling if WebSocket is not available
+   * @param workflow - ComfyUI workflow JSON
+   * @param onProgress - Optional progress callback (0-100)
+   * @returns Completed job result with images
+   */
+  async executeWorkflowWithWebSocket(
+    workflow: ComfyUIWorkflow,
+    onProgress?: (progress: number) => void
+  ): Promise<ComfyUIJobResult> {
+    if (!this.websocketClient) {
+      // Fallback to polling if WebSocket client not available
+      console.warn('WebSocket client not available, falling back to REST polling');
+      return this.executeWorkflowPolling(workflow, 2000);
+    }
+
+    try {
+      // Health check before attempting WebSocket
+      const isHealthy = await this.healthCheck();
+      if (!isHealthy) {
+        throw new Error('ComfyUI pod health check failed');
+      }
+
+      // Connect WebSocket
+      const clientId = await this.websocketClient.connect(this.baseUrl);
+
+      // Queue workflow
+      const promptId = await this.queueWorkflow(workflow);
+
+      // Register progress handler if provided
+      if (onProgress) {
+        this.websocketClient.onProgress(promptId, onProgress);
+      }
+
+      // Wait for completion via WebSocket
+      return new Promise((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          this.websocketClient?.disconnect(clientId);
+          // Fallback to polling if WebSocket times out
+          console.warn(`WebSocket timeout for prompt ${promptId}, falling back to polling`);
+          this.executeWorkflowPolling(workflow, 2000)
+            .then(resolve)
+            .catch(reject);
+        }, this.timeout);
+
+        // Register completion handler
+        this.websocketClient!.onCompletion(promptId, async (result) => {
+          clearTimeout(timeoutId);
+          
+          // Fetch final job status to get images (WebSocket doesn't download images)
+          try {
+            const finalResult = await this.getJobStatus(promptId);
+            this.websocketClient?.disconnect(clientId);
+            resolve(finalResult);
+          } catch (error) {
+            // If getJobStatus fails, return the WebSocket result without images
+            console.warn(`Failed to fetch final job status for ${promptId}: ${error}`);
+            this.websocketClient?.disconnect(clientId);
+            resolve(result);
+          }
+        });
+
+        // Register error handler
+        this.websocketClient!.onError(promptId, (error) => {
+          clearTimeout(timeoutId);
+          this.websocketClient?.disconnect(clientId);
+          resolve({
+            promptId,
+            status: 'failed',
+            error,
+          });
+        });
+      });
+    } catch (error) {
+      console.warn(`WebSocket execution failed, falling back to REST polling: ${error}`);
+      return this.executeWorkflowPolling(workflow, 2000);
+    }
+  }
+
+  /**
+   * Execute workflow using REST polling (internal method)
    * @param workflow - ComfyUI workflow JSON
    * @param pollIntervalMs - How often to poll (default: 2000ms)
    * @returns Completed job result with images
    */
-  async executeWorkflow(
+  private async executeWorkflowPolling(
     workflow: ComfyUIWorkflow,
     pollIntervalMs = 2000
   ): Promise<ComfyUIJobResult> {
@@ -225,6 +340,33 @@ export class ComfyUIPodClient {
       status: 'failed',
       error: `Timeout after ${this.timeout}ms`,
     };
+  }
+
+  /**
+   * Queue workflow and wait for completion
+   * Tries WebSocket first (if available), falls back to REST polling
+   * @param workflow - ComfyUI workflow JSON
+   * @param pollIntervalMs - How often to poll (default: 2000ms) - only used if WebSocket unavailable
+   * @param onProgress - Optional progress callback (0-100) - only used with WebSocket
+   * @returns Completed job result with images
+   */
+  async executeWorkflow(
+    workflow: ComfyUIWorkflow,
+    pollIntervalMs = 2000,
+    onProgress?: (progress: number) => void
+  ): Promise<ComfyUIJobResult> {
+    // Try WebSocket first if available and progress callback provided
+    if (this.websocketClient && onProgress) {
+      try {
+        return await this.executeWorkflowWithWebSocket(workflow, onProgress);
+      } catch (error) {
+        console.warn(`WebSocket execution failed, falling back to polling: ${error}`);
+        // Continue to polling fallback
+      }
+    }
+
+    // Fallback to REST polling
+    return this.executeWorkflowPolling(workflow, pollIntervalMs);
   }
 
   /**

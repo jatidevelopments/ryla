@@ -1,0 +1,91 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "flux1-dev-fp8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple"
+  },
+  "2": {
+    "inputs": {
+      "lora_name": "character-lora.safetensors",
+      "strength_model": 0.8,
+      "strength_clip": 0.8,
+      "model": ["1", 0],
+      "clip": ["1", 1]
+    },
+    "class_type": "LoraLoader"
+  },
+  "3": {
+    "inputs": {
+      "image": "base64_image_data",
+      "upload": "image"
+    },
+    "class_type": "LoadImageBase64-ComfyUI"
+  },
+  "4": {
+    "inputs": {
+      "pulid_model": "pulid_model.safetensors",
+      "insightface_model": "insightface_model.safetensors",
+      "eva_clip_model": "eva_clip_model.safetensors"
+    },
+    "class_type": "PulidFluxModelLoader"
+  },
+  "5": {
+    "inputs": {
+      "text": "a portrait",
+      "clip": ["2", 1]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "6": {
+    "inputs": {
+      "guidance": 3.5,
+      "conditioning": ["5", 0]
+    },
+    "class_type": "FluxGuidance"
+  },
+  "7": {
+    "inputs": {
+      "seed": 12345,
+      "steps": 20,
+      "cfg": 7,
+      "sampler_name": "euler",
+      "scheduler": "simple",
+      "denoise": 1,
+      "model": ["2", 0],
+      "positive": ["6", 0],
+      "negative": ["8", 0],
+      "latent_image": ["9", 0]
+    },
+    "class_type": "KSampler"
+  },
+  "8": {
+    "inputs": {
+      "text": "",
+      "clip": ["2", 1]
+    },
+    "class_type": "CLIPTextEncode"
+  },
+  "9": {
+    "inputs": {
+      "width": 1024,
+      "height": 1024,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage"
+  },
+  "10": {
+    "inputs": {
+      "samples": ["7", 0],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEDecode"
+  },
+  "11": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": ["10", 0]
+    },
+    "class_type": "SaveImage"
+  }
+}

@@ -122,6 +122,15 @@ AWS_S3_FORCE_PATH_STYLE=false  # R2 uses subdomain style
 
 **Why not:** While cheaper for storage and good for MVP, egress costs add up quickly with videos. Cloudflare R2's zero egress fees make it better long-term. However, Bunny is a solid alternative if staying under 1TB egress.
 
+**Image Optimization Consideration:**
+- **Bunny**: Built-in image optimization at $9.50/month (unlimited transformations)
+  - Features: Resizing, format conversion (WebP/AVIF), quality adjustment
+  - URL-based: `?width=800&format=webp`
+- **Cloudflare R2**: Requires additional service for optimization
+  - Option 1: Cloudflare Images ($5/month base + usage)
+  - Option 2: Custom Worker ($5/month base + CPU costs)
+  - Option 3: Manual optimization before upload ($0, but requires preprocessing)
+
 ### Option C: MinIO on Fly.io
 
 **Approach**: Self-host MinIO on Fly.io (same as local dev).
@@ -190,6 +199,32 @@ AWS_S3_FORCE_PATH_STYLE=false  # R2 uses subdomain style
 **Savings with R2:**
 - vs AWS: **$90-360/month** saved
 - vs Bunny (at 4TB): **$29.50/month** saved
+
+### Cost Comparison with Image Optimization
+
+**Scenario: 100GB storage, 1TB egress, 500K image requests/month**
+
+| Service | Storage | Egress | Image Opt | **Total** |
+|---------|---------|--------|-----------|-----------|
+| **Bunny CDN** | $1.00 | $0 (free tier) | $9.50 | **$10.50/month** |
+| **Cloudflare R2 + Images** | $1.50 | $0 | $5.00 | **$6.50/month** |
+| **Cloudflare R2 + Worker** | $1.50 | $0 | $5.00 | **$6.50/month** |
+| **Cloudflare R2 (no opt)** | $1.50 | $0 | $0 | **$1.50/month** |
+
+**Scenario: 1TB storage, 2TB egress, 5M image requests/month**
+
+| Service | Storage | Egress | Image Opt | Worker Compute | **Total** |
+|---------|---------|--------|-----------|---------------|-----------|
+| **Bunny CDN** | $10.00 | $10.00 | $9.50 | - | **$29.50/month** |
+| **Cloudflare R2 + Images** | $15.00 | $0 | $5.00 + $9.00 | - | **$29.00/month** |
+| **Cloudflare R2 + Worker** | $15.00 | $0 | $5.00 | ~$4.40 | **$24.40/month** |
+| **Cloudflare R2 (no opt)** | $15.00 | $0 | $0 | - | **$15.00/month** |
+
+**Key Insights:**
+- **Bunny's $9.50/month optimization** is competitive for low-medium usage
+- **Cloudflare R2's zero egress** becomes more valuable at scale (>1TB egress)
+- **Custom Worker** is cost-effective for high-volume optimization
+- **Manual optimization** (before upload) is cheapest if preprocessing is acceptable
 
 ---
 
@@ -451,9 +486,18 @@ No migration needed - keep MinIO for local development. Production uses R2.
    - Thumbnail generation
 
 2. **Image Optimization**
-   - Automatic WebP conversion
-   - Responsive image variants
-   - Lazy loading optimization
+   - **Option A**: Manual optimization before upload (current approach)
+     - Use existing Python scripts (`scripts/utils/compress-slider-images.py`)
+     - Cost: $0 (preprocessing)
+     - Best for: Static assets, predictable sizes
+   - **Option B**: Cloudflare Images service
+     - Cost: $5/month base + $1 per 100K images stored + $1 per 100K transformations
+     - Best for: Moderate usage, integrated solution
+   - **Option C**: Custom Worker for on-demand optimization
+     - Cost: $5/month base + $0.30 per 1M requests + $0.02 per 1M CPU-ms
+     - Best for: High-volume, custom requirements
+   - **Alternative**: Bunny CDN built-in optimization ($9.50/month unlimited)
+     - Consider if staying under 1TB egress and need simple setup
 
 3. **Analytics**
    - Content popularity tracking
@@ -475,6 +519,7 @@ No migration needed - keep MinIO for local development. Production uses R2.
 - [Cloudflare R2 Pricing](https://developers.cloudflare.com/r2/pricing/)
 - [External Dependencies](../specs/general/EXTERNAL-DEPENDENCIES.md)
 - [Storage Setup Guide](../ops/STORAGE-SETUP.md)
+- [Storage Cost Comparison](../ops/STORAGE-COST-COMPARISON.md) - Detailed cost analysis including image optimization
 
 ---
 

@@ -37,7 +37,11 @@ function ActivityContent() {
         hasImage: Boolean(item.thumbnailUrl),
       });
       // Navigate to studio with the image pre-selected
-      router.push(`/studio?influencer=${item.characterId}`);
+      let url = `/studio?influencer=${item.characterId}`;
+      if (item.imageId) {
+        url += `&imageId=${item.imageId}`;
+      }
+      router.push(url);
     }
   };
 

@@ -25,31 +25,24 @@ export function StudioDetailPanels({
 
   return (
     <>
-      {/* Desktop Sidebar - Detail View (Flex-based for space-making) */}
       <div
         className={cn(
-          'hidden lg:block transition-all duration-300 ease-in-out',
-          isOpen ? 'w-[420px]' : 'w-0'
+          'hidden lg:block transition-all duration-300 ease-in-out relative flex-shrink-0 border-l border-[var(--border-default)] bg-[var(--bg-elevated)] h-full',
+          isOpen ? 'w-[420px]' : 'w-0 overflow-hidden border-none'
         )}
       >
-        {/* Spacer to push content left */}
-        <div className="w-[420px]" />
-        
-        {/* Fixed panel overlay */}
         {isOpen && (
-          <div className="fixed top-[140px] md:top-[120px] right-0 h-[calc(100vh-140px)] md:h-[calc(100vh-120px)] w-[420px] z-30 p-4 pb-[190px]">
-            <div className="h-full w-full flex flex-col bg-[var(--bg-elevated)] border border-[var(--border-default)] rounded-2xl shadow-2xl overflow-hidden">
-              <StudioDetailPanel
-                image={selectedImage}
-                onClose={onClose}
-                onLike={onLike}
-                onDelete={onDelete}
-                onDownload={onDownload}
-                onRetry={onRetry}
-                className="flex-1 border-none shadow-none"
-                variant="panel"
-              />
-            </div>
+          <div className="absolute inset-0 flex flex-col h-full bg-transparent overflow-hidden">
+            <StudioDetailPanel
+              image={selectedImage}
+              onClose={onClose}
+              onLike={onLike}
+              onDelete={onDelete}
+              onDownload={onDownload}
+              onRetry={onRetry}
+              className="flex-1 border-none shadow-none"
+              variant="panel"
+            />
           </div>
         )}
       </div>

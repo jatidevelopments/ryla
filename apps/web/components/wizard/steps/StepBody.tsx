@@ -9,6 +9,8 @@ import {
   INFLUENCER_ASS_SIZES,
   INFLUENCER_BREAST_TYPES,
 } from '../../../constants';
+import { getBodyTypeImage, getAssSizeImage, getBreastSizeImage, getBreastTypeImage } from '../../../lib/utils/get-influencer-image';
+import { cn } from '@ryla/ui';
 
 /**
  * Step 5: Body Type
@@ -36,36 +38,83 @@ export function StepBody() {
       <div className="w-full space-y-8">
         {/* Section 1: Body Type */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.bodyType
+                ? 'border-purple-400/50'
+                : form.assSize || form.breastSize || form.breastType
+                  ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                  : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Body Type</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {filteredBodyTypes.map((option) => (
-                <WizardOptionCard
-                  key={option.value}
-                  label={option.title}
-                  selected={form.bodyType === option.value}
-                  onSelect={() => setField('bodyType', option.value)}
-                  size="md"
-                />
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredBodyTypes.map((option) => {
+                const bodyTypeImage = form.ethnicity && form.gender
+                  ? getBodyTypeImage(option.value, form.gender, form.ethnicity)
+                  : null;
+                return (
+                  <WizardImageCard
+                    key={option.value}
+                    image={{
+                      src: bodyTypeImage || option.imageSrc || '',
+                      alt: option.title,
+                      name: option.title,
+                    }}
+                    selected={form.bodyType === option.value}
+                    onSelect={() => {
+                      setField('bodyType', option.value);
+                      // Clear other options in this step
+                      setField('assSize', null);
+                      setField('breastSize', null);
+                      setField('breastType', null);
+                    }}
+                    aspectRatio="wide"
+                  />
+                );
+              })}
             </div>
           </div>
         </section>
 
         {/* Section 2: Ass Size */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.assSize
+                ? 'border-purple-400/50'
+                : form.bodyType || form.breastSize || form.breastType
+                  ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                  : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Ass Size</p>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {INFLUENCER_ASS_SIZES.map((option) => (
-                <WizardImageCard
-                  key={option.id}
-                  image={option.image}
-                  selected={form.assSize === option.value}
-                  onSelect={() => setField('assSize', option.value)}
-                  aspectRatio="wide"
-                />
-              ))}
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {INFLUENCER_ASS_SIZES.map((option) => {
+                const assSizeImage = form.ethnicity
+                  ? getAssSizeImage(option.value, form.ethnicity)
+                  : null;
+                return (
+                  <WizardImageCard
+                    key={option.id}
+                    image={{
+                      ...option.image,
+                      src: assSizeImage || option.image.src,
+                    }}
+                    selected={form.assSize === option.value}
+                    onSelect={() => {
+                      setField('assSize', option.value);
+                      // Clear other options in this step
+                      setField('bodyType', null);
+                      setField('breastSize', null);
+                      setField('breastType', null);
+                    }}
+                    aspectRatio="wide"
+                  />
+                );
+              })}
             </div>
           </div>
         </section>
@@ -73,20 +122,44 @@ export function StepBody() {
         {/* Section 3: Breast Size (Female only) */}
         {isFemale && (
           <section>
-            <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+            <div
+              className={cn(
+                'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+                form.breastSize
+                  ? 'border-purple-400/50'
+                  : form.bodyType || form.assSize || form.breastType
+                    ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                    : 'border-white/10'
+              )}
+            >
               <p className="text-white/70 text-sm mb-4 font-medium">
                 Breast Size
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-                {BREAST_SIZE_OPTIONS.map((option) => (
-                  <WizardOptionCard
-                    key={option.value}
-                    label={option.title}
-                    selected={form.breastSize === option.value}
-                    onSelect={() => setField('breastSize', option.value)}
-                    size="sm"
-                  />
-                ))}
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {BREAST_SIZE_OPTIONS.map((option) => {
+                  const breastSizeImage = form.ethnicity
+                    ? getBreastSizeImage(option.value, form.ethnicity)
+                    : null;
+                  return (
+                    <WizardImageCard
+                      key={option.value}
+                      image={{
+                        src: breastSizeImage || option.imageSrc || '',
+                        alt: option.title,
+                        name: option.title,
+                      }}
+                      selected={form.breastSize === option.value}
+                      onSelect={() => {
+                        setField('breastSize', option.value);
+                        // Clear other options in this step
+                        setField('bodyType', null);
+                        setField('assSize', null);
+                        setField('breastType', null);
+                      }}
+                      aspectRatio="wide"
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>
@@ -95,20 +168,43 @@ export function StepBody() {
         {/* Section 4: Breast Type (Female only) */}
         {isFemale && (
           <section>
-            <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+            <div
+              className={cn(
+                'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+                form.breastType
+                  ? 'border-purple-400/50'
+                  : form.bodyType || form.assSize || form.breastSize
+                    ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                    : 'border-white/10'
+              )}
+            >
               <p className="text-white/70 text-sm mb-4 font-medium">
                 Breast Type
               </p>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {INFLUENCER_BREAST_TYPES.map((option) => (
-                  <WizardImageCard
-                    key={option.id}
-                    image={option.image}
-                    selected={form.breastType === option.value}
-                    onSelect={() => setField('breastType', option.value)}
-                    aspectRatio="wide"
-                  />
-                ))}
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {INFLUENCER_BREAST_TYPES.map((option) => {
+                  const breastTypeImage = form.ethnicity
+                    ? getBreastTypeImage(option.value, form.ethnicity)
+                    : null;
+                  return (
+                    <WizardImageCard
+                      key={option.id}
+                      image={{
+                        ...option.image,
+                        src: breastTypeImage || option.image.src,
+                      }}
+                      selected={form.breastType === option.value}
+                      onSelect={() => {
+                        setField('breastType', option.value);
+                        // Clear other options in this step
+                        setField('bodyType', null);
+                        setField('assSize', null);
+                        setField('breastSize', null);
+                      }}
+                      aspectRatio="wide"
+                    />
+                  );
+                })}
               </div>
             </div>
           </section>

@@ -32,6 +32,11 @@ import {
 } from '@ryla/data';
 import * as schema from '@ryla/data/schema';
 import { sendEmail, WelcomeEmail, PasswordResetEmail } from '@ryla/email';
+import {
+  generateBaseUsername,
+  generateUsernameWithSuffix,
+  generateRandomUsername,
+} from '@ryla/shared';
 
 const BCRYPT_SALT_ROUNDS = 10;
 
@@ -58,8 +63,8 @@ export class AuthService {
     userAgent: string,
     ip: string,
   ): Promise<AuthResponseDto> {
-    // Check if email or public name already exists
-    const { emailExists, publicNameExists } =
+    // Check if email already exists
+    const { emailExists } =
       await this.usersRepository.existsByEmailOrPublicName(
         dto.email,
         dto.publicName,
@@ -69,8 +74,16 @@ export class AuthService {
       throw new ConflictException('This email is already in use');
     }
 
-    if (publicNameExists) {
-      throw new ConflictException('This public name is already taken');
+    // Generate username if not provided
+    let publicName = dto.publicName;
+    if (!publicName) {
+      publicName = await this.generateUniqueUsername(dto.name);
+    } else {
+      // Check if provided publicName is already taken
+      const publicNameExists = await this.usersRepository.existsByPublicName(publicName);
+      if (publicNameExists) {
+        throw new ConflictException('This public name is already taken');
+      }
     }
 
     // Hash password
@@ -81,7 +94,7 @@ export class AuthService {
       email: dto.email.toLowerCase(),
       password: hashedPassword,
       name: dto.name,
-      publicName: dto.publicName,
+      publicName,
       role: 'user',
       isEmailVerified: false,
     });
@@ -455,6 +468,42 @@ export class AuthService {
         hasPassword: !!password,
       },
     };
+  }
+
+  /**
+   * Generate a unique username
+   * Tries base username first, then adds random suffix if needed
+   */
+  private async generateUniqueUsername(name: string): Promise<string> {
+    const maxAttempts = 10;
+    let attempts = 0;
+
+    while (attempts < maxAttempts) {
+      let candidate: string;
+
+      if (name && name.trim()) {
+        const baseUsername = generateBaseUsername(name);
+        if (baseUsername) {
+          candidate = generateUsernameWithSuffix(baseUsername);
+        } else {
+          candidate = generateRandomUsername();
+        }
+      } else {
+        candidate = generateRandomUsername();
+      }
+
+      // Check if username is available
+      const publicNameExists = await this.usersRepository.existsByPublicName(candidate);
+
+      if (!publicNameExists) {
+        return candidate;
+      }
+
+      attempts++;
+    }
+
+    // Fallback: use UUID-based username if all attempts failed
+    return `user${uuidv4().replace(/-/g, '').slice(0, 8)}`;
   }
 
   /**

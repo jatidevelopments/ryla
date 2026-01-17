@@ -1,0 +1,14 @@
+{
+  "res4lyf": {
+    "package": "res4lyf",
+    "name": "Res4Lyf Nodes",
+    "version": "1.0.0",
+    "versions": ["1.0.0", "0.9.0", "0.8.0"]
+  },
+  "controlaltai-nodes": {
+    "package": "controlaltai-nodes",
+    "name": "ControlAltAI Nodes",
+    "version": "2.1.0",
+    "versions": ["2.1.0", "2.0.0", "1.5.0"]
+  }
+}

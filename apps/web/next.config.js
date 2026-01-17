@@ -62,6 +62,22 @@ const nextConfig = {
       '@ryla/email': path.resolve(__dirname, '../../dist/libs/email/src'),
     };
 
+    // Configure webpack to treat ES modules in dist folder as modules
+    config.module.rules.push({
+      test: /\.js$/,
+      include: [
+        path.resolve(__dirname, '../../dist/libs/business'),
+        path.resolve(__dirname, '../../dist/libs/shared'),
+        path.resolve(__dirname, '../../dist/libs/ui'),
+        path.resolve(__dirname, '../../dist/libs/trpc'),
+        path.resolve(__dirname, '../../dist/libs/payments'),
+        path.resolve(__dirname, '../../dist/libs/analytics'),
+      ],
+      parser: {
+        sourceType: 'module',
+      },
+    });
+
     // Ensure tw-animate-css is properly resolved for CSS imports
     // The package exports CSS that needs to be resolved correctly
     if (!isServer) {
@@ -165,6 +181,49 @@ const nextConfig = {
         )
       );
     }
+
+    // Fix file-type import issue from @nestjs/common
+    // @nestjs/common tries to import file-type with root path (.) which newer versions don't export
+    // This is a compatibility issue between @nestjs/common and newer file-type versions
+    // Since @nestjs/common is only used server-side (in @ryla/data), we need to handle this properly
+    
+    if (!isServer) {
+      // On client side, file-type should never be needed (NestJS is server-only)
+      // Replace with empty module to prevent client bundle errors
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^file-type$/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+    }
+
+    // Suppress file-type related warnings since it's a known compatibility issue
+    // and doesn't affect functionality (NestJS is only used server-side)
+    // The warnings occur because @nestjs/common imports file-type in a way that's incompatible
+    // with newer versions, but this doesn't break functionality since NestJS is server-only
+    config.ignoreWarnings = [
+      ...(config.ignoreWarnings || []),
+      {
+        module: /file-type/,
+      },
+      {
+        module: /@nestjs\/common.*file-type/,
+      },
+      {
+        module: /load-esm/,
+      },
+      {
+        message: /Can't resolve 'file-type'/,
+      },
+      {
+        message: /Package path . is not exported/,
+      },
+      {
+        message: /Critical dependency: the request of a dependency is an expression/,
+      },
+    ];
+
     return config;
   },
 };

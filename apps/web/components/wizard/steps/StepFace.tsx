@@ -6,6 +6,7 @@ import { EYE_COLOR_OPTIONS } from '@ryla/shared';
 import { WizardImageCard } from '../WizardImageCard';
 import { INFLUENCER_FACE_SHAPES } from '../../../constants';
 import { getInfluencerImage } from '../../../lib/utils/get-influencer-image';
+import { cn } from '@ryla/ui';
 
 /**
  * Step 3: Facial Features
@@ -28,9 +29,18 @@ export function StepFace() {
       <div className="w-full space-y-8">
         {/* Section 1: Eye Color */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.eyeColor
+                ? 'border-purple-400/50'
+                : form.faceShape
+                  ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                  : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Eye Color</p>
-            <div className="grid grid-cols-3 md:grid-cols-6 gap-2.5">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {EYE_COLOR_OPTIONS.filter(
                 (opt) =>
                   !opt.gender ||
@@ -53,7 +63,11 @@ export function StepFace() {
                       name: option.title,
                     }}
                     selected={form.eyeColor === option.value}
-                    onSelect={() => setField('eyeColor', option.value)}
+                    onSelect={() => {
+                      setField('eyeColor', option.value);
+                      // Clear other options in this step
+                      setField('faceShape', null);
+                    }}
                   />
                 );
               })}
@@ -63,9 +77,18 @@ export function StepFace() {
 
         {/* Section 2: Face Shape */}
         <section>
-          <div className="bg-gradient-to-br from-white/8 to-white/4 border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
+          <div
+            className={cn(
+              'bg-gradient-to-br from-white/8 to-white/4 border rounded-2xl p-5 shadow-lg backdrop-blur-sm transition-all',
+              form.faceShape
+                ? 'border-purple-400/50'
+                : form.eyeColor
+                  ? 'border-white/5 opacity-30 pointer-events-none cursor-not-allowed'
+                  : 'border-white/10'
+            )}
+          >
             <p className="text-white/70 text-sm mb-4 font-medium">Face Shape</p>
-            <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {INFLUENCER_FACE_SHAPES.map((option) => {
                 const ethnicityAwareImage = form.ethnicity
                   ? getInfluencerImage(
@@ -82,7 +105,11 @@ export function StepFace() {
                       src: ethnicityAwareImage || option.image.src,
                     }}
                     selected={form.faceShape === option.value}
-                    onSelect={() => setField('faceShape', option.value)}
+                    onSelect={() => {
+                      setField('faceShape', option.value);
+                      // Clear other options in this step
+                      setField('eyeColor', null);
+                    }}
                     aspectRatio="square"
                   />
                 );

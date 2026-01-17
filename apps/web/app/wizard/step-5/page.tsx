@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
-import { StepBody } from '../../../components/wizard/steps/StepBody';
+import { StepEyeColor } from '../../../components/wizard/steps/StepEyeColor';
 
 export default function WizardStep5() {
   const setStep = useCharacterWizardStore((s) => s.setStep);
@@ -12,10 +12,10 @@ export default function WizardStep5() {
     setStep(5);
   }, [setStep]);
 
-  // Only presets flow uses step 5 (Body)
+  // Only presets flow uses step 5 (Eye Color)
   if (creationMethod !== 'presets') {
     return null;
   }
 
-  return <StepBody />;
+  return <StepEyeColor />;
 }

@@ -402,7 +402,35 @@ export function usePaymentForm(posthog?: any) {
         },
         {
           onSuccess: (response) => {
+            // Validate response structure
+            if (!response || typeof response !== 'object') {
+              const errorMessage = 'Invalid payment response received';
+              console.error('[PaymentForm] Invalid response structure:', response);
+              
+              triggerToast({
+                title: 'Payment initialization failed',
+                description: 'Received an invalid response from the payment system. Please try again.',
+                type: toastType.error,
+              });
+              
+              // PostHog tracking
+              if (typeof window !== 'undefined' && posthog) {
+                posthog.capture('payment_init_failed', {
+                  reason: 'invalid_response',
+                  product_id: product.id,
+                  user_id: userId,
+                });
+              }
+              return;
+            }
+
             if (response.paymentUrl && response.reference) {
+              console.log('[PaymentForm] Payment initialized successfully:', {
+                reference: response.reference,
+                hasUrl: !!response.paymentUrl,
+                requestId: response.requestId,
+              });
+
               setPaymentUrl(response.paymentUrl);
               setPaymentReference(response.reference);
               setIsPopupOpen(true);
@@ -411,9 +439,12 @@ export function usePaymentForm(posthog?: any) {
               if (typeof window !== 'undefined' && (window as any).openPopup) {
                 (window as any).openPopup();
               } else {
+                const errorMessage = 'Failed to open payment window. Please refresh the page.';
+                console.error('[PaymentForm] Popup function not available');
+                
                 triggerToast({
-                  title:
-                    'Failed to open payment window. Please refresh the page.',
+                  title: 'Payment window error',
+                  description: errorMessage,
                   type: toastType.error,
                 });
               }
@@ -594,12 +625,43 @@ export function usePaymentForm(posthog?: any) {
                 }
               );
             } else {
-              const errorMessage =
+              // Response missing required fields
+              const errorMessage = response?.error || 
+                response?.message || 
                 'Failed to initialize payment. Please try again.';
+              
+              const errorCode = response?.code || 'UNKNOWN_ERROR';
+              const requestId = response?.requestId;
+
+              console.error('[PaymentForm] Payment initialization failed:', {
+                error: errorMessage,
+                code: errorCode,
+                requestId,
+                hasPaymentUrl: !!response?.paymentUrl,
+                hasReference: !!response?.reference,
+                fullResponse: response,
+              });
 
               // Store error message in localStorage to show in payment step
               if (typeof window !== 'undefined') {
-                localStorage.setItem('finby_payment_error', errorMessage);
+                localStorage.setItem('finby_payment_error', JSON.stringify({
+                  message: errorMessage,
+                  code: errorCode,
+                  requestId,
+                  timestamp: Date.now(),
+                }));
+              }
+
+              // User-friendly error message based on error code
+              let userMessage = errorMessage;
+              if (errorCode === 'CONFIGURATION_ERROR') {
+                userMessage = 'Payment system is temporarily unavailable. Please try again in a few moments.';
+              } else if (errorCode === 'PRODUCT_NOT_FOUND') {
+                userMessage = 'Selected product is no longer available. Please refresh the page and try again.';
+              } else if (errorCode === 'SESSION_CREATION_ERROR') {
+                userMessage = 'Unable to initialize payment. Please check your details and try again.';
+              } else if (errorCode === 'VALIDATION_ERROR') {
+                userMessage = 'Please check your email address and try again.';
               }
 
               // Navigate to step 34 (payment step) with error message
@@ -608,22 +670,65 @@ export function usePaymentForm(posthog?: any) {
               router.replace(`/?step=${paymentStepIndex}`);
 
               triggerToast({
-                title: errorMessage,
+                title: 'Payment initialization failed',
+                description: userMessage,
                 type: toastType.error,
               });
+
+              // PostHog tracking
+              if (typeof window !== 'undefined' && posthog) {
+                posthog.capture('payment_init_failed', {
+                  error_code: errorCode,
+                  error_message: errorMessage,
+                  request_id: requestId,
+                  product_id: product.id,
+                  user_id: userId,
+                });
+              }
             }
           },
           onError: (error) => {
-            console.error('Payment setup error:', error);
+            console.error('[PaymentForm] Payment setup error:', {
+              message: error.message,
+              stack: error.stack,
+              name: error.name,
+              productId: product.id,
+              email: email,
+              userId: userId,
+            });
             setIsPolling(false);
 
-            const errorMessage =
-              error.message ||
-              'An unexpected error occurred. Please try again.';
+            // Extract error message and code if available
+            let errorMessage = error.message || 'An unexpected error occurred. Please try again.';
+            let errorCode = 'UNKNOWN_ERROR';
+            
+            // Try to parse error if it's a stringified JSON
+            try {
+              const parsedError = typeof error.message === 'string' ? JSON.parse(error.message) : error;
+              if (parsedError.error) {
+                errorMessage = parsedError.error;
+                errorCode = parsedError.code || errorCode;
+              }
+            } catch {
+              // Not JSON, use as-is
+            }
+
+            // User-friendly error messages
+            if (errorMessage.includes('network') || errorMessage.includes('fetch')) {
+              errorMessage = 'Network error. Please check your internet connection and try again.';
+            } else if (errorMessage.includes('timeout')) {
+              errorMessage = 'Request timed out. Please try again.';
+            } else if (errorMessage.includes('configuration')) {
+              errorMessage = 'Payment system is temporarily unavailable. Please try again in a few moments.';
+            }
 
             // Store error message in localStorage to show in payment step
             if (typeof window !== 'undefined') {
-              localStorage.setItem('finby_payment_error', errorMessage);
+              localStorage.setItem('finby_payment_error', JSON.stringify({
+                message: errorMessage,
+                code: errorCode,
+                timestamp: Date.now(),
+              }));
             }
 
             // Mixpanel (DISABLED - tracking moved to PostHog)
@@ -634,13 +739,14 @@ export function usePaymentForm(posthog?: any) {
 
             // PostHog - Payment Failed
             if (typeof window !== 'undefined' && posthog) {
-              posthog.capture('payment_failed', {
+              posthog.capture('payment_init_failed', {
+                error_code: errorCode,
+                error_message: errorMessage,
                 product_id: product.id,
                 product_name: product.name,
                 value: product.amount / 100,
                 currency: 'USD',
                 user_id: userId,
-                error_message: errorMessage,
               });
             }
 
@@ -650,34 +756,41 @@ export function usePaymentForm(posthog?: any) {
             router.replace(`/?step=${paymentStepIndex}`);
 
             triggerToast({
-              title: errorMessage,
+              title: 'Payment initialization failed',
+              description: errorMessage,
               type: toastType.error,
             });
           },
         }
       );
     } catch (error: any) {
-      console.error('Payment processing error:', error);
+      console.error('[PaymentForm] Payment processing error:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name,
+        productId: product?.id,
+        userId: userId,
+      });
       setIsPolling(false);
 
-      // Mixpanel (DISABLED - tracking moved to PostHog)
-      // analyticsService.trackPaymentEvent(AnalyticsEventTypeEnum.PAYMENT_FAILED, mpPayload);
+      const errorMessage = error.message || 'An unexpected error occurred. Please try again.';
 
       // PostHog - Payment Failed
       if (typeof window !== 'undefined' && posthog) {
-        posthog.capture('payment_failed', {
+        posthog.capture('payment_init_failed', {
+          error_message: errorMessage,
           product_id: product?.id,
           product_name: product?.name,
           value: product ? product.amount / 100 : 0,
           currency: 'USD',
           user_id: userId,
-          error_message: error.message || 'Unknown error',
+          error_type: 'exception',
         });
       }
 
       triggerToast({
-        title:
-          error.message || 'An unexpected error occurred. Please try again.',
+        title: 'Payment error',
+        description: errorMessage,
         type: toastType.error,
       });
     }

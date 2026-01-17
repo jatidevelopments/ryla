@@ -42,8 +42,9 @@ vi.mock('./activity-item', () => ({
 
 describe('ActivitySummaryCards', () => {
   const mockSummary = {
-    generations: { completed: 10, failed: 2 },
-    credits: { spent: 50, added: 100 },
+    generations: { completed: 10, failed: 2, processing: 0, queued: 0 },
+    credits: { spent: 50, added: 100, refunded: 0 },
+    totalEvents: 12,
   };
 
   it('should render all summary metrics', () => {
