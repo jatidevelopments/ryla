@@ -4,9 +4,9 @@ on:
   push:
     branches: [main]
     paths:
-      - "handlers/**"
-      - "docker/**"
-      - ".github/workflows/publish-runpod-handlers-ghcr.yml"
+      - 'handlers/**'
+      - 'docker/**'
+      - '.github/workflows/publish-runpod-handlers-ghcr.yml'
   workflow_dispatch: {}
 
 permissions:
@@ -14,25 +14,22 @@ permissions:
   packages: write
 
 jobs:
-  publish:
+  publish-flux:
+    name: Build & Push Flux Handler
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # GitHub-hosted runners can run out of disk during large Docker builds.
-      # Free space aggressively before building.
       - name: Free disk space
         shell: bash
         run: |
           set -euxo pipefail
-          df -h
           sudo rm -rf /usr/share/dotnet || true
           sudo rm -rf /usr/local/lib/android || true
           sudo rm -rf /opt/ghc || true
           sudo rm -rf /opt/hostedtoolcache/CodeQL || true
           sudo docker system prune -af || true
-          df -h
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -55,6 +52,33 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-flux-dev-handler:latest
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-flux-dev-handler:${{ github.sha }}
 
+  publish-z-image:
+    name: Build & Push Z-Image Handler
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo docker system prune -af || true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build & push z-image-turbo handler (deprecated)
         uses: docker/build-push-action@v6
         with:
@@ -66,6 +90,33 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-z-image-turbo-handler:latest
             ghcr.io/${{ github.repository_owner }}/ryla-prod-guarded-z-image-turbo-handler:${{ github.sha }}
 
+  publish-comfyui:
+    name: Build & Push ComfyUI Worker
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        shell: bash
+        run: |
+          set -euxo pipefail
+          sudo rm -rf /usr/share/dotnet || true
+          sudo rm -rf /usr/local/lib/android || true
+          sudo rm -rf /opt/ghc || true
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || true
+          sudo docker system prune -af || true
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build & push ComfyUI worker (recommended)
         uses: docker/build-push-action@v6
         with:
@@ -76,5 +127,3 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/ryla-comfyui-worker:latest
             ghcr.io/${{ github.repository_owner }}/ryla-comfyui-worker:${{ github.sha }}
-
-
