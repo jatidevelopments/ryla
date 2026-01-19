@@ -27,6 +27,7 @@ All following rules are saved under `.cursor/rules/` directory:
 - `react-patterns.mdc` – React component patterns, hooks, and composition
 - `react-hook-form.mdc` – React Hook Form patterns with Zod validation
 - `styling.mdc` – TailwindCSS patterns and design system usage
+- `routing.mdc` – Centralized routing patterns and navigation guidelines
 
 ## Backend
 
