@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+
+# RYLA Commit Message Hook
+# Validates commit messages follow conventional commit format
+
+npx --no -- commitlint --edit "$1"

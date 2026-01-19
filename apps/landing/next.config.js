@@ -36,9 +36,9 @@ const nextConfig = {
     remotePatterns: shouldUseCdn
       ? [
           {
-      protocol: 'https',
-      hostname: new URL(CDN_URL).hostname,
-      pathname: '/**',
+            protocol: 'https',
+            hostname: new URL(CDN_URL).hostname,
+            pathname: '/**',
           },
         ]
       : [],
@@ -47,6 +47,12 @@ const nextConfig = {
   experimental: {
     // Reduce bundle size
     optimizePackageImports: ['framer-motion', 'lucide-react'],
+  },
+  // Browser compatibility: Next.js SWC automatically respects browserslist from package.json
+  // This ensures transpilation targets match our >98% browser coverage goal
+  compiler: {
+    // SWC will use browserslist config for transpilation targets
+    // No additional config needed - browserslist is automatically detected
   },
 };
 

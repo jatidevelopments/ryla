@@ -1,6 +1,9 @@
 module.exports = {
   plugins: {
     '@tailwindcss/postcss': {},
-    autoprefixer: {},
+    autoprefixer: {
+      // Autoprefixer automatically reads browserslist from package.json
+      // This ensures CSS prefixes match our browser support targets
+    },
   },
 };

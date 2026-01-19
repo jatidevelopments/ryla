@@ -14,11 +14,24 @@ const nextConfig = {
   // Fix standalone output path structure for monorepo
   outputFileTracingRoot: path.join(__dirname, '../../'),
   // Images are pulled from Git LFS during deployment (checkout with lfs: true)
-  transpilePackages: ['@ryla/ui', '@ryla/shared', '@ryla/business', '@ryla/trpc', '@ryla/payments', '@ryla/analytics'],
+  transpilePackages: [
+    '@ryla/ui',
+    '@ryla/shared',
+    '@ryla/business',
+    '@ryla/trpc',
+    '@ryla/payments',
+    '@ryla/analytics',
+  ],
   // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
   // Optimize package imports to ensure animations work in production
   experimental: {
     optimizePackageImports: ['framer-motion', 'lucide-react'],
+  },
+  // Browser compatibility: Next.js SWC automatically respects browserslist from package.json
+  // This ensures transpilation targets match our >98% browser coverage goal
+  compiler: {
+    // SWC will use browserslist config for transpilation targets
+    // No additional config needed - browserslist is automatically detected
   },
   images: {
     remotePatterns: [
@@ -52,10 +65,19 @@ const nextConfig = {
       '@ryla/shared': path.resolve(__dirname, '../../dist/libs/shared/src'),
       '@ryla/business': path.resolve(__dirname, '../../dist/libs/business/src'),
       '@ryla/trpc': path.resolve(__dirname, '../../dist/libs/trpc/src'),
-      '@ryla/trpc/client': path.resolve(__dirname, '../../dist/libs/trpc/src/client'),
-      '@ryla/trpc/context': path.resolve(__dirname, '../../dist/libs/trpc/src/context'),
+      '@ryla/trpc/client': path.resolve(
+        __dirname,
+        '../../dist/libs/trpc/src/client'
+      ),
+      '@ryla/trpc/context': path.resolve(
+        __dirname,
+        '../../dist/libs/trpc/src/context'
+      ),
       '@ryla/payments': path.resolve(__dirname, '../../dist/libs/payments/src'),
-      '@ryla/analytics': path.resolve(__dirname, '../../dist/libs/analytics/src'),
+      '@ryla/analytics': path.resolve(
+        __dirname,
+        '../../dist/libs/analytics/src'
+      ),
       // @ryla/data is server-only, but we need the alias for build-time resolution
       '@ryla/data': path.resolve(__dirname, '../../dist/libs/data/src'),
       // @ryla/email is server-only, but we need the alias for build-time resolution
@@ -82,7 +104,10 @@ const nextConfig = {
     // The package exports CSS that needs to be resolved correctly
     if (!isServer) {
       // Add alias to help resolve tw-animate-css CSS imports
-      config.resolve.alias['tw-animate-css'] = path.resolve(__dirname, '../../node_modules/tw-animate-css');
+      config.resolve.alias['tw-animate-css'] = path.resolve(
+        __dirname,
+        '../../node_modules/tw-animate-css'
+      );
     }
 
     // Exclude server-only modules from client bundle
@@ -123,7 +148,10 @@ const nextConfig = {
             if (resource === '@ryla/data' || resource.includes('@ryla/data')) {
               return true;
             }
-            if (resource === '@ryla/email' || resource.includes('@ryla/email')) {
+            if (
+              resource === '@ryla/email' ||
+              resource.includes('@ryla/email')
+            ) {
               return true;
             }
             // Ignore pg and related packages
@@ -186,7 +214,7 @@ const nextConfig = {
     // @nestjs/common tries to import file-type with root path (.) which newer versions don't export
     // This is a compatibility issue between @nestjs/common and newer file-type versions
     // Since @nestjs/common is only used server-side (in @ryla/data), we need to handle this properly
-    
+
     if (!isServer) {
       // On client side, file-type should never be needed (NestJS is server-only)
       // Replace with empty module to prevent client bundle errors
@@ -220,7 +248,8 @@ const nextConfig = {
         message: /Package path . is not exported/,
       },
       {
-        message: /Critical dependency: the request of a dependency is an expression/,
+        message:
+          /Critical dependency: the request of a dependency is an expression/,
       },
     ];
 

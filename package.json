@@ -65,8 +65,13 @@
     "mcp:inspect": "npx fastmcp inspect apps/mcp/src/main.ts",
     "email:dev": "pnpm nx dev email",
     "stripe:listen": "stripe listen --forward-to localhost:3000/api/webhooks/stripe",
+    "prepare": "husky",
+    "lint:staged": "lint-staged",
+    "commitlint": "commitlint --edit",
+    "secretlint": "secretlint \"**/*\"",
     "deploy:landing": "flyctl deploy --config apps/landing/fly.toml --dockerfile apps/landing/Dockerfile --build-arg NEXT_PUBLIC_SITE_URL=\"https://www.ryla.ai\" --build-arg NEXT_PUBLIC_CDN_URL=\"https://rylaai.b-cdn.net\" --build-arg NEXT_PUBLIC_DEBUG_CDN=\"true\"",
-    "deploy:funnel": "npm run predeploy && flyctl deploy --config apps/funnel/fly.toml --dockerfile apps/funnel/Dockerfile --build-arg NEXT_PUBLIC_CDN_URL=\"https://rylaai.b-cdn.net\" --build-arg NEXT_PUBLIC_DEBUG_CDN=\"true\" --build-arg NEXT_PUBLIC_SITE_URL=\"https://goviral.ryla.ai\" --build-arg NEXT_PUBLIC_API_BASE_URL=\"https://devapi.mydreamcompanion.com\" --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT=\"/\" --build-arg NEXT_PUBLIC_POSTHOG_HOST=\"https://us.i.posthog.com\" --build-arg NEXT_PUBLIC_POSTHOG_KEY=\"phc_z3f9QIPUEEiNCGvf2JUH1A73ucx43IG8Ru9qfdfkkGU\" --build-arg NEXT_PUBLIC_SUPABASE_URL=\"https://wkmhcjjphidaaxsulhrw.supabase.co\" --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrbWhjampwaGlkYWF4c3VsaHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0OTAzOTMsImV4cCI6MjA4MDA2NjM5M30.Ktt35-wkIFmJepj85VWopFG1_M89DXsSU8ic5vO1orA\""
+    "deploy:funnel": "npm run predeploy && flyctl deploy --config apps/funnel/fly.toml --dockerfile apps/funnel/Dockerfile --build-arg NEXT_PUBLIC_CDN_URL=\"https://rylaai.b-cdn.net\" --build-arg NEXT_PUBLIC_DEBUG_CDN=\"true\" --build-arg NEXT_PUBLIC_SITE_URL=\"https://goviral.ryla.ai\" --build-arg NEXT_PUBLIC_API_BASE_URL=\"https://devapi.mydreamcompanion.com\" --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT=\"/\" --build-arg NEXT_PUBLIC_POSTHOG_HOST=\"https://us.i.posthog.com\" --build-arg NEXT_PUBLIC_POSTHOG_KEY=\"phc_z3f9QIPUEEiNCGvf2JUH1A73ucx43IG8Ru9qfdfkkGU\" --build-arg NEXT_PUBLIC_SUPABASE_URL=\"https://wkmhcjjphidaaxsulhrw.supabase.co\" --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrbWhjampwaGlkYWF4c3VsaHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0OTAzOTMsImV4cCI6MjA4MDA2NjM5M30.Ktt35-wkIFmJepj85VWopFG1_M89DXsSU8ic5vO1orA\"",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.948.0",
@@ -175,7 +180,20 @@
     "zod": "^3.25.67",
     "zustand": "^5.0.9"
   },
+  "browserslist": [
+    "> 0.5%",
+    "last 2 versions",
+    "not dead",
+    "Safari >= 15",
+    "iOS >= 15",
+    "Chrome >= 110",
+    "Firefox >= 110",
+    "Edge >= 110"
+  ],
   "devDependencies": {
+    "@commitlint/cli": "^20.3.1",
+    "@commitlint/config-conventional": "^20.3.1",
+    "@eslint/compat": "^2.0.1",
     "@eslint/js": "^9.39.2",
     "@nestjs/cli": "^11.0.14",
     "@nestjs/schematics": "^11.0.9",
@@ -191,6 +209,7 @@
     "@nx/react": "22.1.3",
     "@nx/vitest": "^22.3.3",
     "@playwright/test": "^1.36.0",
+    "@secretlint/secretlint-rule-preset-recommend": "^11.3.0",
     "@svgr/webpack": "^8.1.0",
     "@swc-node/register": "~1.9.1",
     "@swc/cli": "~0.6.0",
@@ -220,21 +239,48 @@
     "@vitest/coverage-v8": "4.0.16",
     "autoprefixer": "^10.4.22",
     "axios": "^1.13.2",
+    "browserslist": "^4.24.0",
+    "core-js": "^3.41.0",
     "esbuild": "^0.19.2",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.1",
+    "eslint-plugin-compat": "^4.2.0",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^7.0.1",
+    "husky": "^9.1.7",
+    "intersection-observer": "^0.12.2",
     "jsdom": "^27.4.0",
+    "lint-staged": "^16.2.7",
     "nx": "22.1.3",
     "postcss": "^8.5.6",
     "prettier": "^2.6.2",
     "react-email": "^5.1.0",
+    "resize-observer-polyfill": "^1.5.1",
+    "secretlint": "^11.3.0",
     "tailwindcss": "^4.1.17",
     "ts-node": "^10.9.2",
     "tslib": "^2.3.0",
     "typescript": "~5.9.2",
     "vite": "^7.3.1",
     "vitest": "^4.0.16"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{js,jsx,mjs,cjs}": [
+      "eslint --fix --no-warn-ignored",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ],
+    "*.{css,scss}": [
+      "prettier --write"
+    ],
+    "*": [
+      "secretlint"
+    ]
   }
 }

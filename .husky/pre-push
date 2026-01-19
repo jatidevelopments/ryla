@@ -1,0 +1,37 @@
+#!/usr/bin/env sh
+
+# RYLA Pre-Push Hook
+# Validates branch naming convention before pushing
+
+BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
+# Skip validation for main, master, develop branches
+case "$BRANCH" in
+  main|master|develop|staging|production)
+    exit 0
+    ;;
+esac
+
+# Branch naming pattern: <type>/<id>-<description>
+# Types: feat, fix, refactor, docs, test, chore, epic, initiative
+# ID: EP-XXX, ST-XXX, BUG-XXX, TSK-XXX, IN-XXX (optional for chore)
+PATTERN="^(feat|fix|refactor|docs|test|chore|epic|initiative|hotfix)/(ep|st|bug|tsk|in)-[0-9]+-[a-z0-9-]+$|^(chore)/[a-z0-9-]+$"
+
+if ! echo "$BRANCH" | grep -qE "$PATTERN"; then
+  echo "❌ Invalid branch name: $BRANCH"
+  echo ""
+  echo "Branch naming convention:"
+  echo "  <type>/<id>-<description>"
+  echo ""
+  echo "Examples:"
+  echo "  feat/st-010-login-form"
+  echo "  fix/bug-015-null-check"
+  echo "  epic/ep-001-user-auth"
+  echo "  chore/update-deps"
+  echo ""
+  echo "Types: feat, fix, refactor, docs, test, chore, epic, initiative, hotfix"
+  echo "IDs: EP-XXX, ST-XXX, BUG-XXX, TSK-XXX, IN-XXX"
+  exit 1
+fi
+
+echo "✅ Branch name is valid: $BRANCH"

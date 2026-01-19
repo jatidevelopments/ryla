@@ -128,6 +128,12 @@ const nextConfig = {
     // optimizePackageImports: ['lucide-react'], // Tree-shake icon libraries
     scrollRestoration: true, // Better navigation UX
   },
+  // Browser compatibility: Next.js SWC automatically respects browserslist from package.json
+  // This ensures transpilation targets match our >98% browser coverage goal
+  compiler: {
+    // SWC will use browserslist config for transpilation targets
+    // No additional config needed - browserslist is automatically detected
+  },
 
   // Enable gzip/brotli compression
   compress: true,

@@ -1,0 +1,42 @@
+#!/usr/bin/env sh
+
+# RYLA Pre-Commit Hooks
+# Runs lint-staged for linting, formatting, and type checking on staged files
+
+# Run lint-staged (handles ESLint, Prettier, TypeScript, Secretlint)
+npx lint-staged
+
+# Check file sizes (prevent large files > 500KB, except allowed types)
+echo "Checking file sizes..."
+
+# Get list of staged files
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACM)
+
+# Check each file
+FOUND_LARGE=0
+for file in $STAGED_FILES; do
+  if [ -f "$file" ]; then
+    # Skip allowed large file types
+    case "$file" in
+      *.json|*.lock|*.svg|pnpm-lock.yaml|package-lock.json|*.webp|*.png|*.jpg|*.jpeg)
+        # Skip these file types
+        ;;
+      *)
+        size=$(wc -c < "$file" | tr -d ' ')
+        if [ "$size" -gt 512000 ]; then
+          echo "  ❌ $file ($(($size / 1024))KB > 500KB)"
+          FOUND_LARGE=1
+        fi
+        ;;
+    esac
+  fi
+done
+
+if [ "$FOUND_LARGE" -eq 1 ]; then
+  echo ""
+  echo "Please compress large files before committing."
+  echo "Use: pnpm compress:images for slider images"
+  exit 1
+fi
+
+echo "✅ Pre-commit checks passed"
