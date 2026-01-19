@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCharacterWizardStore } from '@ryla/business';
+import { routes } from '@/lib/routes';
 
 /**
  * Step 3 (AI Flow): AI Review & Edit
@@ -27,7 +28,7 @@ export function StepAIReview() {
     });
 
     nextStep();
-    router.push('/wizard/step-4');
+    router.push(routes.wizard.step4);
   };
 
   if (!aiGeneratedConfig) {

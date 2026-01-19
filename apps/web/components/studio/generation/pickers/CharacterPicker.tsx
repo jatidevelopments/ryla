@@ -4,6 +4,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@ryla/ui';
+import { routes } from '@/lib/routes';
 import { PickerDrawer } from './PickerDrawer';
 
 interface Influencer {
@@ -68,7 +69,7 @@ export function CharacterPicker({
         <div className="grid grid-cols-2 min-[480px]:grid-cols-3 sm:grid-cols-4 gap-3">
           {/* Create New Card */}
           <Link
-            href="/wizard/step-0"
+            href={routes.wizard.step0}
             onClick={onClose}
             className="group flex flex-col items-center justify-center aspect-[3/4] rounded-xl bg-white/5 border border-dashed border-white/20 hover:border-[var(--purple-500)]/50 hover:bg-[var(--purple-500)]/5 transition-all p-4"
           >

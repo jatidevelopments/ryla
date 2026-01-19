@@ -10,6 +10,7 @@ import { PlanCard } from '../../components/pricing';
 import { SUBSCRIPTION_PLANS } from '@ryla/shared';
 import { paymentService } from '@/lib/services/payment.service';
 import { getAccessToken } from '../../lib/auth';
+import { routes } from '@/lib/routes';
 
 import { Suspense } from 'react';
 
@@ -65,7 +66,7 @@ function PricingContent() {
     <div className="w-full px-4 py-6 md:px-6 md:py-8">
       {/* Back link */}
       <Link
-        href="/dashboard"
+        href={routes.dashboard}
         className="inline-flex items-center gap-2 text-sm text-white/60 hover:text-white transition-colors mb-6"
       >
         <ArrowLeft className="w-4 h-4" />
@@ -154,7 +155,7 @@ function PricingContent() {
             Purchase one-time credit packs for extra credits.
           </p>
           <Link
-            href="/buy-credits"
+            href={routes.buyCredits}
             className="inline-flex items-center gap-2 px-5 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-medium transition-all"
           >
             <CreditCard className="w-4 h-4" />

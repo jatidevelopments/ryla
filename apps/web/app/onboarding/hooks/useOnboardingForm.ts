@@ -3,15 +3,20 @@
 import { useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { trpc } from '../../../lib/trpc';
+import { routes } from '@/lib/routes';
 import type { ReferralSource, AiInfluencerExperience } from '../constants';
 
 export function useOnboardingForm() {
   const router = useRouter();
   const utils = trpc.useUtils();
   const [step, setStep] = useState<1 | 2>(1);
-  const [referralSource, setReferralSource] = useState<ReferralSource | null>(null);
+  const [referralSource, setReferralSource] = useState<ReferralSource | null>(
+    null
+  );
   const [referralSourceOther, setReferralSourceOther] = useState('');
-  const [experience, setExperience] = useState<AiInfluencerExperience | null>(null);
+  const [experience, setExperience] = useState<AiInfluencerExperience | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const completeOnboarding = trpc.user.completeOnboarding.useMutation({
@@ -22,15 +27,15 @@ export function useOnboardingForm() {
         completed: true,
         completedAt: data.onboarding.completedAt,
       });
-      
+
       // Invalidate to ensure we refetch and get the latest data from server
       await utils.user.isOnboardingCompleted.invalidate();
-      
+
       // Refresh the router to ensure all components get updated data
       router.refresh();
-      
+
       // Navigate to dashboard
-      router.push('/dashboard');
+      router.push(routes.dashboard);
     },
     onError: (error) => {
       console.error('Failed to complete onboarding:', error);
@@ -53,7 +58,8 @@ export function useOnboardingForm() {
       await completeOnboarding.mutateAsync({
         referralSource,
         aiInfluencerExperience: experience,
-        referralSourceOther: referralSource === 'other' ? referralSourceOther.trim() : undefined,
+        referralSourceOther:
+          referralSource === 'other' ? referralSourceOther.trim() : undefined,
       });
     } catch (_error) {
       // Error handled in onError
@@ -80,9 +86,11 @@ export function useOnboardingForm() {
     }
   }, [step, referralSource, referralSourceOther, experience, handleSubmit]);
 
-  const canProceed = step === 1
-    ? referralSource !== null && (referralSource !== 'other' || referralSourceOther.trim().length > 0)
-    : experience !== null;
+  const canProceed =
+    step === 1
+      ? referralSource !== null &&
+        (referralSource !== 'other' || referralSourceOther.trim().length > 0)
+      : experience !== null;
 
   return {
     step,
@@ -99,4 +107,3 @@ export function useOnboardingForm() {
     handleSubmit,
   };
 }
-

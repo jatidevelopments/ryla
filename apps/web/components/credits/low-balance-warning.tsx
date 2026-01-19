@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { cn } from '@ryla/ui';
 import { useCredits } from '../../lib/hooks/use-credits';
 import { useSubscription } from '../../lib/hooks';
+import { routes } from '@/lib/routes';
 
 interface LowBalanceWarningProps {
   className?: string;
@@ -100,7 +101,9 @@ export function LowBalanceWarning({ className }: LowBalanceWarningProps) {
         {/* Content */}
         <div className="flex-1">
           <h4 className="text-sm font-semibold text-white">
-            {isZeroBalance ? 'Out of Credits' : "You're running low on credits!"}
+            {isZeroBalance
+              ? 'Out of Credits'
+              : "You're running low on credits!"}
           </h4>
           <p className="mt-1 text-sm text-white/70">
             {isZeroBalance
@@ -116,7 +119,7 @@ export function LowBalanceWarning({ className }: LowBalanceWarningProps) {
           <div className="mt-3 flex items-center gap-3">
             {isPro ? (
               <Link
-                href="/buy-credits"
+                href={routes.buyCredits}
                 className={cn(
                   'inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all',
                   isZeroBalance
@@ -129,7 +132,7 @@ export function LowBalanceWarning({ className }: LowBalanceWarningProps) {
             ) : (
               <>
                 <Link
-                  href="/pricing"
+                  href={routes.pricing}
                   className={cn(
                     'inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-all',
                     isZeroBalance
@@ -140,7 +143,7 @@ export function LowBalanceWarning({ className }: LowBalanceWarningProps) {
                   Upgrade Now
                 </Link>
                 <Link
-                  href="/buy-credits"
+                  href={routes.buyCredits}
                   className="text-sm text-white/60 hover:text-white transition-colors"
                 >
                   Buy Credits
@@ -185,4 +188,3 @@ export function LowBalanceWarning({ className }: LowBalanceWarningProps) {
     </div>
   );
 }
-

@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useCharacterWizardStore } from '@ryla/business';
+import { routes } from '@/lib/routes';
 
 /**
  * Step 2 (AI Flow): AI Generation
@@ -59,7 +60,7 @@ export function StepAIGeneration() {
   const handleContinue = () => {
     if (!isComplete) return;
     nextStep();
-    router.push('/wizard/step-3');
+    router.push(routes.wizard.step3);
   };
 
   return (

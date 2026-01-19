@@ -5,9 +5,9 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { RylaButton, useIsMobile } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
+import { routes } from '@/lib/routes';
 import {
   ArrowLeft,
-  
   Sparkles,
   Heart,
   Images,
@@ -20,7 +20,10 @@ import { GenerateProfilePicturesModal } from '../profile-pictures/GenerateProfil
 
 export interface InfluencerProfileProps {
   influencer: AIInfluencer;
-  onGenerateProfilePictures?: (setId: 'classic-influencer' | 'professional-model' | 'natural-beauty', nsfwEnabled: boolean) => Promise<void>;
+  onGenerateProfilePictures?: (
+    setId: 'classic-influencer' | 'professional-model' | 'natural-beauty',
+    nsfwEnabled: boolean
+  ) => Promise<void>;
   characterProfilePictureSetId?: string | null; // Fallback to check character directly
 }
 
@@ -33,9 +36,14 @@ function getInitials(name: string): string {
     .slice(0, 2);
 }
 
-export function InfluencerProfile({ influencer, onGenerateProfilePictures, characterProfilePictureSetId }: InfluencerProfileProps) {
+export function InfluencerProfile({
+  influencer,
+  onGenerateProfilePictures,
+  characterProfilePictureSetId,
+}: InfluencerProfileProps) {
   const [imageError, setImageError] = React.useState(false);
-  const [showProfilePicturesModal, setShowProfilePicturesModal] = React.useState(false);
+  const [showProfilePicturesModal, setShowProfilePicturesModal] =
+    React.useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = React.useState(false);
   const isMobile = useIsMobile();
 
@@ -48,15 +56,16 @@ export function InfluencerProfile({ influencer, onGenerateProfilePictures, chara
   // Show button if profilePictureSetId is null, undefined, or empty string
   // Check both influencer store and character data as fallback
   // Use nullish coalescing to preserve null values
-  const profilePictureSetId = influencer.profilePictureSetId ?? characterProfilePictureSetId;
+  const profilePictureSetId =
+    influencer.profilePictureSetId ?? characterProfilePictureSetId;
   // Button shows when profilePictureSetId is falsy (null, undefined, empty string, or false)
   // More explicit: check if it's a valid non-empty string
-  const hasProfilePictures = 
-    profilePictureSetId !== null && 
-    profilePictureSetId !== undefined && 
+  const hasProfilePictures =
+    profilePictureSetId !== null &&
+    profilePictureSetId !== undefined &&
     profilePictureSetId !== '' &&
     typeof profilePictureSetId === 'string';
-  
+
   // Debug logging (remove in production)
   React.useEffect(() => {
     if (process.env.NODE_ENV === 'development') {
@@ -72,7 +81,12 @@ export function InfluencerProfile({ influencer, onGenerateProfilePictures, chara
         isEmptyString: profilePictureSetId === '',
       });
     }
-  }, [influencer.profilePictureSetId, characterProfilePictureSetId, profilePictureSetId, hasProfilePictures]);
+  }, [
+    influencer.profilePictureSetId,
+    characterProfilePictureSetId,
+    profilePictureSetId,
+    hasProfilePictures,
+  ]);
 
   return (
     <div className="relative border-b border-[var(--border-default)] overflow-hidden">
@@ -82,7 +96,7 @@ export function InfluencerProfile({ influencer, onGenerateProfilePictures, chara
       {/* Back navigation */}
       <div className="relative px-6 py-4">
         <Link
-          href="/dashboard"
+          href={routes.dashboard}
           className="group inline-flex items-center gap-2 text-sm text-[var(--text-secondary)] transition-colors hover:text-[var(--text-primary)]"
         >
           <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
@@ -108,7 +122,7 @@ export function InfluencerProfile({ influencer, onGenerateProfilePictures, chara
                     unoptimized
                     onError={() => setImageError(true)}
                   />
-                  
+
                   {/* Mobile: View Full Button */}
                   {isMobile && (
                     <button

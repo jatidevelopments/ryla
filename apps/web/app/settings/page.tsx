@@ -1,13 +1,14 @@
-"use client";
+'use client';
 
 import * as React from 'react';
 import { PageContainer, Button } from '@ryla/ui';
 import { capture } from '@ryla/analytics';
 import { useRouter } from 'next/navigation';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
-import { useAuth } from "../../lib/auth-context";
+import { useAuth } from '../../lib/auth-context';
 import { useSubscription } from '../../lib/hooks/use-subscription';
 import { deleteAccount, logoutAllDevices } from '../../lib/auth';
+import { routes } from '@/lib/routes';
 import { useProfileSettings } from './hooks/use-profile-settings';
 import { AccountSection } from './components/account-section';
 import { SubscriptionSection } from './components/subscription-section';
@@ -53,7 +54,7 @@ function SettingsContent() {
     try {
       await logoutAllDevices();
       capture('auth_logout_all');
-      router.push('/login');
+      router.push(routes.login);
     } catch (err) {
       // Error handling is done in the component
       console.error('Failed to logout all devices:', err);
@@ -65,7 +66,7 @@ function SettingsContent() {
     try {
       await deleteAccount();
       capture('account_deleted');
-      router.push('/register');
+      router.push(routes.register);
     } catch (err) {
       // Error handling is done in the dialog
       console.error('Failed to delete account:', err);
@@ -76,7 +77,9 @@ function SettingsContent() {
     <PageContainer>
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-white">Settings</h1>
-        <p className="text-sm text-white/60">Manage your account and preferences</p>
+        <p className="text-sm text-white/60">
+          Manage your account and preferences
+        </p>
       </div>
 
       <SettingsAlert error={actionError} success={actionSuccess} />
@@ -99,7 +102,10 @@ function SettingsContent() {
       {/* Danger Zone */}
       <section className="mb-8">
         <h2 className="mb-4 text-lg font-semibold text-white">Danger zone</h2>
-        <DeleteAccountDialog onDeleteConfirmed={handleDeleteAccount} subscriptionTier={tier} />
+        <DeleteAccountDialog
+          onDeleteConfirmed={handleDeleteAccount}
+          subscriptionTier={tier}
+        />
       </section>
 
       {/* Logout */}
@@ -113,4 +119,3 @@ function SettingsContent() {
     </PageContainer>
   );
 }
-

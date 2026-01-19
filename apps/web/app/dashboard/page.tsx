@@ -14,6 +14,7 @@ import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
 import Link from 'next/link';
 import { cn } from '@ryla/ui';
+import { routes } from '@/lib/routes';
 import { LoadingState } from '../../components/ui/loading-state';
 
 export default function DashboardPage() {
@@ -104,7 +105,7 @@ function DashboardContent() {
           </div>
           {hasInfluencers && (
             <Link
-              href="/wizard/step-0"
+              href={routes.wizard.step0}
               className={cn(
                 'inline-flex items-center justify-center shrink-0',
                 'h-12 w-12 sm:h-10 sm:w-auto sm:px-5 sm:gap-2 rounded-full font-bold text-sm',
@@ -201,7 +202,10 @@ function DashboardContent() {
 
               {/* CTA */}
               <RylaButton asChild variant="gradient" size="xl">
-                <Link href="/wizard/step-0" className="flex items-center gap-2">
+                <Link
+                  href={routes.wizard.step0}
+                  className="flex items-center gap-2"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     viewBox="0 0 24 24"

@@ -13,6 +13,7 @@ import {
   ActivitySummaryCards,
 } from './components';
 import type { ActivityItem } from '@ryla/shared';
+import { routes, buildRoute } from '@/lib/routes';
 
 function ActivityContent() {
   const router = useRouter();
@@ -37,11 +38,13 @@ function ActivityContent() {
         hasImage: Boolean(item.thumbnailUrl),
       });
       // Navigate to studio with the image pre-selected
-      let url = `/studio?influencer=${item.characterId}`;
+      const params: { influencer: string; imageId?: string } = {
+        influencer: item.characterId,
+      };
       if (item.imageId) {
-        url += `&imageId=${item.imageId}`;
+        params.imageId = item.imageId;
       }
-      router.push(url);
+      router.push(buildRoute(routes.studio, params));
     }
   };
 

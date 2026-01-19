@@ -9,6 +9,7 @@ import { TemplateDetailModal } from './template-detail-modal';
 
 import { ExternalLink } from 'lucide-react';
 import Link from 'next/link';
+import { routes } from '@/lib/routes';
 
 export interface TemplateLibraryTabProps {
   influencerId?: string;
@@ -24,7 +25,7 @@ export function TemplateLibraryTab({
     scene: undefined,
     environment: undefined,
     aspectRatio: undefined,
-    qualityMode: undefined,
+    // qualityMode removed - EP-045
     nsfw: undefined,
   });
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -34,7 +35,7 @@ export function TemplateLibraryTab({
     scene: filters.scene,
     environment: filters.environment,
     aspectRatio: filters.aspectRatio,
-    qualityMode: filters.qualityMode,
+    // qualityMode removed - EP-045
     nsfw: filters.nsfw,
     search: searchQuery || undefined,
     influencerId: influencerId,
@@ -60,7 +61,7 @@ export function TemplateLibraryTab({
           placeholder="Search templates..."
         />
         <Link
-          href="/templates"
+          href={routes.templates}
           className="flex items-center gap-2 text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] transition-colors"
         >
           <span>Browse All Templates</span>

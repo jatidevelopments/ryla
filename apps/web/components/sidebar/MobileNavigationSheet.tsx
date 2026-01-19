@@ -12,6 +12,7 @@ import { useSubscription } from '../../lib/hooks';
 import { CreditsBadge } from '../credits';
 import { BugReportModal } from '../bug-report';
 import { trpc } from '../../lib/trpc';
+import { routes } from '@/lib/routes';
 import { LockIcon } from './sidebar-icons';
 
 // Sidebar Footer imports logic - reused inline or imported
@@ -86,7 +87,7 @@ export function MobileNavigationSheet({
 
               {/* Header with Logo */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 shrink-0">
-                <Link href="/dashboard" className="flex items-center">
+                <Link href={routes.dashboard} className="flex items-center">
                   <Image
                     src="/logos/Ryla_Logo_white.png"
                     alt="RYLA"
@@ -198,7 +199,7 @@ export function MobileNavigationSheet({
                       />
                     </div>
                     <Link
-                      href="/pricing"
+                      href={routes.pricing}
                       className="p-2 rounded-xl bg-white/5 text-white/70 hover:bg-white/10 transition-colors"
                     >
                       <svg
@@ -217,7 +218,7 @@ export function MobileNavigationSheet({
                     </Link>
                   </div>
                   <Link
-                    href="/pricing"
+                    href={routes.pricing}
                     className="block w-full py-2 rounded-xl bg-white/5 text-center text-[10px] font-bold text-white hover:bg-white/10 transition-colors border border-white/5 uppercase tracking-wider"
                   >
                     Buy Credits
@@ -226,7 +227,7 @@ export function MobileNavigationSheet({
 
                 {/* User Profile / Settings */}
                 <Link
-                  href="/settings"
+                  href={routes.settings}
                   className="flex items-center gap-4 rounded-2xl p-4 bg-[#1E1E20] border border-white/5 hover:bg-[#252528] transition-all group active:scale-[0.98]"
                 >
                   <div className="relative">
@@ -287,14 +288,14 @@ export function MobileNavigationSheet({
                 <div className="flex flex-col items-center gap-3 pb-8 pt-2">
                   <div className="flex justify-center gap-6 text-[10px] font-bold uppercase tracking-widest text-white/30">
                     <Link
-                      href="/legal"
+                      href={routes.legal}
                       className="hover:text-white/60 transition-colors"
                     >
                       Terms
                     </Link>
                     <span>•</span>
                     <Link
-                      href="/legal"
+                      href={routes.privacy}
                       className="hover:text-white/60 transition-colors"
                     >
                       Privacy

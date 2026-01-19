@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Zap } from 'lucide-react';
 import { FadeInUp, RylaButton } from '@ryla/ui';
+import { routes } from '@/lib/routes';
 
 export function SubscriptionUpsell() {
   return (
@@ -22,7 +23,7 @@ export function SubscriptionUpsell() {
               </p>
             </div>
             <RylaButton asChild variant="glassy-outline" size="default">
-              <Link href="/pricing" className="flex items-center gap-2">
+              <Link href={routes.pricing} className="flex items-center gap-2">
                 View Plans
               </Link>
             </RylaButton>

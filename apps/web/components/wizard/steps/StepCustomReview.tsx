@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
+import { routes } from '@/lib/routes';
 
 /**
  * Step 2 (Custom Flow): Custom Review
@@ -18,10 +19,10 @@ export function StepCustomReview() {
   const handleContinue = () => {
     // Update store state immediately for instant UI feedback
     nextStep();
-    
+
     // Navigate in a transition to make it feel instant
     startTransition(() => {
-      router.push('/wizard/step-3');
+      router.push(routes.wizard.step3);
     });
   };
 

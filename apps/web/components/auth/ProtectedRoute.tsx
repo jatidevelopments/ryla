@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
+import { routes } from '../../lib/routes';
 import { LoadingState } from '../ui/loading-state';
 
 interface ProtectedRouteProps {
@@ -38,7 +39,9 @@ export function ProtectedRoute({
   const { data: onboardingStatus, isLoading: isLoadingOnboarding } =
     trpc.user.isOnboardingCompleted.useQuery(undefined, {
       enabled:
-        isAuthenticated && !skipOnboardingCheck && pathname !== '/onboarding',
+        isAuthenticated &&
+        !skipOnboardingCheck &&
+        pathname !== routes.onboarding.root,
       retry: false,
     });
 
@@ -49,11 +52,11 @@ export function ProtectedRoute({
       !isLoadingOnboarding &&
       isAuthenticated &&
       !skipOnboardingCheck &&
-      pathname !== '/onboarding' &&
+      pathname !== routes.onboarding.root &&
       onboardingStatus &&
       !onboardingStatus.completed
     ) {
-      router.push('/onboarding');
+      router.push(routes.onboarding.root);
     }
   }, [
     isLoading,
@@ -79,7 +82,7 @@ export function ProtectedRoute({
   // Show loading while checking onboarding (unless we're on onboarding page or skipping check)
   if (
     !skipOnboardingCheck &&
-    pathname !== '/onboarding' &&
+    pathname !== routes.onboarding.root &&
     isLoadingOnboarding
   ) {
     return fallback ?? <LoadingSkeleton />;
@@ -88,7 +91,7 @@ export function ProtectedRoute({
   // If onboarding not completed and we're not on onboarding page, show loading (redirect will happen)
   if (
     !skipOnboardingCheck &&
-    pathname !== '/onboarding' &&
+    pathname !== routes.onboarding.root &&
     onboardingStatus &&
     !onboardingStatus.completed
   ) {

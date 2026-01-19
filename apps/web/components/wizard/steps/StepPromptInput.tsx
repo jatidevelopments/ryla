@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useTransition } from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
 import { Textarea, cn } from '@ryla/ui';
+import { routes } from '@/lib/routes';
 
 /**
  * Step 1 (Prompt-based Flow): Prompt Input
@@ -217,7 +218,7 @@ export function StepPromptInput() {
                 // Generation will happen when entering Base Image step (step 3)
                 nextStep();
                 startTransition(() => {
-                  router.push('/wizard/step-2');
+                  router.push(routes.wizard.step2);
                 });
               }}
               disabled={!form.promptInput?.trim() || isPending}

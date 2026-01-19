@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useCharacterWizardStore } from '@ryla/business';
 import { cn } from '@ryla/ui';
 import { FEATURE_CREDITS } from '@ryla/shared';
+import { routes } from '@/lib/routes';
 
 // Character creation costs from shared pricing
 const CHARACTER_CREATION_COST = FEATURE_CREDITS.base_images.credits; // 80 credits for base images (3 images)
@@ -18,7 +19,11 @@ const creationMethods = [
     bestFor: 'Recommended',
     gradient: 'from-purple-500 to-pink-500',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 sm:w-6 sm:h-6 text-white">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        className="w-5 h-5 sm:w-6 sm:h-6 text-white"
+      >
         <path
           d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"
           stroke="currentColor"
@@ -37,7 +42,11 @@ const creationMethods = [
     bestFor: 'Quick start',
     gradient: 'from-cyan-500 to-blue-600',
     icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="w-5 h-5 sm:w-6 sm:h-6 text-white">
+      <svg
+        viewBox="0 0 24 24"
+        fill="none"
+        className="w-5 h-5 sm:w-6 sm:h-6 text-white"
+      >
         <path
           d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"
           stroke="currentColor"
@@ -67,14 +76,16 @@ export function StepCreationMethod() {
     setField('creationMethod', method);
     updateSteps(method);
     nextStep();
-    router.push('/wizard/step-1');
+    router.push(routes.wizard.step1);
   };
 
   return (
     <div className="flex flex-col items-center px-4 sm:px-6 lg:px-0">
       {/* Header */}
       <div className="text-center mb-6 sm:mb-8 w-full">
-        <p className="text-white/60 text-xs sm:text-sm font-medium mb-2">Get Started</p>
+        <p className="text-white/60 text-xs sm:text-sm font-medium mb-2">
+          Get Started
+        </p>
         <h1 className="text-white text-xl sm:text-2xl font-bold mb-3 sm:mb-4 px-2">
           How do you want to create?
         </h1>
@@ -143,7 +154,9 @@ export function StepCreationMethod() {
                       </span>
                     )}
                   </div>
-                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">{method.description}</p>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
+                    {method.description}
+                  </p>
                 </div>
 
                 {/* Arrow */}
@@ -156,7 +169,11 @@ export function StepCreationMethod() {
                   )}
                 >
                   {isSelected ? (
-                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 14 14" fill="none">
+                    <svg
+                      className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
                       <path
                         d="M10.5 4.5L5.25 9.75L3.5 8"
                         stroke="white"
@@ -166,7 +183,11 @@ export function StepCreationMethod() {
                       />
                     </svg>
                   ) : (
-                    <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 14 14" fill="none">
+                    <svg
+                      className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+                      viewBox="0 0 14 14"
+                      fill="none"
+                    >
                       <path
                         d="M5 3L9 7L5 11"
                         stroke="white"
@@ -252,7 +273,11 @@ export function StepCreationMethod() {
               )}
             >
               {form.creationMethod === 'existing-person' ? (
-                <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 14 14" fill="none">
+                <svg
+                  className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                >
                   <path
                     d="M10.5 4.5L5.25 9.75L3.5 8"
                     stroke="white"
@@ -262,7 +287,11 @@ export function StepCreationMethod() {
                   />
                 </svg>
               ) : (
-                <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 14 14" fill="none">
+                <svg
+                  className="w-3 h-3 sm:w-3.5 sm:h-3.5"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                >
                   <path
                     d="M5 3L9 7L5 11"
                     stroke="white"

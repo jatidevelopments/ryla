@@ -7,6 +7,7 @@ import { RylaInput, RylaCheckbox } from '@ryla/ui';
 import { GoogleButton } from './google-button';
 import { PrimaryButton } from './primary-button';
 import { slideIn } from '../constants';
+import { routes } from '@/lib/routes';
 
 interface LoginFormData {
   password: string;
@@ -70,7 +71,7 @@ export function LoginForm({
           Remember me
         </RylaCheckbox>
         <Link
-          href="/forgot-password"
+          href={routes.forgotPassword}
           className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
         >
           Forgot password?

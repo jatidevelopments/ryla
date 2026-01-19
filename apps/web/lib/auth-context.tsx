@@ -15,6 +15,11 @@ import {
   logout as authLogout,
   clearTokens,
 } from './auth';
+import {
+  isPublicRoute as checkPublicRoute,
+  routes,
+  buildRoute,
+} from './routes';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -25,30 +30,6 @@ interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-
-/**
- * Routes that don't require authentication
- */
-const PUBLIC_ROUTES = [
-  '/',
-  '/login',
-  '/register',
-  '/auth',
-  '/forgot-password',
-  '/reset-password',
-  '/legal',
-  '/terms',
-  '/privacy',
-];
-
-/**
- * Check if a path is public (doesn't require auth)
- */
-function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
-  );
-}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -78,7 +59,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await authLogout();
     } finally {
       setUser(null);
-      router.push('/login');
+      router.push(routes.login);
     }
   }, [router]);
 
@@ -97,12 +78,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isLoading) return;
 
-    const isPublic = isPublicRoute(pathname);
+    const isPublic = checkPublicRoute(pathname);
 
     if (!isPublic && !user) {
       // Redirect to auth page with return URL
-      const returnUrl = encodeURIComponent(pathname);
-      router.push(`/auth?returnUrl=${returnUrl}`);
+      router.push(
+        buildRoute(routes.auth, { returnUrl: encodeURIComponent(pathname) })
+      );
     }
   }, [isLoading, user, pathname, router]);
 
@@ -139,11 +121,11 @@ export function useRequireAuth(): AuthContextValue & { user: AuthUser } {
 
   useEffect(() => {
     if (!auth.isLoading && !auth.user) {
-      const returnUrl = encodeURIComponent(pathname);
-      router.push(`/login?returnUrl=${returnUrl}`);
+      router.push(
+        buildRoute(routes.login, { returnUrl: encodeURIComponent(pathname) })
+      );
     }
   }, [auth.isLoading, auth.user, pathname, router]);
 
   return auth as AuthContextValue & { user: AuthUser };
 }
-

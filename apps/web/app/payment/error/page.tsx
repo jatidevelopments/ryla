@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
 import { PageContainer, FadeInUp, RylaButton } from '@ryla/ui';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
+import { routes } from '@/lib/routes';
 
 function ErrorContent() {
   const searchParams = useSearchParams();
@@ -56,7 +57,7 @@ function ErrorContent() {
             </RylaButton>
 
             <RylaButton
-              onClick={() => router.push('/dashboard')}
+              onClick={() => router.push(routes.dashboard)}
               variant="ghost"
               className="w-full"
             >

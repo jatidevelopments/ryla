@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { Button, DialogTitle, DialogDescription } from '@ryla/ui';
+import { routes, buildRoute } from '@/lib/routes';
 
 interface RetentionOfferStepProps {
   onContinue: () => void;
@@ -33,7 +34,10 @@ export function RetentionOfferStep({
         <p className="mt-1 text-sm text-white/50">
           Stay with us at half the price
         </p>
-        <Link href="/pricing?offer=retention50" onClick={onOfferClick}>
+        <Link
+          href={buildRoute(routes.pricing, { offer: 'retention50' })}
+          onClick={onOfferClick}
+        >
           <Button className="mt-4 w-full h-11 bg-gradient-to-r from-[#9333EA] to-[#EC4899] text-white font-semibold rounded-xl hover:shadow-lg hover:shadow-purple-500/25 transition-all">
             Claim 50% Off
           </Button>

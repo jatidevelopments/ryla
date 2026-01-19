@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { routes } from '@/lib/routes';
 import { ChevronLeftIcon } from './sidebar-icons';
 
 interface SidebarHeaderProps {
@@ -20,17 +21,27 @@ export function SidebarHeader({
   return (
     <div className="flex items-center justify-between w-full h-full px-5">
       <Link
-        href="/dashboard"
+        href={routes.dashboard}
         onClick={onLinkClick}
-        className="flex items-center overflow-hidden"
+        className="flex items-center overflow-hidden justify-center"
       >
-        <Image
-          src="/logos/Ryla_Logo_white.png"
-          alt="RYLA"
-          width={100}
-          height={32}
-          className="h-8 w-auto shrink-0"
-        />
+        {isExpanded ? (
+          <Image
+            src="/logos/Ryla_Logo_white.png"
+            alt="RYLA"
+            width={100}
+            height={32}
+            className="h-8 w-auto shrink-0"
+          />
+        ) : (
+          <Image
+            src="/logos/ryla_small_logo.png"
+            alt="RYLA"
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0"
+          />
+        )}
       </Link>
 
       {/* Collapse toggle - desktop only */}
@@ -45,4 +56,3 @@ export function SidebarHeader({
     </div>
   );
 }
-

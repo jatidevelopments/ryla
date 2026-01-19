@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useCharacterWizardStore } from '@ryla/business';
 import { Textarea, cn } from '@ryla/ui';
 import { trpc } from '../../../lib/trpc';
+import { routes, buildRoute } from '@/lib/routes';
 
 /**
  * Step 1 (Existing Person Flow): Influencer Request
@@ -25,7 +26,9 @@ export function StepInfluencerRequest() {
       onSuccess: () => {
         // Reset form and redirect back to step-0 with success message
         resetForm();
-        router.push('/wizard/step-0?request-submitted=true');
+        router.push(
+          buildRoute(routes.wizard.step0, { 'request-submitted': 'true' })
+        );
       },
       onError: (err) => {
         setError(err.message || 'Failed to submit request. Please try again.');

@@ -3,12 +3,17 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { Button, Label } from '@ryla/ui';
+import { routes } from '@/lib/routes';
 import { useCredits } from '../../../lib/hooks/use-credits';
 import { useSubscription } from '../../../lib/hooks/use-subscription';
 
 export function SubscriptionSection() {
   const { balance, isLoading: isCreditsLoading } = useCredits();
-  const { tier, status: subscriptionStatus, isLoading: isSubscriptionLoading } = useSubscription();
+  const {
+    tier,
+    status: subscriptionStatus,
+    isLoading: isSubscriptionLoading,
+  } = useSubscription();
 
   return (
     <section className="mb-8">
@@ -26,7 +31,7 @@ export function SubscriptionSection() {
             </div>
             <p className="text-sm text-white/60">Upgrade for more features</p>
           </div>
-          <Link href="/pricing">
+          <Link href={routes.pricing}>
             <Button variant="outline" size="sm">
               Upgrade
             </Button>
@@ -43,7 +48,7 @@ export function SubscriptionSection() {
             <div className="h-full w-full rounded-full bg-gradient-to-r from-[#d5b9ff] to-[#b99cff] opacity-30" />
           </div>
           <div className="mt-3">
-            <Link href="/buy-credits">
+            <Link href={routes.buyCredits}>
               <Button variant="outline" size="sm">
                 Buy credits
               </Button>
@@ -54,4 +59,3 @@ export function SubscriptionSection() {
     </section>
   );
 }
-

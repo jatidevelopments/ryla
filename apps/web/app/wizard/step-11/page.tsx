@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCharacterWizardStore } from '@ryla/business';
+import { routes } from '@/lib/routes';
 import { StepBreastSize } from '../../../components/wizard/steps/StepBreastSize';
 
 export default function WizardStep11() {
@@ -23,7 +24,7 @@ export default function WizardStep11() {
   // Skip this step for males - redirect to next step
   useEffect(() => {
     if (gender === 'male') {
-      router.push('/wizard/step-13');
+      router.push(routes.wizard.step13);
     }
   }, [gender, router]);
 

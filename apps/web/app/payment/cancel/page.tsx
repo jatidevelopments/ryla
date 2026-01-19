@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { X, ArrowLeft, CreditCard } from 'lucide-react';
 import { PageContainer, FadeInUp, RylaButton } from '@ryla/ui';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
+import { routes } from '@/lib/routes';
 
 export default function PaymentCancelPage() {
   const router = useRouter();
@@ -40,13 +41,9 @@ export default function PaymentCancelPage() {
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 Go Back
               </RylaButton>
-              
-              <RylaButton
-                asChild
-                variant="ghost"
-                className="w-full"
-              >
-                <Link href="/pricing">
+
+              <RylaButton asChild variant="ghost" className="w-full">
+                <Link href={routes.pricing}>
                   <CreditCard className="mr-2 h-4 w-4" />
                   View Plans
                 </Link>
@@ -56,7 +53,8 @@ export default function PaymentCancelPage() {
             {/* Help */}
             <div className="mt-8 p-4 rounded-xl bg-[var(--bg-elevated)] border border-[var(--border-default)]">
               <p className="text-xs text-[var(--text-muted)]">
-                If you experienced any issues during checkout, please try again or contact support for assistance.
+                If you experienced any issues during checkout, please try again
+                or contact support for assistance.
               </p>
             </div>
           </div>
@@ -65,4 +63,3 @@ export default function PaymentCancelPage() {
     </ProtectedRoute>
   );
 }
-

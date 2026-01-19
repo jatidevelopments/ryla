@@ -11,6 +11,7 @@ import {
   LockIcon,
 } from './sidebar-icons';
 import { motion, AnimatePresence } from 'framer-motion';
+import { routes, matchesRoute } from '@/lib/routes';
 
 export interface MenuItem {
   title: string;
@@ -24,35 +25,34 @@ export interface MenuItem {
 export const menuItems: MenuItem[] = [
   {
     title: 'My Influencers',
-    url: '/dashboard',
+    url: routes.dashboard,
     icon: UsersIcon,
-    isActive: (pathname: string) => pathname === '/dashboard',
+    isActive: (pathname: string) => matchesRoute(pathname, routes.dashboard),
   },
   {
     title: 'Create',
-    url: '/wizard/step-0',
+    url: routes.wizard.step0,
     icon: PlusCircleIcon,
-    isActive: (pathname: string) => pathname.startsWith('/wizard'),
+    isActive: (pathname: string) => matchesRoute(pathname, routes.wizard.root),
     highlight: true,
   },
   {
     title: 'Studio',
-    url: '/studio',
+    url: routes.studio,
     icon: PhotoIcon,
-    isActive: (pathname: string) => pathname.startsWith('/studio'),
+    isActive: (pathname: string) => matchesRoute(pathname, routes.studio),
   },
   {
     title: 'Templates',
-    url: '/templates',
+    url: routes.templates,
     icon: TemplatesIcon,
-    isActive: (pathname: string) =>
-      pathname === '/templates' || pathname.startsWith('/templates'),
+    isActive: (pathname: string) => matchesRoute(pathname, routes.templates),
   },
   {
     title: 'Activity',
-    url: '/activity',
+    url: routes.activity,
     icon: ClockIcon,
-    isActive: (pathname: string) => pathname === '/activity',
+    isActive: (pathname: string) => matchesRoute(pathname, routes.activity),
   },
 ];
 

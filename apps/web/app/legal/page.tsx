@@ -8,13 +8,14 @@ import {
   TabsTrigger,
   TabsContent,
 } from '@ryla/ui';
+import { routes } from '@/lib/routes';
 
 export default function LegalPage() {
   return (
     <PageContainer>
       {/* Back navigation */}
       <Link
-        href="/settings"
+        href={routes.settings}
         className="mb-6 inline-flex items-center gap-1.5 text-sm text-white/60 transition-colors hover:text-white"
       >
         <svg
@@ -676,8 +677,8 @@ export default function LegalPage() {
                       Contact information: name, address, phone, and email.
                     </li>
                     <li>
-                      A statement of &quot;good faith belief&quot; that use of the
-                      material is not authorized.
+                      A statement of &quot;good faith belief&quot; that use of
+                      the material is not authorized.
                     </li>
                     <li>
                       A statement that information in the notification is
@@ -730,8 +731,8 @@ export default function LegalPage() {
                     </li>
                     <li>
                       <strong>No Participation:</strong> Since no real humans
-                      are involved, there is no &quot;participation&quot; as defined by 18
-                      U.S.C. §2257.
+                      are involved, there is no &quot;participation&quot; as
+                      defined by 18 U.S.C. §2257.
                     </li>
                   </ul>
                 </section>

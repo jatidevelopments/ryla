@@ -3,6 +3,7 @@
 import { Fragment } from 'react';
 import Link from 'next/link';
 import { useSubscription } from '../../lib/hooks';
+import { routes } from '@/lib/routes';
 
 interface CreditBreakdown {
   baseImages?: number;
@@ -22,11 +23,11 @@ interface ZeroCreditsModalProps {
 /**
  * Zero Credits Modal Component
  * Shows when user tries to generate without enough credits.
- * 
+ *
  * Enhanced with:
  * - Detailed cost breakdown (base images, profile set, NSFW)
  * - Clear path to buy credits page
- * - State preservation: wizard state persists in localStorage, 
+ * - State preservation: wizard state persists in localStorage,
  *   so user returns to same step after purchasing credits
  */
 export function ZeroCreditsModal({
@@ -77,7 +78,9 @@ export function ZeroCreditsModal({
               </svg>
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-white">Not Enough Credits</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Not Enough Credits
+              </h3>
               <p className="text-sm text-white/60">
                 You need {creditsShort} more credits
               </p>
@@ -87,10 +90,15 @@ export function ZeroCreditsModal({
           {/* Cost Breakdown (if provided) */}
           {breakdownItems.length > 0 && (
             <div className="mt-5 rounded-xl border border-white/10 bg-white/5 p-4">
-              <h4 className="text-sm font-medium text-white/80 mb-3">Cost Breakdown</h4>
+              <h4 className="text-sm font-medium text-white/80 mb-3">
+                Cost Breakdown
+              </h4>
               <div className="space-y-2">
                 {breakdownItems.map((item) => (
-                  <div key={item.label} className="flex justify-between text-sm">
+                  <div
+                    key={item.label}
+                    className="flex justify-between text-sm"
+                  >
                     <span className="text-white/60">{item.label}</span>
                     <span className="text-white/80">{item.cost} credits</span>
                   </div>
@@ -131,7 +139,8 @@ export function ZeroCreditsModal({
 
             {/* State preservation note */}
             <p className="text-xs text-white/50 mt-2">
-              💡 Your progress is saved. You&apos;ll return to this step after purchasing.
+              💡 Your progress is saved. You&apos;ll return to this step after
+              purchasing.
             </p>
           </div>
 
@@ -144,7 +153,9 @@ export function ZeroCreditsModal({
                   <p className="text-sm text-white/60">One-time purchase</p>
                 </div>
                 <div className="text-right">
-                  <span className="text-lg font-bold text-white">From $2.99</span>
+                  <span className="text-lg font-bold text-white">
+                    From $2.99
+                  </span>
                 </div>
               </div>
             </div>
@@ -168,7 +179,7 @@ export function ZeroCreditsModal({
             {isPro ? (
               <>
                 <Link
-                  href="/buy-credits"
+                  href={routes.buyCredits}
                   className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)] px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90"
                 >
                   <svg
@@ -196,14 +207,14 @@ export function ZeroCreditsModal({
             ) : (
               <>
                 <Link
-                  href="/pricing"
+                  href={routes.pricing}
                   className="inline-flex items-center justify-center rounded-xl bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)] px-6 py-3 text-sm font-semibold text-white transition-all hover:opacity-90"
                 >
                   View Subscription Plans
                 </Link>
 
                 <Link
-                  href="/buy-credits"
+                  href={routes.buyCredits}
                   className="inline-flex items-center justify-center rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-white/10"
                 >
                   <svg

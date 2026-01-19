@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { cn } from '@ryla/ui';
+import { routes } from '@/lib/routes';
 import { useCredits } from '../../lib/hooks/use-credits';
 
 interface CreditsBadgeProps {
@@ -102,7 +103,7 @@ export function CreditsBadge({
 
   if (clickable) {
     return (
-      <Link href="/buy-credits" title="Buy more credits">
+      <Link href={routes.buyCredits} title="Buy more credits">
         {badgeContent}
       </Link>
     );
@@ -110,4 +111,3 @@ export function CreditsBadge({
 
   return badgeContent;
 }
-

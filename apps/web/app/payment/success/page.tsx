@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Check, ArrowRight } from 'lucide-react';
 import { PageContainer, FadeInUp, RylaButton } from '@ryla/ui';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
+import { routes, buildRoute } from '@/lib/routes';
 
 function SuccessContent() {
   const searchParams = useSearchParams();
@@ -26,9 +27,9 @@ function SuccessContent() {
 
   const handleContinue = () => {
     if (type === 'subscription') {
-      router.push('/pricing?success=true');
+      router.push(buildRoute(routes.pricing, { success: 'true' }));
     } else {
-      router.push('/buy-credits?success=true');
+      router.push(buildRoute(routes.buyCredits, { success: 'true' }));
     }
   };
 
@@ -82,7 +83,7 @@ function SuccessContent() {
             </RylaButton>
 
             <RylaButton asChild variant="ghost" className="w-full">
-              <Link href="/dashboard">Go to Dashboard</Link>
+              <Link href={routes.dashboard}>Go to Dashboard</Link>
             </RylaButton>
           </div>
 
