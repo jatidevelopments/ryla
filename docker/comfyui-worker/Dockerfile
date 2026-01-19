@@ -48,21 +48,36 @@ for COMFYUI_BASE in "/comfyui" "/workspace/ComfyUI" "/workspace/runpod-slim/Comf
             echo "Found models at: $SOURCE_BASE"\n\
         else\n\
             echo "Warning: Network volume models not found at /runpod-volume/models or /workspace/models"\n\
+            echo "Listing /runpod-volume content:"\n\
+            ls -la /runpod-volume 2>/dev/null || echo "/runpod-volume not accessible"\n\
+            echo "Listing /workspace content:"\n\
+            ls -la /workspace 2>/dev/null || echo "/workspace not accessible"\n\
             continue\n\
         fi\n\
         \n\
-        # Create symlinks for Z-Image model directories\n\
-        for dir in diffusion_models text_encoders vae; do\n\
+        echo "Listing source models directory ($SOURCE_BASE):"\n\
+        ls -la "$SOURCE_BASE"\n\
+        \n\
+        # Create symlinks for common model directories\n\
+        # checkpoints: for CheckpointLoaderSimple\n\
+        # diffusion_models, text_encoders, vae: for Z-Image loaders\n\
+        # loras, controlnet: for general workflows\n\
+        for dir in checkpoints diffusion_models text_encoders vae loras controlnet; do\n\
             SOURCE="$SOURCE_BASE/$dir"\n\
             TARGET="$COMFYUI_MODELS/$dir"\n\
             \n\
-            if [ -d "$SOURCE" ] && [ ! -e "$TARGET" ]; then\n\
-                echo "Creating symlink: $TARGET -> $SOURCE"\n\
-                ln -s "$SOURCE" "$TARGET"\n\
-            elif [ -d "$SOURCE" ] && [ -L "$TARGET" ]; then\n\
-                echo "Symlink already exists: $TARGET"\n\
-            elif [ -d "$SOURCE" ]; then\n\
-                echo "Target exists but is not a symlink: $TARGET (skipping)"\n\
+            if [ -d "$SOURCE" ]; then\n\
+                if [ ! -e "$TARGET" ]; then\n\
+                    echo "Creating symlink: $TARGET -> $SOURCE"\n\
+                    ln -s "$SOURCE" "$TARGET"\n\
+                elif [ -L "$TARGET" ]; then\n\
+                    echo "Symlink already exists: $TARGET"\n\
+                else\n\
+                    echo "Target exists but is not a symlink: $TARGET (skipping)"\n\
+                    ls -lad "$TARGET"\n\
+                fi\n\
+            else\n\
+                echo "Source directory not found on volume: $SOURCE (skipping)"\n\
             fi\n\
         done\n\
     fi\n\
