@@ -5,10 +5,7 @@ import type { StudioImage } from '../../../components/studio/studio-image-card';
 import type { GenerationSettings } from '../../../components/studio/generation';
 import type { OutfitComposition } from '@ryla/shared';
 import { generateStudioImages } from '../../../lib/api/studio';
-import {
-  DEFAULT_ASPECT_RATIO,
-  SUPPORTED_ASPECT_RATIOS,
-} from '../constants';
+import { DEFAULT_ASPECT_RATIO, SUPPORTED_ASPECT_RATIOS } from '../constants';
 import { useGenerationPolling } from './useGenerationPolling';
 import { createPlaceholderImages } from '../utils/placeholder-images';
 
@@ -23,6 +20,8 @@ interface UseGenerationActionsOptions {
   influencers: Influencer[];
   addPlaceholders: (placeholders: StudioImage[]) => void;
   removeImage: (imageId: string) => void;
+  updateImage: (imageId: string, updates: Partial<StudioImage>) => void;
+  replaceImage: (oldImageId: string, newImage: StudioImage) => void;
   setActiveGenerations: React.Dispatch<React.SetStateAction<Set<string>>>;
   setSelectedImage: React.Dispatch<React.SetStateAction<StudioImage | null>>;
   refreshImages: (characterId: string) => Promise<void>;
@@ -37,15 +36,18 @@ export function useGenerationActions({
   influencers,
   addPlaceholders,
   removeImage,
+  updateImage,
+  replaceImage,
   setActiveGenerations,
   setSelectedImage,
-  refreshImages,
+  refreshImages: _refreshImages,
   utils,
   refetchCredits,
 }: UseGenerationActionsOptions) {
   const { pollGenerationResults } = useGenerationPolling({
-    refreshImages,
     setActiveGenerations,
+    updateImage,
+    replaceImage,
     utils,
   });
 
@@ -53,7 +55,9 @@ export function useGenerationActions({
   const handleGenerate = React.useCallback(
     async (settings: GenerationSettings) => {
       if (!settings.influencerId) return;
-      const influencer = influencers.find((i) => i.id === settings.influencerId);
+      const influencer = influencers.find(
+        (i) => i.id === settings.influencerId
+      );
       if (!influencer) return;
 
       const aspectRatio = SUPPORTED_ASPECT_RATIOS.has(settings.aspectRatio)
@@ -63,12 +67,19 @@ export function useGenerationActions({
       const qualityMode = settings.quality === '1.5k' ? 'draft' : 'hq';
 
       try {
+        // If NSFW is enabled and no outfit is selected, pass empty string so backend can handle it as "naked"
+        // Otherwise, use default fallback to 'casual' for SFW content
+        const outfitForGeneration =
+          (settings.nsfw ?? false) && !settings.outfit && !influencer.outfit
+            ? ''
+            : settings.outfit || influencer.outfit || 'casual';
+
         const started = await generateStudioImages({
           characterId: settings.influencerId,
           additionalDetails: settings.prompt?.trim() || undefined,
           scene: settings.sceneId || 'candid-lifestyle',
           environment: 'studio',
-          outfit: settings.outfit || influencer.outfit || 'casual',
+          outfit: outfitForGeneration,
           poseId: settings.poseId || undefined,
           lighting: settings.lightingId || undefined,
           aspectRatio,
@@ -79,6 +90,10 @@ export function useGenerationActions({
         });
 
         // 1. Add placeholders to state immediately
+        const outfitString =
+          typeof outfitForGeneration === 'string'
+            ? outfitForGeneration
+            : JSON.stringify(outfitForGeneration);
         const placeholderImages = createPlaceholderImages({
           jobs: started.jobs,
           influencerId: settings.influencerId!,
@@ -88,6 +103,8 @@ export function useGenerationActions({
           prompt: settings.prompt,
           scene: settings.sceneId || 'candid-lifestyle',
           environment: 'studio',
+          outfit: outfitString,
+          poseId: settings.poseId || undefined,
           nsfw: settings.nsfw ?? false,
           promptEnhance: settings.promptEnhance ?? true,
         });
@@ -101,10 +118,31 @@ export function useGenerationActions({
           return next;
         });
 
-        // 3. Start background polling (non-blocking)
-        void pollGenerationResults(promptIds, settings.influencerId);
+        // 3. Create metadata map for polling to use when replacing placeholders
+        const placeholderMeta = new Map<string, Partial<StudioImage>>();
+        started.jobs.forEach((job) => {
+          placeholderMeta.set(job.promptId, {
+            influencerName: influencer.name || 'Unknown',
+            influencerAvatar: influencer.avatar || undefined,
+            prompt: settings.prompt,
+            scene: settings.sceneId || 'candid-lifestyle',
+            environment: 'studio',
+            outfit: outfitString,
+            poseId: settings.poseId || undefined,
+            aspectRatio,
+            nsfw: settings.nsfw ?? false,
+            promptEnhance: settings.promptEnhance ?? true,
+          });
+        });
 
-        // 4. Invalidate and refresh (lower priority)
+        // 4. Start background polling (non-blocking)
+        void pollGenerationResults(
+          promptIds,
+          settings.influencerId,
+          placeholderMeta
+        );
+
+        // 5. Invalidate and refresh (lower priority)
         utils.activity.list.invalidate();
         utils.activity.summary.invalidate();
         refetchCredits();
@@ -142,7 +180,10 @@ export function useGenerationActions({
         let outfit: string | OutfitComposition =
           image.outfit || influencer.outfit || 'casual';
         try {
-          if (typeof image.outfit === 'string' && image.outfit.startsWith('{')) {
+          if (
+            typeof image.outfit === 'string' &&
+            image.outfit.startsWith('{')
+          ) {
             outfit = JSON.parse(image.outfit);
           }
         } catch {
@@ -177,6 +218,7 @@ export function useGenerationActions({
           scene: image.scene,
           environment: image.environment,
           outfit: image.outfit,
+          poseId: image.poseId,
           nsfw: image.nsfw ?? false,
           promptEnhance: image.promptEnhance,
           originalPrompt: image.originalPrompt,
@@ -192,8 +234,31 @@ export function useGenerationActions({
           return next;
         });
 
+        // Create metadata map for polling
+        const placeholderMeta = new Map<string, Partial<StudioImage>>();
+        started.jobs.forEach((job) => {
+          placeholderMeta.set(job.promptId, {
+            influencerName: influencer.name || 'Unknown',
+            influencerAvatar: influencer.avatar || undefined,
+            prompt: image.prompt || additionalDetails,
+            scene: image.scene,
+            environment: image.environment,
+            outfit: image.outfit,
+            poseId: image.poseId,
+            aspectRatio: image.aspectRatio,
+            nsfw: image.nsfw ?? false,
+            promptEnhance: image.promptEnhance,
+            originalPrompt: image.originalPrompt,
+            enhancedPrompt: image.enhancedPrompt,
+          });
+        });
+
         // Start background polling
-        void pollGenerationResults(promptIds, image.influencerId);
+        void pollGenerationResults(
+          promptIds,
+          image.influencerId,
+          placeholderMeta
+        );
 
         // Clear selected image to show new generation
         setSelectedImage(null);
@@ -223,5 +288,3 @@ export function useGenerationActions({
     handleRetry,
   };
 }
-
-

@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import type { StudioImage } from '../../components/studio/studio-image-card';
-import { getCharacterImages, getComfyUIResults } from '../api/studio';
+import { getCharacterImages } from '../api/studio';
 
 const UUID_RE =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
@@ -32,6 +32,7 @@ interface UseStudioImagesReturn {
   refreshImages: (characterId: string) => Promise<void>;
   addPlaceholders: (placeholders: StudioImage[]) => void;
   updateImage: (imageId: string, updates: Partial<StudioImage>) => void;
+  replaceImage: (oldImageId: string, newImage: StudioImage) => void;
   removeImage: (imageId: string) => void;
   activeGenerations: Set<string>;
   setActiveGenerations: React.Dispatch<React.SetStateAction<Set<string>>>;
@@ -40,7 +41,7 @@ interface UseStudioImagesReturn {
 export function useStudioImages({
   selectedInfluencerId,
   influencers,
-  pollInterval = 2000,
+  pollInterval: _pollInterval = 2000,
   staleThreshold = 60 * 1000,
 }: UseStudioImagesOptions): UseStudioImagesReturn {
   const [allImages, setAllImages] = React.useState<StudioImage[]>([]);
@@ -108,7 +109,9 @@ export function useStudioImages({
       }
       try {
         const rows = await getCharacterImages(characterId);
-        const influencer = influencersRef.current.find((i) => i.id === characterId);
+        const influencer = influencersRef.current.find(
+          (i) => i.id === characterId
+        );
         const mapped: StudioImage[] = rows.map((row) => ({
           id: row.id,
           imageUrl: row.s3Url || '',
@@ -121,13 +124,14 @@ export function useStudioImages({
           environment: row.environment || undefined,
           outfit: row.outfit || undefined,
           poseId: row.poseId || undefined,
-          aspectRatio: (row.aspectRatio || '9:16') as StudioImage['aspectRatio'],
+          aspectRatio: (row.aspectRatio ||
+            '9:16') as StudioImage['aspectRatio'],
           status:
             row.status === 'completed'
               ? 'completed'
               : row.status === 'failed'
-                ? 'failed'
-                : 'generating',
+              ? 'failed'
+              : 'generating',
           createdAt: row.createdAt || new Date().toISOString(),
           isLiked: Boolean(row.liked),
           nsfw: row.nsfw ?? false,
@@ -136,22 +140,64 @@ export function useStudioImages({
           enhancedPrompt: row.enhancedPrompt || undefined,
         }));
 
-        // Replace placeholders with real images
+        // Merge new images with existing to preserve object references for unchanged items
         setAllImages((prev) => {
           const currentActive = activeGenerationsRef.current;
+          const now = Date.now();
 
-          // Keep placeholders that are still active or belong to other characters
+          // Create a map of existing images for quick lookup
+          const existingById = new Map(prev.map((img) => [img.id, img]));
+
+          // Keep placeholders that:
+          // 1. Are still being actively polled, OR
+          // 2. Belong to other characters, OR
+          // 3. Don't have a corresponding real image in the server response yet
           const activePlaceholders = prev.filter((img) => {
             if (!img.id.startsWith('placeholder-')) return false;
             const promptId = img.id.replace('placeholder-', '');
-            // Keep if we're still polling for it OR it's not the character we're currently refreshing
-            return currentActive.has(promptId) || img.influencerId !== characterId;
+
+            // Keep if it's for another character
+            if (img.influencerId !== characterId) return true;
+
+            // Keep if we're still actively polling for it
+            if (currentActive.has(promptId)) return true;
+
+            // Keep if no real image with this prompt has appeared yet
+            const hasRealImage = mapped.some(
+              (real) =>
+                real.id === promptId ||
+                real.status === 'generating' ||
+                real.status === 'completed'
+            );
+
+            return !hasRealImage;
           });
 
-          const newImages = [...mapped, ...activePlaceholders];
+          // Merge server images with existing, preserving references where possible
+          const mergedMapped = mapped.map((serverImg) => {
+            const existing = existingById.get(serverImg.id);
+
+            // If no existing image, use server data
+            if (!existing) return serverImg;
+
+            // Check if anything actually changed
+            const hasChanged =
+              existing.status !== serverImg.status ||
+              existing.imageUrl !== serverImg.imageUrl ||
+              existing.thumbnailUrl !== serverImg.thumbnailUrl ||
+              existing.isLiked !== serverImg.isLiked ||
+              existing.nsfw !== serverImg.nsfw;
+
+            // If nothing changed, return existing reference to prevent re-render
+            if (!hasChanged) return existing;
+
+            // If changed, return new object (this will trigger re-render only for this item)
+            return serverImg;
+          });
+
+          const newImages = [...mergedMapped, ...activePlaceholders];
 
           // Cleanup stale generating images
-          const now = Date.now();
           const cleanedImages = newImages.map((img) => {
             if (img.status !== 'generating') return img;
             const createdAt = new Date(img.createdAt).getTime();
@@ -180,14 +226,27 @@ export function useStudioImages({
     setAllImages((prev) => [...placeholders, ...prev]);
   }, []);
 
-  // Update a specific image
+  // Update a specific image - only update if values actually changed
   const updateImage = React.useCallback(
     (imageId: string, updates: Partial<StudioImage>) => {
-      setAllImages((prev) =>
-        prev.map((img) =>
-          img.id === imageId ? { ...img, ...updates } : img
-        )
-      );
+      setAllImages((prev) => {
+        let hasChanges = false;
+        const updated = prev.map((img) => {
+          if (img.id !== imageId) return img;
+
+          // Check if any values actually changed
+          const keys = Object.keys(updates) as (keyof StudioImage)[];
+          const actuallyChanged = keys.some((key) => img[key] !== updates[key]);
+
+          if (!actuallyChanged) return img;
+
+          hasChanges = true;
+          return { ...img, ...updates };
+        });
+
+        // Only return new array if something changed
+        return hasChanges ? updated : prev;
+      });
     },
     []
   );
@@ -197,14 +256,34 @@ export function useStudioImages({
     setAllImages((prev) => prev.filter((img) => img.id !== imageId));
   }, []);
 
+  // Replace a placeholder image with a real completed image
+  const replaceImage = React.useCallback(
+    (oldImageId: string, newImage: StudioImage) => {
+      setAllImages((prev) => {
+        // Find the index of the old image to maintain position
+        const oldIndex = prev.findIndex((img) => img.id === oldImageId);
+
+        if (oldIndex === -1) {
+          // Old image not found, just add the new one at the beginning
+          return [newImage, ...prev];
+        }
+
+        // Replace the old image with the new one at the same position
+        const updated = [...prev];
+        updated[oldIndex] = newImage;
+        return updated;
+      });
+    },
+    []
+  );
+
   // Auto-refresh on influencer change (only when selectedInfluencerId changes)
   React.useEffect(() => {
     if (!selectedInfluencerId) return;
     refreshImages(selectedInfluencerId).catch((err) =>
       console.error('Failed to load images:', err)
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedInfluencerId]); // Only depend on selectedInfluencerId, not refreshImages
+  }, [selectedInfluencerId, refreshImages]);
 
   // Cleanup stale images periodically (less frequently than polling)
   React.useEffect(() => {
@@ -213,8 +292,7 @@ export function useStudioImages({
     const cleanupInterval = 30 * 1000;
     const interval = setInterval(cleanupStaleGeneratingImages, cleanupInterval);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
+  }, [cleanupStaleGeneratingImages]);
 
   // Use ref to track activeGenerations for polling
   const activeGenerationsRef = React.useRef(activeGenerations);
@@ -231,47 +309,35 @@ export function useStudioImages({
     [allImages]
   );
 
-  // Poll for updates when there are active generations
+  // Fallback polling: Only for cases where we have generating images in DB
+  // but no active job IDs (e.g., after page refresh with in-progress images)
+  // This is NOT the primary polling mechanism - useGenerationPolling handles active jobs
   React.useEffect(() => {
-    if (activeGenerations.size === 0 && !hasGeneratingRealImages) return;
+    // Only run if we have generating images but NO active generations being tracked
+    // (active generations are handled by useGenerationPolling with direct updates)
+    if (activeGenerations.size > 0) return; // Let useGenerationPolling handle it
+    if (!hasGeneratingRealImages) return;
     if (!selectedInfluencerId) return;
 
-    const pollForUpdates = async () => {
+    const fallbackPoll = async () => {
       try {
-        // 1. Poll specific active jobs if we have their IDs
-        const currentActive = activeGenerationsRef.current;
-        if (currentActive.size > 0) {
-          const jobIds = Array.from(currentActive);
-          for (const jobId of jobIds) {
-            const results = await getComfyUIResults(jobId);
-            if (
-              results &&
-              (results.status === 'completed' || results.status === 'failed')
-            ) {
-              await refreshImages(selectedInfluencerId);
-              setActiveGenerations((prev) => {
-                const next = new Set(prev);
-                next.delete(jobId);
-                return next;
-              });
-            }
-          }
-        }
-
-        // 2. If we have generating images but no active job IDs (e.g. after refresh),
-        // just perform a general refresh occasionally
-        if (hasGeneratingRealImages && currentActive.size === 0) {
-          await refreshImages(selectedInfluencerId);
-        }
+        // Refresh to check if any generating images have completed in DB
+        await refreshImages(selectedInfluencerId);
       } catch (error) {
-        console.error('Error polling for updates:', error);
+        console.error('Fallback polling error:', error);
       }
     };
 
-    const interval = setInterval(pollForUpdates, pollInterval);
+    // Use a longer interval since this is just a fallback (10 seconds)
+    const fallbackPollInterval = 10 * 1000;
+    const interval = setInterval(fallbackPoll, fallbackPollInterval);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeGenerations.size, hasGeneratingRealImages, selectedInfluencerId, pollInterval]);
+  }, [
+    hasGeneratingRealImages,
+    selectedInfluencerId,
+    activeGenerations.size,
+    refreshImages,
+  ]);
 
   return {
     images: allImages,
@@ -279,9 +345,9 @@ export function useStudioImages({
     refreshImages,
     addPlaceholders,
     updateImage,
+    replaceImage,
     removeImage,
     activeGenerations,
     setActiveGenerations,
   };
 }
-

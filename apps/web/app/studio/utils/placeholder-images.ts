@@ -11,6 +11,7 @@ interface CreatePlaceholderImagesOptions {
   scene?: string;
   environment?: string;
   outfit?: string;
+  poseId?: string;
   nsfw?: boolean;
   promptEnhance?: boolean;
   originalPrompt?: string;
@@ -31,6 +32,7 @@ export function createPlaceholderImages({
   scene = 'candid-lifestyle',
   environment = 'studio',
   outfit,
+  poseId,
   nsfw = false,
   promptEnhance,
   originalPrompt,
@@ -46,6 +48,7 @@ export function createPlaceholderImages({
     scene,
     environment,
     outfit,
+    poseId,
     aspectRatio,
     status: 'generating' as const,
     createdAt: new Date().toISOString(),
@@ -54,6 +57,6 @@ export function createPlaceholderImages({
     promptEnhance,
     originalPrompt,
     enhancedPrompt,
+    progress: 0, // Initial progress - will be updated by polling
   }));
 }
-

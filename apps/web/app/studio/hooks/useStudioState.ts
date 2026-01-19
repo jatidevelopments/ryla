@@ -3,10 +3,17 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { trpc } from '../../../lib/trpc';
-import { useCredits, useStudioFilters, useStudioImages } from '../../../lib/hooks';
+import {
+  useCredits,
+  useStudioFilters,
+  useStudioImages,
+} from '../../../lib/hooks';
 import { useLocalStorage } from '../../../lib/hooks/use-local-storage';
 import type { StudioImage } from '../../../components/studio/studio-image-card';
-import type { StudioMode, ContentType } from '../../../components/studio/generation';
+import type {
+  StudioMode,
+  ContentType,
+} from '../../../components/studio/generation';
 import { useInfluencers } from './useInfluencers';
 import { useStudioComputed } from './useStudioComputed';
 import { useStudioHandlers } from './useStudioHandlers';
@@ -39,7 +46,9 @@ export function useStudioState() {
   const queryParams = useStudioQueryParams();
 
   // Influencer selection state
-  const [selectedInfluencerId, setSelectedInfluencerId] = React.useState<string | null>(null);
+  const [selectedInfluencerId, setSelectedInfluencerId] = React.useState<
+    string | null
+  >(null);
 
   // Use extracted filter hook for all filter-related state
   const filters = useStudioFilters();
@@ -63,11 +72,19 @@ export function useStudioState() {
   } = filters;
 
   // Detail panel state
-  const [selectedImage, setSelectedImage] = React.useState<StudioImage | null>(null);
+  const [selectedImage, setSelectedImage] = React.useState<StudioImage | null>(
+    null
+  );
 
   // Mode state (persisted to localStorage)
-  const [mode, setMode] = useLocalStorage<StudioMode>('ryla-studio-mode', 'creating');
-  const [contentType, setContentType] = useLocalStorage<ContentType>('ryla-studio-content-type', 'image');
+  const [mode, setMode] = useLocalStorage<StudioMode>(
+    'ryla-studio-mode',
+    'creating'
+  );
+  const [contentType, setContentType] = useLocalStorage<ContentType>(
+    'ryla-studio-content-type',
+    'image'
+  );
 
   // Prepare influencers for hook (prevents infinite loops)
   const influencersForHook = useInfluencersForHook(influencers);
@@ -79,6 +96,7 @@ export function useStudioState() {
     refreshImages,
     addPlaceholders,
     updateImage,
+    replaceImage,
     removeImage,
     activeGenerations,
     setActiveGenerations,
@@ -117,7 +135,9 @@ export function useStudioState() {
         const params = new URLSearchParams(window.location.search);
         params.delete('template');
         const newQuery = params.toString();
-        const newUrl = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
+        const newUrl = newQuery
+          ? `${window.location.pathname}?${newQuery}`
+          : window.location.pathname;
         router.replace(newUrl, { scroll: false });
       } catch (error) {
         console.error('Failed to apply template:', error);
@@ -160,6 +180,7 @@ export function useStudioState() {
     selectedInfluencerId,
     refreshImages,
     updateImage,
+    replaceImage,
     removeImage,
     addPlaceholders,
     setActiveGenerations,
@@ -218,4 +239,3 @@ export function useStudioState() {
     acceptConsent,
   };
 }
-

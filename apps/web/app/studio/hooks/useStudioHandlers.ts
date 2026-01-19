@@ -19,13 +19,16 @@ interface UseStudioHandlersOptions {
   selectedInfluencerId: string | null;
   refreshImages: (characterId: string) => Promise<void>;
   updateImage: (imageId: string, updates: Partial<StudioImage>) => void;
+  replaceImage: (oldImageId: string, newImage: StudioImage) => void;
   removeImage: (imageId: string) => void;
   addPlaceholders: (placeholders: StudioImage[]) => void;
   setActiveGenerations: React.Dispatch<React.SetStateAction<Set<string>>>;
   setSelectedImage: React.Dispatch<React.SetStateAction<StudioImage | null>>;
   setShowPanel: (show: boolean) => void;
   setSelectedInfluencerId: (id: string | null) => void;
-  setMode: (mode: import('../../../components/studio/generation').StudioMode) => void;
+  setMode: (
+    mode: import('../../../components/studio/generation').StudioMode
+  ) => void;
   utils: ReturnType<typeof import('../../../lib/trpc').trpc.useUtils>;
   refetchCredits: () => void;
   uploadImageMutation: ReturnType<
@@ -42,6 +45,7 @@ export function useStudioHandlers({
   selectedInfluencerId,
   refreshImages,
   updateImage,
+  replaceImage,
   removeImage,
   addPlaceholders,
   setActiveGenerations,
@@ -67,6 +71,8 @@ export function useStudioHandlers({
     influencers,
     addPlaceholders,
     removeImage,
+    updateImage,
+    replaceImage,
     setActiveGenerations,
     setSelectedImage,
     refreshImages,
@@ -82,7 +88,11 @@ export function useStudioHandlers({
   // Handle image selection (select only)
   const handleSelectImage = React.useCallback(
     (image: StudioImage | null) => {
-      imageActions.handleSelectImage(image, setSelectedInfluencerId, selectedInfluencerId);
+      imageActions.handleSelectImage(
+        image,
+        setSelectedInfluencerId,
+        selectedInfluencerId
+      );
     },
     [imageActions, setSelectedInfluencerId, selectedInfluencerId]
   );
@@ -90,7 +100,11 @@ export function useStudioHandlers({
   // Handle opening details (select + show panel)
   const handleOpenDetails = React.useCallback(
     (image: StudioImage) => {
-      imageActions.handleSelectImage(image, setSelectedInfluencerId, selectedInfluencerId);
+      imageActions.handleSelectImage(
+        image,
+        setSelectedInfluencerId,
+        selectedInfluencerId
+      );
       setShowPanel(true);
     },
     [imageActions, setSelectedInfluencerId, selectedInfluencerId, setShowPanel]
@@ -104,7 +118,9 @@ export function useStudioHandlers({
 
   // Handle clear selected image
   const handleClearSelectedImage = React.useCallback(
-    (currentMode: import('../../../components/studio/generation').StudioMode) => {
+    (
+      currentMode: import('../../../components/studio/generation').StudioMode
+    ) => {
       setSelectedImage(null);
       setShowPanel(false);
       // Switch back to creating mode when clearing selection
@@ -133,4 +149,3 @@ export function useStudioHandlers({
     handleClearSelectedImage,
   };
 }
-

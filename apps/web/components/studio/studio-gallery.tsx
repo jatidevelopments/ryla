@@ -17,6 +17,51 @@ interface StudioGalleryProps {
   className?: string;
 }
 
+// Memoized image card wrapper to prevent re-renders when parent updates
+const MemoizedImageCard = React.memo(
+  function MemoizedImageCard({
+    image,
+    isSelected,
+    onSelect,
+    onOpenDetails,
+    onQuickLike,
+    onQuickDownload,
+    size,
+  }: {
+    image: StudioImage;
+    isSelected: boolean;
+    onSelect: (image: StudioImage | null) => void;
+    onOpenDetails?: (image: StudioImage) => void;
+    onQuickLike?: (imageId: string) => void;
+    onQuickDownload?: (image: StudioImage) => void;
+    size?: 'normal' | 'large';
+  }) {
+    return (
+      <StudioImageCard
+        image={image}
+        isSelected={isSelected}
+        onSelect={onSelect}
+        onOpenDetails={onOpenDetails}
+        onQuickLike={onQuickLike}
+        onQuickDownload={onQuickDownload}
+        size={size}
+      />
+    );
+  },
+  (prevProps, nextProps) => {
+    // Only re-render if these specific things change
+    return (
+      prevProps.image.id === nextProps.image.id &&
+      prevProps.image.status === nextProps.image.status &&
+      prevProps.image.progress === nextProps.image.progress &&
+      prevProps.image.imageUrl === nextProps.image.imageUrl &&
+      prevProps.image.isLiked === nextProps.image.isLiked &&
+      prevProps.isSelected === nextProps.isSelected &&
+      prevProps.size === nextProps.size
+    );
+  }
+);
+
 export function StudioGallery({
   images,
   selectedImage,
@@ -28,6 +73,45 @@ export function StudioGallery({
   isLoading = false,
   className,
 }: StudioGalleryProps) {
+  // Track if initial load animation has happened (persists across re-renders)
+  const initialLoadDoneRef = React.useRef(false);
+  // Track seen image IDs to prevent re-animating existing images
+  const seenImageIdsRef = React.useRef<Set<string>>(new Set());
+
+  // Mark initial load as done after first successful render with images
+  // This runs synchronously during render to prevent flicker
+  if (images.length > 0 && !initialLoadDoneRef.current) {
+    // Schedule marking as done after this render cycle
+    // Using Promise.resolve to run after current render but before next
+    Promise.resolve().then(() => {
+      initialLoadDoneRef.current = true;
+      images.forEach((img) => seenImageIdsRef.current.add(img.id));
+    });
+  }
+
+  // Check if an image should animate (only new images after initial load)
+  const shouldAnimateImage = (imageId: string, _index: number): boolean => {
+    // On initial load, animate all images
+    if (!initialLoadDoneRef.current) {
+      return true;
+    }
+    // After initial load, only animate truly new images (not yet seen)
+    // But also add them to seen set immediately to prevent re-animation
+    if (!seenImageIdsRef.current.has(imageId)) {
+      seenImageIdsRef.current.add(imageId);
+      return true;
+    }
+    return false;
+  };
+
+  // Get animation delay (only for initial load, new images get no delay)
+  const getAnimationDelay = (
+    index: number,
+    isInitialLoad: boolean
+  ): string | undefined => {
+    if (!isInitialLoad) return undefined;
+    return `${Math.min(index * 40, 500)}ms`;
+  };
   // Calculate grid columns based on view mode
   const gridClasses = {
     grid: 'grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
@@ -90,6 +174,8 @@ export function StudioGallery({
     );
   }
 
+  const isInitialLoad = !initialLoadDoneRef.current;
+
   // Masonry layout
   if (viewMode === 'masonry') {
     return (
@@ -97,22 +183,33 @@ export function StudioGallery({
         className={cn('gap-3', gridClasses.masonry, className)}
         data-tutorial-target="gallery"
       >
-        {images.map((image, index) => (
-          <div
-            key={image.id}
-            className="mb-4 break-inside-avoid animate-in fade-in slide-in-from-bottom-2 duration-300"
-            style={{ animationDelay: `${Math.min(index * 30, 500)}ms` }}
-          >
-            <StudioImageCard
-              image={image}
-              isSelected={selectedImage?.id === image.id}
-              onSelect={onSelectImage}
-              onOpenDetails={onOpenDetails}
-              onQuickLike={onQuickLike}
-              onQuickDownload={onQuickDownload}
-            />
-          </div>
-        ))}
+        {images.map((image, index) => {
+          const shouldAnimate = shouldAnimateImage(image.id, index);
+          return (
+            <div
+              key={image.id}
+              className={cn(
+                'mb-4 break-inside-avoid',
+                shouldAnimate &&
+                  'animate-in fade-in slide-in-from-bottom-2 duration-300'
+              )}
+              style={
+                shouldAnimate
+                  ? { animationDelay: getAnimationDelay(index, isInitialLoad) }
+                  : undefined
+              }
+            >
+              <MemoizedImageCard
+                image={image}
+                isSelected={selectedImage?.id === image.id}
+                onSelect={onSelectImage}
+                onOpenDetails={onOpenDetails}
+                onQuickLike={onQuickLike}
+                onQuickDownload={onQuickDownload}
+              />
+            </div>
+          );
+        })}
       </div>
     );
   }
@@ -126,23 +223,33 @@ export function StudioGallery({
         className
       )}
     >
-      {images.map((image, index) => (
-        <div
-          key={image.id}
-          className="animate-in fade-in slide-in-from-bottom-2 duration-300"
-          style={{ animationDelay: `${Math.min(index * 40, 500)}ms` }}
-        >
-          <StudioImageCard
-            image={image}
-            isSelected={selectedImage?.id === image.id}
-            onSelect={onSelectImage}
-            onOpenDetails={onOpenDetails}
-            onQuickLike={onQuickLike}
-            onQuickDownload={onQuickDownload}
-            size={viewMode === 'large' ? 'large' : 'normal'}
-          />
-        </div>
-      ))}
+      {images.map((image, index) => {
+        const shouldAnimate = shouldAnimateImage(image.id, index);
+        return (
+          <div
+            key={image.id}
+            className={cn(
+              shouldAnimate &&
+                'animate-in fade-in slide-in-from-bottom-2 duration-300'
+            )}
+            style={
+              shouldAnimate
+                ? { animationDelay: getAnimationDelay(index, isInitialLoad) }
+                : undefined
+            }
+          >
+            <MemoizedImageCard
+              image={image}
+              isSelected={selectedImage?.id === image.id}
+              onSelect={onSelectImage}
+              onOpenDetails={onOpenDetails}
+              onQuickLike={onQuickLike}
+              onQuickDownload={onQuickDownload}
+              size={viewMode === 'large' ? 'large' : 'normal'}
+            />
+          </div>
+        );
+      })}
     </div>
   );
 }

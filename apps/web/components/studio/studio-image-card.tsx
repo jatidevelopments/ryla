@@ -28,6 +28,8 @@ export interface StudioImage {
   promptEnhance?: boolean;
   originalPrompt?: string;
   enhancedPrompt?: string;
+  // Generation progress (0-100)
+  progress?: number;
 }
 
 interface StudioImageCardProps {
@@ -105,25 +107,77 @@ export function StudioImageCard({
         className={cn('relative w-full bg-[var(--bg-elevated)]', aspectClass)}
       >
         {image.status === 'generating' ? (
-          // Generating state - animated gradient
+          // Generating state - animated gradient with progress
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/20 via-transparent to-[var(--pink-500)]/20 animate-pulse" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
+              {/* Circular progress indicator */}
               <div className="relative mb-3">
-                <div className="h-14 w-14 animate-spin rounded-full border-2 border-white/10 border-t-[var(--purple-500)]" />
+                {/* Background circle */}
+                <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
+                  <defs>
+                    <linearGradient
+                      id={`progressGradient-${image.id}`}
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="0%"
+                    >
+                      <stop offset="0%" stopColor="var(--purple-500)" />
+                      <stop offset="100%" stopColor="var(--pink-500)" />
+                    </linearGradient>
+                  </defs>
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                    className="text-white/10"
+                  />
+                  {/* Progress arc */}
+                  <circle
+                    cx="32"
+                    cy="32"
+                    r="28"
+                    fill="none"
+                    stroke={`url(#progressGradient-${image.id})`}
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeDasharray={`${2 * Math.PI * 28}`}
+                    strokeDashoffset={`${
+                      2 * Math.PI * 28 * (1 - (image.progress ?? 0) / 100)
+                    }`}
+                    className="transition-all duration-500 ease-out"
+                  />
+                </svg>
+                {/* Spinning indicator when starting */}
+                {(image.progress === undefined || image.progress === 0) && (
+                  <div className="absolute inset-0 h-16 w-16 animate-spin rounded-full border-2 border-transparent border-t-[var(--purple-500)]" />
+                )}
+                {/* Center icon/percentage */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="currentColor"
-                    className="h-6 w-6 text-[var(--purple-400)]"
-                  >
-                    <path d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5z" />
-                  </svg>
+                  {image.progress && image.progress > 0 ? (
+                    <span className="text-sm font-bold text-white/80">
+                      {Math.round(image.progress)}%
+                    </span>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="h-6 w-6 text-[var(--purple-400)]"
+                    >
+                      <path d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5z" />
+                    </svg>
+                  )}
                 </div>
               </div>
               <span className="text-sm font-medium text-white/60">
-                Generating...
+                {image.progress && image.progress > 0
+                  ? `Generating... ${Math.round(image.progress)}%`
+                  : 'Starting...'}
               </span>
             </div>
           </div>
@@ -187,11 +241,13 @@ export function StudioImageCard({
 
         {/* Top badges - always visible */}
         <div className="absolute left-2 right-2 top-2 flex items-start justify-between">
-          {/* Left - Status/Generating badge */}
+          {/* Left - Status/Generating badge with progress */}
           {image.status === 'generating' && (
             <div className="flex items-center gap-1.5 rounded-full bg-[var(--purple-600)]/90 px-2.5 py-1 text-xs font-medium text-white backdrop-blur-sm">
               <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-white" />
-              Generating
+              {image.progress && image.progress > 0
+                ? `${Math.round(image.progress)}%`
+                : 'Starting'}
             </div>
           )}
 

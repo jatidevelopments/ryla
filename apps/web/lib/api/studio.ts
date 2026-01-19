@@ -54,6 +54,8 @@ export interface ComfyUIJobResult {
   status: 'queued' | 'processing' | 'completed' | 'failed';
   images: ComfyUIResultImage[];
   error?: string;
+  // Timestamp when job started processing (for progress estimation)
+  startedAt?: string;
 }
 
 function presetToSnakeCase(value: string): string {
@@ -62,14 +64,15 @@ function presetToSnakeCase(value: string): string {
   return value.replace(/-/g, '_');
 }
 
-export async function generateStudioImages(input: GenerateStudioImagesInput): Promise<{
+export async function generateStudioImages(
+  input: GenerateStudioImagesInput
+): Promise<{
   workflowId: string;
   jobs: Array<{ jobId: string; promptId: string }>;
 }> {
   // Send outfit as-is (backend will handle both string and object)
-  const outfitPayload = typeof input.outfit === 'string'
-    ? input.outfit
-    : input.outfit; // Send object directly, backend will handle it
+  const outfitPayload =
+    typeof input.outfit === 'string' ? input.outfit : input.outfit; // Send object directly, backend will handle it
 
   const response = await authFetch(`${API_BASE_URL}/image/generate/studio`, {
     method: 'POST',
@@ -98,13 +101,19 @@ export async function generateStudioImages(input: GenerateStudioImagesInput): Pr
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || error.messages?.[0] || 'Failed to start Studio generation');
+    throw new Error(
+      error.message ||
+        error.messages?.[0] ||
+        'Failed to start Studio generation'
+    );
   }
 
   return response.json();
 }
 
-export async function inpaintEdit(input: InpaintEditInput): Promise<{ jobId: string; promptId: string }> {
+export async function inpaintEdit(
+  input: InpaintEditInput
+): Promise<{ jobId: string; promptId: string }> {
   const response = await authFetch(`${API_BASE_URL}/image/edit/inpaint`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -113,18 +122,26 @@ export async function inpaintEdit(input: InpaintEditInput): Promise<{ jobId: str
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || error.messages?.[0] || 'Failed to start inpaint edit');
+    throw new Error(
+      error.message || error.messages?.[0] || 'Failed to start inpaint edit'
+    );
   }
 
   return response.json();
 }
 
-export async function getComfyUIResults(promptId: string): Promise<ComfyUIJobResult> {
-  const response = await authFetch(`${API_BASE_URL}/image/comfyui/${promptId}/results`);
+export async function getComfyUIResults(
+  promptId: string
+): Promise<ComfyUIJobResult> {
+  const response = await authFetch(
+    `${API_BASE_URL}/image/comfyui/${promptId}/results`
+  );
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || error.messages?.[0] || 'Failed to fetch ComfyUI results');
+    throw new Error(
+      error.message || error.messages?.[0] || 'Failed to fetch ComfyUI results'
+    );
   }
 
   return response.json();
@@ -151,36 +168,50 @@ export interface ApiImageRow {
   enhancedPrompt?: string | null;
 }
 
-export async function getCharacterImages(characterId: string): Promise<ApiImageRow[]> {
-  const response = await authFetch(`${API_BASE_URL}/image-gallery/characters/${characterId}/images`);
+export async function getCharacterImages(
+  characterId: string
+): Promise<ApiImageRow[]> {
+  const response = await authFetch(
+    `${API_BASE_URL}/image-gallery/characters/${characterId}/images`
+  );
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || error.messages?.[0] || 'Failed to fetch character images');
+    throw new Error(
+      error.message || error.messages?.[0] || 'Failed to fetch character images'
+    );
   }
   const data = (await response.json()) as { images: ApiImageRow[] };
   return data.images ?? [];
 }
 
 export async function likeImage(imageId: string): Promise<{ liked: boolean }> {
-  const response = await authFetch(`${API_BASE_URL}/image-gallery/images/${imageId}/like`, {
-    method: 'POST',
-  });
+  const response = await authFetch(
+    `${API_BASE_URL}/image-gallery/images/${imageId}/like`,
+    {
+      method: 'POST',
+    }
+  );
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || error.messages?.[0] || 'Failed to like image');
+    throw new Error(
+      error.message || error.messages?.[0] || 'Failed to like image'
+    );
   }
   const data = (await response.json()) as { liked?: boolean };
   return { liked: Boolean(data.liked) };
 }
 
 export async function deleteImage(imageId: string): Promise<void> {
-  const response = await authFetch(`${API_BASE_URL}/image-gallery/images/${imageId}`, {
-    method: 'DELETE',
-  });
+  const response = await authFetch(
+    `${API_BASE_URL}/image-gallery/images/${imageId}`,
+    {
+      method: 'DELETE',
+    }
+  );
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(error.message || error.messages?.[0] || 'Failed to delete image');
+    throw new Error(
+      error.message || error.messages?.[0] || 'Failed to delete image'
+    );
   }
 }
-
-
