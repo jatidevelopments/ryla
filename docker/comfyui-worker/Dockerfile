@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \
 RUN echo '#!/bin/bash\n\
 # Create symlinks so ComfyUI custom loaders can find models\n\
 # Check multiple ComfyUI locations\n\
-for COMFYUI_BASE in "/comfyui" "/workspace/ComfyUI" "/workspace/runpod-slim/ComfyUI"; do\n\
+for COMFYUI_BASE in "/workspace/runpod-slim/ComfyUI" "/comfyui" "/workspace/ComfyUI"; do\n\
     if [ -d "$COMFYUI_BASE" ]; then\n\
         COMFYUI_MODELS="$COMFYUI_BASE/models"\n\
         echo "Found ComfyUI at: $COMFYUI_BASE"\n\
@@ -42,44 +42,45 @@ for COMFYUI_BASE in "/comfyui" "/workspace/ComfyUI" "/workspace/runpod-slim/Comf
         # Check both possible mount locations\n\
         if [ -d "/runpod-volume/models" ]; then\n\
             SOURCE_BASE="/runpod-volume/models"\n\
-            echo "Found models at: $SOURCE_BASE"\n\
         elif [ -d "/workspace/models" ]; then\n\
             SOURCE_BASE="/workspace/models"\n\
-            echo "Found models at: $SOURCE_BASE"\n\
         else\n\
             echo "Warning: Network volume models not found at /runpod-volume/models or /workspace/models"\n\
-            echo "Listing /runpod-volume content:"\n\
-            ls -la /runpod-volume 2>/dev/null || echo "/runpod-volume not accessible"\n\
-            echo "Listing /workspace content:"\n\
-            ls -la /workspace 2>/dev/null || echo "/workspace not accessible"\n\
             continue\n\
         fi\n\
         \n\
-        echo "Listing source models directory ($SOURCE_BASE):"\n\
-        ls -la "$SOURCE_BASE"\n\
+        echo "Source models directory: $SOURCE_BASE"\n\
         \n\
         # Create symlinks for common model directories\n\
-        # checkpoints: for CheckpointLoaderSimple\n\
         # diffusion_models, text_encoders, vae: for Z-Image loaders\n\
-        # loras, controlnet: for general workflows\n\
-        for dir in checkpoints diffusion_models text_encoders vae loras controlnet; do\n\
+        # checkpoints, loras, controlnet: for general workflows\n\
+        for dir in checkpoints diffusion_models text_encoders vae loras controlnet unet clip; do\n\
             SOURCE="$SOURCE_BASE/$dir"\n\
             TARGET="$COMFYUI_MODELS/$dir"\n\
             \n\
             if [ -d "$SOURCE" ]; then\n\
-                if [ ! -e "$TARGET" ]; then\n\
-                    echo "Creating symlink: $TARGET -> $SOURCE"\n\
-                    ln -s "$SOURCE" "$TARGET"\n\
-                elif [ -L "$TARGET" ]; then\n\
-                    echo "Symlink already exists: $TARGET"\n\
-                else\n\
-                    echo "Target exists but is not a symlink: $TARGET (skipping)"\n\
-                    ls -lad "$TARGET"\n\
+                # If target is already a symlink, remove it to be sure\n\
+                if [ -L "$TARGET" ]; then\n\
+                    rm "$TARGET"\n\
+                # If target is a directory, move it to a backup if not empty, otherwise remove\n\
+                elif [ -d "$TARGET" ]; then\n\
+                    if [ -z "$(ls -A "$TARGET")" ]; then\n\
+                        rmdir "$TARGET"\n\
+                    else\n\
+                        echo "Warning: $TARGET is a non-empty directory. Renaming to ${TARGET}.bak"\n\
+                        mv "$TARGET" "${TARGET}.bak"\n\
+                    fi\n\
                 fi\n\
+                \n\
+                echo "Linking: $TARGET -> $SOURCE"\n\
+                ln -sf "$SOURCE" "$TARGET"\n\
             else\n\
-                echo "Source directory not found on volume: $SOURCE (skipping)"\n\
+                echo "Source $SOURCE not found on volume (skipping)"\n\
             fi\n\
         done\n\
+        \n\
+        echo "Final model directory structure in ComfyUI:"\n\
+        ls -lR "$COMFYUI_MODELS"\n\
     fi\n\
 done\n\
 ' > /startup-link-models.sh && chmod +x /startup-link-models.sh
