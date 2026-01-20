@@ -110,6 +110,37 @@ for COMFYUI_BASE in "/workspace/runpod-slim/ComfyUI" "/comfyui" "/workspace/Comf
             fi\n\
         done\n\
         \n\
+        # 3. Recursive discovery for critical models if standard links missed them\n\
+        # This handles volumes where models are buried deep or in non-standard folders\n\
+        echo "[INFO] --- Critical Model Discovery (Deep Search) ---"\n\
+        CRITICAL_CHECKPOINTS=("z_image_turbo_bf16.safetensors" "flux1-dev.safetensors")\n\
+        CRITICAL_TEXT_ENCODERS=("qwen_3_4b.safetensors")\n\
+        \n\
+        # Link missing checkpoints\n\
+        for model in "${CRITICAL_CHECKPOINTS[@]}"; do\n\
+            if [ ! -e "$COMFYUI_MODELS/checkpoints/$model" ]; then\n\
+                echo "  Searching for $model..."\n\
+                MATCH=$(find "$SOURCE_BASE" -name "$model" -print -quit)\n\
+                if [ -n "$MATCH" ]; then\n\
+                    echo "  [FOUND] $model at $MATCH. Linking to checkpoints/"\n\
+                    ln -sf "$MATCH" "$COMFYUI_MODELS/checkpoints/$model"\n\
+                fi\n\
+            fi\n\
+        done\n\
+        \n\
+        # Link missing text encoders\n\
+        mkdir -p "$COMFYUI_MODELS/clip"\n\
+        for model in "${CRITICAL_TEXT_ENCODERS[@]}"; do\n\
+            if [ ! -e "$COMFYUI_MODELS/clip/$model" ] && [ ! -e "$COMFYUI_MODELS/text_encoders/$model" ]; then\n\
+                echo "  Searching for $model..."\n\
+                MATCH=$(find "$SOURCE_BASE" -name "$model" -print -quit)\n\
+                if [ -n "$MATCH" ]; then\n\
+                    echo "  [FOUND] $model at $MATCH. Linking to clip/"\n\
+                    ln -sf "$MATCH" "$COMFYUI_MODELS/clip/$model"\n\
+                fi\n\
+            fi\n\
+        done\n\
+        \n\
         echo "[SUCCESS] Model symlinking complete for $COMFYUI_BASE"\n\
         echo "Final model listing (ComfyUI view):"\n\
         ls -l "$COMFYUI_MODELS"/\n\
