@@ -35,61 +35,84 @@ RUN echo '#!/bin/bash\n\
 # Create symlinks so ComfyUI custom loaders can find models\n\
 echo "=== RYLA ComfyUI Model Symlink Script ==="\n\
 \n\
+# 0. Diagnostics: Check mounts and volume visibility\n\
+echo "[DIAG] Checking system mounts:"\n\
+mount | grep -E "runpod|workspace" || echo "No runpod/workspace mounts found in mount output"\n\
+echo "[DIAG] Disk usage:"\n\
+df -h\n\
+\n\
 # Check multiple ComfyUI locations\n\
 for COMFYUI_BASE in "/workspace/runpod-slim/ComfyUI" "/comfyui" "/workspace/ComfyUI"; do\n\
     if [ -d "$COMFYUI_BASE" ]; then\n\
         COMFYUI_MODELS="$COMFYUI_BASE/models"\n\
-        echo "Found ComfyUI models dir at: $COMFYUI_MODELS"\n\
+        echo "[INFO] Found ComfyUI models dir at: $COMFYUI_MODELS"\n\
         \n\
-        # Check both possible mount locations\n\
+        # Check all possible model source locations\n\
+        # Priority: /runpod-volume/models > /workspace/models > /runpod-volume (root)\n\
+        SOURCE_BASE=""\n\
         if [ -d "/runpod-volume/models" ]; then\n\
             SOURCE_BASE="/runpod-volume/models"\n\
         elif [ -d "/workspace/models" ]; then\n\
             SOURCE_BASE="/workspace/models"\n\
-        elif [ -d "/runpod-volume" ]; then\n\
+        elif [ -d "/runpod-volume" ] && [ "$(ls -A /runpod-volume)" ]; then\n\
             SOURCE_BASE="/runpod-volume"\n\
-        else\n\
-            echo "Warning: Network volume not found at /runpod-volume/models, /workspace/models, or /runpod-volume"\n\
-            ls -la / 2>/dev/null\n\
+        fi\n\
+        \n\
+        if [ -z "$SOURCE_BASE" ]; then\n\
+            echo "[WARN] No model source found at /runpod-volume or /workspace/models"\n\
+            echo "Listing root directories for context:"\n\
+            ls -F /\n\
             continue\n\
         fi\n\
         \n\
-        echo "Source models directory: $SOURCE_BASE"\n\
-        ls -la "$SOURCE_BASE"\n\
+        echo "[INFO] Using source models directory: $SOURCE_BASE"\n\
+        echo "[DIAG] Source directory content (brief):"\n\
+        ls -F "$SOURCE_BASE"\n\
         \n\
-        # 1. Link subdirectories if they exist\n\
-        for dir in checkpoints diffusion_models text_encoders vae loras controlnet unet clip; do\n\
+        # 1. Link standard subdirectories\n\
+        # Include all common ComfyUI model types\n\
+        for dir in checkpoints diffusion_models text_encoders vae loras controlnet unet clip embeddings upscale_models style_models clip_vision configs diffusers; do\n\
             SOURCE="$SOURCE_BASE/$dir"\n\
             TARGET="$COMFYUI_MODELS/$dir"\n\
             \n\
             if [ -d "$SOURCE" ]; then\n\
-                if [ -L "$TARGET" ]; then rm "$TARGET"; fi\n\
-                if [ -d "$TARGET" ] && [ -z "$(ls -A "$TARGET")" ]; then rmdir "$TARGET"; fi\n\
+                echo "[LINK] Processing $dir..."\n\
+                # If target exists and is not a symlink, handle it\n\
+                if [ -d "$TARGET" ] && [ ! -L "$TARGET" ]; then\n\
+                    if [ -z "$(ls -A "$TARGET")" ]; then\n\
+                        echo "  Target $dir is empty directory, removing to link."\n\
+                        rmdir "$TARGET"\n\
+                    else\n\
+                        echo "  [WARN] Target $dir is NOT empty. Renaming existing to ${dir}.bak"\n\
+                        mv "$TARGET" "${TARGET}.bak"\n\
+                    fi\n\
+                fi\n\
+                \n\
                 if [ ! -e "$TARGET" ]; then\n\
-                    echo "Linking: $TARGET -> $SOURCE"\n\
+                    echo "  Linking: $TARGET -> $SOURCE"\n\
                     ln -sf "$SOURCE" "$TARGET"\n\
+                else\n\
+                    echo "  [INFO] Target $TARGET already exists, skipping."\n\
                 fi\n\
             fi\n\
         done\n\
         \n\
         # 2. Check for flat structure (models in root) and link to checkpoints/\n\
-        if [ -d "$SOURCE_BASE" ]; then\n\
-            # Create checkpoints dir if missing\n\
-            mkdir -p "$COMFYUI_MODELS/checkpoints"\n\
-            \n\
-            # Link all .safetensors and .ckpt from root to checkpoints/\n\
-            # Only if they donit already exist in any linked subdir\n\
-            find "$SOURCE_BASE" -maxdepth 1 -type f \( -name "*.safetensors" -o -name "*.ckpt" \) | while read model; do\n\
-                filename=$(basename "$model")\n\
-                if [ ! -e "$COMFYUI_MODELS/checkpoints/$filename" ]; then\n\
-                    echo "Linking root model $filename to checkpoints/"\n\
-                    ln -sf "$model" "$COMFYUI_MODELS/checkpoints/$filename"\n\
-                fi\n\
-            done\n\
-        fi\n\
+        # This is a fallback for volumes that just have files in the root\n\
+        mkdir -p "$COMFYUI_MODELS/checkpoints"\n\
+        echo "[INFO] Checking for models in source root for flat structure fallback..."\n\
+        find "$SOURCE_BASE" -maxdepth 1 -type f \( -name "*.safetensors" -o -name "*.ckpt" -o -name "*.bin" -o -name "*.pth" \) | while read model; do\n\
+            filename=$(basename "$model")\n\
+            # Logic: If it looks like a checkpoint but isnit in a linked folder, put it in standard checkpoints/\n\
+            if [ ! -e "$COMFYUI_MODELS/checkpoints/$filename" ]; then\n\
+                echo "  Linking flat model: $filename -> $COMFYUI_MODELS/checkpoints/"\n\
+                ln -sf "$model" "$COMFYUI_MODELS/checkpoints/$filename"\n\
+            fi\n\
+        done\n\
         \n\
+        echo "[SUCCESS] Model symlinking complete for $COMFYUI_BASE"\n\
         echo "Final model listing (ComfyUI view):"\n\
-        ls -lR "$COMFYUI_MODELS"\n\
+        ls -l "$COMFYUI_MODELS"/\n\
     fi\n\
 done\n\
 ' > /startup-link-models.sh && chmod +x /startup-link-models.sh
