@@ -95,14 +95,26 @@ done\n\
 ' > /startup-link-models.sh && chmod +x /startup-link-models.sh
 
 # Create wrapper entrypoint that runs our startup script before the base image entrypoint
-# The base image entrypoint is typically /start.sh or similar
 RUN echo '#!/bin/bash\n\
-set -e\n\
 echo "=== RYLA ComfyUI Worker Startup ==="\n\
 echo "Running model symlink script..."\n\
-/startup-link-models.sh\n\
-echo "Starting ComfyUI worker..."\n\
-exec "$@"\n\
+/startup-link-models.sh || echo "Warning: Symlink script exited with error"\n\
+\n\
+echo "Starting ComfyUI handler..."\n\
+if [ $# -gt 0 ]; then\n\
+    echo "Executing provided command: $@"\n\
+    exec "$@"\n\
+elif [ -f "/start.sh" ]; then\n\
+    echo "Executing /start.sh"\n\
+    exec /start.sh\n\
+elif [ -f "/handler.py" ]; then\n\
+    echo "Executing python3 -u /handler.py"\n\
+    exec python3 -u /handler.py\n\
+else\n\
+    echo "Error: No entrypoint found!"\n\
+    ls -la /\n\
+    exit 1\n\
+fi\n\
 ' > /entrypoint-wrapper.sh && chmod +x /entrypoint-wrapper.sh
 
 # Override entrypoint to use our wrapper
