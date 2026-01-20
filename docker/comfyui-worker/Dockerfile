@@ -33,53 +33,62 @@ RUN apt-get update && apt-get install -y git && rm -rf /var/lib/apt/lists/* && \
 # This handles both /runpod-volume and /workspace mount paths
 RUN echo '#!/bin/bash\n\
 # Create symlinks so ComfyUI custom loaders can find models\n\
+echo "=== RYLA ComfyUI Model Symlink Script ==="\n\
+\n\
 # Check multiple ComfyUI locations\n\
 for COMFYUI_BASE in "/workspace/runpod-slim/ComfyUI" "/comfyui" "/workspace/ComfyUI"; do\n\
     if [ -d "$COMFYUI_BASE" ]; then\n\
         COMFYUI_MODELS="$COMFYUI_BASE/models"\n\
-        echo "Found ComfyUI at: $COMFYUI_BASE"\n\
+        echo "Found ComfyUI models dir at: $COMFYUI_MODELS"\n\
         \n\
         # Check both possible mount locations\n\
         if [ -d "/runpod-volume/models" ]; then\n\
             SOURCE_BASE="/runpod-volume/models"\n\
         elif [ -d "/workspace/models" ]; then\n\
             SOURCE_BASE="/workspace/models"\n\
+        elif [ -d "/runpod-volume" ]; then\n\
+            SOURCE_BASE="/runpod-volume"\n\
         else\n\
-            echo "Warning: Network volume models not found at /runpod-volume/models or /workspace/models"\n\
+            echo "Warning: Network volume not found at /runpod-volume/models, /workspace/models, or /runpod-volume"\n\
+            ls -la / 2>/dev/null\n\
             continue\n\
         fi\n\
         \n\
         echo "Source models directory: $SOURCE_BASE"\n\
+        ls -la "$SOURCE_BASE"\n\
         \n\
-        # Create symlinks for common model directories\n\
-        # diffusion_models, text_encoders, vae: for Z-Image loaders\n\
-        # checkpoints, loras, controlnet: for general workflows\n\
+        # 1. Link subdirectories if they exist\n\
         for dir in checkpoints diffusion_models text_encoders vae loras controlnet unet clip; do\n\
             SOURCE="$SOURCE_BASE/$dir"\n\
             TARGET="$COMFYUI_MODELS/$dir"\n\
             \n\
             if [ -d "$SOURCE" ]; then\n\
-                # If target is already a symlink, remove it to be sure\n\
-                if [ -L "$TARGET" ]; then\n\
-                    rm "$TARGET"\n\
-                # If target is a directory, move it to a backup if not empty, otherwise remove\n\
-                elif [ -d "$TARGET" ]; then\n\
-                    if [ -z "$(ls -A "$TARGET")" ]; then\n\
-                        rmdir "$TARGET"\n\
-                    else\n\
-                        echo "Warning: $TARGET is a non-empty directory. Renaming to ${TARGET}.bak"\n\
-                        mv "$TARGET" "${TARGET}.bak"\n\
-                    fi\n\
+                if [ -L "$TARGET" ]; then rm "$TARGET"; fi\n\
+                if [ -d "$TARGET" ] && [ -z "$(ls -A "$TARGET")" ]; then rmdir "$TARGET"; fi\n\
+                if [ ! -e "$TARGET" ]; then\n\
+                    echo "Linking: $TARGET -> $SOURCE"\n\
+                    ln -sf "$SOURCE" "$TARGET"\n\
                 fi\n\
-                \n\
-                echo "Linking: $TARGET -> $SOURCE"\n\
-                ln -sf "$SOURCE" "$TARGET"\n\
-            else\n\
-                echo "Source $SOURCE not found on volume (skipping)"\n\
             fi\n\
         done\n\
         \n\
-        echo "Final model directory structure in ComfyUI:"\n\
+        # 2. Check for flat structure (models in root) and link to checkpoints/\n\
+        if [ -d "$SOURCE_BASE" ]; then\n\
+            # Create checkpoints dir if missing\n\
+            mkdir -p "$COMFYUI_MODELS/checkpoints"\n\
+            \n\
+            # Link all .safetensors and .ckpt from root to checkpoints/\n\
+            # Only if they donit already exist in any linked subdir\n\
+            find "$SOURCE_BASE" -maxdepth 1 -type f \( -name "*.safetensors" -o -name "*.ckpt" \) | while read model; do\n\
+                filename=$(basename "$model")\n\
+                if [ ! -e "$COMFYUI_MODELS/checkpoints/$filename" ]; then\n\
+                    echo "Linking root model $filename to checkpoints/"\n\
+                    ln -sf "$model" "$COMFYUI_MODELS/checkpoints/$filename"\n\
+                fi\n\
+            done\n\
+        fi\n\
+        \n\
+        echo "Final model listing (ComfyUI view):"\n\
         ls -lR "$COMFYUI_MODELS"\n\
     fi\n\
 done\n\
