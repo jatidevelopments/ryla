@@ -713,6 +713,30 @@ jobs:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         continue-on-error: true
 
+      - name: Sync Runtime Secrets to Fly.io (via Infisical)
+        run: |
+          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
+          
+          # Export secrets from Infisical and set them in Fly.io
+          infisical export \
+            --path=/apps/landing \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv | while IFS='=' read -r key value; do
+            # Skip NEXT_PUBLIC_* variables (they're build args, not runtime secrets)
+            if [[ ! "$key" =~ ^NEXT_PUBLIC_ ]]; then
+              if [ -n "$key" ] && [ -n "$value" ]; then
+                echo "Setting secret: $key"
+                flyctl secrets set "$key=$value" --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} || true
+              fi
+            fi
+          done
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
       - name: Deploy Landing App to Fly.io
         run: |
           flyctl deploy \
