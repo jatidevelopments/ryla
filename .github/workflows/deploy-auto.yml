@@ -372,6 +372,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true  # Pull Git LFS files (images are stored in LFS)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Pull Git LFS files
+        run: git lfs pull
 
       - uses: actions/setup-node@v4
         with:
@@ -477,6 +487,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true  # Pull Git LFS files (images are stored in LFS)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Pull Git LFS files
+        run: git lfs pull
 
       - uses: actions/setup-node@v4
         with:
@@ -595,6 +615,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true  # Pull Git LFS files (images are stored in LFS)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Pull Git LFS files
+        run: git lfs pull
 
       - uses: actions/setup-node@v4
         with:
@@ -701,6 +731,16 @@ jobs:
       - uses: actions/checkout@v4
         with:
           lfs: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install Git LFS
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y git-lfs
+          git lfs install
+
+      - name: Pull Git LFS files
+        run: git lfs pull
 
       - uses: actions/setup-node@v4
         with:
