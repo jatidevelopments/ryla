@@ -17,7 +17,7 @@ import { toastType, triggerToast } from '@/components/AlertToast';
 import { useFunnelStore } from '@/store/states/funnel';
 import { getStepIndexByName } from '@/features/funnel/config/steps';
 import { safePostHogCapture } from '@/lib/analytics/posthog-utils';
-import { trackFacebookLead } from '@ryla/analytics';
+import { trackFacebookLead, trackTwitterLead } from '@ryla/analytics';
 import { useCountdown } from '@/hooks/useCountdown';
 import {
   getOrCreateSessionId,
@@ -332,6 +332,10 @@ export function PaymentFormStep() {
                         // Facebook Pixel - Lead event (only after email is entered and validated)
                         if (!leadTrackedRef.current) {
                           trackFacebookLead(emailValue); // Use email as eventId for deduplication
+                          // Twitter/X Pixel - Lead event (with email if available)
+                          trackTwitterLead({
+                            email_address: emailValue || undefined,
+                          });
                           leadTrackedRef.current = true;
                         }
                       }

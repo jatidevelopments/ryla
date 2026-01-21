@@ -11,19 +11,32 @@ import {
   FacebookProvider,
   FacebookPageView,
 } from '@ryla/analytics';
-import { FbPixelDebug } from './FbPixelDebug';
 
 interface Props {
   children: ReactNode;
 }
 
+/**
+ * Analytics Providers for Landing Page
+ * 
+ * Provides social media pixel tracking (Facebook, TikTok, Twitter/X) and PostHog analytics.
+ * All providers follow best practices:
+ * - Use Next.js Script component for optimal loading
+ * - Environment-aware (disabled in dev by default)
+ * - Automatic pageview tracking on route changes
+ * 
+ * Pageview tracking:
+ * - Facebook: Automatic on init + route changes (via FacebookPageView)
+ * - TikTok: Automatic on init + route changes (via TikTokPageView)
+ * - Twitter/X: Automatic on config + route changes (via TwitterPageView)
+ * - PostHog: Route changes (via PostHogPageView)
+ */
 export function AnalyticsProviders({ children }: Props) {
   return (
     <ClientPostHogProvider>
       <TikTokProvider>
         <TwitterProvider>
           <FacebookProvider>
-            <FbPixelDebug />
             <Suspense fallback={null}>
               <PostHogPageView />
               <FacebookPageView />

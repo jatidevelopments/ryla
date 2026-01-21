@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import { StructuredData } from '@/components/seo/StructuredData';
+import { AnalyticsProviders } from '@/components/AnalyticsProviders';
 
 // DM Sans - Clean, modern, geometric sans-serif
 // https://fonts.google.com/specimen/DM+Sans
@@ -117,8 +118,10 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${jetBrainsMono.variable} font-sans antialiased dark`}
       >
-        <StructuredData />
-        {children}
+        <AnalyticsProviders>
+          <StructuredData />
+          {children}
+        </AnalyticsProviders>
       </body>
     </html>
   );

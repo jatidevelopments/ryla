@@ -2,14 +2,64 @@ name: Auto Deploy (Nx Affected)
 
 on:
   push:
-    branches: [main]
+    branches: [main, staging]
   workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        type: choice
+        options:
+          - staging
+          - production
 
 permissions:
   contents: read
   pull-requests: read
 
 jobs:
+  detect-environment:
+    name: Detect Environment
+    runs-on: ubuntu-latest
+    outputs:
+      infisical_env: ${{ steps.env.outputs.infisical_env }}
+      fly_suffix: ${{ steps.env.outputs.fly_suffix }}
+      github_env: ${{ steps.env.outputs.github_env }}
+    steps:
+      - name: Determine Environment
+        id: env
+        run: |
+          # Determine environment from input, branch, or default to production
+          if [ -n "${{ github.event.inputs.environment }}" ]; then
+            GITHUB_ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+            GITHUB_ENV="staging"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            GITHUB_ENV="production"
+          else
+            GITHUB_ENV="production"
+          fi
+          
+          # Map GitHub environment to Infisical environment
+          if [ "$GITHUB_ENV" == "production" ]; then
+            echo "infisical_env=prod" >> $GITHUB_OUTPUT
+            echo "fly_suffix=prod" >> $GITHUB_OUTPUT
+            echo "github_env=production" >> $GITHUB_OUTPUT
+          elif [ "$GITHUB_ENV" == "staging" ]; then
+            echo "infisical_env=staging" >> $GITHUB_OUTPUT
+            echo "fly_suffix=staging" >> $GITHUB_OUTPUT
+            echo "github_env=staging" >> $GITHUB_OUTPUT
+          else
+            echo "infisical_env=dev" >> $GITHUB_OUTPUT
+            echo "fly_suffix=dev" >> $GITHUB_OUTPUT
+            echo "github_env=development" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "✅ Environment determined:"
+          echo "  GitHub Environment: $GITHUB_ENV"
+          echo "  Infisical Environment: $(cat $GITHUB_OUTPUT | grep infisical_env | cut -d'=' -f2)"
+          echo "  Fly.io Suffix: $(cat $GITHUB_OUTPUT | grep fly_suffix | cut -d'=' -f2)"
+
   detect-changes:
     name: Detect Changed Apps
     runs-on: ubuntu-latest
@@ -18,6 +68,7 @@ jobs:
       api: ${{ steps.affected.outputs.api }}
       funnel: ${{ steps.affected.outputs.funnel }}
       landing: ${{ steps.affected.outputs.landing }}
+      admin: ${{ steps.affected.outputs.admin }}
       has-changes: ${{ steps.affected.outputs.has-changes }}
     steps:
       - uses: actions/checkout@v4
@@ -98,7 +149,15 @@ jobs:
             echo "✗ Landing app not affected"
           fi
           
-          if [ -z "$AFFECTED" ] || ! echo "$AFFECTED" | grep -qE "(^|\s)(web|api|funnel|landing)(\s|$)"; then
+          if echo "$AFFECTED" | grep -qE "(^|\s)admin(\s|$)"; then
+            echo "admin=true" >> $GITHUB_OUTPUT
+            echo "✓ Admin app affected"
+          else
+            echo "admin=false" >> $GITHUB_OUTPUT
+            echo "✗ Admin app not affected"
+          fi
+          
+          if [ -z "$AFFECTED" ] || ! echo "$AFFECTED" | grep -qE "(^|\s)(web|api|funnel|landing|admin)(\s|$)"; then
             echo "has-changes=false" >> $GITHUB_OUTPUT
             echo "No app changes detected"
           else
@@ -108,10 +167,10 @@ jobs:
 
   deploy-web:
     name: Deploy Web App
-    needs: detect-changes
+    needs: [detect-environment, detect-changes]
     if: needs.detect-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ needs.detect-environment.outputs.github_env }}
     # Cancel in-progress web app deployments when new commit affects web app
     concurrency:
       group: deploy-web-${{ github.ref }}
@@ -164,16 +223,55 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Export Build Args from Infisical
+        id: build-args
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        run: |
+          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
+          
+          # Export secrets to temporary file
+          infisical export \
+            --path=/apps/web \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv > /tmp/build-args.env
+          
+          # Source the file to make variables available
+          set -a
+          source /tmp/build-args.env
+          set +a
+          
+          # Set as outputs for use in deployment step
+          echo "api_url=$NEXT_PUBLIC_API_URL" >> $GITHUB_OUTPUT
+          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
+          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
+          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
+          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+          
+          echo "✅ Build args exported"
+          echo "  NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
+          echo "  NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: Stop old machines (if any)
         run: |
           # Install jq if not available
           sudo apt-get update && sudo apt-get install -y jq || true
           # Stop all machines for this app to ensure clean deployment
-          MACHINES=$(flyctl machines list --app ryla-web-prod --json 2>/dev/null || echo "[]")
+          MACHINES=$(flyctl machines list --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
           echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
             if [ -n "$machine_id" ]; then
               echo "Stopping machine: $machine_id"
-              flyctl machines stop "$machine_id" --app ryla-web-prod || true
+              flyctl machines stop "$machine_id" --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} || true
             fi
           done
         env:
@@ -199,29 +297,30 @@ jobs:
             exit 1; \
           fi
 
-      - name: Install Infisical CLI
-        run: |
-          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-          sudo apt-get install infisical
-
       - name: Sync Runtime Secrets to Fly.io (via Infisical)
         run: |
           echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
           
           # Export secrets from Infisical and set them in Fly.io
-          # Note: Using production environment
-          infisical export --path=/apps/web --path=/shared --env=prod --format=dotenv | while IFS='=' read -r key value; do
+          infisical export \
+            --path=/apps/web \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv | while IFS='=' read -r key value; do
             # Skip empty lines and comments
             [[ -z "$key" || "$key" =~ ^# ]] && continue
+            # Skip NEXT_PUBLIC_* (these are build args, not runtime secrets)
+            [[ "$key" =~ ^NEXT_PUBLIC_ ]] && continue
             # Remove quotes from value if present
             value="${value%\"}"
             value="${value#\"}"
             echo "  Setting $key..."
-            flyctl secrets set "$key=$value" --app ryla-web-prod --stage
+            flyctl secrets set "$key=$value" --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} --stage
           done
           
           # Deploy staged secrets
-          flyctl secrets deploy --app ryla-web-prod
+          flyctl secrets deploy --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }}
           echo "✅ Secrets synced successfully"
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
@@ -233,21 +332,21 @@ jobs:
           flyctl deploy \
             --config apps/web/fly.toml \
             --dockerfile apps/web/Dockerfile \
-            --app ryla-web-prod \
+            --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} \
             --strategy immediate \
-            --build-arg NEXT_PUBLIC_API_URL="${{ secrets.NEXT_PUBLIC_API_URL }}" \
-            --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+            --build-arg NEXT_PUBLIC_API_URL="${{ steps.build-args.outputs.api_url }}" \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ steps.build-args.outputs.posthog_key }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ steps.build-args.outputs.posthog_host }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ steps.build-args.outputs.supabase_url }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ steps.build-args.outputs.supabase_anon_key }}"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Health Check
         run: |
           sleep 10
-          flyctl status --app ryla-web-prod
+          flyctl status --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -261,10 +360,10 @@ jobs:
 
   deploy-api:
     name: Deploy API App
-    needs: detect-changes
+    needs: [detect-environment, detect-changes]
     if: needs.detect-changes.outputs.api == 'true'
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ needs.detect-environment.outputs.github_env }}
     # Cancel in-progress API app deployments when new commit affects API app
     concurrency:
       group: deploy-api-${{ github.ref }}
@@ -287,45 +386,52 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: Stop old machines (if any)
         run: |
           # Install jq if not available
           sudo apt-get update && sudo apt-get install -y jq || true
           # Stop all machines for this app to ensure clean deployment
-          MACHINES=$(flyctl machines list --app ryla-api-prod --json 2>/dev/null || echo "[]")
+          MACHINES=$(flyctl machines list --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
           echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
             if [ -n "$machine_id" ]; then
               echo "Stopping machine: $machine_id"
-              flyctl machines stop "$machine_id" --app ryla-api-prod || true
+              flyctl machines stop "$machine_id" --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }} || true
             fi
           done
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         continue-on-error: true
 
-      - name: Install Infisical CLI
-        run: |
-          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-          sudo apt-get install infisical
-
       - name: Sync Runtime Secrets to Fly.io (via Infisical)
         run: |
           echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
           
           # Export secrets from Infisical and set them in Fly.io
-          # Note: Using production environment
-          infisical export --path=/apps/api --path=/shared --env=prod --format=dotenv | while IFS='=' read -r key value; do
+          infisical export \
+            --path=/apps/api \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv | while IFS='=' read -r key value; do
             # Skip empty lines and comments
             [[ -z "$key" || "$key" =~ ^# ]] && continue
             # Remove quotes from value if present
             value="${value%\"}"
             value="${value#\"}"
             echo "  Setting $key..."
-            flyctl secrets set "$key=$value" --app ryla-api-prod --stage
+            flyctl secrets set "$key=$value" --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }} --stage
           done
           
           # Deploy staged secrets
-          flyctl secrets deploy --app ryla-api-prod
+          flyctl secrets deploy --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }}
           echo "✅ Secrets synced successfully"
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
@@ -337,7 +443,7 @@ jobs:
           flyctl deploy \
             --config apps/api/fly.toml \
             --dockerfile apps/api/Dockerfile \
-            --app ryla-api-prod \
+            --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }} \
             --strategy immediate
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
@@ -345,7 +451,7 @@ jobs:
       - name: Health Check
         run: |
           sleep 10
-          flyctl status --app ryla-api-prod
+          flyctl status --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -359,10 +465,10 @@ jobs:
 
   deploy-funnel:
     name: Deploy Funnel App
-    needs: detect-changes
+    needs: [detect-environment, detect-changes]
     if: needs.detect-changes.outputs.funnel == 'true'
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ needs.detect-environment.outputs.github_env }}
     # Cancel in-progress funnel app deployments when new commit affects funnel app
     concurrency:
       group: deploy-funnel-${{ github.ref }}
@@ -385,16 +491,56 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Export Build Args from Infisical
+        id: build-args
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        run: |
+          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
+          
+          # Export secrets to temporary file
+          infisical export \
+            --path=/apps/funnel \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv > /tmp/build-args.env
+          
+          # Source the file to make variables available
+          set -a
+          source /tmp/build-args.env
+          set +a
+          
+          # Set as outputs for use in deployment step
+          echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
+          echo "debug_cdn=$NEXT_PUBLIC_DEBUG_CDN" >> $GITHUB_OUTPUT
+          echo "site_url=$NEXT_PUBLIC_SITE_URL_FUNNEL" >> $GITHUB_OUTPUT
+          echo "api_base_url=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_OUTPUT
+          echo "finby_redirect=$NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT" >> $GITHUB_OUTPUT
+          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
+          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
+          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+          
+          echo "✅ Build args exported"
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: Stop old machines (if any)
         run: |
           # Install jq if not available
           sudo apt-get update && sudo apt-get install -y jq || true
           # Stop all machines for this app to ensure clean deployment
-          MACHINES=$(flyctl machines list --app ryla-funnel-prod --json 2>/dev/null || echo "[]")
+          MACHINES=$(flyctl machines list --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
           echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
             if [ -n "$machine_id" ]; then
               echo "Stopping machine: $machine_id"
-              flyctl machines stop "$machine_id" --app ryla-funnel-prod || true
+              flyctl machines stop "$machine_id" --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }} || true
             fi
           done
         env:
@@ -406,24 +552,24 @@ jobs:
           flyctl deploy \
             --config apps/funnel/fly.toml \
             --dockerfile apps/funnel/Dockerfile \
-            --app ryla-funnel-prod \
+            --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }} \
             --strategy immediate \
-            --build-arg NEXT_PUBLIC_CDN_URL="${{ secrets.NEXT_PUBLIC_CDN_URL }}" \
-            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}" \
-            --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL_FUNNEL }}" \
-            --build-arg NEXT_PUBLIC_API_BASE_URL="${{ secrets.NEXT_PUBLIC_API_BASE_URL }}" \
-            --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT="${{ secrets.NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+            --build-arg NEXT_PUBLIC_CDN_URL="${{ steps.build-args.outputs.cdn_url }}" \
+            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ steps.build-args.outputs.debug_cdn }}" \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
+            --build-arg NEXT_PUBLIC_API_BASE_URL="${{ steps.build-args.outputs.api_base_url }}" \
+            --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT="${{ steps.build-args.outputs.finby_redirect }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ steps.build-args.outputs.posthog_host }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ steps.build-args.outputs.posthog_key }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ steps.build-args.outputs.supabase_url }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ steps.build-args.outputs.supabase_anon_key }}"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Health Check
         run: |
           sleep 10
-          flyctl status --app ryla-funnel-prod
+          flyctl status --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
@@ -437,10 +583,10 @@ jobs:
 
   deploy-landing:
     name: Deploy Landing App
-    needs: detect-changes
+    needs: [detect-environment, detect-changes]
     if: needs.detect-changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
-    environment: production
+    environment: ${{ needs.detect-environment.outputs.github_env }}
     # Cancel in-progress landing app deployments when new commit affects landing app
     concurrency:
       group: deploy-landing-${{ github.ref }}
@@ -463,16 +609,50 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Export Build Args from Infisical
+        id: build-args
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        run: |
+          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
+          
+          # Export secrets to temporary file
+          infisical export \
+            --path=/apps/landing \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv > /tmp/build-args.env
+          
+          # Source the file to make variables available
+          set -a
+          source /tmp/build-args.env
+          set +a
+          
+          # Set as outputs for use in deployment step
+          echo "site_url=$NEXT_PUBLIC_SITE_URL_LANDING" >> $GITHUB_OUTPUT
+          echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
+          echo "debug_cdn=$NEXT_PUBLIC_DEBUG_CDN" >> $GITHUB_OUTPUT
+          
+          echo "✅ Build args exported"
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
       - name: Stop old machines (if any)
         run: |
           # Install jq if not available
           sudo apt-get update && sudo apt-get install -y jq || true
           # Stop all machines for this app to ensure clean deployment
-          MACHINES=$(flyctl machines list --app ryla-landing-prod --json 2>/dev/null || echo "[]")
+          MACHINES=$(flyctl machines list --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
           echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
             if [ -n "$machine_id" ]; then
               echo "Stopping machine: $machine_id"
-              flyctl machines stop "$machine_id" --app ryla-landing-prod || true
+              flyctl machines stop "$machine_id" --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} || true
             fi
           done
         env:
@@ -484,18 +664,18 @@ jobs:
           flyctl deploy \
             --config apps/landing/fly.toml \
             --dockerfile apps/landing/Dockerfile \
-            --app ryla-landing-prod \
+            --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} \
             --strategy immediate \
-            --build-arg NEXT_PUBLIC_SITE_URL="${{ secrets.NEXT_PUBLIC_SITE_URL_LANDING }}" \
-            --build-arg NEXT_PUBLIC_CDN_URL="${{ secrets.NEXT_PUBLIC_CDN_URL }}" \
-            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}"
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
+            --build-arg NEXT_PUBLIC_CDN_URL="${{ steps.build-args.outputs.cdn_url }}" \
+            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ steps.build-args.outputs.debug_cdn }}"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Health Check
         run: |
           sleep 10
-          flyctl status --app ryla-landing-prod
+          flyctl status --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }}
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 

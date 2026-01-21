@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { safePostHogCapture } from "@/lib/analytics/posthog-utils";
 import { useFormContext } from "react-hook-form";
 import { FunnelSchema } from "@/features/funnel/hooks/useFunnelForm";
-import { trackFacebookPurchase } from "@ryla/analytics";
+import { trackFacebookPurchase, trackTwitterPurchase } from "@ryla/analytics";
 import { products } from "@/constants/products";
 import { finbyService } from "@/services/finby-service";
 import { getOrCreateSessionId, updateSessionWaitlist } from "@/services/session-service";
@@ -44,6 +44,13 @@ export function AllSpotsReservedStep() {
                                 
                                 // Fire Facebook Pixel Purchase event
                                 trackFacebookPurchase(purchaseAmount, purchaseCurrency, result.reference);
+
+                                // Fire Twitter/X Pixel Purchase event
+                                trackTwitterPurchase({
+                                  value: purchaseAmount,
+                                  currency: purchaseCurrency,
+                                  conversion_id: result.reference, // Use conversion_id for deduplication
+                                });
                                 purchaseTrackedRef.current = true;
                                 
                                 console.log("✅ Purchase event tracked from AllSpotsReservedStep:", {
@@ -57,6 +64,13 @@ export function AllSpotsReservedStep() {
                                 const defaultProduct = products[0];
                                 if (defaultProduct && result.reference) {
                                     trackFacebookPurchase(defaultProduct.amount / 100, defaultProduct.currency || "USD", result.reference);
+
+                                    // Fire Twitter/X Pixel Purchase event
+                                    trackTwitterPurchase({
+                                      value: defaultProduct.amount / 100,
+                                      currency: defaultProduct.currency || "USD",
+                                      conversion_id: result.reference, // Use conversion_id for deduplication
+                                    });
                                     purchaseTrackedRef.current = true;
                                 }
                             }

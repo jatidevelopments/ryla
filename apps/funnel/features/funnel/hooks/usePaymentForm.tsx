@@ -22,7 +22,7 @@ import { products } from '@/constants/products';
 import { finbyService } from '@/services/finby-service';
 // import { AnalyticsEventTypeEnum } from "@/utils/enums/analytics-event-types";
 // import { reportPurchase } from "@/lib/gtag";
-import { trackFacebookPurchase, trackFacebookAddToCart } from '@ryla/analytics';
+import { trackFacebookPurchase, trackFacebookAddToCart, trackTwitterPurchase, trackTwitterAddToCart } from '@ryla/analytics';
 import { getStepIndexByName } from '@/features/funnel/config/steps';
 
 export function usePaymentForm(posthog?: any) {
@@ -60,6 +60,14 @@ export function usePaymentForm(posthog?: any) {
 
     trackFacebookAddToCart({
       content_ids: [String(product.id)],
+      content_name: product.name,
+      value: product.amount / 100,
+      currency: 'USD',
+    });
+
+    // Twitter/X Pixel - AddToCart event
+    trackTwitterAddToCart({
+      content_id: String(product.id),
       content_name: product.name,
       value: product.amount / 100,
       currency: 'USD',
@@ -462,6 +470,15 @@ export function usePaymentForm(posthog?: any) {
                     'USD',
                     response.reference
                   );
+
+                  // TWITTER/X PIXEL TRACKING — Purchase
+                  trackTwitterPurchase({
+                    value: product.amount / 100,
+                    currency: 'USD',
+                    content_id: product.id,
+                    content_name: product.name,
+                    conversion_id: response.reference, // Use conversion_id for deduplication
+                  });
 
                   // GOOGLE ADS — Purchase (DISABLED)
                   // reportPurchase(response.reference, {

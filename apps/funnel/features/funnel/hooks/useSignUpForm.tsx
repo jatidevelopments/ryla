@@ -19,7 +19,7 @@ import { SignUpPayload } from '@/utils/types/auth';
 import { voicesMap } from '@/constants/voices-map';
 
 // import { analyticsService } from '@/services/analytics-service';
-import { trackFacebookLead } from '@ryla/analytics';
+import { trackFacebookLead, trackTwitterLead } from '@ryla/analytics';
 import { useUtmStore } from '@/store/states/utm';
 
 const signUpSchema = z.object({
@@ -139,6 +139,9 @@ export function useSignUpForm(posthog?: any) {
       onSuccess: (response) => {
         // Facebook Pixel - Lead event
         trackFacebookLead();
+
+        // Twitter/X Pixel - Lead event
+        trackTwitterLead();
 
         // Google Ads conversions (DISABLED)
         // reportSignUp();

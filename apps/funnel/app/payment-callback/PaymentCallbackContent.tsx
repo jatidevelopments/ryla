@@ -7,7 +7,7 @@ import { FinbyResultCodes } from '@/utils/enums/finby-result-codes';
 import { finbyService } from '@/services/finby-service';
 import { products } from '@/constants/products';
 
-import { trackFacebookPurchase } from '@ryla/analytics';
+import { trackFacebookPurchase, trackTwitterPurchase } from '@ryla/analytics';
 
 export function PaymentCallbackContent() {
   const router = useRouter();
@@ -73,6 +73,13 @@ export function PaymentCallbackContent() {
 
             // Fire Facebook Pixel Purchase event
             trackFacebookPurchase(purchaseAmount, purchaseCurrency, reference);
+
+            // Fire Twitter/X Pixel Purchase event
+            trackTwitterPurchase({
+              value: purchaseAmount,
+              currency: purchaseCurrency,
+              conversion_id: reference, // Use conversion_id for deduplication
+            });
           }
         } catch (error) {
           console.error('Error tracking purchase event:', error);

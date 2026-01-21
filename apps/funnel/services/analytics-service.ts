@@ -6,7 +6,11 @@ import {
     trackTikTokCompleteRegistration,
     trackTikTokStartTrial,
     identifyTikTok,
-    hashSHA256
+    hashSHA256,
+                trackTwitterMappedEvent,
+    trackTwitterPurchase,
+    trackTwitterCompleteRegistration,
+    trackTwitterStartTrial,
 } from "@ryla/analytics";
 
 const FUNNEL_NAME = process.env.NEXT_PUBLIC_FUNNEL_NAME || "funnel-adult-v3";
@@ -107,6 +111,16 @@ class AnalyticsService {
             } catch (error) {
                 console.warn("[TikTok] Failed to track signup event:", error);
             }
+
+            // Track to Twitter/X
+            try {
+                trackTwitterCompleteRegistration({
+                    value: (props as any).amount || 0,
+                    currency: (props as any).currency || "USD",
+                });
+            } catch (error) {
+                console.warn("[Twitter] Failed to track signup event:", error);
+            }
         }
     }
 
@@ -143,6 +157,26 @@ class AnalyticsService {
                 }
             } catch (error) {
                 console.warn("[TikTok] Failed to track payment event:", error);
+            }
+
+            // Track to Twitter/X
+            try {
+                if (eventName.includes("payment") || eventName.includes("purchase")) {
+                    trackTwitterPurchase({
+                        value: props.value || (props as any).amount || 0,
+                        currency: props.currency || "USD",
+                        content_id: String(props.product_id) || (props as any).plan_id,
+                        content_name: props.product_name || (props as any).plan_name || "Subscription",
+                        conversion_id: (props as any).reference || (props as any).order_id, // For deduplication
+                    });
+                } else if (eventName.includes("trial")) {
+                    trackTwitterStartTrial({
+                        value: props.value || (props as any).amount || 0,
+                        currency: props.currency || "USD",
+                    });
+                }
+            } catch (error) {
+                console.warn("[Twitter] Failed to track payment event:", error);
             }
         }
     }
@@ -198,6 +232,16 @@ class AnalyticsService {
                 });
             } catch (error) {
                 console.warn("[TikTok] Failed to track event:", error);
+            }
+
+            // Track to Twitter/X using event mapping
+            try {
+                trackTwitterMappedEvent(eventName, {
+                    ...getFunnelProps(),
+                    ...properties,
+                });
+            } catch (error) {
+                console.warn("[Twitter] Failed to track event:", error);
             }
         }
     }

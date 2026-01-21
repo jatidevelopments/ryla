@@ -1,0 +1,198 @@
+name: Deploy Admin App (Manual/Standalone)
+
+# NOTE: This workflow is for manual deployments or standalone admin deployments.
+# For automated deployments, use the main "Auto Deploy (Nx Affected)" workflow
+# which automatically detects changes and deploys all affected apps.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: false
+        type: choice
+        options:
+          - staging
+          - production
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  detect-environment:
+    name: Detect Environment
+    runs-on: ubuntu-latest
+    outputs:
+      infisical_env: ${{ steps.env.outputs.infisical_env }}
+      fly_suffix: ${{ steps.env.outputs.fly_suffix }}
+      github_env: ${{ steps.env.outputs.github_env }}
+    steps:
+      - name: Determine Environment
+        id: env
+        run: |
+          # Determine environment from input, branch, or default to production
+          if [ -n "${{ github.event.inputs.environment }}" ]; then
+            GITHUB_ENV="${{ github.event.inputs.environment }}"
+          elif [ "${{ github.ref }}" == "refs/heads/staging" ]; then
+            GITHUB_ENV="staging"
+          elif [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            GITHUB_ENV="production"
+          else
+            GITHUB_ENV="production"
+          fi
+          
+          # Map GitHub environment to Infisical environment
+          if [ "$GITHUB_ENV" == "production" ]; then
+            echo "infisical_env=prod" >> $GITHUB_OUTPUT
+            echo "fly_suffix=prod" >> $GITHUB_OUTPUT
+            echo "github_env=production" >> $GITHUB_OUTPUT
+          elif [ "$GITHUB_ENV" == "staging" ]; then
+            echo "infisical_env=staging" >> $GITHUB_OUTPUT
+            echo "fly_suffix=staging" >> $GITHUB_OUTPUT
+            echo "github_env=staging" >> $GITHUB_OUTPUT
+          else
+            echo "infisical_env=dev" >> $GITHUB_OUTPUT
+            echo "fly_suffix=dev" >> $GITHUB_OUTPUT
+            echo "github_env=development" >> $GITHUB_OUTPUT
+          fi
+          
+          echo "✅ Environment determined:"
+          echo "  GitHub Environment: $GITHUB_ENV"
+          echo "  Infisical Environment: $(cat $GITHUB_OUTPUT | grep infisical_env | cut -d'=' -f2)"
+          echo "  Fly.io Suffix: $(cat $GITHUB_OUTPUT | grep fly_suffix | cut -d'=' -f2)"
+
+  deploy-admin:
+    name: Deploy Admin App
+    needs: [detect-environment]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.detect-environment.outputs.github_env }}
+    concurrency:
+      group: deploy-admin-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Export Build Args from Infisical
+        id: build-args
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        run: |
+          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
+          
+          # Export secrets to temporary file
+          infisical export \
+            --path=/apps/admin \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv > /tmp/build-args.env
+          
+          # Source the file to make variables available
+          set -a
+          source /tmp/build-args.env
+          set +a
+          
+          # Set as outputs for use in deployment step
+          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
+          echo "api_url=$NEXT_PUBLIC_API_URL" >> $GITHUB_OUTPUT
+          echo "api_base_url=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_OUTPUT
+          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
+          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
+          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+          
+          echo "✅ Build args exported"
+          echo "  NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
+          echo "  NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
+
+      - name: Stop old machines (if any)
+        run: |
+          # Install jq if not available
+          sudo apt-get update && sudo apt-get install -y jq || true
+          # Stop all machines for this app to ensure clean deployment
+          MACHINES=$(flyctl machines list --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
+          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
+            if [ -n "$machine_id" ]; then
+              echo "Stopping machine: $machine_id"
+              flyctl machines stop "$machine_id" --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} || true
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Sync Runtime Secrets to Fly.io (via Infisical)
+        run: |
+          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
+          
+          # Export secrets from Infisical and set them in Fly.io
+          infisical export \
+            --path=/apps/admin \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv | while IFS='=' read -r key value; do
+            # Skip NEXT_PUBLIC_* variables (they're build args, not runtime secrets)
+            if [[ ! "$key" =~ ^NEXT_PUBLIC_ ]]; then
+              if [ -n "$key" ] && [ -n "$value" ]; then
+                echo "Setting secret: $key"
+                flyctl secrets set "$key=$value" --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} || true
+              fi
+            fi
+          done
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Deploy Admin App to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/admin/fly.toml \
+            --dockerfile apps/admin/Dockerfile \
+            --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} \
+            --strategy immediate \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
+            --build-arg NEXT_PUBLIC_API_URL="${{ steps.build-args.outputs.api_url }}" \
+            --build-arg NEXT_PUBLIC_API_BASE_URL="${{ steps.build-args.outputs.api_base_url }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ steps.build-args.outputs.posthog_host }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ steps.build-args.outputs.posthog_key }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ steps.build-args.outputs.supabase_url }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ steps.build-args.outputs.supabase_anon_key }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - admin app success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
