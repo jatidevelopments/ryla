@@ -686,3 +686,140 @@ jobs:
             --data '{"text":"DEPLOY: production ${{ github.ref_name }} - landing app success"}' \
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
         continue-on-error: true
+
+  deploy-admin:
+    name: Deploy Admin App
+    needs: [detect-environment, detect-changes]
+    if: needs.detect-changes.outputs.admin == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.detect-environment.outputs.github_env }}
+    # Cancel in-progress admin app deployments when new commit affects admin app
+    concurrency:
+      group: deploy-admin-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Export Build Args from Infisical
+        id: build-args
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        run: |
+          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
+          
+          # Export secrets to temporary file
+          infisical export \
+            --path=/apps/admin \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv > /tmp/build-args.env
+          
+          # Source the file to make variables available
+          set -a
+          source /tmp/build-args.env
+          set +a
+          
+          # Set as outputs for use in deployment step
+          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
+          echo "api_url=$NEXT_PUBLIC_API_URL" >> $GITHUB_OUTPUT
+          echo "api_base_url=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_OUTPUT
+          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
+          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
+          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+          
+          echo "✅ Build args exported"
+          echo "  NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
+          echo "  NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
+
+      - name: Stop old machines (if any)
+        run: |
+          # Install jq if not available
+          sudo apt-get update && sudo apt-get install -y jq || true
+          # Stop all machines for this app to ensure clean deployment
+          MACHINES=$(flyctl machines list --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
+          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
+            if [ -n "$machine_id" ]; then
+              echo "Stopping machine: $machine_id"
+              flyctl machines stop "$machine_id" --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} || true
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Sync Runtime Secrets to Fly.io (via Infisical)
+        run: |
+          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
+          
+          # Export secrets from Infisical and set them in Fly.io
+          infisical export \
+            --path=/apps/admin \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv | while IFS='=' read -r key value; do
+            # Skip NEXT_PUBLIC_* variables (they're build args, not runtime secrets)
+            if [[ ! "$key" =~ ^NEXT_PUBLIC_ ]]; then
+              if [ -n "$key" ] && [ -n "$value" ]; then
+                echo "Setting secret: $key"
+                flyctl secrets set "$key=$value" --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} || true
+              fi
+            fi
+          done
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Deploy Admin App to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/admin/fly.toml \
+            --dockerfile apps/admin/Dockerfile \
+            --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }} \
+            --strategy immediate \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
+            --build-arg NEXT_PUBLIC_API_URL="${{ steps.build-args.outputs.api_url }}" \
+            --build-arg NEXT_PUBLIC_API_BASE_URL="${{ steps.build-args.outputs.api_base_url }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ steps.build-args.outputs.posthog_host }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ steps.build-args.outputs.posthog_key }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ steps.build-args.outputs.supabase_url }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ steps.build-args.outputs.supabase_anon_key }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ryla-admin-${{ needs.detect-environment.outputs.fly_suffix }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - admin app success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
