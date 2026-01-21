@@ -148,3 +148,4 @@ fly deploy --config fly.admin.toml
 4. **Session management**: JWT tokens can be revoked
 5. **IP restrictions**: Consider IP allowlisting for production
 6. **2FA**: Planned for Phase 2 (EP-050 AC-4)
+ 
