@@ -1,21 +1,27 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { AdminAuthProvider, useAdminAuth } from '@/lib/auth-context';
 import { AdminShell } from '@/components/admin-shell';
-import { routes } from '@/lib/routes';
+import { routes, buildRoute } from '@/lib/routes';
 import { Loader2 } from 'lucide-react';
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAdminAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      router.push(routes.login);
+      // Preserve current path as returnUrl for redirect after login
+      const returnUrl = pathname !== routes.login ? pathname : undefined;
+      const loginRoute = returnUrl
+        ? buildRoute(routes.login, { returnUrl })
+        : routes.login;
+      router.push(loginRoute);
     }
-  }, [isAuthenticated, isLoading, router]);
+  }, [isAuthenticated, isLoading, router, pathname]);
 
   if (isLoading) {
     return (

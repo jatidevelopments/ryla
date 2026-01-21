@@ -25,9 +25,30 @@ export const routes = {
   billing: '/billing',
   bugs: '/bugs',
   content: '/content',
+  jobs: '/jobs',
   analytics: '/analytics',
   library: '/library',
+  audit: '/audit',
+  lora: '/lora',
+  admins: '/admins',
+  flags: '/flags',
+  config: '/config',
+  notifications: '/notifications',
   settings: '/settings',
+  
+  // Dynamic routes
+  user: {
+    detail: (id: string) => `/users/${id}`,
+  },
+  bug: {
+    detail: (id: string) => `/bugs/${id}`,
+  },
+  lora: {
+    detail: (id: string) => `/lora/${id}`,
+  },
+  admin: {
+    detail: (id: string) => `/admins/${id}`,
+  },
 } as const;
 
 /**

@@ -410,14 +410,14 @@ export function FunnelStepNavigator() {
                                 </button>
                             </div>
                             <p className="text-white/40 text-xs font-medium">
-                                {currentStep + 1} / {max}
+                                {currentStep + 1} / {orderedSteps.length}
                             </p>
                         </div>
 
                         {/* Steps List - Scrollable */}
                         <div
                             className={cn(
-                                "flex-1 overflow-y-auto overflow-x-hidden",
+                                "flex-1 min-h-0 overflow-y-auto overflow-x-hidden",
                                 "py-3 px-3 space-y-0.5",
                                 "scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent",
                             )}

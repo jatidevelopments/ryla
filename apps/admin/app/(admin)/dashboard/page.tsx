@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   Users,
   CreditCard,
@@ -9,6 +10,8 @@ import {
   TrendingDown,
   Activity,
 } from 'lucide-react';
+import { routes } from '@/lib/routes';
+import { adminTrpc } from '@/lib/trpc/client';
 
 interface StatCardProps {
   title: string;
@@ -86,17 +89,7 @@ function getActivityColor(type: RecentActivityItem['type']) {
   }
 }
 
-// Mock data - replace with real API calls
-const MOCK_STATS = {
-  totalUsers: 2458,
-  usersChange: 12.5,
-  totalRevenue: '$45,892',
-  revenueChange: 8.2,
-  openBugs: 23,
-  bugsChange: -15,
-  imagesGenerated: 128420,
-  imagesChange: 25.3,
-};
+// Mock activity data - will be replaced with tRPC call later
 
 const MOCK_ACTIVITY: RecentActivityItem[] = [
   {
@@ -132,6 +125,9 @@ const MOCK_ACTIVITY: RecentActivityItem[] = [
 ];
 
 export default function DashboardPage() {
+  // Fetch stats from tRPC
+  const { data: stats, isLoading } = adminTrpc.stats.getDashboardStats.useQuery();
+
   return (
     <div className="space-y-6">
       {/* Page header */}
@@ -143,36 +139,50 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats grid - responsive columns */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Users"
-          value={MOCK_STATS.totalUsers.toLocaleString()}
-          change={MOCK_STATS.usersChange}
-          trend="up"
-          icon={<Users className="w-5 h-5" />}
-        />
-        <StatCard
-          title="Revenue (MTD)"
-          value={MOCK_STATS.totalRevenue}
-          change={MOCK_STATS.revenueChange}
-          trend="up"
-          icon={<CreditCard className="w-5 h-5" />}
-        />
-        <StatCard
-          title="Open Bugs"
-          value={MOCK_STATS.openBugs}
-          change={MOCK_STATS.bugsChange}
-          trend="down"
-          icon={<Bug className="w-5 h-5" />}
-        />
-        <StatCard
-          title="Images Generated"
-          value={MOCK_STATS.imagesGenerated.toLocaleString()}
-          change={MOCK_STATS.imagesChange}
-          trend="up"
-          icon={<Image className="w-5 h-5" />}
-        />
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="admin-card animate-pulse">
+              <div className="h-20 bg-secondary/50 rounded" />
+            </div>
+          ))}
+        </div>
+      ) : stats ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Total Users"
+            value={stats.totalUsers.toLocaleString()}
+            change={stats.usersChange}
+            trend="up"
+            icon={<Users className="w-5 h-5" />}
+          />
+          <StatCard
+            title="Revenue (MTD)"
+            value={stats.totalRevenue}
+            change={stats.revenueChange}
+            trend="up"
+            icon={<CreditCard className="w-5 h-5" />}
+          />
+          <StatCard
+            title="Open Bugs"
+            value={stats.openBugs}
+            change={stats.bugsChange}
+            trend="down"
+            icon={<Bug className="w-5 h-5" />}
+          />
+          <StatCard
+            title="Images Generated"
+            value={stats.imagesGenerated.toLocaleString()}
+            change={stats.imagesChange}
+            trend="up"
+            icon={<Image className="w-5 h-5" />}
+          />
+        </div>
+      ) : (
+        <div className="admin-card text-center py-8">
+          <p className="text-muted-foreground">Failed to load statistics</p>
+        </div>
+      )}
 
       {/* Content sections */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

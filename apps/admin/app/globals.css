@@ -1,0 +1,273 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+/* Import shared design tokens from @ryla/ui */
+@import '../../../libs/ui/src/styles/design-tokens.css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --radius: 0.625rem;
+
+  /* RYLA Admin purple theme (matching web app) */
+  --background: #121214;
+  --foreground: #ffffff;
+  --card: #111113;
+  --card-foreground: #ffffff;
+  --popover: #111113;
+  --popover-foreground: #ffffff;
+  --primary: #a855f7;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1d;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1d;
+  --muted-foreground: rgba(255, 255, 255, 0.4);
+  --accent: #9333ea;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #a855f7;
+  --chart-1: #a855f7;
+  --chart-2: #ec4899;
+  --chart-3: #22c55e;
+  --chart-4: #f472b6;
+  --chart-5: #c084fc;
+  --sidebar: #111113;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #a855f7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a1a1d;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #a855f7;
+
+  /* Font Family - DM Sans (unified with web app) */
+  --font-dm-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+
+  /* Legacy color mappings */
+  --color-black: #121214;
+  --color-black-2: #111113;
+  --color-smooth-gray: #1a1a1d;
+  --color-pink: #ec4899;
+  --color-pink-red: #db2777;
+  --color-gray-1: rgba(255, 255, 255, 0.4);
+  --color-gray-2: #16161a;
+  --color-red: #ef4444;
+  --color-light-purple: #d8b4fe;
+  --color-medium-purple: #c084fc;
+  --color-dark-purple: #a855f7;
+  --color-semi-purple: #9333ea;
+  --color-salad-green: #22c55e;
+  --color-warning: #f59e0b;
+
+  /* Admin-specific status colors */
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+
+  /* Shadow Styles */
+  --shadow-white-glow: 0px 0px 12.3px rgba(255, 255, 255, 0.1);
+
+  /* Gradient */
+  --dark-pink-gradient: linear-gradient(
+    to bottom,
+    rgba(10, 10, 11, 0.8) 0.2%,
+    rgba(147, 51, 234, 0.3) 50%,
+    rgba(10, 10, 11, 0.8) 99.8%
+  );
+
+  /* Scroll styles */
+  --scroll-height: 12px;
+  --scroll-thumb-background: var(--color-smooth-gray);
+  --scroll-thumb-border-radius: 10px;
+  --scroll-track-background: var(--color-black);
+  --scroll-track-border-radius: 10px;
+  --scroll-width: 10px;
+}
+
+.dark {
+  --background: #121214;
+  --foreground: #ffffff;
+  --card: #111113;
+  --card-foreground: #ffffff;
+  --popover: #111113;
+  --popover-foreground: #ffffff;
+  --primary: #a855f7;
+  --primary-foreground: #ffffff;
+  --secondary: #1a1a1d;
+  --secondary-foreground: #ffffff;
+  --muted: #1a1a1d;
+  --muted-foreground: rgba(255, 255, 255, 0.4);
+  --accent: #9333ea;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --border: rgba(255, 255, 255, 0.08);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #a855f7;
+  --chart-1: #a855f7;
+  --chart-2: #ec4899;
+  --chart-3: #22c55e;
+  --chart-4: #f472b6;
+  --chart-5: #c084fc;
+  --sidebar: #111113;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #a855f7;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1a1a1d;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #a855f7;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-dm-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  /* Design System Colors */
+  --color-black: var(--color-black);
+  --color-black-2: var(--color-black-2);
+  --color-smooth-gray: var(--color-smooth-gray);
+  --color-pink: var(--color-pink);
+  --color-pink-red: var(--color-pink-red);
+  --color-gray-1: var(--color-gray-1);
+  --color-gray-2: var(--color-gray-2);
+  --color-red: var(--color-red);
+  --color-light-purple: var(--color-light-purple);
+  --color-medium-purple: var(--color-medium-purple);
+  --color-dark-purple: var(--color-dark-purple);
+  --color-semi-purple: var(--color-semi-purple);
+  --color-salad-green: var(--color-salad-green);
+  --color-success: var(--color-success);
+  --color-error: var(--color-error);
+  --color-warning: var(--color-warning);
+  --color-info: var(--color-info);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply font-sans bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  /* Primary gradient (purple to pink) */
+  .bg-gradient-primary {
+    background: linear-gradient(135deg, #9333ea 0%, #ec4899 100%);
+  }
+
+  /* Status badges */
+  .badge-success {
+    @apply bg-green-500/20 text-green-400 border border-green-500/30;
+  }
+  .badge-error {
+    @apply bg-red-500/20 text-red-400 border border-red-500/30;
+  }
+  .badge-warning {
+    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+  }
+  .badge-info {
+    @apply bg-blue-500/20 text-blue-400 border border-blue-500/30;
+  }
+  .badge-neutral {
+    @apply bg-gray-500/20 text-gray-400 border border-gray-500/30;
+  }
+
+  /* Card styles */
+  .admin-card {
+    @apply bg-card border border-border rounded-lg p-4 md:p-6;
+  }
+
+  /* Data table styles */
+  .data-table {
+    @apply w-full text-sm;
+  }
+  .data-table th {
+    @apply text-left text-muted-foreground font-medium p-3 md:p-4 border-b border-border;
+  }
+  .data-table td {
+    @apply p-3 md:p-4 border-b border-border;
+  }
+  .data-table tr:hover td {
+    @apply bg-secondary/50;
+  }
+
+  /* Hide scroll */
+  .scroll-hidden::-webkit-scrollbar {
+    display: none;
+  }
+  .scroll-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Scrollbar styles */
+html ::-webkit-scrollbar {
+  width: var(--scroll-width);
+  height: var(--scroll-height);
+}
+
+html ::-webkit-scrollbar-thumb {
+  background: var(--color-smooth-gray);
+  border-radius: var(--scroll-thumb-border-radius);
+  background-clip: padding-box;
+}
+
+html ::-webkit-scrollbar-track {
+  background: var(--color-black);
+  border-radius: var(--scroll-track-border-radius);
+}
+
+input::selection,
+textarea::selection {
+  background: rgba(168, 85, 247, 0.4) !important;
+}
+
+input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--color-black) inset !important;
+  -webkit-text-fill-color: #fff !important;
+  transition: background-color 5000s ease-in-out 0s;
+  border: none;
+}

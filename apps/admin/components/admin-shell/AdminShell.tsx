@@ -17,6 +17,10 @@ import {
   LogOut,
   ChevronDown,
   Shield,
+  Activity,
+  Cpu,
+  Flag,
+  Bell,
 } from 'lucide-react';
 import { useAdminAuth, AdminUser } from '@/lib/auth-context';
 import { routes } from '@/lib/routes';
@@ -60,6 +64,18 @@ const NAV_ITEMS: NavItem[] = [
     permission: 'content:read',
   },
   {
+    label: 'Jobs',
+    href: routes.jobs,
+    icon: <Activity className="w-5 h-5" />,
+    permission: 'jobs:read',
+  },
+  {
+    label: 'LoRA Models',
+    href: routes.lora,
+    icon: <Cpu className="w-5 h-5" />,
+    permission: 'settings:read', // Only admins can view LoRA models
+  },
+  {
     label: 'Analytics',
     href: routes.analytics,
     icon: <BarChart3 className="w-5 h-5" />,
@@ -70,6 +86,36 @@ const NAV_ITEMS: NavItem[] = [
     href: routes.library,
     icon: <FolderOpen className="w-5 h-5" />,
     permission: 'library:read',
+  },
+  {
+    label: 'Audit Log',
+    href: routes.audit,
+    icon: <Shield className="w-5 h-5" />,
+    permission: 'settings:read', // Only admins can view audit logs
+  },
+  {
+    label: 'Admin Users',
+    href: routes.admins,
+    icon: <Users className="w-5 h-5" />,
+    permission: 'admins:read', // Only super_admin can access
+  },
+  {
+    label: 'Feature Flags',
+    href: routes.flags,
+    icon: <Flag className="w-5 h-5" />,
+    permission: 'settings:write',
+  },
+  {
+    label: 'System Config',
+    href: routes.config,
+    icon: <Settings className="w-5 h-5" />,
+    permission: 'settings:write',
+  },
+  {
+    label: 'Notifications',
+    href: routes.notifications,
+    icon: <Bell className="w-5 h-5" />,
+    permission: 'settings:write',
   },
   {
     label: 'Settings',

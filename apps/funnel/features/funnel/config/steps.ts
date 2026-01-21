@@ -215,8 +215,9 @@ const PRESETS_FLOW_STEPS: Omit<StepInfo, "index">[] = [
         formField: "video_content_options",
         component: VideoContentOptionsStep,
     },
-    { name: "NSFW Content", type: "input", formField: "enable_nsfw", component: NSFWContentStep },
-    { name: "NSFW Content Preview", type: "info", component: NSFWContentPreviewStep },
+    // TODO: Re-enable NSFW steps in the future
+    // { name: "NSFW Content", type: "input", formField: "enable_nsfw", component: NSFWContentStep },
+    // { name: "NSFW Content Preview", type: "info", component: NSFWContentPreviewStep },
 
     // Phase 11: Final Features & Generation
     { name: "Lipsync Feature", type: "info", component: LipsyncFeatureStep },
@@ -238,8 +239,9 @@ const COMMON_PRE_GENERATION_STEPS: Omit<StepInfo, "index">[] = [
         formField: "video_content_options",
         component: VideoContentOptionsStep,
     },
-    { name: "NSFW Content", type: "input", formField: "enable_nsfw", component: NSFWContentStep },
-    { name: "NSFW Content Preview", type: "info", component: NSFWContentPreviewStep },
+    // TODO: Re-enable NSFW steps in the future
+    // { name: "NSFW Content", type: "input", formField: "enable_nsfw", component: NSFWContentStep },
+    // { name: "NSFW Content Preview", type: "info", component: NSFWContentPreviewStep },
 ];
 
 // Common steps that appear at the end (after all flows converge)
@@ -272,8 +274,8 @@ export function buildFunnelSteps(creationMethod?: "presets" | "ai" | "custom"): 
         steps.push(...COMMON_END_STEPS);
     } else {
         // Default to presets flow (includes all steps)
+        // Note: PRESETS_FLOW_STEPS already includes all final steps, so don't add COMMON_END_STEPS
         steps.push(...PRESETS_FLOW_STEPS);
-        steps.push(...COMMON_END_STEPS);
     }
 
     return steps;

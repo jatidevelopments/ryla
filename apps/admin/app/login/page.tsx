@@ -1,17 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Shield, Eye, EyeOff, Loader2, AlertCircle } from 'lucide-react';
 import { routes } from '@/lib/routes';
 
-export default function LoginPage() {
+function LoginContent() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,7 +33,32 @@ export default function LoginPage() {
       }
 
       localStorage.setItem('admin_token', data.token);
-      router.push(routes.dashboard);
+      
+      // Redirect to returnUrl if provided, otherwise dashboard
+      // Next.js useSearchParams.get() should auto-decode, but handle edge cases
+      const returnUrlParam = searchParams.get('returnUrl');
+      let returnUrl: string | null = null;
+      
+      if (returnUrlParam) {
+        try {
+          // Try decoding in case it's double-encoded or not auto-decoded
+          // decodeURIComponent is safe - if already decoded, it returns as-is
+          returnUrl = decodeURIComponent(returnUrlParam);
+        } catch {
+          // If decoding fails, use the param as-is
+          returnUrl = returnUrlParam;
+        }
+      }
+      
+      // Validate returnUrl is a valid path (starts with / and doesn't contain protocol)
+      // Also ensure it's not the login page itself
+      const isValidReturnUrl = returnUrl && 
+        returnUrl.startsWith('/') && 
+        !returnUrl.includes('://') &&
+        returnUrl !== routes.login;
+      
+      const redirectPath = isValidReturnUrl && returnUrl ? returnUrl : routes.dashboard;
+      router.push(redirectPath);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
@@ -139,5 +165,17 @@ export default function LoginPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    }>
+      <LoginContent />
+    </Suspense>
   );
 }
