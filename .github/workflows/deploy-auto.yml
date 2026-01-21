@@ -538,7 +538,7 @@ jobs:
           # Set as outputs for use in deployment step
           echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
           echo "debug_cdn=$NEXT_PUBLIC_DEBUG_CDN" >> $GITHUB_OUTPUT
-          echo "site_url=$NEXT_PUBLIC_SITE_URL_FUNNEL" >> $GITHUB_OUTPUT
+          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
           echo "api_base_url=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_OUTPUT
           echo "finby_redirect=$NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT" >> $GITHUB_OUTPUT
           echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
@@ -688,7 +688,7 @@ jobs:
           set +a
           
           # Set as outputs for use in deployment step
-          echo "site_url=$NEXT_PUBLIC_SITE_URL_LANDING" >> $GITHUB_OUTPUT
+          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
           echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
           echo "debug_cdn=$NEXT_PUBLIC_DEBUG_CDN" >> $GITHUB_OUTPUT
           
