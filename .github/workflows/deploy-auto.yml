@@ -524,29 +524,45 @@ jobs:
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
           
           # Export secrets to temporary file
-          infisical export \
+          if ! infisical export \
             --path=/apps/funnel \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env
+            --format=dotenv > /tmp/build-args.env; then
+            echo "❌ Failed to export secrets from Infisical"
+            exit 1
+          fi
+          
+          # Check if file was created and has content
+          if [ ! -s /tmp/build-args.env ]; then
+            echo "❌ Build args file is empty or missing"
+            exit 1
+          fi
           
           # Source the file to make variables available
           set -a
           source /tmp/build-args.env
           set +a
           
-          # Set as outputs for use in deployment step
-          echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
-          echo "debug_cdn=$NEXT_PUBLIC_DEBUG_CDN" >> $GITHUB_OUTPUT
-          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
-          echo "api_base_url=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_OUTPUT
-          echo "finby_redirect=$NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT" >> $GITHUB_OUTPUT
-          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
-          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
-          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
-          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+          # Verify required variables are set
+          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
+            echo "⚠️  WARNING: NEXT_PUBLIC_SITE_URL is not set"
+          fi
+          
+          # Set as outputs for use in deployment step (with defaults to prevent empty values)
+          echo "cdn_url=${NEXT_PUBLIC_CDN_URL:-}" >> $GITHUB_OUTPUT
+          echo "debug_cdn=${NEXT_PUBLIC_DEBUG_CDN:-}" >> $GITHUB_OUTPUT
+          echo "site_url=${NEXT_PUBLIC_SITE_URL:-}" >> $GITHUB_OUTPUT
+          echo "api_base_url=${NEXT_PUBLIC_API_BASE_URL:-}" >> $GITHUB_OUTPUT
+          echo "finby_redirect=${NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT:-}" >> $GITHUB_OUTPUT
+          echo "posthog_host=${NEXT_PUBLIC_POSTHOG_HOST:-}" >> $GITHUB_OUTPUT
+          echo "posthog_key=${NEXT_PUBLIC_POSTHOG_KEY:-}" >> $GITHUB_OUTPUT
+          echo "supabase_url=${NEXT_PUBLIC_SUPABASE_URL:-}" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" >> $GITHUB_OUTPUT
           
           echo "✅ Build args exported"
+          echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-<not set>}"
+          echo "  NEXT_PUBLIC_CDN_URL: ${NEXT_PUBLIC_CDN_URL:-<not set>}"
 
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -676,23 +692,39 @@ jobs:
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
           
           # Export secrets to temporary file
-          infisical export \
+          if ! infisical export \
             --path=/apps/landing \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env
+            --format=dotenv > /tmp/build-args.env; then
+            echo "❌ Failed to export secrets from Infisical"
+            exit 1
+          fi
+          
+          # Check if file was created and has content
+          if [ ! -s /tmp/build-args.env ]; then
+            echo "❌ Build args file is empty or missing"
+            exit 1
+          fi
           
           # Source the file to make variables available
           set -a
           source /tmp/build-args.env
           set +a
           
-          # Set as outputs for use in deployment step
-          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
-          echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
-          echo "debug_cdn=$NEXT_PUBLIC_DEBUG_CDN" >> $GITHUB_OUTPUT
+          # Verify required variables are set
+          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
+            echo "⚠️  WARNING: NEXT_PUBLIC_SITE_URL is not set"
+          fi
+          
+          # Set as outputs for use in deployment step (with defaults to prevent empty values)
+          echo "site_url=${NEXT_PUBLIC_SITE_URL:-}" >> $GITHUB_OUTPUT
+          echo "cdn_url=${NEXT_PUBLIC_CDN_URL:-}" >> $GITHUB_OUTPUT
+          echo "debug_cdn=${NEXT_PUBLIC_DEBUG_CDN:-}" >> $GITHUB_OUTPUT
           
           echo "✅ Build args exported"
+          echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-<not set>}"
+          echo "  NEXT_PUBLIC_CDN_URL: ${NEXT_PUBLIC_CDN_URL:-<not set>}"
 
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -816,29 +848,46 @@ jobs:
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
           
           # Export secrets to temporary file
-          infisical export \
+          if ! infisical export \
             --path=/apps/admin \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env
+            --format=dotenv > /tmp/build-args.env; then
+            echo "❌ Failed to export secrets from Infisical"
+            exit 1
+          fi
+          
+          # Check if file was created and has content
+          if [ ! -s /tmp/build-args.env ]; then
+            echo "❌ Build args file is empty or missing"
+            exit 1
+          fi
           
           # Source the file to make variables available
           set -a
           source /tmp/build-args.env
           set +a
           
-          # Set as outputs for use in deployment step
-          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
-          echo "api_url=$NEXT_PUBLIC_API_URL" >> $GITHUB_OUTPUT
-          echo "api_base_url=$NEXT_PUBLIC_API_BASE_URL" >> $GITHUB_OUTPUT
-          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
-          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
-          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
-          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+          # Verify required variables are set
+          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
+            echo "⚠️  WARNING: NEXT_PUBLIC_SITE_URL is not set"
+          fi
+          if [ -z "$NEXT_PUBLIC_API_URL" ]; then
+            echo "⚠️  WARNING: NEXT_PUBLIC_API_URL is not set"
+          fi
+          
+          # Set as outputs for use in deployment step (with defaults to prevent empty values)
+          echo "site_url=${NEXT_PUBLIC_SITE_URL:-}" >> $GITHUB_OUTPUT
+          echo "api_url=${NEXT_PUBLIC_API_URL:-}" >> $GITHUB_OUTPUT
+          echo "api_base_url=${NEXT_PUBLIC_API_BASE_URL:-}" >> $GITHUB_OUTPUT
+          echo "posthog_key=${NEXT_PUBLIC_POSTHOG_KEY:-}" >> $GITHUB_OUTPUT
+          echo "posthog_host=${NEXT_PUBLIC_POSTHOG_HOST:-}" >> $GITHUB_OUTPUT
+          echo "supabase_url=${NEXT_PUBLIC_SUPABASE_URL:-}" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" >> $GITHUB_OUTPUT
           
           echo "✅ Build args exported"
-          echo "  NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
-          echo "  NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
+          echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-<not set>}"
+          echo "  NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-<not set>}"
 
       - name: Stop old machines (if any)
         run: |
