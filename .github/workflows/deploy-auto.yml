@@ -95,8 +95,6 @@ jobs:
       - name: Detect affected apps
         id: affected
         run: |
-          set -e  # Exit on error
-          
           # Get base commit (previous commit on main, or main branch if first commit)
           # For push events, use github.event.before if available, otherwise HEAD~1
           if [ "${{ github.event_name }}" = "push" ]; then
@@ -130,8 +128,9 @@ jobs:
           
           # Check which apps are affected using Nx show projects
           # Nx show projects --affected returns projects that changed
+          # Note: Nx may return non-zero exit code if no projects are affected, which is OK
           echo "Running: pnpm nx show projects --affected --base=$BASE --head=$HEAD"
-          AFFECTED=$(pnpm nx show projects --affected --base=$BASE --head=$HEAD 2>&1 || echo "")
+          AFFECTED=$(pnpm nx show projects --affected --base=$BASE --head=$HEAD 2>&1) || AFFECTED=""
           
           echo "Affected projects: $AFFECTED"
           
