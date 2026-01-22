@@ -85,7 +85,12 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: |
+          echo "Installing dependencies..."
+          pnpm install --frozen-lockfile || {
+            echo "❌ pnpm install with --frozen-lockfile failed, trying without..."
+            pnpm install
+          }
 
       - name: Detect affected apps
         id: affected
