@@ -78,38 +78,7 @@ jobs:
           lfs: false  # Not needed for change detection (only checks file paths)
           persist-credentials: true
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Enable corepack (for pnpm)
-        run: corepack enable
-
-      - name: Install dependencies
-        run: |
-          echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version)"
-          echo "Node version: $(node --version)"
-          echo "Working directory: $(pwd)"
-          echo "Checking lockfile..."
-          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
-          
-          # Set pnpm config for CI
-          pnpm config set store-dir ~/.pnpm-store || true
-          
-          # Try install - use network-timeout to handle slow networks
-          echo "Running pnpm install..."
-          pnpm install --frozen-lockfile --network-timeout=60000 || {
-            echo "⚠️  pnpm install with --frozen-lockfile failed, trying without..."
-            pnpm install --network-timeout=60000 || {
-              echo "❌ pnpm install failed"
-              exit 1
-            }
-          }
-          
-          echo "✅ Dependencies installed successfully"
-
-      - name: Detect affected apps
+      - name: Detect affected apps (using git diff)
         id: affected
         run: |
           # Get base commit (previous commit on main, or main branch if first commit)
@@ -118,13 +87,15 @@ jobs:
             # Use github.event.before if it exists and is valid, otherwise use HEAD~1
             if [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
               BASE="${{ github.event.before }}"
+              echo "Using github.event.before as base: $BASE"
             else
+              # Try HEAD~1, fallback to origin/main
               BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "origin/main")
             fi
             HEAD=$(git rev-parse HEAD)
           else
             # For workflow_dispatch, compare with origin/main
-            git fetch origin main || true
+            git fetch origin main --depth=1 || true
             BASE=$(git merge-base HEAD origin/main 2>/dev/null || echo "origin/main")
             HEAD=$(git rev-parse HEAD)
           fi
@@ -132,72 +103,61 @@ jobs:
           echo "Base: $BASE"
           echo "Head: $HEAD"
           
-          # Verify Nx is available
-          if ! command -v pnpm &> /dev/null; then
-            echo "❌ pnpm not found"
-            exit 1
+          # Use git diff to detect changes in app directories (faster than Nx, no dependencies needed)
+          CHANGED_FILES=$(git diff --name-only $BASE..$HEAD 2>/dev/null || echo "")
+          
+          echo "Changed files detected: $(echo "$CHANGED_FILES" | wc -l | tr -d ' ') files"
+          
+          # Check which apps have changes
+          WEB_CHANGED=false
+          API_CHANGED=false
+          FUNNEL_CHANGED=false
+          LANDING_CHANGED=false
+          ADMIN_CHANGED=false
+          
+          if echo "$CHANGED_FILES" | grep -qE "^apps/web/"; then
+            WEB_CHANGED=true
+            echo "✓ Web app has changes"
           fi
           
-          if ! pnpm nx --version &> /dev/null; then
-            echo "❌ Nx not available"
-            exit 1
+          if echo "$CHANGED_FILES" | grep -qE "^apps/api/"; then
+            API_CHANGED=true
+            echo "✓ API app has changes"
           fi
           
-          # Check which apps are affected using Nx show projects
-          # Nx show projects --affected returns projects that changed
-          # Note: Nx may return non-zero exit code if no projects are affected, which is OK
-          echo "Running: pnpm nx show projects --affected --base=$BASE --head=$HEAD"
-          AFFECTED=$(pnpm nx show projects --affected --base=$BASE --head=$HEAD 2>&1) || AFFECTED=""
-          
-          echo "Affected projects: $AFFECTED"
-          
-          # Set outputs for each app
-          if echo "$AFFECTED" | grep -qE "(^|\s)web(\s|$)"; then
-            echo "web=true" >> $GITHUB_OUTPUT
-            echo "✓ Web app affected"
-          else
-            echo "web=false" >> $GITHUB_OUTPUT
-            echo "✗ Web app not affected"
+          if echo "$CHANGED_FILES" | grep -qE "^apps/funnel/"; then
+            FUNNEL_CHANGED=true
+            echo "✓ Funnel app has changes"
           fi
           
-          if echo "$AFFECTED" | grep -qE "(^|\s)api(\s|$)"; then
-            echo "api=true" >> $GITHUB_OUTPUT
-            echo "✓ API app affected"
-          else
-            echo "api=false" >> $GITHUB_OUTPUT
-            echo "✗ API app not affected"
+          if echo "$CHANGED_FILES" | grep -qE "^apps/landing/"; then
+            LANDING_CHANGED=true
+            echo "✓ Landing app has changes"
           fi
           
-          if echo "$AFFECTED" | grep -qE "(^|\s)funnel(\s|$)"; then
-            echo "funnel=true" >> $GITHUB_OUTPUT
-            echo "✓ Funnel app affected"
-          else
-            echo "funnel=false" >> $GITHUB_OUTPUT
-            echo "✗ Funnel app not affected"
+          if echo "$CHANGED_FILES" | grep -qE "^apps/admin/"; then
+            ADMIN_CHANGED=true
+            echo "✓ Admin app has changes"
           fi
           
-          if echo "$AFFECTED" | grep -qE "(^|\s)landing(\s|$)"; then
-            echo "landing=true" >> $GITHUB_OUTPUT
-            echo "✓ Landing app affected"
-          else
-            echo "landing=false" >> $GITHUB_OUTPUT
-            echo "✗ Landing app not affected"
+          # Also check if workflow files changed (affects all apps)
+          if echo "$CHANGED_FILES" | grep -qE "^\\.github/workflows/"; then
+            echo "⚠️  Workflow files changed - this may affect all apps"
           fi
           
-          if echo "$AFFECTED" | grep -qE "(^|\s)admin(\s|$)"; then
-            echo "admin=true" >> $GITHUB_OUTPUT
-            echo "✓ Admin app affected"
-          else
-            echo "admin=false" >> $GITHUB_OUTPUT
-            echo "✗ Admin app not affected"
-          fi
+          # Set outputs
+          echo "web=$WEB_CHANGED" >> $GITHUB_OUTPUT
+          echo "api=$API_CHANGED" >> $GITHUB_OUTPUT
+          echo "funnel=$FUNNEL_CHANGED" >> $GITHUB_OUTPUT
+          echo "landing=$LANDING_CHANGED" >> $GITHUB_OUTPUT
+          echo "admin=$ADMIN_CHANGED" >> $GITHUB_OUTPUT
           
-          if [ -z "$AFFECTED" ] || ! echo "$AFFECTED" | grep -qE "(^|\s)(web|api|funnel|landing|admin)(\s|$)"; then
-            echo "has-changes=false" >> $GITHUB_OUTPUT
-            echo "No app changes detected"
-          else
+          if [ "$WEB_CHANGED" = "true" ] || [ "$API_CHANGED" = "true" ] || [ "$FUNNEL_CHANGED" = "true" ] || [ "$LANDING_CHANGED" = "true" ] || [ "$ADMIN_CHANGED" = "true" ]; then
             echo "has-changes=true" >> $GITHUB_OUTPUT
             echo "App changes detected"
+          else
+            echo "has-changes=false" >> $GITHUB_OUTPUT
+            echo "No app changes detected"
           fi
 
   deploy-web:
