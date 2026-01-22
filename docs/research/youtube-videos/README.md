@@ -57,6 +57,15 @@ Use the YouTube Tools MCP server to:
 
 ## Videos
 
+### Recent Research (January 2026)
+
+#### [How To Get Your First Users](./0kARDVL2nZg/)
+
+- **Published**: Unknown
+- **Topic**: YC General Partner Ankit Gupta on Minimum Evolvable Product (MEP) - an update to the classic MVP playbook
+- **Relevance**: Product Strategy, Early User Acquisition, MVP Development, Pricing Strategy
+- **Key Insights**: ✅ MEP > MVP (evolvability over viability), Finding early users is a search problem not persuasion, Charge real money early for sharper feedback, Product evolution is path-dependent on early users, Experiment fast and don't fear churn, Consumer apps struggle with AI costs (consider prosumer/business model)
+
 ### Recent Research (Last 1-2 Weeks)
 
 #### [Kling AI Guide: Consistent Characters](./7WcVWq-fcXc/)

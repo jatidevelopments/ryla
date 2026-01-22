@@ -6,6 +6,7 @@ import { useAuth } from '../../lib/auth-context';
 import { trpc } from '../../lib/trpc';
 import { routes } from '../../lib/routes';
 import { LoadingState } from '../ui/loading-state';
+import { AuthModal } from './AuthModal';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -73,10 +74,14 @@ export function ProtectedRoute({
     return fallback ?? <LoadingSkeleton />;
   }
 
-  // If not authenticated, AuthProvider will handle redirect
-  // Show nothing while redirecting to prevent flash
+  // If not authenticated, show auth modal overlay on top of the page
   if (!isAuthenticated) {
-    return fallback ?? <LoadingSkeleton />;
+    return (
+      <>
+        {children}
+        <AuthModal />
+      </>
+    );
   }
 
   // Show loading while checking onboarding (unless we're on onboarding page or skipping check)

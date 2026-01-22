@@ -54,6 +54,25 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer, webpack }) => {
+    // Ensure .js extension is included in resolve.extensions for subpath imports
+    if (!config.resolve.extensions) {
+      config.resolve.extensions = [];
+    }
+    // Ensure .js is first (before .ts, .tsx) for dist folder imports
+    config.resolve.extensions = [
+      '.js',
+      ...config.resolve.extensions.filter((ext) => ext !== '.js'),
+    ];
+
+    // Add dist/libs to modules for better subpath resolution
+    if (!config.resolve.modules) {
+      config.resolve.modules = [];
+    }
+    config.resolve.modules = [
+      ...config.resolve.modules,
+      path.resolve(__dirname, '../../dist/libs'),
+    ];
+
     // Resolve @ryla/* packages to dist folder
     config.resolve.alias = {
       ...config.resolve.alias,

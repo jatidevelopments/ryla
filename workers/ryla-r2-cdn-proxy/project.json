@@ -1,0 +1,7 @@
+{
+  "name": "ryla-r2-cdn-proxy",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "workers/ryla-r2-cdn-proxy",
+  "projectType": "application",
+  "tags": ["type:worker", "scope:infrastructure"]
+}

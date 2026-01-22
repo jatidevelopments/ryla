@@ -30,6 +30,15 @@ Documentation for ComfyUI setup, deployment, and usage in RYLA.
   - Phase-by-phase plan
   - Architecture decisions
 
+### Development Tools
+
+- **[ComfyUI-Copilot](./COMFYUI-COPILOT.md)** 🤖 **NEW**
+  - AI-powered workflow generation and debugging
+  - Natural language workflow creation
+  - Automated error detection and fixes
+  - Parameter tuning and optimization
+  - Node and model discovery
+
 ---
 
 ## Architecture Decision
@@ -70,6 +79,18 @@ const workflow = buildZImageDanrisiWorkflow({
 ```
 
 ---
+
+## Research & Alternatives
+
+- **[ComfyUI Open-Source Alternatives](../../research/infrastructure/COMFYUI-OPEN-SOURCE-ALTERNATIVES.md)** 🔍
+  - Comparison of open-source alternatives to ComfyUI (Fooocus, InvokeAI, etc.)
+  - UX comparison and workflow flexibility analysis
+  - How alternatives fit into RYLA's architecture
+
+- **[ComfyUI Platform Market Research](../../research/infrastructure/COMFYUI-PLATFORM-MARKET-RESEARCH.md)**
+  - Cloud hosting platforms comparison (RunComfy, ViewComfy, Modal, etc.)
+  - Cost analysis and serverless capabilities
+  - Platform evaluation for RYLA's infrastructure
 
 ## Related Documentation
 

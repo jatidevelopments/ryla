@@ -1,0 +1,229 @@
+---
+description: Structured reasoning patterns for AI interactions to improve output quality and depth
+alwaysApply: false
+---
+
+# AI Reasoning Patterns
+
+Modern AI models default to fast, fluent answers that sound right but lack depth. When we force models to reason step-by-step before answering, we unlock deeper, more useful outputs that are specific, grounded, and less generic.
+
+Applies to: AI agent workflows (Cursor, Claude, etc.), LLM-based features in RYLA (prompt enhancement, content generation), complex problem-solving tasks, architecture and design decisions.
+
+## Core Principle
+
+Reason before answering. Change the objective from "sound right" to "be internally consistent."
+
+## The Reasoning Pattern
+
+For any complex task, structure prompts to require reasoning first:
+
+```
+Before answering, reason through the problem step by step.
+
+UNDERSTAND the core question and what a useful answer should enable.
+ANALYZE the key factors, constraints, and variables that matter here.
+REASON through how those elements interact and where the real tradeoffs are.
+SYNTHESIZE the implications of that reasoning into a coherent view.
+CONCLUDE with the most accurate and useful answer.
+
+Now provide the final answer.
+```
+
+## When to Use
+
+**Use this pattern for:**
+- ✅ Business and product strategy decisions
+- ✅ Technical debugging and architecture decisions
+- ✅ Research synthesis and analysis
+- ✅ Complex problem-solving tasks
+- ✅ Learning topics where you want a mental model, not a summary
+- ✅ High-stakes decisions with multiple interacting factors
+
+**Skip this pattern for:**
+- ❌ Simple questions with clear answers
+- ❌ Low-stakes explanations or definitions
+- ❌ Straightforward code generation with clear requirements
+- ❌ When speed matters more than depth
+
+## Application Areas
+
+### 1. AI Agent Workflows (Cursor/Claude)
+
+**For complex tasks, add reasoning step:**
+
+```markdown
+Task: [Description]
+
+Before implementing, reason through this step by step:
+
+1. UNDERSTAND: What is the core problem? What should the solution enable?
+2. ANALYZE: What are the key constraints, dependencies, and variables?
+3. REASON: How do these elements interact? What are the tradeoffs?
+4. SYNTHESIZE: What are the implications for implementation?
+5. CONCLUDE: What is the best approach?
+
+Now implement the solution.
+```
+
+### 2. Prompt Enhancement (AIPromptEnhancer)
+
+**Current pattern** (direct task assignment):
+```typescript
+parts.push(`YOUR TASK:`);
+parts.push(`1. Expand this minimal description...`);
+```
+
+**Improved pattern** (reasoning first):
+```typescript
+parts.push(`Before enhancing, reason through the character step by step:`);
+parts.push(`UNDERSTAND: What is the user's core vision? What should this character enable?`);
+parts.push(`ANALYZE: What physical features, personality traits, and distinguishing elements matter?`);
+parts.push(`REASON: How do these elements interact to create a unique, memorable character?`);
+parts.push(`SYNTHESIZE: What details will make this character feel real and distinct?`);
+parts.push(`CONCLUDE: What is the most effective enhancement approach?`);
+parts.push(`\nNow enhance the prompt with this reasoning in mind.`);
+```
+
+### 3. Epic Requirements Generation
+
+**Enhanced prompt structure:**
+
+```markdown
+Generate a requirements document for: [EPIC DESCRIPTION]
+
+Before generating, reason through this step by step:
+
+UNDERSTAND: What problem are we solving? Who has it? Why does it matter?
+ANALYZE: What are the key constraints, dependencies, and success factors?
+REASON: How do user needs, technical constraints, and business goals interact?
+SYNTHESIZE: What is the minimum viable solution that validates the hypothesis?
+CONCLUDE: What should the requirements document contain?
+
+Now generate the requirements document following the structure...
+```
+
+### 4. Architecture Decisions
+
+**For architecture questions:**
+
+```markdown
+Question: [Architecture question]
+
+Before answering, reason through this step by step:
+
+UNDERSTAND: What is the core architectural challenge? What should the solution enable?
+ANALYZE: What are the technical constraints, performance requirements, and tradeoffs?
+REASON: How do scalability, maintainability, and complexity interact?
+SYNTHESIZE: What are the implications for implementation and future changes?
+CONCLUDE: What is the best architectural approach?
+
+Now provide the architectural recommendation.
+```
+
+### 5. Debugging and Problem-Solving
+
+**For complex bugs:**
+
+```markdown
+Problem: [Bug description]
+
+Before proposing a fix, reason through this step by step:
+
+UNDERSTAND: What is the actual problem? What should work but doesn't?
+ANALYZE: What are the symptoms, error messages, and affected components?
+REASON: How do these symptoms relate? What is the root cause?
+SYNTHESIZE: What are the implications of different fix approaches?
+CONCLUDE: What is the most effective fix that addresses the root cause?
+
+Now propose the fix.
+```
+
+## Implementation Guidelines
+
+### For AI Agents (Cursor Rules)
+
+1. **Add reasoning step to complex task workflows**
+   - Update `task-execution.mdc` to include reasoning for complex tasks
+   - Use reasoning pattern in epic/story planning phases
+
+2. **Enhance user intent validation**
+   - When requirements are ambiguous, use reasoning to clarify
+   - Apply reasoning pattern to validate understanding
+
+### For LLM Features (Code)
+
+1. **Update AIPromptEnhancer**
+   - Add reasoning step before enhancement tasks
+   - Structure prompts to require step-by-step thinking
+
+2. **Content Generation Features**
+   - Apply reasoning pattern to any LLM-based content generation
+   - Ensure outputs are grounded in reasoning, not pattern-matching
+
+### For Documentation
+
+1. **Epic Requirements Template**
+   - Add reasoning section before requirements generation
+   - Encourage deeper analysis of problem space
+
+2. **Architecture Decision Records (ADRs)**
+   - Include reasoning process in ADR templates
+   - Document the thinking, not just the conclusion
+
+## Examples
+
+### Example 1: Complex Feature Planning
+
+**Without reasoning:**
+```
+Task: Add user notifications system
+Plan: Create notification table, add API endpoints, build UI components
+```
+
+**With reasoning:**
+```
+Task: Add user notifications system
+
+Before planning, reason through this step by step:
+
+UNDERSTAND: What user problem does this solve? What should notifications enable?
+ANALYZE: What are the notification types, delivery channels, and user preferences?
+REASON: How do real-time vs. batched, push vs. in-app, and read/unread states interact?
+SYNTHESIZE: What is the minimum viable notification system that solves the core problem?
+CONCLUDE: What is the best approach for MVP?
+
+Now create the implementation plan.
+```
+
+### Example 2: Prompt Enhancement
+
+**Current (direct):**
+```typescript
+parts.push(`1. Expand this minimal description into a rich, detailed character portrait`);
+```
+
+**Improved (reasoning first):**
+```typescript
+parts.push(`Before enhancing, reason through the character:`);
+parts.push(`UNDERSTAND: What is the user's core vision for this character?`);
+parts.push(`ANALYZE: What physical features, personality traits, and unique elements matter?`);
+parts.push(`REASON: How do these elements combine to create a memorable, realistic character?`);
+parts.push(`SYNTHESIZE: What specific details will make this character stand out?`);
+parts.push(`CONCLUDE: What is the most effective enhancement approach?`);
+parts.push(`\nNow enhance the prompt with this reasoning.`);
+```
+
+## Best Practices
+
+1. **Use deliberately** - Not for every task, only when quality matters more than speed
+2. **Keep it structured** - Use the 5-step pattern consistently
+3. **Don't over-engineer** - Simple questions don't need this pattern
+4. **Measure impact** - Track whether reasoning improves output quality
+5. **Iterate** - Refine the pattern based on results
+
+## Related Documentation
+
+- Task Execution: `task-execution.mdc` (for agent workflows)
+- User Intent Validation: `user-intent-validation.mdc` (for clarifying requirements)
+- Prompt Enhancement: `libs/business/src/prompts/ai-enhancer.ts` (for LLM features)
+- Epic Requirements: `ai/prompts/epic-requirements.md` (for requirements generation)

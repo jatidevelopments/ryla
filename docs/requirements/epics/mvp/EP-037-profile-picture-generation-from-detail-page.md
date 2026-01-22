@@ -1,5 +1,11 @@
 # [EPIC] EP-037: Profile Picture Generation from Influencer Detail Page
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Enable users to generate profile picture sets directly from the influencer detail page when they were skipped during character creation. This fulfills the promise made in the wizard's "Generate Later" option, which states users can "generate profile pictures anytime from your character page."

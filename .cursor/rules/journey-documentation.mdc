@@ -1,0 +1,220 @@
+---
+description: Guidelines for keeping user journey documentation in sync with codebase changes
+alwaysApply: false
+---
+
+# Journey Documentation Sync
+
+## Core Principle
+
+User journey documentation must stay in sync with actual routes, screens, and flows in the codebase. When routes, screens, or user flows change, journey documentation must be updated.
+
+## When to Update Journey Documentation
+
+### Routes Changed
+- New routes added → Update app-specific journey doc
+- Routes removed → Update app-specific journey doc
+- Route paths changed → Update app-specific journey doc
+
+### Screens Changed
+- New screens added → Update screen inventory in app journey doc
+- Screens removed → Update screen inventory
+- Screen purpose changed → Update screen description
+
+### User Flows Changed
+- New flows added → Add flow to app journey doc
+- Flows modified → Update flow documentation
+- Flows removed → Remove from documentation
+
+### Analytics Events Changed
+- New events added → Update touchpoints in journey doc
+- Event names changed → Update all references
+- Event properties changed → Update event documentation
+
+## Journey Documentation Structure
+
+```
+docs/journeys/
+├── README.md                    # Index and overview
+├── CUSTOMER-JOURNEY.md          # Macro journey (AAARRR)
+├── SCREENS.md                   # High-level screen inventory
+├── TOUCHPOINTS.md               # High-level touchpoint matrix
+├── USER-JOURNEY-TEMPLATE.md     # Template for new journeys
+├── web-app-journey.md           # Web app journeys
+├── admin-app-journey.md         # Admin app journeys
+├── funnel-app-journey.md        # Funnel app journeys
+└── landing-app-journey.md       # Landing app journeys
+```
+
+## App-Specific Documentation
+
+Each app has its own journey documentation:
+
+| App | File | Domain | Routes File |
+|-----|------|--------|-------------|
+| **Web** | `web-app-journey.md` | `app.ryla.ai` | `apps/web/lib/routes.ts` |
+| **Admin** | `admin-app-journey.md` | Admin dashboard | `apps/admin/lib/routes.ts` |
+| **Funnel** | `funnel-app-journey.md` | `goviral.ryla.ai` | URL parameters (`?step=N`) |
+| **Landing** | `landing-app-journey.md` | `www.ryla.ai` | Single page app |
+
+## Update Checklist
+
+When updating journey documentation:
+
+### Routes
+- [ ] Check routes file for app (`apps/{app}/lib/routes.ts`)
+- [ ] Verify all routes documented in journey doc
+- [ ] Update route table if routes changed
+- [ ] Update navigation structure if routes changed
+
+### Screens
+- [ ] Check screen inventory in journey doc
+- [ ] Verify all screens have routes documented
+- [ ] Update screen purpose if functionality changed
+- [ ] Add/remove screens as needed
+
+### Flows
+- [ ] Check user flows in journey doc
+- [ ] Verify flows match actual implementation
+- [ ] Update flow diagrams if steps changed
+- [ ] Add/remove flows as needed
+
+### Events
+- [ ] Check analytics events in journey doc
+- [ ] Verify events match tracking plan
+- [ ] Update event names if changed
+- [ ] Update event properties if changed
+
+### Cross-References
+- [ ] Update SCREENS.md if screens changed
+- [ ] Update TOUCHPOINTS.md if touchpoints changed
+- [ ] Update README.md if structure changed
+
+## Phase Integration
+
+Journey documentation should be checked/updated in these phases:
+
+### P4: UI Skeleton
+**When**: Screens and navigation are defined
+**Action**: Create or update app-specific journey doc with screen inventory and navigation structure
+
+### P6: Implementation
+**When**: Routes or screens are implemented
+**Action**: Update journey doc to reflect actual routes and screens
+
+### P10: Production Validation
+**When**: Feature is deployed and validated
+**Action**: Final check that journey docs match production routes and flows
+
+## Verification Steps
+
+Before marking a phase complete:
+
+1. **Check routes file**:
+   ```bash
+   # For web app
+   cat apps/web/lib/routes.ts
+   
+   # For admin app
+   cat apps/admin/lib/routes.ts
+   ```
+
+2. **Compare with journey doc**:
+   - All routes in code → documented in journey doc
+   - All routes in journey doc → exist in code
+   - Route paths match exactly
+
+3. **Check screen inventory**:
+   - All screens have routes
+   - All routes have screens (where applicable)
+   - Screen purposes are accurate
+
+4. **Check user flows**:
+   - Flows match actual navigation
+   - Flow steps are accurate
+   - Events are correctly mapped
+
+## Examples
+
+### Adding a New Route
+
+**Code Change:**
+```typescript
+// apps/web/lib/routes.ts
+export const routes = {
+  // ... existing routes
+  newFeature: '/new-feature',  // NEW
+};
+```
+
+**Documentation Update:**
+```markdown
+# docs/journeys/web-app-journey.md
+
+## Core App Screens
+
+| ID | Screen | Route | Purpose | Key Event |
+|----|--------|-------|---------|-----------|
+| W-C-11 | New Feature | `/new-feature` | New feature description | `new_feature.viewed` |
+```
+
+### Changing a Route Path
+
+**Code Change:**
+```typescript
+// OLD: dashboard: '/dashboard'
+// NEW: dashboard: '/home'
+dashboard: '/home',
+```
+
+**Documentation Update:**
+```markdown
+# Update all references:
+- Screen inventory table
+- User flow diagrams
+- Navigation structure
+```
+
+### Adding a New User Flow
+
+**Documentation Update:**
+```markdown
+# docs/journeys/web-app-journey.md
+
+## Key User Flows
+
+### 7. New Feature Flow
+
+**Goal**: [Description]
+**Target Time**: [Time]
+
+```
+┌─────────────┐
+│   SCREEN 1  │
+└──────┬──────┘
+       │ Action
+       ▼
+┌─────────────┐
+│   SCREEN 2  │
+└─────────────┘
+```
+
+**Key Events**:
+- `feature.started`
+- `feature.completed`
+```
+
+## Related Documentation
+
+- **Routes**: `apps/{app}/lib/routes.ts`
+- **Analytics**: `docs/analytics/TRACKING-PLAN.md`
+- **Architecture**: `docs/architecture/general/USER-FLOWS.md`
+- **Process**: `docs/process/10-PHASE-PIPELINE.md`
+
+## Best Practices
+
+1. **Update as you go** - Don't wait until the end to update docs
+2. **Verify routes** - Always check routes file when updating journey docs
+3. **Keep flows accurate** - User flows should match actual navigation
+4. **Document events** - All user actions should have analytics events
+5. **Cross-reference** - Update related docs (SCREENS.md, TOUCHPOINTS.md)

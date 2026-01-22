@@ -10,7 +10,7 @@ export interface TemplateFiltersData {
   scene?: string;
   environment?: string;
   aspectRatio?: string;
-  qualityMode?: 'draft' | 'hq';
+  // qualityMode removed - EP-045
   nsfw?: boolean;
 }
 
@@ -143,28 +143,7 @@ export function TemplateFilters({
         </select>
       </div>
 
-      {/* Quality Filter */}
-      <div>
-        <label className="text-xs font-medium text-[var(--text-secondary)] mb-2 block">
-          Quality
-        </label>
-        <div className="space-y-1">
-          {(['draft', 'hq'] as const).map((quality) => (
-            <button
-              key={quality}
-              onClick={() => updateFilter('qualityMode', quality)}
-              className={cn(
-                'w-full text-left px-3 py-2 rounded-md text-sm transition-colors',
-                filters.qualityMode === quality
-                  ? 'bg-[var(--purple-500)]/20 text-[var(--purple-400)] border border-[var(--purple-500)]/30'
-                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-subtle)] border border-transparent'
-              )}
-            >
-              {quality === 'draft' ? 'Draft' : 'High Quality'}
-            </button>
-          ))}
-        </div>
-      </div>
+      {/* Quality Filter removed - EP-045 */}
     </div>
   );
 

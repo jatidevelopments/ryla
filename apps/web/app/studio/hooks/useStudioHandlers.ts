@@ -93,8 +93,15 @@ export function useStudioHandlers({
         setSelectedInfluencerId,
         selectedInfluencerId
       );
+      // Auto-switch to editing mode when image is selected
+      if (image) {
+        setMode('editing');
+      } else {
+        // Switch back to creating mode when no image is selected
+        setMode('creating');
+      }
     },
-    [imageActions, setSelectedInfluencerId, selectedInfluencerId]
+    [imageActions, setSelectedInfluencerId, selectedInfluencerId, setMode]
   );
 
   // Handle opening details (select + show panel)
@@ -106,15 +113,19 @@ export function useStudioHandlers({
         selectedInfluencerId
       );
       setShowPanel(true);
+      // Auto-switch to editing mode when opening details
+      setMode('editing');
     },
-    [imageActions, setSelectedInfluencerId, selectedInfluencerId, setShowPanel]
+    [imageActions, setSelectedInfluencerId, selectedInfluencerId, setShowPanel, setMode]
   );
 
   // Handle close panel
   const handleClosePanel = React.useCallback(() => {
     setSelectedImage(null);
     setShowPanel(false);
-  }, [setSelectedImage, setShowPanel]);
+    // Switch back to creating mode when panel is closed
+    setMode('creating');
+  }, [setSelectedImage, setShowPanel, setMode]);
 
   // Handle clear selected image
   const handleClearSelectedImage = React.useCallback(

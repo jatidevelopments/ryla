@@ -16,7 +16,7 @@ export interface StudioSettings {
   environment: string;
   outfit: string | null;
   aspectRatio: '1:1' | '9:16' | '2:3';
-  qualityMode: 'draft' | 'hq';
+  // qualityMode removed - EP-045
   nsfwEnabled: boolean;
 }
 
@@ -156,19 +156,7 @@ export function StudioPanel({
         "flex items-center gap-4",
         isPro ? "justify-between" : "justify-start"
       )}>
-        {/* Quality Mode */}
-        <div className="flex items-center gap-3">
-          <Label htmlFor="quality-mode" className="text-sm text-white/60">
-            HQ Mode
-          </Label>
-          <Switch
-            id="quality-mode"
-            checked={settings.qualityMode === 'hq'}
-            onCheckedChange={(checked) =>
-              onSettingsChange({ qualityMode: checked ? 'hq' : 'draft' })
-            }
-          />
-        </div>
+        {/* Quality Mode removed - EP-045 */}
 
         {/* NSFW Toggle - Only show for Pro users */}
         {isPro && (
@@ -243,6 +231,6 @@ export const DEFAULT_STUDIO_SETTINGS: StudioSettings = {
   environment: DEFAULT_ENVIRONMENT,
   outfit: null,
   aspectRatio: '1:1',
-  qualityMode: 'draft',
+  // qualityMode removed - EP-045
   nsfwEnabled: false,
 };

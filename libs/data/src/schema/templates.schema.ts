@@ -14,6 +14,7 @@ import { users } from './users.schema';
 import { characters } from './characters.schema';
 import { images } from './images.schema';
 import { generationJobs } from './generation-jobs.schema';
+import { templateCategories } from './template-categories.schema';
 
 /**
  * Template configuration type (stored as JSONB)
@@ -25,7 +26,6 @@ export interface TemplateConfig {
   environment: string | null;
   outfit: string | Record<string, unknown> | null;
   aspectRatio: '1:1' | '9:16' | '2:3' | '3:4' | '4:3' | '16:9' | '3:2';
-  qualityMode: 'draft' | 'hq';
   nsfw: boolean;
 
   // Style and composition settings
@@ -76,7 +76,14 @@ export const templates = pgTable(
     isPublic: boolean('is_public').default(false),
     isCurated: boolean('is_curated').default(false),
     tags: text('tags').array(),
+
+    // Category reference (EP-048)
+    categoryId: uuid('category_id').references(() => templateCategories.id, {
+      onDelete: 'set null',
+    }),
+
     usageCount: integer('usage_count').default(0),
+    likesCount: integer('likes_count').default(0),
     successRate: decimal('success_rate', { precision: 5, scale: 2 }),
 
     createdAt: timestamp('created_at').defaultNow(),
@@ -86,8 +93,10 @@ export const templates = pgTable(
     userIdx: index('templates_user_idx').on(table.userId),
     influencerIdx: index('templates_influencer_idx').on(table.influencerId),
     publicIdx: index('templates_public_idx').on(table.isPublic, table.isCurated),
+    categoryIdx: index('templates_category_idx').on(table.categoryId),
     configIdx: index('templates_config_idx').using('gin', table.config),
     usageCountIdx: index('templates_usage_count_idx').on(table.usageCount),
+    likesCountIdx: index('templates_likes_count_idx').on(table.likesCount),
     createdAtIdx: index('templates_created_at_idx').on(table.createdAt),
   })
 );
@@ -134,6 +143,10 @@ export const templatesRelations = relations(templates, ({ one, many }) => ({
   sourceJob: one(generationJobs, {
     fields: [templates.sourceJobId],
     references: [generationJobs.id],
+  }),
+  category: one(templateCategories, {
+    fields: [templates.categoryId],
+    references: [templateCategories.id],
   }),
   usage: many(templateUsage),
 }));

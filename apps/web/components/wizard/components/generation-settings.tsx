@@ -5,19 +5,15 @@ import { useSubscription } from '../../../lib/hooks/use-subscription';
 
 interface GenerationSettingsProps {
   aspectRatio: string;
-  qualityMode: 'hq' | 'draft';
   nsfwEnabled: boolean;
   onAspectRatioChange: (ratio: '1:1' | '9:16' | '2:3') => void;
-  onQualityModeChange: (checked: boolean) => void;
   onNsfwChange: (checked: boolean) => void;
 }
 
 export function GenerationSettings({
   aspectRatio,
-  qualityMode,
   nsfwEnabled,
   onAspectRatioChange,
-  onQualityModeChange,
   onNsfwChange,
 }: GenerationSettingsProps) {
   const { isPro } = useSubscription();
@@ -45,15 +41,6 @@ export function GenerationSettings({
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Quality Mode */}
-        <div className="flex items-center justify-between py-2">
-          <div>
-            <p className="text-white text-sm font-medium">HQ Mode</p>
-            <p className="text-white/40 text-xs">Higher quality output</p>
-          </div>
-          <Switch checked={qualityMode === 'hq'} onCheckedChange={onQualityModeChange} />
         </div>
 
         {/* NSFW - Only show for Pro users */}

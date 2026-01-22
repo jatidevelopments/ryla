@@ -7,6 +7,7 @@ import {
   FadeInUp,
   StaggerChildren,
   Pagination,
+  EnhancedSkeleton,
 } from '@ryla/ui';
 import { InfluencerCard } from '../../components/influencer/InfluencerCard';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
@@ -134,10 +135,16 @@ function DashboardContent() {
       {/* Content */}
       {isLoading ? (
         <FadeInUp delay={200}>
-          <LoadingState
-            title="Loading Influencers"
-            message="Fetching your AI empire..."
-          />
+          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <EnhancedSkeleton
+                key={i}
+                variant="card"
+                shimmer
+                className="aspect-[4/5]"
+              />
+            ))}
+          </div>
         </FadeInUp>
       ) : hasInfluencers ? (
         <>

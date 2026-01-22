@@ -6,11 +6,7 @@ alwaysApply: false
 
 # Accessibility (A11y) Standards
 
-## Context
-
-- Ensures all user-facing pages and components meet basic accessibility requirements
-- Applies to interactions, visual elements, and markup structure
-- Required for legal compliance (WCAG 2.1) and inclusive design
+Ensures all user-facing pages and components meet basic accessibility requirements. Applies to interactions, visual elements, and markup structure. Required for legal compliance (WCAG 2.1) and inclusive design.
 
 ## Requirements
 

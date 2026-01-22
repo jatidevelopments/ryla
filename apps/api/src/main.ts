@@ -4,13 +4,30 @@
 // Load dotenv FIRST before any other imports
 import { config } from 'dotenv';
 import { resolve } from 'path';
+import { existsSync } from 'fs';
 
 // Set up module aliases for @ryla/* packages at runtime
 // This allows Node.js to resolve @ryla/* imports to dist/libs/* paths
 // Must be done before any other imports that use @ryla/* packages
-// __dirname is /app/dist/apps/api/src, so we need to go up 4 levels to /app/dist
+// Works in both development (tsx from source) and production (compiled)
 const moduleAlias = require('module-alias');
-const distPath = resolve(__dirname, '../../../../dist');
+
+// Detect workspace root by looking for package.json or nx.json
+// __dirname is either apps/api/src (dev) or dist/apps/api/src (prod)
+function findWorkspaceRoot(startPath: string): string {
+  let current = startPath;
+  while (current !== '/') {
+    if (existsSync(resolve(current, 'package.json')) || existsSync(resolve(current, 'nx.json'))) {
+      return current;
+    }
+    current = resolve(current, '..');
+  }
+  throw new Error('Could not find workspace root');
+}
+
+const workspaceRoot = findWorkspaceRoot(__dirname);
+const distPath = resolve(workspaceRoot, 'dist');
+
 moduleAlias.addAliases({
   '@ryla/shared': resolve(distPath, 'libs/shared/src'),
   '@ryla/data': resolve(distPath, 'libs/data/src'),

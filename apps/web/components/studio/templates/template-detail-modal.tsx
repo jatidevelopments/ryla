@@ -154,10 +154,7 @@ export function TemplateDetailModal({
                     label="Aspect Ratio"
                     value={template.config.aspectRatio}
                   />
-                  <ConfigItem
-                    label="Quality"
-                    value={template.config.qualityMode.toUpperCase()}
-                  />
+                  {/* Quality removed - EP-045 */}
                   <ConfigItem
                     label="NSFW"
                     value={template.config.nsfw ? 'Yes' : 'No'}

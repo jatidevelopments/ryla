@@ -6,12 +6,7 @@ alwaysApply: false
 
 # Performance Optimization Best Practices
 
-## Context
-
-- Optimize for Core Web Vitals (LCP, FID, CLS)
-- Improve user experience and SEO rankings
-- Reduce bundle size and load times
-- Optimize database queries and API responses
+Optimize for Core Web Vitals (LCP, FID, CLS). Improve user experience and SEO rankings. Reduce bundle size and load times. Optimize database queries and API responses.
 
 ## Requirements
 

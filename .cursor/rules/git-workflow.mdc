@@ -6,12 +6,7 @@ alwaysApply: true
 
 # Git Workflow
 
-## Context
-
-- Consistent branch naming and commit messages
-- Clear PR guidelines and review process
-- Integration with issue tracking (Epics, Stories, Tasks)
-- Conventional commits for automated tooling
+Consistent branch naming and commit messages. Clear PR guidelines and review process. Integration with issue tracking (Epics, Stories, Tasks). Conventional commits for automated tooling.
 
 ## Requirements
 

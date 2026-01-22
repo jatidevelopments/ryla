@@ -22,22 +22,85 @@ libs/
 
 ## Documentation Structure
 
+**Full structure:** See `docs/STRUCTURE.md` for complete organization guide.
+
+**Key directories:**
+
 ```
 docs/
-  requirements/
-    epics/
-      mvp/       # EP-001, EP-002, EP-004, EP-005, EP-007
-      funnel/    # EP-003 (Payment)
-      landing/   # EP-006 (Landing Page)
-      future/    # Phase 2+ planned epics
+  requirements/          # Product requirements
+    epics/              # Epic requirements (mvp/, funnel/, landing/, admin/, ops/, future/)
     MVP-SCOPE.md
     PRODUCT-HYPOTHESIS.md
     ICP-PERSONAS.md
-  technical/
-    MDC-COPY-GUIDE.md
-  research/
-    COMPETITORS.md
+  architecture/          # System architecture
+    general/            # General architecture docs
+    epics/              # Epic-specific architecture
+  specs/                # Technical specifications
+    general/            # General specs
+    epics/              # Epic-specific specs
+    integrations/       # Integration specs
+  technical/             # Implementation guides
+    guides/             # General guides (cursor-rules/, file-organization, etc.)
+    systems/            # System design docs
+    models/             # Model technical docs
+    infrastructure/     # Infrastructure & deployment (runpod/, comfyui/, deployment/)
+    integrations/       # Integration guides
+    refactoring/        # Refactoring docs
+    mobile/             # Mobile-specific docs
+    mdc/                # MDC copy guides
+  ops/                  # Operations & deployment
+    deployment/         # Deployment guides (guides/, status/)
+    setup/              # Setup guides (guides/, status/)
+    runpod/             # RunPod operations
+    ghcr/               # Container registry
+    workflows/           # Workflow conversion
+    status/             # General status files (archive)
+  analytics/            # Analytics tracking
+  decisions/            # Architecture decision records (ADRs)
+  initiatives/          # Business initiatives (IN-XXX)
+  journeys/             # User journeys
+  marketing/            # Marketing strategies
+  process/              # Process documentation (naming-conventions, etc.)
+  planning/             # Planning documents
+  releases/             # Release documentation
+  research/             # Market & technical research
+    competitors/        # Competitor research
+    models/             # AI model research
+    providers/          # Service provider research
+    workflows/          # Workflow research
+    techniques/         # Technical techniques
+    prompts/            # Prompt research
+    learnings/          # Research learnings
+    infrastructure/     # Infrastructure research
+    legal_references/   # Legal references
+    ai-influencer-course/ # Course materials
+    recordings/         # Recordings
+    screenshots/        # Screenshots
+    youtube-videos/     # YouTube video research
+  testing/              # Testing documentation
+  templates/            # Documentation templates
 ```
+
+**Documentation organization principles:**
+- **Requirements**: Product requirements organized by epic scope
+- **Architecture**: System design, separated general vs epic-specific
+- **Specs**: Technical specifications, separated general vs epic-specific
+- **Technical**: Implementation guides organized by topic (guides/, systems/, models/, etc.)
+- **Ops**: Operations docs separated into active guides vs historical status
+- **Research**: Market and technical research organized by topic
+- **Process**: Process documentation (naming conventions, workflows, etc.)
+
+**File placement guidelines:**
+- Epic requirements → `requirements/epics/{scope}/`
+- Epic architecture → `architecture/epics/`
+- Epic specs → `specs/epics/`
+- General guides → `technical/guides/`
+- System docs → `technical/systems/`
+- Integration docs → `technical/integrations/`
+- Status/summary files → `ops/{category}/status/` (archive)
+- Active guides → `ops/{category}/guides/`
+- Research learnings → `research/learnings/`
 
 ## Epic Organization
 

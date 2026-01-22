@@ -2,50 +2,61 @@
 
 ## Overview
 
-Mapping customer journey stages to screens, actions, and analytics events.
+This document provides a high-level overview of touchpoints across the customer journey. For detailed app-specific touchpoints, see the app-specific journey documentation.
 
 ---
 
-## Touchpoint Matrix
+## App-Specific Touchpoint Documentation
 
-| Journey Stage | Screen | User Action | Event | Business Metric |
-|---------------|--------|-------------|-------|-----------------|
-| **Awareness** | | | | |
-| Ad click | External | Click ad | `utm.landed` | E (CAC) |
-| Content view | Blog | Read article | `content.viewed` | E (CAC) |
-| **Acquisition** | | | | |
-| Landing view | Landing | View page | `landing.viewed` | E (CAC) |
-| Signup start | Signup | Click signup | `signup.started` | E (CAC) |
-| Signup complete | Signup | Submit form | `signup.completed` | E (CAC) |
-| **Activation** | | | | |
-| Onboarding start | Onboarding | Begin flow | `onboarding.started` | A |
-| Onboarding step | Onboarding | Complete step | `onboarding.step_completed` | A |
-| First action | Core | Use feature | `user.activated` | A |
-| **Revenue** | | | | |
-| Paywall view | Paywall | See upgrade | `paywall.viewed` | D |
-| Trial start | Checkout | Start trial | `trial.started` | D |
-| Payment | Checkout | Pay | `subscription.created` | D |
-| **Retention** | | | | |
-| Return visit | Dashboard | Login | `session.started` | B |
-| Feature use | Core | Engage | `feature.used` | B |
-| D7 return | Dashboard | Return day 7 | `user.returned_d7` | B |
-| **Referral** | | | | |
-| Share prompt | Settings | See prompt | `referral.prompted` | E |
-| Share action | Settings | Click share | `referral.shared` | E |
-| Friend signup | Signup | Via referral | `referral.converted` | E |
+| App | Documentation | Focus |
+|-----|---------------|-------|
+| **Web App** | [`web-app-journey.md`](./web-app-journey.md) | Activation, Retention, Core Value |
+| **Admin App** | [`admin-app-journey.md`](./admin-app-journey.md) | Operational touchpoints |
+| **Funnel App** | [`funnel-app-journey.md`](./funnel-app-journey.md) | Acquisition, Conversion |
+| **Landing App** | [`landing-app-journey.md`](./landing-app-journey.md) | Awareness, Acquisition |
 
 ---
 
-## Critical Touchpoints
+## High-Level Touchpoint Matrix
 
-### Must-Track (MVP)
+| Journey Stage | Primary App | Key Touchpoint | Event | Business Metric |
+|---------------|-------------|----------------|-------|-----------------|
+| **Awareness** | Landing | Homepage view | `landing.viewed` | E (CAC) |
+| **Acquisition** | Funnel | Wizard started | `funnel.started` | E (CAC) |
+| **Acquisition** | Web | Signup completed | `signup.completed` | E (CAC) |
+| **Activation** | Web | First character created | `influencer.created` | A |
+| **Activation** | Web | First image generated | `studio.generation_completed` | A |
+| **Revenue** | Funnel | Payment completed | `funnel.payment.completed` | D |
+| **Retention** | Web | Return visit | `session.started` | B |
+| **Retention** | Web | Generate content | `studio.generation_started` | B |
+| **Core Value** | Web | Image generated | `studio.generation_completed` | C |
+| **Core Value** | Web | Template used | `templates.template_used` | C |
 
-| Touchpoint | Why Critical | Event |
-|------------|--------------|-------|
-| Signup complete | Acquisition gate | `signup.completed` |
-| First core action | Activation signal | `user.activated` |
-| D7 return | Retention signal | `user.returned_d7` |
-| Payment complete | Revenue signal | `subscription.created` |
+---
+
+## Critical Touchpoints by App
+
+### Web App Critical Touchpoints
+
+| Touchpoint | Why Critical | Event | See Documentation |
+|------------|--------------|-------|-------------------|
+| First character created | Activation signal | `influencer.created` | [`web-app-journey.md`](./web-app-journey.md) |
+| First image generated | Activation signal | `studio.generation_completed` | [`web-app-journey.md`](./web-app-journey.md) |
+| D7 return | Retention signal | `session.started` (D7) | [`web-app-journey.md`](./web-app-journey.md) |
+
+### Funnel App Critical Touchpoints
+
+| Touchpoint | Why Critical | Event | See Documentation |
+|------------|--------------|-------|-------------------|
+| Wizard completed | Activation signal | `funnel.wizard.completed` | [`funnel-app-journey.md`](./funnel-app-journey.md) |
+| Payment completed | Revenue signal | `funnel.payment.completed` | [`funnel-app-journey.md`](./funnel-app-journey.md) |
+
+### Landing App Critical Touchpoints
+
+| Touchpoint | Why Critical | Event | See Documentation |
+|------------|--------------|-------|-------------------|
+| CTA clicked | Acquisition signal | `landing.cta.clicked` | [`landing-app-journey.md`](./landing-app-journey.md) |
+| Funnel redirected | Conversion signal | `landing.funnel.redirected` | [`landing-app-journey.md`](./landing-app-journey.md) |
 
 ### Nice-to-Track (Post-MVP)
 

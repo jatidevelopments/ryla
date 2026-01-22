@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { RylaInput, RylaCheckbox } from '@ryla/ui';
 import { GoogleButton } from './google-button';
+import { FacebookButton } from './facebook-button';
+import { DiscordButton } from './discord-button';
 import { PrimaryButton } from './primary-button';
 import { slideIn } from '../constants';
 import { routes } from '@/lib/routes';
@@ -21,17 +23,24 @@ interface LoginFormProps {
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
   onGoogleAuth: () => void;
+  onFacebookAuth?: () => void;
+  onDiscordAuth?: () => void;
   onSwitchToRegister: () => void;
+  onSwitchToForgotPassword?: () => void;
 }
 
 export function LoginForm({
+  email,
   loginData,
   onLoginChange,
   onSubmit,
   isLoading,
   onGoogleAuth,
+  onFacebookAuth,
+  onDiscordAuth,
   onSwitchToRegister,
-}: Omit<LoginFormProps, 'email'>) {
+  onSwitchToForgotPassword,
+}: LoginFormProps) {
   return (
     <motion.form
       key="login-form"
@@ -42,6 +51,42 @@ export function LoginForm({
       onSubmit={onSubmit}
       className="space-y-6"
     >
+      {/* Email Display (Read-only) */}
+      <div>
+        <label
+          htmlFor="email-display"
+          className="block text-sm font-medium text-white/70 mb-2"
+        >
+          Email Address
+        </label>
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+            <svg
+              className="w-5 h-5 text-white/30"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <RylaInput
+            id="email-display"
+            type="email"
+            value={email}
+            disabled
+            readOnly
+            className="pl-12 bg-white/5 cursor-not-allowed"
+            aria-label="Email address"
+          />
+        </div>
+      </div>
+
       <div>
         <label
           htmlFor="password"
@@ -70,12 +115,13 @@ export function LoginForm({
         >
           Remember me
         </RylaCheckbox>
-        <Link
-          href={routes.forgotPassword}
+        <button
+          type="button"
+          onClick={onSwitchToForgotPassword}
           className="text-sm font-medium text-purple-400 hover:text-purple-300 transition-colors"
         >
           Forgot password?
-        </Link>
+        </button>
       </div>
 
       <PrimaryButton type="submit" disabled={isLoading} loading={isLoading}>
@@ -83,14 +129,18 @@ export function LoginForm({
       </PrimaryButton>
 
       <div className="flex items-center gap-4">
-        <div className="h-px flex-1 bg-white/10" />
-        <span className="text-xs font-medium text-white/30 uppercase tracking-wider">
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+        <span className="text-xs font-medium text-white/25 uppercase tracking-wider">
           or
         </span>
-        <div className="h-px flex-1 bg-white/10" />
+        <div className="h-px flex-1 bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       </div>
 
-      <GoogleButton onClick={onGoogleAuth} disabled={isLoading} />
+      <div className="space-y-2.5">
+        <GoogleButton onClick={onGoogleAuth} disabled={isLoading} />
+        <FacebookButton onClick={onFacebookAuth || (() => {})} disabled={isLoading} />
+        <DiscordButton onClick={onDiscordAuth || (() => {})} disabled={isLoading} />
+      </div>
 
       <p className="text-center text-sm text-white/50">
         Don&apos;t have an account?{' '}

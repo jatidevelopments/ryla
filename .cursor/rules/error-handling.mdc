@@ -6,13 +6,7 @@ alwaysApply: false
 
 # Error Handling Patterns
 
-## Context
-
-- Consistent error handling across frontend and backend
-- User-friendly error messages
-- Proper error logging and tracking
-- Error boundaries for React components
-- Secure error responses (no sensitive data leaks)
+Consistent error handling across frontend and backend. User-friendly error messages. Proper error logging and tracking. Error boundaries for React components. Secure error responses (no sensitive data leaks).
 
 ## Requirements
 

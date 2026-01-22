@@ -9,7 +9,15 @@ Use this to generate P1 requirements document.
 ```
 Generate a requirements document for: [EPIC DESCRIPTION]
 
-Follow this structure:
+Before generating, reason through this step by step:
+
+UNDERSTAND: What problem are we solving? Who has it? Why does it matter?
+ANALYZE: What are the key constraints, dependencies, and success factors?
+REASON: How do user needs, technical constraints, and business goals interact?
+SYNTHESIZE: What is the minimum viable solution that validates the hypothesis?
+CONCLUDE: What should the requirements document contain?
+
+Now generate the requirements document following this structure:
 
 # EP-XXX: [Epic Name] - Requirements
 

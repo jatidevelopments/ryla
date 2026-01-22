@@ -55,13 +55,15 @@ describe('CreditManagementService Integration', () => {
 
     describe('checkCredits', () => {
         it('should return true if enough credits', async () => {
-            const result = await service.checkCredits(userId, 'studio_standard', 1);
+            // studio_fast costs 15 credits per image
+            const result = await service.checkCredits(userId, 'studio_fast', 1);
             expect(result.hasEnough).toBe(true);
             expect(result.required).toBe(15);
         });
 
         it('should return false if not enough credits', async () => {
-            const result = await service.checkCredits(userId, 'studio_standard', 10);
+            // 10 images at 15 credits each = 150 credits (user only has 100)
+            const result = await service.checkCredits(userId, 'studio_fast', 10);
             expect(result.hasEnough).toBe(false);
             expect(result.required).toBe(150);
         });
@@ -69,20 +71,21 @@ describe('CreditManagementService Integration', () => {
 
     describe('requireCredits', () => {
         it('should return balance if enough credits', async () => {
-            const result = await service.requireCredits(userId, 'studio_standard', 1);
+            const result = await service.requireCredits(userId, 'studio_fast', 1);
             expect(result.balance).toBe(100);
         });
 
         it('should throw ForbiddenException if not enough credits', async () => {
             await expect(
-                service.requireCredits(userId, 'studio_standard', 10)
+                service.requireCredits(userId, 'studio_fast', 10)
             ).rejects.toThrow(ForbiddenException);
         });
     });
 
     describe('deductCredits', () => {
         it('should deduct credits and record transaction', async () => {
-            const result = await service.deductCredits(userId, 'studio_standard', 1);
+            // studio_fast costs 15 credits per image
+            const result = await service.deductCredits(userId, 'studio_fast', 1);
 
             expect(result.success).toBe(true);
             expect(result.creditsDeducted).toBe(15);
@@ -99,7 +102,7 @@ describe('CreditManagementService Integration', () => {
 
         it('should throw ForbiddenException if insufficient credits', async () => {
             await expect(
-                service.deductCredits(userId, 'studio_standard', 1000)
+                service.deductCredits(userId, 'studio_fast', 1000)
             ).rejects.toThrow(ForbiddenException);
         });
     });

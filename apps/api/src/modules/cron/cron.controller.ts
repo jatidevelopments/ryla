@@ -11,7 +11,14 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiHeader } from '@nestjs/swagger';
 import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
-import { CreditRefreshService, CreditRefreshResult } from './services/credit-refresh.service';
+import {
+  CreditRefreshService,
+  CreditRefreshResult,
+} from './services/credit-refresh.service';
+import {
+  TemplateTrendingService,
+  TrendingRefreshResult,
+} from './services/template-trending.service';
 
 /**
  * Cron job endpoints for scheduled tasks.
@@ -26,7 +33,10 @@ import { CreditRefreshService, CreditRefreshResult } from './services/credit-ref
 export class CronController {
   private readonly logger = new Logger(CronController.name);
 
-  constructor(private readonly creditRefreshService: CreditRefreshService) {}
+  constructor(
+    private readonly creditRefreshService: CreditRefreshService,
+    private readonly templateTrendingService: TemplateTrendingService
+  ) {}
 
   /**
    * Verify the cron secret from request headers
@@ -127,6 +137,87 @@ export class CronController {
     return {
       success: true,
       userId,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Refresh template trending materialized view.
+   *
+   * This should be scheduled to run daily (e.g., at 2 AM UTC).
+   *
+   * Example cron schedule: 0 2 * * * (daily at 2 AM)
+   *
+   * Call with:
+   * curl -X POST https://api.ryla.ai/cron/templates/trending/refresh \
+   *   -H "Authorization: Bearer $CRON_SECRET"
+   */
+  @Post('templates/trending/refresh')
+  @SkipAuth()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refresh template trending materialized view' })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer <CRON_SECRET>',
+    required: true,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Trending refresh completed',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        durationMs: { type: 'number' },
+        rowsUpdated: { type: 'number' },
+        timestamp: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Invalid cron secret' })
+  async refreshTrending(
+    @Headers('authorization') authHeader: string
+  ): Promise<TrendingRefreshResult & { timestamp: string }> {
+    this.verifyCronSecret(authHeader);
+
+    this.logger.log('Template trending refresh cron job triggered');
+
+    const result = await this.templateTrendingService.refreshTrendingView();
+
+    return {
+      ...result,
+      timestamp: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Get trending stats (for debugging/admin)
+   */
+  @Get('templates/trending/stats')
+  @SkipAuth()
+  @ApiOperation({ summary: 'Get template trending statistics' })
+  @ApiHeader({
+    name: 'Authorization',
+    description: 'Bearer <CRON_SECRET>',
+    required: true,
+  })
+  @ApiResponse({ status: 200, description: 'Trending statistics' })
+  @ApiResponse({ status: 401, description: 'Invalid cron secret' })
+  async getTrendingStats(@Headers('authorization') authHeader: string): Promise<{
+    totalTemplates: number;
+    topTemplates: Array<{
+      id: string;
+      trendingScore: number;
+      usageRate: number;
+    }>;
+    timestamp: string;
+  }> {
+    this.verifyCronSecret(authHeader);
+
+    const stats = await this.templateTrendingService.getTrendingStats();
+
+    return {
+      ...stats,
       timestamp: new Date().toISOString(),
     };
   }

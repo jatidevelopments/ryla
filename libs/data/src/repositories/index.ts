@@ -8,6 +8,10 @@ export * from './notifications.repository';
 export * from './bug-reports.repository';
 export * from './gallery-favorites.repository';
 export * from './templates.repository';
+export * from './template-sets.repository';
+export * from './template-categories.repository';
+export * from './template-tags.repository';
+export * from './template-likes.repository';
 export * from './payment.repository';
 export * from './character.repository';
 

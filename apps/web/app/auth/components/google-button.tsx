@@ -15,15 +15,16 @@ export function GoogleButton({ onClick, disabled }: GoogleButtonProps) {
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        'w-full h-14 rounded-2xl font-semibold text-[15px]',
-        'bg-white/[0.03] border-2 border-white/10',
-        'text-white/80 backdrop-blur-sm',
-        'transition-all duration-300',
-        'hover:bg-white/[0.06] hover:border-white/20',
-        'disabled:opacity-50 disabled:cursor-not-allowed'
+        'w-full h-[52px] rounded-xl font-semibold text-sm',
+        'bg-white',
+        'text-gray-800',
+        'transition-all duration-200',
+        'hover:bg-gray-50 hover:shadow-lg hover:shadow-white/10 hover:-translate-y-0.5',
+        'active:translate-y-0',
+        'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none',
+        'flex items-center justify-center gap-3'
       )}
     >
-      <span className="flex items-center justify-center gap-3">
         <svg className="w-5 h-5" viewBox="0 0 24 24">
           <path
             fill="#4285F4"
@@ -43,8 +44,6 @@ export function GoogleButton({ onClick, disabled }: GoogleButtonProps) {
           />
         </svg>
         Continue with Google
-      </span>
     </button>
   );
 }
-

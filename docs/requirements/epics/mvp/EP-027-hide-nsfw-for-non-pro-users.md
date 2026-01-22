@@ -1,7 +1,7 @@
 # [EPIC] EP-027: Hide NSFW Toggles for Non-Pro Users (Phase 1)
 
 **Related Initiative**: [IN-003](../initiatives/IN-003-sfw-nsfw-separation.md)  
-**Status**: 📝 Defined  
+**Status**: Completed  
 **Priority**: P1  
 **Target Metric**: D-Conversion (tier upgrades), A-Activation (influencer onboarding)
 

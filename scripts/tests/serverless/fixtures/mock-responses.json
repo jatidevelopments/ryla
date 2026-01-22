@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "EP-044: Mock API responses for local testing",
+  
+  "runpod": {
+    "success": {
+      "jobSubmission": {
+        "id": "mock-job-success-001",
+        "status": "IN_QUEUE"
+      },
+      "jobStatus": {
+        "mock-job-success-001": {
+          "id": "mock-job-success-001",
+          "status": "COMPLETED",
+          "delayTime": 1500,
+          "executionTime": 5000,
+          "output": {
+            "images": [
+              {
+                "filename": "ComfyUI_00001_.png",
+                "type": "base64",
+                "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+              }
+            ],
+            "message": "success"
+          }
+        }
+      },
+      "healthCheck": {
+        "accessible": true,
+        "status": "HEALTHY"
+      }
+    },
+    
+    "failure": {
+      "jobSubmission": {
+        "id": "mock-job-failure-001",
+        "status": "IN_QUEUE"
+      },
+      "jobStatus": {
+        "mock-job-failure-001": {
+          "id": "mock-job-failure-001",
+          "status": "FAILED",
+          "error": "CUDA out of memory. Tried to allocate 2.00 GiB"
+        }
+      },
+      "healthCheck": {
+        "accessible": true,
+        "status": "HEALTHY"
+      }
+    },
+    
+    "timeout": {
+      "jobSubmission": {
+        "id": "mock-job-timeout-001",
+        "status": "IN_QUEUE"
+      },
+      "jobStatus": {
+        "mock-job-timeout-001": {
+          "id": "mock-job-timeout-001",
+          "status": "TIMED_OUT",
+          "error": "Job timed out after 600000ms"
+        }
+      },
+      "healthCheck": {
+        "accessible": true,
+        "status": "HEALTHY"
+      }
+    },
+    
+    "endpointDown": {
+      "healthCheck": {
+        "accessible": false,
+        "status": "ERROR",
+        "error": "Endpoint not responding"
+      }
+    },
+    
+    "multipleImages": {
+      "jobSubmission": {
+        "id": "mock-job-multi-001",
+        "status": "IN_QUEUE"
+      },
+      "jobStatus": {
+        "mock-job-multi-001": {
+          "id": "mock-job-multi-001",
+          "status": "COMPLETED",
+          "delayTime": 2000,
+          "executionTime": 15000,
+          "output": {
+            "images": [
+              {
+                "filename": "ComfyUI_00001_.png",
+                "type": "base64",
+                "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+              },
+              {
+                "filename": "ComfyUI_00002_.png",
+                "type": "base64",
+                "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+              },
+              {
+                "filename": "ComfyUI_00003_.png",
+                "type": "base64",
+                "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+              },
+              {
+                "filename": "ComfyUI_00004_.png",
+                "type": "base64",
+                "data": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+              }
+            ],
+            "message": "success"
+          }
+        }
+      },
+      "healthCheck": {
+        "accessible": true,
+        "status": "HEALTHY"
+      }
+    }
+  },
+  
+  "comfyui": {
+    "standard": {
+      "systemStats": {
+        "system": {
+          "os": "posix",
+          "python_version": "3.10.12",
+          "embedded_python": false
+        },
+        "devices": [
+          {
+            "name": "NVIDIA A100-SXM4-80GB",
+            "type": "cuda",
+            "index": 0,
+            "vram_total": 85899345920,
+            "vram_free": 80000000000
+          }
+        ]
+      },
+      "modelList": [
+        "z_image_turbo_bf16.safetensors",
+        "sd_xl_base_1.0.safetensors",
+        "flux1-dev-fp8.safetensors"
+      ]
+    },
+    
+    "denrisi": {
+      "systemStats": {
+        "system": {
+          "os": "posix",
+          "python_version": "3.10.12"
+        },
+        "devices": [
+          {
+            "name": "NVIDIA A100-SXM4-80GB",
+            "type": "cuda",
+            "index": 0
+          }
+        ]
+      },
+      "modelList": [
+        "z_image_turbo_bf16.safetensors",
+        "qwen_3_4b.safetensors",
+        "z-image-turbo-vae.safetensors"
+      ],
+      "requiredNodes": [
+        "ClownsharKSampler_Beta",
+        "Sigmas Rescale",
+        "BetaSamplingScheduler"
+      ]
+    },
+    
+    "minimal": {
+      "systemStats": {
+        "system": {
+          "os": "posix",
+          "python_version": "3.10.12"
+        },
+        "devices": []
+      },
+      "modelList": [],
+      "availableNodes": [
+        "CheckpointLoaderSimple",
+        "KSampler",
+        "CLIPTextEncode",
+        "VAEDecode",
+        "SaveImage"
+      ]
+    }
+  },
+  
+  "testScenarios": {
+    "denrisiFullValidation": {
+      "description": "Complete Denrisi workflow validation scenario",
+      "runpod": {
+        "scenario": "success",
+        "expectedColdStart": 45000,
+        "expectedGeneration": 8000
+      },
+      "comfyui": {
+        "scenario": "denrisi",
+        "expectedNodes": ["ClownsharKSampler_Beta", "Sigmas Rescale", "BetaSamplingScheduler"],
+        "expectedModels": ["z_image_turbo_bf16.safetensors", "qwen_3_4b.safetensors", "z-image-turbo-vae.safetensors"]
+      }
+    },
+    
+    "missingDependencies": {
+      "description": "Scenario where dependencies are missing",
+      "runpod": {
+        "scenario": "failure",
+        "errorPattern": "Node ClownsharKSampler_Beta not found"
+      },
+      "comfyui": {
+        "scenario": "minimal",
+        "missingNodes": ["ClownsharKSampler_Beta", "Sigmas Rescale", "BetaSamplingScheduler"]
+      }
+    },
+    
+    "performanceBenchmark": {
+      "description": "Performance benchmarking scenario",
+      "iterations": 5,
+      "targets": {
+        "coldStartTime": 60000,
+        "generationTime": 30000,
+        "costPerImage": 0.01
+      }
+    }
+  }
+}

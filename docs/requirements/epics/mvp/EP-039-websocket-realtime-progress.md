@@ -1,5 +1,11 @@
 # [EPIC] EP-039: WebSocket-based Real-time Progress Tracking
 
+**Status**: Completed
+**Phase**: P6
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 > **Initiative**: [IN-007: ComfyUI Infrastructure Improvements (MDC-Inspired)](../../../initiatives/IN-007-comfyui-infrastructure-improvements.md)  
 > **Status**: Proposed
 

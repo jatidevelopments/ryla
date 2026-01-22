@@ -15,9 +15,9 @@ export function ActivityItem({ item, onClick }: ActivityItemProps) {
   const isCreditTransaction = item.sourceType === 'credit_transaction';
   const isClickable = isGeneration && item.characterId && item.thumbnailUrl;
 
-  // Estimate credit cost for generations
+  // Estimate credit cost for generations (use default since qualityMode removed)
   const estimatedCost = isGeneration
-    ? estimateCreditCost(item.qualityMode, item.imageCount)
+    ? estimateCreditCost(null, item.imageCount)
     : null;
 
   // For credit transactions, get the absolute amount for display

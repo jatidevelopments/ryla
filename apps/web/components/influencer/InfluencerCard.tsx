@@ -30,7 +30,7 @@ export function InfluencerCard({ influencer, className }: InfluencerCardProps) {
       href={`/influencer/${influencer.id}`}
       className={cn('group block focus-visible:outline-none', className)}
     >
-      <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-default)] transition-all duration-300 ease-out group-hover:border-[var(--purple-500)]/40 group-hover:shadow-[0_0_40px_rgba(168,85,247,0.15)] group-focus-visible:ring-2 group-focus-visible:ring-[var(--purple-500)] group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-[var(--bg-primary)]">
+      <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-default)] transition-all duration-300 ease-out group-hover:border-[var(--purple-500)]/40 group-hover:shadow-[0_0_40px_rgba(168,85,247,0.15)] group-hover:scale-[1.02] group-active:scale-[0.98] group-focus-visible:ring-2 group-focus-visible:ring-[var(--purple-500)] group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-[var(--bg-primary)]">
         {/* Image Container */}
         <div className="relative aspect-[4/5] overflow-hidden">
           {hasValidImage ? (

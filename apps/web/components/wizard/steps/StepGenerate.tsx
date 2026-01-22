@@ -33,9 +33,8 @@ export function StepGenerate() {
   } = useCredits();
   const [showCreditModal, setShowCreditModal] = React.useState(false);
 
-  // Calculate cost based on quality mode
-  const creditCost =
-    form.qualityMode === 'hq' ? BASE_IMAGE_CREDITS * 2 : BASE_IMAGE_CREDITS;
+  // Fixed credit cost (quality mode removed)
+  const creditCost = BASE_IMAGE_CREDITS;
   const hasEnoughCredits = balance >= creditCost;
 
   // Generation logic hook
@@ -85,12 +84,8 @@ export function StepGenerate() {
       <CharacterSummary items={summaryItems} />
       <GenerationSettings
         aspectRatio={form.aspectRatio || '1:1'}
-        qualityMode={form.qualityMode || 'draft'}
         nsfwEnabled={form.nsfwEnabled}
         onAspectRatioChange={(ratio) => setField('aspectRatio', ratio)}
-        onQualityModeChange={(checked) =>
-          setField('qualityMode', checked ? 'hq' : 'draft')
-        }
         onNsfwChange={(checked) => setField('nsfwEnabled', checked)}
       />
       <GenerateButton

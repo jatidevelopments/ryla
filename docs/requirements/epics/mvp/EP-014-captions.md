@@ -1,5 +1,11 @@
 # [EPIC] EP-014: AI Caption Generation
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Auto-generate captions for AI Influencer posts based on their personality, archetype, and the scene context. A key differentiator vs competitors — users get complete posts (image + caption) ready for export.

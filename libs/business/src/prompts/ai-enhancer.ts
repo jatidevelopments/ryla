@@ -256,8 +256,15 @@ export class AIPromptEnhancer {
 
     if (isWizard) {
       // Wizard-specific prompt building - focus on character creation
+      // Apply reasoning-first pattern for deeper, more specific character generation
       parts.push(`ORIGINAL USER INPUT (minimal description):\n"${request.prompt}"`);
-      parts.push(`\nYOUR TASK:`);
+      parts.push(`\nBefore enhancing, reason through this character step by step:`);
+      parts.push(`UNDERSTAND: What is the user's core vision for this character? What should this character enable or represent?`);
+      parts.push(`ANALYZE: What physical features (facial structure, skin tone, hair texture, body proportions), personality traits, and unique distinguishing elements matter most?`);
+      parts.push(`REASON: How do these elements interact to create a memorable, realistic character? What makes this character distinct from generic AI-generated images?`);
+      parts.push(`SYNTHESIZE: What specific details will make this character feel like a real, unique person with personality?`);
+      parts.push(`CONCLUDE: What is the most effective enhancement approach that preserves the user's vision while adding depth?`);
+      parts.push(`\nNow enhance the prompt with this reasoning in mind:`);
       parts.push(`1. Expand this minimal description into a rich, detailed character portrait`);
       parts.push(`2. Add specific physical features (facial structure, skin tone, hair texture, body proportions)`);
       parts.push(`3. Include personality traits that show in appearance (confident posture, friendly expression, etc.)`);

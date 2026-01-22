@@ -1,0 +1,4 @@
+# Modal requirements for ComfyUI Denrisi workflow
+# These are installed in the Modal image, but listed here for reference
+
+modal>=0.59.0

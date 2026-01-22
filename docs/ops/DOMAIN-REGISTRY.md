@@ -11,6 +11,7 @@ Production domain mapping for RYLA services.
 | `goviral.ryla.ai` | Funnel       | `apps/funnel`  | Payment & conversion funnel    |
 | `app.ryla.ai`     | Web App      | `apps/web`     | Main application               |
 | `end.ryla.ai`     | Backend API  | `apps/api`     | Backend API endpoints          |
+| `admin.ryla.ai`   | Admin Dashboard | `apps/admin` | Admin back-office application |
 
 ## Notes
 

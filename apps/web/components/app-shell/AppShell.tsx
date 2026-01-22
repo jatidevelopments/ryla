@@ -8,6 +8,7 @@ import {
   SidebarMobileTrigger,
   useSidebar,
   cn,
+  PageTransition,
 } from '@ryla/ui';
 import { DesktopSidebar } from '../sidebar/DesktopSidebar';
 import { CreditsBadge, LowBalanceWarning } from '../credits';
@@ -133,28 +134,70 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        {/* Mobile Header - with scroll hide/show like MDC */}
+        {/* Mobile Header - with curved notch design (like modern phones) */}
         <header
           className={cn(
-            'fixed top-0 left-0 right-0 z-30 flex md:hidden h-14 items-center justify-between border-b border-white/6 bg-black/70 backdrop-blur-md px-4 transition-transform duration-300',
+            'fixed top-0 left-0 right-0 z-30 md:hidden transition-transform duration-300',
             showMobileHeader ? 'translate-y-0' : '-translate-y-full'
           )}
         >
-          <SidebarMobileTrigger />
-          <Link href={routes.dashboard}>
-            <Image
-              src="/logos/ryla_small_logo.png"
-              alt="RYLA"
-              width={32}
-              height={32}
-              className="h-7 w-7"
-            />
-          </Link>
-          <div className="flex items-center gap-1">
-            {/* Notifications */}
-            <NotificationsMenu />
-            {/* Credits Badge - Mobile - Real balance from API */}
-            <CreditsBadge size="sm" showLabel={false} />
+          <div className="relative h-14">
+            {/* Background with Curved Notch at Top Center */}
+            <div className="absolute inset-0 pointer-events-none">
+              <svg
+                width="100%"
+                height="100%"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+                className="absolute inset-0 h-full w-full"
+              >
+                {/* Main shape with curved notch at top center and elegant curved bottom */}
+                <path
+                  d="M 0,100 C 8,98 20,97 30,97.2 C 40,97 45,97.3 50,97.3 C 55,97.3 60,97 70,97.2 C 80,97 92,98 100,100 L 100,0 L 60,0 C 56,0 55,0 54,6 C 53,12 52,18 50,18 C 48,18 47,12 46,6 C 45,0 44,0 40,0 L 0,0 Z"
+                  fill="var(--bg-elevated)"
+                  className="transition-all duration-500 ease-in-out"
+                />
+                {/* Top border with notch */}
+                <path
+                  d="M 0,0 L 40,0 C 44,0 45,0 46,6 C 47,12 48,18 50,18 C 52,18 53,12 54,6 C 55,0 56,0 60,0 L 100,0"
+                  fill="none"
+                  stroke="var(--border-default)"
+                  strokeWidth="0.5"
+                  className="transition-all duration-500 ease-in-out"
+                />
+                {/* Bottom border with elegant flowing curve */}
+                <path
+                  d="M 0,100 C 8,98 20,97 30,97.2 C 40,97 45,97.3 50,97.3 C 55,97.3 60,97 70,97.2 C 80,97 92,98 100,100"
+                  fill="none"
+                  stroke="var(--border-default)"
+                  strokeWidth="0.5"
+                  className="transition-all duration-500 ease-in-out"
+                />
+              </svg>
+            </div>
+
+            {/* Content - Logo on left, Actions on right, nothing in center (avoids phone notches) */}
+            <div className="relative h-full flex items-center justify-between px-4">
+              {/* Left: Menu + Logo */}
+              <div className="flex items-center gap-3">
+                <SidebarMobileTrigger />
+                <Link href={routes.dashboard} className="flex items-center">
+                  <Image
+                    src="/logos/ryla_small_logo.png"
+                    alt="RYLA"
+                    width={32}
+                    height={32}
+                    className="h-7 w-7"
+                  />
+                </Link>
+              </div>
+
+              {/* Right: Notifications + Credits */}
+              <div className="flex items-center gap-1">
+                <NotificationsMenu />
+                <CreditsBadge size="sm" showLabel={false} />
+              </div>
+            </div>
           </div>
         </header>
 
@@ -165,7 +208,9 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
         <LowBalanceWarning className="mx-4 mt-4 md:mx-6" />
 
         {/* Page Content */}
-        <main className="flex-1 pb-20 md:pb-0">{children}</main>
+        <main className="flex-1 pb-20 md:pb-0">
+          <PageTransition>{children}</PageTransition>
+        </main>
 
         {/* Bug Report Modal */}
         <BugReportModal

@@ -6,12 +6,7 @@ alwaysApply: false
 
 # TanStack Query (React Query) Patterns
 
-## Context
-
-- RYLA uses TanStack Query via tRPC integration
-- Provides client-side data fetching, caching, and synchronization
-- Used in both web app and funnel app
-- Integrates with tRPC for type-safe API calls
+RYLA uses TanStack Query via tRPC integration. Provides client-side data fetching, caching, and synchronization. Used in both web app and funnel app. Integrates with tRPC for type-safe API calls.
 
 ## Requirements
 

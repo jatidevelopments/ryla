@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { cn } from '@ryla/ui';
 import {
   ModelSelector,
   AspectRatioSelector,
@@ -87,9 +88,14 @@ interface ControlButtonsRowProps {
   onPromptSubmit: () => void;
   canGenerate: boolean;
   creditsCost: number;
+  isGenerating?: boolean;
 
   // Clear styles helper
   clearStyles: () => void;
+
+  // Tutorial state
+  tutorialCurrentStep?: number;
+  tutorialIsActive?: boolean;
 }
 
 export function ControlButtonsRow({
@@ -122,8 +128,22 @@ export function ControlButtonsRow({
   onPromptSubmit,
   canGenerate,
   creditsCost,
+  isGenerating = false,
   clearStyles,
+  tutorialCurrentStep = -1,
+  tutorialIsActive = false,
 }: ControlButtonsRowProps) {
+  // Auto-expand advanced when tutorial is on generation-settings step (index 4)
+  const shouldAutoExpand = tutorialIsActive && tutorialCurrentStep === 4;
+  const [showAdvanced, setShowAdvanced] = React.useState(shouldAutoExpand);
+
+  // Update when tutorial step changes
+  React.useEffect(() => {
+    if (shouldAutoExpand) {
+      setShowAdvanced(true);
+    }
+  }, [shouldAutoExpand]);
+
   return (
     <div
       className="flex items-center gap-1.5 md:gap-1.5 px-3 md:px-4 py-2.5 md:py-2 border-t border-white/5 overflow-x-auto scroll-hidden"
@@ -198,23 +218,58 @@ export function ControlButtonsRow({
         />
       </div>
 
-      {/* Creative Controls - Hidden on mobile */}
+      {/* Creative Controls - Progressive Disclosure */}
       {showCreativeControls && (
-        <div className="hidden md:contents">
-          <CreativeControls
-            settings={settings}
-            updateSetting={updateSetting}
-            selectedPose={selectedPose}
-            outfitDisplayText={outfitDisplayText}
-            hasOutfitComposition={hasOutfitComposition}
-            onShowPosePicker={() => pickers.setShowPosePicker(true)}
-            onShowOutfitModeSelector={() =>
-              pickers.setShowOutfitModeSelector(true)
-            }
-            onShowStylePicker={() => pickers.setShowStylePicker(true)}
-            clearStyles={clearStyles}
-          />
-        </div>
+        <>
+          {/* Advanced Toggle Button */}
+          <div className="hidden md:block">
+            <button
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className={cn(
+                'flex items-center gap-1.5 min-h-[44px] px-3 py-2.5 rounded-2xl text-sm font-medium transition-all',
+                showAdvanced
+                  ? 'bg-[var(--purple-500)]/20 text-[var(--text-primary)] border border-[var(--purple-500)]/30'
+                  : 'bg-white/5 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-white/10'
+              )}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className={cn(
+                  'h-3.5 w-3.5 transition-transform',
+                  showAdvanced && 'rotate-180'
+                )}
+              >
+                <path
+                  fillRule="evenodd"
+                  d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                  clipRule="evenodd"
+                />
+              </svg>
+              <span>Advanced</span>
+            </button>
+          </div>
+
+          {/* Advanced Controls - Collapsible */}
+          {showAdvanced && (
+            <div className="hidden md:contents">
+              <CreativeControls
+                settings={settings}
+                updateSetting={updateSetting}
+                selectedPose={selectedPose}
+                outfitDisplayText={outfitDisplayText}
+                hasOutfitComposition={hasOutfitComposition}
+                onShowPosePicker={() => pickers.setShowPosePicker(true)}
+                onShowOutfitModeSelector={() =>
+                  pickers.setShowOutfitModeSelector(true)
+                }
+                onShowStylePicker={() => pickers.setShowStylePicker(true)}
+                clearStyles={clearStyles}
+              />
+            </div>
+          )}
+        </>
       )}
 
       {/* Mobile: Quick settings button */}
@@ -247,6 +302,7 @@ export function ControlButtonsRow({
           mode={mode}
           canGenerate={canGenerate}
           creditsCost={creditsCost}
+          isGenerating={isGenerating}
           onGenerate={onPromptSubmit}
         />
       </div>

@@ -10,42 +10,43 @@ These epics define the **MVP Product** — what users interact with after conver
 
 | Epic | Name | Priority | Metric | Status |
 |------|------|----------|--------|--------|
-| [EP-001](./EP-001-influencer-wizard.md) | Character Creation Wizard | P0 | A-Activation | 📝 Defined |
-| [EP-002](./EP-002-authentication.md) | User Authentication & Settings | P0 | A-Activation | 📝 Defined |
-| [EP-004](./EP-004-dashboard.md) | Character Management | P0 | B-Retention | 📝 Defined |
-| [EP-005](./EP-005-content-studio.md) | Image Generation Engine | P0 | C-Core Value | 📝 Defined |
-| [EP-007](./EP-007-emails.md) | Emails & Notifications | P1 | A-Activation | 📝 Defined |
-| [EP-008](./EP-008-gallery.md) | Image Gallery & Downloads | P0 | C-Core Value | 📝 Defined |
-| [EP-009](./EP-009-credits.md) | Generation Credits & Limits | P0 | D-Conversion | 📝 Defined |
-| [EP-010](./EP-010-subscription.md) | Subscription Management | P0 | B-Retention | 📝 Defined |
-| [EP-011](./EP-011-legal.md) | Legal & Compliance | P0 | Risk | 📝 Defined |
-| [EP-012](./EP-012-onboarding.md) | Onboarding & First-Time UX | P1 | A-Activation | 📝 Defined |
-| [EP-013](./EP-013-education.md) | Education Hub | P1 | B-Retention | 📝 Defined |
-| [EP-015](./EP-015-image-generation-speed-benchmarking.md) | Image Generation Speed-First Flow + Benchmarking | P0 | A-Activation | 📝 Defined |
-| [EP-016](./EP-016-activity-audit-log.md) | Generation Activity + Credit Audit Log | P0 | B-Retention | 📝 Defined |
-| [EP-017](./EP-017-in-app-notifications.md) | In-App Notifications (Inbox + Navbar Indicator) | P1 | B-Retention | 📝 Defined |
-| [EP-018](./EP-018-influencer-settings.md) | AI Influencer Settings | P1 | B-Retention | 📝 Defined |
-| [EP-019](./EP-019-report-a-bug.md) | Report a Bug | P1 | B-Retention | 📝 Defined |
-| [EP-020](./EP-020-template-gallery.md) | Template Gallery & Library | P1 | A-Activation, C-Core Value | 📝 Defined |
-| [EP-021](./EP-021-multi-piece-outfit-gallery.md) | Multi-Piece Outfit Gallery | P1 | C-Core Value | 📝 Defined |
-| [EP-022](./EP-022-unified-auth-page.md) | Unified Login/Registration Page | P1 | A-Activation | 📝 Defined |
-| [EP-023](./EP-023-prompt-builder-optimization.md) | Prompt Builder Optimization | P1 | C-Core Value | 📝 Defined |
-| [EP-024](./EP-024-contextual-page-tutorials.md) | Contextual Page Tutorials | P1 | A-Activation, C-Core Value | 📝 Defined |
-| [EP-026](./EP-026-lora-training.md) | LoRA Training for Character Consistency | P1 | C-Core Value | 📝 Defined |
-| [EP-027](./EP-027-hide-nsfw-for-non-pro-users.md) | Hide NSFW Toggles for Non-Pro Users (Phase 1) | P1 | D-Conversion, A-Activation | 📝 Defined |
-| [EP-028](./EP-028-dna-foundation-auto-generation.md) | DNA Foundation & Auto-Generation Engine | P1 | C-Core Value | 📝 Defined |
-| [EP-029](./EP-029-enhanced-prompt-builder.md) | Enhanced Prompt Builder | P1 | C-Core Value | 📝 Defined |
-| [EP-030](./EP-030-dna-integration-base-images.md) | DNA Integration - Base Image Generation | P1 | C-Core Value, A-Activation | 📝 Defined |
-| [EP-031](./EP-031-dna-integration-studio-profile.md) | DNA Integration - Studio & Profile Sets | P1 | C-Core Value | 📝 Defined |
-| [EP-032](./EP-032-progressive-disclosure-wizard.md) | Progressive Disclosure Wizard | P1 | A-Activation, C-Core Value | 📝 Defined |
-| [EP-033](./EP-033-base-character-image-generation.md) | Base Character Image Generation | P1 | A-Activation, C-Core Value | 📝 Defined |
-| [EP-034](./EP-034-ethnicity-image-generation.md) | Ethnicity Image Generation | P1 | A-Activation, C-Core Value | 📝 Defined |
-| [EP-035](./EP-035-body-type-image-generation.md) | Body Type Image Generation | P1 | A-Activation, C-Core Value | 📝 Defined |
-| [EP-036](./EP-036-ethnicity-specific-feature-images.md) | Ethnicity-Specific Feature Images | P1 | A-Activation, C-Core Value | 📝 Defined |
-| [EP-037](./EP-037-profile-picture-generation-from-detail-page.md) | Profile Picture Generation from Detail Page | P1 | B-Retention, C-Core Value | 📝 Defined |
-| [EP-038](./EP-038-lora-usage-in-generation.md) | LoRA Usage in Image Generation | P1 | C-Core Value | 📝 Defined |
-| [EP-039](./EP-039-comfyui-dependency-management.md) | ComfyUI Dependency Management & Versioning | P1 | E-CAC, C-Core Value | 📝 Defined |
-| [EP-042](./EP-042-wizard-single-selection-layout.md) | Wizard Single Selection & Layout Optimization | P1 | A-Activation, C-Core Value | 📝 Defined |
+| [EP-001](./EP-001-influencer-wizard.md) | Character Creation Wizard | P0 | A-Activation | ✅ Completed |  |  |
+| [EP-002](./EP-002-authentication.md) | User Authentication & Settings | P0 | A-Activation | ✅ Completed |  |  |
+| [EP-004](./EP-004-dashboard.md) | Character Management | P0 | B-Retention | 🔄 In Progress |  |  |
+| [EP-005](./EP-005-content-studio.md) | Image Generation Engine | P0 | C-Core Value | 🔄 In Progress |  |  |
+| [EP-007](./EP-007-emails.md) | Emails & Notifications | P1 | A-Activation | ✅ Completed |  |  |
+| [EP-008](./EP-008-gallery.md) | Image Gallery & Downloads | P0 | C-Core Value | ✅ Completed |  |  |
+| [EP-009](./EP-009-credits.md) | Generation Credits & Limits | P0 | D-Conversion | ✅ Completed |  |  |
+| [EP-010](./EP-010-subscription.md) | Subscription Management | P0 | B-Retention | ✅ Completed |  |  |
+| [EP-011](./EP-011-legal.md) | Legal & Compliance | P0 | Risk | ✅ Completed |  |  |
+| [EP-012](./EP-012-onboarding.md) | Onboarding & First-Time UX | P1 | A-Activation | 🔄 In Progress |  |  |
+| [EP-013](./EP-013-education.md) | Education Hub | P1 | B-Retention | 🔄 In Progress |  |  |
+| [EP-015](./EP-015-image-generation-speed-benchmarking.md) | Image Generation Speed-First Flow + Benchmarking | P0 | A-Activation | 🔄 In Progress |  |  |
+| [EP-016](./EP-016-activity-audit-log.md) | Generation Activity + Credit Audit Log | P0 | B-Retention | ✅ Completed |  |  |
+| [EP-017](./EP-017-in-app-notifications.md) | In-App Notifications (Inbox + Navbar Indicator) | P1 | B-Retention | ✅ Core infrastructure complete (DB + API + UI) |  |  |
+| [EP-018](./EP-018-influencer-settings.md) | AI Influencer Settings | P1 | B-Retention | ✅ Completed |  |  |
+| [EP-019](./EP-019-report-a-bug.md) | Report a Bug | P1 | B-Retention | ✅ Completed |  |  |
+| [EP-020](./EP-020-template-gallery.md) | Template Gallery & Library | P1 | A-Activation, C-Core Value | ✅ Completed |  |  |
+| [EP-021](./EP-021-multi-piece-outfit-gallery.md) | Multi-Piece Outfit Gallery | P1 | C-Core Value | 📝 Proposed |  |  |
+| [EP-022](./EP-022-unified-auth-page.md) | Unified Login/Registration Page | P1 | A-Activation | 📝 Proposed |  |  |
+| [EP-023](./EP-023-prompt-builder-optimization.md) | Prompt Builder Optimization | P1 | C-Core Value | 📝 Proposed |  |  |
+| [EP-024](./EP-024-contextual-page-tutorials.md) | Contextual Page Tutorials | P1 | A-Activation, C-Core Value | 🔄 In Progress |  |  |
+| [EP-026](./EP-026-lora-training.md) | LoRA Training for Character Consistency | P1 | C-Core Value | 📝 Proposed |  |  |
+| [EP-027](./EP-027-hide-nsfw-for-non-pro-users.md) | Hide NSFW Toggles for Non-Pro Users (Phase 1) | P1 | D-Conversion, A-Activation | ✅ Completed |  |  |
+| [EP-028](./EP-028-dna-foundation-auto-generation.md) | DNA Foundation & Auto-Generation Engine | P1 | C-Core Value | 📝 Defined |  |  |
+| [EP-029](./EP-029-enhanced-prompt-builder.md) | Enhanced Prompt Builder | P1 | C-Core Value | 📝 Defined |  |  |
+| [EP-030](./EP-030-dna-integration-base-images.md) | DNA Integration - Base Image Generation | P1 | C-Core Value, A-Activation | 📝 Defined |  |  |
+| [EP-031](./EP-031-dna-integration-studio-profile.md) | DNA Integration - Studio & Profile Sets | P1 | C-Core Value | 📝 Defined |  |  |
+| [EP-032](./EP-032-progressive-disclosure-wizard.md) | Progressive Disclosure Wizard | P1 | A-Activation, C-Core Value | 📝 Defined |  |  |
+| [EP-033](./EP-033-base-character-image-generation.md) | Base Character Image Generation | P1 | A-Activation, C-Core Value | 📝 Proposed |  |  |
+| [EP-034](./EP-034-ethnicity-image-generation.md) | Ethnicity Image Generation | P1 | A-Activation, C-Core Value | 📝 Proposed |  |  |
+| [EP-035](./EP-035-body-type-image-generation.md) | Body Type Image Generation | P1 | A-Activation, C-Core Value | 📝 Proposed |  |  |
+| [EP-036](./EP-036-ethnicity-specific-feature-images.md) | Ethnicity-Specific Feature Images | P1 | A-Activation, C-Core Value | 📝 Proposed |  |  |
+| [EP-037](./EP-037-profile-picture-generation-from-detail-page.md) | Profile Picture Generation from Detail Page | P1 | B-Retention, C-Core Value | 📝 Proposed |  |  |
+| [EP-038](./EP-038-lora-usage-in-generation.md) | LoRA Usage in Image Generation | P1 | C-Core Value | 📝 Proposed |  |  |
+| [EP-039](./EP-039-comfyui-dependency-management.md) | ComfyUI Dependency Management & Versioning | P1 | E-CAC, C-Core Value | ✅ Completed |  |  |
+| [EP-042](./EP-042-wizard-single-selection-layout.md) | Wizard Single Selection & Layout Optimization | P1 | A-Activation, C-Core Value | 📝 Defined |  |  |
+| [EP-050](./EP-050-forgot-password-completion.md) | Forgot Password Feature Completion (IN-025) | P1 | A-Activation, B-Retention | 🔄 In Progress |  |  |
 
 ## User Journey
 

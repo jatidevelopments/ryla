@@ -9,6 +9,8 @@ import {
   StudioSearch,
   type InfluencerTab,
 } from './header';
+import { ModeIndicator } from './header/ModeIndicator';
+import type { StudioMode } from '../generation/types';
 
 interface StudioHeaderProps {
   influencers: InfluencerTab[];
@@ -17,6 +19,7 @@ interface StudioHeaderProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   totalCount: number;
+  mode?: StudioMode;
   className?: string;
 }
 
@@ -27,6 +30,7 @@ export function StudioHeader({
   searchQuery,
   onSearchChange,
   totalCount,
+  mode,
   className,
 }: StudioHeaderProps) {
   const [showMoreDropdown, setShowMoreDropdown] = React.useState(false);
@@ -45,6 +49,13 @@ export function StudioHeader({
     >
       {/* Top Navigation Tabs */}
       <div className="flex items-center gap-2 md:gap-4 px-2 md:px-4 py-2 md:py-3">
+        {/* Mode Indicator - Left side */}
+        {mode && (
+          <div className="flex-shrink-0">
+            <ModeIndicator mode={mode} />
+          </div>
+        )}
+        
         {/* Left - Main tabs - Scrollable on mobile */}
         <div className="flex-1 overflow-x-auto scroll-hidden">
           <InfluencerTabsDisplay

@@ -27,6 +27,7 @@ interface PromptInputRowProps {
   selectedInfluencerId: string | null;
   canGenerate: boolean;
   creditsCost: number;
+  isGenerating?: boolean;
   onClearImage?: () => void;
   onRemoveObject: (objectId: string) => void;
   onAddObject: () => void;
@@ -45,6 +46,7 @@ export function PromptInputRow({
   selectedInfluencerId,
   canGenerate,
   creditsCost,
+  isGenerating = false,
   onClearImage,
   onRemoveObject,
   onAddObject,
@@ -120,6 +122,7 @@ export function PromptInputRow({
           mode={mode}
           canGenerate={canGenerate}
           creditsCost={creditsCost}
+          isGenerating={isGenerating}
           onGenerate={onPromptSubmit}
         />
       </div>

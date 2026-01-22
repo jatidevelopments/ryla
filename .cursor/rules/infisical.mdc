@@ -20,13 +20,7 @@ alwaysApply: true
 - ✅ Access secrets via `process.env` (after Infisical injection)
 - ✅ Export to `.env` only for IDE autocomplete (gitignored)
 
-## Context
-
-RYLA uses Infisical for centralized secrets management with:
-- Hierarchical folder structure
-- Role-based access control (RBAC)
-- Environment separation (dev/staging/prod)
-- Machine identities for automated systems
+RYLA uses Infisical for centralized secrets management with hierarchical folder structure, role-based access control (RBAC), environment separation (dev/staging/prod), and machine identities for automated systems.
 
 ## Secrets Structure
 
@@ -38,6 +32,7 @@ RYLA Project
 ├── /apps/funnel  # Funnel app secrets
 ├── /apps/landing # Landing page secrets
 ├── /shared       # Shared across all apps
+├── /logins       # SaaS tool login credentials (emails, passwords, OAuth info)
 └── /test         # Test fixtures and credentials
 ```
 
@@ -187,6 +182,7 @@ infisical run --path=/apps/web --path=/shared --env=dev -- pnpm nx serve web
    - MCP-only → `/mcp`
    - App-specific → `/apps/{app-name}`
    - Shared across apps → `/shared`
+   - SaaS tool logins → `/logins` (emails, passwords, OAuth credentials)
    - Test fixtures → `/test`
 
 2. **Add to all environments:**
@@ -199,6 +195,38 @@ infisical run --path=/apps/web --path=/shared --env=dev -- pnpm nx serve web
 3. **Update documentation if needed:**
    - Add to `docs/technical/INFISICAL-SETUP.md` structure diagram
    - Update `.env.example` files for reference
+
+### SaaS Tool Logins (`/logins`)
+
+**Use `/logins` for storing credentials for external SaaS tools and services.**
+
+**Naming Convention:**
+- `{SERVICE}_EMAIL` - Email/username for the service
+- `{SERVICE}_PASSWORD` - Password (if applicable)
+- `{SERVICE}_AUTH_METHOD` - Authentication method (e.g., `oauth_google`, `password`)
+- `{SERVICE}_API_KEY` - API key/token for programmatic access
+- `{SERVICE}_URL` - Service URL (optional, for reference)
+- `{SERVICE}_NOTES` - Additional notes (optional)
+
+**Examples:**
+```bash
+# OAuth-based services (Google, GitHub, etc.)
+infisical secrets set RUNPOD_EMAIL=user@example.com --path=/logins --env=dev
+infisical secrets set RUNPOD_AUTH_METHOD=oauth_google --path=/logins --env=dev
+infisical secrets set RUNPOD_API_KEY=xxx --path=/logins --env=dev
+
+# Password-based services
+infisical secrets set HIGGSFIELD_EMAIL=user@example.com --path=/logins --env=dev
+infisical secrets set HIGGSFIELD_PASSWORD=xxx --path=/logins --env=dev
+infisical secrets set HIGGSFIELD_URL=https://higgsfield.ai/ --path=/logins --env=dev
+```
+
+**Current services in `/logins`:**
+- RunPod (OAuth Google)
+- Modal (OAuth Google)
+- Replicate (OAuth Google)
+- Higgsfield (Password)
+- HuggingFace (API Token)
 
 ## CI/CD Integration
 

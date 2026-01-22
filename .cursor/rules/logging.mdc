@@ -6,23 +6,17 @@ alwaysApply: false
 
 # Logging Patterns
 
-## Context
-
-- Structured logging for better debugging and monitoring
-- Colorful logging for development (NestJS ColorfulLogger)
-- Consistent log levels and formats
-- Sensitive data filtering
-- Request/response logging
+Structured logging for better debugging and monitoring. Colorful logging for development (NestJS ColorfulLogger). Consistent log levels and formats. Sensitive data filtering. Request/response logging.
 
 ## Requirements
 
 ### Log Levels
 
-- **LOG** (info): General information, successful operations
-- **ERROR**: Error messages with stack traces
-- **WARN**: Warning messages for potential issues
-- **DEBUG**: Debug information for development
-- **VERBOSE**: Detailed verbose logging
+- LOG (info) - General information, successful operations
+- ERROR - Error messages with stack traces
+- WARN - Warning messages for potential issues
+- DEBUG - Debug information for development
+- VERBOSE - Detailed verbose logging
 
 ### Structured Logging
 

@@ -6,7 +6,7 @@ alwaysApply: false
 
 # RYLA Zustand Action Patterns
 
-This guide outlines best practices for organizing Zustand stores in RYLA, focusing on maintainability, type safety, and user experience.
+Best practices for organizing Zustand stores in RYLA. Focus on maintainability, type safety, and user experience.
 
 ## Store Structure
 

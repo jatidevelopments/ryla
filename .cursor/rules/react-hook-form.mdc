@@ -6,12 +6,7 @@ alwaysApply: false
 
 # React Hook Form Patterns
 
-## Context
-
-- RYLA uses React Hook Form with Zod for form validation
-- Multi-step forms (funnel) use `useFormContext` for shared form state
-- Forms integrate with tRPC mutations and Zustand state
-- Consistent error handling and validation patterns
+RYLA uses React Hook Form with Zod for form validation. Multi-step forms (funnel) use `useFormContext` for shared form state. Forms integrate with tRPC mutations and Zustand state. Consistent error handling and validation patterns.
 
 ## Requirements
 
@@ -410,14 +405,14 @@ export function useFormWithWatch() {
 
 ## Best Practices
 
-1. **Zod Schemas** - Always use Zod for validation, not manual validation
-2. **Form Context** - Use `FormProvider` for multi-step forms
-3. **Validation Mode** - Use `onSubmit` mode for better UX (not `onChange`)
-4. **Error Display** - Use `role="alert"` and `aria-invalid` for accessibility
-5. **Default Values** - Always provide default values matching schema
-6. **Reset Patterns** - Use `reset()` after successful submission
-7. **Field Validation** - Validate only relevant fields per step
-8. **Error Clearing** - Clear errors when navigating between steps
+- Zod schemas - Always use Zod for validation, not manual validation
+- Form context - Use `FormProvider` for multi-step forms
+- Validation mode - Use `onSubmit` mode for better UX (not `onChange`)
+- Error display - Use `role="alert"` and `aria-invalid` for accessibility
+- Default values - Always provide default values matching schema
+- Reset patterns - Use `reset()` after successful submission
+- Field validation - Validate only relevant fields per step
+- Error clearing - Clear errors when navigating between steps
 
 ## Common Patterns
 

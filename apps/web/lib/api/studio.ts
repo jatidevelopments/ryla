@@ -11,7 +11,7 @@ import { OutfitComposition, AspectRatio } from '@ryla/shared';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export type { AspectRatio } from '@ryla/shared';
-export type QualityMode = 'draft' | 'hq';
+// QualityMode removed - EP-045
 
 export interface GenerateStudioImagesInput {
   characterId: string;
@@ -23,7 +23,7 @@ export interface GenerateStudioImagesInput {
   lighting?: string; // Lighting preset (e.g., "natural.goldenHour")
   expression?: string; // Expression preset (e.g., "positive.smile")
   aspectRatio: AspectRatio;
-  qualityMode: QualityMode;
+  // qualityMode removed - EP-045
   count: number;
   nsfw: boolean;
   promptEnhance?: boolean; // Enable AI prompt enhancement (uses OpenRouter/Gemini/OpenAI)
@@ -87,7 +87,7 @@ export async function generateStudioImages(
       lighting: input.lighting,
       expression: input.expression,
       aspectRatio: input.aspectRatio,
-      qualityMode: input.qualityMode,
+      // qualityMode removed - EP-045
       count: input.count,
       nsfw: input.nsfw,
       promptEnhance: input.promptEnhance,

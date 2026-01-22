@@ -83,7 +83,7 @@ export class ImageGalleryService {
             outfit: schema.images.outfit,
             poseId: schema.images.poseId,
             aspectRatio: schema.images.aspectRatio,
-            qualityMode: schema.images.qualityMode,
+            // qualityMode removed - EP-045
             nsfw: schema.images.nsfw,
             liked: schema.images.liked,
             deletedAt: schema.images.deletedAt,

@@ -13,12 +13,12 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@ryla/data/schema';
 
 // Template config schema (for validation)
+// qualityMode removed - see EP-045
 const templateConfigSchema: z.ZodType<TemplateConfig> = z.object({
   scene: z.string().nullable(),
   environment: z.string().nullable(),
   outfit: z.union([z.string(), z.record(z.unknown())]).nullable(),
   aspectRatio: z.enum(['1:1', '9:16', '2:3', '3:4', '4:3', '16:9', '3:2']),
-  qualityMode: z.enum(['draft', 'hq']),
   nsfw: z.boolean(),
   poseId: z.string().nullable(),
   styleId: z.string().nullable(),
@@ -62,10 +62,10 @@ const listTemplatesSchema = z.object({
   scene: z.string().optional(),
   environment: z.string().optional(),
   aspectRatio: z.string().optional(),
-  qualityMode: z.enum(['draft', 'hq']).optional(),
+  // qualityMode removed - see EP-045
   nsfw: z.boolean().optional(),
   search: z.string().optional(),
-  sort: z.enum(['popular', 'recent', 'success_rate']).optional(),
+  sort: z.enum(['popular', 'trending', 'new', 'recent', 'success_rate']).optional(),
   category: z.enum(['all', 'my_templates', 'curated', 'popular']).optional(),
   influencerId: z.string().uuid().optional(),
   page: z.number().int().min(1).default(1),
@@ -90,8 +90,9 @@ function getDb(ctx: any): NodePgDatabase<typeof schema> {
 
 export const templatesRouter = router({
   /**
-   * List templates with filters and pagination
+   * List templates with filters, pagination, and sorting
    * Public for curated/public templates, protected for user templates
+   * EP-049: Added sort parameter (popular, trending, new, recent)
    */
   list: publicProcedure.input(listTemplatesSchema).query(async ({ ctx, input }) => {
     const db = getDb(ctx);
@@ -101,7 +102,7 @@ export const templatesRouter = router({
       scene: input.scene,
       environment: input.environment,
       aspectRatio: input.aspectRatio,
-      qualityMode: input.qualityMode,
+      // qualityMode removed - see EP-045
       nsfw: input.nsfw,
       search: input.search,
       category: input.category ?? 'all',
@@ -113,6 +114,12 @@ export const templatesRouter = router({
       page: input.page,
       limit: input.limit,
     };
+
+    // Use new sort-aware method if sort is specified
+    const sort = input.sort as 'popular' | 'trending' | 'new' | 'recent' | undefined;
+    if (sort && ['popular', 'trending', 'new', 'recent'].includes(sort)) {
+      return service.findWithSort(filters, pagination, sort, ctx.user?.id);
+    }
 
     return service.findAll(filters, pagination);
   }),

@@ -457,7 +457,7 @@ export const userRouter = router({
           environment: null,
           outfit: null,
           aspectRatio: null,
-          qualityMode: null,
+          // qualityMode removed - see EP-045
           nsfw: false,
           sourceImageId: null,
           editType: null,

@@ -1,6 +1,6 @@
 # [INITIATIVE] IN-003: SFW/NSFW Content Separation for Growth & Marketability
 
-**Status**: Proposed  
+**Status**: Active  
 **Created**: 2026-01-XX  
 **Last Updated**: 2026-01-XX  
 **Owner**: Product Team  

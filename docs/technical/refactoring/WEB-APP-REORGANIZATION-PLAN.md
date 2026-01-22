@@ -11,7 +11,7 @@ The web app currently has inconsistent folder organization, particularly in:
 - Mixed organization patterns across features
 - Inconsistent use of barrel exports (`index.ts`)
 
-This plan will reorganize the structure to match the established patterns in `docs/technical/FILE-ORGANIZATION-GUIDE.md`.
+This plan will reorganize the structure to match the established patterns in `docs/technical/guides/file-organization-guide.md`.
 
 ## Current Issues
 

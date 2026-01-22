@@ -6,28 +6,23 @@ alwaysApply: true
 
 # File Organization Patterns
 
-## Context
-
-- Co-location: Related files should be grouped together
-- Single Responsibility: Each file should have one clear purpose
-- Discoverability: File locations should be predictable
-- Scalability: Structure should support growth without reorganization
+Co-location: Related files should be grouped together. Single Responsibility: Each file should have one clear purpose. Discoverability: File locations should be predictable. Scalability: Structure should support growth without reorganization.
 
 ## Requirements
 
 ### When to Extract Files
 
-- Component exceeds **150 lines** (target: < 100)
-- Logic is reused in **2+ places**
-- File has **multiple responsibilities**
+- Component exceeds 150 lines (target: < 100)
+- Logic is reused in 2+ places
+- File has multiple responsibilities
 - Testing becomes difficult due to complexity
 
 ### Directory Structure
 
-- **Page routes**: `app/[route]/` with co-located `components/`, `hooks/`, `utils/`
-- **Shared components**: `components/[feature]/` with sub-components
-- **Shared utilities**: `lib/utils/` or `lib/hooks/`
-- **Constants**: Co-located with feature or in `constants.ts`
+- Page routes: `app/[route]/` with co-located `components/`, `hooks/`, `utils/`
+- Shared components: `components/[feature]/` with sub-components
+- Shared utilities: `lib/utils/` or `lib/hooks/`
+- Constants: Co-located with feature or in `constants.ts`
 
 ### Naming Conventions
 

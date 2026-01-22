@@ -1,6 +1,6 @@
 import { Variants } from 'framer-motion';
 
-export type AuthMode = 'email' | 'login' | 'register';
+export type AuthMode = 'email' | 'login' | 'register' | 'forgot-password';
 
 export interface LoginFormData {
   password: string;

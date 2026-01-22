@@ -15,14 +15,6 @@ export interface AspectRatioOption {
   primaryPlatform?: PlatformId; // Main platform for this format
 }
 
-export interface QualityModeOption {
-  label: string;
-  value: string;
-  steps: number;
-  credits: number;
-  description: string;
-}
-
 export const ASPECT_RATIO_OPTIONS: AspectRatioOption[] = [
   {
     label: '1:1',
@@ -53,27 +45,9 @@ export const ASPECT_RATIO_OPTIONS: AspectRatioOption[] = [
   },
 ];
 
-export const QUALITY_MODE_OPTIONS: QualityModeOption[] = [
-  {
-    label: 'Draft',
-    value: 'draft',
-    steps: 20,
-    credits: 1,
-    description: 'Fast preview (~10s)',
-  },
-  {
-    label: 'High Quality',
-    value: 'hq',
-    steps: 40,
-    credits: 3,
-    description: 'Best quality (~30s)',
-  },
-];
-
 /** Default generation settings */
 export const DEFAULT_GENERATION_SETTINGS = {
   aspectRatio: '9:16' as const,
-  qualityMode: 'draft' as const,
   nsfwEnabled: false,
 };
 

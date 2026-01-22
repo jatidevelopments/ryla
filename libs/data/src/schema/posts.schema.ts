@@ -40,7 +40,8 @@ export const environmentPresetEnum = pgEnum('environment_preset', [
 // Aspect ratio options
 export const aspectRatioEnum = pgEnum('aspect_ratio', ['1:1', '9:16', '2:3']);
 
-// Quality mode options
+// Quality mode options - DEPRECATED: kept for backward compatibility with existing DB
+// See EP-045 for removal details
 export const qualityModeEnum = pgEnum('quality_mode', ['draft', 'hq']);
 
 /**
@@ -80,7 +81,7 @@ export const posts = pgTable(
     environment: environmentPresetEnum('environment').notNull(),
     outfit: text('outfit').notNull(),
     aspectRatio: aspectRatioEnum('aspect_ratio').notNull().default('9:16'),
-    qualityMode: qualityModeEnum('quality_mode').notNull().default('draft'),
+    // qualityMode removed - see EP-045
     nsfw: boolean('nsfw').default(false),
 
     // Prompt used for generation (for debugging/improvement)
@@ -129,4 +130,4 @@ export type ScenePreset = (typeof scenePresetEnum.enumValues)[number];
 export type EnvironmentPreset =
   (typeof environmentPresetEnum.enumValues)[number];
 export type AspectRatio = (typeof aspectRatioEnum.enumValues)[number];
-export type QualityMode = (typeof qualityModeEnum.enumValues)[number];
+// QualityMode type removed - see EP-045

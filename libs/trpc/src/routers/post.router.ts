@@ -114,7 +114,7 @@ export const postRouter = router({
         ]),
         outfit: z.string(),
         aspectRatio: z.enum(['1:1', '9:16', '2:3']).default('9:16'),
-        qualityMode: z.enum(['draft', 'hq']).default('draft'),
+        // qualityMode removed - see EP-045
         nsfw: z.boolean().default(false),
         prompt: z.string().optional(), // Full prompt text
         negativePrompt: z.string().optional(),
@@ -161,7 +161,7 @@ export const postRouter = router({
           environment: input.environment,
           outfit: input.outfit,
           aspectRatio: input.aspectRatio,
-          qualityMode: input.qualityMode,
+          // qualityMode removed - see EP-045
           nsfw: input.nsfw,
           prompt: input.prompt,
           negativePrompt: input.negativePrompt,

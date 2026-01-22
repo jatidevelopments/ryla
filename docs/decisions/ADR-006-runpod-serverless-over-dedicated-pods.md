@@ -309,4 +309,6 @@ Use managed inference platforms.
 
 ---
 
-**Status**: ✅ Accepted - Migration to serverless recommended
+**Status**: ⚠️ Superseded by [ADR-007: Use Modal.com Over RunPod](./ADR-007-modal-over-runpod.md)
+
+**Note**: This decision was superseded due to RunPod serverless reliability issues (frequent crashes, workers not spinning up) and operational complexity. Modal.com provides better reliability, Infrastructure as Code, and native GitHub Actions integration.

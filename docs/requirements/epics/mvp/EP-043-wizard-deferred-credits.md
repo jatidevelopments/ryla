@@ -506,6 +506,6 @@ interface GenerateBaseImagesResponse {
 ## References
 
 - [Initiative IN-009](../../../initiatives/IN-009-wizard-deferred-credits.md)
-- [Technical Design](../../../technical/WIZARD-DEFERRED-CREDITS.md)
+- [Technical Design](../../../technical/systems/wizard-deferred-credits.md)
 - [Credit Pricing](../../../../libs/shared/src/credits/pricing.ts)
 - [Wizard Store](../../../../libs/business/src/store/character-wizard.store.ts)

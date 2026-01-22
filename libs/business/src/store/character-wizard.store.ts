@@ -84,7 +84,7 @@ export interface CharacterFormData {
   // Generation settings
   nsfwEnabled: boolean;
   aspectRatio: '1:1' | '9:16' | '2:3';
-  qualityMode: 'draft' | 'hq';
+  // qualityMode removed - see EP-045
 
   // Profile picture set selection (null = skip)
   selectedProfilePictureSetId: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
@@ -397,7 +397,7 @@ const DEFAULT_FORM: CharacterFormData = {
   // Generation
   nsfwEnabled: false,
   aspectRatio: '9:16',
-  qualityMode: 'draft',
+  // qualityMode removed - see EP-045
   // Profile picture set (null = skip by default)
   selectedProfilePictureSetId: null,
   // Existing Person Request Flow

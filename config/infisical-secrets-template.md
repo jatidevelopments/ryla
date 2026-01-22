@@ -13,6 +13,7 @@ RYLA Project
 ├── /apps/funnel
 ├── /apps/landing
 ├── /shared
+├── /logins
 └── /test
 ```
 
@@ -155,6 +156,44 @@ Secrets for the payment funnel (`apps/funnel`).
 | `FINBY_SECRET_KEY` | Finby secret key | `xxx` |
 | `FINBY_TEST_MODE` | Test mode flag | `false` |
 
+### Social Media Pixel Tracking
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` | Facebook Pixel ID | `2633023407061165` |
+| `NEXT_PUBLIC_TIKTOK_PIXEL_ID` | TikTok Pixel ID | `D56GRRRC77UAQNS9K9O0` |
+| `NEXT_PUBLIC_TWITTER_PIXEL_ID` | Twitter/X Pixel ID (base config) | `qwgn6` |
+| `NEXT_PUBLIC_TWITTER_PURCHASE_EVENT_ID` | Twitter/X Purchase event ID | `tw-qwgn6-qwgn7` |
+| `NEXT_PUBLIC_TWITTER_LEAD_EVENT_ID` | Twitter/X Lead event ID | `tw-qwgn6-qwgn8` |
+| `NEXT_PUBLIC_ENABLE_DEV_ANALYTICS` | Enable tracking in development | `true` or `false` |
+| `NEXT_PUBLIC_DEBUG_TWITTER_PIXEL` | Debug Twitter Pixel logging | `true` or `false` |
+
+---
+
+## `/apps/admin` - Admin Dashboard Secrets
+
+Secrets for the admin dashboard (`apps/admin`).
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `NEXT_PUBLIC_SITE_URL` | Admin dashboard URL | `https://admin.ryla.ai` |
+| `NEXT_PUBLIC_API_URL` | Backend API URL | `https://end.ryla.ai` |
+| `NEXT_PUBLIC_API_BASE_URL` | Alias for API URL | `https://end.ryla.ai` |
+
+### Analytics (PostHog)
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key | `phc_xxx` |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host | `https://us.i.posthog.com` |
+
+### Supabase
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | `https://xxx.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | `eyJhbG...` |
+
 ---
 
 ## `/apps/landing` - Landing Page Secrets
@@ -164,6 +203,25 @@ Secrets for the landing page (`apps/landing`).
 | Secret Name | Description | Example |
 |-------------|-------------|---------|
 | `NEXT_PUBLIC_SITE_URL` | Landing URL | `https://ryla.ai` |
+
+### Social Media Pixel Tracking
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` | Facebook Pixel ID | `2633023407061165` |
+| `NEXT_PUBLIC_TIKTOK_PIXEL_ID` | TikTok Pixel ID | `D56GRRRC77UAQNS9K9O0` |
+| `NEXT_PUBLIC_TWITTER_PIXEL_ID` | Twitter/X Pixel ID (base config) | `qwgn6` |
+| `NEXT_PUBLIC_TWITTER_PURCHASE_EVENT_ID` | Twitter/X Purchase event ID | `tw-qwgn6-qwgn7` |
+| `NEXT_PUBLIC_TWITTER_LEAD_EVENT_ID` | Twitter/X Lead event ID | `tw-qwgn6-qwgn8` |
+| `NEXT_PUBLIC_ENABLE_DEV_ANALYTICS` | Enable tracking in development | `true` or `false` |
+| `NEXT_PUBLIC_DEBUG_TWITTER_PIXEL` | Debug Twitter Pixel logging | `true` or `false` |
+
+### Analytics (PostHog)
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key | `phc_xxx` |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host | `https://us.i.posthog.com` |
 
 ---
 
@@ -209,6 +267,22 @@ Test accounts and credentials for development/testing.
 
 ---
 
+## `/logins` - SaaS Tool Credentials
+
+Credentials for external SaaS tools and services.
+
+| Secret Name | Description | Example |
+|-------------|-------------|---------|
+| `HUGGINGFACE_TOKEN` | HuggingFace API token | `hf_xxxxxxxxxxxx` |
+| `RUNPOD_EMAIL` | RunPod account email | `user@example.com` |
+| `RUNPOD_API_KEY` | RunPod API key | `rp_xxxxxxxxxxxx` |
+| `MODAL_EMAIL` | Modal account email | `user@example.com` |
+| `REPLICATE_EMAIL` | Replicate account email | `user@example.com` |
+| `HIGGSFIELD_EMAIL` | Higgsfield account email | `user@example.com` |
+| `HIGGSFIELD_PASSWORD` | Higgsfield account password | `xxxxxxxxxxxx` |
+
+---
+
 ## Setup Commands
 
 ### Initial Setup
@@ -228,6 +302,7 @@ infisical folders create /apps/web --env=dev
 infisical folders create /apps/funnel --env=dev
 infisical folders create /apps/landing --env=dev
 infisical folders create /shared --env=dev
+infisical folders create /logins --env=dev
 infisical folders create /test --env=dev
 ```
 

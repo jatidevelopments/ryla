@@ -75,8 +75,9 @@ export const creditTransactions = pgTable(
     // Description for display
     description: text('description'),
 
-    // For generation transactions, track the quality mode
-    qualityMode: text('quality_mode'), // 'draft' (1 credit) or 'hq' (3 credits)
+    // DEPRECATED: Previously tracked quality mode, now stores feature ID for analytics (e.g., 'studio_standard')
+    // Kept for backward compatibility and analytics purposes
+    qualityMode: text('quality_mode'),
 
     createdAt: timestamp('created_at').defaultNow(),
   },

@@ -6,18 +6,11 @@ alwaysApply: false
 
 # Environment Variables
 
-## Context
-
-- **RYLA uses Infisical for all secrets management** - Never use `.env` files directly
-- Secure configuration management via Infisical
-- Type-safe environment variable access
-- Validation of required variables
-- Documentation of all environment variables
-- Separation of public and private variables
+RYLA uses Infisical for all secrets management - Never use `.env` files directly. Secure configuration management via Infisical. Type-safe environment variable access. Validation of required variables. Documentation of all environment variables. Separation of public and private variables.
 
 ## CRITICAL: Secrets Management
 
-**RYLA uses Infisical for all secrets. Never create or modify `.env` files directly.**
+RYLA uses Infisical for all secrets. Never create or modify `.env` files directly.
 
 - All secrets are stored in Infisical (see `infisical.mdc` rule)
 - Use `infisical run` to inject secrets when running applications
@@ -28,11 +21,11 @@ alwaysApply: false
 
 ### Naming Conventions
 
-- **Public variables** (exposed to browser): `NEXT_PUBLIC_*`
-- **Server-only variables**: No prefix (e.g., `DATABASE_URL`, `JWT_SECRET`)
-- **Service-specific**: Prefix with service name (e.g., `POSTGRES_*`, `REDIS_*`)
-- **UPPER_SNAKE_CASE**: All environment variable names
-- **Descriptive names**: Clear purpose (e.g., `JWT_ACCESS_SECRET` not `JWT_SECRET`)
+- Public variables (exposed to browser): `NEXT_PUBLIC_*`
+- Server-only variables: No prefix (e.g., `DATABASE_URL`, `JWT_SECRET`)
+- Service-specific: Prefix with service name (e.g., `POSTGRES_*`, `REDIS_*`)
+- UPPER_SNAKE_CASE: All environment variable names
+- Descriptive names: Clear purpose (e.g., `JWT_ACCESS_SECRET` not `JWT_SECRET`)
 
 ### Type Safety
 

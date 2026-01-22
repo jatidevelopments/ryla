@@ -6,3 +6,5 @@
 export { FadeInUp, StaggerChildren } from './fade-in-up';
 export { CountUp } from './count-up';
 export { LogoMarquee, PlatformLogo } from './logo-marquee';
+export { PageTransition } from './page-transition';
+export { SlideTransition } from './slide-transition';

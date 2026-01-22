@@ -7,6 +7,23 @@ alwaysApply: false
 
 When writing or modifying Cursor rules, follow these guidelines:
 
+## Way of Work Alignment
+
+When writing or modifying rules, follow way-of-work principles:
+
+- Bullet points > paragraphs - Use bullets, not paragraphs
+- Examples > explanations - Lead with examples, minimize explanations
+- Say only what moves work forward - Remove filler, repetition, emotional padding
+- One line if possible - Be concise, enough clarity to avoid follow-ups
+
+Context sections: Convert verbose "## Context" bullet lists to one-line summaries. Example:
+- Before: `## Context\n\n- Point 1\n- Point 2\n- Point 3`
+- After: `Point 1. Point 2. Point 3.`
+
+Section headers: Remove bold formatting from headers unless necessary for emphasis.
+
+Best practices: Convert numbered lists with bold items to simple bullet lists.
+
 ## File Access
 
 - When you know the rule filename, use `read_file` instead of searching to read rules
@@ -28,6 +45,8 @@ When writing or modifying Cursor rules, follow these guidelines:
 - Periods at end of list items are unnecessary
 - Avoid excessive formatting (bold, inline code) - rules are primarily for LLM consumption
 - Avoid word-by-word translations. If parentheses contain examples rather than translations, keep them
+- Convert "## Context" sections to one-line summaries when possible
+- Remove bold from section headers unless necessary for emphasis
 
 ## Review Checklist
 
@@ -36,6 +55,8 @@ When writing or modifying Cursor rules, follow these guidelines:
 - Point out inconsistencies between examples and explanations
 - Ensure frontmatter is correct (description, globs, alwaysApply)
 - Verify code examples are accurate and runnable
+- Check way-of-work alignment (bullets > paragraphs, examples > explanations, concise)
+- Verify context sections are condensed to one-line summaries
 
 ## Frontmatter Guidelines
 

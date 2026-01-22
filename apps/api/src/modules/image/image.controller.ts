@@ -151,7 +151,8 @@ export class ImageController {
       totalCredits = creditsPerImage * dto.count;
     } else {
       // ComfyUI: use fixed feature-based pricing
-      const featureId: FeatureId = dto.qualityMode === 'hq' ? 'studio_standard' : 'studio_fast';
+      // qualityMode removed (EP-045) - always use studio_fast
+      const featureId: FeatureId = 'studio_fast';
       totalCredits = getFeatureCost(featureId, dto.count);
     }
 
@@ -161,7 +162,8 @@ export class ImageController {
       await this.creditService.deductCreditsRaw(user.userId, totalCredits, undefined, `Studio generation: ${dto.modelId} (${dto.count} images)`);
     } else {
       // For ComfyUI, use feature-based deduction
-      const featureId: FeatureId = dto.qualityMode === 'hq' ? 'studio_standard' : 'studio_fast';
+      // qualityMode removed (EP-045) - always use studio_fast
+      const featureId: FeatureId = 'studio_fast';
       await this.creditService.deductCredits(user.userId, featureId, dto.count);
     }
 
@@ -176,7 +178,7 @@ export class ImageController {
       lighting: dto.lighting,
       expression: dto.expression,
       aspectRatio: dto.aspectRatio,
-      qualityMode: dto.qualityMode,
+      // qualityMode removed - EP-045
       count: dto.count,
       nsfw: dto.nsfw,
       promptEnhance: dto.promptEnhance,

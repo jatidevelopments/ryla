@@ -20,7 +20,6 @@ export interface ActivityItem {
   imageId?: string | null; // First image ID for direct navigation
   imageCount?: number | null;
   thumbnailUrl?: string | null;
-  qualityMode?: string | null;
   status?: string | null;
   creditAmount?: number | null;
   balanceAfter?: number | null;

@@ -194,7 +194,7 @@ Implement frontend-only deferred billing that tracks pending credit costs throug
 - **Related Initiatives**: IN-004 (Wizard Image Generation)
 
 ### Documentation
-- [Technical Design](../technical/WIZARD-DEFERRED-CREDITS.md) - Detailed implementation plan
+- [Technical Design](../technical/systems/wizard-deferred-credits.md) - Detailed implementation plan
 - [Credit Pricing](../../libs/shared/src/credits/pricing.ts) - Credit cost definitions
 
 ---

@@ -1,5 +1,11 @@
 # [EPIC] EP-042: Content Moderation & Safety
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Content moderation and safety features to ensure compliance with platform policies, protect users, and handle inappropriate content. Critical for NSFW platforms to maintain legal compliance and user trust.

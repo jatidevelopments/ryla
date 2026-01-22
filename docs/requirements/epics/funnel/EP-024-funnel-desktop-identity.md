@@ -1,5 +1,11 @@
 # [EPIC] EP-024: Funnel Desktop Adaptation & Identity System
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Enhance the funnel app (`apps/funnel`) with:

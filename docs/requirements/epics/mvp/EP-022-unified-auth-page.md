@@ -1,5 +1,11 @@
 # [EPIC] EP-022: Unified Login/Registration Page
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Transform the separate login and registration pages into a single, intelligent authentication page that automatically detects whether a user exists and adapts the form accordingly. This creates a modern, streamlined user experience that reduces friction and improves activation rates.

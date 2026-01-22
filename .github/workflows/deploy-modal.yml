@@ -1,0 +1,57 @@
+name: Deploy ComfyUI to Modal
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/modal/**'
+      - 'libs/business/src/workflows/**'
+      - '.github/workflows/deploy-modal.yml'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+      
+      - name: Install Modal
+        run: pip install modal
+      
+      - name: Deploy Danrisi Workflow to Modal
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          cd apps/modal
+          modal deploy comfyui_danrisi.py
+      
+      - name: Deploy Z-Image-Turbo Workflow to Modal
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          cd apps/modal
+          modal deploy comfyui_z_image_turbo.py
+      
+      - name: Verify Deployments
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        run: |
+          modal app list | grep ryla-comfyui || echo "Apps not found (may be first deployment)"
+      
+      - name: List Models (if volume exists)
+        env:
+          MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
+          MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
+        continue-on-error: true
+        run: |
+          modal run apps/modal/comfyui_z_image_turbo.py::list_models

@@ -70,7 +70,6 @@ interface StudioSettings {
   environment: string;
   outfit: string | null | OutfitComposition;
   aspectRatio: AspectRatio;
-  qualityMode: 'draft' | 'hq';
   nsfwEnabled: boolean;
   modelProvider: 'comfyui' | 'fal';
   modelId: string;
@@ -81,7 +80,6 @@ const DEFAULT_SETTINGS: StudioSettings = {
   environment: 'studio',
   outfit: null,
   aspectRatio: '1:1',
-  qualityMode: 'draft',
   nsfwEnabled: false,
   modelProvider: 'comfyui',
   modelId: 'fal-ai/flux/schnell',
@@ -272,11 +270,8 @@ function StudioContent() {
     }
   }, [preselectImageId, existingImages, shouldOpenEdit]);
 
-  // Credit costs from shared pricing (studio_standard for HQ, studio_fast for draft)
-  const creditCost =
-    settings.qualityMode === 'hq'
-      ? FEATURE_CREDITS.studio_standard.credits // 40 credits
-      : FEATURE_CREDITS.studio_fast.credits; // 15 credits
+  // Credit costs from shared pricing - use studio_standard (40 credits)
+  const creditCost = FEATURE_CREDITS.studio_standard.credits;
 
   const toggleSection = (section: keyof typeof expandedSections) => {
     setExpandedSections((prev) => ({
@@ -325,7 +320,6 @@ function StudioContent() {
           environment: config.environment || prev.environment,
           outfit: config.outfit || null,
           aspectRatio: config.aspectRatio || prev.aspectRatio,
-          qualityMode: config.qualityMode || prev.qualityMode,
           nsfwEnabled: config.nsfw || prev.nsfwEnabled,
           modelId: config.modelId || prev.modelId,
         }));
@@ -385,13 +379,18 @@ function StudioContent() {
 
     try {
       // NOTE: influencerId in web is the same as characterId in API/DB
+      // If NSFW is enabled and no outfit is selected, pass empty string so backend can handle it as "naked"
+      // Otherwise, use default fallback to 'casual' for SFW content
+      const outfitForGeneration = settings.nsfwEnabled && !settings.outfit && !influencer?.outfit
+        ? ''
+        : settings.outfit || influencer?.outfit || 'casual';
+
       const start = await generateStudioImages({
         characterId: influencerId,
         scene: settings.scene,
         environment: settings.environment,
-        outfit: settings.outfit || influencer?.outfit || 'casual',
+        outfit: outfitForGeneration,
         aspectRatio: settings.aspectRatio,
-        qualityMode: settings.qualityMode,
         count: 1,
         nsfw: settings.nsfwEnabled,
         modelProvider: settings.nsfwEnabled
@@ -882,26 +881,6 @@ function StudioContent() {
                       <div className="flex items-center justify-between">
                         <div>
                           <Label className="text-sm text-[var(--text-primary)]">
-                            HQ Mode
-                          </Label>
-                          <p className="text-xs text-[var(--text-muted)]">
-                            Higher quality,{' '}
-                            {FEATURE_CREDITS.studio_standard.credits} credits
-                          </p>
-                        </div>
-                        <Switch
-                          checked={settings.qualityMode === 'hq'}
-                          onCheckedChange={(checked) =>
-                            handleSettingChange(
-                              'qualityMode',
-                              checked ? 'hq' : 'draft'
-                            )
-                          }
-                        />
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <Label className="text-sm text-[var(--text-primary)]">
                             18+ Content
                           </Label>
                           <p className="text-xs text-[var(--text-muted)]">
@@ -1114,7 +1093,6 @@ function StudioContent() {
             environment: settings.environment,
             outfit: settings.outfit as any,
             aspectRatio: settings.aspectRatio as any,
-            qualityMode: settings.qualityMode,
             nsfw: settings.nsfwEnabled,
             poseId: null, // TODO: Get from settings when pose selector is added
             styleId: null, // TODO: Get from settings when style selector is added

@@ -1,5 +1,11 @@
 # [EPIC] EP-038: LoRA Usage in Image Generation
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 > **Initiative**: [IN-006: LoRA Character Consistency System](../../../initiatives/IN-006-lora-character-consistency.md)
 
 ## Overview

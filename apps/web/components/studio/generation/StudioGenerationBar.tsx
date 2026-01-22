@@ -40,6 +40,8 @@ interface StudioGenerationBarProps {
   hasUploadConsent?: boolean; // Whether user has accepted upload consent
   onAcceptConsent?: () => Promise<void>; // Handler to accept consent
   onUploadImage?: (file: File) => Promise<StudioImage | null>; // Handler to upload image
+  tutorialCurrentStep?: number; // Current tutorial step index
+  tutorialIsActive?: boolean; // Whether tutorial is active
   className?: string;
 }
 
@@ -48,7 +50,7 @@ export function StudioGenerationBar({
   selectedInfluencer,
   onInfluencerChange,
   onGenerate,
-  isGenerating: _isGenerating = false,
+  isGenerating = false,
   creditsAvailable = 250,
   selectedImage = null,
   onClearSelectedImage,
@@ -61,6 +63,8 @@ export function StudioGenerationBar({
   hasUploadConsent = false,
   onAcceptConsent,
   onUploadImage,
+  tutorialCurrentStep = -1,
+  tutorialIsActive = false,
   className,
 }: StudioGenerationBarProps) {
   // Use extracted hook for mode change handling
@@ -183,6 +187,7 @@ export function StudioGenerationBar({
             selectedInfluencerId={settings.influencerId}
             canGenerate={canGenerate}
             creditsCost={creditsCost}
+            isGenerating={isGenerating}
             onClearImage={onClearSelectedImage}
             onRemoveObject={(objectId) =>
               updateSetting(
@@ -239,6 +244,9 @@ export function StudioGenerationBar({
             onPromptSubmit={handleGenerate}
             canGenerate={canGenerate}
             creditsCost={creditsCost}
+            isGenerating={isGenerating}
+            tutorialCurrentStep={tutorialCurrentStep}
+            tutorialIsActive={tutorialIsActive}
           />
         </div>
 

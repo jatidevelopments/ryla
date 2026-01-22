@@ -1,0 +1,147 @@
+name: Test Serverless Endpoints
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_integration_tests:
+        description: 'Run integration tests against real endpoint'
+        required: false
+        default: 'false'
+        type: boolean
+
+jobs:
+  unit-tests:
+    name: Unit Tests (Mock Mode)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests (mock mode)
+        run: pnpm test:serverless:unit
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: serverless-test-coverage
+          path: coverage/
+          retention-days: 7
+
+  integration-tests:
+    name: Integration Tests (Real Endpoint)
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' && 
+      github.event.inputs.run_integration_tests == 'true'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Run integration tests (real endpoint)
+        run: |
+          pnpm test:serverless:endpoint
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+
+      - name: Run dependency verification
+        run: |
+          pnpm test:serverless:deps
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        continue-on-error: true
+
+      - name: Run workflow test (single sample)
+        run: |
+          pnpm test:serverless:workflow -- --samples=1
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        continue-on-error: true
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: serverless-integration-results
+          path: |
+            test-results/
+            coverage/
+          retention-days: 7
+
+  denrisi-validation:
+    name: Denrisi Workflow Validation
+    runs-on: ubuntu-latest
+    if: |
+      github.event_name == 'workflow_dispatch' && 
+      github.event.inputs.run_integration_tests == 'true'
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (for pnpm)
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Validate Denrisi workflow (3 samples)
+        run: |
+          pnpm test:serverless:denrisi -- --samples=3
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        continue-on-error: true
+
+      - name: Upload validation results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: denrisi-validation-results
+          path: |
+            test-results/
+            coverage/
+          retention-days: 7
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"❌ Serverless Denrisi validation failed in CI/CD"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true

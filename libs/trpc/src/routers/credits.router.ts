@@ -385,7 +385,7 @@ export const creditsRouter = router({
           amount: true,
           balanceAfter: true,
           description: true,
-          qualityMode: true,
+          // qualityMode removed - see EP-045
           createdAt: true,
         },
       });

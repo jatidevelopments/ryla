@@ -19,6 +19,10 @@ import {
   bugReportRouter,
   galleryFavoritesRouter,
   templatesRouter,
+  templateSetsRouter,
+  templateCategoriesRouter,
+  templateTagsRouter,
+  templateLikesRouter,
 } from './routers';
 
 /**
@@ -37,6 +41,10 @@ export const appRouter = router({
   bugReport: bugReportRouter,
   galleryFavorites: galleryFavoritesRouter,
   templates: templatesRouter,
+  templateSets: templateSetsRouter,
+  templateCategories: templateCategoriesRouter,
+  templateTags: templateTagsRouter,
+  templateLikes: templateLikesRouter,
 });
 
 /**

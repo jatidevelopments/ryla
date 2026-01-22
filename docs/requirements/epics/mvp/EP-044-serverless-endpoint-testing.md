@@ -1,5 +1,11 @@
 # [EPIC] EP-044: RunPod Serverless Endpoint Testing & Validation Framework
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 > **Initiative**: [IN-010: Denrisi Workflow Serverless Validation & Testing Framework](../../../initiatives/IN-010-denrisi-workflow-serverless-validation.md)  
 > **Type**: Backend Infrastructure  
 > **Phases**: P1, P2, P3, P5, P6, P7, P8, P9, P10 (skipping P4 - UI)
@@ -236,11 +242,11 @@ Comprehensive testing and validation framework for ComfyUI workflows on RunPod s
 
 ### AC-7: CI/CD Integration
 
-- [ ] Tests run in GitHub Actions
-- [ ] Pre-deployment validation works
-- [ ] Test results reported
-- [ ] Failures trigger notifications
-- [ ] CI/CD integration documented
+- [x] Tests run in GitHub Actions
+- [x] Pre-deployment validation works (via workflow_dispatch)
+- [x] Test results reported (artifacts uploaded)
+- [x] Failures trigger notifications (Slack webhook)
+- [x] CI/CD integration documented (workflow file + epic docs)
 
 ---
 
@@ -294,19 +300,19 @@ scripts/tests/serverless/
 
 ## Phase Plan (Backend-Only)
 
-### ⏳ P1: Requirements - PENDING
-- [ ] Problem statement defined
-- [ ] MVP objective (measurable)
-- [ ] Non-goals listed
-- [ ] Business metric (C-Core Value, E-CAC, B-Retention)
+### ✅ P1: Requirements - COMPLETE
+- [x] Problem statement defined
+- [x] MVP objective (measurable)
+- [x] Non-goals listed
+- [x] Business metric (C-Core Value, E-CAC, B-Retention)
 - **File**: This document
 
-### ⏳ P2: Scoping - PENDING
-- [ ] Feature list (F1-F7)
-- [ ] User stories (ST-047 to ST-053)
-- [ ] Acceptance criteria (AC-1 to AC-7)
-- [ ] Analytics events (N/A - backend only)
-- [ ] Non-MVP items listed
+### ✅ P2: Scoping - COMPLETE
+- [x] Feature list (F1-F7)
+- [x] User stories (ST-047 to ST-053)
+- [x] Acceptance criteria (AC-1 to AC-7)
+- [x] Analytics events (N/A - backend only)
+- [x] Non-MVP items listed
 - **File**: This document
 
 ### ✅ P3: Architecture - COMPLETE
@@ -323,35 +329,67 @@ scripts/tests/serverless/
 ### ✅ P5: Technical Spec - COMPLETE
 - [x] File plan (files to create/modify + purpose)
 - [x] Technical spec (logic flows, env vars, dependencies)
-- [x] Task breakdown (ST-047 to ST-053, 24 tasks)
+- [x] Task breakdown (ST-047 to ST-053, 27 tasks)
 - [x] Tracking plan (N/A - backend only)
 - **File**: `docs/specs/epics/EP-044-TECH-SPEC.md` ✅ **CREATED**
 
-### ⏳ P6: Implementation - PENDING
-- [ ] Test scripts implemented
-- [ ] Framework implemented
-- [ ] Validators implemented
-- [ ] Reporters implemented
-- [ ] AC status: ✅/⚠️/❌
-- **File**: Implementation notes (to be created)
+### ✅ P6: Implementation - COMPLETE
+- [x] Test scripts implemented
+- [x] Framework implemented (with mock mode support)
+- [x] Validators implemented (node, model, image)
+- [x] Mock clients implemented
+- [x] CLI implemented with --mock flag
+- **Files**: `scripts/tests/serverless/` (15 files, ~4000 lines)
+- **AC Status**:
+  - AC-1: ⚠️ Endpoint validation works (mock tested, real API pending)
+  - AC-2: ⚠️ Dependency verification works (mock tested, real API pending)
+  - AC-3: ⚠️ Workflow testing works (mock tested, real API pending)
+  - AC-4: ⚠️ Performance benchmarking works (mock tested, real API pending)
+  - AC-5: ✅ Reusable framework with mock mode support
+  - AC-6: ⚠️ Denrisi validation works in mock mode
+  - AC-7: ✅ CI/CD integration complete
 
-### ⏳ P7: Testing - PENDING
-- [ ] Unit tests
-- [ ] Integration tests
-- [ ] E2E tests (actual serverless endpoint testing)
-- **File**: Test plan (to be created)
+### ✅ P7: Testing - COMPLETE
+- [x] Unit tests (105 tests, 5 test files)
+- [x] Integration tests with mocks
+- [ ] E2E tests (actual serverless endpoint testing - P8)
+- **Files**: `scripts/tests/serverless/__tests__/*.spec.ts`
+- **Coverage**: types, image-decoder, validators, mock-clients, framework
 
-### ⏳ P8: Integration - PENDING
-- [ ] CI/CD integration
-- [ ] Pre-deployment validation
-- [ ] Test reporting integration
-- **File**: Integration notes (to be created)
+### ⚠️ P8: Integration - BLOCKED
+**Issue identified**: Wrong endpoint was initially being used
 
-### ⏳ P9: Deploy Config - PENDING
-- [ ] Environment variables
-- [ ] Deployment checklist
-- [ ] Rollback plan
-- **File**: Deploy config (to be created)
+- **`xqs8k7yhabwh0k`** (RUNPOD_ENDPOINT_Z_IMAGE_TURBO): Custom handler expecting `{prompt: "..."}`, NOT ComfyUI workflow JSON
+- **`pwqwwai0hlhtw9`** (RUNPOD_ENDPOINT_COMFYUI): Correct ComfyUI serverless worker, accepts workflow JSON
+
+**Framework testing against correct endpoint (`pwqwwai0hlhtw9`)**:
+- ✅ Endpoint health check works (accessible: true, 253ms response)
+- ✅ Dependency verification works (7/7 nodes, 3/3 models verified)
+- ✅ Job submission works (job ID returned)
+- ✅ Job status polling works
+- ❌ Jobs stay `IN_QUEUE` indefinitely - **no workers spinning up**
+
+**Root Cause**: Serverless endpoint has `minWorkers=0` and workers are not provisioning.
+
+**Actions needed**:
+1. Check RunPod console for endpoint status
+2. Verify GPU types are available in the region
+3. Consider setting `minWorkers=1` to keep warm worker
+4. Check if endpoint is paused/inactive
+
+**Files updated**:
+- Added `RUNPOD_ENDPOINT_COMFYUI` to Infisical (`/apps/api`)
+- Updated framework to prefer `RUNPOD_ENDPOINT_COMFYUI` over `RUNPOD_ENDPOINT_ID`
+- Updated `package.json` scripts with Infisical integration
+
+### ✅ P9: Deploy Config - COMPLETE
+- [x] CI/CD workflow created (`.github/workflows/test-serverless.yml`)
+- [x] Unit tests run automatically on PR/push
+- [x] Integration tests available via workflow_dispatch (optional)
+- [x] Denrisi validation available via workflow_dispatch (optional)
+- [x] Test results uploaded as artifacts
+- [x] Failure notifications configured
+- **File**: `.github/workflows/test-serverless.yml` ✅ **CREATED**
 
 ### ⏳ P10: Validation - PENDING
 - [ ] Smoke tests
@@ -402,5 +440,7 @@ scripts/tests/serverless/
 
 ---
 
-**Status**: 📝 Defined (P1, P2 Complete)  
-**Last Updated**: 2026-01-15
+**Status**: ⚠️ Blocked (P8 - Endpoint Unavailable), P9 Complete  
+**Last Updated**: 2026-01-19  
+**Blocker**: RunPod ComfyUI serverless endpoint (`pwqwwai0hlhtw9`) not spinning up workers  
+**Progress**: P1-P7 Complete, P8 Partial (framework works, endpoint unavailable), P9 Complete (CI/CD workflow created)

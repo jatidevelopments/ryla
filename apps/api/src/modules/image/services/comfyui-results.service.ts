@@ -199,10 +199,7 @@ export class ComfyUIResultsService {
       (trackedJob.input as any)?.aspectRatio,
       schema.aspectRatioEnum.enumValues,
     );
-    const safeQualityMode = asValidEnumOrNull(
-      (trackedJob.input as any)?.qualityMode,
-      schema.qualityModeEnum.enumValues,
-    );
+    // qualityMode removed - EP-045
 
     // Helper to normalize strings - convert empty strings to undefined
     const normalizeString = (value: any): string | undefined => {
@@ -256,7 +253,7 @@ export class ComfyUIResultsService {
       if (poseId) updateData.poseId = poseId;
 
       if (safeAspectRatio) updateData.aspectRatio = safeAspectRatio;
-      if (safeQualityMode) updateData.qualityMode = safeQualityMode;
+      // qualityMode removed - EP-045
 
       const sourceImageId = normalizeString((trackedJob.input as any)?.sourceImageId);
       if (sourceImageId) updateData.sourceImageId = sourceImageId;
@@ -348,8 +345,7 @@ export class ComfyUIResultsService {
           imageCount: storedImages.length,
           thumbnailUrl: firstThumbnail,
           imageId: firstImageId,
-          // Include credit info from job input if available
-          qualityMode: (trackedJob.input as any)?.qualityMode ?? null,
+          // qualityMode removed - EP-045
         },
       });
     }

@@ -2,77 +2,61 @@
 
 ## Overview
 
-All screens in the application with purpose and analytics.
+This document provides a high-level overview of screens across all RYLA apps. For detailed app-specific screen inventories and user journeys, see the app-specific journey documentation.
+
+---
+
+## App-Specific Screen Documentation
+
+| App | Documentation | Domain |
+|-----|---------------|--------|
+| **Web App** | [`web-app-journey.md`](./web-app-journey.md) | `app.ryla.ai` |
+| **Admin App** | [`admin-app-journey.md`](./admin-app-journey.md) | Admin dashboard |
+| **Funnel App** | [`funnel-app-journey.md`](./funnel-app-journey.md) | `goviral.ryla.ai` |
+| **Landing App** | [`landing-app-journey.md`](./landing-app-journey.md) | `www.ryla.ai` |
 
 ---
 
 ## Screen Categories
 
-| Category | Description |
-|----------|-------------|
-| Public | Accessible without auth |
-| Auth | Authentication flows |
-| Onboarding | First-time user experience |
-| Core | Main application features |
-| Settings | User configuration |
-| Admin | Administrative functions |
+| Category | Description | Apps |
+|----------|-------------|------|
+| Public | Accessible without auth | Landing, Funnel, Web (partial) |
+| Auth | Authentication flows | Web, Admin |
+| Onboarding | First-time user experience | Web |
+| Core | Main application features | Web, Admin |
+| Settings | User configuration | Web, Admin |
+| Admin | Administrative functions | Admin only |
+| Funnel | Conversion and payment | Funnel only |
+| Marketing | Marketing and SEO | Landing only |
 
 ---
 
-## Screen List
+## Quick Reference by App
 
-### Public Screens
+### Web App (`app.ryla.ai`)
 
-| ID | Screen | Route | Purpose | Key Event |
-|----|--------|-------|---------|-----------|
-| P-01 | Landing | `/` | Convert visitors | `landing.viewed` |
-| P-02 | Pricing | `/pricing` | Show plans | `pricing.viewed` |
-| P-03 | Features | `/features` | Explain value | `features.viewed` |
-| P-04 | About | `/about` | Build trust | `about.viewed` |
+**Key Screens**: Dashboard, Studio, Wizard, Templates, Activity, Influencer Detail, Settings
 
-### Auth Screens
+**See**: [`web-app-journey.md`](./web-app-journey.md) for complete screen inventory
 
-| ID | Screen | Route | Purpose | Key Event |
-|----|--------|-------|---------|-----------|
-| A-01 | Signup | `/signup` | New user registration | `signup.viewed` |
-| A-02 | Login | `/login` | Existing user auth | `login.viewed` |
-| A-03 | Forgot Password | `/forgot-password` | Password recovery | `forgot_password.viewed` |
-| A-04 | Reset Password | `/reset-password` | Set new password | `reset_password.viewed` |
+### Admin App
 
-### Onboarding Screens
+**Key Screens**: Dashboard, Users, Billing, Content, Jobs, Analytics, Settings
 
-| ID | Screen | Route | Purpose | Key Event |
-|----|--------|-------|---------|-----------|
-| O-01 | Welcome | `/onboarding` | Greet new user | `onboarding.started` |
-| O-02 | Setup Step 1 | `/onboarding/1` | Initial config | `onboarding.step_1` |
-| O-03 | Setup Step 2 | `/onboarding/2` | Preferences | `onboarding.step_2` |
-| O-04 | Complete | `/onboarding/complete` | Success state | `onboarding.completed` |
+**See**: [`admin-app-journey.md`](./admin-app-journey.md) for complete screen inventory
 
-### Core Screens
+### Funnel App (`goviral.ryla.ai`)
 
-| ID | Screen | Route | Purpose | Key Event |
-|----|--------|-------|---------|-----------|
-| C-01 | Dashboard | `/dashboard` | Overview/home | `dashboard.viewed` |
-| C-02 | [Feature 1] | `/feature-1` | Core feature | `feature_1.viewed` |
-| C-03 | [Feature 2] | `/feature-2` | Core feature | `feature_2.viewed` |
-| C-04 | [Feature 3] | `/feature-3` | Core feature | `feature_3.viewed` |
+**Key Screens**: Wizard steps, Payment, Success
 
-### Settings Screens
+**See**: [`funnel-app-journey.md`](./funnel-app-journey.md) for complete screen inventory
 
-| ID | Screen | Route | Purpose | Key Event |
-|----|--------|-------|---------|-----------|
-| S-01 | Settings | `/settings` | User settings | `settings.viewed` |
-| S-02 | Profile | `/settings/profile` | Edit profile | `profile.viewed` |
-| S-03 | Billing | `/settings/billing` | Subscription | `billing.viewed` |
-| S-04 | Notifications | `/settings/notifications` | Preferences | `notifications.viewed` |
+### Landing App (`www.ryla.ai`)
 
-### Admin Screens
+**Key Screens**: Homepage, Landing variants
 
-| ID | Screen | Route | Purpose | Key Event |
-|----|--------|-------|---------|-----------|
-| X-01 | Admin Dashboard | `/admin` | Admin overview | `admin.viewed` |
-| X-02 | Users | `/admin/users` | User management | `admin_users.viewed` |
-| X-03 | Analytics | `/admin/analytics` | View metrics | `admin_analytics.viewed` |
+**See**: [`landing-app-journey.md`](./landing-app-journey.md) for complete screen inventory
 
 ---
 

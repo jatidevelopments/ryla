@@ -21,6 +21,7 @@ describe('AuthCacheService', () => {
                         deleteByKey: vi.fn(),
                         deleteByKeys: vi.fn(),
                         keys: vi.fn().mockResolvedValue([]),
+                        isReady: vi.fn().mockReturnValue(true),
                     },
                 },
                 {

@@ -1,0 +1,139 @@
+---
+description: Guidelines for capturing learnings from chats and updating cursor rules
+alwaysApply: true
+---
+
+# Learning and Rule Updates
+
+During conversations, we often discover new patterns, best practices, or important information that should be captured in cursor rules. This rule ensures we systematically identify and document these learnings.
+
+## When to Consider Rule Updates
+
+After completing a task or learning something new, ask yourself:
+
+1. Is this a recurring pattern? - Will this come up again in future work?
+2. Is this project-specific knowledge? - Does this apply to RYLA specifically?
+3. Is this a decision or convention? - Is this something we should consistently follow?
+4. Would this help future AI agents? - Would documenting this prevent mistakes or improve efficiency?
+
+## Process for Rule Updates
+
+### Step 1: Identify the Learning
+
+When you learn something that might warrant a rule update:
+
+```
+LEARNING: [Brief description of what was learned]
+Context: [Why this matters]
+Impact: [How this affects future work]
+```
+
+### Step 2: Determine Action
+
+**Option A: Update Existing Rule**
+- If the learning fits into an existing rule file
+- Example: Learning about a new Infisical pattern → update `infisical.mdc`
+
+**Option B: Create New Rule**
+- If the learning is a new domain/concern
+- Example: Learning about a new tool or pattern that doesn't fit existing rules
+
+**Option C: No Rule Needed**
+- If it's a one-time task or very specific to a single feature
+- If it's already well-documented elsewhere
+
+### Step 3: ALWAYS Confirm with User
+
+**Before making any rule changes, you MUST:**
+
+1. **Propose the change clearly:**
+   ```
+   PROPOSED RULE UPDATE:
+   - File: [rule-name.mdc]
+   - Action: [Update existing / Create new]
+   - Reason: [Why this learning should be documented]
+   - Change: [What will be added/modified]
+   ```
+
+2. **Wait for user confirmation** before:
+   - Creating new rule files
+   - Making significant updates to existing rules
+   - Changing rule structure or organization
+
+3. **Small clarifications** (typos, formatting) can be done without confirmation, but document learnings should always be confirmed.
+
+## Examples
+
+### Example 1: Learning About New Folder Structure
+
+**Learning:** We created a `/logins` folder in Infisical for SaaS tool credentials.
+
+**Action:** Update `infisical.mdc` to document this new folder.
+
+**Proposal:**
+```
+PROPOSED RULE UPDATE:
+- File: infisical.mdc
+- Action: Update existing
+- Reason: New /logins folder was created for SaaS credentials, should be documented
+- Change: Add /logins to secrets structure diagram and add usage examples
+```
+
+### Example 2: Learning About New Pattern
+
+**Learning:** We discovered a new pattern for handling OAuth credentials that differs from password-based logins.
+
+**Action:** Update `infisical.mdc` to document OAuth credential patterns.
+
+**Proposal:**
+```
+PROPOSED RULE UPDATE:
+- File: infisical.mdc
+- Action: Update existing
+- Reason: OAuth credentials need different handling than passwords
+- Change: Add section on OAuth credential patterns with examples
+```
+
+### Example 3: Learning About New Tool
+
+**Learning:** We're now using a new tool (e.g., Higgsfield) that requires specific setup patterns.
+
+**Action:** Consider creating new rule or updating relevant existing rule.
+
+**Proposal:**
+```
+PROPOSED RULE UPDATE:
+- File: [new-tool-name.mdc OR dependencies.mdc]
+- Action: [Create new / Update existing]
+- Reason: New tool requires specific patterns that should be documented
+- Change: [Document tool setup, usage patterns, common pitfalls]
+```
+
+## Rule File Naming
+
+When creating new rules:
+- Use kebab-case: `learning-and-rules.mdc`
+- Be descriptive: `infisical.mdc` not `secrets.mdc`
+- Follow existing patterns: Check `rules-index.mdc` for naming conventions
+
+## When NOT to Create Rules
+
+**Don't create rules for:**
+- One-time tasks or specific feature implementations
+- Information already well-documented in code comments
+- Very specific edge cases that won't recur
+- Temporary workarounds or hacks
+
+## Best Practices
+
+1. **Capture learnings immediately** - Don't wait until the end of the conversation
+2. **Be specific** - "We learned X" not "We learned something about Y"
+3. **Link to context** - Reference the conversation or task where learning occurred
+4. **Update index** - When creating new rules, update `rules-index.mdc`
+5. **Keep rules focused** - One concern per rule file
+
+## Related Documentation
+
+- Cursor Rules Writing Guide: `cursor-rules.mdc`
+- Rules Index: `rules-index.mdc`
+- Way of Work: `way-of-work.mdc` (for documenting learnings in Slack)

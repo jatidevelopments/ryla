@@ -339,8 +339,8 @@ async function handleWizardSubmit(
 
 ## Documentation
 
-- [Human Description System](../../technical/HUMAN-DESCRIPTION-SYSTEM.md)
-- [DNA Implementation Plan](../../technical/DNA-IMPLEMENTATION-PLAN.md)
+- [Human Description System](../../technical/systems/human-description-system.md)
+- [DNA Implementation Plan](../../technical/systems/dna-implementation-plan.md)
 - [IN-002: Character DNA Enhancement System](../../initiatives/IN-002-character-dna-enhancement.md)
 
 ---

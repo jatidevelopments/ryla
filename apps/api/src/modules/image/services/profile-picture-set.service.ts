@@ -391,7 +391,7 @@ export class ProfilePictureSetService {
             poseId: (imageData as any).poseId || null,
             lightingId: (imageData as any).lighting || null,
             aspectRatio, // Valid enum value: '1:1', '2:3', or '9:16'
-            qualityMode: generationMode === 'fast' ? 'draft' : 'hq',
+            // qualityMode removed - EP-045
             // Store metadata for retry: baseImageUrl and generationMode
             // We'll store these as optional fields in the input
             sourceImageId: input.baseImageUrl, // Reuse sourceImageId field to store baseImageUrl
@@ -675,14 +675,7 @@ export class ProfilePictureSetService {
             return null;
           })();
 
-          const qualityMode = (() => {
-            const val = jobInput?.qualityMode;
-            if (!val) return null;
-            if (schema.qualityModeEnum.enumValues.includes(val as any)) {
-              return val;
-            }
-            return null;
-          })();
+          // qualityMode removed - EP-045
 
           const scene = (() => {
             const val = normalizeString((jobInput as any)?.scene);
@@ -741,7 +734,7 @@ export class ProfilePictureSetService {
             imageData.poseId = poseId || undefined;
             imageData.lightingId = lightingId || undefined;
             imageData.aspectRatio = aspectRatio || undefined;
-            imageData.qualityMode = qualityMode || undefined;
+            // qualityMode removed - EP-045
 
             // Remove undefined values to avoid passing them to Drizzle
             Object.keys(imageData).forEach(key => {
@@ -757,7 +750,7 @@ export class ProfilePictureSetService {
               `Failed to create image record for job ${jobId}: ${error instanceof Error ? error.message : String(error)}`
             );
             this.logger.error(`Image data: s3Key=${img.key}, characterId=${characterId}, userId=${actualUserId}`);
-            this.logger.error(`Validated values: scene=${scene}, environment=${environment}, outfit=${outfit}, poseId=${poseId}, aspectRatio=${aspectRatio}, qualityMode=${qualityMode}`);
+            this.logger.error(`Validated values: scene=${scene}, environment=${environment}, outfit=${outfit}, poseId=${poseId}, aspectRatio=${aspectRatio}`);
             this.logger.error(`Full error: ${error instanceof Error ? error.stack : String(error)}`);
             throw error; // Re-throw to be caught by outer try-catch
           }

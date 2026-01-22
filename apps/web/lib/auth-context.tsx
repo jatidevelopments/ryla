@@ -16,7 +16,6 @@ import {
   clearTokens,
 } from './auth';
 import {
-  isPublicRoute as checkPublicRoute,
   routes,
   buildRoute,
 } from './routes';
@@ -74,19 +73,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     checkAuth();
   }, [refreshUser]);
 
-  // Redirect logic: if on protected route and not authenticated
-  useEffect(() => {
-    if (isLoading) return;
-
-    const isPublic = checkPublicRoute(pathname);
-
-    if (!isPublic && !user) {
-      // Redirect to auth page with return URL
-      router.push(
-        buildRoute(routes.auth, { returnUrl: encodeURIComponent(pathname) })
-      );
-    }
-  }, [isLoading, user, pathname, router]);
+  // Note: Redirect logic removed - ProtectedRoute now shows AuthModal overlay instead
+  // This allows the studio page to be visible in the background with the auth modal on top
 
   const value: AuthContextValue = {
     user,

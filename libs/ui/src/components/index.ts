@@ -26,7 +26,9 @@ export * from './sidebar';
 // Feedback components
 export * from './progress';
 export * from './skeleton';
+export * from './enhanced-skeleton';
 export * from './spinner';
+export * from './magic-button';
 
 // Data display
 export * from './avatar';

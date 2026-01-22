@@ -5,7 +5,7 @@ import type { StudioMode } from '../../types';
 
 export const MODE_CONFIG = {
   creating: {
-    label: 'Creating',
+    label: 'Create',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +19,7 @@ export const MODE_CONFIG = {
     color: 'blue',
   },
   editing: {
-    label: 'Editing',
+    label: 'Edit',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -33,7 +33,7 @@ export const MODE_CONFIG = {
     color: 'purple',
   },
   upscaling: {
-    label: 'Upscaling',
+    label: 'Upscale',
     icon: (
       <svg
         xmlns="http://www.w3.org/2000/svg"

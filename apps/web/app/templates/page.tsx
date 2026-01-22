@@ -4,67 +4,217 @@ import * as React from 'react';
 import { PageContainer, FadeInUp } from '@ryla/ui';
 import { ProtectedRoute } from '../../components/auth/ProtectedRoute';
 import { TemplateSearch } from '../../components/studio/templates/template-search';
-import { TemplateGrid } from '../../components/studio/templates/template-grid';
-import { TemplateDetailModal } from '../../components/studio/templates/template-detail-modal';
 import { trpc } from '../../lib/trpc';
 import { useRouter } from 'next/navigation';
-import { LayoutGrid } from 'lucide-react';
+import { LayoutGrid, Sparkles } from 'lucide-react';
 import { cn } from '@ryla/ui';
-import { SCENE_OPTIONS, ENVIRONMENT_OPTIONS } from '@ryla/shared';
 import {
-  FilterPill,
-  FilterDropdown,
-  ViewModeToggle,
-  SortDropdown,
+  TypeTabs,
+  SortButtons,
+  ContentTypeFilter,
+  CategoryPills,
+  TemplateSetCard,
+  InfluencerSelectionModal,
+  TemplateDetailModal,
 } from './components';
-import { useTemplateFilters } from './hooks/useTemplateFilters';
+import { useTemplateFilters, useTemplateGalleryAnalytics } from './hooks';
 import { LockScreen } from '../../components/ui/lock-screen';
+import type { TabType, SortOption, Category } from './components';
+import type { ContentType } from './hooks/useTemplateFilters';
 
-// Feature flag: Set to true when ready to launch template gallery
-const TEMPLATES_ENABLED = true;
+// Feature flag: Set to true when ready to launch new template gallery
+const NEW_GALLERY_ENABLED = true;
 
-function TemplatesContentFull() {
+function TemplatesGalleryNew() {
   const router = useRouter();
   const {
     filters,
+    tabType,
+    sortOption,
+    contentType,
+    categorySlug,
     searchQuery,
-    viewMode,
-    sortBy,
-    updateFilter,
+    setTabType,
+    setSortOption,
+    setContentType,
+    setCategorySlug,
     setSearchQuery,
-    setViewMode,
-    setSortBy,
   } = useTemplateFilters();
-  const [selectedTemplateId, setSelectedTemplateId] = React.useState<
-    string | null
-  >(null);
+
+  // Analytics
+  const analytics = useTemplateGalleryAnalytics();
+
+  // Track filter changes
+  const handleTabChange = React.useCallback((newTab: TabType) => {
+    const previousTab = tabType;
+    setTabType(newTab);
+    analytics.trackTabChanged(newTab, previousTab);
+  }, [tabType, setTabType, analytics]);
+
+  const handleSortChange = React.useCallback((newSort: SortOption) => {
+    const previousSort = sortOption;
+    setSortOption(newSort);
+    analytics.trackSortChanged(newSort, previousSort);
+  }, [sortOption, setSortOption, analytics]);
+
+  const handleContentTypeChange = React.useCallback((newType: ContentType) => {
+    const previousType = contentType;
+    setContentType(newType);
+    analytics.trackContentTypeChanged(newType, previousType);
+  }, [contentType, setContentType, analytics]);
+
+  const handleCategoryChange = React.useCallback((slug: string | null, name?: string) => {
+    setCategorySlug(slug);
+    analytics.trackCategorySelected(slug, name);
+  }, [setCategorySlug, analytics]);
+
+  // Modal state
+  const [selectedTemplateId, setSelectedTemplateId] = React.useState<string | null>(null);
+  const [selectedIsSet, setSelectedIsSet] = React.useState(false);
+  const [influencerModalOpen, setInfluencerModalOpen] = React.useState(false);
+  const [applyTemplateId, setApplyTemplateId] = React.useState<string | null>(null);
 
   // Check if user has any influencers
   const { data: charactersData } = trpc.character.list.useQuery();
   const hasInfluencers = (charactersData?.items?.length ?? 0) > 0;
 
-  const { data, isLoading, error } = trpc.templates.list.useQuery({
-    category: filters.category,
-    scene: filters.scene,
-    environment: filters.environment,
-    aspectRatio: filters.aspectRatio,
-    qualityMode: filters.qualityMode,
-    nsfw: filters.nsfw,
+  // Fetch categories
+  const { data: categoriesData, isLoading: categoriesLoading } = trpc.templateCategories.getTree.useQuery({});
+
+  // Transform categories to flat list for pills
+  const flatCategories = React.useMemo((): Category[] => {
+    if (!categoriesData?.tree) return [];
+    const result: Category[] = [];
+    
+    const flatten = (cats: typeof categoriesData.tree) => {
+      for (const cat of cats) {
+        result.push({
+          id: cat.id,
+          slug: cat.slug,
+          name: cat.name,
+          icon: cat.icon ?? undefined,
+        });
+        if ((cat as any).children) {
+          flatten((cat as any).children);
+        }
+      }
+    };
+    
+    flatten(categoriesData.tree);
+    return result;
+  }, [categoriesData]);
+
+  // Fetch templates
+  const { data: templatesData, isLoading: templatesLoading } = trpc.templates.list.useQuery({
+    category: categorySlug ? undefined : filters.category,
     search: searchQuery || undefined,
+    sort: sortOption === 'popular' ? 'popular' : sortOption === 'trending' ? 'trending' : sortOption === 'new' ? 'new' : 'recent',
     page: 1,
     limit: 24,
   });
 
-  const handleTemplateClick = React.useCallback((templateId: string) => {
-    setSelectedTemplateId(templateId);
-  }, []);
+  // Fetch template sets
+  const { data: setsData, isLoading: setsLoading } = trpc.templateSets.list.useQuery({
+    search: searchQuery || undefined,
+    sort: sortOption === 'popular' ? 'popular' : sortOption === 'trending' ? 'trending' : sortOption === 'new' ? 'new' : 'recent',
+    contentType: contentType === 'all' ? undefined : contentType,
+    page: 1,
+    limit: 24,
+  }, {
+    enabled: tabType === 'sets' || tabType === 'all',
+  });
 
-  const handleTemplateApply = React.useCallback(
-    (templateId: string) => {
-      router.push(`/studio?template=${templateId}`);
-    },
-    [router]
-  );
+  // Combine templates and sets for "all" view
+  const combinedItems = React.useMemo(() => {
+    const templates = (templatesData?.templates ?? []).map((t) => ({
+      ...t,
+      isSet: false,
+      memberCount: undefined,
+      memberThumbnails: undefined,
+      contentType: (t.config?.nsfw ? 'image' : 'image') as ContentType, // Default to image for now
+      likesCount: (t as any).likesCount ?? 0,
+    }));
+
+    const sets = (setsData?.sets ?? []).map((s) => {
+      // Extract member thumbnails if available
+      const members = (s as any).members || [];
+      const memberThumbnails = members
+        .slice(0, 4)
+        .map((m: any) => m.thumbnailUrl || m.previewImageUrl)
+        .filter(Boolean);
+
+      return {
+        id: s.id,
+        name: s.name,
+        description: s.description,
+        previewImageUrl: s.previewImageUrl || '',
+        thumbnailUrl: s.thumbnailUrl || s.previewImageUrl || '',
+        isSet: true,
+        memberCount: (s as any).memberCount ?? 0,
+        memberThumbnails,
+        contentType: ((s as any).contentType || 'mixed') as ContentType,
+        likesCount: (s as any).likesCount ?? 0,
+        usageCount: (s as any).usageCount ?? 0,
+      };
+    });
+
+    if (tabType === 'templates') return templates;
+    if (tabType === 'sets') return sets;
+    return [...templates, ...sets];
+  }, [templatesData, setsData, tabType]);
+
+  const isLoading = templatesLoading || (tabType !== 'templates' && setsLoading);
+
+  // Handlers
+  const handleCardClick = (id: string, isSet: boolean, position?: number) => {
+    setSelectedTemplateId(id);
+    setSelectedIsSet(isSet);
+    analytics.trackCardClicked(id, isSet, position ?? 0);
+  };
+
+  const handleApplyClick = (id: string, isSet = false) => {
+    setApplyTemplateId(id);
+    setInfluencerModalOpen(true);
+    analytics.trackApplyModalOpened(id, isSet);
+  };
+
+  const handleInfluencerSelect = (influencerId: string) => {
+    if (applyTemplateId) {
+      const item = combinedItems.find(i => i.id === applyTemplateId);
+      const isSet = item?.isSet ?? false;
+      analytics.trackTemplateApplied(applyTemplateId, isSet, influencerId, 'modal');
+      router.push(`/studio?template=${applyTemplateId}&influencer=${influencerId}`);
+    }
+    setInfluencerModalOpen(false);
+  };
+
+  // Like mutations
+  const likeMutation = trpc.templateLikes.toggle.useMutation();
+  const setLikeMutation = trpc.templateLikes.toggleSet.useMutation();
+
+  const handleLikeToggle = React.useCallback((id: string, isSet: boolean) => {
+    if (isSet) {
+      setLikeMutation.mutate({ setId: id }, {
+        onSuccess: (result) => {
+          if (result.liked) {
+            analytics.trackSetLiked(id, result.likesCount);
+          } else {
+            analytics.trackSetUnliked(id, result.likesCount);
+          }
+        },
+      });
+    } else {
+      likeMutation.mutate({ templateId: id }, {
+        onSuccess: (result) => {
+          if (result.liked) {
+            analytics.trackTemplateLiked(id, result.likesCount);
+          } else {
+            analytics.trackTemplateUnliked(id, result.likesCount);
+          }
+        },
+      });
+    }
+  }, [likeMutation, setLikeMutation, analytics]);
 
   // Show lock screen if no influencers exist
   if (!hasInfluencers) {
@@ -104,225 +254,203 @@ function TemplatesContentFull() {
 
       {/* Header */}
       <FadeInUp>
-        <div className="mb-10 flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest bg-[var(--purple-500)]/10 text-[var(--purple-400)] border border-[var(--purple-500)]/20 mb-4">
-            <LayoutGrid className="h-3 w-3" />
-            Ready for discovery
+        <div className="mb-8 md:mb-12 flex flex-col items-center text-center px-4">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-[var(--purple-500)]/10 text-[var(--purple-400)] border border-[var(--purple-500)]/20 mb-4">
+            <Sparkles className="h-3 w-3" />
+            Content Library
           </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-[var(--text-primary)] tracking-tight">
+          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[var(--text-primary)] tracking-tight mb-3">
             Template Gallery
           </h1>
-          <p className="mt-4 text-lg text-[var(--text-secondary)] max-w-2xl">
-            Streamline your workflow with curated presets. Discover, save, and
-            reuse the perfect configurations for your next generation.
+          <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-xl">
+            Discover curated templates and sets to create stunning content instantly
           </p>
         </div>
       </FadeInUp>
 
-      {/* Filter Bar - Row 1: Category tabs + Search */}
+      {/* Filters Section - Simplified */}
       <FadeInUp delay={100}>
-        <div className="flex flex-wrap items-center gap-3 mb-4 pb-4 border-b border-[var(--border-default)]">
-          {/* Category Pills */}
-          <div className="flex items-center gap-2 flex-wrap p-1 bg-[var(--bg-subtle)] border border-[var(--border-default)] rounded-2xl">
-            <FilterPill
-              label="All"
-              selected={filters.category === 'all'}
-              onClick={() => updateFilter('category', 'all')}
-            />
-            <FilterPill
-              label="My Templates"
-              selected={filters.category === 'my_templates'}
-              onClick={() => updateFilter('category', 'my_templates')}
-            />
-            <FilterPill
-              label="Curated"
-              selected={filters.category === 'curated'}
-              onClick={() => updateFilter('category', 'curated')}
-            />
-            <FilterPill
-              label="Popular"
-              selected={filters.category === 'popular'}
-              onClick={() => updateFilter('category', 'popular')}
-            />
+        <div className="space-y-4 mb-6 md:mb-8">
+          {/* Top Row: Tabs + Search */}
+          <div className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+            <div className="flex-shrink-0">
+              <TypeTabs
+                value={tabType}
+                onChange={handleTabChange}
+                counts={{
+                  templates: templatesData?.templates?.length,
+                  sets: setsData?.sets?.length,
+                  all: (templatesData?.templates?.length ?? 0) + (setsData?.sets?.length ?? 0),
+                }}
+              />
+            </div>
+            
+            <div className="flex-1 min-w-0">
+              <TemplateSearch
+                query={searchQuery}
+                onQueryChange={setSearchQuery}
+                placeholder="Search templates..."
+              />
+            </div>
           </div>
 
-          {/* Search - pushed to right */}
-          <div className="ml-auto w-full sm:w-auto sm:min-w-[250px]">
-            <TemplateSearch
-              query={searchQuery}
-              onQueryChange={setSearchQuery}
-              placeholder="Search templates..."
-            />
-          </div>
-        </div>
-      </FadeInUp>
-
-      {/* Filter Bar - Row 2: Filters + Sort + View */}
-      <FadeInUp delay={150}>
-        <div className="flex flex-wrap items-center gap-3 mb-6">
-          <div className="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-            {/* Scene Filter Dropdown */}
-            <FilterDropdown
-              label="🎬 Scene"
-              value={filters.scene}
-              options={SCENE_OPTIONS.map((s) => ({
-                value: s.value,
-                label: s.label,
-                emoji: s.emoji,
-              }))}
-              onChange={(v) => updateFilter('scene', v)}
-            />
-
-            {/* Environment Filter Dropdown */}
-            <FilterDropdown
-              label="📍 Environment"
-              value={filters.environment}
-              options={ENVIRONMENT_OPTIONS.map((e) => ({
-                value: e.value,
-                label: e.label,
-                emoji: e.emoji,
-              }))}
-              onChange={(v) => updateFilter('environment', v)}
-            />
-          </div>
-
-          {/* Aspect Ratio Pills */}
-          <div className="flex items-center gap-1 border-l border-[var(--border-default)] pl-3 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            <FilterPill
-              label="All"
-              selected={!filters.aspectRatio}
-              onClick={() => updateFilter('aspectRatio', undefined)}
-            />
-            <FilterPill
-              label="1:1"
-              selected={filters.aspectRatio === '1:1'}
-              onClick={() => updateFilter('aspectRatio', '1:1')}
-            />
-            <FilterPill
-              label="9:16"
-              selected={filters.aspectRatio === '9:16'}
-              onClick={() => updateFilter('aspectRatio', '9:16')}
-            />
-            <FilterPill
-              label="2:3"
-              selected={filters.aspectRatio === '2:3'}
-              onClick={() => updateFilter('aspectRatio', '2:3')}
-            />
-          </div>
-
-          {/* Quality Pills */}
-          <div className="flex items-center gap-1 border-l border-[var(--border-default)] pl-3 overflow-x-auto no-scrollbar pb-1 sm:pb-0">
-            <FilterPill
-              label="All"
-              selected={!filters.qualityMode}
-              onClick={() => updateFilter('qualityMode', undefined)}
-            />
-            <FilterPill
-              label="⚡ Draft"
-              selected={filters.qualityMode === 'draft'}
-              onClick={() => updateFilter('qualityMode', 'draft')}
-            />
-            <FilterPill
-              label="✨ HQ"
-              selected={filters.qualityMode === 'hq'}
-              onClick={() => updateFilter('qualityMode', 'hq')}
-            />
-          </div>
-
-          {/* Spacer */}
-          <div className="hidden lg:block flex-1" />
-
-          <div className="flex items-center gap-3 ml-auto w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 pt-3 sm:pt-0 mt-2 sm:mt-0">
-            {/* Sort Dropdown */}
-            <SortDropdown value={sortBy} onChange={setSortBy} />
-
-            {/* View Mode Toggles */}
-            <ViewModeToggle value={viewMode} onChange={setViewMode} />
+          {/* Bottom Row: Sort + Filters */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+            <div className="flex-shrink-0">
+              <SortButtons value={sortOption} onChange={handleSortChange} />
+            </div>
+            <div className="flex-shrink-0">
+              <ContentTypeFilter value={contentType} onChange={handleContentTypeChange} />
+            </div>
+            <div className="flex-1 min-w-0">
+              <CategoryPills
+                categories={flatCategories}
+                selectedSlug={categorySlug}
+                onChange={(slug) => {
+                  const category = flatCategories.find(c => c.slug === slug);
+                  handleCategoryChange(slug, category?.name);
+                }}
+                isLoading={categoriesLoading}
+              />
+            </div>
           </div>
         </div>
       </FadeInUp>
 
       {/* Template Grid */}
       <FadeInUp delay={200}>
-        {error && (
-          <div
-            className={cn(
-              'rounded-lg border border-red-500/20 bg-red-500/10',
-              'p-4 text-sm text-red-400 mb-4'
-            )}
-          >
-            Failed to load templates. Please try again.
+        {isLoading ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            {[...Array(12)].map((_, i) => (
+              <div
+                key={i}
+                className="aspect-square rounded-xl bg-[var(--bg-subtle)] animate-pulse"
+              />
+            ))}
+          </div>
+        ) : combinedItems.length === 0 ? (
+          <div className="text-center py-16 md:py-20 px-4">
+            <LayoutGrid className="h-12 w-12 md:h-16 md:w-16 mx-auto text-[var(--text-tertiary)] mb-4" />
+            <h3 className="text-lg md:text-xl font-semibold text-[var(--text-primary)] mb-2">
+              No templates found
+            </h3>
+            <p className="text-sm md:text-base text-[var(--text-secondary)] max-w-md mx-auto">
+              Try adjusting your filters or search query to find more templates.
+            </p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+            {combinedItems.map((item, index) => (
+              <TemplateSetCard
+                key={item.id}
+                id={item.id}
+                name={item.name}
+                previewImageUrl={item.previewImageUrl}
+                thumbnailUrl={item.thumbnailUrl}
+                likesCount={item.likesCount}
+                contentType={item.contentType}
+                isSet={item.isSet}
+                memberCount={item.memberCount}
+                memberThumbnails={item.memberThumbnails}
+                onClick={() => handleCardClick(item.id, item.isSet, index)}
+                onApply={() => handleApplyClick(item.id, item.isSet)}
+                onLikeToggle={() => handleLikeToggle(item.id, item.isSet)}
+              />
+            ))}
           </div>
         )}
-
-        <div className="mt-4 border-t border-[var(--border-default)] pt-8">
-          <TemplateGrid
-            templates={data?.templates ?? []}
-            isLoading={isLoading}
-            onTemplateClick={handleTemplateClick}
-            onTemplateApply={handleTemplateApply}
-          />
-        </div>
       </FadeInUp>
 
       {/* Template Detail Modal */}
       <TemplateDetailModal
         templateId={selectedTemplateId}
+        isSet={selectedIsSet}
         isOpen={!!selectedTemplateId}
         onClose={() => setSelectedTemplateId(null)}
-        onApply={handleTemplateApply}
+        onApply={handleApplyClick}
+      />
+
+      {/* Influencer Selection Modal */}
+      <InfluencerSelectionModal
+        isOpen={influencerModalOpen}
+        onClose={() => setInfluencerModalOpen(false)}
+        onSelect={handleInfluencerSelect}
+        templateName={combinedItems.find(i => i.id === applyTemplateId)?.name}
       />
     </PageContainer>
   );
 }
 
-function TemplatesContentComingSoon() {
+// Legacy page component for backwards compatibility
+function TemplatesContentLegacy() {
+  const router = useRouter();
+  const {
+    filters,
+    searchQuery,
+    viewMode,
+    sortBy,
+    updateFilter,
+    setSearchQuery,
+    setViewMode,
+    setSortBy,
+  } = useTemplateFilters();
+  const [selectedTemplateId, setSelectedTemplateId] = React.useState<
+    string | null
+  >(null);
+
+  // Check if user has any influencers
+  const { data: charactersData } = trpc.character.list.useQuery();
+  const hasInfluencers = (charactersData?.items?.length ?? 0) > 0;
+
+  const { data, isLoading, error } = trpc.templates.list.useQuery({
+    category: filters.category,
+    scene: filters.scene,
+    environment: filters.environment,
+    aspectRatio: filters.aspectRatio,
+    nsfw: filters.nsfw,
+    search: searchQuery || undefined,
+    page: 1,
+    limit: 24,
+  });
+
+  const handleTemplateClick = React.useCallback((templateId: string) => {
+    setSelectedTemplateId(templateId);
+  }, []);
+
+  const handleTemplateApply = React.useCallback(
+    (templateId: string) => {
+      router.push(`/studio?template=${templateId}`);
+    },
+    [router]
+  );
+
+  // Show lock screen if no influencers exist
+  if (!hasInfluencers) {
+    return (
+      <PageContainer maxWidth="full" className="relative">
+        <LockScreen
+          title="Templates Locked"
+          description="Create your first AI influencer to unlock the Template Gallery and discover curated presets for your content."
+          createButtonText="Create Influencer"
+          createButtonHref="/wizard/step-0"
+        />
+      </PageContainer>
+    );
+  }
+
   return (
     <PageContainer maxWidth="full" className="relative">
-      {/* Background gradient effect */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div
-          className="absolute -top-40 right-0 h-[500px] w-[500px] opacity-30"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-        />
+      <div className="text-center py-16">
+        <p className="text-[var(--text-secondary)]">
+          Legacy template gallery - enable NEW_GALLERY_ENABLED flag
+        </p>
       </div>
-
-      {/* Coming Soon Content */}
-      <FadeInUp>
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 border border-[var(--purple-500)]/20">
-            <LayoutGrid className="h-10 w-10 text-[var(--purple-400)]" />
-          </div>
-          <h1 className="text-3xl font-bold text-[var(--text-primary)] mb-3">
-            Template Gallery
-          </h1>
-          <div className="mb-4">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-[var(--purple-500)]/20 to-[var(--pink-500)]/20 text-[var(--purple-400)] border border-[var(--purple-500)]/20">
-              Coming Soon
-            </span>
-          </div>
-          <p className="text-[var(--text-secondary)] max-w-md">
-            We&apos;re building a gallery where you can discover and reuse
-            successful generation configurations. Save your favorite studio
-            presets and share them with the community.
-          </p>
-        </div>
-      </FadeInUp>
     </PageContainer>
   );
 }
 
 function TemplatesContent() {
-  // Show full page when feature flag is enabled, otherwise show coming soon
-  return TEMPLATES_ENABLED ? (
-    <TemplatesContentFull />
-  ) : (
-    <TemplatesContentComingSoon />
-  );
+  return NEW_GALLERY_ENABLED ? <TemplatesGalleryNew /> : <TemplatesContentLegacy />;
 }
 
 export default function TemplatesPage() {

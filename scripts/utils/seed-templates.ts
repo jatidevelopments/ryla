@@ -18,8 +18,8 @@
  *   --category=<name>   Generate only specific category
  */
 
-import { schema } from '../libs/data/src';
-import type { TemplateConfig } from '../libs/data/src/schema/templates.schema';
+import * as schema from '../../libs/data/src/schema';
+import type { TemplateConfig } from '../../libs/data/src/schema/templates.schema';
 
 // =============================================================================
 // TEMPLATE CATEGORIES DEFINITION
@@ -197,11 +197,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'studio-softbox',
         styleId: 'realistic',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/classic-portrait.webp',
-      thumbnailUrl: '/templates/classic-portrait-thumb.webp',
+      previewImageUrl: '/templates/beginner/classic-portrait.webp',
+      thumbnailUrl: '/templates/beginner/classic-portrait.webp',
     },
     {
       name: 'Cozy Home Vibes',
@@ -216,11 +215,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'soft-diffused',
         styleId: 'general',
         aspectRatio: '1:1',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/cozy-home-vibes.webp',
-      thumbnailUrl: '/templates/cozy-home-vibes-thumb.webp',
+      previewImageUrl: '/templates/beginner/cozy-home-vibes.webp',
+      thumbnailUrl: '/templates/beginner/cozy-home-vibes.webp',
     },
     {
       name: 'Golden Hour Magic',
@@ -235,11 +233,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'golden-hour',
         styleId: 'golden-hour',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/golden-hour-magic.webp',
-      thumbnailUrl: '/templates/golden-hour-magic-thumb.webp',
+      previewImageUrl: '/templates/beginner/golden-hour-magic.webp',
+      thumbnailUrl: '/templates/beginner/golden-hour-magic.webp',
     }
   );
 
@@ -260,11 +257,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'natural-daylight',
         styleId: 'street-view',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/tiktok-street-style.webp',
-      thumbnailUrl: '/templates/tiktok-street-style-thumb.webp',
+      previewImageUrl: '/templates/trending/tiktok-street-style.webp',
+      thumbnailUrl: '/templates/trending/tiktok-street-style.webp',
     },
     {
       name: 'Clean Girl Aesthetic',
@@ -279,11 +275,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'soft-diffused',
         styleId: 'clean-girl',
         aspectRatio: '1:1',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/clean-girl-aesthetic.webp',
-      thumbnailUrl: '/templates/clean-girl-aesthetic-thumb.webp',
+      previewImageUrl: '/templates/trending/clean-girl-aesthetic.webp',
+      thumbnailUrl: '/templates/trending/clean-girl-aesthetic.webp',
     },
     {
       name: 'Dark Academia Study',
@@ -298,11 +293,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'candlelight',
         styleId: 'dark-academia',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/dark-academia-study.webp',
-      thumbnailUrl: '/templates/dark-academia-study-thumb.webp',
+      previewImageUrl: '/templates/trending/dark-academia-study.webp',
+      thumbnailUrl: '/templates/trending/dark-academia-study.webp',
     },
     {
       name: 'Cottagecore Dream',
@@ -317,11 +311,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'sunrise',
         styleId: 'cottagecore',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/cottagecore-dream.webp',
-      thumbnailUrl: '/templates/cottagecore-dream-thumb.webp',
+      previewImageUrl: '/templates/trending/cottagecore-dream.webp',
+      thumbnailUrl: '/templates/trending/cottagecore-dream.webp',
     },
     {
       name: 'Coquette Vibes',
@@ -336,11 +329,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'soft-diffused',
         styleId: 'coquette',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/coquette-vibes.webp',
-      thumbnailUrl: '/templates/coquette-vibes-thumb.webp',
+      previewImageUrl: '/templates/trending/coquette-vibes.webp',
+      thumbnailUrl: '/templates/trending/coquette-vibes.webp',
     },
   ];
   templates.push(...trendingTemplates);
@@ -362,11 +354,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'studio-softbox',
         styleId: 'realistic',
         aspectRatio: '1:1',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/linkedin-headshot.webp',
-      thumbnailUrl: '/templates/linkedin-headshot-thumb.webp',
+      previewImageUrl: '/templates/professional/linkedin-headshot.webp',
+      thumbnailUrl: '/templates/professional/linkedin-headshot.webp',
     },
     {
       name: 'Boss Mode Office',
@@ -381,11 +372,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'ring-light',
         styleId: 'editorial',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/boss-mode-office.webp',
-      thumbnailUrl: '/templates/boss-mode-office-thumb.webp',
+      previewImageUrl: '/templates/professional/boss-mode-office.webp',
+      thumbnailUrl: '/templates/professional/boss-mode-office.webp',
     }
   );
 
@@ -406,11 +396,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'dramatic-shadows',
         styleId: 'high-contrast',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/gym-motivation.webp',
-      thumbnailUrl: '/templates/gym-motivation-thumb.webp',
+      previewImageUrl: '/templates/fitness/gym-motivation.webp',
+      thumbnailUrl: '/templates/fitness/gym-motivation.webp',
     },
     {
       name: 'Yoga Zen',
@@ -425,11 +414,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'sunrise',
         styleId: 'dreamy',
         aspectRatio: '1:1',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/yoga-zen.webp',
-      thumbnailUrl: '/templates/yoga-zen-thumb.webp',
+      previewImageUrl: '/templates/fitness/yoga-zen.webp',
+      thumbnailUrl: '/templates/fitness/yoga-zen.webp',
     }
   );
 
@@ -450,11 +438,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'dramatic-shadows',
         styleId: 'editorial',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/red-carpet-ready.webp',
-      thumbnailUrl: '/templates/red-carpet-ready-thumb.webp',
+      previewImageUrl: '/templates/glamour/red-carpet-ready.webp',
+      thumbnailUrl: '/templates/glamour/red-carpet-ready.webp',
     },
     {
       name: 'Date Night Glam',
@@ -469,11 +456,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'neon-glow',
         styleId: 'neon-nights',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/date-night-glam.webp',
-      thumbnailUrl: '/templates/date-night-glam-thumb.webp',
+      previewImageUrl: '/templates/glamour/date-night-glam.webp',
+      thumbnailUrl: '/templates/glamour/date-night-glam.webp',
     }
   );
 
@@ -494,11 +480,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'golden-hour',
         styleId: 'sunset-beach',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/beach-babe.webp',
-      thumbnailUrl: '/templates/beach-babe-thumb.webp',
+      previewImageUrl: '/templates/beach/beach-babe.webp',
+      thumbnailUrl: '/templates/beach/beach-babe.webp',
     },
     {
       name: 'Poolside Luxury',
@@ -513,11 +498,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'midday',
         styleId: 'general',
         aspectRatio: '1:1',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/poolside-luxury.webp',
-      thumbnailUrl: '/templates/poolside-luxury-thumb.webp',
+      previewImageUrl: '/templates/beach/poolside-luxury.webp',
+      thumbnailUrl: '/templates/beach/poolside-luxury.webp',
     }
   );
 
@@ -538,11 +522,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'neon-glow',
         styleId: 'neon-nights',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/neon-nights.webp',
-      thumbnailUrl: '/templates/neon-nights-thumb.webp',
+      previewImageUrl: '/templates/nightlife/neon-nights.webp',
+      thumbnailUrl: '/templates/nightlife/neon-nights.webp',
     },
     {
       name: 'Club Ready',
@@ -557,11 +540,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'strobe',
         styleId: 'high-contrast',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/club-ready.webp',
-      thumbnailUrl: '/templates/club-ready-thumb.webp',
+      previewImageUrl: '/templates/nightlife/club-ready.webp',
+      thumbnailUrl: '/templates/nightlife/club-ready.webp',
     }
   );
 
@@ -582,11 +564,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'neon-glow',
         styleId: 'cyberpunk',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/cyberpunk-future.webp',
-      thumbnailUrl: '/templates/cyberpunk-future-thumb.webp',
+      previewImageUrl: '/templates/artistic/cyberpunk-future.webp',
+      thumbnailUrl: '/templates/artistic/cyberpunk-future.webp',
     },
     {
       name: 'Vaporwave Dreams',
@@ -601,11 +582,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'colored-gel',
         styleId: 'vaporwave',
         aspectRatio: '1:1',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/vaporwave-dreams.webp',
-      thumbnailUrl: '/templates/vaporwave-dreams-thumb.webp',
+      previewImageUrl: '/templates/artistic/vaporwave-dreams.webp',
+      thumbnailUrl: '/templates/artistic/vaporwave-dreams.webp',
     },
     {
       name: 'Y2K Nostalgia',
@@ -620,11 +600,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'ring-light',
         styleId: 'y2k',
         aspectRatio: '1:1',
-        qualityMode: 'draft',
         nsfw: false,
       },
-      previewImageUrl: '/templates/y2k-nostalgia.webp',
-      thumbnailUrl: '/templates/y2k-nostalgia-thumb.webp',
+      previewImageUrl: '/templates/artistic/y2k-nostalgia.webp',
+      thumbnailUrl: '/templates/artistic/y2k-nostalgia.webp',
     }
   );
 
@@ -645,11 +624,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'soft-diffused',
         styleId: 'general',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/anime-maid.webp',
-      thumbnailUrl: '/templates/anime-maid-thumb.webp',
+      previewImageUrl: '/templates/fantasy/anime-maid.webp',
+      thumbnailUrl: '/templates/fantasy/anime-maid.webp',
     },
     {
       name: 'Bunny Girl',
@@ -664,11 +642,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'ring-light',
         styleId: 'soft-glam',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: false,
       },
-      previewImageUrl: '/templates/bunny-girl.webp',
-      thumbnailUrl: '/templates/bunny-girl-thumb.webp',
+      previewImageUrl: '/templates/fantasy/bunny-girl.webp',
+      thumbnailUrl: '/templates/fantasy/bunny-girl.webp',
     }
   );
 
@@ -689,11 +666,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'candlelight',
         styleId: 'soft-glam',
         aspectRatio: '2:3',
-        qualityMode: 'hq',
         nsfw: true,
       },
-      previewImageUrl: '/templates/bedroom-eyes.webp',
-      thumbnailUrl: '/templates/bedroom-eyes-thumb.webp',
+      previewImageUrl: '/templates/intimate/bedroom-eyes.webp',
+      thumbnailUrl: '/templates/intimate/bedroom-eyes.webp',
     },
     {
       name: 'Seductive Silhouette',
@@ -708,11 +684,10 @@ function generateCuratedTemplates(): TemplateSeed[] {
         lightingId: 'backlit-silhouette',
         styleId: 'moody-dark',
         aspectRatio: '9:16',
-        qualityMode: 'hq',
         nsfw: true,
       },
-      previewImageUrl: '/templates/seductive-silhouette.webp',
-      thumbnailUrl: '/templates/seductive-silhouette-thumb.webp',
+      previewImageUrl: '/templates/intimate/seductive-silhouette.webp',
+      thumbnailUrl: '/templates/intimate/seductive-silhouette.webp',
     }
   );
 
@@ -807,12 +782,12 @@ async function main() {
   let inserted = 0;
   for (const template of templates) {
     try {
+      // qualityMode removed - see EP-045
       const config = {
         scene: template.config.scene ?? null,
         environment: template.config.environment ?? null,
         outfit: template.config.outfit ?? null,
         aspectRatio: template.config.aspectRatio ?? '1:1',
-        qualityMode: template.config.qualityMode ?? 'hq',
         nsfw: template.config.nsfw ?? false,
         poseId: template.config.poseId ?? null,
         styleId: template.config.styleId ?? null,

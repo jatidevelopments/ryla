@@ -26,14 +26,13 @@ export function NotificationItem({
   const thumbnailUrl = metadata?.thumbnailUrl as string | null;
   const baseImageUrl = metadata?.baseImageUrl as string | null;
   const imageCount = metadata?.imageCount as number | null;
-  const qualityMode = metadata?.qualityMode as string | null;
   const characterId = metadata?.characterId as string | null;
 
-  // Calculate credit cost for generation notifications
+  // Calculate credit cost for generation notifications (use default since qualityMode removed)
   const isGeneration = n.type === 'generation.completed';
   const isCharacterCreated = n.type === 'character.created';
   const creditCost = isGeneration
-    ? estimateCreditCost(qualityMode, imageCount)
+    ? estimateCreditCost(null, imageCount)
     : null;
 
   // Use base image for character creation, thumbnail for generation

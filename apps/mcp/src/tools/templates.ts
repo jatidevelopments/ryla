@@ -14,12 +14,12 @@ import { z } from 'zod';
 import { apiCall } from '../api-client.js';
 
 // Template config schema for creation
+// qualityMode removed - EP-045
 const templateConfigSchema = z.object({
   scene: z.string().nullable().optional(),
   environment: z.string().nullable().optional(),
   outfit: z.union([z.string(), z.record(z.unknown())]).nullable().optional(),
   aspectRatio: z.enum(['1:1', '9:16', '2:3', '3:4', '4:3', '16:9', '3:2']).default('9:16'),
-  qualityMode: z.enum(['draft', 'hq']).default('draft'),
   nsfw: z.boolean().default(false),
   poseId: z.string().nullable().optional(),
   styleId: z.string().nullable().optional(),
@@ -50,7 +50,7 @@ Categories:
       scene: z.string().optional().describe('Filter by scene'),
       environment: z.string().optional().describe('Filter by environment'),
       aspectRatio: z.string().optional().describe('Filter by aspect ratio'),
-      qualityMode: z.enum(['draft', 'hq']).optional().describe('Filter by quality mode'),
+      // qualityMode removed - EP-045
       nsfw: z.boolean().optional().describe('Filter by NSFW flag'),
       search: z.string().optional().describe('Search in template name/description'),
       influencerId: z.string().uuid().optional().describe('Filter by influencer/character ID'),
@@ -64,7 +64,7 @@ Categories:
         if (args.scene) params.set('scene', args.scene);
         if (args.environment) params.set('environment', args.environment);
         if (args.aspectRatio) params.set('aspectRatio', args.aspectRatio);
-        if (args.qualityMode) params.set('qualityMode', args.qualityMode);
+        // qualityMode removed - EP-045
         if (args.nsfw !== undefined) params.set('nsfw', String(args.nsfw));
         if (args.search) params.set('search', args.search);
         if (args.influencerId) params.set('influencerId', args.influencerId);

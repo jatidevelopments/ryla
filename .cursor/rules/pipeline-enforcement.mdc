@@ -52,6 +52,38 @@ Check for bugs, type errors, spec mismatch.
 ### 7. Next Step
 Suggest concrete next action or phase.
 
+### 8. Update Epic/Initiative Status
+When completing phases or making progress, update status:
+
+**Epic Status Values:**
+- **Proposed** - Requirements/scoping complete (P1-P2)
+- **In Progress** - Architecture/implementation (P3-P6)
+- **In Review** - Testing/deployment (P7-P9)
+- **Completed** - Production validated (P10 complete)
+- **On Hold** - Temporarily paused
+- **Cancelled** - Abandoned
+
+**Update epic status:**
+1. Update status field at top of epic file
+2. Update README status column in epic directory
+3. Update phase field if phase changed
+4. Update "Last Updated" date
+
+**Initiative Status Values:**
+- **Proposed** - Template filled, not started
+- **Active** - Driving current work
+- **On Hold** - Temporarily paused
+- **Completed** - Success criteria met
+- **Cancelled** - Abandoned
+
+**Update initiative status:**
+1. Update status field at top of initiative file
+2. Update README index table
+3. Update Progress Tracking section
+4. Update "Last Updated" date
+
+See `docs/process/EPIC-STATUS-TRACKING.md` for full guidelines.
+
 ## Phase Quick Reference
 
 | Phase | Required Inputs | Required Outputs |
@@ -65,7 +97,7 @@ Suggest concrete next action or phase.
 | P7 | Code + AC | Tests, test-to-AC mapping |
 | P8 | Code + tests | Integration notes, fixes |
 | P9 | Stable code | CI/CD, env vars, deploy checklist |
-| P10 | Deployed app | Smoke tests, learnings, next steps |
+| P10 | Deployed app | Smoke tests, learnings, next steps, journey docs verified |
 
 ## Blocking Rules
 - Missing inputs → STOP, ask user

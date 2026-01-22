@@ -6,13 +6,11 @@ alwaysApply: true
 
 # Routing Patterns
 
-## Context
-
-RYLA uses a **centralized routing system** that provides a single source of truth for all application routes. This eliminates hardcoded route strings and ensures type-safe navigation across the codebase.
+RYLA uses a centralized routing system that provides a single source of truth for all application routes. This eliminates hardcoded route strings and ensures type-safe navigation across the codebase.
 
 ## Core Principle
 
-**NEVER hardcode route strings.** Always use the centralized routes configuration.
+NEVER hardcode route strings. Always use the centralized routes configuration.
 
 ## Requirements
 
@@ -20,10 +18,10 @@ RYLA uses a **centralized routing system** that provides a single source of trut
 
 Each app has its own routes configuration:
 
-- **Web app**: `apps/web/lib/routes.ts`
-- **Admin app**: `apps/admin/lib/routes.ts`
-- **Funnel app**: (if needed, create `apps/funnel/lib/routes.ts`)
-- **Landing app**: (if needed, create `apps/landing/lib/routes.ts`)
+- Web app: `apps/web/lib/routes.ts`
+- Admin app: `apps/admin/lib/routes.ts`
+- Funnel app: (if needed, create `apps/funnel/lib/routes.ts`)
+- Landing app: (if needed, create `apps/landing/lib/routes.ts`)
 
 ### Route Structure
 

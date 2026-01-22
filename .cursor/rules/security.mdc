@@ -6,13 +6,7 @@ alwaysApply: false
 
 # Security Best Practices
 
-## Context
-
-- Protect user data and prevent common vulnerabilities
-- Ensure secure authentication and authorization
-- Validate and sanitize all inputs
-- Implement proper API security measures
-- Follow OWASP Top 10 security guidelines
+Protect user data and prevent common vulnerabilities. Ensure secure authentication and authorization. Validate and sanitize all inputs. Implement proper API security measures. Follow OWASP Top 10 security guidelines.
 
 ## Requirements
 
@@ -51,25 +45,25 @@ alwaysApply: false
 ### Data Protection
 
 - Encrypt sensitive data at rest using AES-256
-- **Use Infisical for all secrets** - Never hardcode or use `.env` files (see `infisical.mdc`)
+- Use Infisical for all secrets - Never hardcode or use `.env` files (see `infisical.mdc`)
 - Use environment variables for secrets (injected via Infisical at runtime)
 - Implement proper access controls and permissions
 - Regular security audits and dependency updates
-- **RYLA uses Infisical** for centralized, encrypted secrets management
+- RYLA uses Infisical for centralized, encrypted secrets management
 - Implement data backup and recovery procedures
 - Follow GDPR/privacy regulations for user data
 - Use secure random number generation for tokens
 
 ### Common Vulnerabilities Prevention
 
-- **XSS**: Sanitize inputs, use Content Security Policy
-- **CSRF**: Use anti-CSRF tokens, SameSite cookies
-- **SQL Injection**: Use parameterized queries, ORM validation
-- **Directory Traversal**: Validate file paths, use allowlists
-- **Insecure Direct Object References**: Implement authorization checks
-- **Security Misconfiguration**: Regular security reviews, automated scans
-- **Sensitive Data Exposure**: Encrypt data, secure transmission
-- **Broken Authentication**: Strong password policies, MFA
+- XSS - Sanitize inputs, use Content Security Policy
+- CSRF - Use anti-CSRF tokens, SameSite cookies
+- SQL Injection - Use parameterized queries, ORM validation
+- Directory Traversal - Validate file paths, use allowlists
+- Insecure Direct Object References - Implement authorization checks
+- Security Misconfiguration - Regular security reviews, automated scans
+- Sensitive Data Exposure - Encrypt data, secure transmission
+- Broken Authentication - Strong password policies, MFA
 
 ## Examples
 

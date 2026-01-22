@@ -12,17 +12,20 @@ export interface Notification {
 }
 
 /**
- * Estimate credit cost from quality mode for display
+ * Estimate credit cost from feature type for display
  */
 export function estimateCreditCost(
-  qualityMode: string | null | undefined,
+  featureType: string | null | undefined,
   imageCount: number | null | undefined
 ): number | null {
-  if (!qualityMode) return null;
-
   const count = imageCount ?? 1;
 
-  switch (qualityMode.toLowerCase()) {
+  if (!featureType) {
+    // Default to studio_standard
+    return FEATURE_CREDITS.studio_standard.credits * count;
+  }
+
+  switch (featureType.toLowerCase()) {
     case 'fast':
     case 'draft':
     case 'studio_fast':
@@ -38,7 +41,8 @@ export function estimateCreditCost(
     case 'base_images':
       return FEATURE_CREDITS.base_images.credits;
     default:
-      return null;
+      // Default to studio_standard for unknown types
+      return FEATURE_CREDITS.studio_standard.credits * count;
   }
 }
 

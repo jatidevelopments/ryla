@@ -18,6 +18,15 @@ This directory contains exported ComfyUI workflow JSON files for reference and c
 
 - `final-generation-lora.json` - Final generation with LoRA model
 
+### Image Upscaling
+
+- `seedvr2.json` - SeedVR2 realistic upscaling workflow for images and videos
+  - Supports single image or batch processing from directory
+  - Uses SeedVR2 DiT model (`seedvr2_ema_7b_fp16.safetensors`) and VAE (`ema_vae_fp16.safetensors`)
+  - Includes before/after comparison view
+  - Optimized for RTX 5090 (38 seconds per image)
+  - Includes GPU memory cleanup nodes for batch processing
+
 ### WAN 2.2 Workflows
 
 - `251007_MICKMUMPITZ_WAN-2-2-IMG_SMPL.json` - WAN 2.2 text-to-image generation workflow (sample)
@@ -42,6 +51,7 @@ This directory contains exported ComfyUI workflow JSON files for reference and c
 **UI Format** (ComfyUI visual editor format):
 
 - All `MICKMUMPITZ_*` workflows
+- `seedvr2.json` - SeedVR2 upscaling workflow
 - These can be loaded directly in ComfyUI for visualization
 - May need conversion to API format for programmatic use
 
@@ -67,3 +77,23 @@ These workflows can be converted to Python code using:
 
 - `libs/business/src/services/comfyui-workflow-builder.ts` - TypeScript workflow builder
 - Or implement directly in Python handlers based on workflow structure
+
+## Workflow Development Tools
+
+### ComfyUI-Copilot 🤖
+
+**ComfyUI-Copilot** is an AI-powered assistant that can help with workflow development:
+
+- **Generate Workflows**: Create workflows from natural language descriptions
+- **Debug Workflows**: Automatically detect and fix errors in workflows
+- **Optimize Workflows**: Rewrite and optimize existing workflows
+- **Parameter Tuning**: Batch test parameter combinations with visual comparison
+- **Node Discovery**: Find the right nodes and models for your needs
+
+**See**: `docs/technical/infrastructure/comfyui/COMFYUI-COPILOT.md` for full documentation
+
+**Usage**:
+1. Install ComfyUI-Copilot in your ComfyUI `custom_nodes/` directory
+2. Generate or import workflows using natural language
+3. Debug and optimize workflows before converting to TypeScript
+4. Export optimized workflows to this directory for reference

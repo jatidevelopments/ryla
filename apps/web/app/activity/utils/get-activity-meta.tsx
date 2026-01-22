@@ -38,7 +38,7 @@ export function getActivityMeta(item: ActivityItem): ActivityMeta {
       return {
         icon: <Sparkles className="h-5 w-5 text-purple-400" />,
         label: 'Generation started',
-        detail: item.qualityMode ? item.qualityMode.toUpperCase() : null,
+        detail: null,
         color: 'purple',
       };
     case 'credits_added':

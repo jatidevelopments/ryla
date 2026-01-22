@@ -29,7 +29,7 @@ const generationInputSchema = z.object({
   environment: z.string(),
   outfit: z.string(),
   aspectRatio: z.enum(['1:1', '9:16', '2:3']).default('9:16'),
-  qualityMode: z.enum(['draft', 'hq']).default('draft'),
+  // qualityMode removed - see EP-045
   imageCount: z.number().min(1).max(4).default(1),
   nsfw: z.boolean().default(false),
 });
@@ -62,9 +62,8 @@ export const generationRouter = router({
         where: eq(userCredits.userId, ctx.user.id),
       });
 
-      const cost =
-        CREDIT_COSTS[input.qualityMode as keyof typeof CREDIT_COSTS] *
-        input.imageCount;
+      // Use standard credit cost (qualityMode removed - EP-045)
+      const cost = (CREDIT_COSTS['draft'] ?? 1) * input.imageCount;
       const currentBalance = credits?.balance ?? 0;
 
       if (currentBalance < cost) {
@@ -102,7 +101,7 @@ export const generationRouter = router({
           .where(eq(userCredits.userId, ctx.user.id));
       }
 
-      // Record transaction
+      // Record transaction (qualityMode removed - EP-045)
       await ctx.db.insert(creditTransactions).values({
         userId: ctx.user.id,
         type: 'generation',
@@ -110,8 +109,7 @@ export const generationRouter = router({
         balanceAfter: newBalance,
         referenceType: 'generation_job',
         referenceId: job.id,
-        description: `${input.qualityMode.toUpperCase()} generation (${input.imageCount} image${input.imageCount > 1 ? 's' : ''})`,
-        qualityMode: input.qualityMode,
+        description: `Image generation (${input.imageCount} image${input.imageCount > 1 ? 's' : ''})`,
       });
 
       // Check for low balance notification after deduction
@@ -142,7 +140,7 @@ export const generationRouter = router({
         jobId: job.id,
         status: job.status,
         creditsUsed: cost,
-        estimatedTime: input.qualityMode === 'hq' ? 60 : 30, // seconds
+        estimatedTime: 30, // seconds (qualityMode removed - EP-045)
       };
     }),
 

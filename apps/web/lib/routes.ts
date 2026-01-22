@@ -237,25 +237,24 @@ export function matchesRoute(
  * Useful for navigation highlighting
  */
 export function getActiveRoute(pathname: string): string | null {
-  // Check exact matches first
-  const exactMatch = Object.values(routes).find((route) => {
+  // Get only string routes from the routes object
+  const stringRoutes: string[] = [];
+  for (const route of Object.values(routes)) {
     if (typeof route === 'string') {
-      return pathname === route;
+      stringRoutes.push(route);
     }
-    return false;
-  });
+  }
 
+  // Check exact matches first
+  const exactMatch = stringRoutes.find((route) => pathname === route);
   if (exactMatch) {
     return exactMatch;
   }
 
   // Check prefix matches for nested routes
-  const prefixMatch = Object.values(routes).find((route) => {
-    if (typeof route === 'string') {
-      return pathname.startsWith(`${route}/`);
-    }
-    return false;
-  });
+  const prefixMatch = stringRoutes.find((route) =>
+    pathname.startsWith(`${route}/`)
+  );
 
-  return prefixMatch || null;
+  return prefixMatch ?? null;
 }

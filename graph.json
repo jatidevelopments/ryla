@@ -1,190 +1,16 @@
 {
   "graph": {
     "nodes": {
-      "landing-e2e": {
-        "name": "landing-e2e",
-        "type": "e2e",
+      "ryla-r2-cdn-proxy": {
+        "name": "ryla-r2-cdn-proxy",
+        "type": "app",
         "data": {
-          "root": "apps/landing-e2e",
-          "metadata": {
-            "targetGroups": {
-              "E2E (CI)": [
-                "e2e-ci--src/example.spec.ts",
-                "e2e-ci",
-                "e2e-ci--merge-reports"
-              ]
-            }
-          },
+          "root": "workers/ryla-r2-cdn-proxy",
           "targets": {
-            "e2e": {
-              "options": {
-                "cwd": "apps/landing-e2e",
-                "command": "playwright test"
-              },
-              "metadata": {
-                "technologies": [
-                  "playwright"
-                ],
-                "description": "Runs Playwright Tests",
-                "help": {
-                  "command": "pnpm exec playwright test --help",
-                  "example": {
-                    "options": {
-                      "workers": 1
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                {
-                  "projects": [
-                    "landing"
-                  ],
-                  "target": "dev"
-                }
-              ],
-              "cache": true,
-              "inputs": [
-                "default",
-                "^production",
-                {
-                  "externalDependencies": [
-                    "@playwright/test"
-                  ]
-                }
-              ],
-              "outputs": [
-                "{workspaceRoot}/dist/.playwright/apps/landing-e2e/test-output",
-                "{workspaceRoot}/dist/.playwright/apps/landing-e2e/playwright-report"
-              ],
-              "executor": "nx:run-commands",
-              "configurations": {},
-              "parallelism": true
-            },
-            "e2e-ci--src/example.spec.ts": {
-              "options": {
-                "cwd": "apps/landing-e2e",
-                "env": {
-                  "PLAYWRIGHT_HTML_OUTPUT_DIR": "../../dist/.playwright/apps/landing-e2e/playwright-report/src-example-spec-ts",
-                  "PLAYWRIGHT_HTML_REPORT": "../../dist/.playwright/apps/landing-e2e/playwright-report/src-example-spec-ts"
-                },
-                "command": "playwright test src/example.spec.ts --output=../../dist/.playwright/apps/landing-e2e/test-output/src-example-spec-ts"
-              },
-              "metadata": {
-                "technologies": [
-                  "playwright"
-                ],
-                "description": "Runs Playwright Tests in src/example.spec.ts in CI",
-                "help": {
-                  "command": "pnpm exec playwright test --help",
-                  "example": {
-                    "options": {
-                      "workers": 1
-                    }
-                  }
-                }
-              },
-              "dependsOn": [
-                {
-                  "projects": [
-                    "landing"
-                  ],
-                  "target": "dev"
-                }
-              ],
-              "cache": true,
-              "inputs": [
-                "default",
-                "^production",
-                {
-                  "externalDependencies": [
-                    "@playwright/test"
-                  ]
-                }
-              ],
-              "outputs": [
-                "{workspaceRoot}/dist/.playwright/apps/landing-e2e/test-output/src-example-spec-ts",
-                "{workspaceRoot}/dist/.playwright/apps/landing-e2e/playwright-report/src-example-spec-ts"
-              ],
-              "executor": "nx:run-commands",
-              "configurations": {},
-              "parallelism": true
-            },
-            "e2e-ci": {
-              "executor": "nx:noop",
-              "cache": true,
-              "inputs": [
-                "default",
-                "^production",
-                {
-                  "externalDependencies": [
-                    "@playwright/test"
-                  ]
-                }
-              ],
-              "outputs": [
-                "{workspaceRoot}/dist/.playwright/apps/landing-e2e/test-output",
-                "{workspaceRoot}/dist/.playwright/apps/landing-e2e/playwright-report"
-              ],
-              "dependsOn": [
-                {
-                  "target": "e2e-ci--src/example.spec.ts",
-                  "projects": "self",
-                  "params": "forward",
-                  "options": "forward"
-                }
-              ],
-              "metadata": {
-                "technologies": [
-                  "playwright"
-                ],
-                "description": "Runs Playwright Tests in CI",
-                "nonAtomizedTarget": "e2e",
-                "help": {
-                  "command": "pnpm exec playwright test --help",
-                  "example": {
-                    "options": {
-                      "workers": 1
-                    }
-                  }
-                }
-              },
-              "configurations": {},
-              "options": {},
-              "parallelism": true
-            },
-            "e2e-ci--merge-reports": {
-              "executor": "@nx/playwright:merge-reports",
-              "cache": true,
-              "inputs": [
-                "default",
-                "^production",
-                {
-                  "externalDependencies": [
-                    "@playwright/test"
-                  ]
-                }
-              ],
-              "outputs": [
-                "{workspaceRoot}/dist/.playwright/apps/landing-e2e/playwright-report"
-              ],
-              "options": {
-                "config": "playwright.config.ts",
-                "expectedSuites": 1
-              },
-              "metadata": {
-                "technologies": [
-                  "playwright"
-                ],
-                "description": "Merges Playwright blob reports from atomized tasks to produce unified reports for the configured reporters."
-              },
-              "configurations": {},
-              "parallelism": true
-            },
             "eslint:lint": {
               "cache": true,
               "options": {
-                "cwd": "apps/landing-e2e",
+                "cwd": "workers/ryla-r2-cdn-proxy",
                 "command": "eslint ."
               },
               "inputs": [
@@ -218,16 +44,83 @@
               "executor": "nx:run-commands",
               "configurations": {},
               "parallelism": true
+            },
+            "dev": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "dev"
+              },
+              "metadata": {
+                "scriptContent": "wrangler dev",
+                "runCommand": "pnpm run dev"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "deploy": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "deploy"
+              },
+              "metadata": {
+                "scriptContent": "wrangler deploy",
+                "runCommand": "pnpm run deploy"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "tail": {
+              "executor": "nx:run-script",
+              "options": {
+                "script": "tail"
+              },
+              "metadata": {
+                "scriptContent": "wrangler tail",
+                "runCommand": "pnpm run tail"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "nx-release-publish": {
+              "executor": "@nx/js:release-publish",
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "options": {},
+              "configurations": {},
+              "parallelism": true
             }
           },
-          "name": "landing-e2e",
+          "name": "ryla-r2-cdn-proxy",
+          "tags": [
+            "npm:public",
+            "npm:cloudflare",
+            "npm:worker",
+            "npm:r2",
+            "npm:cdn",
+            "type:worker",
+            "scope:infrastructure"
+          ],
+          "metadata": {
+            "targetGroups": {
+              "NPM Scripts": [
+                "dev",
+                "deploy",
+                "tail"
+              ]
+            },
+            "description": "Cloudflare Worker for R2 CDN proxy",
+            "js": {
+              "packageName": "ryla-r2-cdn-proxy",
+              "packageVersion": "1.0.0",
+              "packageMain": "src/index.ts",
+              "isInPackageManagerWorkspaces": false
+            }
+          },
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "workers/ryla-r2-cdn-proxy",
           "projectType": "application",
-          "sourceRoot": "apps/landing-e2e/src",
-          "tags": [],
-          "implicitDependencies": [
-            "landing"
-          ]
+          "implicitDependencies": []
         }
       },
       "analytics": {
@@ -468,6 +361,16 @@
               "dependsOn": [
                 "^build"
               ],
+              "cache": true
+            },
+            "test": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "vitest run --config vitest.config.ts",
+                "cwd": "libs/business"
+              },
+              "configurations": {},
+              "parallelism": true,
               "cache": true
             }
           },
@@ -864,6 +767,7 @@
                 "default",
                 "^default",
                 "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/apps/funnel/eslint.config.mjs",
                 "{workspaceRoot}/tools/eslint-rules/**/*",
                 {
                   "externalDependencies": [
@@ -933,6 +837,13 @@
               },
               "parallelism": true,
               "continuous": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true
             }
           },
           "name": "funnel",
@@ -1022,16 +933,200 @@
         "type": "app",
         "data": {
           "root": "apps/admin",
+          "targets": {
+            "next:build": {
+              "options": {
+                "cwd": "apps/admin",
+                "tty": false,
+                "command": "next build"
+              },
+              "dependsOn": [
+                "^build"
+              ],
+              "cache": true,
+              "inputs": [
+                "default",
+                "^production",
+                {
+                  "externalDependencies": [
+                    "next"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{workspaceRoot}/apps/admin/.next/!(cache)/**/*",
+                "{workspaceRoot}/apps/admin/.next/!(cache)"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "dev": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/admin",
+                "command": "next dev"
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "start": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/admin",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "next:build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "serve-static": {
+              "continuous": true,
+              "options": {
+                "cwd": "apps/admin",
+                "command": "next start"
+              },
+              "dependsOn": [
+                "next:build"
+              ],
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build-deps": {
+              "dependsOn": [
+                "^build"
+              ],
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "executor": "nx:noop"
+            },
+            "watch-deps": {
+              "continuous": true,
+              "dependsOn": [
+                "build-deps"
+              ],
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "pnpm exec nx watch --projects admin --includeDependentProjects -- pnpm exec nx build-deps admin"
+              },
+              "configurations": {},
+              "parallelism": true
+            },
+            "eslint:lint": {
+              "cache": true,
+              "options": {
+                "cwd": "apps/admin",
+                "command": "eslint ."
+              },
+              "inputs": [
+                "default",
+                "^default",
+                "{workspaceRoot}/eslint.config.mjs",
+                "{workspaceRoot}/tools/eslint-rules/**/*",
+                {
+                  "externalDependencies": [
+                    "eslint"
+                  ]
+                }
+              ],
+              "outputs": [
+                "{options.outputFile}"
+              ],
+              "metadata": {
+                "technologies": [
+                  "eslint"
+                ],
+                "description": "Runs ESLint on project",
+                "help": {
+                  "command": "pnpm exec eslint --help",
+                  "example": {
+                    "options": {
+                      "max-warnings": 0
+                    }
+                  }
+                }
+              },
+              "executor": "nx:run-commands",
+              "configurations": {},
+              "parallelism": true
+            },
+            "build": {
+              "executor": "@nx/next:build",
+              "outputs": [
+                "{options.outputPath}"
+              ],
+              "defaultConfiguration": "production",
+              "options": {
+                "outputPath": "dist/apps/admin"
+              },
+              "configurations": {
+                "development": {
+                  "outputPath": "apps/admin"
+                },
+                "production": {}
+              },
+              "parallelism": true,
+              "dependsOn": [
+                "^build"
+              ],
+              "cache": true
+            },
+            "serve": {
+              "executor": "@nx/next:server",
+              "defaultConfiguration": "development",
+              "options": {
+                "buildTarget": "admin:build",
+                "dev": true,
+                "port": 3004
+              },
+              "configurations": {
+                "development": {
+                  "buildTarget": "admin:build:development",
+                  "dev": true
+                },
+                "production": {
+                  "buildTarget": "admin:build:production",
+                  "dev": false
+                }
+              },
+              "parallelism": true,
+              "continuous": true
+            },
+            "lint": {
+              "executor": "@nx/eslint:lint",
+              "configurations": {},
+              "options": {},
+              "parallelism": true,
+              "cache": true
+            },
+            "test": {
+              "executor": "@nx/vitest:test",
+              "outputs": [
+                "{workspaceRoot}/coverage/apps/admin"
+              ],
+              "options": {
+                "config": "apps/admin/vitest.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true
+            }
+          },
           "name": "admin",
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
           "projectType": "application",
-          "sourceRoot": "apps/admin/src",
+          "sourceRoot": "apps/admin",
           "tags": [
             "type:app",
             "scope:admin"
           ],
-          "implicitDependencies": [],
-          "targets": {}
+          "implicitDependencies": []
         }
       },
       "email": {
@@ -1263,13 +1358,28 @@
             }
           },
           "name": "trpc",
-          "$schema": "../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "libs/trpc/src",
-          "projectType": "library",
           "tags": [
+            "npm:private",
             "type:lib",
             "scope:shared"
           ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@ryla/trpc",
+              "packageVersion": "0.0.1",
+              "packageExports": {
+                ".": "./src/index.js",
+                "./client": "./src/client/index.js",
+                "./context": "./src/context/index.js"
+              },
+              "packageMain": "./src/index.js",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "libs/trpc/src",
+          "projectType": "library",
           "implicitDependencies": []
         }
       },
@@ -1318,6 +1428,15 @@
               "configurations": {},
               "parallelism": true
             },
+            "nx-release-publish": {
+              "executor": "@nx/js:release-publish",
+              "dependsOn": [
+                "^nx-release-publish"
+              ],
+              "options": {},
+              "configurations": {},
+              "parallelism": true
+            },
             "build": {
               "executor": "@nx/js:tsc",
               "outputs": [
@@ -1341,11 +1460,26 @@
             "serve": {
               "executor": "nx:run-commands",
               "options": {
-                "command": "NODE_ENV=development tsx --tsconfig apps/api/tsconfig.app.json --watch apps/api/src/main.ts",
+                "command": "pnpm nx run-many --target=build --projects=shared,data,business,trpc,payments,analytics,ui,email --nx-bail && NODE_ENV=development tsx --tsconfig apps/api/tsconfig.app.json --watch apps/api/src/main.ts",
                 "cwd": ""
               },
+              "dependsOn": [
+                "^build"
+              ],
               "configurations": {},
               "parallelism": true
+            },
+            "test": {
+              "executor": "@nx/vitest:test",
+              "outputs": [
+                "{workspaceRoot}/coverage/apps/api"
+              ],
+              "options": {
+                "config": "apps/api/vitest.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true
             },
             "lint": {
               "executor": "@nx/eslint:lint",
@@ -1356,13 +1490,20 @@
             }
           },
           "name": "api",
-          "$schema": "../../node_modules/nx/schemas/project-schema.json",
-          "projectType": "application",
-          "sourceRoot": "apps/api/src",
           "tags": [
+            "npm:public",
             "type:app",
             "scope:api"
           ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "sourceRoot": "apps/api/src",
           "implicitDependencies": []
         }
       },
@@ -1706,6 +1847,18 @@
               "options": {},
               "parallelism": true,
               "cache": true
+            },
+            "test": {
+              "executor": "@nx/vitest:test",
+              "outputs": [
+                "{workspaceRoot}/coverage/apps/web"
+              ],
+              "options": {
+                "config": "apps/web/vitest.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true
             }
           },
           "name": "web",
@@ -1797,13 +1950,7 @@
       }
     },
     "dependencies": {
-      "landing-e2e": [
-        {
-          "source": "landing-e2e",
-          "target": "landing",
-          "type": "implicit"
-        }
-      ],
+      "ryla-r2-cdn-proxy": [],
       "analytics": [],
       "extension": [],
       "business": [],
@@ -1817,7 +1964,18 @@
       "trpc": [],
       "api": [],
       "mcp": [],
-      "web": [],
+      "web": [
+        {
+          "source": "web",
+          "target": "trpc",
+          "type": "static"
+        },
+        {
+          "source": "web",
+          "target": "ui",
+          "type": "static"
+        }
+      ],
       "ui": []
     }
   }

@@ -1,5 +1,11 @@
 # [EPIC] EP-015: Image Generation Speed-First Flow + Benchmarking
 
+**Status**: In Progress
+**Phase**: P6
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 The Influencer Wizard currently feels **slow** during:

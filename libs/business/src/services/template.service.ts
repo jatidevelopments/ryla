@@ -11,6 +11,7 @@ import {
   type TemplateFilters,
   type TemplatePagination,
   type TemplateListResult,
+  type TemplateSortOption,
 } from '@ryla/data/repositories/templates.repository';
 import type { Template, TemplateConfig, NewTemplate } from '@ryla/data/schema';
 
@@ -103,6 +104,19 @@ export class TemplateService {
     pagination: TemplatePagination = {}
   ): Promise<TemplateListResult> {
     return this.templatesRepo.findAll(filters, pagination);
+  }
+
+  /**
+   * Find templates with sorting options
+   * EP-049: Supports popular, trending, new, recent sorting
+   */
+  async findWithSort(
+    filters: TemplateFilters = {},
+    pagination: TemplatePagination = {},
+    sort: TemplateSortOption = 'popular',
+    currentUserId?: string
+  ): Promise<TemplateListResult> {
+    return this.templatesRepo.findWithSort(filters, pagination, sort, currentUserId);
   }
 
   /**
@@ -251,10 +265,7 @@ export class TemplateService {
       throw new Error(`Invalid aspect ratio: ${config.aspectRatio}`);
     }
 
-    // Validate quality mode
-    if (config.qualityMode && !['draft', 'hq'].includes(config.qualityMode)) {
-      throw new Error(`Invalid quality mode: ${config.qualityMode}`);
-    }
+    // qualityMode validation removed - see EP-045
 
     // Validate model ID (should not be empty)
     if (!config.modelId || config.modelId.trim().length === 0) {

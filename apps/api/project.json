@@ -18,7 +18,7 @@
     "serve": {
       "executor": "nx:run-commands",
       "options": {
-        "command": "NODE_ENV=development tsx --tsconfig apps/api/tsconfig.app.json --watch apps/api/src/main.ts",
+        "command": "pnpm nx run-many --target=build --projects=shared,data,business,trpc,payments,analytics,ui,email --nx-bail && NODE_ENV=development tsx --tsconfig apps/api/tsconfig.app.json --watch apps/api/src/main.ts",
         "cwd": "{workspaceRoot}"
       },
       "dependsOn": ["^build"]

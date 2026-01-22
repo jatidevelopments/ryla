@@ -1,17 +1,100 @@
 'use client';
 
-import {} from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RylaInput } from '@ryla/ui';
 import { useAuthFlow } from './hooks';
-import { EmailStep, LoginForm, RegisterForm } from './components';
+import { AuthFormContent } from './components';
 import { fadeIn } from './constants';
 
-import { Suspense } from 'react';
+// Promotional images from existing assets (SFW only - bikini/beach/professional)
+const PROMO_IMAGES = [
+  '/poses/expressive-laughing.webp',
+  '/templates/beach/poolside-luxury.webp',
+  '/templates/trending/clean-girl-aesthetic.webp',
+  '/templates/professional/boss-mode-office.webp',
+  '/templates/beginner/golden-hour-magic.webp',
+];
+
+// Promotional Image Carousel Component
+function PromotionalImageCarousel() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % PROMO_IMAGES.length);
+    }, 4000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  return (
+    <div className="relative w-full h-full">
+      {/* Images */}
+      {PROMO_IMAGES.map((src, index) => (
+        <Image
+          key={src}
+          src={src}
+          alt={`RYLA AI Influencer ${index + 1}`}
+          fill
+          className={`object-cover transition-opacity duration-1000 ${
+            currentIndex === index ? 'opacity-100' : 'opacity-0'
+          }`}
+          priority={index === 0}
+        />
+      ))}
+
+      {/* Gradient overlays */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#12121A]/40 to-transparent" />
+
+      {/* Content overlay */}
+      <div className="absolute bottom-0 left-0 right-0 p-8">
+        <div className="flex items-center gap-3 mb-3">
+          <Image
+            src="/logos/ryla_small_logo_new.png"
+            alt="RYLA"
+            width={40}
+            height={40}
+            className="w-10 h-10 rounded-xl"
+          />
+          <div>
+            <p className="text-white/90 font-semibold text-sm">RYLA AI</p>
+            <p className="text-white/50 text-xs">Powered by AI</p>
+          </div>
+        </div>
+        <h3 className="text-white text-xl font-bold mb-2">
+          Create stunning AI influencers
+        </h3>
+        <p className="text-white/60 text-sm">
+          Generate unlimited content that looks 100% real
+        </p>
+
+        {/* Carousel indicators */}
+        <div className="flex gap-1.5 mt-4">
+          {PROMO_IMAGES.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                currentIndex === index
+                  ? 'w-6 bg-white'
+                  : 'w-1.5 bg-white/30 hover:bg-white/50'
+              }`}
+              aria-label={`Go to image ${index + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AuthContent() {
+  const formRef = useRef<HTMLDivElement>(null);
+  const [formHeight, setFormHeight] = useState(0);
+
   const {
     mode,
     email,
@@ -29,202 +112,157 @@ function AuthContent() {
     handleLoginSubmit,
     handleRegisterSubmit,
     handleGoogleAuth,
+    handleFacebookAuth,
+    handleDiscordAuth,
+    handleSwitchToForgotPassword,
+    handleForgotPasswordSubmit,
+    handleForgotPasswordRetry,
+    forgotPasswordSuccess,
+    cooldownSeconds,
+    canRetry,
     loginData,
     registerData,
   } = useAuthFlow();
+
+  // Measure form height to match image panel
+  useEffect(() => {
+    if (formRef.current) {
+      const updateHeight = () => {
+        setFormHeight(formRef.current?.offsetHeight || 0);
+      };
+      updateHeight();
+      const observer = new ResizeObserver(updateHeight);
+      observer.observe(formRef.current);
+      return () => observer.disconnect();
+    }
+  }, [mode]);
 
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a0a0b]">
       {/* Animated background gradients */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Primary gradient orb */}
         <div
-          className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] opacity-40"
+          className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] opacity-30"
           style={{
-            background:
-              'radial-gradient(circle, rgba(147, 51, 234, 0.4) 0%, transparent 70%)',
-            filter: 'blur(80px)',
-            animation: 'float 15s ease-in-out infinite',
-          }}
-        />
-        {/* Secondary gradient orb */}
-        <div
-          className="absolute bottom-[-20%] right-[-10%] w-[60%] h-[60%] opacity-30"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(236, 72, 153, 0.3) 0%, transparent 70%)',
-            filter: 'blur(80px)',
-            animation: 'float 18s ease-in-out infinite reverse',
-          }}
-        />
-        {/* Tertiary accent */}
-        <div
-          className="absolute top-[40%] right-[20%] w-[30%] h-[30%] opacity-20"
-          style={{
-            background:
-              'radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
             filter: 'blur(60px)',
             animation: 'float 12s ease-in-out infinite',
           }}
         />
+        <div
+          className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] opacity-25"
+          style={{
+            background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
+            filter: 'blur(60px)',
+            animation: 'float 15s ease-in-out infinite reverse',
+          }}
+        />
+        <div
+          className="absolute top-[30%] right-[15%] w-[25%] h-[25%] opacity-20"
+          style={{
+            background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 60%)',
+            filter: 'blur(50px)',
+            animation: 'float 10s ease-in-out infinite',
+          }}
+        />
       </div>
 
-      {/* Grid pattern overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.015]"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative z-10 w-full max-w-[440px] mx-4">
+      {/* Content Container */}
+      <div className="relative z-10 w-full max-w-[900px] mx-4 lg:mx-8">
         <motion.div
           initial="hidden"
           animate="visible"
           variants={fadeIn}
-          className="flex flex-col"
+          className="flex flex-col lg:flex-row items-stretch justify-center"
         >
-          {/* Logo & Header */}
-          <div className="text-center mb-10">
-            <Link href="/" className="inline-block mb-6 group">
+          {/* Left Column - Auth Form */}
+          <div className="w-full lg:w-[480px]" ref={formRef}>
+            {/* Auth Modal Card */}
+            <div className="relative h-full overflow-hidden">
+              {/* Card glow effect */}
+              <div
+                className="absolute -inset-[1px] rounded-[28px] lg:rounded-r-none opacity-60"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
+                }}
+              />
+
+              <div className="relative h-full bg-[#12121A] rounded-[28px] lg:rounded-r-none border border-white/[0.08] backdrop-blur-xl">
+                <div className="p-8 lg:p-10">
+                  {/* RYLA Logo */}
+                  <div className="mb-8">
+                    <Link href="/" className="inline-block mb-6">
               <Image
                 src="/logos/Ryla_Logo_white.png"
                 alt="RYLA"
-                width={120}
-                height={40}
-                className="h-10 w-auto transition-transform duration-300 group-hover:scale-105"
+                        width={100}
+                        height={32}
+                        className="h-8 w-auto transition-all duration-300 hover:scale-105 hover:opacity-90"
                 priority
               />
             </Link>
-            <h1 className="text-3xl sm:text-4xl font-bold text-white mb-3 tracking-tight">
+                    <h1 className="text-[32px] lg:text-[36px] font-bold text-white leading-tight">
               {mode === 'email' && 'Welcome to RYLA'}
               {mode === 'login' && 'Welcome back'}
-              {mode === 'register' && 'Create your account'}
+                      {mode === 'register' && 'Create account'}
             </h1>
-            <p className="text-white/50 text-lg">
-              {mode === 'email' &&
-                'Start creating AI influencers that earn 24/7'}
-              {mode === 'login' && 'Sign in to continue to your dashboard'}
-              {mode === 'register' && 'Join thousands of creators worldwide'}
+                    <p className="text-white/50 text-base mt-2">
+                      {mode === 'email' && 'Create stunning AI influencers'}
+                      {mode === 'login' && 'Sign in to continue'}
+                      {mode === 'register' && 'Join thousands of creators'}
             </p>
           </div>
 
-          {/* Auth Card */}
-          <div className="relative">
-            {/* Card glow effect */}
-            <div
-              className="absolute -inset-1 rounded-3xl opacity-50 blur-xl"
-              style={{
-                background:
-                  'linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(236, 72, 153, 0.1) 100%)',
-              }}
-            />
-
-            <div className="relative bg-white/[0.03] backdrop-blur-xl rounded-3xl border border-white/10 p-8 sm:p-10">
-              {/* Error Messages */}
-              <AnimatePresence mode="wait">
-                {(submitError || emailError || emailCheckError) && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-medium"
-                  >
-                    {submitError || emailError || emailCheckError}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-
-              {/* Email Input - Always Visible */}
-              <div className="mb-6">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-white/70 mb-2"
-                >
-                  Email address
-                </label>
-                <div className="relative">
-                  <RylaInput
-                    id="email"
-                    type="email"
-                    placeholder="you@example.com"
-                    value={email}
-                    onChange={(e) => handleEmailChange(e.target.value)}
-                    onBlur={handleEmailCheck}
-                    onKeyDown={handleEmailKeyDown}
-                    disabled={isLoading || isChecking}
-                    error={!!emailError}
-                    autoFocus={mode === 'email'}
-                    aria-label="Email address"
-                  />
-                  {isChecking && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2">
-                      <div className="w-5 h-5 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-                    </div>
-                  )}
+              <AuthFormContent
+                mode={mode}
+                email={email}
+                emailError={emailError}
+                isLoading={isLoading}
+                isChecking={isChecking}
+                submitError={submitError}
+                emailCheckError={emailCheckError}
+                loginData={loginData}
+                registerData={registerData}
+                handleEmailChange={handleEmailChange}
+                handleEmailCheck={handleEmailCheck}
+                handleEmailKeyDown={handleEmailKeyDown}
+                handleLoginChange={handleLoginChange}
+                handleRegisterChange={handleRegisterChange}
+                handleModeSwitch={handleModeSwitch}
+                handleLoginSubmit={handleLoginSubmit}
+                handleRegisterSubmit={handleRegisterSubmit}
+                handleGoogleAuth={handleGoogleAuth}
+                handleFacebookAuth={handleFacebookAuth}
+                handleDiscordAuth={handleDiscordAuth}
+                handleSwitchToForgotPassword={handleSwitchToForgotPassword}
+                handleForgotPasswordSubmit={handleForgotPasswordSubmit}
+                handleForgotPasswordRetry={handleForgotPasswordRetry}
+                forgotPasswordSuccess={forgotPasswordSuccess}
+                cooldownSeconds={cooldownSeconds}
+                canRetry={canRetry}
+              />
                 </div>
               </div>
-
-              {/* Form Steps */}
-              <AnimatePresence mode="wait">
-                {mode === 'email' && (
-                  <EmailStep
-                    email={email}
-                    onEmailCheck={handleEmailCheck}
-                    isLoading={isLoading}
-                    isChecking={isChecking}
-                    onGoogleAuth={handleGoogleAuth}
-                  />
-                )}
-
-                {mode === 'login' && (
-                  <LoginForm
-                    loginData={loginData}
-                    onLoginChange={handleLoginChange}
-                    onSubmit={handleLoginSubmit}
-                    isLoading={isLoading}
-                    onGoogleAuth={handleGoogleAuth}
-                    onSwitchToRegister={() => handleModeSwitch('register')}
-                  />
-                )}
-
-                {mode === 'register' && (
-                  <RegisterForm
-                    registerData={registerData}
-                    onRegisterChange={handleRegisterChange}
-                    onSubmit={handleRegisterSubmit}
-                    isLoading={isLoading}
-                    onGoogleAuth={handleGoogleAuth}
-                    onSwitchToLogin={() => handleModeSwitch('login')}
-                  />
-                )}
-              </AnimatePresence>
             </div>
           </div>
 
-          {/* Footer */}
-          <div className="mt-8 text-center">
-            <p className="text-xs text-white/30">
-              By continuing, you agree to RYLA&apos;s{' '}
-              <Link
-                href="/terms"
-                className="text-white/50 hover:text-white/70 transition-colors"
-              >
-                Terms
-              </Link>{' '}
-              &{' '}
-              <Link
-                href="/privacy"
-                className="text-white/50 hover:text-white/70 transition-colors"
-              >
-                Privacy Policy
-              </Link>
-            </p>
+          {/* Right Column - Promotional Image (Desktop Only) */}
+          <div 
+            className="hidden lg:block lg:w-[440px]"
+            style={{ height: formHeight > 0 ? formHeight : 'auto' }}
+          >
+            <div className="relative w-full h-full overflow-hidden">
+              {/* Border glow effect matching left side */}
+              <div
+                className="absolute -inset-[1px] rounded-r-[28px] opacity-60"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
+                }}
+              />
+              <div className="relative w-full h-full rounded-r-[28px] overflow-hidden border-y border-r border-white/[0.08]">
+                <PromotionalImageCarousel />
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>
@@ -232,19 +270,10 @@ function AuthContent() {
       {/* CSS for animations */}
       <style jsx global>{`
         @keyframes float {
-          0%,
-          100% {
-            transform: translate(0, 0);
-          }
-          25% {
-            transform: translate(5%, 5%);
-          }
-          50% {
-            transform: translate(0, 10%);
-          }
-          75% {
-            transform: translate(-5%, 5%);
-          }
+          0%, 100% { transform: translate(0, 0); }
+          25% { transform: translate(3%, 3%); }
+          50% { transform: translate(0, 6%); }
+          75% { transform: translate(-3%, 3%); }
         }
       `}</style>
     </div>

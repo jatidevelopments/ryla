@@ -1,5 +1,11 @@
 # [EPIC] EP-023: Full Character Identity System
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Advanced character identity system that creates deep, consistent personas with full backstories, values, interests, and communication styles. Enables AI-powered content generation and chat.

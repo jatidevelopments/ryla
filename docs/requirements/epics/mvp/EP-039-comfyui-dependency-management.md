@@ -1,5 +1,11 @@
 # [EPIC] EP-039: ComfyUI Dependency Management & Versioning System
 
+**Status**: In Progress
+**Phase**: P6
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 > **Initiative**: [IN-008: ComfyUI Dependency Management & Versioning System](../../../initiatives/IN-008-comfyui-dependency-management.md)  
 > **Type**: Backend Infrastructure  
 > **Phases**: P1, P2, P3, P5, P6, P7, P8, P9, P10 (skipping P4 - UI)

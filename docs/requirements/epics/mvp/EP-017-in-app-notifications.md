@@ -1,5 +1,11 @@
 # [EPIC] EP-017: In-App Notifications (Inbox + Navbar Indicator)
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Persist **all user notifications** in the database and expose them in the product UI via a **top-right navbar indicator (clock icon)** that opens a menu listing recent notifications and whether they’re new/unread.

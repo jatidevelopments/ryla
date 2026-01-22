@@ -12,6 +12,7 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { ApiTags, ApiBearerAuth, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { Request } from 'express';
 
 import { RegisterUserByEmailDto } from './dto/req/register-user-by-email.dto';
@@ -25,6 +26,7 @@ import { JwtAccessGuard } from './guards/jwt-access.guard';
 import { CurrentUser } from './decorators/current-user.decorator';
 import { SkipAuth } from './decorators/skip-auth.decorator';
 import { IJwtPayload } from './interfaces/jwt-payload.interface';
+import { FORGOT_PASSWORD_THROTTLE } from '../throttler/constants/default-throttler-constants';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -101,6 +103,7 @@ export class AuthController {
 
   @Post('forgot-password')
   @SkipAuth()
+  @Throttle(...FORGOT_PASSWORD_THROTTLE)
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset' })
   public async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {

@@ -7,3 +7,4 @@ export const revalidate = 0;
 export default function PaywallPage() {
   return <PaywallContent />;
 }
+ 

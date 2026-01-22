@@ -4,6 +4,11 @@ import * as React from 'react';
 import { getCharacterImages, likeImage } from '../../../../lib/api/studio';
 import type { Post } from '@ryla/shared';
 
+interface ProfilePictureJob {
+  images?: Array<unknown>;
+  status?: string;
+}
+
 interface UseInfluencerImagesOptions {
   influencerId: string;
   onImageCountUpdate?: (count: number) => void;
@@ -11,6 +16,7 @@ interface UseInfluencerImagesOptions {
     completedCount?: number;
     status?: string;
     totalCount?: number;
+    jobs?: ProfilePictureJob[];
   } | null;
 }
 

@@ -36,7 +36,7 @@ export interface ActivityItem {
   imageId?: string | null; // First image ID for direct navigation
   imageCount?: number | null;
   thumbnailUrl?: string | null;
-  qualityMode?: string | null;
+  // qualityMode removed - see EP-045
   status?: string | null;
 
   // Credit-specific
@@ -102,7 +102,7 @@ function mapJobToActivity(
     imageId,
     imageCount: job.imageCount,
     thumbnailUrl,
-    qualityMode: (job.input as Record<string, unknown> | null)?.['qualityMode'] as string | undefined ?? null,
+    // qualityMode removed - see EP-045
     status: job.status,
     balanceAfter: balanceAfter ?? null,
   };
@@ -124,7 +124,7 @@ function mapTxToActivity(
     creditAmount: tx.amount,
     balanceAfter: tx.balanceAfter,
     description: tx.description,
-    qualityMode: tx.qualityMode,
+    // qualityMode removed - see EP-045
   };
 }
 

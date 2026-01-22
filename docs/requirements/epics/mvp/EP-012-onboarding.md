@@ -1,5 +1,11 @@
 # [EPIC] EP-012: Onboarding & First-Time Experience
 
+**Status**: In Progress
+**Phase**: P4
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Welcome experience for new users including welcome modal, product tour, and first-character guidance. Designed to activate users quickly and reduce confusion.

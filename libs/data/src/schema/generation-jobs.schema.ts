@@ -39,7 +39,7 @@ export interface GenerationInput {
   environment?: string; // Environment preset
   outfit?: string; // Outfit selection
   aspectRatio?: '1:1' | '9:16' | '2:3';
-  qualityMode?: 'draft' | 'hq';
+  // qualityMode removed - see EP-045
   imageCount?: number;
   nsfw?: boolean;
   prompt?: string; // Full prompt (built from config)

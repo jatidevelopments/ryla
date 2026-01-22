@@ -6,20 +6,12 @@ alwaysApply: false
 
 # React Patterns
 
-## Context
+Next.js 14+ App Router with Server and Client Components. React 18 with hooks and concurrent features. Component composition, custom hooks for logic extraction, Server Components for data fetching.
 
-- Next.js 14+ App Router with Server and Client Components
-- React 18 with hooks and concurrent features
-- Component composition and reusability
-- Custom hooks for logic extraction
-- Server Components for data fetching
+## Server vs Client Components
 
-## Requirements
-
-### Server vs Client Components
-
-- Use **Server Components** by default (no 'use client')
-- Use **Client Components** only when needed (interactivity, hooks, browser APIs)
+- Use Server Components by default (no 'use client')
+- Use Client Components only when needed (interactivity, hooks, browser APIs)
 - Fetch data in Server Components
 - Pass data from Server to Client Components as props
 - Keep Client Components small and focused
@@ -451,14 +443,14 @@ export function useTheme() {
 
 ## Best Practices
 
-1. **Server First** - Use Server Components by default
-2. **Client When Needed** - Only use 'use client' when necessary
-3. **Composition** - Prefer composition over inheritance
-4. **Small Components** - Keep components under 150 lines
-5. **Custom Hooks** - Extract logic into reusable hooks
-6. **Type Safety** - Use TypeScript for all props and state
-7. **Memoization** - Use memo/useMemo/useCallback appropriately
-8. **Cleanup** - Always cleanup effects and timeouts
+- Server first - Use Server Components by default
+- Client when needed - Only use 'use client' when necessary
+- Composition - Prefer composition over inheritance
+- Small components - Keep components under 150 lines
+- Custom hooks - Extract logic into reusable hooks
+- Type safety - Use TypeScript for all props and state
+- Memoization - Use memo/useMemo/useCallback appropriately
+- Cleanup - Always cleanup effects and timeouts
 
 ## Related Documentation
 

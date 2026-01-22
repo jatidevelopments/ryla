@@ -1,6 +1,6 @@
 # [INITIATIVE] IN-007: ComfyUI Infrastructure Improvements (MDC-Inspired)
 
-**Status**: Proposed  
+**Status**: Active  
 **Created**: 2026-01-27  
 **Last Updated**: 2026-01-27  
 **Owner**: Infrastructure Team  

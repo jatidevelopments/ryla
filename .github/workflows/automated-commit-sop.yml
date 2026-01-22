@@ -1,0 +1,475 @@
+name: Automated Commit SOP (AI-Powered)
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+env:
+  AI_AGENT_ENABLED: true
+  MAX_AUTO_FIX_ATTEMPTS: 3
+  AUTO_CREATE_PR: true
+
+jobs:
+  phase-1-build-lint:
+    name: Phase 1: Build & Lint
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.build-check.outputs.success }}
+      errors: ${{ steps.build-check.outputs.errors }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all apps
+        id: build-check
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm nx run-many --target=build --all --parallel=3 2>&1 | tee build-errors.log
+          BUILD_EXIT=$?
+          
+          if [ $BUILD_EXIT -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "errors=" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "errors<<EOF" >> $GITHUB_OUTPUT
+            cat build-errors.log >> $GITHUB_OUTPUT
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+          
+          exit $BUILD_EXIT
+
+      - name: Lint all apps
+        id: lint-check
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm nx run-many --target=lint --all --parallel=3 2>&1 | tee lint-errors.log
+          LINT_EXIT=$?
+          
+          if [ $LINT_EXIT -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+          
+          exit $LINT_EXIT
+
+      - name: TypeScript check
+        id: typecheck
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm nx run-many --target=typecheck --all --parallel=3 2>&1 | tee typecheck-errors.log
+          TSC_EXIT=$?
+          
+          if [ $TSC_EXIT -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+          
+          exit $TSC_EXIT
+
+      - name: Upload error logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase-1-errors
+          path: |
+            build-errors.log
+            lint-errors.log
+            typecheck-errors.log
+          retention-days: 7
+
+  phase-1-ai-fix:
+    name: Phase 1: AI Agent Fix
+    needs: phase-1-build-lint
+    if: |
+      failure() && 
+      env.AI_AGENT_ENABLED == 'true' && 
+      needs.phase-1-build-lint.outputs.success == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Download error logs
+        uses: actions/download-artifact@v4
+        with:
+          name: phase-1-errors
+          path: ./errors
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Get Cursor API Key from Infisical
+        id: cursor-key
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+        run: |
+          # Determine environment (default to dev for PRs, prod for main)
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            INFISICAL_ENV="prod"
+          else
+            INFISICAL_ENV="dev"
+          fi
+          
+          echo "📦 Getting CURSOR_API_KEY from Infisical ($INFISICAL_ENV)..."
+          CURSOR_KEY=$(infisical secrets get CURSOR_API_KEY --path=/mcp --env=$INFISICAL_ENV 2>/dev/null || echo "")
+          
+          if [ -z "$CURSOR_KEY" ]; then
+            echo "⚠️  CURSOR_API_KEY not found in Infisical, will create PR without agent"
+            echo "key=" >> $GITHUB_OUTPUT
+          else
+            echo "✅ CURSOR_API_KEY retrieved"
+            echo "key=$CURSOR_KEY" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Trigger AI Fix Agent
+        id: ai-fix
+        env:
+          CURSOR_API_KEY: ${{ steps.cursor-key.outputs.key }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const errors = fs.readFileSync('./errors/build-errors.log', 'utf8') + 
+                          '\n' + fs.readFileSync('./errors/lint-errors.log', 'utf8') + 
+                          '\n' + fs.readFileSync('./errors/typecheck-errors.log', 'utf8');
+            
+            // Create fix branch
+            const branchName = `ai-fix/phase-1-${Date.now()}`;
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branchName}`,
+              sha: context.sha
+            });
+            
+            // If Cursor API key is available, try to use Cursor Cloud Agents API
+            let agentResponse = null;
+            if (process.env.CURSOR_API_KEY) {
+              try {
+                // TODO: Integrate with Cursor Cloud Agents API when available
+                // For now, create PR with error analysis
+                console.log('Cursor API key available, but API integration pending');
+              } catch (error) {
+                console.log('Cursor API call failed:', error.message);
+              }
+            }
+            
+            // Create PR with error analysis
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🤖 AI Fix: Phase 1 Build/Lint Errors`,
+              head: branchName,
+              base: context.ref.replace('refs/heads/', ''),
+              body: `## AI Agent Analysis
+            
+            ### Errors Detected
+            \`\`\`
+            ${errors.substring(0, 4000)}
+            \`\`\`
+            
+            ### Next Steps
+            - [ ] Review errors above
+            - [ ] Apply fixes manually or via AI agent
+            - [ ] Re-run CI to verify fixes
+            
+            ${process.env.CURSOR_API_KEY ? '**Note:** Cursor API key available. Integrate with Cursor Cloud Agents API for automatic fixes.' : '**Note:** Cursor API key not found. Add CURSOR_API_KEY to Infisical (/mcp path) to enable automatic fixes.'}
+            `
+            });
+            
+            return { pr_number: pr.data.number, branch: branchName };
+
+      - name: Notify Slack
+        if: always()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"🚨 Phase 1 failed. AI fix agent triggered. PR: ${{ steps.ai-fix.outputs.pr_number }}\"}" \
+            ${{ secrets.SLACK_WEBHOOK || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
+
+  phase-2-tests:
+    name: Phase 2: Unit & Integration Tests
+    needs: phase-1-build-lint
+    if: needs.phase-1-build-lint.outputs.success == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.test-check.outputs.success }}
+      failures: ${{ steps.test-check.outputs.failures }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run unit tests
+        id: test-check
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm nx run-many --target=test --all --parallel=3 2>&1 | tee test-results.log
+          TEST_EXIT=$?
+          
+          if [ $TEST_EXIT -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+            echo "failures=" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+            echo "failures<<EOF" >> $GITHUB_OUTPUT
+            grep -A 10 "FAIL\|Error" test-results.log >> $GITHUB_OUTPUT || echo "No specific failures found"
+            echo "EOF" >> $GITHUB_OUTPUT
+          fi
+          
+          exit $TEST_EXIT
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: |
+            test-results.log
+            coverage/
+          retention-days: 7
+
+  phase-2-ai-fix:
+    name: Phase 2: AI Agent Fix Tests
+    needs: phase-2-tests
+    if: |
+      failure() && 
+      env.AI_AGENT_ENABLED == 'true' && 
+      needs.phase-2-tests.outputs.success == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download test results
+        uses: actions/download-artifact@v4
+        with:
+          name: test-results
+
+      - name: Trigger AI Test Fix Agent
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const testResults = fs.readFileSync('./test-results/test-results.log', 'utf8');
+            
+            const branchName = `ai-fix/phase-2-tests-${Date.now()}`;
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branchName}`,
+              sha: context.sha
+            });
+            
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🤖 AI Fix: Test Failures`,
+              head: branchName,
+              base: context.ref.replace('refs/heads/', ''),
+              body: `## AI Agent Analysis - Test Failures
+            
+            ### Test Results
+            \`\`\`
+            ${testResults.substring(0, 4000)}
+            \`\`\`
+            
+            **Note:** Integrate with Cursor Cloud Agents API for automatic test fixes.
+            `
+            });
+
+  phase-3-e2e:
+    name: Phase 3: E2E Browser Testing
+    needs: phase-2-tests
+    if: needs.phase-2-tests.outputs.success == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      success: ${{ steps.e2e-check.outputs.success }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack
+        run: corepack enable
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run E2E tests
+        id: e2e-check
+        continue-on-error: true
+        run: |
+          set +e
+          pnpm nx e2e landing-e2e 2>&1 | tee e2e-results.log
+          E2E_EXIT=$?
+          
+          if [ $E2E_EXIT -eq 0 ]; then
+            echo "success=true" >> $GITHUB_OUTPUT
+          else
+            echo "success=false" >> $GITHUB_OUTPUT
+          fi
+          
+          exit $E2E_EXIT
+
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+            e2e-results.log
+          retention-days: 7
+
+  phase-3-ai-fix:
+    name: Phase 3: AI Agent Fix E2E
+    needs: phase-3-e2e
+    if: |
+      failure() && 
+      env.AI_AGENT_ENABLED == 'true' && 
+      needs.phase-3-e2e.outputs.success == 'false'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download Playwright report
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-report
+
+      - name: Trigger AI E2E Fix Agent
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const e2eResults = fs.readFileSync('./e2e-results.log', 'utf8');
+            
+            const branchName = `ai-fix/phase-3-e2e-${Date.now()}`;
+            await github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: `refs/heads/${branchName}`,
+              sha: context.sha
+            });
+            
+            const pr = await github.rest.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `🤖 AI Fix: E2E Test Failures`,
+              head: branchName,
+              base: context.ref.replace('refs/heads/', ''),
+              body: `## AI Agent Analysis - E2E Failures
+            
+            ### E2E Results
+            \`\`\`
+            ${e2eResults.substring(0, 4000)}
+            \`\`\`
+            
+            **Note:** Check Playwright report artifacts for screenshots/videos.
+            Integrate with Cursor Cloud Agents API for automatic E2E fixes.
+            `
+            });
+
+  phase-4-deploy:
+    name: Phase 4: Deploy (Main Only)
+    needs: [phase-1-build-lint, phase-2-tests, phase-3-e2e]
+    if: |
+      github.ref == 'refs/heads/main' &&
+      needs.phase-1-build-lint.outputs.success == 'true' &&
+      needs.phase-2-tests.outputs.success == 'true' &&
+      needs.phase-3-e2e.outputs.success == 'true'
+    uses: ./.github/workflows/deploy-auto.yml
+
+  notify-completion:
+    name: Notify Completion
+    needs: [phase-1-build-lint, phase-2-tests, phase-3-e2e]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Slack notification
+        run: |
+          if [ "${{ needs.phase-1-build-lint.outputs.success }}" == "true" ] && \
+             [ "${{ needs.phase-2-tests.outputs.success }}" == "true" ] && \
+             [ "${{ needs.phase-3-e2e.outputs.success }}" == "true" ]; then
+            MESSAGE="✅ All phases passed! Commit: ${{ github.sha }}"
+          else
+            MESSAGE="❌ Some phases failed. Check GitHub Actions for details."
+          fi
+          
+          curl -X POST -H 'Content-type: application/json' \
+            --data "{\"text\":\"$MESSAGE\"}" \
+            ${{ secrets.SLACK_WEBHOOK || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true

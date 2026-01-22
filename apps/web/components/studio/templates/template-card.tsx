@@ -62,13 +62,10 @@ export function TemplateCard({
           )}
         </div>
 
-        {/* Metadata badges */}
+        {/* Metadata badges - qualityMode removed (EP-045) */}
         <div className="flex gap-2 flex-wrap">
           <span className="px-2 py-1 rounded text-xs bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-default)]">
             {config.aspectRatio}
-          </span>
-          <span className="px-2 py-1 rounded text-xs bg-[var(--bg-subtle)] text-[var(--text-secondary)] border border-[var(--border-default)]">
-            {config.qualityMode.toUpperCase()}
           </span>
           {config.modelId && (
             <span className="px-2 py-1 rounded-full text-[10px] font-medium uppercase tracking-wider bg-[var(--purple-500)]/10 text-[var(--purple-400)] border border-[var(--purple-500)]/20">

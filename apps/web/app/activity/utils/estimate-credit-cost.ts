@@ -1,19 +1,23 @@
 import { FEATURE_CREDITS } from '@ryla/shared';
 
 /**
- * Estimate credit cost from quality mode
+ * Estimate credit cost from feature type
  * This is an approximation based on the shared pricing
  */
 export function estimateCreditCost(
-  qualityMode: string | null | undefined,
+  featureType: string | null | undefined,
   imageCount: number | null | undefined
 ): number | null {
-  if (!qualityMode) return null;
+  if (!featureType) {
+    // Default to studio_standard if no feature type provided
+    const count = imageCount ?? 1;
+    return FEATURE_CREDITS.studio_standard.credits * count;
+  }
 
   const count = imageCount ?? 1;
 
-  // Map quality modes to feature costs
-  switch (qualityMode.toLowerCase()) {
+  // Map feature types to costs
+  switch (featureType.toLowerCase()) {
     case 'fast':
     case 'draft':
     case 'studio_fast':
@@ -29,7 +33,8 @@ export function estimateCreditCost(
     case 'base_images':
       return FEATURE_CREDITS.base_images.credits;
     default:
-      return null;
+      // Default to studio_standard for unknown types
+      return FEATURE_CREDITS.studio_standard.credits * count;
   }
 }
 

@@ -98,9 +98,7 @@ export class GenerateStudioImagesDto {
   @IsIn(['1:1', '9:16', '2:3'])
   aspectRatio!: '1:1' | '9:16' | '2:3';
 
-  @ApiProperty({ enum: ['draft', 'hq'], default: 'draft' })
-  @IsIn(['draft', 'hq'])
-  qualityMode!: 'draft' | 'hq';
+  // qualityMode removed - see EP-045
 
   @ApiProperty({ minimum: 1, maximum: 10, default: 1 })
   @IsInt()

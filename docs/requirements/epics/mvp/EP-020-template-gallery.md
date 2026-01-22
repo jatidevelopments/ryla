@@ -1,11 +1,36 @@
 # [EPIC] EP-020: Template Gallery & Library
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
+> **Initiative**: [IN-011: Template Gallery & Content Library](../../../initiatives/IN-011-template-gallery-content-library.md)
+
 ## Overview
 
-The Template Gallery enables users to discover, save, and reuse successful generation configurations. Users can browse curated templates, see example outputs, and instantly apply templates to generate similar content. This feature reduces the learning curve and increases generation success rates.
+The Template Gallery enables users to discover, save, and reuse successful generation configurations. Users can browse curated templates AND template sets (collections), see example outputs, and instantly apply them to generate similar content. This feature reduces the learning curve and increases generation success rates.
 
-> **Inspiration**: ZenCreator's "Library" tab pattern with visual Input → Output examples  
-> **Goal**: Help users discover successful scene/environment/outfit combinations through visual examples
+> **Inspiration**: MDC's character filtering UX + ZenCreator's Library tab pattern  
+> **Goal**: Help users discover successful generation configurations through visual examples with simple, intuitive filtering
+
+---
+
+## Scope Changes (2026-01-19)
+
+This epic has been updated as part of IN-011 to include:
+
+1. **Removal of qualityMode** (draft/hq) - Simplify to single quality mode
+2. **Template Sets** - Collections of multiple templates that can be applied together
+3. **Simplified UX** - MDC-style category pills and tag filtering
+4. **Likes System** - Users can like templates, enabling popularity-based discovery
+5. **Trending Algorithm** - Time-weighted usage scoring
+6. **Nested Categories** - Hierarchical category system (e.g., "Fashion > Streetwear")
+7. **AI Auto-tagging** - System-generated tags with user additions
+8. **Video Support** - Data model ready for video templates
+
+See [IN-011](../../../initiatives/IN-011-template-gallery-content-library.md) for full initiative details.
 
 ---
 
@@ -13,28 +38,34 @@ The Template Gallery enables users to discover, save, and reuse successful gener
 
 | Term | Definition |
 |------|------------|
-| **Template** | A saved generation configuration (scene + environment + outfit + aspect ratio + quality mode) with example output image |
-| **Template Library** | Curated collection of templates organized by category (scene, environment, style) |
-| **My Templates** | User's saved templates from their own successful generations |
+| **Template** | A saved generation configuration (scene + environment + outfit + pose + style + lighting) with example output image |
+| **Template Set** | A collection of multiple templates that can be applied together (like profile picture sets) |
+| **Template Library** | Curated collection of templates organized by category and tags |
+| **My Templates** | User's saved templates from their own successful generations (private by default) |
 | **Template Preview** | Visual example showing the template configuration and resulting output image |
 | **Apply Template** | Action to load a template's configuration into Content Studio for generation |
+| **Apply Template Set** | Action to generate multiple images using all templates in a set |
+| **Template Category** | Hierarchical grouping (e.g., "Fashion > Streetwear") |
+| **Template Tag** | Flat, searchable label (AI-generated or user-added) |
 
 ---
 
 ## Business Impact
 
-**Target Metric**: A - Activation, C - Core Value
+**Target Metric**: A - Activation, B - Retention, C - Core Value
 
 **Hypothesis**: When users can see visual examples of successful generations and easily replicate them, they will:
 - Generate more content (higher activation)
 - Achieve better results (higher satisfaction)
 - Learn the platform faster (reduced time to value)
+- Return to explore trending/popular templates (retention)
 
 **Success Criteria**:
 - Template usage rate: **>40%** of generations use templates
+- Template set adoption: **>20%** of template usage is via sets
 - Template discovery: **>60%** of users browse templates before first generation
 - Generation success rate improvement: **+10%** when using templates vs manual configuration
-- Time to first successful generation: **<2 minutes** (down from <30 seconds to <2 minutes total flow)
+- User-created templates: **>10 templates** per active user
 
 ---
 
@@ -52,26 +83,29 @@ The Template Gallery enables users to discover, save, and reuse successful gener
 - Grid layout with template cards
 - Each card shows:
   - Preview image (example output)
-  - Scene + Environment + Outfit labels
-  - Aspect ratio indicator
-  - Quality mode indicator (Draft/HQ)
+  - Template name
+  - Key tags (auto-generated + user-added)
+  - Likes count
   - "Try Template" button
-  - Success metrics (optional): "Used 1.2k times", "95% success rate"
+  - Set indicator (if part of a set)
 
-**Template Categories**:
-- **All Templates** (default)
-- **By Scene**: Professional Portrait, Candid Lifestyle, Fashion Editorial, etc.
-- **By Environment**: Beach, Home, Office, Studio, etc.
-- **My Templates**: User's saved templates
-- **Popular**: Most used templates
-- **Recent**: Recently added templates
+**Sorting Options** (MDC-style horizontal buttons):
+- **Popular**: Most liked templates
+- **Trending**: Time-weighted usage rate (refreshed daily)
+- **New**: Recently created templates
+- **Recent**: User's recently used templates
 
-**Filter Options**:
-- Scene filter
-- Environment filter
-- Aspect ratio filter
-- Quality mode filter
-- NSFW toggle (show/hide NSFW templates)
+**Filter Options** (simplified):
+- **Category Pills**: Expandable tag/category chips at top
+- **Content Type**: Images / Videos / All
+- **NSFW Toggle**: Show/hide NSFW templates
+- **Search**: Full-text search across names, descriptions, tags
+
+**NO LONGER INCLUDED**:
+- ~~Quality mode filter~~ (qualityMode removed from system)
+- ~~Scene filter~~ (replaced by tags/categories)
+- ~~Environment filter~~ (replaced by tags/categories)
+- ~~Aspect ratio filter~~ (can add back if needed)
 
 ### F2: Template Application Flow
 

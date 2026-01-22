@@ -1,5 +1,11 @@
 # [EPIC] EP-036: Ethnicity-Specific Feature Images
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 **Related Initiative**: [IN-004](../initiatives/IN-004-wizard-image-generation.md) - Wizard Image Generation & Asset Creation
 
 ## Overview

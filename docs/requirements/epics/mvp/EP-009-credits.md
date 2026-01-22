@@ -1,5 +1,11 @@
 # [EPIC] EP-009: Generation Credits & Limits
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Credit system to manage and limit AI image generations. Controls usage for free and paid tiers, displays remaining credits, and handles limit enforcement.

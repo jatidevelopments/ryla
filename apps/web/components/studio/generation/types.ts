@@ -199,9 +199,9 @@ export const ASPECT_RATIOS: AspectRatioOption[] = [
  * - studio_batch: 50 credits for 4 images (~12.5 each for 4k single)
  */
 export const QUALITY_OPTIONS: QualityOption[] = [
-  { value: '1.5k', label: '1.5k', description: 'Fastest and Cheapest', credits: 15 },
-  { value: '2k', label: '2k', description: 'Best Visual Fidelity', credits: 40 },
-  { value: '4k', label: '4k', description: 'Ultra High Definition', credits: 50 },
+  { value: '1.5k', label: 'Fast', description: 'Quick generation, lower resolution', credits: 15 },
+  { value: '2k', label: 'HD', description: 'High quality, best balance', credits: 40 },
+  { value: '4k', label: 'Ultra HD', description: 'Highest quality, maximum detail', credits: 50 },
 ];
 
 /**

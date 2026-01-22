@@ -6,7 +6,7 @@ alwaysApply: false
 
 # Database Migrations Guide
 
-This guide covers how to create, modify, and apply database migrations using Drizzle ORM in RYLA.
+How to create, modify, and apply database migrations using Drizzle ORM in RYLA.
 
 ## Migration Workflow
 

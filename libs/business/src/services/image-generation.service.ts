@@ -81,7 +81,7 @@ export class ImageGenerationService {
         negativePrompt,
         nsfw: input.nsfwEnabled,
         seed: input.seed?.toString(),
-        qualityMode: 'draft',
+        // qualityMode removed - see EP-045
         imageCount: 3,
       },
       imageCount: 3,

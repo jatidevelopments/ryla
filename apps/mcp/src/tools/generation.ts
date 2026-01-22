@@ -39,10 +39,7 @@ Returns a jobId that can be polled with ryla_job_status.`,
         .enum(['1:1', '9:16', '2:3'])
         .default('9:16')
         .describe('Image aspect ratio'),
-      qualityMode: z
-        .enum(['draft', 'hq'])
-        .default('draft')
-        .describe('draft=fast/cheap, hq=slower/better quality'),
+      // qualityMode removed - EP-045
       count: z.number().min(1).max(4).default(1).describe('Number of images to generate'),
       nsfw: z.boolean().default(false).describe('Enable NSFW content generation'),
       additionalDetails: z.string().optional().describe('Additional prompt details'),
@@ -67,7 +64,7 @@ Returns a jobId that can be polled with ryla_job_status.`,
             lighting: args.lighting,
             expression: args.expression,
             aspectRatio: args.aspectRatio,
-            qualityMode: args.qualityMode,
+            // qualityMode removed - EP-045
             count: args.count,
             nsfw: args.nsfw,
             additionalDetails: args.additionalDetails,

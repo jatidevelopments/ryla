@@ -266,6 +266,60 @@ export async function changePassword(
 }
 
 /**
+ * Request password reset email
+ */
+export async function requestPasswordReset(email: string): Promise<void> {
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ email }),
+  });
+
+  if (!response.ok) {
+    if (response.status === 429) {
+      throw new Error('Too many requests. Please try again later.');
+    }
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to send reset email');
+  }
+}
+
+export interface ResetPasswordCredentials {
+  token: string;
+  password: string;
+}
+
+/**
+ * Reset password using token from email
+ */
+export async function resetPassword(credentials: ResetPasswordCredentials): Promise<void> {
+  const API_BASE_URL =
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+  const response = await fetch(`${API_BASE_URL}/auth/reset-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(credentials),
+  });
+
+  if (!response.ok) {
+    if (response.status === 401) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(error.message || 'Invalid or expired reset token');
+    }
+    const error = await response.json().catch(() => ({}));
+    throw new Error(error.message || 'Failed to reset password');
+  }
+}
+
+/**
  * Check if email exists in the system
  */
 export async function checkEmailExists(email: string): Promise<boolean> {

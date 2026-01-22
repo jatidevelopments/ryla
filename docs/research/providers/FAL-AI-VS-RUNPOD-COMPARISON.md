@@ -272,6 +272,7 @@ For dedicated pod (RTX 4090 at $0.69/hr = ~$500/month at 24/7):
 | **Replicate** | ⚠️ Limited | Whiskii Gen available, but platform ToS restrictions |
 | **fal.ai** | ❓ Model-dependent | Nano Banana Pro: ❌ No, Others: Unknown |
 | **RunPod (Self-hosted)** | ✅ Full control | Flux Dev (uncensored) proven, any model deployable |
+| **Modal.com** | ✅ Allowed (legal content) | Infrastructure provider, no active filtering |
 
 #### Model-Specific NSFW Support
 
@@ -307,6 +308,8 @@ From MVP decision docs:
 - ✅ No dependency on API provider policies
 - ✅ Can deploy any model needed
 - ✅ No risk of platform policy changes
+
+**Note on Modal.com**: Modal.com also allows legal NSFW content (similar to RunPod) as an infrastructure provider. Both platforms permit legal adult content but prohibit illegal content (CSAM, non-consensual imagery, etc.). See `docs/research/providers/INFRASTRUCTURE-NSFW-POLICIES.md` for detailed policy analysis.
 
 ---
 

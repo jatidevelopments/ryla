@@ -6,13 +6,7 @@ alwaysApply: false
 
 # API Design Patterns
 
-## Context
-
-- Type-safe APIs using tRPC
-- Consistent request/response formats
-- Proper error handling and validation
-- Authentication and authorization patterns
-- Request/response logging
+Type-safe APIs using tRPC. Consistent request/response formats. Proper error handling and validation. Authentication and authorization patterns. Request/response logging.
 
 ## Requirements
 

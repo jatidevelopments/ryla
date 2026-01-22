@@ -1,5 +1,11 @@
 # [EPIC] EP-021: Multi-Piece Outfit Gallery
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Transform the outfit selection system from single-preset outfits to a granular multi-piece composition system. Users can select individual clothing items from different categories (top, bottom, shoes, headwear, outerwear, accessories) to create custom outfit combinations.

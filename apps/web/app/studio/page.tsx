@@ -64,6 +64,7 @@ function StudioContent() {
           searchQuery={state.searchQuery}
           onSearchChange={state.setSearchQuery}
           totalCount={state.totalImageCount}
+          mode={state.mode}
         />
       </FadeInUp>
 
@@ -109,8 +110,8 @@ function StudioContent() {
             />
           </div>
 
-          {/* Bottom Generation Bar - Integrated within the flex flow */}
-          <div className="flex-shrink-0 z-40 pb-[64px] md:pb-1">
+          {/* Bottom Generation Bar - Sticky at bottom */}
+          <div className="sticky bottom-0 z-40 flex-shrink-0 pb-[64px] md:pb-1 bg-[var(--bg-base)] border-t border-[var(--border-default)]/50 backdrop-blur-sm">
             <FadeInUp delay={150}>
               <StudioGenerationBar
                 influencers={state.influencerList}
@@ -134,6 +135,8 @@ function StudioContent() {
                 hasUploadConsent={state.hasConsent}
                 onAcceptConsent={state.acceptConsent}
                 onUploadImage={state.handleUploadImage}
+                tutorialCurrentStep={tutorial.currentStep}
+                tutorialIsActive={tutorial.isActive}
               />
             </FadeInUp>
           </div>

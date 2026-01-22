@@ -23,9 +23,29 @@ export * from './tiktok-events';
 // Facebook React components
 export { FacebookProvider } from './FacebookProvider';
 export type { FacebookConfig } from './FacebookProvider';
+export { FacebookPageView } from './FacebookPageView';
 
 // Facebook tracking functions
 export * from './facebook';
+
+// Twitter/X React components
+export { TwitterProvider } from './TwitterProvider';
+export type { TwitterConfig } from './TwitterProvider';
+export { TwitterPageView } from './TwitterPageView';
+
+// Twitter/X tracking functions
+export * from './twitter';
+// Export twitter-events functions (excluding trackTwitterEvent which conflicts)
+export {
+    trackTwitterMappedEvent,
+    trackTwitterPurchase,
+    trackTwitterCompleteRegistration,
+    trackTwitterStartTrial,
+    trackTwitterViewContent,
+    trackTwitterLead,
+    trackTwitterAddToCart,
+    trackTwitterInitiateCheckout,
+} from './twitter-events';
 
 // Re-export useful hooks from posthog-js/react
 export { usePostHog } from 'posthog-js/react';

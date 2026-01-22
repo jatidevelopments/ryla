@@ -72,11 +72,13 @@ All following rules are saved under `.cursor/rules/` directory:
 - `refactoring.mdc` – Refactoring guidelines and patterns
 - `cursor-rules.mdc` – Guidelines for writing and maintaining Cursor rules
 - `task-execution.mdc` – Standard Operating Procedure (SOP) for AI agents to complete tasks
+- `user-intent-validation.mdc` – Validate user intent and propose better paths
 - `error-handling.mdc` – Error handling patterns for React and API routes
 - `logging.mdc` – Logging patterns and best practices
 - `environment-variables.mdc` – Environment variable management and validation
 - `git-workflow.mdc` – Git workflow patterns including branch naming and commits
 - `file-organization.mdc` – File organization patterns and directory structure
+- `journey-documentation.mdc` – Guidelines for keeping user journey documentation in sync with codebase
 
 ## Quick Reference
 

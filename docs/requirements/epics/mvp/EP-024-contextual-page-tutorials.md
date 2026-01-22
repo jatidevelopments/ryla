@@ -1,5 +1,11 @@
 # [EPIC] EP-024: Contextual Page Tutorials
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Contextual, page-specific tutorials that guide users through features when they first visit a page. Reusable tutorial components in `@ryla/ui` that can be used across any page, with Studio as the first implementation.

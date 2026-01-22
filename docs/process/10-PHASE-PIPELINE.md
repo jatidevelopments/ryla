@@ -92,6 +92,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - Component list per screen
 - Interaction notes (UI → API, success/failure states)
 - Interaction → event mapping
+- **Journey documentation updated** (if screens/routes changed)
 
 **Output file:** `docs/specs/epics/EP-XXX-ui-skeleton.md`
 
@@ -99,6 +100,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - No mystery screens: every screen maps to epic/story
 - All main flows described end-to-end
 - Every interaction has defined analytics event
+- **Journey docs updated**: If new screens/routes added, update app-specific journey doc (`docs/journeys/{app}-app-journey.md`)
 
 ---
 
@@ -137,6 +139,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - Code changes (small patches)
 - Self-review
 - Acceptance criteria status (✅/⚠️/❌)
+- **Journey documentation updated** (if routes/screens changed)
 
 **Output:** Code in `apps/`, `libs/` + PRs
 
@@ -144,6 +147,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - Small, focused changes only
 - Analytics integrated via `analytics.capture()`
 - If AC cannot be met → state why + what's missing
+- **Journey docs verified**: If routes or screens changed, verify journey docs are updated (see `journey-documentation.mdc` rule)
 
 ---
 
@@ -221,6 +225,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - Blocker bug list (if any)
 - Learnings documented
 - Follow-up epics/tasks
+- **Journey documentation verified** (final check)
 
 **Output file:** `docs/releases/EP-XXX-validation.md`, `docs/learnings/EP-XXX-learnings.md`
 
@@ -228,6 +233,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - No blocker bugs on main value path
 - Funnels tracking correctly in PostHog
 - Critical issues listed with priority
+- **Journey docs verified**: Final check that journey documentation matches production routes and flows (see `journey-documentation.mdc` rule)
 
 ---
 
@@ -261,6 +267,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - [ ] Screens listed
 - [ ] Navigation flow
 - [ ] Interaction → event mapping
+- [ ] Journey docs updated (if screens/routes changed)
 
 ## P5: Technical Spec
 - [ ] File plan
@@ -271,6 +278,7 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - [ ] Code complete
 - [ ] Analytics integrated
 - [ ] AC status: ✅/⚠️/❌
+- [ ] Journey docs verified (if routes/screens changed)
 
 ## P7: Testing
 - [ ] Unit tests
@@ -293,4 +301,5 @@ Initiatives are strategic business goals that span multiple epics. Epics impleme
 - [ ] Funnel verified
 - [ ] Learnings documented
 - [ ] Next steps defined
+- [ ] Journey docs verified (final check)
 ```

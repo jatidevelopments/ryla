@@ -6,13 +6,7 @@ alwaysApply: false
 
 # Styling and Design System Patterns
 
-## Context
-
-- RYLA uses TailwindCSS 4 with custom design tokens
-- Design system based on purple/pink gradient theme
-- Components use `@ryla/ui` design tokens and variants
-- CVA (class-variance-authority) for component variants
-- Radix UI primitives with TailwindCSS styling
+RYLA uses TailwindCSS 4 with custom design tokens. Design system based on purple/pink gradient theme. Components use `@ryla/ui` design tokens and variants. CVA (class-variance-authority) for component variants. Radix UI primitives with TailwindCSS styling.
 
 ## Requirements
 
@@ -404,14 +398,14 @@ export function Card({ variant = 'default', className, children }: CardProps) {
 
 ## Best Practices
 
-1. **Design Tokens** - Always use design tokens, never hardcode colors/spacing
-2. **Utility Classes** - Prefer Tailwind utilities over custom CSS
-3. **Responsive** - Use mobile-first responsive design
-4. **Variants** - Use CVA for component variants
-5. **Consistency** - Follow spacing scale and typography tokens
-6. **Accessibility** - Include focus states and proper contrast
-7. **Performance** - Use Tailwind's purging for production builds
-8. **Organization** - Keep class names organized and readable
+- Design tokens - Always use design tokens, never hardcode colors/spacing
+- Utility classes - Prefer Tailwind utilities over custom CSS
+- Responsive - Use mobile-first responsive design
+- Variants - Use CVA for component variants
+- Consistency - Follow spacing scale and typography tokens
+- Accessibility - Include focus states and proper contrast
+- Performance - Use Tailwind's purging for production builds
+- Organization - Keep class names organized and readable
 
 ## Design System Reference
 

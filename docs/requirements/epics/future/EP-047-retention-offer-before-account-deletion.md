@@ -1,5 +1,11 @@
 # [EPIC] EP-047: Retention Offer Before Account Deletion
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 When a user attempts to delete their account, we should:

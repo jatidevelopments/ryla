@@ -26,8 +26,9 @@ function aspectRatioToSize(aspectRatio: '1:1' | '9:16' | '2:3'): { width: number
   }
 }
 
-function qualityToParams(qualityMode: 'draft' | 'hq'): { steps: number; cfg: number } {
-  if (qualityMode === 'hq') return { steps: 20, cfg: 1.0 };
+// qualityMode removed - EP-045
+// Using standard quality params
+function getStandardQualityParams(): { steps: number; cfg: number } {
   return { steps: 9, cfg: 1.0 };
 }
 
@@ -70,7 +71,7 @@ export class StudioGenerationService {
     lighting?: string;
     expression?: string;
     aspectRatio: '1:1' | '9:16' | '2:3';
-    qualityMode: 'draft' | 'hq';
+    // qualityMode removed - EP-045
     count: number;
     nsfw: boolean;
     promptEnhance?: boolean; // Enable AI prompt enhancement
@@ -93,11 +94,44 @@ export class StudioGenerationService {
     // For NSFW content, include breast/ass size for adult content
     const characterDNA = characterConfigToDNA(character.config, character.name, { sfwMode: !input.nsfw });
 
+    // Check if outfit is empty (null, empty string, or empty composition)
+    const isOutfitEmpty = !input.outfit || 
+      (typeof input.outfit === 'string' && input.outfit.trim() === '') ||
+      (typeof input.outfit === 'object' && 
+        !input.outfit.top && 
+        !input.outfit.bottom && 
+        !input.outfit.shoes &&
+        (!input.outfit.headwear || input.outfit.headwear === 'none' || input.outfit.headwear === 'none-headwear') &&
+        (!input.outfit.outerwear || input.outfit.outerwear === 'none' || input.outfit.outerwear === 'none-outerwear') &&
+        (!input.outfit.accessories || input.outfit.accessories.length === 0));
+
+    // For NSFW content, be more explicit about nudity:
+    // - If no outfit selected: "fully naked, completely nude, no clothing"
+    // - If partial outfit selected: keep outfit but add explicit nudity emphasis
+    let outfitToUse = input.outfit;
+    let nsfwNudityDetails: string | null = null;
+    
+    if (input.nsfw) {
+      if (isOutfitEmpty) {
+        // Fully naked - no clothes at all
+        outfitToUse = 'fully naked, completely nude, no clothing, bare skin';
+        nsfwNudityDetails = 'fully naked, completely nude, exposed body, no clothes';
+      } else {
+        // Partial outfit - emphasize nudity with the selected clothing
+        nsfwNudityDetails = 'nude, naked body, exposed skin';
+      }
+    }
+
     // Build prompt using PromptBuilder
     const builder = new PromptBuilder()
       .withCharacter(characterDNA)
       .withScene(input.scene)
-      .withOutfit(input.outfit);
+      .withOutfit(outfitToUse);
+
+    // Add explicit NSFW nudity details to ensure naked generation
+    if (nsfwNudityDetails) {
+      builder.addDetails(nsfwNudityDetails);
+    }
 
     // Add pose if provided
     // Get pose prompt text and add it directly (pose IDs don't match dot notation format)
@@ -169,7 +203,7 @@ export class StudioGenerationService {
     }
 
     const { width, height } = aspectRatioToSize(input.aspectRatio);
-    const { steps, cfg } = qualityToParams(input.qualityMode);
+    const { steps, cfg } = getStandardQualityParams(); // qualityMode removed - EP-045
 
     // Pick the best available workflow for the pod (danrisi if nodes available; else simple)
     const workflowId = getRecommendedWorkflow([]); // default fallback
@@ -190,7 +224,7 @@ export class StudioGenerationService {
       const safeScene = asValidEnumOrNull(input.scene, schema.scenePresetEnum.enumValues);
       const safeEnvironment = asValidEnumOrNull(input.environment, schema.environmentPresetEnum.enumValues);
       const safeAspectRatio = asValidEnumOrNull(input.aspectRatio, schema.aspectRatioEnum.enumValues);
-      const safeQualityMode = asValidEnumOrNull(input.qualityMode, schema.qualityModeEnum.enumValues);
+      // qualityMode removed - EP-045
 
       // Create image record immediately with status 'generating' so it persists across page reloads
       const placeholderS3Key = `generating/${input.characterId}/${randomUUID()}`;
@@ -218,7 +252,7 @@ export class StudioGenerationService {
       if (input.poseId) imageData.poseId = input.poseId;
       if (input.lighting) imageData.lightingId = input.lighting;
       if (safeAspectRatio) imageData.aspectRatio = safeAspectRatio;
-      if (safeQualityMode) imageData.qualityMode = safeQualityMode;
+      // qualityMode removed - EP-045
 
       // Prompt enhancement metadata
       if (typeof promptEnhanceUsed === 'boolean') {
@@ -244,31 +278,31 @@ export class StudioGenerationService {
             type: 'image_generation',
             status: 'processing',
             input: {
-              scene: input.scene,
-              environment: input.environment,
-              outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
-              poseId: input.poseId,
-              aspectRatio: input.aspectRatio,
-              qualityMode: input.qualityMode,
-              imageCount: 1,
-              nsfw: input.nsfw,
-              prompt: basePrompt,
-              negativePrompt,
-              seed: seed?.toString(),
-              width,
-              height,
-              steps,
-              // Prompt enhancement metadata
-              promptEnhance: promptEnhanceUsed,
-              originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
-              enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
-              // Store image ID so we can update it when complete
-              imageId: imageRecord.id,
-            },
+            scene: input.scene,
+            environment: input.environment,
+            outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
+            poseId: input.poseId,
+            aspectRatio: input.aspectRatio,
+            // qualityMode removed - EP-045
             imageCount: 1,
-            completedCount: 0,
-            externalJobId,
-            externalProvider: 'fal',
+            nsfw: input.nsfw,
+            prompt: basePrompt,
+            negativePrompt,
+            seed: seed?.toString(),
+            width,
+            height,
+            steps,
+            // Prompt enhancement metadata
+            promptEnhance: promptEnhanceUsed,
+            originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
+            enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
+            // Store image ID so we can update it when complete
+            imageId: imageRecord.id,
+          },
+          imageCount: 1,
+          completedCount: 0,
+          externalJobId,
+          externalProvider: 'fal',
             startedAt: new Date(),
             // Store image ID in output for reference
             output: {
@@ -321,7 +355,7 @@ export class StudioGenerationService {
           outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
           poseId: input.poseId,
           aspectRatio: input.aspectRatio,
-          qualityMode: input.qualityMode,
+          // qualityMode removed - EP-045
           imageCount: 1,
           nsfw: input.nsfw,
           prompt: basePrompt,
@@ -722,7 +756,7 @@ export class StudioGenerationService {
       if (sourceImage?.environment) upscaleImageData.environment = sourceImage.environment;
       if (sourceImage?.outfit) upscaleImageData.outfit = sourceImage.outfit;
       if (sourceImage?.aspectRatio) upscaleImageData.aspectRatio = sourceImage.aspectRatio;
-      if (sourceImage?.qualityMode) upscaleImageData.qualityMode = sourceImage.qualityMode;
+      // qualityMode removed - EP-045
 
       // Create image record for upscaled image
       const row = await this.imagesRepo.createImage(upscaleImageData);

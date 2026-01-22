@@ -1,5 +1,11 @@
 # [EPIC] EP-010: Subscription Management
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 In-app subscription management allowing users to view their plan, manage billing, upgrade/downgrade, and cancel subscriptions.

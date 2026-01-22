@@ -296,7 +296,7 @@ Build a four-layer Character DNA system:
 
 - [Character Creation Epic](../requirements/epics/mvp/EP-005.md)
 - [Image Generation Epic](../requirements/epics/mvp/EP-007.md)
-- [Human Description System](../technical/HUMAN-DESCRIPTION-SYSTEM.md) - Complete technical design including Identity & Uniqueness DNA
+- [Human Description System](../technical/systems/human-description-system.md) - Complete technical design including Identity & Uniqueness DNA
 - [Prompt Library System](../technical/PROMPT-LIBRARY.md) (if exists)
 
 ---

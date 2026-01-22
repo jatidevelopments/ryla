@@ -1,5 +1,11 @@
 # [EPIC] EP-023: Prompt Builder Optimization
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 The Prompt Builder is the core engine that transforms user selections (character, scene, outfit, pose) into AI model prompts. This epic focuses on optimizing prompt generation to produce higher-quality, more realistic images.

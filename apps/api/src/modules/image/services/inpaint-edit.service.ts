@@ -65,7 +65,8 @@ export class InpaintEditService {
     }
 
     // Require structured metadata (per EP-005)
-    if (!sourceImage.scene || !sourceImage.environment || !sourceImage.outfit || !sourceImage.aspectRatio || !sourceImage.qualityMode) {
+    // qualityMode removed - EP-045
+    if (!sourceImage.scene || !sourceImage.environment || !sourceImage.outfit || !sourceImage.aspectRatio) {
       throw new BadRequestException('Source image is missing required Studio metadata');
     }
 
@@ -111,7 +112,7 @@ export class InpaintEditService {
         environment: sourceImage.environment,
         outfit: sourceImage.outfit,
         aspectRatio: sourceImage.aspectRatio,
-        qualityMode: sourceImage.qualityMode,
+        // qualityMode removed - EP-045
         nsfw: sourceImage.nsfw ?? false,
         prompt: input.prompt,
         negativePrompt: input.negativePrompt,

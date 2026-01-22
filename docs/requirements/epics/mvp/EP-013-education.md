@@ -1,5 +1,11 @@
 # [EPIC] EP-013: Education Hub
 
+**Status**: In Progress
+**Phase**: P4
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 In-app education section providing tutorials, guides, and courses on AI influencer creation, monetization strategies, and platform best practices. Designed to help beginners succeed and increase user retention.

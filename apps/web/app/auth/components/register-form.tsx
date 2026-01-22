@@ -17,6 +17,7 @@ interface RegisterFormData {
 }
 
 interface RegisterFormProps {
+  email: string;
   registerData: RegisterFormData;
   onRegisterChange: (
     field: keyof RegisterFormData,
@@ -29,6 +30,7 @@ interface RegisterFormProps {
 }
 
 export function RegisterForm({
+  email,
   registerData,
   onRegisterChange,
   onSubmit,
@@ -54,6 +56,42 @@ export function RegisterForm({
       onSubmit={onSubmit}
       className="space-y-5"
     >
+      {/* Email Display (Read-only) */}
+      <div>
+        <label
+          htmlFor="email-display"
+          className="block text-sm font-medium text-white/70 mb-2"
+        >
+          Email Address
+        </label>
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+            <svg
+              className="w-5 h-5 text-white/30"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <RylaInput
+            id="email-display"
+            type="email"
+            value={email}
+            disabled
+            readOnly
+            className="pl-12 bg-white/5 cursor-not-allowed"
+            aria-label="Email address"
+          />
+        </div>
+      </div>
+
       <div>
         <label
           htmlFor="name"

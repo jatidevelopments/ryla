@@ -7,7 +7,7 @@ General technical specifications, design systems, and project references.
 - **`DESIGN-SYSTEM.md`** - Design system and UI guidelines
 - **`TECH-STACK.md`** - Technology stack overview
 - **`EXTERNAL-DEPENDENCIES.md`** - External service dependencies
-- **`NAMING_CONVENTIONS.md`** - Code and file naming conventions
+- **`process/naming-conventions.md`** - Code and file naming conventions
 - **`PROJECT-REFERENCE-INDEX.md`** - Project reference index
 - **`TEMPLATE-CATEGORIES.md`** - Template categorization system
 

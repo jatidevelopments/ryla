@@ -6,9 +6,9 @@ alwaysApply: false
 
 # Cloudflare MCP Servers Usage
 
-## When to Use Cloudflare MCP Tools
+## When to Use
 
-Use the Cloudflare MCP tools when you need to:
+Use Cloudflare MCP tools when you need to:
 - Debug and monitor Cloudflare Workers applications
 - Manage R2 storage buckets and objects
 - Build Workers applications with bindings (R2, KV, D1, etc.)
@@ -22,30 +22,30 @@ Use the Cloudflare MCP tools when you need to:
 The project includes several Cloudflare MCP servers:
 
 ### 1. Observability Server (`cloudflare-observability`)
-**URL**: `https://observability.mcp.cloudflare.com/mcp`
+URL: `https://observability.mcp.cloudflare.com/mcp`
 
 Debug and get insight into your application's logs and analytics.
 
-**Use Cases:**
+**Use cases:**
 - Monitor Workers performance
 - Debug application issues
 - Analyze log data
 - Track request metrics
 
-**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+**Required:** `CLOUDFLARE_API_TOKEN` environment variable
 
 ### 2. Workers Bindings Server (`cloudflare-bindings`)
-**URL**: `https://bindings.mcp.cloudflare.com/mcp`
+URL: `https://bindings.mcp.cloudflare.com/mcp`
 
 Build Workers applications with storage, AI, and compute primitives.
 
-**Use Cases:**
+**Use cases:**
 - Manage R2 buckets and objects
 - Configure KV namespaces
 - Set up D1 databases
 - Manage Workers bindings
 
-**Required**: `CLOUDFLARE_API_TOKEN` environment variable
+**Required:** `CLOUDFLARE_API_TOKEN` environment variable
 
 **Relevant for RYLA:**
 - R2 storage management (see [ADR-005](../docs/decisions/ADR-005-cloudflare-r2-storage.md))
@@ -53,11 +53,11 @@ Build Workers applications with storage, AI, and compute primitives.
 - Storage bucket operations
 
 ### 3. Documentation Server (`cloudflare-docs`)
-**URL**: `https://docs.mcp.cloudflare.com/mcp`
+URL: `https://docs.mcp.cloudflare.com/mcp`
 
 Get up-to-date reference information on Cloudflare services.
 
-**Use Cases:**
+**Use cases:**
 - Look up API documentation
 - Find configuration examples
 - Get best practices
@@ -66,11 +66,11 @@ Get up-to-date reference information on Cloudflare services.
 **No authentication required** - Public documentation access
 
 ### 4. Browser Rendering Server (`cloudflare-browser`)
-**URL**: `https://browser.mcp.cloudflare.com/mcp`
+URL: `https://browser.mcp.cloudflare.com/mcp`
 
 Fetch web pages, convert them to markdown, and take screenshots.
 
-**Use Cases:**
+**Use cases:**
 - Web scraping for testing
 - Screenshot generation
 - Page content extraction

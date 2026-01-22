@@ -1,5 +1,11 @@
 # [EPIC] EP-025: Finby Payment Integration for MVP
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Full Finby payment integration for the MVP web app, enabling users to purchase subscriptions and credits through Finby payment gateway. This epic implements the same payment infrastructure used in the funnel app, adapted for the MVP product context.

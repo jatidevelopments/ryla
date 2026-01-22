@@ -6,28 +6,21 @@ alwaysApply: false
 
 # Mobile UX Best Practices
 
-## Context
-
-- RYLA follows mobile-first design principles (MVP constraint)
-- All features must work on mobile devices (< 768px viewport)
-- Touch-first interactions with proper target sizes
-- Performance optimized for mobile networks (3G/4G)
-- See `docs/technical/mobile/MOBILE-RESPONSIVENESS-PLAN.md` for full strategy
-- See `docs/process/MOBILE-RESPONSIVENESS-PROCESS.md` for testing methodology
+RYLA follows mobile-first design principles (MVP constraint). All features must work on mobile devices (< 768px viewport). Touch-first interactions with proper target sizes. Performance optimized for mobile networks (3G/4G). See `docs/technical/mobile/MOBILE-RESPONSIVENESS-PLAN.md` for full strategy. See `docs/process/MOBILE-RESPONSIVENESS-PROCESS.md` for testing methodology.
 
 ## Requirements
 
 ### Touch Targets
 
-- **Minimum**: 44x44px (Apple HIG, Material Design)
-- **Preferred**: 48x48px for primary actions
-- **Spacing**: 8px minimum between interactive elements
-- **Critical buttons** (Submit, Save, Delete) must always be ≥ 44px
-- **Acceptable threshold**: ≤ 5 small touch targets for non-critical elements (icons, links)
+- Minimum: 44x44px (Apple HIG, Material Design)
+- Preferred: 48x48px for primary actions
+- Spacing: 8px minimum between interactive elements
+- Critical buttons (Submit, Save, Delete) must always be ≥ 44px
+- Acceptable threshold: ≤ 5 small touch targets for non-critical elements (icons, links)
 
 ### Text Sizes
 
-- **Minimum**: 14px for all text
+- Minimum: 14px for all text
 - **Recommended**: 16px for body text (prevents iOS zoom on input focus)
 - **Headings**: Responsive sizes (`text-2xl md:text-3xl lg:text-4xl`)
 - **Acceptable threshold**: ≤ 10 small text elements for labels/metadata only

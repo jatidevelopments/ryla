@@ -1,5 +1,11 @@
 # [EPIC] EP-006: Landing Page
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Marketing landing page that converts visitors into wizard users. Part of the **Funnel/Landing workstream** (separate from MVP product).

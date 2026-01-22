@@ -10,3 +10,7 @@ export { notificationsRouter } from './notifications.router';
 export { bugReportRouter } from './bug-report.router';
 export { galleryFavoritesRouter } from './gallery-favorites.router';
 export { templatesRouter } from './templates.router';
+export { templateSetsRouter } from './template-sets.router';
+export { templateCategoriesRouter } from './template-categories.router';
+export { templateTagsRouter } from './template-tags.router';
+export { templateLikesRouter } from './template-likes.router';

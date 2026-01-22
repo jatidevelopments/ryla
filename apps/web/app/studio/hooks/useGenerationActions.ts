@@ -64,7 +64,7 @@ export function useGenerationActions({
         ? (settings.aspectRatio as '1:1' | '9:16' | '2:3')
         : DEFAULT_ASPECT_RATIO;
 
-      const qualityMode = settings.quality === '1.5k' ? 'draft' : 'hq';
+      // qualityMode removed - EP-045
 
       try {
         // If NSFW is enabled and no outfit is selected, pass empty string so backend can handle it as "naked"
@@ -83,7 +83,7 @@ export function useGenerationActions({
           poseId: settings.poseId || undefined,
           lighting: settings.lightingId || undefined,
           aspectRatio,
-          qualityMode,
+          // qualityMode removed - EP-045
           count: Math.max(1, Math.min(10, settings.batchSize)),
           nsfw: settings.nsfw ?? false,
           promptEnhance: settings.promptEnhance ?? true,
@@ -173,7 +173,7 @@ export function useGenerationActions({
         ? image.enhancedPrompt.replace(image.originalPrompt || '', '').trim()
         : image.prompt || undefined;
 
-      const qualityMode = 'hq'; // Default
+      // qualityMode removed - EP-045
 
       try {
         // Parse outfit - could be string or JSON
@@ -198,7 +198,7 @@ export function useGenerationActions({
           outfit,
           poseId: image.poseId,
           aspectRatio: image.aspectRatio,
-          qualityMode,
+          // qualityMode removed - EP-045
           count: 1,
           nsfw: image.nsfw ?? false,
           promptEnhance: image.promptEnhance ?? true,

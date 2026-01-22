@@ -76,3 +76,19 @@ export const CHARACTER_IMAGE_REGENERATE_THROTTLE = {
   limit: 25, // 25 requests per minute
 };
 
+
+/**
+ * Throttle settings for forgot password requests.
+ * Multi-tiered rate limiting to prevent abuse and email enumeration.
+ * 3 requests per 15 minutes, 5 requests per hour.
+ */
+export const FORGOT_PASSWORD_THROTTLE = [
+  {
+    ttl: 900000, // 15 minutes
+    limit: 3, // 3 requests per 15 minutes
+  },
+  {
+    ttl: 3600000, // 1 hour
+    limit: 5, // 5 requests per hour
+  },
+];

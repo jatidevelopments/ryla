@@ -1,5 +1,11 @@
 # [EPIC] EP-019: Report a Bug
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 Add a "Report a Bug" feature accessible from the bottom navigation that allows users to report issues with a modal interface. The feature automatically captures console logs and a screenshot (without the modal visible) to provide comprehensive context for debugging.

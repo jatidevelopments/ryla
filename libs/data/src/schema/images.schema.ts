@@ -15,7 +15,6 @@ import { users } from './users.schema';
 import {
   aspectRatioEnum,
   environmentPresetEnum,
-  qualityModeEnum,
   scenePresetEnum,
 } from './posts.schema';
 
@@ -71,7 +70,7 @@ export const images = pgTable(
     modelId: text('model_id'), // AI model used (e.g., "ryla-soul", "fal-ai/flux/schnell")
     objects: jsonb('objects').$type<Array<{ id: string; imageUrl?: string; thumbnailUrl?: string; name?: string }>>(), // Objects for composition (up to 3)
     aspectRatio: aspectRatioEnum('aspect_ratio'),
-    qualityMode: qualityModeEnum('quality_mode'),
+    // qualityMode removed - see EP-045
     nsfw: boolean('nsfw').default(false),
 
     // User actions (MVP)

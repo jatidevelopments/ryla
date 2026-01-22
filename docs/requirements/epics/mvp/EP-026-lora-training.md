@@ -1,5 +1,11 @@
 # [EPIC] EP-026: LoRA Training for Character Consistency
 
+**Status**: Proposed
+**Phase**: P2
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 > **Initiative**: [IN-006: LoRA Character Consistency System](../../../initiatives/IN-006-lora-character-consistency.md)  
 > **Implementation Plan**: [EP-026 Implementation Plan](./EP-026-lora-training/IMPLEMENTATION-PLAN.md)
 

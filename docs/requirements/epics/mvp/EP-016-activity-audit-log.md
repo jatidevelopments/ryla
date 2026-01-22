@@ -1,5 +1,11 @@
 # [EPIC] EP-016: Generation Activity + Credit Audit Log
 
+**Status**: Completed
+**Phase**: P10
+**Created**: 2026-01-21
+**Last Updated**: 2026-01-21
+
+
 ## Overview
 
 A unified, user-facing activity log that answers:

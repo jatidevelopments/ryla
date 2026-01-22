@@ -9,7 +9,7 @@ import {
   useCurrentStep,
   useCanProceed,
 } from '@ryla/business';
-import { cn } from '@ryla/ui';
+import { cn, SlideTransition } from '@ryla/ui';
 import { routes } from '@/lib/routes';
 
 interface WizardLayoutProps {
@@ -157,7 +157,11 @@ export function WizardLayout({ children }: WizardLayoutProps) {
       {/* Content */}
       <div className="flex-1 flex flex-col">
         <div className="mx-auto w-full max-w-2xl flex-1 flex flex-col px-4 py-6 md:py-8">
-          <div className="flex-1">{children}</div>
+          <div className="flex-1">
+            <SlideTransition direction="left" trigger={step} duration={300}>
+              {children}
+            </SlideTransition>
+          </div>
 
           {/* Continue Button - flows at the bottom of content */}
           {/* Hide on last step since step-finalize has its own "Create Character" button */}
