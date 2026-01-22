@@ -369,18 +369,18 @@ jobs:
       group: deploy-api-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true  # Pull Git LFS files (images are stored in LFS)
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Git LFS
+      - name: Install Git LFS (before checkout)
         run: |
           sudo apt-get update
           sudo apt-get install -y git-lfs
           git lfs install
 
-      - name: Pull Git LFS files
+      - uses: actions/checkout@v4
+        with:
+          lfs: true  # Pull Git LFS files (images are stored in LFS)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Git LFS files (ensure all are downloaded)
         run: git lfs pull
 
       - uses: actions/setup-node@v4
@@ -484,18 +484,18 @@ jobs:
       group: deploy-funnel-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true  # Pull Git LFS files (images are stored in LFS)
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Git LFS
+      - name: Install Git LFS (before checkout)
         run: |
           sudo apt-get update
           sudo apt-get install -y git-lfs
           git lfs install
 
-      - name: Pull Git LFS files
+      - uses: actions/checkout@v4
+        with:
+          lfs: true  # Pull Git LFS files (images are stored in LFS)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Git LFS files (ensure all are downloaded)
         run: git lfs pull
 
       - uses: actions/setup-node@v4
@@ -652,18 +652,18 @@ jobs:
       group: deploy-landing-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - uses: actions/checkout@v4
-        with:
-          lfs: true  # Pull Git LFS files (images are stored in LFS)
-          token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Git LFS
+      - name: Install Git LFS (before checkout)
         run: |
           sudo apt-get update
           sudo apt-get install -y git-lfs
           git lfs install
 
-      - name: Pull Git LFS files
+      - uses: actions/checkout@v4
+        with:
+          lfs: true  # Pull Git LFS files (images are stored in LFS)
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull Git LFS files (ensure all are downloaded)
         run: git lfs pull
 
       - uses: actions/setup-node@v4
