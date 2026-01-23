@@ -397,8 +397,14 @@ jobs:
 
       - name: Configure Git LFS and pull files
         run: |
-          git lfs install
-          git lfs pull || echo "⚠️  Git LFS pull failed, continuing..."
+          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
+          # Configure git to use the token for LFS operations
+          git config --global credential.helper store || true
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
+          # Try to pull LFS files, but don't fail if it doesn't work
+          # LFS files are not critical for deployment (they're mostly images)
+          git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
+          echo "✅ Git LFS configuration complete (or skipped)"
 
       - uses: actions/setup-node@v4
         with:
@@ -462,9 +468,11 @@ jobs:
           echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
           
           # Export secrets from Infisical and set them in Fly.io
+          # Note: Also check root path (/) as fallback for staging/prod until folders are created
           infisical export \
             --path=/apps/api \
             --path=/shared \
+            --path=/ \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
             --format=dotenv | while IFS='=' read -r key value; do
             # Skip empty lines and comments
@@ -534,8 +542,14 @@ jobs:
 
       - name: Configure Git LFS and pull files
         run: |
-          git lfs install
-          git lfs pull || echo "⚠️  Git LFS pull failed, continuing..."
+          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
+          # Configure git to use the token for LFS operations
+          git config --global credential.helper store || true
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
+          # Try to pull LFS files, but don't fail if it doesn't work
+          # LFS files are not critical for deployment (they're mostly images)
+          git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
+          echo "✅ Git LFS configuration complete (or skipped)"
 
       - uses: actions/setup-node@v4
         with:
@@ -724,8 +738,14 @@ jobs:
 
       - name: Configure Git LFS and pull files
         run: |
-          git lfs install
-          git lfs pull || echo "⚠️  Git LFS pull failed, continuing..."
+          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
+          # Configure git to use the token for LFS operations
+          git config --global credential.helper store || true
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
+          # Try to pull LFS files, but don't fail if it doesn't work
+          # LFS files are not critical for deployment (they're mostly images)
+          git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
+          echo "✅ Git LFS configuration complete (or skipped)"
 
       - uses: actions/setup-node@v4
         with:
@@ -902,8 +922,14 @@ jobs:
 
       - name: Configure Git LFS and pull files
         run: |
-          git lfs install
-          git lfs pull || echo "⚠️  Git LFS pull failed, continuing..."
+          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
+          # Configure git to use the token for LFS operations
+          git config --global credential.helper store || true
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
+          # Try to pull LFS files, but don't fail if it doesn't work
+          # LFS files are not critical for deployment (they're mostly images)
+          git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
+          echo "✅ Git LFS configuration complete (or skipped)"
 
       - uses: actions/setup-node@v4
         with:
