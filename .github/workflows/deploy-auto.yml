@@ -180,7 +180,10 @@ jobs:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: corepack enable
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
 
       - name: Install dependencies
         timeout-minutes: 15
@@ -444,7 +447,10 @@ jobs:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: corepack enable
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
 
       - name: Install dependencies
         timeout-minutes: 15
@@ -622,7 +628,10 @@ jobs:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: corepack enable
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
 
       - name: Install dependencies
         timeout-minutes: 15
@@ -851,7 +860,10 @@ jobs:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: corepack enable
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
 
       - name: Install dependencies
         timeout-minutes: 15
@@ -1068,7 +1080,10 @@ jobs:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: corepack enable
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
 
       - name: Install dependencies
         timeout-minutes: 15
