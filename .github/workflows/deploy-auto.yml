@@ -183,6 +183,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
+        timeout-minutes: 15
         run: |
           set +e  # Don't exit on error, we'll handle it manually
           
@@ -195,7 +196,10 @@ jobs:
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
-          pnpm config set network-timeout 120000 || true
+          pnpm config set network-timeout 180000 || true
+          pnpm config set fetch-retries 5 || true
+          pnpm config set fetch-retry-mintimeout 10000 || true
+          pnpm config set fetch-retry-maxtimeout 60000 || true
           
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
@@ -203,17 +207,21 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=120000
-          INSTALL_STATUS=$?
+          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
+            echo "Last 50 lines of pnpm install log:"
+            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
             echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=120000
-            INSTALL_STATUS=$?
+            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
+              echo "Last 50 lines of retry log:"
+              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -221,6 +229,8 @@ jobs:
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
               echo "Checking disk space..."
               df -h || echo "Cannot check disk space"
+              echo "Checking memory..."
+              free -h || echo "Cannot check memory"
               exit 1
             fi
           fi
@@ -437,6 +447,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
+        timeout-minutes: 15
         run: |
           set +e  # Don't exit on error, we'll handle it manually
           
@@ -449,7 +460,10 @@ jobs:
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
-          pnpm config set network-timeout 120000 || true
+          pnpm config set network-timeout 180000 || true
+          pnpm config set fetch-retries 5 || true
+          pnpm config set fetch-retry-mintimeout 10000 || true
+          pnpm config set fetch-retry-maxtimeout 60000 || true
           
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
@@ -457,17 +471,21 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=120000
-          INSTALL_STATUS=$?
+          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
+            echo "Last 50 lines of pnpm install log:"
+            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
             echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=120000
-            INSTALL_STATUS=$?
+            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
+              echo "Last 50 lines of retry log:"
+              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -475,6 +493,8 @@ jobs:
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
               echo "Checking disk space..."
               df -h || echo "Cannot check disk space"
+              echo "Checking memory..."
+              free -h || echo "Cannot check memory"
               exit 1
             fi
           fi
@@ -605,6 +625,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
+        timeout-minutes: 15
         run: |
           set +e  # Don't exit on error, we'll handle it manually
           
@@ -617,7 +638,10 @@ jobs:
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
-          pnpm config set network-timeout 120000 || true
+          pnpm config set network-timeout 180000 || true
+          pnpm config set fetch-retries 5 || true
+          pnpm config set fetch-retry-mintimeout 10000 || true
+          pnpm config set fetch-retry-maxtimeout 60000 || true
           
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
@@ -625,17 +649,21 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=120000
-          INSTALL_STATUS=$?
+          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
+            echo "Last 50 lines of pnpm install log:"
+            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
             echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=120000
-            INSTALL_STATUS=$?
+            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
+              echo "Last 50 lines of retry log:"
+              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -643,6 +671,8 @@ jobs:
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
               echo "Checking disk space..."
               df -h || echo "Cannot check disk space"
+              echo "Checking memory..."
+              free -h || echo "Cannot check memory"
               exit 1
             fi
           fi
@@ -824,6 +854,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
+        timeout-minutes: 15
         run: |
           set +e  # Don't exit on error, we'll handle it manually
           
@@ -836,7 +867,10 @@ jobs:
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
-          pnpm config set network-timeout 120000 || true
+          pnpm config set network-timeout 180000 || true
+          pnpm config set fetch-retries 5 || true
+          pnpm config set fetch-retry-mintimeout 10000 || true
+          pnpm config set fetch-retry-maxtimeout 60000 || true
           
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
@@ -844,17 +878,21 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=120000
-          INSTALL_STATUS=$?
+          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
+            echo "Last 50 lines of pnpm install log:"
+            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
             echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=120000
-            INSTALL_STATUS=$?
+            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
+              echo "Last 50 lines of retry log:"
+              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -862,6 +900,8 @@ jobs:
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
               echo "Checking disk space..."
               df -h || echo "Cannot check disk space"
+              echo "Checking memory..."
+              free -h || echo "Cannot check memory"
               exit 1
             fi
           fi
@@ -1031,6 +1071,7 @@ jobs:
         run: corepack enable
 
       - name: Install dependencies
+        timeout-minutes: 15
         run: |
           set +e  # Don't exit on error, we'll handle it manually
           
@@ -1043,7 +1084,10 @@ jobs:
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
-          pnpm config set network-timeout 120000 || true
+          pnpm config set network-timeout 180000 || true
+          pnpm config set fetch-retries 5 || true
+          pnpm config set fetch-retry-mintimeout 10000 || true
+          pnpm config set fetch-retry-maxtimeout 60000 || true
           
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
@@ -1051,17 +1095,21 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=120000
-          INSTALL_STATUS=$?
+          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
+            echo "Last 50 lines of pnpm install log:"
+            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
             echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=120000
-            INSTALL_STATUS=$?
+            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
+              echo "Last 50 lines of retry log:"
+              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -1069,6 +1117,8 @@ jobs:
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
               echo "Checking disk space..."
               df -h || echo "Cannot check disk space"
+              echo "Checking memory..."
+              free -h || echo "Cannot check memory"
               exit 1
             fi
           fi
