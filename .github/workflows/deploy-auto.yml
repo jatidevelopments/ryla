@@ -184,7 +184,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -e  # Exit on error (but we'll handle it)
+          set +e  # Don't exit on error, we'll handle it manually
           
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
@@ -203,16 +203,24 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed"
+          pnpm install --frozen-lockfile --network-timeout=120000
+          INSTALL_STATUS=$?
+          
+          if [ $INSTALL_STATUS -ne 0 ]; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
             echo "Trying without --frozen-lockfile..."
-            if ! pnpm install --network-timeout=120000 2>&1; then
-              echo "❌ pnpm install failed completely"
+            pnpm install --network-timeout=120000
+            INSTALL_STATUS=$?
+            
+            if [ $INSTALL_STATUS -ne 0 ]; then
+              echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
               echo "Checking if lockfile exists..."
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
+              echo "Checking disk space..."
+              df -h || echo "Cannot check disk space"
               exit 1
             fi
           fi
@@ -430,7 +438,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -e  # Exit on error (but we'll handle it)
+          set +e  # Don't exit on error, we'll handle it manually
           
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
@@ -449,16 +457,24 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed"
+          pnpm install --frozen-lockfile --network-timeout=120000
+          INSTALL_STATUS=$?
+          
+          if [ $INSTALL_STATUS -ne 0 ]; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
             echo "Trying without --frozen-lockfile..."
-            if ! pnpm install --network-timeout=120000 2>&1; then
-              echo "❌ pnpm install failed completely"
+            pnpm install --network-timeout=120000
+            INSTALL_STATUS=$?
+            
+            if [ $INSTALL_STATUS -ne 0 ]; then
+              echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
               echo "Checking if lockfile exists..."
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
+              echo "Checking disk space..."
+              df -h || echo "Cannot check disk space"
               exit 1
             fi
           fi
@@ -590,7 +606,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -e  # Exit on error (but we'll handle it)
+          set +e  # Don't exit on error, we'll handle it manually
           
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
@@ -609,16 +625,24 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed"
+          pnpm install --frozen-lockfile --network-timeout=120000
+          INSTALL_STATUS=$?
+          
+          if [ $INSTALL_STATUS -ne 0 ]; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
             echo "Trying without --frozen-lockfile..."
-            if ! pnpm install --network-timeout=120000 2>&1; then
-              echo "❌ pnpm install failed completely"
+            pnpm install --network-timeout=120000
+            INSTALL_STATUS=$?
+            
+            if [ $INSTALL_STATUS -ne 0 ]; then
+              echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
               echo "Checking if lockfile exists..."
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
+              echo "Checking disk space..."
+              df -h || echo "Cannot check disk space"
               exit 1
             fi
           fi
@@ -801,7 +825,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -e  # Exit on error (but we'll handle it)
+          set +e  # Don't exit on error, we'll handle it manually
           
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
@@ -820,16 +844,24 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed"
+          pnpm install --frozen-lockfile --network-timeout=120000
+          INSTALL_STATUS=$?
+          
+          if [ $INSTALL_STATUS -ne 0 ]; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
             echo "Trying without --frozen-lockfile..."
-            if ! pnpm install --network-timeout=120000 2>&1; then
-              echo "❌ pnpm install failed completely"
+            pnpm install --network-timeout=120000
+            INSTALL_STATUS=$?
+            
+            if [ $INSTALL_STATUS -ne 0 ]; then
+              echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
               echo "Checking if lockfile exists..."
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
+              echo "Checking disk space..."
+              df -h || echo "Cannot check disk space"
               exit 1
             fi
           fi
@@ -1000,7 +1032,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          set -e  # Exit on error (but we'll handle it)
+          set +e  # Don't exit on error, we'll handle it manually
           
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
@@ -1019,16 +1051,24 @@ jobs:
           
           # Try install with network timeout and better error handling
           echo "Running pnpm install with --frozen-lockfile..."
-          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed"
+          pnpm install --frozen-lockfile --network-timeout=120000
+          INSTALL_STATUS=$?
+          
+          if [ $INSTALL_STATUS -ne 0 ]; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
             echo "Trying without --frozen-lockfile..."
-            if ! pnpm install --network-timeout=120000 2>&1; then
-              echo "❌ pnpm install failed completely"
+            pnpm install --network-timeout=120000
+            INSTALL_STATUS=$?
+            
+            if [ $INSTALL_STATUS -ne 0 ]; then
+              echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
               echo "Checking if lockfile exists..."
               ls -la pnpm-lock.yaml || echo "Lockfile missing"
+              echo "Checking disk space..."
+              df -h || echo "Cannot check disk space"
               exit 1
             fi
           fi
