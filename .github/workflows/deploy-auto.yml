@@ -184,23 +184,38 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e  # Exit on error (but we'll handle it)
+          
           echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version)"
-          echo "Node version: $(node --version)"
+          echo "pnpm version: $(pnpm --version || echo 'not found')"
+          echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
+          echo "Checking lockfile..."
+          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
+          pnpm config set network-timeout 120000 || true
           
-          # Try install with network timeout
-          echo "Running pnpm install..."
-          pnpm install --frozen-lockfile --network-timeout=120000 || {
-            echo "⚠️  pnpm install with --frozen-lockfile failed, trying without..."
-            pnpm install --network-timeout=120000 || {
-              echo "❌ pnpm install failed"
+          # Clear pnpm store cache if it exists (might be corrupted)
+          echo "Clearing pnpm store cache..."
+          rm -rf ~/.pnpm-store || true
+          
+          # Try install with network timeout and better error handling
+          echo "Running pnpm install with --frozen-lockfile..."
+          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed"
+            echo "Trying without --frozen-lockfile..."
+            if ! pnpm install --network-timeout=120000 2>&1; then
+              echo "❌ pnpm install failed completely"
+              echo "Checking pnpm and node versions..."
+              pnpm --version || echo "pnpm not available"
+              node --version || echo "node not available"
+              echo "Checking if lockfile exists..."
+              ls -la pnpm-lock.yaml || echo "Lockfile missing"
               exit 1
-            }
-          }
+            fi
+          fi
           
           echo "✅ Dependencies installed successfully"
 
@@ -415,23 +430,38 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e  # Exit on error (but we'll handle it)
+          
           echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version)"
-          echo "Node version: $(node --version)"
+          echo "pnpm version: $(pnpm --version || echo 'not found')"
+          echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
+          echo "Checking lockfile..."
+          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
+          pnpm config set network-timeout 120000 || true
           
-          # Try install with network timeout
-          echo "Running pnpm install..."
-          pnpm install --frozen-lockfile --network-timeout=120000 || {
-            echo "⚠️  pnpm install with --frozen-lockfile failed, trying without..."
-            pnpm install --network-timeout=120000 || {
-              echo "❌ pnpm install failed"
+          # Clear pnpm store cache if it exists (might be corrupted)
+          echo "Clearing pnpm store cache..."
+          rm -rf ~/.pnpm-store || true
+          
+          # Try install with network timeout and better error handling
+          echo "Running pnpm install with --frozen-lockfile..."
+          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed"
+            echo "Trying without --frozen-lockfile..."
+            if ! pnpm install --network-timeout=120000 2>&1; then
+              echo "❌ pnpm install failed completely"
+              echo "Checking pnpm and node versions..."
+              pnpm --version || echo "pnpm not available"
+              node --version || echo "node not available"
+              echo "Checking if lockfile exists..."
+              ls -la pnpm-lock.yaml || echo "Lockfile missing"
               exit 1
-            }
-          }
+            fi
+          fi
           
           echo "✅ Dependencies installed successfully"
 
@@ -560,23 +590,38 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e  # Exit on error (but we'll handle it)
+          
           echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version)"
-          echo "Node version: $(node --version)"
+          echo "pnpm version: $(pnpm --version || echo 'not found')"
+          echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
+          echo "Checking lockfile..."
+          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
+          pnpm config set network-timeout 120000 || true
           
-          # Try install with network timeout
-          echo "Running pnpm install..."
-          pnpm install --frozen-lockfile --network-timeout=120000 || {
-            echo "⚠️  pnpm install with --frozen-lockfile failed, trying without..."
-            pnpm install --network-timeout=120000 || {
-              echo "❌ pnpm install failed"
+          # Clear pnpm store cache if it exists (might be corrupted)
+          echo "Clearing pnpm store cache..."
+          rm -rf ~/.pnpm-store || true
+          
+          # Try install with network timeout and better error handling
+          echo "Running pnpm install with --frozen-lockfile..."
+          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed"
+            echo "Trying without --frozen-lockfile..."
+            if ! pnpm install --network-timeout=120000 2>&1; then
+              echo "❌ pnpm install failed completely"
+              echo "Checking pnpm and node versions..."
+              pnpm --version || echo "pnpm not available"
+              node --version || echo "node not available"
+              echo "Checking if lockfile exists..."
+              ls -la pnpm-lock.yaml || echo "Lockfile missing"
               exit 1
-            }
-          }
+            fi
+          fi
           
           echo "✅ Dependencies installed successfully"
 
@@ -756,23 +801,38 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e  # Exit on error (but we'll handle it)
+          
           echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version)"
-          echo "Node version: $(node --version)"
+          echo "pnpm version: $(pnpm --version || echo 'not found')"
+          echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
+          echo "Checking lockfile..."
+          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
+          pnpm config set network-timeout 120000 || true
           
-          # Try install with network timeout
-          echo "Running pnpm install..."
-          pnpm install --frozen-lockfile --network-timeout=120000 || {
-            echo "⚠️  pnpm install with --frozen-lockfile failed, trying without..."
-            pnpm install --network-timeout=120000 || {
-              echo "❌ pnpm install failed"
+          # Clear pnpm store cache if it exists (might be corrupted)
+          echo "Clearing pnpm store cache..."
+          rm -rf ~/.pnpm-store || true
+          
+          # Try install with network timeout and better error handling
+          echo "Running pnpm install with --frozen-lockfile..."
+          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed"
+            echo "Trying without --frozen-lockfile..."
+            if ! pnpm install --network-timeout=120000 2>&1; then
+              echo "❌ pnpm install failed completely"
+              echo "Checking pnpm and node versions..."
+              pnpm --version || echo "pnpm not available"
+              node --version || echo "node not available"
+              echo "Checking if lockfile exists..."
+              ls -la pnpm-lock.yaml || echo "Lockfile missing"
               exit 1
-            }
-          }
+            fi
+          fi
           
           echo "✅ Dependencies installed successfully"
 
@@ -940,23 +1000,38 @@ jobs:
 
       - name: Install dependencies
         run: |
+          set -e  # Exit on error (but we'll handle it)
+          
           echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version)"
-          echo "Node version: $(node --version)"
+          echo "pnpm version: $(pnpm --version || echo 'not found')"
+          echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
+          echo "Checking lockfile..."
+          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
           
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
+          pnpm config set network-timeout 120000 || true
           
-          # Try install with network timeout
-          echo "Running pnpm install..."
-          pnpm install --frozen-lockfile --network-timeout=120000 || {
-            echo "⚠️  pnpm install with --frozen-lockfile failed, trying without..."
-            pnpm install --network-timeout=120000 || {
-              echo "❌ pnpm install failed"
+          # Clear pnpm store cache if it exists (might be corrupted)
+          echo "Clearing pnpm store cache..."
+          rm -rf ~/.pnpm-store || true
+          
+          # Try install with network timeout and better error handling
+          echo "Running pnpm install with --frozen-lockfile..."
+          if ! pnpm install --frozen-lockfile --network-timeout=120000 2>&1; then
+            echo "⚠️  pnpm install with --frozen-lockfile failed"
+            echo "Trying without --frozen-lockfile..."
+            if ! pnpm install --network-timeout=120000 2>&1; then
+              echo "❌ pnpm install failed completely"
+              echo "Checking pnpm and node versions..."
+              pnpm --version || echo "pnpm not available"
+              node --version || echo "node not available"
+              echo "Checking if lockfile exists..."
+              ls -la pnpm-lock.yaml || echo "Lockfile missing"
               exit 1
-            }
-          }
+            fi
+          fi
           
           echo "✅ Dependencies installed successfully"
 
