@@ -208,23 +208,23 @@ jobs:
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
           
-          # Try install with network timeout and better error handling
-          echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          # Try install - start without --frozen-lockfile for better compatibility
+          echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
+          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
-            echo "Last 50 lines of pnpm install log:"
-            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
-            echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
+            echo "Last 100 lines of pnpm install log:"
+            tail -100 /tmp/pnpm-install.log || echo "Could not read log"
+            echo "Trying with --frozen-lockfile..."
+            pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-frozen.log
             INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
-              echo "Last 50 lines of retry log:"
-              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
+              echo "Last 100 lines of frozen lockfile log:"
+              tail -100 /tmp/pnpm-install-frozen.log || echo "Could not read frozen log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -234,6 +234,8 @@ jobs:
               df -h || echo "Cannot check disk space"
               echo "Checking memory..."
               free -h || echo "Cannot check memory"
+              echo "Checking network connectivity..."
+              curl -I https://registry.npmjs.org/ || echo "Cannot reach npm registry"
               exit 1
             fi
           fi
@@ -475,23 +477,23 @@ jobs:
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
           
-          # Try install with network timeout and better error handling
-          echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          # Try install - start without --frozen-lockfile for better compatibility
+          echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
+          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
-            echo "Last 50 lines of pnpm install log:"
-            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
-            echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
+            echo "Last 100 lines of pnpm install log:"
+            tail -100 /tmp/pnpm-install.log || echo "Could not read log"
+            echo "Trying with --frozen-lockfile..."
+            pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-frozen.log
             INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
-              echo "Last 50 lines of retry log:"
-              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
+              echo "Last 100 lines of frozen lockfile log:"
+              tail -100 /tmp/pnpm-install-frozen.log || echo "Could not read frozen log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -501,6 +503,8 @@ jobs:
               df -h || echo "Cannot check disk space"
               echo "Checking memory..."
               free -h || echo "Cannot check memory"
+              echo "Checking network connectivity..."
+              curl -I https://registry.npmjs.org/ || echo "Cannot reach npm registry"
               exit 1
             fi
           fi
@@ -656,23 +660,23 @@ jobs:
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
           
-          # Try install with network timeout and better error handling
-          echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          # Try install - start without --frozen-lockfile for better compatibility
+          echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
+          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
-            echo "Last 50 lines of pnpm install log:"
-            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
-            echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
+            echo "Last 100 lines of pnpm install log:"
+            tail -100 /tmp/pnpm-install.log || echo "Could not read log"
+            echo "Trying with --frozen-lockfile..."
+            pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-frozen.log
             INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
-              echo "Last 50 lines of retry log:"
-              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
+              echo "Last 100 lines of frozen lockfile log:"
+              tail -100 /tmp/pnpm-install-frozen.log || echo "Could not read frozen log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -682,6 +686,8 @@ jobs:
               df -h || echo "Cannot check disk space"
               echo "Checking memory..."
               free -h || echo "Cannot check memory"
+              echo "Checking network connectivity..."
+              curl -I https://registry.npmjs.org/ || echo "Cannot reach npm registry"
               exit 1
             fi
           fi
@@ -888,23 +894,23 @@ jobs:
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
           
-          # Try install with network timeout and better error handling
-          echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          # Try install - start without --frozen-lockfile for better compatibility
+          echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
+          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
-            echo "Last 50 lines of pnpm install log:"
-            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
-            echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
+            echo "Last 100 lines of pnpm install log:"
+            tail -100 /tmp/pnpm-install.log || echo "Could not read log"
+            echo "Trying with --frozen-lockfile..."
+            pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-frozen.log
             INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
-              echo "Last 50 lines of retry log:"
-              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
+              echo "Last 100 lines of frozen lockfile log:"
+              tail -100 /tmp/pnpm-install-frozen.log || echo "Could not read frozen log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -914,6 +920,8 @@ jobs:
               df -h || echo "Cannot check disk space"
               echo "Checking memory..."
               free -h || echo "Cannot check memory"
+              echo "Checking network connectivity..."
+              curl -I https://registry.npmjs.org/ || echo "Cannot reach npm registry"
               exit 1
             fi
           fi
@@ -1108,23 +1116,23 @@ jobs:
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
           
-          # Try install with network timeout and better error handling
-          echo "Running pnpm install with --frozen-lockfile..."
-          pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          # Try install - start without --frozen-lockfile for better compatibility
+          echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
+          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
           
           if [ $INSTALL_STATUS -ne 0 ]; then
-            echo "⚠️  pnpm install with --frozen-lockfile failed (exit code: $INSTALL_STATUS)"
-            echo "Last 50 lines of pnpm install log:"
-            tail -50 /tmp/pnpm-install.log || echo "Could not read log"
-            echo "Trying without --frozen-lockfile..."
-            pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-retry.log
+            echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
+            echo "Last 100 lines of pnpm install log:"
+            tail -100 /tmp/pnpm-install.log || echo "Could not read log"
+            echo "Trying with --frozen-lockfile..."
+            pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-frozen.log
             INSTALL_STATUS=${PIPESTATUS[0]}
             
             if [ $INSTALL_STATUS -ne 0 ]; then
               echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
-              echo "Last 50 lines of retry log:"
-              tail -50 /tmp/pnpm-install-retry.log || echo "Could not read retry log"
+              echo "Last 100 lines of frozen lockfile log:"
+              tail -100 /tmp/pnpm-install-frozen.log || echo "Could not read frozen log"
               echo "Checking pnpm and node versions..."
               pnpm --version || echo "pnpm not available"
               node --version || echo "node not available"
@@ -1134,6 +1142,8 @@ jobs:
               df -h || echo "Cannot check disk space"
               echo "Checking memory..."
               free -h || echo "Cannot check memory"
+              echo "Checking network connectivity..."
+              curl -I https://registry.npmjs.org/ || echo "Cannot reach npm registry"
               exit 1
             fi
           fi
