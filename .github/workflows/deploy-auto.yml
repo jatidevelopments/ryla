@@ -715,13 +715,29 @@ jobs:
         run: |
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
           
+          # Verify Infisical CLI is installed
+          if ! command -v infisical &> /dev/null; then
+            echo "❌ Infisical CLI not found"
+            exit 1
+          fi
+          
+          echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
+          
+          # Check if INFISICAL_TOKEN is set
+          if [ -z "$INFISICAL_TOKEN" ]; then
+            echo "❌ INFISICAL_TOKEN is not set"
+            exit 1
+          fi
+          
           # Export secrets to temporary file
           if ! infisical export \
             --path=/apps/funnel \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env; then
+            --format=dotenv > /tmp/build-args.env 2>&1; then
             echo "❌ Failed to export secrets from Infisical"
+            echo "Error output:"
+            cat /tmp/build-args.env || echo "Could not read error output"
             exit 1
           fi
           
@@ -951,13 +967,29 @@ jobs:
         run: |
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
           
+          # Verify Infisical CLI is installed
+          if ! command -v infisical &> /dev/null; then
+            echo "❌ Infisical CLI not found"
+            exit 1
+          fi
+          
+          echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
+          
+          # Check if INFISICAL_TOKEN is set
+          if [ -z "$INFISICAL_TOKEN" ]; then
+            echo "❌ INFISICAL_TOKEN is not set"
+            exit 1
+          fi
+          
           # Export secrets to temporary file
           if ! infisical export \
             --path=/apps/landing \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env; then
+            --format=dotenv > /tmp/build-args.env 2>&1; then
             echo "❌ Failed to export secrets from Infisical"
+            echo "Error output:"
+            cat /tmp/build-args.env || echo "Could not read error output"
             exit 1
           fi
           
@@ -1175,13 +1207,29 @@ jobs:
         run: |
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
           
+          # Verify Infisical CLI is installed
+          if ! command -v infisical &> /dev/null; then
+            echo "❌ Infisical CLI not found"
+            exit 1
+          fi
+          
+          echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
+          
+          # Check if INFISICAL_TOKEN is set
+          if [ -z "$INFISICAL_TOKEN" ]; then
+            echo "❌ INFISICAL_TOKEN is not set"
+            exit 1
+          fi
+          
           # Export secrets to temporary file
           if ! infisical export \
             --path=/apps/admin \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env; then
+            --format=dotenv > /tmp/build-args.env 2>&1; then
             echo "❌ Failed to export secrets from Infisical"
+            echo "Error output:"
+            cat /tmp/build-args.env || echo "Could not read error output"
             exit 1
           fi
           
