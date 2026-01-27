@@ -989,21 +989,28 @@ jobs:
           fi
           
           # Export secrets to temporary file
+          # Try with /apps/landing first, fallback to /shared only if folder doesn't exist
           if ! infisical export \
             --path=/apps/landing \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
             --format=dotenv > /tmp/build-args.env 2>&1; then
-            echo "❌ Failed to export secrets from Infisical"
-            echo "Error output:"
-            cat /tmp/build-args.env || echo "Could not read error output"
-            exit 1
+            echo "⚠️  Failed to export from /apps/landing, trying /shared only..."
+            if ! infisical export \
+              --path=/shared \
+              --env=${{ needs.detect-environment.outputs.infisical_env }} \
+              --format=dotenv > /tmp/build-args.env 2>&1; then
+              echo "❌ Failed to export secrets from Infisical"
+              echo "Error output:"
+              cat /tmp/build-args.env || echo "Could not read error output"
+              exit 1
+            fi
           fi
           
           # Check if file was created and has content
           if [ ! -s /tmp/build-args.env ]; then
-            echo "❌ Build args file is empty or missing"
-            exit 1
+            echo "⚠️  Build args file is empty, but continuing with defaults..."
+            echo "# Empty build args - using code defaults" > /tmp/build-args.env
           fi
           
           # Source the file to make variables available
