@@ -2,7 +2,7 @@ import axios from "axios";
 import { getAuthStore } from "@/store/states/auth";
 
 const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "https://devapi.mydreamcompanion.com",
+    baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || "https://end.ryla.ai",
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",

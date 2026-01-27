@@ -148,7 +148,11 @@ Secrets for the payment funnel (`apps/funnel`).
 
 | Secret Name | Description | Example |
 |-------------|-------------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Funnel URL | `http://localhost:4300` |
+| `NEXT_PUBLIC_SITE_URL` | Funnel URL | `https://goviral.ryla.ai` |
+| `NEXT_PUBLIC_API_BASE_URL` | Backend API URL | `https://end.ryla.ai` |
+| `NEXT_PUBLIC_CDN_URL` | CDN URL for assets | `https://rylaai.b-cdn.net` |
+| `NEXT_PUBLIC_DEBUG_CDN` | Debug CDN flag | `false` |
+| `NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT` | Payment redirect path | `/` |
 | `FINBY_API_KEY` | Finby API key | `xxx` |
 | `FINBY_MERCHANT_ID` | Finby merchant ID | `xxx` |
 | `FINBY_WEBHOOK_SECRET` | Finby webhook secret | `xxx` |
