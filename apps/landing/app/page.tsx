@@ -14,6 +14,7 @@ import { FAQStructuredData } from '@/components/seo/FAQStructuredData';
 import { PricingStructuredData } from '@/components/seo/PricingStructuredData';
 import { faqs } from '@/data/faqs';
 import { withCdn } from '@/lib/cdn';
+import { ScrollToTop } from '@/components/ScrollToTop';
 
 /**
  * RYLA Landing Page (V4 Minimal Copy)
@@ -24,6 +25,7 @@ import { withCdn } from '@/lib/cdn';
 export default function LandingPage() {
   return (
     <>
+      <ScrollToTop />
       <FAQStructuredData faqs={faqs} />
       <PricingStructuredData />
       <main className="min-h-screen bg-[var(--bg-primary)]">
