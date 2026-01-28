@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -86,12 +86,18 @@ export function Navigation() {
             </a>
           </div>
 
-          {/* Log in link */}
+          {/* Join Waitlist link */}
           <a
-            href="https://app.ryla.ai"
+            href="#waitlist"
             className="text-sm font-medium text-white/90 hover:text-white transition-colors whitespace-nowrap"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .getElementById('waitlist')
+                ?.scrollIntoView({ behavior: 'smooth' });
+            }}
           >
-            Log in
+            Join Waitlist
           </a>
         </div>
       </nav>

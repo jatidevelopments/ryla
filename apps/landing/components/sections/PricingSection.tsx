@@ -2,7 +2,6 @@
 
 import { Section, SectionHeader, PricingCard } from '@/components/ryla-ui';
 import { FadeInUp } from '@/components/animations';
-import { FUNNEL_URL } from '@/lib/constants';
 
 interface PricingTier {
   name: string;
@@ -81,7 +80,12 @@ export function PricingSection() {
               features={tier.features}
               highlighted={tier.highlighted}
               ctaText={tier.cta}
-              ctaHref={FUNNEL_URL}
+              ctaHref="#waitlist"
+              onCtaClick={() => {
+                document
+                  .getElementById('waitlist')
+                  ?.scrollIntoView({ behavior: 'smooth' });
+              }}
             />
           </FadeInUp>
         ))}

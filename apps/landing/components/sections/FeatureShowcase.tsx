@@ -13,12 +13,12 @@ import {
   VideoIcon,
   MicIcon,
   GraduationCapIcon,
-  FlameIcon,
   ShirtIcon,
   InstagramIcon,
 } from 'lucide-react';
 import Marquee from '@/components/ui/marquee';
 import { cn } from '@/lib/utils';
+import { withCdn } from '@/lib/cdn';
 
 // Sample generated images for the marquee
 const generatedImages = [
@@ -127,9 +127,10 @@ const features = [
     background: (
       <div className="absolute inset-0 [mask-image:linear-gradient(to_top,transparent_25%,#000_100%)]">
         <img
-          src="/images/features/perfect-hands.webp"
+          src={withCdn('/images/features/perfect-hands.webp')}
           alt="Perfect hands"
           className="w-full h-full object-cover opacity-60"
+          loading="lazy"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/60 to-transparent" />
       </div>
@@ -152,7 +153,10 @@ const features = [
           playsInline
           className="w-full h-full object-cover opacity-70"
         >
-          <source src="/video/character-consistency.mp4" type="video/mp4" />
+          <source
+            src={withCdn('/video/character-consistency.mp4')}
+            type="video/mp4"
+          />
         </video>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/40 to-transparent" />
       </div>
@@ -176,7 +180,10 @@ const features = [
           playsInline
           className="w-full h-full object-cover opacity-70"
         >
-          <source src="/video/outfit-customization.mp4" type="video/mp4" />
+          <source
+            src={withCdn('/video/outfit-customization.mp4')}
+            type="video/mp4"
+          />
         </video>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/40 to-transparent" />
       </div>
@@ -200,7 +207,7 @@ const features = [
           playsInline
           className="w-full h-full object-cover opacity-70"
         >
-          <source src="/video/viral-scenes.mp4" type="video/mp4" />
+          <source src={withCdn('/video/viral-scenes.mp4')} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/40 to-transparent" />
       </div>
@@ -223,7 +230,7 @@ const features = [
           playsInline
           className="w-full h-full object-cover opacity-70"
         >
-          <source src="/video/lipsync.mp4" type="video/mp4" />
+          <source src={withCdn('/video/lipsync.mp4')} type="video/mp4" />
         </video>
         <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d12] via-[#0d0d12]/40 to-transparent" />
       </div>

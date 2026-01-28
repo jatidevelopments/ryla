@@ -23,10 +23,13 @@ const nextConfig = {
     '@ryla/business',
     '@ryla/analytics',
   ],
-  // Standalone output for Docker deployment
-  output: 'standalone',
-  // Fix standalone output path structure for monorepo
-  outputFileTracingRoot: path.join(__dirname, '../../'),
+  // Output mode: 'standalone' for Fly.io, 'export' for Cloudflare Pages
+  // Set CLOUDFLARE_PAGES=true when building for Cloudflare Pages
+  output: process.env.CLOUDFLARE_PAGES === 'true' ? 'export' : 'standalone',
+  // Fix standalone output path structure for monorepo (only needed for standalone)
+  ...(process.env.CLOUDFLARE_PAGES !== 'true' && {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+  }),
   // CDN asset prefix - only in production when CDN is enabled
   assetPrefix: shouldUseCdn ? CDN_URL : undefined,
   // Optimize images

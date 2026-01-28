@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "@/lib/utils";
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 /**
  * RylaCard Component
- * 
+ *
  * Base card component with dark background and subtle border.
  * Includes hover effects with purple glow.
  */
@@ -20,17 +20,17 @@ const RylaCard = React.forwardRef<HTMLDivElement, RylaCardProps>(
       <div
         ref={ref}
         className={cn(
-          "relative rounded-2xl",
-          "bg-[var(--bg-elevated)]",
-          "border border-[var(--border-default)]",
-          "p-8",
+          'relative rounded-2xl',
+          'bg-[var(--bg-elevated)]',
+          'border border-[var(--border-default)]',
+          'p-8',
           hover && [
-            "transition-all duration-200 ease-in-out",
-            "hover:border-[var(--border-purple)]",
-            "hover:-translate-y-0.5",
-            "hover:shadow-lg hover:shadow-[var(--purple-600)]/10",
+            'transition-all duration-200 ease-in-out',
+            'hover:border-[var(--border-purple)]',
+            'hover:-translate-y-0.5',
+            'hover:shadow-lg hover:shadow-[var(--purple-600)]/10',
           ],
-          gradient && "gradient-border",
+          gradient && 'gradient-border',
           className
         )}
         {...props}
@@ -41,11 +41,11 @@ const RylaCard = React.forwardRef<HTMLDivElement, RylaCardProps>(
   }
 );
 
-RylaCard.displayName = "RylaCard";
+RylaCard.displayName = 'RylaCard';
 
 /**
  * FeatureCard Component
- * 
+ *
  * Card for displaying features with icon, title, and description.
  */
 interface FeatureCardProps {
@@ -64,15 +64,11 @@ function FeatureCard({
   className,
 }: FeatureCardProps) {
   return (
-    <RylaCard className={cn("flex flex-col", className)}>
+    <RylaCard className={cn('flex flex-col', className)}>
       {/* Icon or Image */}
       {image ? (
         <div className="relative w-full aspect-video rounded-lg overflow-hidden mb-6 bg-[var(--bg-hover)]">
-          <img
-            src={image}
-            alt={title}
-            className="w-full h-full object-cover"
-          />
+          <img src={image} alt={title} className="w-full h-full object-cover" />
         </div>
       ) : icon ? (
         <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[var(--purple-600)]/20 to-[var(--pink-500)]/20 flex items-center justify-center mb-6">
@@ -95,7 +91,7 @@ function FeatureCard({
 
 /**
  * TestimonialCard Component
- * 
+ *
  * Card for displaying user testimonials with avatar, name, role, and quote.
  */
 interface TestimonialCardProps {
@@ -116,12 +112,12 @@ function TestimonialCard({
   return (
     <div
       className={cn(
-        "flex flex-col min-w-[350px] max-w-[400px]",
-        "p-6 rounded-xl",
-        "bg-transparent",
-        "border border-[var(--border-default)]",
-        "transition-all duration-200",
-        "hover:border-[var(--border-hover)]",
+        'flex flex-col min-w-[350px] max-w-[400px]',
+        'p-6 rounded-xl',
+        'bg-transparent',
+        'border border-[var(--border-default)]',
+        'transition-all duration-200',
+        'hover:border-[var(--border-hover)]',
         className
       )}
     >
@@ -159,7 +155,7 @@ function TestimonialCard({
 
 /**
  * StepCard Component
- * 
+ *
  * Card for displaying process steps with number badge.
  */
 interface StepCardProps {
@@ -171,7 +167,7 @@ interface StepCardProps {
 
 function StepCard({ number, title, description, className }: StepCardProps) {
   return (
-    <div className={cn("flex flex-col items-center text-center", className)}>
+    <div className={cn('flex flex-col items-center text-center', className)}>
       {/* Number Badge */}
       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[var(--purple-600)] to-[var(--pink-500)] flex items-center justify-center mb-4 shadow-lg shadow-[var(--purple-600)]/25">
         <span className="text-white font-bold text-lg">{number}</span>
@@ -192,7 +188,7 @@ function StepCard({ number, title, description, className }: StepCardProps) {
 
 /**
  * StatCard Component
- * 
+ *
  * Card for displaying statistics with large numbers.
  */
 interface StatCardProps {
@@ -203,7 +199,7 @@ interface StatCardProps {
 
 function StatCard({ children, label, className }: StatCardProps) {
   return (
-    <div className={cn("flex flex-col items-center text-center", className)}>
+    <div className={cn('flex flex-col items-center text-center', className)}>
       {/* Large number - rendered by CountUp component */}
       <div className="text-4xl md:text-5xl font-bold text-gradient mb-2">
         {children}
@@ -219,7 +215,7 @@ function StatCard({ children, label, className }: StatCardProps) {
 
 /**
  * PricingCard Component
- * 
+ *
  * Card for displaying pricing tiers with features list.
  */
 interface PricingCardProps {
@@ -238,11 +234,11 @@ interface PricingCardProps {
 function PricingCard({
   name,
   price,
-  period = "/month",
+  period = '/month',
   description,
   features,
   highlighted = false,
-  ctaText = "Start Free Trial",
+  ctaText = 'Start Free Trial',
   ctaHref,
   onCtaClick,
   className,
@@ -250,15 +246,15 @@ function PricingCard({
   return (
     <div
       className={cn(
-        "relative flex flex-col p-8 rounded-2xl",
-        "border",
+        'relative flex flex-col p-8 rounded-2xl',
+        'border',
         highlighted
           ? [
-              "border-[var(--purple-500)]",
-              "bg-gradient-to-b from-[var(--purple-600)]/10 to-transparent",
-              "shadow-lg shadow-[var(--purple-600)]/20",
+              'border-[var(--purple-500)]',
+              'bg-gradient-to-b from-[var(--purple-600)]/10 to-transparent',
+              'shadow-lg shadow-[var(--purple-600)]/20',
             ]
-          : ["border-[var(--border-default)]", "bg-[var(--bg-elevated)]"],
+          : ['border-[var(--border-default)]', 'bg-[var(--bg-elevated)]'],
         className
       )}
     >
@@ -320,49 +316,55 @@ function PricingCard({
       {ctaHref ? (
         <a
           href={ctaHref}
+          onClick={(e) => {
+            if (onCtaClick) {
+              e.preventDefault();
+              onCtaClick();
+            }
+          }}
           className={cn(
-            "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-150 inline-block text-center",
+            'w-full py-3 px-6 rounded-lg font-semibold transition-all duration-150 inline-block text-center',
             highlighted
               ? [
-                  "bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)]",
-                  "text-white",
-                  "hover:shadow-[var(--glow-purple)]",
-                  "hover:scale-[1.02]",
+                  'bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)]',
+                  'text-white',
+                  'hover:shadow-[var(--glow-purple)]',
+                  'hover:scale-[1.02]',
                 ]
               : [
-                  "bg-transparent",
-                  "text-white",
-                  "border border-[var(--border-hover)]",
-                  "hover:border-[var(--purple-500)]",
-                  "hover:bg-[var(--purple-500)]/10",
+                  'bg-transparent',
+                  'text-white',
+                  'border border-[var(--border-hover)]',
+                  'hover:border-[var(--purple-500)]',
+                  'hover:bg-[var(--purple-500)]/10',
                 ]
           )}
         >
           {ctaText}
         </a>
       ) : (
-      <button
-        onClick={onCtaClick}
-        className={cn(
-          "w-full py-3 px-6 rounded-lg font-semibold transition-all duration-150",
-          highlighted
-            ? [
-                "bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)]",
-                "text-white",
-                "hover:shadow-[var(--glow-purple)]",
-                "hover:scale-[1.02]",
-              ]
-            : [
-                "bg-transparent",
-                "text-white",
-                "border border-[var(--border-hover)]",
-                "hover:border-[var(--purple-500)]",
-                "hover:bg-[var(--purple-500)]/10",
-              ]
-        )}
-      >
-        {ctaText}
-      </button>
+        <button
+          onClick={onCtaClick}
+          className={cn(
+            'w-full py-3 px-6 rounded-lg font-semibold transition-all duration-150',
+            highlighted
+              ? [
+                  'bg-gradient-to-r from-[var(--purple-600)] to-[var(--pink-500)]',
+                  'text-white',
+                  'hover:shadow-[var(--glow-purple)]',
+                  'hover:scale-[1.02]',
+                ]
+              : [
+                  'bg-transparent',
+                  'text-white',
+                  'border border-[var(--border-hover)]',
+                  'hover:border-[var(--purple-500)]',
+                  'hover:bg-[var(--purple-500)]/10',
+                ]
+          )}
+        >
+          {ctaText}
+        </button>
       )}
     </div>
   );
@@ -376,4 +378,3 @@ export {
   StatCard,
   PricingCard,
 };
-

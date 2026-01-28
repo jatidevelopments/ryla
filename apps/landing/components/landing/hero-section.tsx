@@ -5,6 +5,7 @@ import { Play, ArrowRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import type { ComponentProps } from '@/data/landing-pages/types';
+import { withCdn } from '@/lib/cdn';
 
 interface HeroSectionProps extends ComponentProps {
   content?: {
@@ -64,11 +65,13 @@ export function HeroSection({
 }: HeroSectionProps) {
   const content = { ...defaultContent, ...contentProp };
 
-  // Get background image from assets or content
-  const backgroundImage =
+  // Get background image from assets or content, use CDN
+  const backgroundImagePath =
     assets?.find((a) => a.type === 'image')?.src ||
     content.backgroundImage ||
     '/assets/images/hero/ai-influencer-hero-aryanna.jpg';
+  const backgroundImage = withCdn(backgroundImagePath);
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Hero Background Image */}
@@ -82,6 +85,7 @@ export function HeroSection({
           fill
           className="object-cover"
           priority={assets?.find((a) => a.type === 'image')?.priority || true}
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-linear-to-br from-background/80 via-background/60 to-muted/40 dark:from-background/90 dark:via-background/80 dark:to-muted/50" />
       </div>

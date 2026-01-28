@@ -12,123 +12,47 @@ import {
 } from 'framer-motion';
 import { SocialPostCard } from '@/components/ui/social-post-card';
 import { cn } from '@/lib/utils';
+import { withCdn } from '@/lib/cdn';
 
-// Diverse influencer images for social post cards
+// Helper to create post with CDN URL
+const createPost = (
+  platform: 'instagram' | 'tiktok',
+  imagePath: string,
+  likes: string,
+  comments: string
+) => ({
+  platform,
+  image: withCdn(imagePath),
+  likes,
+  comments,
+});
+
+// Diverse influencer images for social post cards (using CDN)
 const postsRowA = [
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-1.webp',
-    likes: '24.5K',
-    comments: '892',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-2.webp',
-    likes: '156K',
-    comments: '2.3K',
-  },
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-3.webp',
-    likes: '8.2K',
-    comments: '156',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-4.webp',
-    likes: '45K',
-    comments: '1.2K',
-  },
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-5.webp',
-    likes: '67K',
-    comments: '3.4K',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-6.webp',
-    likes: '234K',
-    comments: '5.6K',
-  },
+  createPost('instagram', '/images/posts/influencer-1.webp', '24.5K', '892'),
+  createPost('tiktok', '/images/posts/influencer-2.webp', '156K', '2.3K'),
+  createPost('instagram', '/images/posts/influencer-3.webp', '8.2K', '156'),
+  createPost('tiktok', '/images/posts/influencer-4.webp', '45K', '1.2K'),
+  createPost('instagram', '/images/posts/influencer-5.webp', '67K', '3.4K'),
+  createPost('tiktok', '/images/posts/influencer-6.webp', '234K', '5.6K'),
 ];
 
 const postsRowB = [
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-7.webp',
-    likes: '12.8K',
-    comments: '445',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-8.webp',
-    likes: '89K',
-    comments: '2.1K',
-  },
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-9.webp',
-    likes: '34K',
-    comments: '1.5K',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-10.webp',
-    likes: '567K',
-    comments: '12K',
-  },
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-11.webp',
-    likes: '5.6K',
-    comments: '234',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-12.webp',
-    likes: '23K',
-    comments: '890',
-  },
+  createPost('instagram', '/images/posts/influencer-7.webp', '12.8K', '445'),
+  createPost('tiktok', '/images/posts/influencer-8.webp', '89K', '2.1K'),
+  createPost('instagram', '/images/posts/influencer-9.webp', '34K', '1.5K'),
+  createPost('tiktok', '/images/posts/influencer-10.webp', '567K', '12K'),
+  createPost('instagram', '/images/posts/influencer-11.webp', '5.6K', '234'),
+  createPost('tiktok', '/images/posts/influencer-12.webp', '23K', '890'),
 ];
 
 const postsRowC = [
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-3.webp',
-    likes: '189K',
-    comments: '4.2K',
-  },
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-6.webp',
-    likes: '78K',
-    comments: '2.8K',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-1.webp',
-    likes: '34K',
-    comments: '1.1K',
-  },
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-9.webp',
-    likes: '15K',
-    comments: '567',
-  },
-  {
-    platform: 'tiktok' as const,
-    image: '/images/posts/influencer-12.webp',
-    likes: '445K',
-    comments: '8.9K',
-  },
-  {
-    platform: 'instagram' as const,
-    image: '/images/posts/influencer-4.webp',
-    likes: '92K',
-    comments: '3.1K',
-  },
+  createPost('tiktok', '/images/posts/influencer-3.webp', '189K', '4.2K'),
+  createPost('instagram', '/images/posts/influencer-6.webp', '78K', '2.8K'),
+  createPost('tiktok', '/images/posts/influencer-1.webp', '34K', '1.1K'),
+  createPost('instagram', '/images/posts/influencer-9.webp', '15K', '567'),
+  createPost('tiktok', '/images/posts/influencer-12.webp', '445K', '8.9K'),
+  createPost('instagram', '/images/posts/influencer-4.webp', '92K', '3.1K'),
 ];
 
 interface ScrollRowProps {
@@ -186,6 +110,9 @@ function ScrollRow({
     const rangeSize = max - min;
     return ((((v - min) % rangeSize) + rangeSize) % rangeSize) + min;
   };
+
+  // Export for testing
+  (globalThis as any).__wrap = wrap;
 
   const x = useTransform(baseX, (v) => `${wrap(-50, 0, v)}%`);
 

@@ -13,6 +13,7 @@ import {
 import { FAQStructuredData } from '@/components/seo/FAQStructuredData';
 import { PricingStructuredData } from '@/components/seo/PricingStructuredData';
 import { faqs } from '@/data/faqs';
+import { withCdn } from '@/lib/cdn';
 
 /**
  * RYLA Landing Page (V4 Minimal Copy)
@@ -32,19 +33,18 @@ export default function LandingPage() {
 
         {/* All sections below Hero with background.jpg */}
         <div className="relative z-10">
-          {/* Background Image - Fixed position to prevent repaint on scroll */}
+          {/* Background Image - Fixed position for better performance (no re-renders on scroll) */}
           <div
             className="fixed inset-0 z-0 pointer-events-none"
             style={{
-              backgroundImage: 'url(/background.jpg)',
+              backgroundImage: `url(${withCdn('/background.jpg')})`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
-              backgroundAttachment: 'fixed', // Keeps background fixed during scroll
+              backgroundAttachment: 'fixed', // Fixed attachment prevents re-renders on scroll
               opacity: 0.4,
               transform: 'translateZ(0)', // Force GPU acceleration
               backfaceVisibility: 'hidden', // Optimize rendering
-              willChange: 'auto', // Remove will-change after initial render
               contain: 'layout style paint', // Isolate rendering
             }}
             aria-hidden="true"
@@ -57,7 +57,7 @@ export default function LandingPage() {
               backfaceVisibility: 'hidden',
             }}
           />
-          {/* Top fade gradient - black fading in */}
+          {/* Top fade gradient - Fixed to match background */}
           <div
             className="fixed inset-x-0 top-0 h-32 z-[1] pointer-events-none bg-gradient-to-b from-[var(--bg-primary)] to-transparent"
             style={{
@@ -65,7 +65,7 @@ export default function LandingPage() {
               backfaceVisibility: 'hidden',
             }}
           />
-          {/* Bottom fade gradient - black fading out */}
+          {/* Bottom fade gradient - Fixed to match background */}
           <div
             className="fixed inset-x-0 bottom-0 h-32 z-[1] pointer-events-none bg-gradient-to-t from-[var(--bg-primary)] to-transparent"
             style={{
@@ -91,4 +91,3 @@ export default function LandingPage() {
     </>
   );
 }
- 

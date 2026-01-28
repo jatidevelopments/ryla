@@ -13,9 +13,8 @@ import {
   ArrowRight,
 } from 'lucide-react';
 import Image from 'next/image';
-import { StripedPattern } from '@/components/ui/striped-pattern';
+import { withCdn } from '@/lib/cdn';
 import { ShinyButton } from '@/components/ui/shiny-button';
-import { FUNNEL_URL } from '@/lib/constants';
 
 interface StorySection {
   step: number;
@@ -41,7 +40,7 @@ const storySections: StorySection[] = [
     icon: Palette,
     preview: {
       type: 'ui-mockup',
-      image: '/steps/step1.jpg',
+      image: withCdn('/steps/step1.jpg'),
       caption: 'Customize hair color, ethnicity, body type, and more',
     },
   },
@@ -54,7 +53,7 @@ const storySections: StorySection[] = [
     icon: Sparkles,
     preview: {
       type: 'image-grid',
-      image: '/steps/step2.jpg',
+      image: withCdn('/steps/step2.jpg'),
       caption: '7-10 high-quality images generated instantly',
     },
   },
@@ -67,7 +66,7 @@ const storySections: StorySection[] = [
     icon: Share2,
     preview: {
       type: 'image',
-      image: '/steps/step3.jpg',
+      image: withCdn('/steps/step3.jpg'),
       caption: 'Connect & schedule to all platforms',
     },
   },
@@ -80,7 +79,7 @@ const storySections: StorySection[] = [
     icon: TrendingUp,
     preview: {
       type: 'image',
-      image: '/steps/step4.jpg',
+      image: withCdn('/steps/step4.jpg'),
       caption: 'Track earnings in real-time',
     },
   },
@@ -90,7 +89,7 @@ const storySections: StorySection[] = [
  * UI Mockup Preview Component (Step 1)
  * Shows character customization interface
  */
-function UIMockupPreview({
+function _UIMockupPreview({
   image,
   caption,
 }: {
@@ -125,7 +124,7 @@ function UIMockupPreview({
  * Image Grid Preview Component (Step 2)
  * Shows Instagram-style grid of generated images
  */
-function ImageGridPreview({
+function _ImageGridPreview({
   image,
   caption,
 }: {
@@ -167,7 +166,13 @@ function ImageGridPreview({
  * Image Preview Component (Steps 3 & 4)
  * Standard image preview
  */
-function ImagePreview({ image, caption }: { image?: string; caption: string }) {
+function _ImagePreview({
+  image,
+  caption,
+}: {
+  image?: string;
+  caption: string;
+}) {
   return (
     <div className="relative overflow-hidden rounded-xl border border-white/10 bg-black/20">
       <div className="aspect-[16/10] relative">
@@ -222,8 +227,6 @@ function Word({ children, progress, range }: WordProps) {
 interface StoryBlockProps {
   section: StorySection;
   index: number;
-  isFirst?: boolean;
-  isLast?: boolean;
 }
 
 function StoryBlock({ section, index }: StoryBlockProps) {
@@ -439,12 +442,7 @@ export function HowItWorksSection() {
               key={section.step}
               className={index > 0 ? 'mt-8 md:mt-12 lg:mt-16' : ''}
             >
-              <StoryBlock
-                section={section}
-                index={index}
-                isFirst={index === 0}
-                isLast={index === storySections.length - 1}
-              />
+              <StoryBlock section={section} index={index} />
             </div>
           ))}
         </div>
@@ -459,8 +457,17 @@ export function HowItWorksSection() {
           <p className="text-lg text-white/50 mb-8">
             Join creators earning passive income.
           </p>
-          <ShinyButton href={FUNNEL_URL} className="text-base px-8 py-4">
-            Start Creating
+          <ShinyButton
+            href="#waitlist"
+            className="text-base px-8 py-4"
+            onClick={(e) => {
+              e.preventDefault();
+              document
+                .getElementById('waitlist')
+                ?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            Join Waitlist
             <ArrowRight className="w-4 h-4" />
           </ShinyButton>
         </div>

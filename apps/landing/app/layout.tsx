@@ -115,6 +115,18 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Cookie Banner Script - DISABLED
+         * To enable: Uncomment the Script component below
+         * Same script as used in apps/funnel/app/layout.tsx
+         */}
+        {/* <Script
+          src="https://cdn.cookie-script.com/s/fe54df73a5f0d02ae09c4da983f9b9a5.js"
+          type="text/javascript"
+          charSet="UTF-8"
+          strategy="beforeInteractive"
+        /> */}
+      </head>
       <body
         className={`${dmSans.variable} ${jetBrainsMono.variable} font-sans antialiased dark`}
       >

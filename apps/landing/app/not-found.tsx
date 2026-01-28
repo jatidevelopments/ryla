@@ -1,7 +1,7 @@
-import Link from "next/link";
+import Link from 'next/link';
 
 // Prevent static generation to avoid Html import issues
-export const dynamic = 'force-dynamic';
+// Note: For Cloudflare Pages builds, this export is removed by prepare-cloudflare-build.sh
 
 export default function NotFound() {
   return (
@@ -22,4 +22,3 @@ export default function NotFound() {
     </div>
   );
 }
-

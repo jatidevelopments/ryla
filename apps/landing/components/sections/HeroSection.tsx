@@ -8,11 +8,10 @@ import { VelocityScroll } from '@/components/ui/scroll-velocity';
 import { ShinyButton } from '@/components/ui/shiny-button';
 import { HeroBackground } from './HeroBackground';
 import { ArrowRight } from 'lucide-react';
-import { FUNNEL_URL } from '@/lib/constants';
 
 /**
  * HeroSection Component (V4 Minimal Copy)
- * 
+ *
  * Mobbin-inspired minimal hero with maximum impact.
  * Features scrolling social post cards as background.
  */
@@ -27,7 +26,7 @@ export function HeroSection() {
 
       {/* Scrolling social post cards background */}
       <HeroBackground />
-      
+
       {/* Gradient glow overlay */}
       <GradientBackground position="top" intensity="medium" />
 
@@ -51,7 +50,17 @@ export function HeroSection() {
           {/* CTAs */}
           <FadeInUp delay={200}>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
-              <ShinyButton href={FUNNEL_URL}>Start Creating</ShinyButton>
+              <ShinyButton
+                href="#waitlist"
+                onClick={(e) => {
+                  e.preventDefault();
+                  document
+                    .getElementById('waitlist')
+                    ?.scrollIntoView({ behavior: 'smooth' });
+                }}
+              >
+                Join Waitlist
+              </ShinyButton>
               <a href="#how-it-works">
                 <RylaButton variant="secondary" size="lg">
                   See How It Works

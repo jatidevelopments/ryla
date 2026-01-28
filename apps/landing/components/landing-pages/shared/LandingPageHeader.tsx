@@ -152,10 +152,12 @@ export function LandingPageHeader({
                 variant="ghost"
                 className={buttonClasses}
                 onClick={() => {
-                  window.location.href = 'https://app.ryla.ai';
+                  document
+                    .getElementById('waitlist')
+                    ?.scrollIntoView({ behavior: 'smooth' });
                 }}
               >
-                Sign In
+                Join Waitlist
               </Button>
               <Button
                 className={`bg-linear-to-r ${gradient} hover:opacity-90 text-white shadow-lg hover:shadow-xl transition-all`}
@@ -204,11 +206,13 @@ export function LandingPageHeader({
                     variant="ghost"
                     className={`${buttonClasses} justify-start`}
                     onClick={() => {
-                      window.location.href = 'https://app.ryla.ai';
+                      document
+                        .getElementById('waitlist')
+                        ?.scrollIntoView({ behavior: 'smooth' });
                       setMobileMenuOpen(false);
                     }}
                   >
-                    Sign In
+                    Join Waitlist
                   </Button>
                   <Button
                     className={`bg-linear-to-r ${gradient} hover:opacity-90 text-white justify-start`}
