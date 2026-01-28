@@ -61,7 +61,9 @@ export function useWaitlistForm() {
     setError(null);
 
     try {
-      const response = await fetch('/api/waitlist', {
+      // Use main API backend (works for both Fly.io and Cloudflare Pages)
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'https://end.ryla.ai';
+      const response = await fetch(`${apiUrl}/waitlist`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
