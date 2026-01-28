@@ -28,11 +28,14 @@ const animationProps = {
 interface ShinyButtonProps
   extends Omit<
     React.ButtonHTMLAttributes<HTMLButtonElement>,
-    'onDrag' | 'onDragStart' | 'onDragEnd'
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onClick'
   > {
   children: React.ReactNode;
   className?: string;
   href?: string;
+  onClick?: (
+    e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>
+  ) => void;
 }
 
 const buttonClassName = cn(
