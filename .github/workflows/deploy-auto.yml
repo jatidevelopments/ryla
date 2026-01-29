@@ -39,7 +39,7 @@ jobs:
           else
             GITHUB_ENV="production"
           fi
-          
+
           # Map GitHub environment to Infisical environment
           if [ "$GITHUB_ENV" == "production" ]; then
             echo "infisical_env=prod" >> $GITHUB_OUTPUT
@@ -54,7 +54,7 @@ jobs:
             echo "fly_suffix=dev" >> $GITHUB_OUTPUT
             echo "github_env=development" >> $GITHUB_OUTPUT
           fi
-          
+
           echo "✅ Environment determined:"
           echo "  GitHub Environment: $GITHUB_ENV"
           echo "  Infisical Environment: $(cat $GITHUB_OUTPUT | grep infisical_env | cut -d'=' -f2)"
@@ -73,9 +73,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Need full history for Nx affected
+          fetch-depth: 0 # Need full history for Nx affected
           token: ${{ secrets.GITHUB_TOKEN }}
-          lfs: false  # Not needed for change detection (only checks file paths)
+          lfs: false # Not needed for change detection (only checks file paths)
           persist-credentials: true
 
       - name: Detect affected apps (using git diff)
@@ -99,59 +99,59 @@ jobs:
             BASE=$(git merge-base HEAD origin/main 2>/dev/null || echo "origin/main")
             HEAD=$(git rev-parse HEAD)
           fi
-          
+
           echo "Base: $BASE"
           echo "Head: $HEAD"
-          
+
           # Use git diff to detect changes in app directories (faster than Nx, no dependencies needed)
           CHANGED_FILES=$(git diff --name-only $BASE..$HEAD 2>/dev/null || echo "")
-          
+
           echo "Changed files detected: $(echo "$CHANGED_FILES" | wc -l | tr -d ' ') files"
-          
+
           # Check which apps have changes
           WEB_CHANGED=false
           API_CHANGED=false
           FUNNEL_CHANGED=false
           LANDING_CHANGED=false
           ADMIN_CHANGED=false
-          
+
           if echo "$CHANGED_FILES" | grep -qE "^apps/web/"; then
             WEB_CHANGED=true
             echo "✓ Web app has changes"
           fi
-          
+
           if echo "$CHANGED_FILES" | grep -qE "^apps/api/"; then
             API_CHANGED=true
             echo "✓ API app has changes"
           fi
-          
+
           if echo "$CHANGED_FILES" | grep -qE "^apps/funnel/"; then
             FUNNEL_CHANGED=true
             echo "✓ Funnel app has changes"
           fi
-          
+
           if echo "$CHANGED_FILES" | grep -qE "^apps/landing/"; then
             LANDING_CHANGED=true
             echo "✓ Landing app has changes"
           fi
-          
+
           if echo "$CHANGED_FILES" | grep -qE "^apps/admin/"; then
             ADMIN_CHANGED=true
             echo "✓ Admin app has changes"
           fi
-          
+
           # Also check if workflow files changed (affects all apps)
           if echo "$CHANGED_FILES" | grep -qE "^\\.github/workflows/"; then
             echo "⚠️  Workflow files changed - this may affect all apps"
           fi
-          
+
           # Set outputs
           echo "web=$WEB_CHANGED" >> $GITHUB_OUTPUT
           echo "api=$API_CHANGED" >> $GITHUB_OUTPUT
           echo "funnel=$FUNNEL_CHANGED" >> $GITHUB_OUTPUT
           echo "landing=$LANDING_CHANGED" >> $GITHUB_OUTPUT
           echo "admin=$ADMIN_CHANGED" >> $GITHUB_OUTPUT
-          
+
           if [ "$WEB_CHANGED" = "true" ] || [ "$API_CHANGED" = "true" ] || [ "$FUNNEL_CHANGED" = "true" ] || [ "$LANDING_CHANGED" = "true" ] || [ "$ADMIN_CHANGED" = "true" ]; then
             echo "has-changes=true" >> $GITHUB_OUTPUT
             echo "App changes detected"
@@ -173,7 +173,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: true  # Pull Git LFS files (images are stored in LFS)
+          lfs: true # Pull Git LFS files (images are stored in LFS)
 
       - uses: actions/setup-node@v4
         with:
@@ -190,30 +190,30 @@ jobs:
         continue-on-error: true
         run: |
           set +e  # Don't exit on error, we'll handle it manually
-          
+
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
           echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
           echo "Checking lockfile..."
           ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
-          
+
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
           pnpm config set network-timeout 180000 || true
           pnpm config set fetch-retries 5 || true
           pnpm config set fetch-retry-mintimeout 10000 || true
           pnpm config set fetch-retry-maxtimeout 60000 || true
-          
+
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
-          
+
           # Try install - start without --frozen-lockfile for better compatibility
           echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
           pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
-          
+
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
             echo "Last 100 lines of pnpm install log:"
@@ -241,7 +241,7 @@ jobs:
               exit 0  # Don't fail - Docker will install deps
             fi
           fi
-          
+
           echo "✅ Dependencies installed successfully"
 
       - name: Verify images from Git LFS before build
@@ -288,19 +288,19 @@ jobs:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
         run: |
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
-          
+
           # Export secrets to temporary file
           infisical export \
             --path=/apps/web \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
             --format=dotenv > /tmp/build-args.env
-          
+
           # Source the file to make variables available
           set -a
           source /tmp/build-args.env
           set +a
-          
+
           # Set as outputs for use in deployment step
           echo "api_url=$NEXT_PUBLIC_API_URL" >> $GITHUB_OUTPUT
           echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
@@ -308,7 +308,7 @@ jobs:
           echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
           echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
           echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
-          
+
           echo "✅ Build args exported"
           echo "  NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
           echo "  NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
@@ -355,7 +355,7 @@ jobs:
         run: |
           echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
           echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
-          
+
           # Export secrets from Infisical and set them in Fly.io
           infisical export \
             --path=/apps/web \
@@ -372,7 +372,7 @@ jobs:
             echo "  Setting $key..."
             flyctl secrets set "$key=$value" --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} --stage
           done
-          
+
           # Deploy staged secrets
           flyctl secrets deploy --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }}
           echo "✅ Secrets synced successfully"
@@ -431,7 +431,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          lfs: false  # Disable LFS in checkout, we'll handle it manually
+          lfs: false # Disable LFS in checkout, we'll handle it manually
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -461,30 +461,30 @@ jobs:
         continue-on-error: true
         run: |
           set +e  # Don't exit on error, we'll handle it manually
-          
+
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
           echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
           echo "Checking lockfile..."
           ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
-          
+
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
           pnpm config set network-timeout 180000 || true
           pnpm config set fetch-retries 5 || true
           pnpm config set fetch-retry-mintimeout 10000 || true
           pnpm config set fetch-retry-maxtimeout 60000 || true
-          
+
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
-          
+
           # Try install - start without --frozen-lockfile for better compatibility
           echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
           pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
-          
+
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
             echo "Last 100 lines of pnpm install log:"
@@ -512,7 +512,7 @@ jobs:
               exit 0  # Don't fail - Docker will install deps
             fi
           fi
-          
+
           echo "✅ Dependencies installed successfully"
 
       - name: Setup Fly.io CLI
@@ -546,7 +546,7 @@ jobs:
         run: |
           echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
           echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
-          
+
           # Export secrets from Infisical and set them in Fly.io
           # Note: Also check root path (/) as fallback for staging/prod until folders are created
           infisical export \
@@ -563,7 +563,7 @@ jobs:
             echo "  Setting $key..."
             flyctl secrets set "$key=$value" --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }} --stage
           done
-          
+
           # Deploy staged secrets
           flyctl secrets deploy --app ryla-api-${{ needs.detect-environment.outputs.fly_suffix }}
           echo "✅ Secrets synced successfully"
@@ -597,509 +597,110 @@ jobs:
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
         continue-on-error: true
 
+  # ============================================================================
+  # CLOUDFLARE PAGES DEPLOYMENTS
+  # Landing and Funnel apps are deployed to Cloudflare Pages for edge performance
+  # ============================================================================
+
   deploy-funnel:
-    name: Deploy Funnel App
+    name: Deploy Funnel App (Cloudflare Pages)
     needs: [detect-environment, detect-changes]
     if: needs.detect-changes.outputs.funnel == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
-    # Cancel in-progress funnel app deployments when new commit affects funnel app
     concurrency:
       group: deploy-funnel-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - name: Install Git LFS (before checkout)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git-lfs
-          git lfs install
-
       - uses: actions/checkout@v4
         with:
-          lfs: false  # Disable LFS in checkout, we'll handle it manually
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Configure Git LFS and pull files
-        run: |
-          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
-          # Configure git to use the token for LFS operations
-          git config --global credential.helper store || true
-          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
-          # Try to pull LFS files, but don't fail if it doesn't work
-          # LFS files are not critical for deployment (they're mostly images)
-          git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
-          echo "✅ Git LFS configuration complete (or skipped)"
+          lfs: true
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.26.1 --activate
-          echo "pnpm version: $(pnpm --version)"
+        run: corepack enable
 
-      - name: Install dependencies (optional - Docker handles deps)
-        timeout-minutes: 15
-        continue-on-error: true
-        run: |
-          set +e  # Don't exit on error, we'll handle it manually
-          
-          echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version || echo 'not found')"
-          echo "Node version: $(node --version || echo 'not found')"
-          echo "Working directory: $(pwd)"
-          echo "Checking lockfile..."
-          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
-          
-          # Set pnpm config for CI
-          pnpm config set store-dir ~/.pnpm-store || true
-          pnpm config set network-timeout 180000 || true
-          pnpm config set fetch-retries 5 || true
-          pnpm config set fetch-retry-mintimeout 10000 || true
-          pnpm config set fetch-retry-maxtimeout 60000 || true
-          
-          # Clear pnpm store cache if it exists (might be corrupted)
-          echo "Clearing pnpm store cache..."
-          rm -rf ~/.pnpm-store || true
-          
-          # Try install - start without --frozen-lockfile for better compatibility
-          echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
-          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
-          INSTALL_STATUS=${PIPESTATUS[0]}
-          
-          if [ $INSTALL_STATUS -ne 0 ]; then
-            echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
-            echo "Last 100 lines of pnpm install log:"
-            tail -100 /tmp/pnpm-install.log || echo "Could not read log"
-            echo "Trying with --frozen-lockfile..."
-            pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-frozen.log
-            INSTALL_STATUS=${PIPESTATUS[0]}
-            
-            if [ $INSTALL_STATUS -ne 0 ]; then
-              echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
-              echo "Last 100 lines of frozen lockfile log:"
-              tail -100 /tmp/pnpm-install-frozen.log || echo "Could not read frozen log"
-              echo "Checking pnpm and node versions..."
-              pnpm --version || echo "pnpm not available"
-              node --version || echo "node not available"
-              echo "Checking if lockfile exists..."
-              ls -la pnpm-lock.yaml || echo "Lockfile missing"
-              echo "Checking disk space..."
-              df -h || echo "Cannot check disk space"
-              echo "Checking memory..."
-              free -h || echo "Cannot check memory"
-              echo "Checking network connectivity..."
-              curl -I https://registry.npmjs.org/ || echo "Cannot reach npm registry"
-              echo "⚠️  pnpm install failed, but continuing - Docker build will handle dependencies"
-              exit 0  # Don't fail - Docker will install deps
-            fi
-          fi
-          
-          echo "✅ Dependencies installed successfully"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Setup Fly.io CLI
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Install Infisical CLI
-        run: |
-          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-          sudo apt-get install infisical
-
-      - name: Export Build Args from Infisical
-        id: build-args
+      - name: Build Funnel App
+        run: pnpm nx build funnel --configuration=production
         env:
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-        run: |
-          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
-          
-          # Verify Infisical CLI is installed
-          if ! command -v infisical &> /dev/null; then
-            echo "❌ Infisical CLI not found"
-            exit 1
-          fi
-          
-          echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
-          
-          # Check if INFISICAL_TOKEN is set
-          if [ -z "$INFISICAL_TOKEN" ]; then
-            echo "❌ INFISICAL_TOKEN is not set"
-            exit 1
-          fi
-          
-          # Export secrets to temporary file
-          # Try with /apps/funnel first, fallback to /shared only if folder doesn't exist
-          if ! infisical export \
-            --path=/apps/funnel \
-            --path=/shared \
-            --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env 2>&1; then
-            echo "⚠️  Failed to export from /apps/funnel, trying /shared only..."
-            if ! infisical export \
-              --path=/shared \
-              --env=${{ needs.detect-environment.outputs.infisical_env }} \
-              --format=dotenv > /tmp/build-args.env 2>&1; then
-              echo "❌ Failed to export secrets from Infisical"
-              echo "Error output:"
-              cat /tmp/build-args.env || echo "Could not read error output"
-              exit 1
-            fi
-          fi
-          
-          # Check if file was created and has content
-          if [ ! -s /tmp/build-args.env ]; then
-            echo "⚠️  Build args file is empty, but continuing with defaults..."
-            echo "# Empty build args - using code defaults" > /tmp/build-args.env
-          fi
-          
-          # Source the file to make variables available
-          set -a
-          source /tmp/build-args.env
-          set +a
-          
-          # Verify required variables are set
-          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
-            echo "⚠️  WARNING: NEXT_PUBLIC_SITE_URL is not set"
-          fi
-          
-          # Set as outputs for use in deployment step (with defaults to prevent empty values)
-          echo "cdn_url=${NEXT_PUBLIC_CDN_URL:-}" >> $GITHUB_OUTPUT
-          echo "debug_cdn=${NEXT_PUBLIC_DEBUG_CDN:-}" >> $GITHUB_OUTPUT
-          echo "site_url=${NEXT_PUBLIC_SITE_URL:-}" >> $GITHUB_OUTPUT
-          echo "api_base_url=${NEXT_PUBLIC_API_BASE_URL:-}" >> $GITHUB_OUTPUT
-          echo "finby_redirect=${NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT:-}" >> $GITHUB_OUTPUT
-          echo "posthog_host=${NEXT_PUBLIC_POSTHOG_HOST:-}" >> $GITHUB_OUTPUT
-          echo "posthog_key=${NEXT_PUBLIC_POSTHOG_KEY:-}" >> $GITHUB_OUTPUT
-          echo "supabase_url=${NEXT_PUBLIC_SUPABASE_URL:-}" >> $GITHUB_OUTPUT
-          echo "supabase_anon_key=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" >> $GITHUB_OUTPUT
-          
-          echo "✅ Build args exported"
-          echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-<not set>}"
-          echo "  NEXT_PUBLIC_CDN_URL: ${NEXT_PUBLIC_CDN_URL:-<not set>}"
+          NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
+          NEXT_PUBLIC_DEBUG_CDN: ${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL_FUNNEL }}
+          NEXT_PUBLIC_API_BASE_URL: ${{ secrets.NEXT_PUBLIC_API_BASE_URL }}
+          NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT: ${{ secrets.NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT }}
+          NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
+          NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
-      - name: Setup Fly.io CLI
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Stop old machines (if any)
-        run: |
-          # Install jq if not available
-          sudo apt-get update && sudo apt-get install -y jq || true
-          # Stop all machines for this app to ensure clean deployment
-          MACHINES=$(flyctl machines list --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
-          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
-            if [ -n "$machine_id" ]; then
-              echo "Stopping machine: $machine_id"
-              flyctl machines stop "$machine_id" --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }} || true
-            fi
-          done
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        continue-on-error: true
-
-      - name: Sync Runtime Secrets to Fly.io (via Infisical)
-        run: |
-          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
-          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
-          
-          # Export secrets from Infisical and set them in Fly.io
-          infisical export \
-            --path=/apps/funnel \
-            --path=/shared \
-            --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv | while IFS='=' read -r key value; do
-            # Skip NEXT_PUBLIC_* variables (they're build args, not runtime secrets)
-            if [[ ! "$key" =~ ^NEXT_PUBLIC_ ]]; then
-              if [ -n "$key" ] && [ -n "$value" ]; then
-                echo "Setting secret: $key"
-                flyctl secrets set "$key=$value" --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }} || true
-              fi
-            fi
-          done
-        env:
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        continue-on-error: true
-
-      - name: Deploy Funnel App to Fly.io
-        run: |
-          flyctl deploy \
-            --config apps/funnel/fly.toml \
-            --dockerfile apps/funnel/Dockerfile \
-            --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }} \
-            --strategy immediate \
-            --build-arg NEXT_PUBLIC_CDN_URL="${{ steps.build-args.outputs.cdn_url }}" \
-            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ steps.build-args.outputs.debug_cdn }}" \
-            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
-            --build-arg NEXT_PUBLIC_API_BASE_URL="${{ steps.build-args.outputs.api_base_url }}" \
-            --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT="${{ steps.build-args.outputs.finby_redirect }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ steps.build-args.outputs.posthog_host }}" \
-            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ steps.build-args.outputs.posthog_key }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ steps.build-args.outputs.supabase_url }}" \
-            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ steps.build-args.outputs.supabase_anon_key }}"
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-      - name: Health Check
-        run: |
-          sleep 10
-          flyctl status --app ryla-funnel-${{ needs.detect-environment.outputs.fly_suffix }}
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ryla-funnel
+          directory: dist/apps/funnel/.next
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"DEPLOY: production ${{ github.ref_name }} - funnel app success"}' \
+            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - funnel app success (Cloudflare Pages)"}' \
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
         continue-on-error: true
 
   deploy-landing:
-    name: Deploy Landing App
+    name: Deploy Landing App (Cloudflare Pages)
     needs: [detect-environment, detect-changes]
     if: needs.detect-changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
-    # Cancel in-progress landing app deployments when new commit affects landing app
     concurrency:
       group: deploy-landing-${{ github.ref }}
       cancel-in-progress: true
     steps:
-      - name: Install Git LFS (before checkout)
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y git-lfs
-          git lfs install
-
       - uses: actions/checkout@v4
         with:
-          lfs: false  # Disable LFS in checkout, we'll handle it manually
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Configure Git LFS and pull files
-        run: |
-          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
-          # Configure git to use the token for LFS operations
-          git config --global credential.helper store || true
-          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
-          # Try to pull LFS files, but don't fail if it doesn't work
-          # LFS files are not critical for deployment (they're mostly images)
-          git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
-          echo "✅ Git LFS configuration complete (or skipped)"
+          lfs: true
 
       - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: |
-          corepack enable
-          corepack prepare pnpm@10.26.1 --activate
-          echo "pnpm version: $(pnpm --version)"
+        run: corepack enable
 
-      - name: Install dependencies (optional - Docker handles deps)
-        timeout-minutes: 15
-        continue-on-error: true
-        run: |
-          set +e  # Don't exit on error, we'll handle it manually
-          
-          echo "Installing dependencies..."
-          echo "pnpm version: $(pnpm --version || echo 'not found')"
-          echo "Node version: $(node --version || echo 'not found')"
-          echo "Working directory: $(pwd)"
-          echo "Checking lockfile..."
-          ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
-          
-          # Set pnpm config for CI
-          pnpm config set store-dir ~/.pnpm-store || true
-          pnpm config set network-timeout 180000 || true
-          pnpm config set fetch-retries 5 || true
-          pnpm config set fetch-retry-mintimeout 10000 || true
-          pnpm config set fetch-retry-maxtimeout 60000 || true
-          
-          # Clear pnpm store cache if it exists (might be corrupted)
-          echo "Clearing pnpm store cache..."
-          rm -rf ~/.pnpm-store || true
-          
-          # Try install - start without --frozen-lockfile for better compatibility
-          echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
-          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
-          INSTALL_STATUS=${PIPESTATUS[0]}
-          
-          if [ $INSTALL_STATUS -ne 0 ]; then
-            echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
-            echo "Last 100 lines of pnpm install log:"
-            tail -100 /tmp/pnpm-install.log || echo "Could not read log"
-            echo "Trying with --frozen-lockfile..."
-            pnpm install --frozen-lockfile --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install-frozen.log
-            INSTALL_STATUS=${PIPESTATUS[0]}
-            
-            if [ $INSTALL_STATUS -ne 0 ]; then
-              echo "❌ pnpm install failed completely (exit code: $INSTALL_STATUS)"
-              echo "Last 100 lines of frozen lockfile log:"
-              tail -100 /tmp/pnpm-install-frozen.log || echo "Could not read frozen log"
-              echo "Checking pnpm and node versions..."
-              pnpm --version || echo "pnpm not available"
-              node --version || echo "node not available"
-              echo "Checking if lockfile exists..."
-              ls -la pnpm-lock.yaml || echo "Lockfile missing"
-              echo "Checking disk space..."
-              df -h || echo "Cannot check disk space"
-              echo "Checking memory..."
-              free -h || echo "Cannot check memory"
-              echo "Checking network connectivity..."
-              curl -I https://registry.npmjs.org/ || echo "Cannot reach npm registry"
-              echo "⚠️  pnpm install failed, but continuing - Docker build will handle dependencies"
-              exit 0  # Don't fail - Docker will install deps
-            fi
-          fi
-          
-          echo "✅ Dependencies installed successfully"
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
-      - name: Setup Fly.io CLI
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Install Infisical CLI
-        run: |
-          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
-          sudo apt-get install infisical
-
-      - name: Export Build Args from Infisical
-        id: build-args
+      - name: Build Landing App
+        run: pnpm nx build landing --configuration=production
         env:
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-        run: |
-          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
-          
-          # Verify Infisical CLI is installed
-          if ! command -v infisical &> /dev/null; then
-            echo "❌ Infisical CLI not found"
-            exit 1
-          fi
-          
-          echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
-          
-          # Check if INFISICAL_TOKEN is set
-          if [ -z "$INFISICAL_TOKEN" ]; then
-            echo "❌ INFISICAL_TOKEN is not set"
-            exit 1
-          fi
-          
-          # Export secrets to temporary file
-          # Try with /apps/landing first, fallback to /shared only if folder doesn't exist
-          if ! infisical export \
-            --path=/apps/landing \
-            --path=/shared \
-            --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env 2>&1; then
-            echo "⚠️  Failed to export from /apps/landing, trying /shared only..."
-            if ! infisical export \
-              --path=/shared \
-              --env=${{ needs.detect-environment.outputs.infisical_env }} \
-              --format=dotenv > /tmp/build-args.env 2>&1; then
-              echo "❌ Failed to export secrets from Infisical"
-              echo "Error output:"
-              cat /tmp/build-args.env || echo "Could not read error output"
-              exit 1
-            fi
-          fi
-          
-          # Check if file was created and has content
-          if [ ! -s /tmp/build-args.env ]; then
-            echo "⚠️  Build args file is empty, but continuing with defaults..."
-            echo "# Empty build args - using code defaults" > /tmp/build-args.env
-          fi
-          
-          # Source the file to make variables available
-          set -a
-          source /tmp/build-args.env
-          set +a
-          
-          # Verify required variables are set
-          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
-            echo "⚠️  WARNING: NEXT_PUBLIC_SITE_URL is not set"
-          fi
-          
-          # Set as outputs for use in deployment step (with defaults to prevent empty values)
-          echo "site_url=${NEXT_PUBLIC_SITE_URL:-}" >> $GITHUB_OUTPUT
-          echo "cdn_url=${NEXT_PUBLIC_CDN_URL:-}" >> $GITHUB_OUTPUT
-          echo "debug_cdn=${NEXT_PUBLIC_DEBUG_CDN:-}" >> $GITHUB_OUTPUT
-          
-          echo "✅ Build args exported"
-          echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-<not set>}"
-          echo "  NEXT_PUBLIC_CDN_URL: ${NEXT_PUBLIC_CDN_URL:-<not set>}"
+          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL_LANDING }}
+          NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
+          NEXT_PUBLIC_DEBUG_CDN: ${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}
 
-      - name: Setup Fly.io CLI
-        uses: superfly/flyctl-actions/setup-flyctl@master
-
-      - name: Stop old machines (if any)
-        run: |
-          # Install jq if not available
-          sudo apt-get update && sudo apt-get install -y jq || true
-          # Stop all machines for this app to ensure clean deployment
-          MACHINES=$(flyctl machines list --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
-          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
-            if [ -n "$machine_id" ]; then
-              echo "Stopping machine: $machine_id"
-              flyctl machines stop "$machine_id" --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} || true
-            fi
-          done
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        continue-on-error: true
-
-      - name: Sync Runtime Secrets to Fly.io (via Infisical)
-        run: |
-          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
-          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
-          
-          # Export secrets from Infisical and set them in Fly.io
-          infisical export \
-            --path=/apps/landing \
-            --path=/shared \
-            --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv | while IFS='=' read -r key value; do
-            # Skip NEXT_PUBLIC_* variables (they're build args, not runtime secrets)
-            if [[ ! "$key" =~ ^NEXT_PUBLIC_ ]]; then
-              if [ -n "$key" ] && [ -n "$value" ]; then
-                echo "Setting secret: $key"
-                flyctl secrets set "$key=$value" --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} || true
-              fi
-            fi
-          done
-        env:
-          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        continue-on-error: true
-
-      - name: Deploy Landing App to Fly.io
-        run: |
-          flyctl deploy \
-            --config apps/landing/fly.toml \
-            --dockerfile apps/landing/Dockerfile \
-            --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }} \
-            --strategy immediate \
-            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
-            --build-arg NEXT_PUBLIC_CDN_URL="${{ steps.build-args.outputs.cdn_url }}" \
-            --build-arg NEXT_PUBLIC_DEBUG_CDN="${{ steps.build-args.outputs.debug_cdn }}"
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-
-      - name: Health Check
-        run: |
-          sleep 10
-          flyctl status --app ryla-landing-${{ needs.detect-environment.outputs.fly_suffix }}
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ryla-landing
+          directory: dist/apps/landing/.next
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"DEPLOY: production ${{ github.ref_name }} - landing app success"}' \
+            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - landing app success (Cloudflare Pages)"}' \
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
         continue-on-error: true
 
@@ -1122,7 +723,7 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          lfs: false  # Disable LFS in checkout, we'll handle it manually
+          lfs: false # Disable LFS in checkout, we'll handle it manually
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
@@ -1152,30 +753,30 @@ jobs:
         continue-on-error: true
         run: |
           set +e  # Don't exit on error, we'll handle it manually
-          
+
           echo "Installing dependencies..."
           echo "pnpm version: $(pnpm --version || echo 'not found')"
           echo "Node version: $(node --version || echo 'not found')"
           echo "Working directory: $(pwd)"
           echo "Checking lockfile..."
           ls -la pnpm-lock.yaml || echo "⚠️  pnpm-lock.yaml not found"
-          
+
           # Set pnpm config for CI
           pnpm config set store-dir ~/.pnpm-store || true
           pnpm config set network-timeout 180000 || true
           pnpm config set fetch-retries 5 || true
           pnpm config set fetch-retry-mintimeout 10000 || true
           pnpm config set fetch-retry-maxtimeout 60000 || true
-          
+
           # Clear pnpm store cache if it exists (might be corrupted)
           echo "Clearing pnpm store cache..."
           rm -rf ~/.pnpm-store || true
-          
+
           # Try install - start without --frozen-lockfile for better compatibility
           echo "Running pnpm install (without --frozen-lockfile for CI compatibility)..."
           pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
           INSTALL_STATUS=${PIPESTATUS[0]}
-          
+
           if [ $INSTALL_STATUS -ne 0 ]; then
             echo "⚠️  pnpm install failed (exit code: $INSTALL_STATUS)"
             echo "Last 100 lines of pnpm install log:"
@@ -1203,7 +804,7 @@ jobs:
               exit 0  # Don't fail - Docker will install deps
             fi
           fi
-          
+
           echo "✅ Dependencies installed successfully"
 
       - name: Setup Fly.io CLI
@@ -1220,21 +821,21 @@ jobs:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
         run: |
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
-          
+
           # Verify Infisical CLI is installed
           if ! command -v infisical &> /dev/null; then
             echo "❌ Infisical CLI not found"
             exit 1
           fi
-          
+
           echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
-          
+
           # Check if INFISICAL_TOKEN is set
           if [ -z "$INFISICAL_TOKEN" ]; then
             echo "❌ INFISICAL_TOKEN is not set"
             exit 1
           fi
-          
+
           # Export secrets to temporary file
           # Try with /apps/admin first, fallback to /shared only if folder doesn't exist
           if ! infisical export \
@@ -1253,18 +854,18 @@ jobs:
               exit 1
             fi
           fi
-          
+
           # Check if file was created and has content
           if [ ! -s /tmp/build-args.env ]; then
             echo "⚠️  Build args file is empty, but continuing with defaults..."
             echo "# Empty build args - using code defaults" > /tmp/build-args.env
           fi
-          
+
           # Source the file to make variables available
           set -a
           source /tmp/build-args.env
           set +a
-          
+
           # Verify required variables are set
           if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
             echo "⚠️  WARNING: NEXT_PUBLIC_SITE_URL is not set"
@@ -1272,7 +873,7 @@ jobs:
           if [ -z "$NEXT_PUBLIC_API_URL" ]; then
             echo "⚠️  WARNING: NEXT_PUBLIC_API_URL is not set"
           fi
-          
+
           # Set as outputs for use in deployment step (with defaults to prevent empty values)
           echo "site_url=${NEXT_PUBLIC_SITE_URL:-}" >> $GITHUB_OUTPUT
           echo "api_url=${NEXT_PUBLIC_API_URL:-}" >> $GITHUB_OUTPUT
@@ -1281,7 +882,7 @@ jobs:
           echo "posthog_host=${NEXT_PUBLIC_POSTHOG_HOST:-}" >> $GITHUB_OUTPUT
           echo "supabase_url=${NEXT_PUBLIC_SUPABASE_URL:-}" >> $GITHUB_OUTPUT
           echo "supabase_anon_key=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" >> $GITHUB_OUTPUT
-          
+
           echo "✅ Build args exported"
           echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-<not set>}"
           echo "  NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-<not set>}"
@@ -1306,7 +907,7 @@ jobs:
         run: |
           echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
           echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
-          
+
           # Export secrets from Infisical and set them in Fly.io
           infisical export \
             --path=/apps/admin \
