@@ -1,0 +1,319 @@
+---
+description: Best practices for creating and maintaining Cursor Skills
+alwaysApply: false
+---
+
+# Skill Authoring Best Practices
+
+Guidelines for creating effective Cursor Skills that are discoverable, maintainable, and useful for AI agents.
+
+## When to Create a Skill vs Rule
+
+### Create a Skill When:
+
+- ✅ **Task-oriented workflow** - Step-by-step process to complete a task
+- ✅ **Reusable operation** - Something agents will do repeatedly
+- ✅ **Tool-specific usage** - How to use MCP tools, external services, or APIs
+- ✅ **Domain-specific workflow** - Complex domain operations (e.g., character creation, image generation)
+- ✅ **Infrastructure setup** - Setting up services, configuring tools, deployment workflows
+
+### Keep as Rule When:
+
+- ✅ **Coding standards** - Style, patterns, conventions
+- ✅ **Architecture principles** - Design decisions, layer responsibilities
+- ✅ **Always-apply context** - Information agents need in all contexts
+- ✅ **File-specific patterns** - Patterns for specific file types (globs)
+- ✅ **Policy/constraints** - Safety policies, constraints, non-functional requirements
+
+## Skill Structure
+
+### Required Files
+
+```
+.cursor/skills/skill-name/
+├── SKILL.md          # Required: Main skill documentation
+├── reference.md      # Optional: Detailed reference
+├── examples.md       # Optional: Usage examples
+└── scripts/          # Optional: Utility scripts
+```
+
+### SKILL.md Frontmatter
+
+```markdown
+---
+name: skill-name
+description: Brief description of what this skill does and when to use it. Include trigger terms. Use when [scenario 1], [scenario 2], or when the user mentions [keywords].
+---
+```
+
+**Description Best Practices:**
+- **Third-person** - "Deploys applications..." not "I deploy..."
+- **Specific** - What it does, not what it is
+- **Trigger terms** - Include keywords that help discovery
+- **When to use** - Clear scenarios for when this skill applies
+
+## Skill Content Structure
+
+### 1. Quick Start
+
+Always include a "Quick Start" section with 3-5 steps:
+
+```markdown
+## Quick Start
+
+When [doing X]:
+
+1. **Step 1** - Brief description
+2. **Step 2** - Brief description
+3. **Step 3** - Brief description
+```
+
+### 2. Workflow
+
+Detailed step-by-step workflow:
+
+```markdown
+## Workflow
+
+### Step 1: [Action]
+
+**Description of step**
+
+```code
+Example code
+```
+
+**Notes or best practices**
+```
+
+### 3. Examples
+
+Real-world examples:
+
+```markdown
+## Examples
+
+### Example 1: [Scenario]
+
+```code
+Complete working example
+```
+```
+
+### 4. Best Practices
+
+Dos and don'ts:
+
+```markdown
+## Best Practices
+
+### 1. [Practice]
+
+```code
+# ✅ Good
+code example
+
+# ❌ Bad
+code example
+```
+```
+
+### 5. Related Resources
+
+Links to related documentation:
+
+```markdown
+## Related Resources
+
+- **Documentation**: `path/to/docs.md`
+- **Related Skill**: See `other-skill` skill
+- **Related Rule**: `.cursor/rules/rule-name.mdc`
+```
+
+## Description Writing
+
+### Good Description
+
+```markdown
+---
+description: Deploys applications to Fly.io following RYLA deployment patterns. Use when deploying apps, setting up Fly.io infrastructure, configuring deployment workflows, or when the user mentions Fly.io deployment.
+---
+```
+
+**Why it's good:**
+- ✅ Specific action ("Deploys applications")
+- ✅ Context ("following RYLA patterns")
+- ✅ Clear scenarios ("Use when deploying apps...")
+- ✅ Trigger terms ("Fly.io deployment")
+
+### Bad Description
+
+```markdown
+---
+description: Fly.io stuff
+---
+```
+
+**Why it's bad:**
+- ❌ Too vague
+- ❌ No trigger terms
+- ❌ No scenarios
+- ❌ Not discoverable
+
+## Research & Documentation
+
+### Before Creating a Skill
+
+1. **Search existing documentation**
+   - Check `docs/` for related guides
+   - Review existing rules for patterns
+   - Look for SOPs or workflows
+
+2. **Review codebase**
+   - Find existing implementations
+   - Understand current patterns
+   - Identify best practices
+
+3. **Check external docs**
+   - Service documentation
+   - API references
+   - Best practices guides
+
+### Documenting Workflows
+
+**Extract from:**
+- Existing code implementations
+- Documentation files
+- Test files (show usage patterns)
+- Configuration files
+
+**Document:**
+- Step-by-step process
+- Code examples
+- Common pitfalls
+- Error handling
+- Best practices
+
+## Skill Patterns
+
+### Pattern 1: Tool Usage Skill
+
+**Structure:**
+- Quick Start (how to use the tool)
+- Complete Tool Reference (all available tools)
+- Common Workflows (typical use cases)
+- Configuration (setup requirements)
+- Best Practices (dos and don'ts)
+
+**Example**: `mcp-ryla-api`, `mcp-snyk`, `mcp-cloudflare`
+
+### Pattern 2: Workflow Skill
+
+**Structure:**
+- Quick Start (overview)
+- Workflow Steps (detailed process)
+- Examples (real-world scenarios)
+- Error Handling (common issues)
+- Best Practices (recommendations)
+
+**Example**: `epic-implementation`, `db-migration`, `character-creation`
+
+### Pattern 3: Infrastructure Skill
+
+**Structure:**
+- Quick Start (setup steps)
+- Configuration (how to configure)
+- Deployment (how to deploy)
+- Maintenance (how to maintain)
+- Troubleshooting (common issues)
+
+**Example**: `deployment-fly-io`, `infisical-setup`, `runpod-setup`
+
+### Pattern 4: Provider/Service Skill
+
+**Structure:**
+- Provider Priority (when to use)
+- Available Features (what's available)
+- Deployment (how to deploy)
+- Usage Patterns (how to use)
+- Maintenance (how to maintain)
+- Cost Management (pricing/costs)
+
+**Example**: `modal-ai-endpoints` (Modal.com as first provider)
+
+## Naming Conventions
+
+### Skill Names
+
+- **kebab-case**: `skill-name`
+- **Descriptive**: `modal-ai-endpoints` not `modal`
+- **Action-oriented**: `deployment-fly-io` not `fly-io-info`
+- **Specific**: `character-creation` not `wizard`
+
+### File Names
+
+- **SKILL.md**: Main skill file (required)
+- **reference.md**: Detailed reference (optional)
+- **examples.md**: Usage examples (optional)
+
+## Maintenance
+
+### When to Update a Skill
+
+- ✅ New features added to tool/service
+- ✅ Workflow changes
+- ✅ Best practices evolve
+- ✅ New patterns discovered
+- ✅ Errors found in skill
+
+### How to Update
+
+1. **Update SKILL.md** - Main documentation
+2. **Update examples** - Add new examples if needed
+3. **Update references** - Link to new documentation
+4. **Test discovery** - Verify skill is still discoverable
+
+## Quality Checklist
+
+Before marking a skill complete:
+
+- [ ] Description includes trigger terms
+- [ ] Quick Start section present
+- [ ] Workflow steps are clear
+- [ ] Code examples are working
+- [ ] Best practices included
+- [ ] Related resources linked
+- [ ] No broken links
+- [ ] Consistent formatting
+- [ ] Tested for discoverability
+
+## Examples of Good Skills
+
+### Reference Skills
+
+- `epic-implementation` - Complete workflow with reference
+- `mcp-ryla-api` - Tool usage with complete reference
+- `modal-ai-endpoints` - Provider skill with maintenance
+- `db-migration` - Workflow with best practices
+
+## Anti-Patterns
+
+### ❌ Don't Create Skills For:
+
+- **One-time tasks** - Use rules or documentation
+- **Simple patterns** - Keep in rules
+- **Information only** - Use rules or docs
+- **Too specific** - May not be reusable
+
+### ❌ Don't:
+
+- **Duplicate rule content** - Reference rules, don't copy
+- **Create overly broad skills** - Be specific
+- **Skip examples** - Examples are critical
+- **Forget trigger terms** - Discovery depends on description
+
+## Related Resources
+
+- **Skill Creation**: See `create-skill` skill (if available)
+- **Cursor Skills Research**: `docs/research/CURSOR-SKILLS-RESEARCH.md`
+- **Migration Plan**: `docs/initiatives/IN-029-MIGRATION-ACTION-PLAN.md`

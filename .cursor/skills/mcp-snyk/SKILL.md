@@ -1,0 +1,171 @@
+---
+name: mcp-snyk
+description: Uses Snyk MCP Server for security vulnerability scanning. Use when scanning repositories, checking security issues, verifying dependencies, or when the user mentions security scanning or Snyk.
+---
+
+# Snyk MCP Server Usage
+
+Complete guide for using Snyk MCP Server tools to scan for security vulnerabilities.
+
+## Quick Start
+
+When using Snyk MCP tools:
+
+1. **Verify Token** - Use `verify_token` to check configuration
+2. **Scan Repository** - Use `scan_repository` with full repository URL
+3. **Review Results** - Check vulnerabilities and recommendations
+
+## When to Use Snyk MCP Tools
+
+Use the Snyk MCP tools when you need to:
+
+- Scan repositories for security vulnerabilities
+- Check Snyk projects for security issues
+- Verify token configuration
+- Get security insights before deploying code
+- Monitor dependency vulnerabilities
+
+## Complete Tool Reference
+
+### Repository Scanning
+
+- `scan_repository` - Scan a GitHub or GitLab repository for vulnerabilities
+  - **Requires**: Repository URL (e.g., `https://github.com/owner/repo`)
+  - **Note**: Always use repository URLs, not local file paths
+
+### Project Scanning
+
+- `scan_project` - Scan a Snyk project by project ID
+  - **Requires**: Snyk project ID
+
+### Token Verification
+
+- `verify_token` - Verify Snyk API token and show user information
+  - Checks token validity
+  - Shows user information
+  - Displays CLI-configured organization ID if available
+
+## Configuration
+
+### Environment Variables
+
+- `SNYK_API_KEY` - **Required**: Your Snyk API token
+- `SNYK_ORG_ID` - **Optional**: Default organization ID
+
+### Organization ID Configuration
+
+The server looks for organization ID in this order:
+
+1. Command argument (if provided)
+2. MCP settings environment variable (`SNYK_ORG_ID`)
+3. Snyk CLI configuration (`snyk config get org`)
+
+### Getting a Snyk API Token
+
+1. Go to [Snyk Account Settings](https://app.snyk.io/account)
+2. Navigate to "API Token" section
+3. Create a new token or copy existing token
+4. Set as `SNYK_API_KEY` environment variable
+
+## Best Practices
+
+### 1. Verify Token First
+
+Before scanning, verify your token is configured correctly:
+
+```
+Verify my Snyk token configuration
+```
+
+### 2. Use Repository URLs
+
+Always provide full repository URLs for scanning:
+
+- ✅ `https://github.com/owner/repo`
+- ✅ `https://gitlab.com/owner/repo`
+- ❌ `/path/to/local/repo`
+- ❌ `owner/repo`
+
+### 3. Scan Before Deployment
+
+Run security scans before:
+
+- Merging pull requests
+- Deploying to production
+- Publishing packages
+- Updating dependencies
+
+### 4. Organization ID
+
+If you have multiple organizations, specify the org ID:
+
+- In MCP config via `SNYK_ORG_ID`
+- Via Snyk CLI: `snyk config set org=your-org-id`
+- As command argument when scanning
+
+## Common Workflows
+
+### Scan Repository for Vulnerabilities
+
+```
+Scan repository https://github.com/owner/repo for security vulnerabilities
+```
+
+### Scan with Specific Organization
+
+```
+Scan repository https://github.com/owner/repo in organisation org-id-here
+```
+
+### Verify Configuration
+
+```
+Verify my Snyk token configuration
+```
+
+### Scan Snyk Project
+
+```
+Scan Snyk project project-id-here
+```
+
+## Snyk CLI Integration
+
+If you have the Snyk CLI installed (`npm install -g snyk`), the server can:
+
+- Use your CLI-configured organization ID
+- Fall back to CLI settings when MCP config is missing
+- Show CLI configuration in token verification
+
+This makes it easier to use the same organization ID across CLI and MCP.
+
+## Error Handling
+
+Common errors:
+
+- "Invalid API token" - Check `SNYK_API_KEY` is set correctly
+- "Repository not found" - Verify repository URL is correct and accessible
+- "Organization not found" - Check organization ID is valid
+- "Rate limit exceeded" - Wait before retrying
+
+## Security Notes
+
+- Never commit `SNYK_API_KEY` to version control
+- Use environment variables for all sensitive tokens
+- Rotate API tokens regularly
+- Use least-privilege tokens when possible
+
+## Integration with CI/CD
+
+The Snyk MCP server can be used in development workflows:
+
+- Pre-commit security checks
+- PR security reviews
+- Dependency update validation
+- Production deployment gates
+
+## Related Resources
+
+- [Snyk MCP Server](https://github.com/sammcj/mcp-snyk)
+- [Snyk API Documentation](https://docs.snyk.io/snyk-api)
+- [Snyk CLI Documentation](https://docs.snyk.io/snyk-cli)

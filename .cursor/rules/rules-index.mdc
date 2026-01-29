@@ -56,6 +56,7 @@ All following rules are saved under `.cursor/rules/` directory:
 - `mcp-ryla-api.mdc` – RYLA MCP Server usage guidelines
 - `mcp-snyk.mdc` – Snyk MCP Server usage guidelines for security scanning
 - `mcp-cloudflare.mdc` – Cloudflare MCP Server usage guidelines
+- `mcp-modal.mdc` – Modal.com best practices and deployment patterns
 - `runpod-safety.mdc` – RunPod safety: confirmation-gated, create-only operations
 - `infisical.mdc` – Infisical secrets management patterns and usage
 
@@ -71,6 +72,7 @@ All following rules are saved under `.cursor/rules/` directory:
 - `ralph.mdc` – Iterative development pattern (Ralph-style) for complex features
 - `refactoring.mdc` – Refactoring guidelines and patterns
 - `cursor-rules.mdc` – Guidelines for writing and maintaining Cursor rules
+- `skill-authoring.mdc` – Best practices for creating and maintaining Cursor Skills
 - `task-execution.mdc` – Standard Operating Procedure (SOP) for AI agents to complete tasks
 - `user-intent-validation.mdc` – Validate user intent and propose better paths
 - `error-handling.mdc` – Error handling patterns for React and API routes
@@ -110,4 +112,5 @@ All following rules are saved under `.cursor/rules/` directory:
 - Logging → `logging.mdc`
 - Environment variables → `environment-variables.mdc`
 - Secrets management → `infisical.mdc`
+- Modal.com deployment → `mcp-modal.mdc`
 - Git workflow → `git-workflow.mdc`

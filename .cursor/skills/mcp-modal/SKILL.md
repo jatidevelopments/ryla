@@ -1,0 +1,423 @@
+---
+name: mcp-modal
+description: Deploys and manages Modal.com serverless functions following RYLA patterns. Use when deploying to Modal, managing ComfyUI deployments, configuring serverless functions, or when the user mentions Modal.com or serverless deployment.
+---
+
+# Modal.com Deployment
+
+Complete guide for deploying and managing Modal.com serverless functions for RYLA's ComfyUI infrastructure.
+
+## Quick Start
+
+When deploying to Modal:
+
+1. **Build Image** - Ensure image builds incrementally with caching
+2. **Deploy App** - Use `modal deploy apps/modal/app.py`
+3. **Monitor Logs** - Use `modal app logs <app-name> --timeout 30` (always with timeout)
+4. **Handle Cold Starts** - Expect 2-5 minute cold starts for ComfyUI
+
+## Core Principles
+
+- **Stateless Functions**: Functions should be stateless and idempotent
+- **Cold Starts**: First request can take 2-5 minutes (ComfyUI startup)
+- **Image Building**: Build images incrementally, cache dependencies
+- **Error Handling**: Always handle timeouts and connection errors gracefully
+- **Logging**: Use structured logging for debugging
+
+## Modal CLI Commands
+
+### Common Commands
+
+```bash
+# Deploy app
+modal deploy apps/modal/app.py
+
+# View logs (with timeout - IMPORTANT)
+modal app logs <app-name> --timeout 30
+
+# List apps
+modal app list
+
+# Show app details
+modal app show <app-name>
+
+# Run function locally (for testing)
+modal run apps/modal/app.py::function_name
+```
+
+### Timeout Handling
+
+**IMPORTANT**: Modal CLI commands (especially `modal app logs`) can hang indefinitely. Always use timeouts:
+
+```bash
+# ❌ Bad: No timeout
+modal app logs my-app
+
+# ✅ Good: With timeout
+timeout 30 modal app logs my-app || echo "Logs timeout after 30s"
+
+# ✅ Good: In scripts
+modal app logs my-app 2>&1 | timeout 30 cat || true
+```
+
+## Image Building Best Practices
+
+### 1. Incremental Builds
+
+```python
+# ✅ Good: Build incrementally, cache layers
+image = (
+    modal.Image.debian_slim()
+    .pip_install(["torch", "transformers"])  # Base deps first
+    .run_commands(["git clone ComfyUI"])      # Then ComfyUI
+    .run_commands(["install custom nodes"])   # Then custom nodes
+)
+
+# ❌ Bad: Everything in one layer
+image = modal.Image.debian_slim().run_commands([
+    "pip install torch transformers && git clone ComfyUI && install nodes"
+])
+```
+
+### 2. Use `.copy_local_file()` for Utils
+
+```python
+# ✅ Good: Copy local files explicitly
+image = image.copy_local_file(
+    "apps/modal/utils/comfyui.py",
+    "/root/utils/comfyui.py"
+)
+
+# ❌ Bad: Assume files are available
+# (Files won't be in image unless explicitly copied)
+```
+
+### 3. Handle Missing Files Gracefully
+
+```python
+# ✅ Good: Try/catch for optional files
+try:
+    image = image.copy_local_file(
+        "apps/modal/utils/comfyui.py",
+        "/root/utils/comfyui.py"
+    )
+except FileNotFoundError:
+    print("⚠️  Utils file not found, using fallback")
+    # Fallback implementation
+```
+
+## Function Patterns
+
+### 1. Class-Based Functions (Recommended)
+
+```python
+@app.cls(
+    scaledown_window=300,  # Keep container alive 5 min
+    gpu="A100",
+    volumes={"/root/models": volume},
+    timeout=1800,
+)
+@modal.concurrent(max_inputs=5)
+class ComfyUI:
+    port: int = 8000
+    
+    @modal.enter()
+    def launch_comfy_background(self):
+        """Launch once when container starts."""
+        from utils.comfyui import launch_comfy_server
+        launch_comfy_server(self.port)
+    
+    @modal.method()
+    def generate(self, workflow_json: dict):
+        """Execute workflow."""
+        from utils.comfyui import poll_server_health, execute_workflow_via_api
+        poll_server_health(self.port)
+        return execute_workflow_via_api(workflow_json, port=self.port)
+```
+
+### 2. FastAPI Endpoints
+
+```python
+@app.asgi_app()
+def fastapi_app(self):
+    """FastAPI endpoint."""
+    from fastapi import FastAPI, HTTPException
+    
+    app = FastAPI(title="ComfyUI API")
+    
+    @app.post("/generate")
+    async def generate(request: WorkflowRequest):
+        try:
+            result = self.generate.remote(request.workflow)
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    
+    @app.get("/health")
+    async def health():
+        return {"status": "healthy"}
+    
+    return app
+```
+
+## Error Handling
+
+### 1. Timeout Handling
+
+```python
+# ✅ Good: Set timeouts
+@app.function(timeout=1800)  # 30 minutes
+def long_running_task():
+    # ...
+
+# ✅ Good: Handle timeouts in code
+try:
+    result = execute_workflow(workflow, timeout=1200)
+except TimeoutError:
+    raise Exception("Workflow execution timeout")
+```
+
+### 2. Connection Errors
+
+```python
+# ✅ Good: Retry with backoff
+import time
+import requests
+
+def poll_with_retry(url, max_retries=5, delay=2):
+    for i in range(max_retries):
+        try:
+            response = requests.get(url, timeout=10)
+            if response.status_code == 200:
+                return response.json()
+        except requests.exceptions.RequestException:
+            if i < max_retries - 1:
+                time.sleep(delay * (i + 1))  # Exponential backoff
+            else:
+                raise
+    raise Exception("Max retries exceeded")
+```
+
+### 3. Health Checks
+
+```python
+# ✅ Good: Health check before operations
+def execute_workflow(workflow_json: dict):
+    # Check server health first
+    poll_server_health(port=8000)
+    
+    # Then execute
+    return execute_workflow_via_api(workflow_json, port=8000)
+```
+
+## Cold Start Handling
+
+### Problem
+First request to a Modal function can take 2-5 minutes:
+- Container startup: ~30s
+- ComfyUI installation: ~1-2 min
+- Model loading: ~1-2 min
+- Server startup: ~30s
+
+### Solutions
+
+1. **Keep-Alive Window**
+```python
+@app.cls(scaledown_window=300)  # Keep alive 5 minutes
+```
+
+2. **Warm-Up Requests**
+```python
+# Send periodic health checks to keep container warm
+@app.function(schedule=modal.Cron("*/5 * * * *"))  # Every 5 minutes
+def keep_warm():
+    return {"status": "warm"}
+```
+
+3. **Client-Side Timeout**
+```typescript
+// Set longer timeout for first request
+const response = await fetch(url, {
+  signal: AbortSignal.timeout(300000)  // 5 minutes
+});
+```
+
+## Logging Best Practices
+
+### 1. Structured Logging
+
+```python
+import logging
+
+logger = logging.getLogger(__name__)
+
+def execute_workflow(workflow_json: dict):
+    logger.info("Starting workflow execution", extra={
+        "workflow_id": workflow_json.get("id"),
+        "node_count": len(workflow_json)
+    })
+    
+    try:
+        result = execute_workflow_via_api(workflow_json)
+        logger.info("Workflow completed", extra={"result": "success"})
+        return result
+    except Exception as e:
+        logger.error("Workflow failed", extra={"error": str(e)})
+        raise
+```
+
+### 2. Modal Logs Access
+
+```bash
+# View recent logs
+modal app logs <app-name> | tail -100
+
+# Follow logs (with timeout)
+timeout 60 modal app logs <app-name> -f || true
+
+# Filter logs
+modal app logs <app-name> | grep "ERROR"
+```
+
+## Common Issues & Solutions
+
+### Issue 1: "Image build failed"
+
+**Cause**: Missing dependencies or invalid commands
+
+**Solution**:
+- Check image build logs: `modal deploy --verbose`
+- Test commands locally first
+- Use incremental builds
+
+### Issue 2: "Function timeout"
+
+**Cause**: Workflow takes longer than timeout
+
+**Solution**:
+- Increase timeout: `@app.function(timeout=3600)`
+- Optimize workflow
+- Use async execution
+
+### Issue 3: "Module not found"
+
+**Cause**: Files not copied to image
+
+**Solution**:
+- Use `.copy_local_file()` or `.add_local_dir()`
+- Check file paths are correct
+- Verify files exist before building
+
+### Issue 4: "Logs command hangs"
+
+**Cause**: Modal CLI can hang on network issues
+
+**Solution**:
+- Always use timeout: `timeout 30 modal app logs <app>`
+- Retry with exponential backoff
+- Check Modal dashboard instead
+
+### Issue 5: "Cold start too slow"
+
+**Cause**: First request needs to start container
+
+**Solution**:
+- Increase `scaledown_window`
+- Use warm-up functions
+- Set longer client timeouts
+
+## Testing Patterns
+
+### 1. Local Testing
+
+```python
+# Test function locally
+modal run apps/modal/app.py::test_function
+
+# Test with specific input
+modal run apps/modal/app.py::generate --workflow-json '{"1": {...}}'
+```
+
+### 2. Integration Testing
+
+```python
+# Test deployed endpoint
+import requests
+
+def test_deployed_endpoint():
+    url = "https://workspace--app-fastapi-app.modal.run/health"
+    response = requests.get(url, timeout=30)
+    assert response.status_code == 200
+```
+
+## Performance Optimization
+
+### 1. Image Size
+
+```python
+# ✅ Good: Use slim base images
+image = modal.Image.debian_slim()
+
+# ❌ Bad: Use full images
+image = modal.Image.debian()
+```
+
+### 2. Dependency Caching
+
+```python
+# ✅ Good: Install dependencies in separate layer
+image = (
+    modal.Image.debian_slim()
+    .pip_install(["torch", "transformers"])  # Cached layer
+    .run_commands(["git clone repo"])        # Separate layer
+)
+```
+
+### 3. Volume Usage
+
+```python
+# ✅ Good: Use volumes for large files
+volume = modal.Volume.from_name("models", create_if_missing=True)
+
+@app.function(volumes={"/root/models": volume})
+def load_model():
+    # Models loaded from volume
+    pass
+```
+
+## Security Best Practices
+
+### 1. Secrets Management
+
+```python
+# ✅ Good: Use Modal secrets
+secret = modal.Secret.from_name("huggingface")
+
+@app.function(secrets=[secret])
+def download_model():
+    token = os.getenv("HF_TOKEN")  # From secret
+    # ...
+```
+
+### 2. Input Validation
+
+```python
+# ✅ Good: Validate inputs
+from pydantic import BaseModel, validator
+
+class WorkflowRequest(BaseModel):
+    workflow: dict
+    
+    @validator('workflow')
+    def validate_workflow(cls, v):
+        if not isinstance(v, dict):
+            raise ValueError("Workflow must be a dictionary")
+        return v
+```
+
+## Related Resources
+
+- **Modal.com Docs**: https://modal.com/docs
+- **RYLA Modal App**: `apps/modal/app.py`
+- **Modal Utils**: `apps/modal/utils/comfyui.py`
+- **Deployment Guide**: `docs/ops/deployment/modal/`
