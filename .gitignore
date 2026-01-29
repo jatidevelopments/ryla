@@ -68,3 +68,12 @@ out
 public/sw.js
 public/sw.js.map
 public/worker-*.js
+
+# Wrangler (Cloudflare)
+.wrangler/
+
+# Test images at root
+*.jpg
+*.png
+!apps/**/public/**/*.jpg
+!apps/**/public/**/*.png
