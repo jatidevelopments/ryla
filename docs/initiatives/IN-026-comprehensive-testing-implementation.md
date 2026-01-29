@@ -1,8 +1,8 @@
 # [INITIATIVE] IN-026: Comprehensive Testing Implementation
 
-**Status**: Proposed  
+**Status**: Active  
 **Created**: 2026-01-27  
-**Last Updated**: 2026-01-27  
+**Last Updated**: 2026-01-27 (Updated to 100% coverage goals)  
 **Owner**: Engineering Team  
 **Stakeholders**: Product Team, QA Team
 
@@ -10,7 +10,7 @@
 
 ## Executive Summary
 
-**One-sentence description**: Establish comprehensive unit, integration, and E2E test coverage across all RYLA applications and libraries to ensure reliability, prevent regressions, and enable confident deployments.
+**One-sentence description**: Achieve 100% unit, integration, and E2E test coverage across all RYLA applications and libraries (web, api, funnel, landing, admin) to ensure reliability, prevent regressions, and enable confident deployments.
 
 **Business Impact**: C-Core Value, B-Retention, E-CAC
 
@@ -58,12 +58,13 @@ This creates risks:
 
 ### Desired State
 
-**Comprehensive Test Coverage:**
-- 80%+ coverage for all business logic (`libs/business`, `apps/api/services`)
-- All shared UI components have interaction tests (`libs/ui`)
-- All tRPC routers have comprehensive tests
-- Critical user journeys covered by E2E tests
-- Integration tests for database operations and external services
+**Comprehensive Test Coverage (100% Target):**
+- **100% coverage** for all business logic (`libs/business`, `apps/api/services`)
+- **100% coverage** for all shared UI components (`libs/ui`)
+- **100% coverage** for all tRPC routers (web app, admin app)
+- **100% coverage** for all app-specific components (web, funnel, landing, admin)
+- **100% E2E coverage** for all critical user journeys across all apps
+- **100% coverage** for integration tests (database operations, external services)
 
 **Test Infrastructure:**
 - Standardized test utilities and fixtures across all apps
@@ -99,24 +100,30 @@ This creates risks:
 - Set up coverage reporting
 - Document testing patterns
 
-**Phase 2: Unit Tests** - Comprehensive unit test coverage
-- Business logic services (priority: critical paths first)
-- Shared UI components
-- Utilities and helpers
-- tRPC routers and procedures
+**Phase 2: Unit Tests** - 100% unit test coverage across all apps
+- **apps/web**: All services, components, hooks, utilities
+- **apps/api**: All services, modules, utilities
+- **apps/funnel**: All components, hooks, services, utilities
+- **apps/landing**: All components, utilities
+- **apps/admin**: Complete existing coverage (already ~80%)
+- **libs/business**: All services (100% coverage)
+- **libs/ui**: All components (100% coverage)
+- **libs/shared**: All utilities (100% coverage)
+- **libs/trpc**: All routers (100% coverage)
 
-**Phase 3: Integration Tests** - Database and service integration
-- Database operations with pglite
+**Phase 3: Integration Tests** - 100% integration test coverage
+- Database operations with pglite (all apps)
 - External service integrations (mocked)
-- tRPC router + database flows
+- tRPC router + database flows (all routers)
 - Business service integration
+- API endpoint integration tests
 
-**Phase 4: E2E Tests** - Critical user journeys
-- Authentication flows
-- Character creation wizard
-- Image generation studio
-- Payment and subscription flows
-- Admin panel operations
+**Phase 4: E2E Tests** - 100% E2E coverage for critical journeys across all apps
+- **apps/web**: Authentication, wizard, studio, payments, dashboard
+- **apps/funnel**: Payment flow, step navigation, form validation
+- **apps/landing**: Page interactions, CTA flows, form submissions
+- **apps/admin**: Admin operations, user management, content moderation
+- Critical user journeys (onboarding, upgrade, generation to download)
 
 ### Key Principles
 
@@ -125,7 +132,7 @@ This creates risks:
 - **Fast Feedback**: Unit tests must be fast (< 1s per test file)
 - **Isolation**: Tests must be independent and repeatable
 - **Realistic Mocks**: Use MSW for network, pglite for database
-- **Coverage Goals**: 80%+ for business logic, focus on interactions for UI
+- **Coverage Goals**: 100% for all code (unit, integration, E2E)
 
 ### Phases
 
@@ -135,21 +142,28 @@ This creates risks:
    - Create test templates
    - Document patterns
 
-2. **Phase 2: Unit Test Coverage** - 4-6 weeks
-   - Business logic services (critical first)
-   - UI components
-   - tRPC routers
-   - Utilities
+2. **Phase 2: Unit Test Coverage** - 8-12 weeks
+   - **apps/web**: All services, components, hooks (~4 weeks)
+   - **apps/api**: All services, modules (~2 weeks)
+   - **apps/funnel**: All components, hooks, services (~2 weeks)
+   - **apps/landing**: All components, utilities (~1 week)
+   - **libs/business**: All services (~2 weeks)
+   - **libs/ui**: All components (~1 week)
+   - **libs/trpc**: All routers (~2 weeks)
+   - **libs/shared**: All utilities (~1 week)
 
-3. **Phase 3: Integration Tests** - 2-3 weeks
-   - Database operations
-   - Service integrations
-   - Router + database flows
+3. **Phase 3: Integration Tests** - 3-4 weeks
+   - Database operations (all apps)
+   - Service integrations (all apps)
+   - Router + database flows (all routers)
+   - API endpoint integration
 
-4. **Phase 4: E2E Test Coverage** - 3-4 weeks
-   - Critical user journeys
-   - Admin panel flows
-   - Payment flows
+4. **Phase 4: E2E Test Coverage** - 4-6 weeks
+   - **apps/web**: All critical journeys (~2 weeks)
+   - **apps/funnel**: Payment and step flows (~1 week)
+   - **apps/landing**: Page interactions (~1 week)
+   - **apps/admin**: Admin operations (~1 week)
+   - Cross-app journeys (~1 week)
 
 ### Dependencies
 
@@ -172,12 +186,13 @@ This creates risks:
 ### Timeline
 
 - **Start Date**: 2026-01-27
-- **Target Completion**: 2026-04-30 (12 weeks)
+- **Target Completion**: 2026-07-31 (26 weeks / ~6 months)
 - **Key Milestones**:
-  - **Week 2**: Test infrastructure complete (Phase 1)
-  - **Week 8**: Unit test coverage at 80%+ (Phase 2)
-  - **Week 11**: Integration tests complete (Phase 3)
-  - **Week 12**: E2E tests complete (Phase 4)
+  - **Week 2**: Test infrastructure complete (Phase 1) ✅
+  - **Week 14**: Unit test coverage at 100% (Phase 2)
+  - **Week 18**: Integration tests at 100% (Phase 3)
+  - **Week 24**: E2E tests at 100% (Phase 4)
+  - **Week 26**: All tests passing, coverage validated, documentation complete
 
 ### Priority
 
@@ -237,11 +252,14 @@ This creates risks:
 
 | Metric | Target | Measurement Method | Timeline |
 |--------|--------|-------------------|----------|
-| Business Logic Coverage | 80%+ | Vitest coverage report | Week 8 |
-| UI Component Coverage | 80%+ | Vitest coverage report | Week 8 |
-| E2E Test Coverage | All critical flows | Playwright test suite | Week 12 |
-| Test Execution Time | < 5 min (unit), < 15 min (E2E) | CI/CD pipeline | Week 12 |
-| Test Reliability | 95%+ pass rate | CI/CD history | Week 12 |
+| Business Logic Coverage | **100%** | Vitest coverage report | Week 14 |
+| UI Component Coverage | **100%** | Vitest coverage report | Week 14 |
+| tRPC Router Coverage | **100%** | Vitest coverage report | Week 14 |
+| App Component Coverage | **100%** (web, funnel, landing, admin) | Vitest coverage report | Week 14 |
+| Integration Test Coverage | **100%** | Vitest coverage report | Week 18 |
+| E2E Test Coverage | **100%** (all critical journeys) | Playwright test suite | Week 24 |
+| Test Execution Time | < 5 min (unit), < 15 min (E2E) | CI/CD pipeline | Week 24 |
+| Test Reliability | 95%+ pass rate | CI/CD history | Week 24 |
 
 ### Business Metrics Impact
 
@@ -272,8 +290,11 @@ This creates risks:
 
 ### Initiative Complete When:
 
-- [ ] All success criteria met (80%+ coverage, all critical flows tested)
-- [ ] All related epics completed (EP-060, EP-061)
+- [ ] All success criteria met (**100% coverage** for unit, integration, E2E)
+- [ ] All related epics completed (EP-062, EP-063)
+- [ ] **100% coverage** achieved for all apps (web, api, funnel, landing, admin)
+- [ ] **100% coverage** achieved for all libraries (business, ui, shared, trpc)
+- [ ] **100% E2E coverage** for all critical user journeys across all apps
 - [ ] Test infrastructure standardized across all apps
 - [ ] Coverage reporting integrated into CI/CD
 - [ ] Testing standards consistently applied
@@ -284,12 +305,13 @@ This creates risks:
 ### Not Done Criteria
 
 **This initiative is NOT done if:**
-- [ ] Coverage below 80% for business logic
-- [ ] Critical user journeys not covered by E2E tests
+- [ ] Coverage below **100%** for any app or library
+- [ ] Any critical user journey not covered by E2E tests
 - [ ] Test infrastructure inconsistent across apps
 - [ ] Tests unreliable or slow
 - [ ] Standards not consistently applied
 - [ ] Documentation incomplete
+- [ ] Any app (web, api, funnel, landing, admin) missing tests
 
 ---
 
@@ -299,8 +321,8 @@ This creates risks:
 
 | Epic | Name | Status | Link |
 |------|------|--------|------|
-| EP-060 | Unit Test Infrastructure & Coverage | Proposed | [Link to be created] |
-| EP-061 | E2E Test Infrastructure & Coverage | Proposed | [Link to be created] |
+| EP-062 | Unit Test Infrastructure & Coverage | Proposed | [EP-062](../requirements/epics/mvp/EP-062-unit-test-infrastructure-coverage.md) |
+| EP-063 | E2E Test Infrastructure & Coverage | Proposed | [EP-063](../requirements/epics/mvp/EP-063-e2e-test-infrastructure-coverage.md) |
 
 ### Dependencies
 
@@ -338,14 +360,17 @@ This creates risks:
 
 ### Recent Updates
 
-- **2026-01-27**: Initiative created, epics to be defined
+- **2026-01-27**: Initiative created, epics defined
+- **2026-01-27**: EP-062 P6 complete (infrastructure + example tests)
+- **2026-01-27**: Updated goals to 100% coverage across all apps
 
 ### Next Steps
 
-1. Create EP-060 (Unit Test Infrastructure & Coverage)
-2. Create EP-061 (E2E Test Infrastructure & Coverage)
-3. Begin P1-P10 pipeline for EP-060
-4. Begin P1-P10 pipeline for EP-061
+1. ✅ Create EP-062 (Unit Test Infrastructure & Coverage)
+2. ✅ Create EP-063 (E2E Test Infrastructure & Coverage)
+3. ✅ Complete EP-062 P6 (Infrastructure setup)
+4. ⏳ Continue EP-062: Write tests to achieve 100% coverage
+5. ⏳ Begin EP-063: E2E test infrastructure and coverage
 
 ---
 

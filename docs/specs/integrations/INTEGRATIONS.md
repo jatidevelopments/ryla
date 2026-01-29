@@ -394,8 +394,7 @@ jobs:
 - [ ] Configure GitHub Actions secrets
 
 ### Credentials Storage
-- [ ] Add all tokens to `config/credentials.csv`
-- [ ] Add env vars to `config/env.template`
+- [ ] Add all tokens to Infisical (see `config/infisical-secrets-template.md`)
 - [ ] Configure CI/CD secrets in GitHub
 
 ### Verification

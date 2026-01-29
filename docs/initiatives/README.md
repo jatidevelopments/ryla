@@ -95,10 +95,16 @@ Create an initiative when:
 | [IN-021](./IN-021-posthog-analytics-web-app.md) | PostHog Analytics Implementation in Web App | Proposed (Draft) | A-Activation, B-Retention, C-Core Value, D-Conversion, E-CAC | Product Team |
 | [IN-022](./IN-022-social-media-pixel-tracking.md) | Social Media Pixel Tracking Infrastructure | **Completed** | A-Activation, D-Conversion, E-CAC | Growth Team |
 | [IN-023](./IN-023-fly-io-deployment-infrastructure.md) | Fly.io Deployment Infrastructure & Infisical Integration | Active (Ready) | E-CAC, C-Core Value, B-Retention | Infrastructure Team |
-| [IN-024](./IN-023-modal-code-organization.md) | Modal.com Code Organization & Best Practices | Active | E-CAC, C-Core Value, B-Retention | Infrastructure Team |
+| [IN-024](./IN-024-modal-code-organization.md) | Modal.com Code Organization & Best Practices | Active | E-CAC, C-Core Value, B-Retention | Infrastructure Team |
 | [IN-025](./IN-025-forgot-password-feature.md) | Forgot Password Feature Completion | Active | A-Activation, B-Retention | Product Team |
 | [IN-026](./IN-026-comprehensive-testing-implementation.md) | Comprehensive Testing Implementation | Proposed | C-Core Value, B-Retention, E-CAC | Engineering Team |
+| [IN-027](./IN-027-multi-agent-orchestration-system.md) | Multi-Agent Orchestration System | Proposed | E-CAC, C-Core Value, B-Retention | Engineering Team |
+| [IN-028](./IN-028-workflow-to-serverless-deployment.md) | Zero-Setup Workflow-to-Serverless Deployment | Proposed | E-CAC, C-Core Value, A-Activation, B-Retention | Infrastructure Team |
+| [IN-029](./IN-029-cursor-skills-migration.md) | Cursor Skills Migration | Proposed | C-Core Value, E-CAC | Engineering Team |
+| [IN-030](./IN-030-vast-ai-alternative-infrastructure.md) | Vast.ai Alternative Infrastructure Evaluation | Proposed | E-CAC, C-Core Value, B-Retention | Infrastructure Team |
+| [IN-031](./IN-031-agentic-workflow-deployment.md) | Agentic ComfyUI Workflow Deployment System | Proposed | E-CAC, C-Core Value, A-Activation, B-Retention | Infrastructure Team |
+| [IN-032](./IN-032-funnel-supabase-to-backend-migration.md) | Funnel Supabase to Backend Migration | Active | E-CAC, C-Core Value, B-Retention, A-Activation | Engineering Team |
 
 ---
 
-**Last Updated**: 2026-01-27
+**Last Updated**: 2026-01-28

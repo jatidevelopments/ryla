@@ -169,6 +169,35 @@ Configured in `.cursor/mcp.json` for Cursor IDE integration. Allows managing Run
 - Serverless Endpoints: Create, list, get details, update, delete
 - Templates: Create, list, get details, update, delete
 - Network Volumes: Create, list, get details, update, delete
+
+### Modal.com
+| | |
+|---|---|
+| **Purpose** | Serverless AI inference platform |
+| **Used For** | Image generation (Flux Dev, Flux Schnell), video generation (Wan2.1), custom workflows |
+| **Docs** | https://modal.com/docs |
+| **Dashboard** | https://modal.com/apps |
+
+**Env Vars:**
+```
+MODAL_ENDPOINT_URL=https://{workspace}--ryla-comfyui-comfyui-fastapi-app.modal.run
+# OR construct from workspace:
+MODAL_WORKSPACE=ryla
+```
+
+**Endpoints:**
+- `/flux-dev` - Flux Dev text-to-image (Primary MVP model)
+- `/flux` - Flux Schnell text-to-image (fast generation)
+- `/wan2` - Wan2.1 text-to-video
+- `/workflow` - Custom ComfyUI workflow execution
+- `/flux-lora` - Flux Dev + LoRA character consistency
+
+**Status:**
+- 5/7 endpoints working (71%)
+- `/flux-instantid` and `/seedvr2` not yet available
+
+**Priority:**
+Modal.com is preferred over ComfyUI/RunPod for image generation when available. Falls back to ComfyUI or RunPod if Modal.com is not configured.
 - Container Registry: Create, list, get details, delete authentications
 
 ---

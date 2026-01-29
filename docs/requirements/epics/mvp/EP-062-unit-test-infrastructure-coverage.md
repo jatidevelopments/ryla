@@ -1,7 +1,7 @@
 # [EPIC] EP-062: Unit Test Infrastructure & Coverage (IN-026)
 
-**Status**: Proposed  
-**Phase**: P1 - Requirements  
+**Status**: In Progress  
+**Phase**: P6 - Implementation (Infrastructure Complete, Coverage In Progress)  
 **Created**: 2026-01-27  
 **Last Updated**: 2026-01-27  
 **Initiative**: IN-026  
@@ -11,7 +11,7 @@
 
 ## Overview
 
-Establish comprehensive unit test infrastructure and achieve 80%+ test coverage for all business logic, shared UI components, utilities, and tRPC routers across the RYLA monorepo.
+Establish comprehensive unit test infrastructure and achieve **100% test coverage** for all business logic, shared UI components, utilities, and tRPC routers across **all RYLA apps** (web, api, funnel, landing, admin) and libraries (business, ui, shared, trpc).
 
 This epic focuses on unit and integration tests using Vitest, following the testing pyramid principle (70% unit tests). It establishes standardized test utilities, fixtures, and patterns that enable fast, reliable test execution.
 
@@ -24,11 +24,14 @@ This epic focuses on unit and integration tests using Vitest, following the test
 **Hypothesis**: When code has comprehensive unit test coverage with fast, reliable tests, developers can refactor confidently, catch bugs early, and deploy with confidence, resulting in fewer production incidents, better user experience, and lower engineering costs.
 
 **Success Criteria**:
-- Business logic coverage: **80%+** for `libs/business` and `apps/api/src/services`
-- UI component coverage: **80%+** for `libs/ui` shared components
-- tRPC router coverage: **80%+** for all routers
+- Business logic coverage: **100%** for `libs/business` and `apps/api/src/services`
+- UI component coverage: **100%** for `libs/ui` shared components
+- App component coverage: **100%** for all apps (web, funnel, landing, admin)
+- tRPC router coverage: **100%** for all routers (web app, admin app)
+- Utility coverage: **100%** for `libs/shared` utilities
 - Test execution time: **< 5 minutes** for full unit test suite
 - Test reliability: **95%+** pass rate in CI/CD
+- **All apps covered**: web, api, funnel, landing, admin
 
 ---
 
@@ -53,35 +56,44 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 - pglite setup for database integration tests
 - Test helpers for common patterns (auth mocking, context mocking)
 
-### F2: Business Logic Test Coverage
+### F2: Business Logic Test Coverage (100%)
 
-- All services in `libs/business` have `.spec.ts` files
-- All services in `apps/api/src/services` have `.spec.ts` files
-- Critical business logic paths tested (happy paths + edge cases)
-- Error handling tested
+- **100% coverage** for all services in `libs/business` (all `.spec.ts` files)
+- **100% coverage** for all services in `apps/api/src/services` (all `.spec.ts` files)
+- **100% coverage** for all services in `apps/funnel/services` (if any)
+- All business logic paths tested (happy paths + edge cases)
+- Error handling tested for all services
 - Integration tests for database operations using pglite
 - Mock external services appropriately
 
-### F3: UI Component Test Coverage
+### F3: UI Component Test Coverage (100%)
 
-- All shared components in `libs/ui` have `.spec.tsx` files
+- **100% coverage** for all shared components in `libs/ui` (all `.spec.tsx` files)
+- **100% coverage** for all components in `apps/web/components` (all `.spec.tsx` files)
+- **100% coverage** for all components in `apps/funnel/components` (all `.spec.tsx` files)
+- **100% coverage** for all components in `apps/landing/components` (all `.spec.tsx` files)
+- **100% coverage** for all components in `apps/admin/app` (all `.spec.tsx` files)
 - Focus on interaction logic (user interactions, state changes)
 - Use MSW for network mocking (never mock `useQuery`/`useMutation` directly)
 - Test error states and loading states
 - Test accessibility where applicable
 
-### F4: tRPC Router Test Coverage
+### F4: tRPC Router Test Coverage (100%)
 
-- All tRPC routers have comprehensive `.spec.ts` files
+- **100% coverage** for all tRPC routers in `libs/trpc/src/routers` (all `.spec.ts` files)
+- **100% coverage** for all routers in `apps/admin/lib/trpc/routers` (all `.spec.ts` files)
 - Test procedures by calling them directly with mocked context
 - Test permission checks (RBAC)
 - Test input validation
 - Test error handling
 - Test success and failure paths
 
-### F5: Utility and Helper Test Coverage
+### F5: Utility and Helper Test Coverage (100%)
 
-- All utilities in `libs/shared` have `.spec.ts` files
+- **100% coverage** for all utilities in `libs/shared` (all `.spec.ts` files)
+- **100% coverage** for all utilities in `apps/web/lib/utils` (all `.spec.ts` files)
+- **100% coverage** for all utilities in `apps/funnel/utils` (all `.spec.ts` files)
+- **100% coverage** for all utilities in `apps/landing/lib/utils` (all `.spec.ts` files)
 - Test edge cases (null, undefined, empty, invalid inputs)
 - Test error handling
 - Test type guards and validators
@@ -89,7 +101,7 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 ### F6: Coverage Reporting and CI Integration
 
 - Coverage reporting configured for all projects
-- Coverage thresholds enforced (80%+ for business logic)
+- Coverage thresholds enforced (**100%** for all code)
 - Coverage reports generated in CI/CD
 - Coverage badges or status checks
 - Coverage trends tracked over time
@@ -119,13 +131,14 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 **So that** I can refactor confidently and catch bugs early
 
 **AC**:
-- AC-1: All services in `libs/business` have `.spec.ts` files
-- AC-2: All services in `apps/api/src/services` have `.spec.ts` files
-- AC-3: Critical business logic paths tested (happy + edge cases)
-- AC-4: Error handling tested for all services
-- AC-5: Integration tests for database operations
-- AC-6: 80%+ code coverage for business logic
-- AC-7: All tests passing in CI/CD
+- AC-1: **100%** of services in `libs/business` have `.spec.ts` files
+- AC-2: **100%** of services in `apps/api/src/services` have `.spec.ts` files
+- AC-3: **100%** of services in `apps/funnel/services` have `.spec.ts` files (if any)
+- AC-4: All business logic paths tested (happy + edge cases)
+- AC-5: Error handling tested for all services
+- AC-6: Integration tests for database operations
+- AC-7: **100% code coverage** for business logic
+- AC-8: All tests passing in CI/CD
 
 ### ST-003: UI Component Test Coverage
 
@@ -134,13 +147,17 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 **So that** I can ensure components work correctly and prevent regressions
 
 **AC**:
-- AC-1: All components in `libs/ui` have `.spec.tsx` files
-- AC-2: User interactions tested (clicks, form submissions, etc.)
-- AC-3: State changes tested (loading, error, success states)
-- AC-4: MSW used for network mocking (not hook mocking)
-- AC-5: Error states and edge cases tested
-- AC-6: 80%+ code coverage for UI components
-- AC-7: All tests passing in CI/CD
+- AC-1: **100%** of components in `libs/ui` have `.spec.tsx` files
+- AC-2: **100%** of components in `apps/web/components` have `.spec.tsx` files
+- AC-3: **100%** of components in `apps/funnel/components` have `.spec.tsx` files
+- AC-4: **100%** of components in `apps/landing/components` have `.spec.tsx` files
+- AC-5: **100%** of components in `apps/admin/app` have `.spec.tsx` files
+- AC-6: User interactions tested (clicks, form submissions, etc.)
+- AC-7: State changes tested (loading, error, success states)
+- AC-8: MSW used for network mocking (not hook mocking)
+- AC-9: Error states and edge cases tested
+- AC-10: **100% code coverage** for UI components
+- AC-11: All tests passing in CI/CD
 
 ### ST-004: tRPC Router Test Coverage
 
@@ -149,14 +166,15 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 **So that** I can ensure API endpoints work correctly
 
 **AC**:
-- AC-1: All tRPC routers have `.spec.ts` files
-- AC-2: All procedures tested (success and failure paths)
-- AC-3: Permission checks tested (RBAC)
-- AC-4: Input validation tested
-- AC-5: Error handling tested
-- AC-6: Tests call procedures directly with mocked context
-- AC-7: 80%+ code coverage for routers
-- AC-8: All tests passing in CI/CD
+- AC-1: **100%** of tRPC routers in `libs/trpc/src/routers` have `.spec.ts` files
+- AC-2: **100%** of routers in `apps/admin/lib/trpc/routers` have `.spec.ts` files
+- AC-3: All procedures tested (success and failure paths)
+- AC-4: Permission checks tested (RBAC)
+- AC-5: Input validation tested
+- AC-6: Error handling tested
+- AC-7: Tests call procedures directly with mocked context
+- AC-8: **100% code coverage** for routers
+- AC-9: All tests passing in CI/CD
 
 ### ST-005: Coverage Reporting
 
@@ -166,7 +184,7 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 
 **AC**:
 - AC-1: Coverage reporting configured for all projects
-- AC-2: Coverage thresholds enforced (80%+ for business logic)
+- AC-2: Coverage thresholds enforced (**100%** for all code)
 - AC-3: Coverage reports generated in CI/CD
 - AC-4: Coverage visible in PRs or CI status
 - AC-5: Coverage trends tracked over time
@@ -186,9 +204,10 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 
 ### Business Logic Coverage (F2)
 
-- [ ] All services in `libs/business` have `.spec.ts` files
-- [ ] All services in `apps/api/src/services` have `.spec.ts` files
-- [ ] 80%+ code coverage for business logic
+- [ ] **100%** of services in `libs/business` have `.spec.ts` files
+- [ ] **100%** of services in `apps/api/src/services` have `.spec.ts` files
+- [ ] **100%** of services in `apps/funnel/services` have `.spec.ts` files (if any)
+- [ ] **100% code coverage** for business logic
 - [ ] Critical paths tested (happy + edge cases)
 - [ ] Error handling tested
 - [ ] Integration tests for database operations
@@ -196,22 +215,27 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 
 ### UI Component Coverage (F3)
 
-- [ ] All components in `libs/ui` have `.spec.tsx` files
+- [ ] **100%** of components in `libs/ui` have `.spec.tsx` files
+- [ ] **100%** of components in `apps/web/components` have `.spec.tsx` files
+- [ ] **100%** of components in `apps/funnel/components` have `.spec.tsx` files
+- [ ] **100%** of components in `apps/landing/components` have `.spec.tsx` files
+- [ ] **100%** of components in `apps/admin/app` have `.spec.tsx` files
 - [ ] User interactions tested
 - [ ] State changes tested
 - [ ] MSW used for network mocking
 - [ ] Error states tested
-- [ ] 80%+ code coverage for UI components
+- [ ] **100% code coverage** for UI components
 - [ ] All tests passing in CI/CD
 
 ### tRPC Router Coverage (F4)
 
-- [ ] All tRPC routers have `.spec.ts` files
+- [ ] **100%** of tRPC routers in `libs/trpc/src/routers` have `.spec.ts` files
+- [ ] **100%** of routers in `apps/admin/lib/trpc/routers` have `.spec.ts` files
 - [ ] All procedures tested
 - [ ] Permission checks tested
 - [ ] Input validation tested
 - [ ] Error handling tested
-- [ ] 80%+ code coverage for routers
+- [ ] **100% code coverage** for routers
 - [ ] All tests passing in CI/CD
 
 ### Coverage Reporting (F6)
@@ -231,7 +255,7 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 - Load tests
 - Visual regression tests
 - Snapshot testing (unless specifically needed)
-- 100% code coverage (target is 80%+)
+- **Target is 100% code coverage** for all apps and libraries
 
 ---
 

@@ -1,7 +1,7 @@
 # [EPIC] EP-063: E2E Test Infrastructure & Coverage (IN-026)
 
 **Status**: Proposed  
-**Phase**: P1 - Requirements  
+**Phase**: P1 - Requirements (Ready to Start)  
 **Created**: 2026-01-27  
 **Last Updated**: 2026-01-27  
 **Initiative**: IN-026  
@@ -11,7 +11,7 @@
 
 ## Overview
 
-Establish comprehensive E2E test infrastructure and achieve full coverage for all critical user journeys across the RYLA web application using Playwright.
+Establish comprehensive E2E test infrastructure and achieve **100% E2E coverage** for all critical user journeys across **all RYLA apps** (web, funnel, landing, admin) using Playwright.
 
 This epic focuses on end-to-end tests covering high-value user flows (10% of testing pyramid). It ensures critical user journeys work correctly from a user's perspective, catching integration issues that unit tests might miss.
 
@@ -24,10 +24,13 @@ This epic focuses on end-to-end tests covering high-value user flows (10% of tes
 **Hypothesis**: When critical user journeys are covered by E2E tests, we can catch integration bugs before production, ensure core value features work correctly, and prevent user churn from broken flows.
 
 **Success Criteria**:
-- All critical user journeys covered by E2E tests
+- **100% E2E coverage** for all critical user journeys in **apps/web**
+- **100% E2E coverage** for all critical user journeys in **apps/funnel**
+- **100% E2E coverage** for all critical user journeys in **apps/landing**
+- **100% E2E coverage** for all critical user journeys in **apps/admin**
 - E2E test execution time: **< 15 minutes** for full suite
 - E2E test reliability: **95%+** pass rate in CI/CD
-- All critical flows tested (authentication, wizard, studio, payments)
+- All critical flows tested (authentication, wizard, studio, payments, funnel steps, landing CTAs)
 
 ---
 
@@ -88,20 +91,39 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 - Billing page interactions
 - Payment error handling
 
-### F6: Admin Panel Tests (if applicable)
+### F6: Admin Panel E2E Tests
 
 - Admin login flow
 - Key admin operations
 - User management flows
 - Content moderation flows
 - Analytics dashboard
+- **100% coverage** for all admin critical journeys
 
-### F7: Critical User Journeys
+### F7: Funnel App E2E Tests
 
-- New user onboarding journey
+- Payment flow (all steps)
+- Step navigation (forward/back)
+- Form validation
+- Payment callback handling
+- Error handling
+- **100% coverage** for all funnel critical journeys
+
+### F8: Landing App E2E Tests
+
+- Page interactions
+- CTA button clicks
+- Form submissions (contact, etc.)
+- Navigation flows
+- **100% coverage** for all landing critical journeys
+
+### F9: Critical User Journeys (Cross-App)
+
+- New user onboarding journey (landing → funnel → web)
 - Returning user journey
 - Pro user upgrade journey
 - Image generation to download journey
+- **100% coverage** for all cross-app journeys
 
 ---
 
@@ -181,6 +203,35 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 - AC-6: Payment error handling tested
 - AC-7: All payment tests passing in CI/CD
 
+### ST-006: Funnel App E2E Tests
+
+**As a** developer  
+**I want to** have E2E tests for funnel app flows  
+**So that** I can ensure payment funnel works correctly
+
+**AC**:
+- AC-1: Complete funnel flow tested (all steps)
+- AC-2: Step navigation tested (forward/back)
+- AC-3: Form validation tested
+- AC-4: Payment callback tested
+- AC-5: Error handling tested
+- AC-6: **100% coverage** for all funnel critical journeys
+- AC-7: All funnel tests passing in CI/CD
+
+### ST-007: Landing App E2E Tests
+
+**As a** developer  
+**I want to** have E2E tests for landing page interactions  
+**So that** I can ensure landing page works correctly
+
+**AC**:
+- AC-1: Page interactions tested
+- AC-2: CTA button clicks tested
+- AC-3: Form submissions tested
+- AC-4: Navigation flows tested
+- AC-5: **100% coverage** for all landing critical journeys
+- AC-6: All landing tests passing in CI/CD
+
 ---
 
 ## Acceptance Criteria
@@ -234,12 +285,32 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 - [ ] Payment error handling tested
 - [ ] All payment tests passing
 
-### Critical Journeys (F7)
+### Funnel Tests (F7)
 
-- [ ] New user onboarding journey tested
+- [ ] Complete funnel flow tested
+- [ ] Step navigation tested
+- [ ] Form validation tested
+- [ ] Payment callback tested
+- [ ] Error handling tested
+- [ ] **100% coverage** for all funnel critical journeys
+- [ ] All funnel tests passing
+
+### Landing Tests (F8)
+
+- [ ] Page interactions tested
+- [ ] CTA button clicks tested
+- [ ] Form submissions tested
+- [ ] Navigation flows tested
+- [ ] **100% coverage** for all landing critical journeys
+- [ ] All landing tests passing
+
+### Critical Journeys (F9)
+
+- [ ] New user onboarding journey tested (cross-app)
 - [ ] Returning user journey tested
 - [ ] Pro user upgrade journey tested
 - [ ] Image generation to download journey tested
+- [ ] **100% coverage** for all cross-app journeys
 - [ ] All journey tests passing
 
 ---
@@ -253,6 +324,7 @@ This epic is part of [IN-026: Comprehensive Testing Implementation](../../initia
 - Visual regression tests
 - Testing every edge case (focus on happy paths and critical failures)
 - Mobile-specific E2E tests (web app responsive testing only)
+- **Target is 100% E2E coverage** for all critical user journeys across all apps
 
 ---
 
@@ -324,10 +396,12 @@ export class LoginPage {
 
 ### Priority Order
 
-1. **Tier 1**: Authentication, Character Creation Wizard, Image Generation
-2. **Tier 2**: Payments, Subscriptions, Dashboard
-3. **Tier 3**: Settings, Profile, Gallery
-4. **Tier 4**: Admin panel (if applicable)
+1. **Tier 1**: Authentication, Character Creation Wizard, Image Generation (apps/web)
+2. **Tier 2**: Payments, Subscriptions, Dashboard (apps/web)
+3. **Tier 3**: Funnel payment flow (apps/funnel)
+4. **Tier 4**: Landing page interactions (apps/landing)
+5. **Tier 5**: Admin panel operations (apps/admin)
+6. **Tier 6**: Cross-app journeys (landing → funnel → web)
 
 ---
 

@@ -164,7 +164,49 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 
 ---
 
-#### 6. Modal
+#### 6. Vast.ai
+
+**Overview**: GPU cloud marketplace with serverless capabilities, offering affordable GPU compute with pre-built ComfyUI templates.
+
+**Key Features**:
+- **Serverless GPU Compute**: Dynamic scaling with reserve pool of workers for fast cold starts
+- **Pre-built ComfyUI Template**: Dedicated serverless template with `/generate/sync` endpoint
+- **Marketplace Model**: Access to global GPU fleet (RTX 4090, A100, etc.) at competitive rates
+- **Fast Cold Starts**: Reserve pool enables sub-minute spin-up times
+- **Cost Optimization**: ~20% cheaper than RunPod for RTX 4090 (~$0.35/hr)
+- **S3 Integration**: Built-in support for output storage
+- **Debugging Tools**: Logs, Jupyter, SSH access
+- **Custom Workers**: PyWorker framework for building custom backends
+
+**Serverless**: ✅ Yes (with reserve pool)
+**ComfyUI Support**: ✅ Native (pre-built template)
+**Custom Nodes**: ⚠️ Unknown (needs testing with template)
+**Setup Time**: ⭐⭐⭐⭐ (Low - pre-built template)
+
+**Pricing Model**:
+- Pay-per-use GPU time
+- RTX 4090: ~$0.35/hr (~20% cheaper than RunPod)
+- A100: ~$1.4-1.6/hr (estimated, marketplace pricing)
+- Volume storage pricing unclear (may be separate charge)
+
+**Best For**: 
+- Cost-optimized ComfyUI deployments
+- Fast setup with pre-built templates
+- Simple workflows (standard ComfyUI)
+
+**MCP/AI Agent Ready**: ⚠️ Unknown (Python SDK available, needs testing)
+
+**Comparison to RunPod/Modal**:
+- ✅ Cheaper: ~20% cheaper than RunPod for RTX 4090
+- ✅ Faster Setup: Pre-built template vs Docker/code
+- ⚠️ Trade-off: No Infrastructure as Code (template-based)
+- ⚠️ Unknown: Reliability, GitHub Actions support, custom nodes
+
+**See**: [Vast.ai vs Modal/RunPod Comparison](./VAST-AI-VS-MODAL-RUNPOD-COMPARISON.md) for detailed analysis.
+
+---
+
+#### 7. Modal
 
 **Overview**: Code-driven serverless platform with good scaling and native GitHub Actions support.
 
@@ -214,7 +256,7 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 
 ---
 
-#### 7. Baseten
+#### 8. Baseten
 
 **Overview**: Enterprise-grade serverless ML platform.
 
@@ -242,7 +284,7 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 
 ### Category 3: Enterprise Cloud Providers
 
-#### 8. AWS SageMaker
+#### 9. AWS SageMaker
 
 **Overview**: AWS managed ML platform with inference endpoints.
 
@@ -275,7 +317,7 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 
 ---
 
-#### 9. GCP Vertex AI
+#### 10. GCP Vertex AI
 
 **Overview**: Google Cloud managed ML platform.
 
@@ -306,7 +348,7 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 
 ---
 
-#### 10. Azure Machine Learning
+#### 11. Azure Machine Learning
 
 **Overview**: Microsoft Azure managed ML platform.
 
@@ -346,6 +388,7 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 | **Fal.ai** | ★★★★☆ | ✅ Yes | $$ | ✅ Optimized | ✅ Mostly | Quick deployments |
 | **Replicate** | ★★★☆☆ | ✅ Yes | $$ | ⚠️ Via Cog | ⚠️ Custom builds | Model versioning |
 | **RunPod** | ★★☆☆☆ | ✅ Yes | $ | ⚠️ Via workers | ⚠️ Complex | Cost optimization |
+| **Vast.ai** | ★★★★☆ | ✅ Yes | $ | ✅ Native (template) | ⚠️ Unknown | Cost-optimized, fast setup |
 | **Modal** | ★★★☆☆ | ✅ Yes | $–$$ | ⚠️ Manual | ⚠️ Manual | Code-driven teams |
 | **Baseten** | ★★★★☆ | ✅ Yes | $$$ | ⚠️ Manual | ⚠️ Manual | Enterprise |
 | **AWS SageMaker** | ★☆☆☆☆ | ⚠️ Partial | $$$$ | ❌ Manual | ❌ Manual | Enterprise compliance |
@@ -354,8 +397,9 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 
 ### Cost Ranking (Cheapest → Most Expensive)
 
-1. **RunPod** - $ (cheapest raw compute)
-2. **Modal** - $–$$ (competitive)
+1. **Vast.ai** - $ (cheapest, ~20% cheaper than RunPod)
+2. **RunPod** - $ (cheapest raw compute)
+3. **Modal** - $–$$ (competitive)
 3. **RunComfy/ViewComfy** - $$ (balanced)
 4. **Fal.ai/Replicate** - $$ (competitive)
 5. **Baseten** - $$$ (premium)
@@ -366,11 +410,12 @@ These platforms are purpose-built for ComfyUI workflows, offering native support
 ### Setup Effort Ranking (Easiest → Hardest)
 
 1. **RunComfy/ViewComfy** - Minutes (one-click)
-2. **Fal.ai** - Low (upload JSON)
-3. **Baseten** - Moderate (Docker)
-4. **Replicate** - Moderate (Cog)
-5. **Modal** - Moderate (code-driven)
-6. **RunPod** - High (current pain point)
+2. **Vast.ai** - Low (pre-built template)
+3. **Fal.ai** - Low (upload JSON)
+4. **Baseten** - Moderate (Docker)
+5. **Replicate** - Moderate (Cog)
+6. **Modal** - Moderate (code-driven)
+7. **RunPod** - High (current pain point)
 7. **AWS/GCP/Azure** - Very High (days/weeks)
 
 ---
@@ -397,6 +442,7 @@ Costs are calculated based on:
 
 | Platform | GPU Tier | Hourly Rate | Gen Time | Cost per Image | Cost per 1,000 Images |
 |----------|----------|-------------|----------|----------------|----------------------|
+| **Vast.ai** | RTX 4090 (24GB) | ~$0.35/hr | 5-8s | **~$0.0005-0.001** | **~$0.50-1.00** |
 | **RunPod** | RTX 3090/4090 (24GB) | $0.40-0.70/hr | 5-8s | **$0.0006-0.0016** | **$0.60-1.60** |
 | **RunPod** | A100 (80GB) | $1.80-2.30/hr | 2-3s | **$0.001-0.002** | **$1.00-2.00** |
 | **RunComfy** | T4/A4000 (16GB) | ~$0.40/hr | 8-12s | **$0.0009-0.0013** | **$0.90-1.30** |
@@ -413,6 +459,7 @@ Costs are calculated based on:
 
 | Platform | GPU Tier | Hourly Rate | Gen Time | Cost per Image | Cost per 1,000 Images |
 |----------|----------|-------------|----------|----------------|----------------------|
+| **Vast.ai** | A100 (80GB) | ~$1.4-1.6/hr | 10-15s | **~$0.0039-0.0067** | **~$3.90-6.70** |
 | **RunPod** | A6000 (48GB) | ~$0.80-1.20/hr | 12-18s | **$0.0027-0.006** | **$2.70-6.00** |
 | **RunPod** | A100 (80GB) | $1.80-2.30/hr | 10-15s | **$0.005-0.0096** | **$5.00-9.60** |
 | **RunComfy** | A100 (80GB) | ~$2.00-3.50/hr | 10-15s | **$0.0056-0.0146** | **$5.60-14.60** |
@@ -429,6 +476,7 @@ Costs are calculated based on:
 
 | Platform | GPU Tier | Hourly Rate | Gen Time | Cost per Video | Cost per 100 Videos |
 |----------|----------|-------------|----------|----------------|---------------------|
+| **Vast.ai** | A100 (80GB) | ~$1.4-1.6/hr | 60-90s | **~$0.023-0.04** | **~$2.30-4.00** |
 | **RunPod** | A100 (80GB) | $1.80-2.30/hr | 60-90s | **$0.03-0.0575** | **$3.00-5.75** |
 | **RunComfy** | A100 (80GB) | ~$2.00-3.50/hr | 60-90s | **$0.033-0.0875** | **$3.30-8.75** |
 | **RunComfy** | H100 (80GB) | ~$4.00-5.00/hr | 45-60s | **$0.05-0.083** | **$5.00-8.30** |
@@ -440,6 +488,7 @@ Costs are calculated based on:
 
 | Platform | GPU Tier | Hourly Rate | Gen Time | Cost per Video | Cost per 100 Videos |
 |----------|----------|-------------|----------|----------------|---------------------|
+| **Vast.ai** | A100 (80GB) | ~$1.4-1.6/hr | 180-240s | **~$0.07-0.107** | **~$7.00-10.70** |
 | **RunPod** | A100 (80GB) | $1.80-2.30/hr | 180-240s | **$0.09-0.153** | **$9.00-15.30** |
 | **RunComfy** | H100 (80GB) | ~$4.00-5.00/hr | 180-240s | **$0.20-0.333** | **$20.00-33.30** |
 | **RunComfy** | H200 (141GB) | ~$6.00-8.00/hr | 150-200s | **$0.25-0.444** | **$25.00-44.40** |
@@ -453,15 +502,15 @@ Costs are calculated based on:
 
 | Use Case | Cheapest | Mid-Range | Premium |
 |----------|----------|-----------|---------|
-| **SDXL (Standard)** | RunPod RTX 3090: **$0.60-1.60** | RunComfy A10: **$2.40-5.60** | ViewComfy A10: **$3.00-5.00** |
-| **Flux.1 (High-End)** | RunPod A100: **$5.00-9.60** | RunComfy A100: **$5.60-14.60** | RunComfy H100: **$8.90-16.70** |
+| **SDXL (Standard)** | Vast.ai RTX 4090: **~$0.50-1.00** | RunPod RTX 3090: **$0.60-1.60** | RunComfy A10: **$2.40-5.60** |
+| **Flux.1 (High-End)** | Vast.ai A100: **~$3.90-6.70** | RunPod A100: **$5.00-9.60** | RunComfy A100: **$5.60-14.60** |
 
 #### Video Generation (per 100 videos)
 
 | Use Case | Cheapest | Mid-Range | Premium |
 |----------|----------|-----------|---------|
-| **Short Video (SVD)** | RunPod A100: **$3.00-5.75** | RunComfy A100: **$3.30-8.75** | ViewComfy A100: **$6.80-10.30** |
-| **HD Video (Wan 2.1)** | RunPod A100: **$9.00-15.30** | RunComfy H100: **$20.00-33.30** | RunComfy H200: **$25.00-44.40** |
+| **Short Video (SVD)** | Vast.ai A100: **~$2.30-4.00** | RunPod A100: **$3.00-5.75** | RunComfy A100: **$3.30-8.75** |
+| **HD Video (Wan 2.1)** | Vast.ai A100: **~$7.00-10.70** | RunPod A100: **$9.00-15.30** | RunComfy H100: **$20.00-33.30** |
 
 ### Additional Cost Considerations
 
@@ -499,6 +548,7 @@ Costs are calculated based on:
 ✅ **Fal.ai** - Scale-to-zero  
 ✅ **Replicate** - Scale-to-zero  
 ✅ **RunPod** - Scale-to-zero (with minWorkers=0)  
+✅ **Vast.ai** - Scale-to-zero (with reserve pool)  
 ✅ **Modal** - Scale-to-zero  
 ✅ **Baseten** - Scale-to-zero  
 
@@ -517,11 +567,13 @@ Costs are calculated based on:
 ✅ **RunComfy** - ComfyUI-Manager, Cloud Save captures all nodes  
 ✅ **ViewComfy** - Similar to RunComfy  
 ✅ **Fal.ai** - Managed runtime handles most nodes  
+⚠️ **Vast.ai** - Pre-built template (unknown custom node support)  
 
 ### Manual Support (Requires Custom Builds)
 
 ⚠️ **Replicate** - Via Cog containerization  
 ⚠️ **RunPod** - Custom Docker images required  
+⚠️ **Vast.ai** - Pre-built template (may need PyWorker for custom)  
 ⚠️ **Modal** - Code-driven, manual container builds  
 ⚠️ **Baseten** - Docker image with nodes baked in  
 
@@ -540,6 +592,7 @@ Costs are calculated based on:
 ✅ **Modal** - Standard REST APIs  
 ✅ **Baseten** - Standard REST APIs  
 ✅ **Replicate** - REST API  
+⚠️ **Vast.ai** - Python SDK, CLI (needs testing)  
 ✅ **AWS SageMaker** - REST API via endpoints  
 ✅ **GCP Vertex AI** - REST API  
 ✅ **Azure ML** - REST API  
@@ -549,6 +602,7 @@ Costs are calculated based on:
 ⚠️ **RunComfy** - Unknown (needs evaluation)  
 ⚠️ **ViewComfy** - Unknown (needs evaluation)  
 ⚠️ **Fal.ai** - Unknown (needs evaluation)  
+⚠️ **Vast.ai** - Python SDK available (needs testing)  
 ⚠️ **RunPod** - Complex (requires custom wrapper)  
 
 ### MCP Integration Resources

@@ -35,7 +35,7 @@
 
 ### External provider credentials exist (but not integrated yet)
 
-From `config/env.template`:
+From `config/infisical-secrets-template.md`:
 
 - `REPLICATE_API_TOKEN`
 - `FAL_KEY`
