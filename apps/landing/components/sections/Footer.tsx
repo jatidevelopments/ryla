@@ -26,7 +26,6 @@ const columns: FooterColumn[] = [
       { label: 'Contact', href: '/contact' },
       { label: 'Privacy Policy', href: '/privacy' },
       { label: 'Terms of Service', href: '/terms' },
-      { label: 'Imprint', href: '/imprint' },
     ],
   },
 ];
