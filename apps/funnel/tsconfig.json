@@ -30,11 +30,13 @@
       "@ryla/payments": ["../../libs/payments/src/index.ts"]
     }
   },
-  "include": [
-    "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
-    ".next/types/**/*.ts"
-  ],
-  "exclude": ["node_modules", "scripts"]
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": [
+    "node_modules",
+    "scripts",
+    "**/*.spec.ts",
+    "**/*.test.ts",
+    "**/test/**",
+    "**/mocks/**"
+  ]
 }
