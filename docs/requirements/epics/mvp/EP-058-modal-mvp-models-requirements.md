@@ -114,24 +114,30 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 - [x] Test Wan 2.6 NSFW capabilities - ✅ Supported
 - [x] Document which models support NSFW - ✅ Updated RYLA-IDEAL-MODEL-STACK.md
 
-#### P6.2: LoRA Integration (Priority: HIGH) ⚠️ IN PROGRESS
+#### P6.2: LoRA Integration (Priority: HIGH) ✅ QWEN COMPLETE
 
 **LoRA Support Matrix - All Models:**
 
-| Model/Endpoint           | LoRA Training | LoRA Loading | Tool                | Status                          |
-| ------------------------ | ------------- | ------------ | ------------------- | ------------------------------- |
-| **Qwen-Image 2512**      | ✅ Supported  | ✅ Created   | AI Toolkit (Ostris) | `/qwen-image-2512-lora` created |
-| **Qwen-Image 2512 Fast** | ⚠️ N/A        | ✅ Built-in  | Lightning LoRA      | Already uses LoRA               |
-| **Qwen-Image Edit 2511** | ❓ Unknown    | ❓ Unknown   | Research needed     | Needs research                  |
-| **Wan 2.6 Video**        | ✅ Supported  | ⏳ Pending   | Musubi Tuner        | Endpoint needed                 |
-| **Flux Dev**             | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live               |
-| **Flux Schnell**         | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live               |
-| **Z-Image Turbo**        | ✅ Supported  | ⏳ Pending   | AI Toolkit (Ostris) | Endpoint needed                 |
+| Model/Endpoint           | LoRA Training | LoRA Loading | Tool                | Status                              |
+| ------------------------ | ------------- | ------------ | ------------------- | ----------------------------------- |
+| **Qwen-Image 2512**      | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/qwen-image-2512-lora` deployed ✅ |
+| **Qwen-Image 2512 Fast** | ⚠️ N/A        | ✅ Built-in  | Lightning LoRA      | Already uses LoRA                   |
+| **Qwen-Image Edit 2511** | ❓ Unknown    | ❓ Unknown   | Research needed     | Needs research                      |
+| **Wan 2.6 Video**        | ✅ Supported  | ⏳ Pending   | Musubi Tuner        | Endpoint needed                     |
+| **Flux Dev**             | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
+| **Flux Schnell**         | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
+| **Z-Image Turbo**        | ✅ Supported  | ⏳ Pending   | AI Toolkit (Ostris) | Endpoint needed                     |
 
-**Tasks:**
+**Completed Tasks:**
 
-- [x] Create `/qwen-image-2512-lora` endpoint (handler created in `qwen_image.py`)
-- [ ] Deploy and test `/qwen-image-2512-lora` endpoint
+- [x] Create `/qwen-image-2512-lora` endpoint (handler in `qwen_image.py`)
+- [x] Deploy and test `/qwen-image-2512-lora` endpoint (tested 2026-01-29)
+- [x] Add `generateQwenImage2512LoRA` to ModalClient
+- [x] Add `generateQwenImage2512LoRA` to ModalJobRunner
+- [x] Add `qwen-image-2512-lora` to model registry
+
+**Remaining Tasks:**
+
 - [ ] Create `/wan2.6-lora` endpoint for video LoRA
 - [ ] Create `/z-image-lora` endpoint (if needed)
 - [ ] Document LoRA workflow for all models
