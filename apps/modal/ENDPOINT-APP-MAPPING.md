@@ -28,6 +28,7 @@
 | ----------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
 | `/qwen-image-2512`      | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512`      | High-quality T2I (50 steps)            |
 | `/qwen-image-2512-fast` | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-fast` | Fast T2I with Lightning LoRA (4 steps) |
+| `/qwen-image-2512-lora` | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-lora` | T2I with custom character LoRA         |
 
 ### Image Editing - Qwen-Edit (`ryla-qwen-edit`)
 
@@ -91,6 +92,7 @@ def get_endpoint_url(endpoint: str, workspace: str = "ryla") -> str:
         # Qwen-Image
         "/qwen-image-2512": "ryla-qwen-image",
         "/qwen-image-2512-fast": "ryla-qwen-image",
+        "/qwen-image-2512-lora": "ryla-qwen-image",
         # Qwen-Edit
         "/qwen-image-edit-2511": "ryla-qwen-edit",
         "/qwen-image-inpaint-2511": "ryla-qwen-edit",
@@ -133,6 +135,7 @@ const ENDPOINT_APP_MAP: Record<string, string> = {
   // Qwen-Image (Primary T2I)
   '/qwen-image-2512': 'ryla-qwen-image',
   '/qwen-image-2512-fast': 'ryla-qwen-image',
+  '/qwen-image-2512-lora': 'ryla-qwen-image',
   // Qwen-Edit (Image Editing)
   '/qwen-image-edit-2511': 'ryla-qwen-edit',
   '/qwen-image-inpaint-2511': 'ryla-qwen-edit',
@@ -167,17 +170,18 @@ function getEndpointUrl(endpoint: string, workspace = 'ryla'): string {
 
 ## Recommended Model Usage
 
-| Use Case             | Primary Endpoint           | Fallback          |
-| -------------------- | -------------------------- | ----------------- |
-| **T2I (Quality)**    | `/qwen-image-2512`         | `/flux-dev`       |
-| **T2I (Fast)**       | `/qwen-image-2512-fast`    | `/z-image-simple` |
-| **Image Editing**    | `/qwen-image-edit-2511`    | -                 |
-| **Inpainting**       | `/qwen-image-inpaint-2511` | -                 |
-| **Face Consistency** | `/flux-instantid`          | `/flux-pulid`     |
-| **Character LoRA**   | `/flux-lora`               | -                 |
-| **Video (T2V)**      | `/wan2.6`                  | -                 |
-| **Video (V2V)**      | `/wan2.6-r2v`              | -                 |
-| **Upscaling**        | `/seedvr2`                 | -                 |
+| Use Case              | Primary Endpoint           | Fallback          |
+| --------------------- | -------------------------- | ----------------- |
+| **T2I (Quality)**     | `/qwen-image-2512`         | `/flux-dev`       |
+| **T2I (Fast)**        | `/qwen-image-2512-fast`    | `/z-image-simple` |
+| **T2I + LoRA (Qwen)** | `/qwen-image-2512-lora`    | `/flux-lora`      |
+| **T2I + LoRA (Flux)** | `/flux-lora`               | -                 |
+| **Image Editing**     | `/qwen-image-edit-2511`    | -                 |
+| **Inpainting**        | `/qwen-image-inpaint-2511` | -                 |
+| **Face Consistency**  | `/flux-instantid`          | `/flux-pulid`     |
+| **Video (T2V)**       | `/wan2.6`                  | -                 |
+| **Video (V2V)**       | `/wan2.6-r2v`              | -                 |
+| **Upscaling**         | `/seedvr2`                 | -                 |
 
 ---
 
