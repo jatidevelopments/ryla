@@ -94,7 +94,7 @@ export function AllSpotsReservedStep() {
 
         setIsOnWaitlist(true);
 
-        // Save waitlist status to Supabase session
+        // Save waitlist status to backend API session
         const sessionId = getOrCreateSessionId();
         updateSessionWaitlist(sessionId, true).catch((error) => {
             console.error("Failed to save waitlist status to session:", error);

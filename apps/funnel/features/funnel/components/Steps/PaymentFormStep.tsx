@@ -318,7 +318,7 @@ export function PaymentFormStep() {
                         });
                         emailTrackedRef.current.add(emailValue);
 
-                        // Save email to Supabase session
+                        // Save email to backend API session
                         const sessionId = getOrCreateSessionId();
                         updateSessionEmail(sessionId, emailValue).catch(
                           (error) => {

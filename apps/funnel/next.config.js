@@ -43,9 +43,13 @@ if (CDN_HOST) {
 }
 
 const nextConfig = {
-  output: 'standalone',
-  // Fix standalone output path structure for Nx monorepo
-  outputFileTracingRoot: path.join(__dirname, '../../'),
+  // Output mode: 'standalone' for Fly.io, 'export' for Cloudflare Pages
+  // Set CLOUDFLARE_PAGES=true when building for Cloudflare Pages
+  output: process.env.CLOUDFLARE_PAGES === 'true' ? 'export' : 'standalone',
+  // Fix standalone output path structure for Nx monorepo (only needed for standalone)
+  ...(process.env.CLOUDFLARE_PAGES !== 'true' && {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+  }),
   // Transpile shared libs from monorepo
   transpilePackages: [
     '@ryla/shared',
@@ -73,7 +77,7 @@ const nextConfig = {
     ];
   },
 
-  webpack(config) {
+  webpack(config, { dev }) {
     // Ensure node_modules resolution includes root for monorepo
     config.resolve.modules = [
       ...(config.resolve.modules || []),
@@ -103,28 +107,33 @@ const nextConfig = {
   assetPrefix: CDN_URL || undefined,
 
   images: {
-    // 🔥 IMAGE OPTIMIZATION ENHANCEMENTS
-    formats: ['image/webp', 'image/avif'], // Modern formats (up to 50% smaller file size)
+    // Disable image optimization for static export (Cloudflare Pages)
+    // Image Optimization API doesn't work with output: 'export'
+    unoptimized: process.env.CLOUDFLARE_PAGES === 'true',
 
-    // Extended size ranges for better responsive image selection
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
+    // 🔥 IMAGE OPTIMIZATION ENHANCEMENTS (only for non-static export)
+    ...(process.env.CLOUDFLARE_PAGES !== 'true' && {
+      formats: ['image/webp', 'image/avif'], // Modern formats (up to 50% smaller file size)
 
-    // Performance and security settings
-    minimumCacheTTL: 31536000, // 1 year cache TTL for static images
-    dangerouslyAllowSVG: false, // Security: disable SVG optimization
+      // Extended size ranges for better responsive image selection
+      deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+      imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
 
-    // Your existing remote patterns + new CloudFront domain
-    remotePatterns: remoteImagePatterns,
+      // Performance and security settings
+      minimumCacheTTL: 31536000, // 1 year cache TTL for static images
+      dangerouslyAllowSVG: false, // Security: disable SVG optimization
 
-    // 🚀 IMAGE OPTIMIZATION ENABLED FOR ALL ENVIRONMENTS
-    // Next.js will automatically optimize images in production
-    // Formats: WebP/AVIF for modern browsers, fallback to original format
+      // Your existing remote patterns + new CloudFront domain
+      remotePatterns: remoteImagePatterns,
+    }),
   },
 
   // 🔥 ADDITIONAL PERFORMANCE OPTIMIZATIONS
   experimental: {
-    outputFileTracingRoot: path.join(__dirname, '../../'),
+    // Only set outputFileTracingRoot for standalone mode (Fly.io)
+    ...(process.env.CLOUDFLARE_PAGES !== 'true' && {
+      outputFileTracingRoot: path.join(__dirname, '../../'),
+    }),
     // optimizePackageImports: ['lucide-react'], // Tree-shake icon libraries
     scrollRestoration: true, // Better navigation UX
   },

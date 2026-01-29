@@ -1,21 +1,21 @@
 "use client";
 
-import { createClient } from "@/utils/supabase/client";
+import axios from "@/lib/axios";
 import { CreateSessionData, UpdateSessionData, FunnelSession, FunnelOption } from "@/utils/types/session";
 import { FunnelSchema } from "@/features/funnel/hooks/useFunnelForm";
 
 const SESSION_ID_KEY = "funnel_session_id";
 
 /**
- * Check if Supabase operations are enabled
- * Disabled in development unless explicitly enabled via NEXT_PUBLIC_ENABLE_DEV_SUPABASE
+ * Check if backend API operations are enabled
+ * Disabled in development unless explicitly enabled via NEXT_PUBLIC_ENABLE_DEV_FUNNEL_API
  */
-const isSupabaseEnabled = (): boolean => {
+const isBackendApiEnabled = (): boolean => {
     if (typeof window === "undefined") return false;
     
     // In development, disable by default unless explicitly enabled
     if (process.env.NODE_ENV === "development") {
-        return process.env.NEXT_PUBLIC_ENABLE_DEV_SUPABASE === "true";
+        return process.env.NEXT_PUBLIC_ENABLE_DEV_FUNNEL_API === "true";
     }
     
     // In production, always enabled
@@ -23,19 +23,19 @@ const isSupabaseEnabled = (): boolean => {
 };
 
 /**
- * Check if Supabase debugging is enabled via environment variable
+ * Check if backend API debugging is enabled via environment variable
  */
 const isDebugEnabled = (): boolean => {
     if (typeof window === "undefined") return false;
-    return process.env.NEXT_PUBLIC_DEBUG_SUPABASE === "true";
+    return process.env.NEXT_PUBLIC_DEBUG_FUNNEL_API === "true";
 };
 
 /**
- * Debug logger for Supabase operations
+ * Debug logger for backend API operations
  */
 const debugLog = (message: string, data?: any) => {
     if (isDebugEnabled()) {
-        console.log(`[Supabase Debug] ${message}`, data ? data : "");
+        console.log(`[Funnel API Debug] ${message}`, data ? data : "");
     }
 };
 
@@ -63,53 +63,29 @@ export function getOrCreateSessionId(): string {
 }
 
 /**
- * Create a new session in Supabase
+ * Create a new session in backend API
  */
 export async function createSession(data: CreateSessionData): Promise<FunnelSession | null> {
     debugLog("Creating session", data);
     const startTime = Date.now();
 
-    // Skip Supabase operations in development
-    if (!isSupabaseEnabled()) {
-        debugLog("⚠️ Supabase disabled in development - skipping session creation", { data });
+    // Skip backend API operations in development
+    if (!isBackendApiEnabled()) {
+        debugLog("⚠️ Backend API disabled in development - skipping session creation", { data });
         return null;
     }
 
     try {
-        const supabase = createClient();
-        const { data: session, error } = await supabase
-            .from("funnel_sessions")
-            .insert({
-                session_id: data.session_id,
-                current_step: data.current_step ?? null,
-            })
-            .select()
-            .single();
+        const response = await axios.post<FunnelSession>("/funnel/sessions", {
+            sessionId: data.session_id,
+            currentStep: data.current_step,
+        });
 
-        if (error) {
-            // If session already exists, return it instead of erroring
-            if (error.code === "23505") {
-                // Unique constraint violation - session already exists
-                debugLog("Session already exists, fetching existing session", { session_id: data.session_id });
-                const { data: existingSession } = await supabase
-                    .from("funnel_sessions")
-                    .select()
-                    .eq("session_id", data.session_id)
-                    .single();
-
-                debugLog("Retrieved existing session", { session: existingSession, duration: `${Date.now() - startTime}ms` });
-                return existingSession as FunnelSession | null;
-            }
-            console.error("Error creating session:", error);
-            debugLog("Failed to create session", { error, duration: `${Date.now() - startTime}ms` });
-            return null;
-        }
-
-        debugLog("Session created successfully", { session, duration: `${Date.now() - startTime}ms` });
-        return session as FunnelSession;
-    } catch (error) {
+        debugLog("Session created successfully", { session: response.data, duration: `${Date.now() - startTime}ms` });
+        return response.data;
+    } catch (error: any) {
         console.error("Error creating session:", error);
-        debugLog("Exception creating session", { error, duration: `${Date.now() - startTime}ms` });
+        debugLog("Failed to create session", { error: error.message, duration: `${Date.now() - startTime}ms` });
         return null;
     }
 }
@@ -124,40 +100,32 @@ export async function updateSession(
     debugLog("Updating session", { sessionId, data });
     const startTime = Date.now();
 
-    // Skip Supabase operations in development
-    if (!isSupabaseEnabled()) {
-        debugLog("⚠️ Supabase disabled in development - skipping session update", { sessionId, data });
+    // Skip backend API operations in development
+    if (!isBackendApiEnabled()) {
+        debugLog("⚠️ Backend API disabled in development - skipping session update", { sessionId, data });
         return null;
     }
 
     try {
-        const supabase = createClient();
-        const updateData: Partial<UpdateSessionData> = {};
+        const updateData: Partial<{
+            email: string | null;
+            onWaitlist: boolean;
+            currentStep: number | null;
+        }> = {};
 
         if (data.email !== undefined) updateData.email = data.email;
-        if (data.on_waitlist !== undefined) updateData.on_waitlist = data.on_waitlist;
-        if (data.current_step !== undefined) updateData.current_step = data.current_step;
+        if (data.on_waitlist !== undefined) updateData.onWaitlist = data.on_waitlist;
+        if (data.current_step !== undefined) updateData.currentStep = data.current_step;
 
         debugLog("Sending update request", { sessionId, updateData });
 
-        const { data: session, error } = await supabase
-            .from("funnel_sessions")
-            .update(updateData)
-            .eq("session_id", sessionId)
-            .select()
-            .single();
+        const response = await axios.put<FunnelSession>(`/funnel/sessions/${sessionId}`, updateData);
 
-        if (error) {
-            console.error("Error updating session:", error);
-            debugLog("Failed to update session", { sessionId, error, duration: `${Date.now() - startTime}ms` });
-            return null;
-        }
-
-        debugLog("Session updated successfully", { sessionId, session, duration: `${Date.now() - startTime}ms` });
-        return session as FunnelSession;
-    } catch (error) {
+        debugLog("Session updated successfully", { sessionId, session: response.data, duration: `${Date.now() - startTime}ms` });
+        return response.data;
+    } catch (error: any) {
         console.error("Error updating session:", error);
-        debugLog("Exception updating session", { sessionId, error, duration: `${Date.now() - startTime}ms` });
+        debugLog("Failed to update session", { sessionId, error: error.message, duration: `${Date.now() - startTime}ms` });
         return null;
     }
 }
@@ -196,7 +164,7 @@ export async function updateSessionStep(sessionId: string, step: number): Promis
 }
 
 /**
- * Save a single option to Supabase
+ * Save a single option to backend API
  */
 export async function saveOption(
     sessionId: string,
@@ -206,36 +174,28 @@ export async function saveOption(
     debugLog("Saving option", { sessionId, key, value });
     const startTime = Date.now();
 
-    // Skip Supabase operations in development
-    if (!isSupabaseEnabled()) {
-        debugLog("⚠️ Supabase disabled in development - skipping option save", { sessionId, key, value });
+    // Skip backend API operations in development
+    if (!isBackendApiEnabled()) {
+        debugLog("⚠️ Backend API disabled in development - skipping option save", { sessionId, key, value });
         return true; // Return true to not break the flow
     }
 
     try {
-        const supabase = createClient();
-        const { error } = await supabase.from("funnel_options").upsert(
-            {
-                session_id: sessionId,
-                option_key: key,
-                option_value: value,
-            },
-            {
-                onConflict: "session_id,option_key",
-            },
-        );
+        const response = await axios.post<{ success: boolean }>(`/funnel/sessions/${sessionId}/options`, {
+            optionKey: key,
+            optionValue: value,
+        });
 
-        if (error) {
-            console.error("Error saving option:", error);
-            debugLog("Failed to save option", { sessionId, key, error, duration: `${Date.now() - startTime}ms` });
+        if (!response.data.success) {
+            debugLog("Failed to save option", { sessionId, key, duration: `${Date.now() - startTime}ms` });
             return false;
         }
 
         debugLog("Option saved successfully", { sessionId, key, duration: `${Date.now() - startTime}ms` });
         return true;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error saving option:", error);
-        debugLog("Exception saving option", { sessionId, key, error, duration: `${Date.now() - startTime}ms` });
+        debugLog("Exception saving option", { sessionId, key, error: error.message, duration: `${Date.now() - startTime}ms` });
         return false;
     }
 }
@@ -247,9 +207,9 @@ export async function saveAllOptions(sessionId: string, formData: Partial<Funnel
     debugLog("Saving all options", { sessionId, optionCount: Object.keys(formData).length });
     const startTime = Date.now();
 
-    // Skip Supabase operations in development
-    if (!isSupabaseEnabled()) {
-        debugLog("⚠️ Supabase disabled in development - skipping options save", { 
+    // Skip backend API operations in development
+    if (!isBackendApiEnabled()) {
+        debugLog("⚠️ Backend API disabled in development - skipping options save", { 
             sessionId, 
             optionCount: Object.keys(formData).length,
             keys: Object.keys(formData)
@@ -258,35 +218,27 @@ export async function saveAllOptions(sessionId: string, formData: Partial<Funnel
     }
 
     try {
-        const supabase = createClient();
-        const options = Object.entries(formData).map(([key, value]) => ({
-            session_id: sessionId,
-            option_key: key,
-            option_value: value,
-        }));
-
-        if (options.length === 0) {
+        if (Object.keys(formData).length === 0) {
             debugLog("No options to save", { sessionId });
             return true;
         }
 
-        debugLog("Upserting options", { sessionId, optionCount: options.length, keys: options.map(o => o.option_key) });
+        debugLog("Saving options batch", { sessionId, optionCount: Object.keys(formData).length, keys: Object.keys(formData) });
 
-        const { error } = await supabase.from("funnel_options").upsert(options, {
-            onConflict: "session_id,option_key",
+        const response = await axios.post<{ success: boolean }>(`/funnel/sessions/${sessionId}/options/batch`, {
+            options: formData,
         });
 
-        if (error) {
-            console.error("Error saving options:", error);
-            debugLog("Failed to save options", { sessionId, error, optionCount: options.length, duration: `${Date.now() - startTime}ms` });
+        if (!response.data.success) {
+            debugLog("Failed to save options", { sessionId, optionCount: Object.keys(formData).length, duration: `${Date.now() - startTime}ms` });
             return false;
         }
 
-        debugLog("All options saved successfully", { sessionId, optionCount: options.length, duration: `${Date.now() - startTime}ms` });
+        debugLog("All options saved successfully", { sessionId, optionCount: Object.keys(formData).length, duration: `${Date.now() - startTime}ms` });
         return true;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error saving options:", error);
-        debugLog("Exception saving options", { sessionId, error, duration: `${Date.now() - startTime}ms` });
+        debugLog("Exception saving options", { sessionId, error: error.message, duration: `${Date.now() - startTime}ms` });
         return false;
     }
 }
@@ -298,32 +250,21 @@ export async function getSessionOptions(sessionId: string): Promise<FunnelOption
     debugLog("Fetching session options", { sessionId });
     const startTime = Date.now();
 
-    // Skip Supabase operations in development
-    if (!isSupabaseEnabled()) {
-        debugLog("⚠️ Supabase disabled in development - skipping options fetch", { sessionId });
+    // Skip backend API operations in development
+    if (!isBackendApiEnabled()) {
+        debugLog("⚠️ Backend API disabled in development - skipping options fetch", { sessionId });
         return []; // Return empty array in development
     }
 
     try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-            .from("funnel_options")
-            .select()
-            .eq("session_id", sessionId);
+        const response = await axios.get<FunnelOption[]>(`/funnel/sessions/${sessionId}/options`);
 
-        if (error) {
-            console.error("Error fetching options:", error);
-            debugLog("Failed to fetch options", { sessionId, error, duration: `${Date.now() - startTime}ms` });
-            return [];
-        }
-
-        const options = (data as FunnelOption[]) || [];
+        const options = response.data || [];
         debugLog("Fetched session options", { sessionId, optionCount: options.length, duration: `${Date.now() - startTime}ms` });
         return options;
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error fetching options:", error);
-        debugLog("Exception fetching options", { sessionId, error, duration: `${Date.now() - startTime}ms` });
+        debugLog("Failed to fetch options", { sessionId, error: error.message, duration: `${Date.now() - startTime}ms` });
         return [];
     }
 }
-

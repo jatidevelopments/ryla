@@ -116,7 +116,7 @@ NEXT_PUBLIC_SITE_URL=https://goviral.ryla.ai
 - [Finby Setup](./docs/FINBY_SETUP.md)
 - [Finby Testing](./docs/FINBY_TESTING.md)
 - [URL-Based Steps](./docs/URL_BASED_STEPS.md)
-- [Supabase Setup](./docs/SUPABASE_SETUP.md)
+- [Backend API Setup](./docs/BACKEND_API_SETUP.md)
 - [Fly.io Setup](./docs/FLY_IO_SETUP.md)
 
 ## Related

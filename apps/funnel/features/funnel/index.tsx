@@ -66,6 +66,14 @@ export default function FunnelView() {
     (window.location.hostname === 'goviral.ryla.ai' ||
       window.location.hostname === 'www.goviral.ryla.ai');
 
+  // Check environment variable to show/hide Navigator
+  // Navigator is hidden by default in production unless NEXT_PUBLIC_SHOW_NAVIGATOR is 'true'
+  // Also hidden on goviral.ryla.ai domain regardless of env var
+  const showNavigator =
+    !isGoviralDomain &&
+    (process.env.NEXT_PUBLIC_SHOW_NAVIGATOR === 'true' ||
+      process.env.NODE_ENV !== 'production');
+
   // Update document title based on current step
   useEffect(() => {
     if (!isReady || typeof window === 'undefined') return;
@@ -323,8 +331,8 @@ export default function FunnelView() {
       <div className={'w-full'}>
         <Stepper {...stepper}>
           {/* Funnel Step Navigator - Left Sidebar (must be inside Stepper context) */}
-          {/* Hide navigation on goviral.ryla.ai domain */}
-          {!isGoviralDomain && <FunnelStepNavigator />}
+          {/* Hide navigation on goviral.ryla.ai domain or when NEXT_PUBLIC_SHOW_NAVIGATOR is not 'true' */}
+          {showNavigator && <FunnelStepNavigator />}
 
           <Stepper.Contents>
             {orderedSteps.map((step) => {

@@ -360,7 +360,7 @@ export function FunnelStepNavigator() {
             {isExpanded && (
                 <div
                     className={cn(
-                        "fixed left-0 top-0 h-full z-50 transition-all duration-300 ease-in-out",
+                        "fixed left-0 top-0 h-dvh z-50 transition-all duration-300 ease-in-out",
                         "border-r border-white/5 w-64",
                     )}
                     style={{ zIndex: 9999 }}
@@ -381,7 +381,7 @@ export function FunnelStepNavigator() {
                     {/* Sidebar Content */}
                     <div
                         className={cn(
-                            "h-full bg-black/95 backdrop-blur-sm border-r border-white/5",
+                            "h-dvh bg-black/95 backdrop-blur-sm border-r border-white/5",
                             "flex flex-col",
                         )}
                     >

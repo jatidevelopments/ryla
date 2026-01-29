@@ -188,7 +188,7 @@ export function useFunnelForm() {
         const sessionId = getOrCreateSessionId();
         sessionIdRef.current = sessionId;
 
-        // Create session in Supabase
+        // Create session in backend API
         await createSession({
           session_id: sessionId,
           current_step: active,
@@ -243,7 +243,7 @@ export function useFunnelForm() {
         store.setStep(active);
       }
 
-      // Update session step in Supabase
+      // Update session step in backend API
       if (sessionIdRef.current) {
         updateSessionStep(sessionIdRef.current, active).catch((error) => {
           console.error('Failed to update session step:', error);
@@ -254,7 +254,7 @@ export function useFunnelForm() {
     }
   }, [active, isReady]);
 
-  // Debounced function to save options to Supabase
+  // Debounced function to save options to backend API
   const debouncedSaveOptions = useDebouncedCallback(
     async (formData: Partial<FunnelSchema>) => {
       if (!sessionIdRef.current) return;
@@ -279,7 +279,7 @@ export function useFunnelForm() {
           await saveAllOptions(sessionIdRef.current, nonEmptyData);
         }
       } catch (error) {
-        console.error('Failed to save options to Supabase:', error);
+        console.error('Failed to save options to backend API:', error);
       }
     },
     2500 // 2.5 second debounce
@@ -294,7 +294,7 @@ export function useFunnelForm() {
       const store = getFunnelStore();
       store.setFormState(formData);
 
-      // Save to Supabase (debounced)
+      // Save to backend API (debounced)
       debouncedSaveOptions(formData);
 
       // Track all form data entries in PostHog

@@ -475,7 +475,7 @@ export function usePaymentForm(posthog?: any) {
                   trackTwitterPurchase({
                     value: product.amount / 100,
                     currency: 'USD',
-                    content_id: product.id,
+                    content_id: String(product.id),
                     content_name: product.name,
                     conversion_id: response.reference, // Use conversion_id for deduplication
                   });
