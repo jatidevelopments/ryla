@@ -8,7 +8,11 @@
  */
 
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { ModalJobRunner, detectWorkflowType, type ComfyUIWorkflow } from '@ryla/business';
+import {
+  ModalJobRunner,
+  detectWorkflowType,
+  type ComfyUIWorkflow,
+} from '@ryla/business';
 import type { RunPodJobRunner, RunPodJobStatus } from '@ryla/business';
 
 @Injectable()
@@ -30,7 +34,7 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
     if (!finalEndpointUrl) {
       this.logger.warn(
-        'MODAL_ENDPOINT_URL or MODAL_WORKSPACE not configured - Modal.com image generation disabled',
+        'MODAL_ENDPOINT_URL or MODAL_WORKSPACE not configured - Modal.com image generation disabled'
       );
       return;
     }
@@ -58,7 +62,7 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   private ensureInitialized(): void {
     if (!this.isInitialized || !this.runner) {
       throw new Error(
-        'Modal.com endpoint not initialized. Check MODAL_ENDPOINT_URL or MODAL_WORKSPACE configuration.',
+        'Modal.com endpoint not initialized. Check MODAL_ENDPOINT_URL or MODAL_WORKSPACE configuration.'
       );
     }
   }
@@ -107,6 +111,70 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   async getJobStatus(jobId: string): Promise<RunPodJobStatus> {
     this.ensureInitialized();
     return this.runner!.getJobStatus(jobId);
+  }
+
+  /**
+   * Submit Qwen-Image generation (supports NSFW)
+   * Uses Qwen-Image 2512 models on Modal.com
+   */
+  async submitQwenImage(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    seed?: number;
+    fast?: boolean; // Use fast endpoint with Lightning LoRA
+  }): Promise<string> {
+    this.ensureInitialized();
+
+    // Route to appropriate Qwen endpoint
+    if (input.fast) {
+      return this.runner!.generateQwenImage2512Fast({
+        prompt: input.prompt,
+        negative_prompt: input.negative_prompt,
+        width: input.width,
+        height: input.height,
+        seed: input.seed,
+      });
+    }
+
+    return this.runner!.generateQwenImage2512({
+      prompt: input.prompt,
+      negative_prompt: input.negative_prompt,
+      width: input.width,
+      height: input.height,
+      seed: input.seed,
+    });
+  }
+
+  /**
+   * Submit Qwen-Image Edit (instruction-based editing)
+   */
+  async submitQwenEdit(input: {
+    source_image: string;
+    instruction: string;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+    denoise?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.editQwenImage2511(input);
+  }
+
+  /**
+   * Submit Qwen-Image Inpaint (mask-based inpainting)
+   */
+  async submitQwenInpaint(input: {
+    source_image: string;
+    mask_image: string;
+    prompt: string;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.inpaintQwenImage2511(input);
   }
 
   /**
@@ -163,7 +231,9 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
       case 'z-image-instantid': {
         if (!detected.parameters.referenceImage) {
-          throw new Error('Z-Image InstantID workflow requires reference image');
+          throw new Error(
+            'Z-Image InstantID workflow requires reference image'
+          );
         }
 
         // Convert reference image to base64 if it's a filename
@@ -171,7 +241,9 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
         if (!referenceImage.startsWith('data:')) {
           // Assume it's a filename - would need to fetch from ComfyUI input folder
           // For now, throw error - this should be handled by the service
-          throw new Error('Reference image must be base64 data URL for Modal endpoints');
+          throw new Error(
+            'Reference image must be base64 data URL for Modal endpoints'
+          );
         }
 
         return this.runner!.generateZImageInstantID({
@@ -196,7 +268,9 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
         let referenceImage = detected.parameters.referenceImage;
         if (!referenceImage.startsWith('data:')) {
-          throw new Error('Reference image must be base64 data URL for Modal endpoints');
+          throw new Error(
+            'Reference image must be base64 data URL for Modal endpoints'
+          );
         }
 
         return this.runner!.generateZImagePuLID({
@@ -217,12 +291,16 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
       case 'flux-ipadapter-faceid': {
         if (!detected.parameters.referenceImage) {
-          throw new Error('Flux IP-Adapter FaceID workflow requires reference image');
+          throw new Error(
+            'Flux IP-Adapter FaceID workflow requires reference image'
+          );
         }
 
         let referenceImage = detected.parameters.referenceImage;
         if (!referenceImage.startsWith('data:')) {
-          throw new Error('Reference image must be base64 data URL for Modal endpoints');
+          throw new Error(
+            'Reference image must be base64 data URL for Modal endpoints'
+          );
         }
 
         return this.runner!.generateFluxIPAdapterFaceID({
@@ -251,7 +329,9 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
         // Fallback: use /workflow endpoint for unknown workflows
         this.logger.warn(`Unknown workflow type, using /workflow endpoint`);
         // ModalJobRunner doesn't have executeWorkflow yet, would need to add it
-        throw new Error(`Workflow type ${detected.type} not yet supported via Modal endpoints. Use ComfyUI adapter instead.`);
+        throw new Error(
+          `Workflow type ${detected.type} not yet supported via Modal endpoints. Use ComfyUI adapter instead.`
+        );
       }
     }
   }

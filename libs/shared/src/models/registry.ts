@@ -1,9 +1,9 @@
 /**
  * Model Registry - Single Source of Truth
- * 
+ *
  * This file defines all supported image generation models, their pricing,
  * and how they map between frontend UI and backend API.
- * 
+ *
  * @module @ryla/shared/models
  */
 
@@ -18,13 +18,21 @@ export type FalModelId = string; // Will be properly typed when we move pricing 
 export type ModelProvider = 'comfyui' | 'fal';
 
 /**
- * Self-hosted model IDs (ComfyUI)
+ * Self-hosted model IDs (ComfyUI on Modal.com)
  */
 export type SelfHostedModelId =
   | 'z-image-turbo'
   | 'z-image-danrisi'
   | 'z-image-pulid'
-  | 'flux-dev';
+  | 'flux-dev'
+  // Qwen-Image models (Modal.com)
+  | 'qwen-image-2512'
+  | 'qwen-image-2512-fast'
+  | 'qwen-image-edit-2511'
+  | 'qwen-image-inpaint-2511'
+  // Wan 2.6 video models (Modal.com)
+  | 'wan2.6'
+  | 'wan2.6-r2v';
 
 /**
  * Model capability - what the model can do
@@ -90,6 +98,11 @@ export type UIModelId =
   | 'recraft-v3'
   | 'bria-32'
   | 'qwen-image-2512'
+  | 'qwen-image-2512-fast'
+  | 'qwen-edit-2511-modal'
+  | 'qwen-inpaint-2511'
+  | 'wan2.6'
+  | 'wan2.6-r2v'
   | 'hidream-i1-fast'
   | 'hidream-i1-dev'
   | 'hidream-i1-full'
@@ -137,7 +150,16 @@ export interface ModelDefinition {
   /** Short description */
   description: string;
   /** Icon identifier for UI */
-  icon: 'soul' | 'face-swap' | 'character' | 'google' | 'bytedance' | 'openai' | 'flux' | 'reve' | 'zimage';
+  icon:
+    | 'soul'
+    | 'face-swap'
+    | 'character'
+    | 'google'
+    | 'bytedance'
+    | 'openai'
+    | 'flux'
+    | 'reve'
+    | 'zimage';
   /** Provider (comfyui or fal) */
   provider: ModelProvider;
   /** Backend model ID (for fal-ai models, this is the FalModelId) */
@@ -172,7 +194,7 @@ export interface ModelDefinition {
 
 /**
  * Model Registry - Single Source of Truth
- * 
+ *
  * Maps UI model IDs to backend model IDs and includes pricing information.
  */
 export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
@@ -232,6 +254,108 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     outputType: 'image',
     isUnlimited: true,
     estimatedCredits1MP: 20,
+  },
+
+  // Qwen-Image Models (Modal.com - Self-hosted)
+  'qwen-image-2512': {
+    uiId: 'qwen-image-2512',
+    name: 'Qwen-Image 2512',
+    description: 'High-quality T2I (Apache 2.0, ELO 1141)',
+    icon: 'bytedance',
+    provider: 'comfyui',
+    backendId: 'qwen-image-2512',
+    capabilities: ['text-to-image'],
+    inputType: 'text',
+    outputType: 'image',
+    isUnlimited: true,
+    supportsNSFW: true,
+    supportsLoRA: true,
+    isMVP: true,
+    isNew: true,
+    estimatedCredits1MP: 20,
+  },
+  'qwen-image-2512-fast': {
+    uiId: 'qwen-image-2512-fast' as UIModelId,
+    name: 'Qwen-Image 2512 Fast',
+    description: 'Fast T2I with Lightning LoRA (4 steps)',
+    icon: 'bytedance',
+    provider: 'comfyui',
+    backendId: 'qwen-image-2512-fast',
+    capabilities: ['text-to-image'],
+    inputType: 'text',
+    outputType: 'image',
+    isUnlimited: true,
+    supportsNSFW: true,
+    supportsLoRA: true,
+    isMVP: true,
+    isNew: true,
+    estimatedCredits1MP: 5,
+  },
+  'qwen-edit-2511-modal': {
+    uiId: 'qwen-edit-2511-modal' as UIModelId,
+    name: 'Qwen-Image Edit 2511',
+    description: 'Instruction-based image editing (self-hosted)',
+    icon: 'bytedance',
+    provider: 'comfyui',
+    backendId: 'qwen-image-edit-2511',
+    capabilities: ['editing'],
+    inputType: 'text+image',
+    outputType: 'image',
+    isUnlimited: true,
+    supportsNSFW: true,
+    isMVP: true,
+    isNew: true,
+    estimatedCredits1MP: 25,
+  },
+  'qwen-inpaint-2511': {
+    uiId: 'qwen-inpaint-2511' as UIModelId,
+    name: 'Qwen-Image Inpaint 2511',
+    description: 'Mask-based inpainting',
+    icon: 'bytedance',
+    provider: 'comfyui',
+    backendId: 'qwen-image-inpaint-2511',
+    capabilities: ['editing'],
+    inputType: 'text+image+mask',
+    outputType: 'image',
+    isUnlimited: true,
+    supportsNSFW: true,
+    isMVP: true,
+    isNew: true,
+    estimatedCredits1MP: 25,
+  },
+
+  // Wan 2.6 Video Models (Modal.com - Self-hosted)
+  'wan2.6': {
+    uiId: 'wan2.6' as UIModelId,
+    name: 'Wan 2.6 Text-to-Video',
+    description: 'High-quality video generation (ELO 1228-1305)',
+    icon: 'bytedance',
+    provider: 'comfyui',
+    backendId: 'wan2.6',
+    capabilities: ['text-to-video'],
+    inputType: 'text',
+    outputType: 'video',
+    isUnlimited: true,
+    supportsNSFW: true,
+    isMVP: true,
+    isNew: true,
+    estimatedCredits1MP: 50,
+  },
+  'wan2.6-r2v': {
+    uiId: 'wan2.6-r2v' as UIModelId,
+    name: 'Wan 2.6 Reference-to-Video',
+    description: 'Video with character consistency',
+    icon: 'bytedance',
+    provider: 'comfyui',
+    backendId: 'wan2.6-r2v',
+    capabilities: ['video-to-video'],
+    inputType: 'text+video',
+    outputType: 'video',
+    isUnlimited: true,
+    supportsNSFW: true,
+    isMVP: true,
+    isNew: true,
+    estimatedCredits1MP: 60,
   },
 
   // FLUX Models (Fal.ai)
@@ -435,7 +559,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
       costPerImage: 0.001,
     },
   },
-  'imagen4': {
+  imagen4: {
     uiId: 'imagen4',
     name: 'Imagen 4',
     description: "Google's highest quality model",
@@ -559,21 +683,8 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
       costPerImage: 0.04,
     },
   },
-  'qwen-image-2512': {
-    uiId: 'qwen-image-2512',
-    name: 'Qwen Image 2512',
-    description: 'Improved text rendering and realism',
-    icon: 'bytedance',
-    provider: 'fal',
-    backendId: 'fal-ai/qwen-image-2512',
-    capabilities: ['text-to-image'],
-    inputType: 'text',
-    outputType: 'image',
-    estimatedCredits1MP: 2,
-    pricingInfo: {
-      costPerMegapixel: 0.02,
-    },
-  },
+  // Note: qwen-image-2512 is now self-hosted on Modal.com (see line ~251)
+  // The fal.ai version is removed to avoid duplicate key
   'hidream-i1-fast': {
     uiId: 'hidream-i1-fast',
     name: 'HiDream I1 Fast',
@@ -679,7 +790,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
       costPerImage: 0.03,
     },
   },
-  'reve': {
+  reve: {
     uiId: 'reve',
     name: 'Reve',
     description: 'Advanced Image Editing Model',
@@ -930,7 +1041,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
       costPerImage: 0.02, // Estimated
     },
   },
-  'seedvr2': {
+  seedvr2: {
     uiId: 'seedvr2',
     name: 'SeedVR2',
     description: 'Use SeedVR2 to upscale your images',
@@ -1005,7 +1116,7 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     outputType: 'video',
     estimatedCredits1MP: 10, // Estimated per second
     pricingInfo: {
-      costPerImage: 0.10, // Estimated
+      costPerImage: 0.1, // Estimated
     },
   },
   'wan-pro-i2v': {
@@ -1061,7 +1172,9 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
 /**
  * Get model definition by UI ID
  */
-export function getModelDefinition(uiId: UIModelId): ModelDefinition | undefined {
+export function getModelDefinition(
+  uiId: UIModelId
+): ModelDefinition | undefined {
   return MODEL_REGISTRY[uiId];
 }
 
@@ -1075,13 +1188,15 @@ export function getAllModels(): ModelDefinition[] {
 /**
  * Get models by provider
  */
-export function getModelsByProvider(provider: ModelProvider): ModelDefinition[] {
+export function getModelsByProvider(
+  provider: ModelProvider
+): ModelDefinition[] {
   return Object.values(MODEL_REGISTRY).filter((m) => m.provider === provider);
 }
 
 /**
  * Calculate credits for a model based on image dimensions
- * 
+ *
  * Note: For Fal models, this uses estimated pricing. Actual pricing
  * is calculated in the backend using FAL_MODEL_PRICING.
  */
@@ -1098,9 +1213,10 @@ export function calculateModelCredits(
   // ComfyUI models use fixed feature pricing
   if (model.provider === 'comfyui') {
     // Use studio_fast or studio_standard based on model
-    const featureId = model.estimatedCredits1MP && model.estimatedCredits1MP >= 50
-      ? 'studio_standard'
-      : 'studio_fast';
+    const featureId =
+      model.estimatedCredits1MP && model.estimatedCredits1MP >= 50
+        ? 'studio_standard'
+        : 'studio_fast';
     const { getFeatureCost } = require('../credits/pricing');
     return getFeatureCost(featureId, 1);
   }
@@ -1114,15 +1230,21 @@ export function calculateModelCredits(
 /**
  * Get backend model ID from UI model ID
  */
-export function getBackendModelId(uiId: UIModelId): FalModelId | SelfHostedModelId | undefined {
+export function getBackendModelId(
+  uiId: UIModelId
+): FalModelId | SelfHostedModelId | undefined {
   return MODEL_REGISTRY[uiId]?.backendId;
 }
 
 /**
  * Get models by capability
  */
-export function getModelsByCapability(capability: ModelCapability): ModelDefinition[] {
-  return Object.values(MODEL_REGISTRY).filter((m) => m.capabilities.includes(capability));
+export function getModelsByCapability(
+  capability: ModelCapability
+): ModelDefinition[] {
+  return Object.values(MODEL_REGISTRY).filter((m) =>
+    m.capabilities.includes(capability)
+  );
 }
 
 /**
@@ -1135,14 +1257,21 @@ export function getModelsByInputType(inputType: InputType): ModelDefinition[] {
 /**
  * Get models that produce a specific output type
  */
-export function getModelsByOutputType(outputType: OutputType): ModelDefinition[] {
-  return Object.values(MODEL_REGISTRY).filter((m) => m.outputType === outputType);
+export function getModelsByOutputType(
+  outputType: OutputType
+): ModelDefinition[] {
+  return Object.values(MODEL_REGISTRY).filter(
+    (m) => m.outputType === outputType
+  );
 }
 
 /**
  * Check if a model supports a specific capability
  */
-export function modelSupportsCapability(uiId: UIModelId, capability: ModelCapability): boolean {
+export function modelSupportsCapability(
+  uiId: UIModelId,
+  capability: ModelCapability
+): boolean {
   const model = MODEL_REGISTRY[uiId];
   return model?.capabilities.includes(capability) ?? false;
 }
@@ -1151,7 +1280,9 @@ export function modelSupportsCapability(uiId: UIModelId, capability: ModelCapabi
  * Map Studio mode to model capabilities
  * Used to filter models in the Studio UI based on selected mode
  */
-export function getCapabilitiesForStudioMode(mode: 'creating' | 'editing' | 'upscaling' | 'variations'): ModelCapability[] {
+export function getCapabilitiesForStudioMode(
+  mode: 'creating' | 'editing' | 'upscaling' | 'variations'
+): ModelCapability[] {
   switch (mode) {
     case 'creating':
       return ['text-to-image'];
@@ -1179,7 +1310,9 @@ export function getModelsForStudioMode(
   const capabilities = getCapabilitiesForStudioMode(mode);
   return Object.values(MODEL_REGISTRY).filter((m) => {
     // Filter by capability
-    const hasCapability = capabilities.some((cap) => m.capabilities.includes(cap));
+    const hasCapability = capabilities.some((cap) =>
+      m.capabilities.includes(cap)
+    );
     if (!hasCapability) return false;
 
     // Filter by MVP flag if requested
@@ -1208,4 +1341,3 @@ export function getAllFalBackendModelIds(): string[] {
     .filter((m) => m.provider === 'fal' && m.backendId)
     .map((m) => m.backendId as string);
 }
-

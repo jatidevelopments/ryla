@@ -16,6 +16,14 @@ export interface DetectedWorkflow {
     | 'flux-dev'
     | 'flux-ipadapter-faceid'
     | 'sdxl-instantid'
+    // Qwen-Image models (Modal.com)
+    | 'qwen-image-2512'
+    | 'qwen-image-2512-fast'
+    | 'qwen-image-edit-2511'
+    | 'qwen-image-inpaint-2511'
+    // Wan 2.6 video models (Modal.com)
+    | 'wan2.6'
+    | 'wan2.6-r2v'
     | 'unknown';
   parameters: {
     prompt?: string;
@@ -33,6 +41,15 @@ export interface DetectedWorkflow {
     pulidEnd?: number;
     ipadapterStrength?: number;
     faceProvider?: 'CPU' | 'GPU';
+    // Qwen-Image Edit/Inpaint parameters
+    sourceImage?: string;
+    maskImage?: string;
+    instruction?: string;
+    denoise?: number;
+    // Wan 2.6 video parameters
+    numFrames?: number;
+    fps?: number;
+    referenceVideo?: string;
   };
 }
 
@@ -148,6 +165,52 @@ export function detectWorkflowType(
     .join(' ');
 
   const allIndicators = (nodeTypesStr + ' ' + modelNames).toLowerCase();
+
+  // Qwen-Image workflows - check for Qwen model names
+  if (
+    allIndicators.includes('qwen_image') ||
+    allIndicators.includes('qwen-image') ||
+    allIndicators.includes('qwen_2512') ||
+    allIndicators.includes('qwen_2511')
+  ) {
+    // Check for editing workflows (have source_image instruction)
+    if (
+      allIndicators.includes('edit') ||
+      allIndicators.includes('instruction')
+    ) {
+      // Check for inpaint (has mask)
+      if (allIndicators.includes('mask') || allIndicators.includes('inpaint')) {
+        return { type: 'qwen-image-inpaint-2511', parameters };
+      }
+      return { type: 'qwen-image-edit-2511', parameters };
+    }
+    // Check for fast mode (lightning lora)
+    if (
+      allIndicators.includes('lightning') ||
+      allIndicators.includes('fast') ||
+      parameters.steps === 4
+    ) {
+      return { type: 'qwen-image-2512-fast', parameters };
+    }
+    return { type: 'qwen-image-2512', parameters };
+  }
+
+  // Wan 2.6 video workflows
+  if (
+    allIndicators.includes('wan2.6') ||
+    allIndicators.includes('wan26') ||
+    allIndicators.includes('wan_2.6')
+  ) {
+    // Check for R2V (reference-to-video)
+    if (
+      allIndicators.includes('r2v') ||
+      allIndicators.includes('reference') ||
+      parameters.referenceVideo
+    ) {
+      return { type: 'wan2.6-r2v', parameters };
+    }
+    return { type: 'wan2.6', parameters };
+  }
 
   // Z-Image workflows - check for Z-Image model names
   if (

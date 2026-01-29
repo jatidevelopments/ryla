@@ -53,6 +53,50 @@ export interface ModalWorkflowRequest extends Record<string, unknown> {
   workflow: Record<string, unknown>;
 }
 
+export interface ModalQwenImageRequest extends Record<string, unknown> {
+  prompt: string;
+  negative_prompt?: string;
+  width?: number;
+  height?: number;
+  steps?: number;
+  cfg?: number;
+  seed?: number;
+}
+
+export interface ModalQwenEditRequest extends Record<string, unknown> {
+  source_image: string; // base64 data URL
+  instruction: string;
+  steps?: number;
+  cfg?: number;
+  seed?: number;
+  denoise?: number;
+}
+
+export interface ModalQwenInpaintRequest extends Record<string, unknown> {
+  source_image: string; // base64 data URL
+  mask_image: string; // base64 data URL (white = edit area)
+  prompt: string;
+  steps?: number;
+  cfg?: number;
+  seed?: number;
+}
+
+export interface ModalWan26Request extends Record<string, unknown> {
+  prompt: string;
+  negative_prompt?: string;
+  width?: number;
+  height?: number;
+  num_frames?: number;
+  fps?: number;
+  steps?: number;
+  cfg?: number;
+  seed?: number;
+}
+
+export interface ModalWan26R2VRequest extends ModalWan26Request {
+  reference_video: string; // base64 data URL
+}
+
 export interface ModalResponse {
   image: Buffer;
   contentType: string;
@@ -96,6 +140,62 @@ export class ModalClient {
    */
   async generateWan2(input: ModalFluxRequest): Promise<ModalResponse> {
     return this.callEndpoint('/wan2', input);
+  }
+
+  // ============================================================
+  // Qwen-Image Models (Modal.com - Primary MVP Models)
+  // ============================================================
+
+  /**
+   * Generate image using Qwen-Image 2512 (high-quality, 50 steps)
+   */
+  async generateQwenImage2512(
+    input: ModalQwenImageRequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-image-2512', input);
+  }
+
+  /**
+   * Generate image using Qwen-Image 2512 Fast (4 steps with Lightning LoRA)
+   */
+  async generateQwenImage2512Fast(
+    input: ModalQwenImageRequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-image-2512-fast', input);
+  }
+
+  /**
+   * Edit image using Qwen-Image Edit 2511 (instruction-based)
+   */
+  async editQwenImage2511(input: ModalQwenEditRequest): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-image-edit-2511', input);
+  }
+
+  /**
+   * Inpaint image using Qwen-Image Inpaint 2511 (mask-based)
+   */
+  async inpaintQwenImage2511(
+    input: ModalQwenInpaintRequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-image-inpaint-2511', input);
+  }
+
+  // ============================================================
+  // Wan 2.6 Video Models (Modal.com - Primary Video Models)
+  // ============================================================
+
+  /**
+   * Generate video using Wan 2.6 (text-to-video)
+   */
+  async generateWan26(input: ModalWan26Request): Promise<ModalResponse> {
+    return this.callEndpoint('/wan2.6', input);
+  }
+
+  /**
+   * Generate video using Wan 2.6 R2V (reference-to-video for character consistency)
+   */
+  async generateWan26R2V(input: ModalWan26R2VRequest): Promise<ModalResponse> {
+    return this.callEndpoint('/wan2.6-r2v', input);
   }
 
   /**

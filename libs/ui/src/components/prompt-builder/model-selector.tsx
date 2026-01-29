@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { cn } from "../../lib/utils";
+import * as React from 'react';
+import { cn } from '../../lib/utils';
 
 /**
  * AI Model option
@@ -10,8 +10,8 @@ export interface ModelOption {
   id: string;
   name: string;
   description: string;
-  speed: "fast" | "medium" | "slow";
-  quality: "good" | "better" | "best";
+  speed: 'fast' | 'medium' | 'slow';
+  quality: 'good' | 'better' | 'best';
   recommended?: boolean;
 }
 
@@ -20,26 +20,33 @@ export interface ModelOption {
  */
 export const defaultModelOptions: ModelOption[] = [
   {
-    id: "flux-dev",
-    name: "Flux Dev",
-    description: "Highest quality, photorealistic",
-    speed: "medium",
-    quality: "best",
+    id: 'qwen-image-2512-fast',
+    name: 'Qwen Fast',
+    description: 'Fast T2I with NSFW support',
+    speed: 'fast',
+    quality: 'better',
     recommended: true,
   },
   {
-    id: "z-image-turbo",
-    name: "Z-Image Turbo",
-    description: "Fast, great realism",
-    speed: "fast",
-    quality: "better",
+    id: 'qwen-image-2512',
+    name: 'Qwen HD',
+    description: 'High quality T2I with NSFW support',
+    speed: 'medium',
+    quality: 'best',
   },
   {
-    id: "sdxl",
-    name: "SDXL",
-    description: "Versatile all-rounder",
-    speed: "medium",
-    quality: "good",
+    id: 'flux-dev',
+    name: 'Flux Dev',
+    description: 'Highest quality, photorealistic (SFW)',
+    speed: 'medium',
+    quality: 'best',
+  },
+  {
+    id: 'z-image-turbo',
+    name: 'Z-Image Turbo',
+    description: 'Fast, great realism',
+    speed: 'fast',
+    quality: 'better',
   },
 ];
 
@@ -59,7 +66,7 @@ export interface ModelSelectorProps {
   /**
    * Layout mode
    */
-  layout?: "cards" | "dropdown" | "pills";
+  layout?: 'cards' | 'dropdown' | 'pills';
   /**
    * Custom class name
    */
@@ -73,17 +80,17 @@ export interface ModelSelectorProps {
 /**
  * Speed indicator
  */
-function SpeedIndicator({ speed }: { speed: "fast" | "medium" | "slow" }) {
-  const bars = speed === "fast" ? 3 : speed === "medium" ? 2 : 1;
-  
+function SpeedIndicator({ speed }: { speed: 'fast' | 'medium' | 'slow' }) {
+  const bars = speed === 'fast' ? 3 : speed === 'medium' ? 2 : 1;
+
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3].map((i) => (
         <div
           key={i}
           className={cn(
-            "h-2 w-1 rounded-sm",
-            i <= bars ? "bg-[#00ed77]" : "bg-white/20"
+            'h-2 w-1 rounded-sm',
+            i <= bars ? 'bg-[#00ed77]' : 'bg-white/20'
           )}
         />
       ))}
@@ -94,17 +101,21 @@ function SpeedIndicator({ speed }: { speed: "fast" | "medium" | "slow" }) {
 /**
  * Quality indicator
  */
-function QualityIndicator({ quality }: { quality: "good" | "better" | "best" }) {
-  const stars = quality === "best" ? 3 : quality === "better" ? 2 : 1;
-  
+function QualityIndicator({
+  quality,
+}: {
+  quality: 'good' | 'better' | 'best';
+}) {
+  const stars = quality === 'best' ? 3 : quality === 'better' ? 2 : 1;
+
   return (
     <div className="flex items-center gap-0.5">
       {[1, 2, 3].map((i) => (
         <span
           key={i}
           className={cn(
-            "text-xs",
-            i <= stars ? "text-[#ffdda7]" : "text-white/20"
+            'text-xs',
+            i <= stars ? 'text-[#ffdda7]' : 'text-white/20'
           )}
         >
           ★
@@ -116,7 +127,7 @@ function QualityIndicator({ quality }: { quality: "good" | "better" | "best" }) 
 
 /**
  * Model Selector
- * 
+ *
  * Allows users to select an AI model for image generation.
  * Shows model characteristics like speed and quality.
  */
@@ -124,24 +135,24 @@ export function ModelSelector({
   value,
   onChange,
   models = defaultModelOptions,
-  layout = "cards",
+  layout = 'cards',
   className,
   disabled = false,
 }: ModelSelectorProps) {
   // Dropdown layout
-  if (layout === "dropdown") {
-    const selectedModel = models.find(m => m.id === value) || models[0];
+  if (layout === 'dropdown') {
+    const _selectedModel = models.find((m) => m.id === value) || models[0];
 
     return (
-      <div className={cn("relative", className)}>
+      <div className={cn('relative', className)}>
         <select
           value={value}
           onChange={(e) => onChange?.(e.target.value)}
           disabled={disabled}
           className={cn(
-            "w-full appearance-none rounded-[10px] border border-white/10 bg-[#1f1f24] px-4 py-2.5 pr-10 text-sm text-white",
-            "focus:border-[#b99cff] focus:outline-none focus:ring-1 focus:ring-[#b99cff]/20",
-            disabled && "opacity-50 cursor-not-allowed"
+            'w-full appearance-none rounded-[10px] border border-white/10 bg-[#1f1f24] px-4 py-2.5 pr-10 text-sm text-white',
+            'focus:border-[#b99cff] focus:outline-none focus:ring-1 focus:ring-[#b99cff]/20',
+            disabled && 'opacity-50 cursor-not-allowed'
           )}
         >
           {models.map((model) => (
@@ -169,9 +180,9 @@ export function ModelSelector({
   }
 
   // Pills layout
-  if (layout === "pills") {
+  if (layout === 'pills') {
     return (
-      <div className={cn("flex flex-wrap gap-2", className)}>
+      <div className={cn('flex flex-wrap gap-2', className)}>
         {models.map((model) => {
           const isSelected = value === model.id;
 
@@ -182,12 +193,12 @@ export function ModelSelector({
               disabled={disabled}
               onClick={() => onChange?.(model.id)}
               className={cn(
-                "inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all",
-                "border",
+                'inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-medium transition-all',
+                'border',
                 isSelected
-                  ? "border-[#b99cff] bg-[#b99cff]/20 text-[#b99cff]"
-                  : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white",
-                disabled && "opacity-50 cursor-not-allowed"
+                  ? 'border-[#b99cff] bg-[#b99cff]/20 text-[#b99cff]'
+                  : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white',
+                disabled && 'opacity-50 cursor-not-allowed'
               )}
             >
               {model.name}
@@ -205,7 +216,7 @@ export function ModelSelector({
 
   // Cards layout (default)
   return (
-    <div className={cn("grid gap-3", className)}>
+    <div className={cn('grid gap-3', className)}>
       {models.map((model) => {
         const isSelected = value === model.id;
 
@@ -216,12 +227,12 @@ export function ModelSelector({
             disabled={disabled}
             onClick={() => onChange?.(model.id)}
             className={cn(
-              "relative flex items-center gap-4 rounded-[10px] p-4 text-left transition-all",
-              "border bg-[#1f1f24]",
+              'relative flex items-center gap-4 rounded-[10px] p-4 text-left transition-all',
+              'border bg-[#1f1f24]',
               isSelected
-                ? "border-2 border-[#b99cff] bg-gradient-to-r from-[#b99cff]/10 to-transparent"
-                : "border-white/10 hover:border-white/30",
-              disabled && "opacity-50 cursor-not-allowed"
+                ? 'border-2 border-[#b99cff] bg-gradient-to-r from-[#b99cff]/10 to-transparent'
+                : 'border-white/10 hover:border-white/30',
+              disabled && 'opacity-50 cursor-not-allowed'
             )}
           >
             {/* Selected indicator */}
@@ -257,8 +268,10 @@ export function ModelSelector({
                   </span>
                 )}
               </div>
-              <p className="mt-0.5 text-sm text-[#a1a1aa]">{model.description}</p>
-              
+              <p className="mt-0.5 text-sm text-[#a1a1aa]">
+                {model.description}
+              </p>
+
               {/* Indicators */}
               <div className="mt-2 flex items-center gap-4">
                 <div className="flex items-center gap-1.5">
@@ -278,5 +291,4 @@ export function ModelSelector({
   );
 }
 
-ModelSelector.displayName = "ModelSelector";
-
+ModelSelector.displayName = 'ModelSelector';

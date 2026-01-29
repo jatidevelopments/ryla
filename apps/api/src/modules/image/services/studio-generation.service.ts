@@ -1,10 +1,21 @@
-import { BadRequestException, Injectable, Inject, NotFoundException, ForbiddenException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Inject,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq } from 'drizzle-orm';
 
 import * as schema from '@ryla/data/schema';
 import { GenerationJobsRepository, ImagesRepository } from '@ryla/data';
-import { buildWorkflow, getRecommendedWorkflow, PromptBuilder, createAutoEnhancer } from '@ryla/business';
+import {
+  buildWorkflow,
+  getRecommendedWorkflow,
+  PromptBuilder,
+  createAutoEnhancer,
+} from '@ryla/business';
 import type { OutfitComposition } from '@ryla/shared';
 import { randomUUID } from 'crypto';
 
@@ -16,7 +27,10 @@ import { characterConfigToDNA } from './character-config-to-dna';
 import { getPosePrompt } from './pose-lookup';
 import { AwsS3Service } from '../../aws-s3/services/aws-s3.service';
 
-function aspectRatioToSize(aspectRatio: '1:1' | '9:16' | '2:3'): { width: number; height: number } {
+function aspectRatioToSize(aspectRatio: '1:1' | '9:16' | '2:3'): {
+  width: number;
+  height: number;
+} {
   switch (aspectRatio) {
     case '1:1':
       return { width: 1024, height: 1024 };
@@ -33,7 +47,10 @@ function getStandardQualityParams(): { steps: number; cfg: number } {
   return { steps: 9, cfg: 1.0 };
 }
 
-function asValidEnumOrNull<T extends readonly string[]>(value: unknown, allowed: T): T[number] | null {
+function asValidEnumOrNull<T extends readonly string[]>(
+  value: unknown,
+  allowed: T
+): T[number] | null {
   if (typeof value !== 'string') return null;
   const trimmed = value.trim();
   if (trimmed === '') return null;
@@ -57,7 +74,7 @@ export class StudioGenerationService {
     @Inject(ImageStorageService)
     private readonly imageStorage: ImageStorageService,
     @Inject(AwsS3Service)
-    private readonly s3Service: AwsS3Service,
+    private readonly s3Service: AwsS3Service
   ) {
     this.generationJobsRepo = new GenerationJobsRepository(this.db);
     this.imagesRepo = new ImagesRepository(this.db);
@@ -88,24 +105,36 @@ export class StudioGenerationService {
 
     // Verify character ownership and fetch character data
     const character = await this.db.query.characters.findFirst({
-      where: and(eq(schema.characters.id, input.characterId), eq(schema.characters.userId, input.userId)),
+      where: and(
+        eq(schema.characters.id, input.characterId),
+        eq(schema.characters.userId, input.userId)
+      ),
     });
     if (!character) throw new NotFoundException('Character not found');
 
     // Convert CharacterConfig to CharacterDNA
     // For SFW content, exclude breast/ass size from the prompt to avoid triggering NSFW content
     // For NSFW content, include breast/ass size for adult content
-    const characterDNA = characterConfigToDNA(character.config, character.name, { sfwMode: !input.nsfw });
+    const characterDNA = characterConfigToDNA(
+      character.config,
+      character.name,
+      { sfwMode: !input.nsfw }
+    );
 
     // Check if outfit is empty (null, empty string, or empty composition)
-    const isOutfitEmpty = !input.outfit || 
+    const isOutfitEmpty =
+      !input.outfit ||
       (typeof input.outfit === 'string' && input.outfit.trim() === '') ||
-      (typeof input.outfit === 'object' && 
-        !input.outfit.top && 
-        !input.outfit.bottom && 
+      (typeof input.outfit === 'object' &&
+        !input.outfit.top &&
+        !input.outfit.bottom &&
         !input.outfit.shoes &&
-        (!input.outfit.headwear || input.outfit.headwear === 'none' || input.outfit.headwear === 'none-headwear') &&
-        (!input.outfit.outerwear || input.outfit.outerwear === 'none' || input.outfit.outerwear === 'none-outerwear') &&
+        (!input.outfit.headwear ||
+          input.outfit.headwear === 'none' ||
+          input.outfit.headwear === 'none-headwear') &&
+        (!input.outfit.outerwear ||
+          input.outfit.outerwear === 'none' ||
+          input.outfit.outerwear === 'none-outerwear') &&
         (!input.outfit.accessories || input.outfit.accessories.length === 0));
 
     // For NSFW content, be more explicit about nudity:
@@ -113,12 +142,13 @@ export class StudioGenerationService {
     // - If partial outfit selected: keep outfit but add explicit nudity emphasis
     let outfitToUse = input.outfit;
     let nsfwNudityDetails: string | null = null;
-    
+
     if (input.nsfw) {
       if (isOutfitEmpty) {
         // Fully naked - no clothes at all
         outfitToUse = 'fully naked, completely nude, no clothing, bare skin';
-        nsfwNudityDetails = 'fully naked, completely nude, exposed body, no clothes';
+        nsfwNudityDetails =
+          'fully naked, completely nude, exposed body, no clothes';
       } else {
         // Partial outfit - emphasize nudity with the selected clothing
         nsfwNudityDetails = 'nude, naked body, exposed skin';
@@ -176,21 +206,26 @@ export class StudioGenerationService {
       const enhancer = createAutoEnhancer();
 
       // Enhance in parallel with 500ms timeout - don't block generation start
-      const enhancementPromise = builder.buildWithAI(enhancer, {
-        strength: 0.7,
-        focus: ['realism', 'lighting', 'details'],
-      }).catch((err) => {
-        // If enhancement fails, log but don't block - use base prompt
-        console.warn('Prompt enhancement failed, using base prompt:', err);
-        return null;
-      });
+      const enhancementPromise = builder
+        .buildWithAI(enhancer, {
+          strength: 0.7,
+          focus: ['realism', 'lighting', 'details'],
+        })
+        .catch((err) => {
+          // If enhancement fails, log but don't block - use base prompt
+          console.warn('Prompt enhancement failed, using base prompt:', err);
+          return null;
+        });
 
       // Race: enhancement vs timeout
       const timeoutPromise = new Promise<null>((resolve) =>
         setTimeout(() => resolve(null), 500)
       );
 
-      const enhancementResult = await Promise.race([enhancementPromise, timeoutPromise]);
+      const enhancementResult = await Promise.race([
+        enhancementPromise,
+        timeoutPromise,
+      ]);
 
       // Use enhanced prompt if it completed in time, otherwise use base
       if (enhancementResult) {
@@ -199,7 +234,8 @@ export class StudioGenerationService {
         promptEnhanceUsed = true;
         // Merge negative prompt additions
         if (enhancementResult.enhancement.negativeAdditions.length > 0) {
-          negativePrompt += ', ' + enhancementResult.enhancement.negativeAdditions.join(', ');
+          negativePrompt +=
+            ', ' + enhancementResult.enhancement.negativeAdditions.join(', ');
         }
       }
       // If timeout or error, continue with base prompt (already set above)
@@ -210,31 +246,50 @@ export class StudioGenerationService {
 
     // Pick the best available workflow for the pod (danrisi if nodes available; else simple)
     const workflowId = getRecommendedWorkflow([]); // default fallback
-    const actualWorkflowId = this.comfyui.getRecommendedWorkflow?.() ?? workflowId;
+    const actualWorkflowId =
+      this.comfyui.getRecommendedWorkflow?.() ?? workflowId;
 
     const results: Array<{ jobId: string; promptId: string }> = [];
 
     // Provider selection:
-    // - SFW: Modal > FAL (never ComfyUI pod or RunPod serverless)
-    // - NSFW: ComfyUI pod (self-hosted) only - Modal/FAL don't support NSFW
-    const shouldUseModal = this.modal.isAvailable() && !input.nsfw;
+    // - Qwen models on Modal support NSFW (Apache 2.0 licensed, self-hosted)
+    // - SFW: Modal (Qwen) > FAL (never ComfyUI pod or RunPod serverless)
+    // - NSFW: Modal (Qwen) > ComfyUI pod (self-hosted)
+    // Note: FAL doesn't support NSFW content
+    const isQwenModel = input.modelId?.startsWith('qwen-') || false;
+    const shouldUseModal =
+      this.modal.isAvailable() && (isQwenModel || !input.nsfw);
     const shouldUseFal = this.fal.isConfigured() && !input.nsfw;
-    const provider: 'modal' | 'comfyui' | 'fal' = input.nsfw 
-      ? 'comfyui' // NSFW requires self-hosted ComfyUI pod (Modal/FAL don't support NSFW)
-      : (input.modelProvider ?? (shouldUseModal ? 'modal' : (shouldUseFal ? 'fal' : 'comfyui')));
+    const provider: 'modal' | 'comfyui' | 'fal' = input.nsfw
+      ? shouldUseModal && isQwenModel
+        ? 'modal'
+        : 'comfyui' // NSFW: Modal (Qwen) or ComfyUI
+      : input.modelProvider ??
+        (shouldUseModal ? 'modal' : shouldUseFal ? 'fal' : 'comfyui');
     const falModel: FalFluxModelId = input.modelId ?? 'fal-ai/flux/schnell';
 
     for (let i = 0; i < input.count; i++) {
       const seed = typeof input.seed === 'number' ? input.seed + i : undefined;
 
       // Validate enum values for image creation
-      const safeScene = asValidEnumOrNull(input.scene, schema.scenePresetEnum.enumValues);
-      const safeEnvironment = asValidEnumOrNull(input.environment, schema.environmentPresetEnum.enumValues);
-      const safeAspectRatio = asValidEnumOrNull(input.aspectRatio, schema.aspectRatioEnum.enumValues);
+      const safeScene = asValidEnumOrNull(
+        input.scene,
+        schema.scenePresetEnum.enumValues
+      );
+      const safeEnvironment = asValidEnumOrNull(
+        input.environment,
+        schema.environmentPresetEnum.enumValues
+      );
+      const safeAspectRatio = asValidEnumOrNull(
+        input.aspectRatio,
+        schema.aspectRatioEnum.enumValues
+      );
       // qualityMode removed - EP-045
 
       // Create image record immediately with status 'generating' so it persists across page reloads
-      const placeholderS3Key = `generating/${input.characterId}/${randomUUID()}`;
+      const placeholderS3Key = `generating/${
+        input.characterId
+      }/${randomUUID()}`;
       const imageData: any = {
         characterId: input.characterId,
         userId: input.userId,
@@ -253,7 +308,10 @@ export class StudioGenerationService {
       if (safeScene) imageData.scene = safeScene;
       if (safeEnvironment) imageData.environment = safeEnvironment;
 
-      const outfit = typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit);
+      const outfit =
+        typeof input.outfit === 'string'
+          ? input.outfit
+          : JSON.stringify(input.outfit);
       if (outfit) imageData.outfit = outfit;
 
       if (input.poseId) imageData.poseId = input.poseId;
@@ -265,15 +323,19 @@ export class StudioGenerationService {
       if (typeof promptEnhanceUsed === 'boolean') {
         imageData.promptEnhance = promptEnhanceUsed;
       }
-      if (promptEnhanceUsed && originalPrompt) imageData.originalPrompt = originalPrompt;
-      if (promptEnhanceUsed && enhancedPrompt) imageData.enhancedPrompt = enhancedPrompt;
+      if (promptEnhanceUsed && originalPrompt)
+        imageData.originalPrompt = originalPrompt;
+      if (promptEnhanceUsed && enhancedPrompt)
+        imageData.enhancedPrompt = enhancedPrompt;
 
       const imageRecord = await this.imagesRepo.createImage(imageData);
 
       if (provider === 'modal') {
         if (!this.modal.isAvailable()) {
           // Safe fallback if Modal.com not available
-          console.warn('Modal.com not available; falling back to comfyui for studio generation');
+          console.warn(
+            'Modal.com not available; falling back to comfyui for studio generation'
+          );
         } else {
           const externalJobId = `modal_${randomUUID()}`;
           const job = await this.generationJobsRepo.createJob({
@@ -284,7 +346,10 @@ export class StudioGenerationService {
             input: {
               scene: input.scene,
               environment: input.environment,
-              outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
+              outfit:
+                typeof input.outfit === 'string'
+                  ? input.outfit
+                  : JSON.stringify(input.outfit),
               poseId: input.poseId,
               aspectRatio: input.aspectRatio,
               imageCount: 1,
@@ -311,8 +376,19 @@ export class StudioGenerationService {
           });
 
           // Map model ID to Modal.com endpoint
-          // fal-ai/flux/dev → /flux-dev, fal-ai/flux/schnell → /flux
-          const modalModel = falModel === 'fal-ai/flux/dev' ? 'flux-dev' : 'flux';
+          // Qwen models: qwen-image-2512 → /qwen-image-2512, etc.
+          // Flux models: fal-ai/flux/dev → /flux-dev, fal-ai/flux/schnell → /flux
+          let modalModel: string;
+          if (input.modelId?.startsWith('qwen-')) {
+            // Map Qwen UI model IDs to Modal endpoints
+            const qwenModelMap: Record<string, string> = {
+              'qwen-image-2512': 'qwen-image-2512',
+              'qwen-image-2512-fast': 'qwen-image-2512-fast',
+            };
+            modalModel = qwenModelMap[input.modelId] ?? 'qwen-image-2512-fast';
+          } else {
+            modalModel = falModel === 'fal-ai/flux/dev' ? 'flux-dev' : 'flux';
+          }
 
           // handled by ComfyUIResultsService (special-cased for externalProvider='modal').
           void this.runModalStudioJob({
@@ -338,7 +414,9 @@ export class StudioGenerationService {
           // Keep server stable: do not throw; run comfyui instead.
           // (This also keeps UI stable without special-casing.)
 
-          console.warn('FAL_KEY not configured; falling back to comfyui for studio generation');
+          console.warn(
+            'FAL_KEY not configured; falling back to comfyui for studio generation'
+          );
         } else {
           const externalJobId = `fal_${randomUUID()}`;
           const job = await this.generationJobsRepo.createJob({
@@ -347,31 +425,34 @@ export class StudioGenerationService {
             type: 'image_generation',
             status: 'processing',
             input: {
-            scene: input.scene,
-            environment: input.environment,
-            outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
-            poseId: input.poseId,
-            aspectRatio: input.aspectRatio,
-            // qualityMode removed - EP-045
+              scene: input.scene,
+              environment: input.environment,
+              outfit:
+                typeof input.outfit === 'string'
+                  ? input.outfit
+                  : JSON.stringify(input.outfit),
+              poseId: input.poseId,
+              aspectRatio: input.aspectRatio,
+              // qualityMode removed - EP-045
+              imageCount: 1,
+              nsfw: input.nsfw,
+              prompt: basePrompt,
+              negativePrompt,
+              seed: seed?.toString(),
+              width,
+              height,
+              steps,
+              // Prompt enhancement metadata
+              promptEnhance: promptEnhanceUsed,
+              originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
+              enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
+              // Store image ID so we can update it when complete
+              imageId: imageRecord.id,
+            },
             imageCount: 1,
-            nsfw: input.nsfw,
-            prompt: basePrompt,
-            negativePrompt,
-            seed: seed?.toString(),
-            width,
-            height,
-            steps,
-            // Prompt enhancement metadata
-            promptEnhance: promptEnhanceUsed,
-            originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
-            enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
-            // Store image ID so we can update it when complete
-            imageId: imageRecord.id,
-          },
-          imageCount: 1,
-          completedCount: 0,
-          externalJobId,
-          externalProvider: 'fal',
+            completedCount: 0,
+            externalJobId,
+            externalProvider: 'fal',
             startedAt: new Date(),
             // Store image ID in output for reference
             output: {
@@ -416,10 +497,10 @@ export class StudioGenerationService {
       // - NSFW: ComfyUI pod (self-hosted) only
       // Note: FAL doesn't support workflow-based generation (Z-Image, InstantID, etc.)
       const shouldUseModalForWorkflow = this.modal.isAvailable() && !input.nsfw;
-      
+
       let adapter: ModalJobRunnerAdapter | ComfyUIJobRunnerAdapter;
       let externalProvider: 'modal' | 'comfyui' | 'fal';
-      
+
       if (shouldUseModalForWorkflow) {
         adapter = this.modal;
         externalProvider = 'modal';
@@ -431,10 +512,10 @@ export class StudioGenerationService {
         // SFW but Modal not available - FAL doesn't support workflows
         // Throw error instead of falling back to ComfyUI pod
         throw new BadRequestException(
-          'Modal.com is required for workflow-based studio generation. FAL does not support Z-Image or face consistency workflows. Please configure MODAL_ENDPOINT_URL.',
+          'Modal.com is required for workflow-based studio generation. FAL does not support Z-Image or face consistency workflows. Please configure MODAL_ENDPOINT_URL.'
         );
       }
-      
+
       const promptId = await adapter.queueWorkflow(workflow);
 
       const job = await this.generationJobsRepo.createJob({
@@ -445,7 +526,10 @@ export class StudioGenerationService {
         input: {
           scene: input.scene,
           environment: input.environment,
-          outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
+          outfit:
+            typeof input.outfit === 'string'
+              ? input.outfit
+              : JSON.stringify(input.outfit),
           poseId: input.poseId,
           aspectRatio: input.aspectRatio,
           // qualityMode removed - EP-045
@@ -485,9 +569,13 @@ export class StudioGenerationService {
    * Sanitize prompt for models with strict content policies (like Seedream 4.5)
    * Removes body part descriptions that trigger content policy violations
    */
-  private sanitizePromptForStrictModels(prompt: string, modelId: FalFluxModelId): string {
+  private sanitizePromptForStrictModels(
+    prompt: string,
+    modelId: FalFluxModelId
+  ): string {
     // Seedream 4.5 has stricter content filtering - remove body part descriptions
-    const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
+    const isStrictModel =
+      modelId.includes('seedream') || modelId.includes('bytedance');
 
     if (!isStrictModel) {
       return prompt;
@@ -526,9 +614,19 @@ export class StudioGenerationService {
     width: number;
     height: number;
     seed?: number;
-    model: 'flux-dev' | 'flux';
+    model: 'flux-dev' | 'flux' | 'qwen-image-2512' | 'qwen-image-2512-fast';
   }) {
-    const { jobId, externalJobId, imageId, prompt, negativePrompt, width, height, seed, model } = params;
+    const {
+      jobId,
+      externalJobId,
+      imageId,
+      prompt,
+      negativePrompt,
+      width,
+      height,
+      seed,
+      model,
+    } = params;
 
     try {
       const trackedJob = await this.generationJobsRepo.getById(jobId);
@@ -536,30 +634,44 @@ export class StudioGenerationService {
         throw new Error('Job not found');
       }
 
-      // Submit job to Modal.com (both flux-dev and flux use submitBaseImages)
-      const modalJobId = await this.modal.submitBaseImages({
-        prompt,
-        nsfw: false, // Studio generation handles NSFW separately
-        seed,
-      });
+      // Submit job to Modal.com based on model type
+      let modalJobId: string;
+      if (model === 'qwen-image-2512' || model === 'qwen-image-2512-fast') {
+        // Use Qwen-Image endpoints (support NSFW)
+        modalJobId = await this.modal.submitQwenImage({
+          prompt,
+          negative_prompt: negativePrompt,
+          width,
+          height,
+          seed,
+          fast: model === 'qwen-image-2512-fast',
+        });
+      } else {
+        // Use Flux endpoints (flux-dev and flux use submitBaseImages)
+        modalJobId = await this.modal.submitBaseImages({
+          prompt,
+          nsfw: false, // Studio generation handles NSFW separately
+          seed,
+        });
+      }
 
       // Poll for result
       let attempts = 0;
       const maxAttempts = 30;
       let jobStatus;
-      
+
       while (attempts < maxAttempts) {
         jobStatus = await this.modal.getJobStatus(modalJobId);
-        
+
         if (jobStatus.status === 'COMPLETED') {
           break;
         }
-        
+
         if (jobStatus.status === 'FAILED') {
           throw new Error(jobStatus.error || 'Modal.com generation failed');
         }
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
+
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         attempts++;
       }
 
@@ -567,8 +679,14 @@ export class StudioGenerationService {
         throw new Error('Modal.com job did not complete in time');
       }
 
-      const output = jobStatus.output as { images?: Array<{ buffer?: Buffer }> };
-      if (!output?.images || output.images.length === 0 || !output.images[0].buffer) {
+      const output = jobStatus.output as {
+        images?: Array<{ buffer?: Buffer }>;
+      };
+      if (
+        !output?.images ||
+        output.images.length === 0 ||
+        !output.images[0].buffer
+      ) {
         throw new Error('No image buffer returned from Modal.com');
       }
 
@@ -578,11 +696,14 @@ export class StudioGenerationService {
       const dataUrl = `data:image/jpeg;base64,${base64}`;
 
       // Upload to storage
-      const { images: stored } = await this.imageStorage.uploadImages([dataUrl], {
-        userId: trackedJob.userId,
-        category: 'studio-images',
-        jobId: externalJobId,
-      });
+      const { images: stored } = await this.imageStorage.uploadImages(
+        [dataUrl],
+        {
+          userId: trackedJob.userId,
+          category: 'studio-images',
+          jobId: externalJobId,
+        }
+      );
 
       if (!stored || stored.length === 0) {
         throw new Error('Failed to upload image to storage');
@@ -619,8 +740,9 @@ export class StudioGenerationService {
         },
       });
     } catch (e) {
-      const message = e instanceof Error ? e.message : 'Modal.com generation failed';
-      
+      const message =
+        e instanceof Error ? e.message : 'Modal.com generation failed';
+
       await this.generationJobsRepo.updateById(jobId, {
         status: 'failed',
         output: {
@@ -654,8 +776,19 @@ export class StudioGenerationService {
     seed?: number;
     imageId: string;
   }) {
-    const { jobId, externalJobId, userId, characterId, modelId, prompt, negativePrompt, width, height, seed, imageId } =
-      params;
+    const {
+      jobId,
+      externalJobId,
+      userId,
+      characterId,
+      modelId,
+      prompt,
+      negativePrompt,
+      width,
+      height,
+      seed,
+      imageId,
+    } = params;
 
     // Sanitize prompt for strict models like Seedream 4.5
     const sanitizedPrompt = this.sanitizePromptForStrictModels(prompt, modelId);
@@ -675,12 +808,15 @@ export class StudioGenerationService {
       const base64 = await this.fal.downloadToBase64DataUrl(out.imageUrls[0]);
 
       // Studio outputs should be persisted as DB-backed image assets.
-      const { images: stored } = await this.imageStorage.uploadImages([base64], {
-        userId,
-        category: 'gallery',
-        jobId: externalJobId,
-        characterId,
-      });
+      const { images: stored } = await this.imageStorage.uploadImages(
+        [base64],
+        {
+          userId,
+          category: 'gallery',
+          jobId: externalJobId,
+          characterId,
+        }
+      );
 
       const img = stored[0];
 
@@ -735,22 +871,30 @@ export class StudioGenerationService {
       const message = e instanceof Error ? e.message : 'Fal generation failed';
 
       // Check if it's a content policy violation (422) for strict models
-      const isContentPolicyError = message.includes('422') || message.includes('content_policy') || message.includes('content checker');
-      const isStrictModel = modelId.includes('seedream') || modelId.includes('bytedance');
+      const isContentPolicyError =
+        message.includes('422') ||
+        message.includes('content_policy') ||
+        message.includes('content checker');
+      const isStrictModel =
+        modelId.includes('seedream') || modelId.includes('bytedance');
 
       // Retry with more aggressive sanitization if content policy violation
       if (isContentPolicyError && isStrictModel) {
         try {
           // Remove all potentially problematic terms
           const aggressiveSanitized = sanitizedPrompt
-            .replace(/\b(ass|butt|breast|boob|chest|bust|nipple|genital)\w*/gi, '')
+            .replace(
+              /\b(ass|butt|breast|boob|chest|bust|nipple|genital)\w*/gi,
+              ''
+            )
             .replace(/,\s*,/g, ',')
             .replace(/,\s*$/g, '')
             .replace(/^\s*,/g, '')
             .replace(/\s+/g, ' ')
             .trim();
 
-          if (aggressiveSanitized.length > 20) { // Only retry if we have enough prompt left
+          if (aggressiveSanitized.length > 20) {
+            // Only retry if we have enough prompt left
             // Retry with aggressively sanitized prompt
             const retryOut = await this.fal.runFlux(modelId, {
               prompt: aggressiveSanitized,
@@ -761,13 +905,18 @@ export class StudioGenerationService {
               numImages: 1,
             });
 
-            const base64 = await this.fal.downloadToBase64DataUrl(retryOut.imageUrls[0]);
-            const { images: stored } = await this.imageStorage.uploadImages([base64], {
-              userId,
-              category: 'gallery',
-              jobId: externalJobId,
-              characterId,
-            });
+            const base64 = await this.fal.downloadToBase64DataUrl(
+              retryOut.imageUrls[0]
+            );
+            const { images: stored } = await this.imageStorage.uploadImages(
+              [base64],
+              {
+                userId,
+                category: 'gallery',
+                jobId: externalJobId,
+                characterId,
+              }
+            );
 
             const img = stored[0];
             await this.imagesRepo.updateById({
@@ -834,7 +983,10 @@ export class StudioGenerationService {
     scale?: number;
   }) {
     // Verify image exists and user owns it
-    const sourceImage = await this.imagesRepo.getById({ id: input.imageId, userId: input.userId });
+    const sourceImage = await this.imagesRepo.getById({
+      id: input.imageId,
+      userId: input.userId,
+    });
     if (!sourceImage) {
       throw new NotFoundException('Source image not found');
     }
@@ -844,7 +996,9 @@ export class StudioGenerationService {
     }
 
     if (sourceImage.status !== 'completed') {
-      throw new BadRequestException('Source image must be completed before upscaling');
+      throw new BadRequestException(
+        'Source image must be completed before upscaling'
+      );
     }
 
     // Verify character ownership if image is tied to a character
@@ -866,7 +1020,9 @@ export class StudioGenerationService {
 
     // Check if Fal.ai is configured
     if (!this.fal.isConfigured()) {
-      throw new BadRequestException('Fal.ai is not configured. Upscaling requires Fal.ai API key.');
+      throw new BadRequestException(
+        'Fal.ai is not configured. Upscaling requires Fal.ai API key.'
+      );
     }
 
     // Get signed URL for the source image
@@ -940,17 +1096,23 @@ export class StudioGenerationService {
       const base64 = await this.fal.downloadToBase64DataUrl(out.imageUrls[0]);
 
       // Upload upscaled image to storage
-      const { images: stored } = await this.imageStorage.uploadImages([base64], {
-        userId,
-        category: 'gallery',
-        jobId: externalJobId,
-        characterId: characterId ?? undefined,
-      });
+      const { images: stored } = await this.imageStorage.uploadImages(
+        [base64],
+        {
+          userId,
+          category: 'gallery',
+          jobId: externalJobId,
+          characterId: characterId ?? undefined,
+        }
+      );
 
       const img = stored[0];
 
       // Get source image metadata for reference
-      const sourceImage = await this.imagesRepo.getById({ id: sourceImageId, userId });
+      const sourceImage = await this.imagesRepo.getById({
+        id: sourceImageId,
+        userId,
+      });
 
       // Build image data object for upscaled image
       const upscaleImageData: any = {
@@ -965,14 +1127,19 @@ export class StudioGenerationService {
         editType: 'upscale',
       };
 
-      if (sourceImage?.negativePrompt) upscaleImageData.negativePrompt = sourceImage.negativePrompt;
+      if (sourceImage?.negativePrompt)
+        upscaleImageData.negativePrompt = sourceImage.negativePrompt;
       if (sourceImage?.seed) upscaleImageData.seed = sourceImage.seed;
-      if (sourceImage?.width) upscaleImageData.width = sourceImage.width * scale;
-      if (sourceImage?.height) upscaleImageData.height = sourceImage.height * scale;
+      if (sourceImage?.width)
+        upscaleImageData.width = sourceImage.width * scale;
+      if (sourceImage?.height)
+        upscaleImageData.height = sourceImage.height * scale;
       if (sourceImage?.scene) upscaleImageData.scene = sourceImage.scene;
-      if (sourceImage?.environment) upscaleImageData.environment = sourceImage.environment;
+      if (sourceImage?.environment)
+        upscaleImageData.environment = sourceImage.environment;
       if (sourceImage?.outfit) upscaleImageData.outfit = sourceImage.outfit;
-      if (sourceImage?.aspectRatio) upscaleImageData.aspectRatio = sourceImage.aspectRatio;
+      if (sourceImage?.aspectRatio)
+        upscaleImageData.aspectRatio = sourceImage.aspectRatio;
       // qualityMode removed - EP-045
 
       // Create image record for upscaled image
@@ -1000,5 +1167,3 @@ export class StudioGenerationService {
     }
   }
 }
-
-

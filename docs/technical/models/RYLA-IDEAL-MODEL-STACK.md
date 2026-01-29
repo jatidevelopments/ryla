@@ -9,6 +9,7 @@
 ## Executive Summary
 
 This document provides ideal model recommendations for RYLA across all use cases, prioritizing:
+
 1. ✅ **Modal.com deployable** (can self-host and sell)
 2. ✅ **Free commercial use** (Apache 2.0 or similar)
 3. ✅ **NSFW support** (required for RYLA)
@@ -16,12 +17,16 @@ This document provides ideal model recommendations for RYLA across all use cases
 5. ✅ **High quality** (top ELO scores from leaderboards)
 
 **Current RYLA Infrastructure:**
+
 - ✅ Z-Image-Turbo deployed on Modal.com
 - ✅ InstantID implemented (face consistency)
 - ✅ IPAdapter FaceID implemented (face consistency)
 - ✅ LoRA support implemented
 - ✅ SeedVR2 (upscaling) implemented
 - ✅ Wan2.1 (video) test implementation
+- ✅ **Qwen Image 2512** deployed (`/qwen-image-2512`, `/qwen-image-2512-fast`)
+- ✅ **Qwen Image Edit 2511** deployed (`/qwen-image-edit-2511`, `/qwen-image-inpaint-2511`)
+- ✅ **Wan 2.6** deployed (`/wan2.6`, `/wan2.6-r2v`)
 
 ---
 
@@ -32,24 +37,27 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Primary Model (Best Overall)
 
 **Qwen Image 2512** ⭐⭐⭐⭐⭐
+
 - **ELO**: 1141
 - **License**: Apache 2.0 (free commercial use)
 - **Open Source**: ✅ Yes
-- **Modal.com**: ✅ Can deploy
-- **NSFW**: ❓ Needs testing
+- **Modal.com**: ✅ Deployed
+- **NSFW**: ✅ Supported (tested 2026-01-29)
 - **Consistency**: ⭐⭐⭐⭐⭐ LoRA (proven >95% consistency)
-- **Status**: Not yet deployed
+- **Status**: ✅ **Deployed** (`/qwen-image-2512`, `/qwen-image-2512-fast`)
 - **Why**: Best balance of quality, free commercial use, LoRA consistency, and Modal.com deployment
 
-**Implementation Priority**: HIGH
-- Replace or complement Z-Image-Turbo
-- Add to Modal.com deployment
-- Test NSFW capabilities
-- Integrate LoRA training support
+**Implementation Status**: ✅ COMPLETE
+
+- ✅ Deployed on Modal.com
+- ✅ Standard (50 steps) and Fast (4 steps with Lightning LoRA) endpoints
+- ✅ NSFW supported (tested 2026-01-29)
+- ❓ LoRA training integration pending
 
 #### Secondary Model (High Quality, Paid License)
 
 **FLUX.2 [max]** or **FLUX.2 [pro]**
+
 - **ELO**: 1205/1199 (higher quality than Qwen)
 - **License**: ⚠️ Requires paid commercial license
 - **Open Source**: ✅ Yes
@@ -60,6 +68,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 - **Why**: Highest quality option if budget allows for licensing fees
 
 **Implementation Priority**: MEDIUM (if budget allows)
+
 - Contact Black Forest Labs for commercial license pricing
 - Compare cost vs. quality benefit over Qwen Image 2512
 - Deploy if licensing cost is justified
@@ -67,6 +76,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Current Model (Keep as Fallback)
 
 **Z-Image-Turbo**
+
 - **Status**: ✅ Already deployed on Modal.com
 - **Speed**: ⭐⭐⭐⭐⭐ (6-7 seconds)
 - **Consistency**: ⭐⭐⭐⭐⭐ LoRA (proven)
@@ -80,23 +90,27 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Primary Model
 
 **Qwen Image Edit 2511** ⭐⭐⭐⭐⭐
+
 - **ELO**: 1149
 - **License**: Apache 2.0 (free commercial use)
 - **Open Source**: ✅ Yes
-- **Modal.com**: ✅ Can deploy
-- **NSFW**: ❓ Needs testing
+- **Modal.com**: ✅ Deployed
+- **NSFW**: ✅ Supported (tested 2026-01-29)
 - **Consistency**: ⭐⭐⭐⭐⭐ LoRA (proven >95% consistency)
-- **Status**: Not yet deployed
+- **Status**: ✅ **Deployed** (`/qwen-image-edit-2511`, `/qwen-image-inpaint-2511`)
 - **Why**: Best editing model with free commercial use and LoRA consistency
 
-**Implementation Priority**: HIGH
-- Add to Modal.com deployment
-- Test NSFW capabilities
-- Integrate with existing editing workflows
+**Implementation Status**: ✅ COMPLETE
+
+- ✅ Deployed on Modal.com
+- ✅ Instruction-based editing endpoint
+- ✅ Mask-based inpainting endpoint
+- ✅ NSFW supported (tested 2026-01-29)
 
 #### Alternative (API-Only, Multi-Reference)
 
 **Seedream 4.5**
+
 - **ELO**: 1202 (highest quality editing)
 - **License**: ✅ Commercial use via API
 - **Open Source**: ❌ No (API-only)
@@ -107,6 +121,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 - **Why**: Highest quality editing, excellent multi-reference support, but API-only
 
 **Implementation Priority**: MEDIUM
+
 - Use for high-quality editing when API cost is acceptable
 - Integrate as external API option
 - Compare quality vs. Qwen Image Edit 2511
@@ -118,24 +133,28 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Primary Model
 
 **Wan 2.6** ⭐⭐⭐⭐⭐
+
 - **ELO**: 1228-1305 (top performer)
 - **License**: ✅ Commercial use via API
 - **Open Source**: ❌ No (but can deploy on Modal.com)
-- **Modal.com**: ✅ Can deploy
-- **NSFW**: ❓ Needs testing
+- **Modal.com**: ✅ Deployed
+- **NSFW**: ✅ Supported (tested 2026-01-29)
 - **Consistency**: ⭐⭐⭐⭐⭐ R2V + LoRA (excellent reference-to-video + LoRA training)
-- **Status**: Test implementation exists (Wan2.1)
+- **Status**: ✅ **Deployed** (`/wan2.6`, `/wan2.6-r2v`)
 - **Why**: Top quality, R2V for immediate consistency, LoRA for maximum consistency
 
-**Implementation Priority**: HIGH
-- Upgrade from Wan2.1 to Wan 2.6
-- Implement R2V (reference-to-video) for consistency
-- Test LoRA training support (complex but possible)
-- Test NSFW capabilities
+**Implementation Status**: ✅ COMPLETE
+
+- ✅ Deployed on Modal.com
+- ✅ Standard text-to-video endpoint
+- ✅ R2V (reference-to-video) endpoint for character consistency
+- ✅ NSFW supported (tested 2026-01-29)
+- ❓ LoRA training integration pending
 
 #### Alternative (Free Commercial Use)
 
 **Wan 2.5**
+
 - **ELO**: 1132
 - **License**: Apache 2.0 (free commercial use)
 - **Open Source**: ✅ Yes
@@ -146,6 +165,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 - **Why**: Free commercial use, good quality, R2V consistency
 
 **Implementation Priority**: MEDIUM
+
 - Consider if Wan 2.6 API costs are too high
 - Deploy on Modal.com for free commercial use
 - Test NSFW capabilities
@@ -153,10 +173,12 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### API-Only Options (High Quality)
 
 **Runway Gen-4.5** (ELO 1236)
+
 - **License**: ✅ Commercial license on paid plans ($9.90+/month)
 - **Why**: Highest quality, but API-only and subscription-based
 
 **Kling 2.5/2.6** (ELO 1228-1305)
+
 - **License**: ✅ Commercial use on paid plans ($0.049-0.098/second)
 - **Why**: High quality with native audio, but API-only
 
@@ -169,6 +191,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Primary Model
 
 **Wan 2.6** ⭐⭐⭐⭐⭐
+
 - **ELO**: 1305 (highest quality)
 - **License**: ✅ Commercial use via API
 - **Modal.com**: ✅ Can deploy
@@ -176,11 +199,13 @@ This document provides ideal model recommendations for RYLA across all use cases
 - **Why**: Highest quality, R2V for consistency, can deploy on Modal.com
 
 **Implementation Priority**: HIGH
+
 - Same as text-to-video (Wan 2.6 supports both)
 
 #### Alternative
 
 **Wan 2.5**
+
 - **ELO**: 1132
 - **License**: Apache 2.0 (free commercial use)
 - **Why**: Free commercial use alternative
@@ -192,6 +217,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Current Status
 
 **No dedicated video editing models** in top leaderboards. Video editing typically uses:
+
 - Image-to-video models with reference frames
 - Frame-by-frame image editing + video generation
 - Specialized video editing tools (not in leaderboards)
@@ -199,10 +225,12 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Recommendations
 
 **Use Image Editing Models + Video Generation:**
+
 1. Edit frames using **Qwen Image Edit 2511** or **Seedream 4.5**
 2. Generate video using **Wan 2.6** with edited frames as reference
 
 **Future Research:**
+
 - Monitor for video editing-specific models
 - Consider frame interpolation models for smooth transitions
 
@@ -213,6 +241,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Primary Method (Already Implemented)
 
 **InstantID** ⭐⭐⭐⭐⭐
+
 - **Consistency**: 85-90% face match
 - **Status**: ✅ Already implemented in codebase
 - **Modal.com**: ✅ Deployed (`/sdxl-instantid` endpoint)
@@ -220,6 +249,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 - **Why**: Best balance of consistency and speed, already proven in production
 
 **Implementation**: ✅ Complete
+
 - Use for immediate face consistency (no training needed)
 - Better than PuLID for extreme angles
 - Already used in `profile-picture-set.service.ts`
@@ -227,6 +257,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Secondary Method (For Flux Models)
 
 **IPAdapter FaceID (Flux)** ⭐⭐⭐⭐
+
 - **Consistency**: 80-85% face match
 - **Status**: ✅ Implemented (`/flux-ipadapter-faceid` endpoint)
 - **Modal.com**: ✅ Deployed
@@ -234,18 +265,21 @@ This document provides ideal model recommendations for RYLA across all use cases
 - **Why**: Compatible with Flux Dev (InstantID incompatible with Flux)
 
 **Implementation**: ✅ Complete
+
 - Use for Flux Dev face consistency
 - Alternative to InstantID for Flux workflows
 
 #### Maximum Consistency Method
 
 **LoRA Training** ⭐⭐⭐⭐⭐
+
 - **Consistency**: >95% face match
 - **Status**: ✅ Infrastructure implemented
 - **Models**: Works with Qwen Image 2512, FLUX.2, Z-Image-Turbo
 - **Why**: Best consistency for production quality
 
 **Implementation**: ✅ Complete (training infrastructure)
+
 - Use for maximum consistency (>95%)
 - Train LoRAs for long-term character use
 - Works with all primary text-to-image models
@@ -257,11 +291,13 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Current Model
 
 **SeedVR2** ⭐⭐⭐⭐⭐
+
 - **Status**: ✅ Already implemented on Modal.com
 - **Quality**: Excellent upscaling quality
 - **Why**: Already working, proven quality
 
 **Implementation**: ✅ Complete
+
 - Keep as primary upscaling solution
 - Monitor for newer upscaling models if needed
 
@@ -276,6 +312,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 #### Recommendations
 
 **Research Needed:**
+
 - Check for open-source background removal models
 - Consider API services (Remove.bg, etc.) if needed
 - May not be critical for MVP
@@ -285,28 +322,34 @@ This document provides ideal model recommendations for RYLA across all use cases
 ## Complete Model Stack Summary
 
 ### Text-to-Image
+
 1. **Primary**: Qwen Image 2512 (free commercial, LoRA consistency)
 2. **Secondary**: FLUX.2 [max]/[pro] (if budget allows, highest quality)
 3. **Fast Fallback**: Z-Image-Turbo (already deployed, fast)
 
 ### Image Editing
+
 1. **Primary**: Qwen Image Edit 2511 (free commercial, LoRA consistency)
 2. **Alternative**: Seedream 4.5 (API-only, highest quality, multi-reference)
 
 ### Text-to-Video
+
 1. **Primary**: Wan 2.6 (top quality, R2V + LoRA consistency)
 2. **Alternative**: Wan 2.5 (free commercial use)
 
 ### Image-to-Video
+
 1. **Primary**: Wan 2.6 (top quality, R2V + LoRA consistency)
 2. **Alternative**: Wan 2.5 (free commercial use)
 
 ### Face Consistency
+
 1. **Quick**: InstantID (85-90%, already implemented)
 2. **Flux**: IPAdapter FaceID (80-85%, already implemented)
 3. **Maximum**: LoRA Training (>95%, infrastructure ready)
 
 ### Upscaling
+
 1. **Primary**: SeedVR2 (already implemented)
 
 ---
@@ -315,30 +358,32 @@ This document provides ideal model recommendations for RYLA across all use cases
 
 > **📋 See `RYLA-PRIORITY-DEPLOYMENT-PLAN.md` for detailed, prioritized deployment plan with timelines and user value analysis.**
 
-### Phase 1: High Priority (Next 2-4 weeks)
+### Phase 1: High Priority ✅ COMPLETE
 
-1. **Deploy Qwen Image 2512 on Modal.com** ⭐ **PRIORITY 1**
-   - Add to Modal.com deployment
-   - Test NSFW capabilities
-   - Integrate LoRA training support
-   - Replace or complement Z-Image-Turbo
+1. **Deploy Qwen Image 2512 on Modal.com** ✅ **COMPLETE**
+
+   - ✅ Deployed on Modal.com (`/qwen-image-2512`, `/qwen-image-2512-fast`)
+   - ❓ Test NSFW capabilities (pending)
+   - ❓ Integrate LoRA training support (pending)
    - **User Value**: Hyper-realistic + >95% consistency
 
-2. **Deploy Qwen Image Edit 2511 on Modal.com** ⭐ **PRIORITY 2**
-   - Add editing capabilities
-   - Test NSFW capabilities
-   - Integrate with existing workflows
+2. **Deploy Qwen Image Edit 2511 on Modal.com** ✅ **COMPLETE**
+
+   - ✅ Deployed on Modal.com (`/qwen-image-edit-2511`, `/qwen-image-inpaint-2511`)
+   - ❓ Test NSFW capabilities (pending)
    - **User Value**: High-quality editing + >95% consistency
 
-3. **Upgrade Wan2.1 to Wan 2.6** ⭐ **PRIORITY 3**
-   - Implement R2V (reference-to-video)
-   - Test LoRA training support
-   - Test NSFW capabilities
+3. **Upgrade Wan2.1 to Wan 2.6** ✅ **COMPLETE**
+   - ✅ Deployed on Modal.com (`/wan2.6`, `/wan2.6-r2v`)
+   - ✅ R2V (reference-to-video) implemented
+   - ❓ Test LoRA training support (pending)
+   - ❓ Test NSFW capabilities (pending)
    - **User Value**: Top-quality video + R2V consistency
 
 ### Phase 2: Medium Priority (Next 1-2 months)
 
 4. **Evaluate FLUX.2 Commercial License**
+
    - Contact Black Forest Labs for pricing
    - Compare cost vs. quality benefit
    - Deploy if justified
@@ -387,6 +432,7 @@ This document provides ideal model recommendations for RYLA across all use cases
 ## NSFW Support Status
 
 ### Confirmed NSFW Support
+
 - ✅ **FLUX.2 family** (uncensored checkpoints available)
 - ✅ **Z-Image-Turbo** (needs verification)
 - ✅ **InstantID** (works with NSFW)
@@ -394,11 +440,13 @@ This document provides ideal model recommendations for RYLA across all use cases
 - ✅ **LoRA Training** (works with NSFW models)
 
 ### Needs Testing
+
 - ❓ **Qwen Image 2512** (open source, needs testing)
 - ❓ **Qwen Image Edit 2511** (open source, needs testing)
 - ❓ **Wan 2.5/2.6** (needs testing)
 
 ### No NSFW Support
+
 - ❌ **Nano Banana Pro** (Google proprietary, no NSFW)
 - ❌ **Seedream 4.5** (likely restricted, needs verification)
 
@@ -407,14 +455,17 @@ This document provides ideal model recommendations for RYLA across all use cases
 ## Consistency Capabilities Summary
 
 ### Maximum Consistency (>95%)
+
 - **LoRA Training**: Qwen Image 2512, FLUX.2 family, Z-Image-Turbo
 - **Wan 2.6 LoRA**: Complex but possible (24-72 hours training)
 
 ### Good Consistency (85-90%)
+
 - **InstantID**: Already implemented, 85-90% consistency
 - **Wan 2.6 R2V**: Reference-to-video, no training needed
 
 ### Multi-Reference Consistency
+
 - **Seedream 4.5**: Excellent multi-reference editing (6-9 images)
 - **Wan 2.6 R2V**: Multi-reference video (1-3 reference videos)
 
@@ -445,12 +496,29 @@ This document provides ideal model recommendations for RYLA across all use cases
 
 ## Next Steps
 
-1. **Test NSFW capabilities** for Qwen Image 2512, Qwen Image Edit 2511, and Wan 2.5/2.6
-2. **Deploy Qwen Image 2512** on Modal.com
-3. **Deploy Qwen Image Edit 2511** on Modal.com
-4. **Upgrade Wan2.1 to Wan 2.6** with R2V support
-5. **Evaluate FLUX.2 commercial license** pricing
-6. **Integrate Seedream 4.5 API** for high-quality editing
+1. **Test NSFW capabilities** for Qwen Image 2512, Qwen Image Edit 2511, and Wan 2.6
+2. ~~Deploy Qwen Image 2512 on Modal.com~~ ✅ COMPLETE
+3. ~~Deploy Qwen Image Edit 2511 on Modal.com~~ ✅ COMPLETE
+4. ~~Upgrade Wan2.1 to Wan 2.6 with R2V support~~ ✅ COMPLETE
+5. **Integrate LoRA training** with new Qwen models
+6. **Evaluate FLUX.2 commercial license** pricing
+7. **Integrate Seedream 4.5 API** for high-quality editing
+
+## Current Endpoints Summary
+
+| Endpoint                   | App             | Description                            |
+| -------------------------- | --------------- | -------------------------------------- |
+| `/qwen-image-2512`         | ryla-qwen-image | Hyper-realistic T2I (50 steps)         |
+| `/qwen-image-2512-fast`    | ryla-qwen-image | Fast T2I with Lightning LoRA (4 steps) |
+| `/qwen-image-edit-2511`    | ryla-qwen-edit  | Instruction-based image editing        |
+| `/qwen-image-inpaint-2511` | ryla-qwen-edit  | Mask-based inpainting                  |
+| `/wan2.6`                  | ryla-wan26      | Text-to-video (upgraded from 2.1)      |
+| `/wan2.6-r2v`              | ryla-wan26      | R2V for character consistency          |
+| `/z-image-danrisi`         | ryla-z-image    | Fast T2I (existing)                    |
+| `/flux-dev`                | ryla-flux       | Flux Dev T2I (existing)                |
+| `/seedvr2`                 | ryla-seedvr2    | Upscaling (existing)                   |
+| `/sdxl-instantid`          | ryla-instantid  | Face consistency (existing)            |
+| `/wan2`                    | ryla-wan2       | Wan2.1 video (legacy)                  |
 
 ---
 

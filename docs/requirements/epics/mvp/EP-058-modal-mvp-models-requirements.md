@@ -1,306 +1,296 @@
 # EP-058: Modal.com MVP Model Implementation - Requirements
 
-**Initiative**: [IN-020](./../../../initiatives/IN-020-modal-mvp-models.md)  
-**Status**: P1 - Requirements  
+**Initiative**: [IN-020](../../../initiatives/IN-020-modal-mvp-models.md)  
+**Status**: P6 - Implementation (In Progress)  
 **Created**: 2025-01-21  
-**Last Updated**: 2025-01-21
+**Last Updated**: 2026-01-29
 
 ---
 
 ## Problem Statement
 
-RYLA MVP requires specific AI models (Flux Dev, InstantID, LoRA support) for scalable image generation, but these models are not yet implemented on Modal.com. Currently, we have test implementations (Flux Schnell, Wan2.1) and Z-Image-Turbo working, but we need the MVP-required models to enable the core Content Studio feature (EP-005). Without these models on Modal, we cannot provide serverless, scalable image generation as an alternative to RunPod infrastructure.
+RYLA MVP requires AI models for scalable image/video generation on Modal.com. Originally scoped for Flux Dev + InstantID + LoRA, the direction has evolved to use **Qwen-Image** models (higher quality, Apache 2.0 license) as primary, with Flux/InstantID as secondary options.
 
-**Who has this problem**: 
+**Who has this problem**:
+
 - Infrastructure team needs scalable, cost-efficient model deployment
 - Backend team needs API endpoints for image generation
 - Product team needs MVP launch capability
 
-**Why it matters**: 
+**Why it matters**:
+
 - MVP launch depends on working image generation
 - Serverless approach reduces costs vs persistent pods
 - Provides infrastructure redundancy (Modal + RunPod)
 
 ---
 
-## MVP Objective
+## Current State - Deployed Endpoints
 
-Deploy Flux Dev, InstantID, and LoRA loading support on Modal.com as a unified serverless application, enabling scalable image generation with face consistency and character-specific models. All models must be accessible via API endpoints with <30s response time and >95% success rate.
+### ✅ Deployed and Working (8 Apps, 20 Endpoints)
 
-**Measurable outcomes**:
-- Flux Dev text-to-image generation working via API
-- InstantID face consistency (85-90% match) working via API
-- LoRA models loading and working with Flux Dev
-- All models integrated into unified Modal app (`comfyui_ryla.py`)
-- API endpoints documented and tested
+#### Primary T2I - Qwen-Image (`ryla-qwen-image`)
+
+| Endpoint                | Purpose                                | Status  | Tested |
+| ----------------------- | -------------------------------------- | ------- | ------ |
+| `/qwen-image-2512`      | High-quality T2I (50 steps)            | ✅ Live | ✅     |
+| `/qwen-image-2512-fast` | Fast T2I with Lightning LoRA (4 steps) | ✅ Live | ✅     |
+
+#### Image Editing - Qwen-Edit (`ryla-qwen-edit`)
+
+| Endpoint                   | Purpose                   | Status  | Tested |
+| -------------------------- | ------------------------- | ------- | ------ |
+| `/qwen-image-edit-2511`    | Instruction-based editing | ✅ Live | ✅     |
+| `/qwen-image-inpaint-2511` | Mask-based inpainting     | ✅ Live | ✅     |
+
+#### Video Generation - Wan 2.6 (`ryla-wan26`)
+
+| Endpoint      | Purpose                  | Status  | Tested |
+| ------------- | ------------------------ | ------- | ------ |
+| `/wan2.6`     | Text-to-video            | ✅ Live | ✅     |
+| `/wan2.6-r2v` | Reference video to video | ✅ Live | ✅     |
+
+#### Z-Image Turbo (`ryla-z-image`)
+
+| Endpoint             | Purpose                           | Status           | Tested |
+| -------------------- | --------------------------------- | ---------------- | ------ |
+| `/z-image-simple`    | Fast T2I (diffusers)              | ✅ Live          | ✅     |
+| `/z-image-danrisi`   | Same as simple (custom nodes N/A) | ✅ Live          | ⚠️     |
+| `/z-image-instantid` | Not supported (arch incompatible) | ❌ Returns error | -      |
+| `/z-image-pulid`     | Not supported (arch incompatible) | ❌ Returns error | -      |
+
+#### Flux Models (`ryla-flux`)
+
+| Endpoint    | Purpose             | Status  | Tested |
+| ----------- | ------------------- | ------- | ------ |
+| `/flux`     | Flux Schnell (fast) | ✅ Live | ✅     |
+| `/flux-dev` | Flux Dev (quality)  | ✅ Live | ✅     |
+
+#### Face Consistency - InstantID (`ryla-instantid`)
+
+| Endpoint                 | Purpose                    | Status  | Tested |
+| ------------------------ | -------------------------- | ------- | ------ |
+| `/flux-instantid`        | Face consistency with Flux | ✅ Live | ⚠️     |
+| `/sdxl-instantid`        | Face consistency with SDXL | ✅ Live | ⚠️     |
+| `/flux-ipadapter-faceid` | IPAdapter FaceID           | ✅ Live | ⚠️     |
+| `/flux-pulid`            | PuLID face consistency     | ✅ Live | ⚠️     |
+
+#### LoRA Support (`ryla-lora`)
+
+| Endpoint     | Purpose        | Status  | Tested |
+| ------------ | -------------- | ------- | ------ |
+| `/flux-lora` | Flux with LoRA | ✅ Live | ⚠️     |
+
+#### Upscaling (`ryla-seedvr2`)
+
+| Endpoint   | Purpose           | Status  | Tested |
+| ---------- | ----------------- | ------- | ------ |
+| `/seedvr2` | SeedVR2 upscaling | ✅ Live | ⚠️     |
 
 ---
 
-## Non-Goals
+## MVP Objective (Updated)
 
-**Explicitly out of scope for this epic**:
-- Video generation (Wan2.1) - Phase 2+, already tested
-- PuLID implementation - InstantID is preferred (already in codebase)
-- IPAdapter FaceID - InstantID is preferred (already in codebase)
-- Flux Inpaint - Optional P1 feature, defer if needed
-- Model training on Modal - LoRA training happens on RunPod/AI Toolkit
-- Frontend integration - Separate epic (EP-005)
-- Production deployment - This is implementation, deployment is separate
+Deploy primary AI models on Modal.com enabling scalable image/video generation:
 
----
-
-## Business Metric
-
-**Target Metrics**:
-- [x] **C - Core Value**: Enables core image generation feature
-- [x] **E - CAC**: Reduces infrastructure costs (serverless vs persistent)
-- [x] **A - Activation**: Users can generate images immediately
-- [ ] **B - Retention**: (Indirect - faster generation improves UX)
-- [ ] **D - Conversion**: (Indirect - enables paid features)
-
-**Primary Metric**: **C - Core Value**
+- ✅ **Qwen-Image 2512**: Primary T2I model (Apache 2.0, ELO 1141)
+- ✅ **Qwen-Image Edit 2511**: Primary editing model (Apache 2.0)
+- ✅ **Wan 2.6**: Primary video model (Apache 2.0)
+- ✅ **Z-Image-Turbo**: Fast T2I option
+- ✅ **Flux Dev**: Quality T2I option (requires license for commercial)
+- ✅ **InstantID**: Face consistency option
+- ✅ **LoRA Support**: Character consistency
 
 ---
 
-## Hypothesis
+## Remaining Work
 
-When we deploy MVP-required models (Flux Dev, InstantID, LoRA) on Modal.com, we will enable scalable image generation, measured by:
-- API endpoint success rate >95%
-- Average generation time <30s
-- Cost per generation <$0.50
-- All MVP workflows working end-to-end
+### Phase 6: Implementation Completion
 
-This validates that Modal.com is a viable serverless alternative to RunPod for MVP launch.
+#### P6.1: NSFW Testing (Priority: HIGH) ✅ COMPLETE
+
+- [x] Test Qwen-Image 2512 NSFW capabilities - ✅ Supported
+- [x] Test Qwen-Image Edit 2511 NSFW capabilities - ✅ Supported
+- [x] Test Wan 2.6 NSFW capabilities - ✅ Supported
+- [x] Document which models support NSFW - ✅ Updated RYLA-IDEAL-MODEL-STACK.md
+
+#### P6.2: LoRA Integration for Qwen (Priority: HIGH)
+
+- [ ] Test LoRA loading with Qwen-Image 2512
+- [ ] Create `/qwen-image-2512-lora` endpoint
+- [ ] Document LoRA workflow for Qwen models
+
+#### P6.3: Documentation Updates (Priority: MEDIUM)
+
+- [ ] Update ENDPOINT-APP-MAPPING.md with new apps
+- [ ] Create API documentation for all endpoints
+- [ ] Update RYLA-IDEAL-MODEL-STACK.md with test results
+
+---
+
+### Phase 7: Testing
+
+#### P7.1: End-to-End Testing
+
+- [ ] Test all endpoints with realistic payloads
+- [ ] Verify response times < 30s
+- [ ] Verify cost tracking accuracy
+- [ ] Test error handling
+
+#### P7.2: Integration Testing
+
+- [ ] Test with frontend client
+- [ ] Test with existing workflow system
+- [ ] Verify backward compatibility
+
+---
+
+### Phase 8: Backend Integration ✅ COMPLETE
+
+#### P8.1: Model Registry Update ✅ COMPLETE
+
+**File**: `libs/shared/src/models/registry.ts`
+
+- [x] Add `qwen-image-2512` to UIModelId
+- [x] Add `qwen-image-2512-fast` to UIModelId
+- [x] Add `qwen-edit-2511-modal` to UIModelId
+- [x] Add `qwen-inpaint-2511` to UIModelId
+- [x] Add `wan2.6` to UIModelId
+- [x] Add `wan2.6-r2v` to UIModelId
+- [x] Map to Modal endpoints (SelfHostedModelId)
+
+#### P8.2: Modal Client Update ✅ COMPLETE
+
+**File**: `libs/business/src/services/modal-client.ts`
+
+- [x] Add Qwen-Image endpoint support (generateQwenImage2512, generateQwenImage2512Fast)
+- [x] Add Qwen-Edit endpoint support (editQwenImage2511, inpaintQwenImage2511)
+- [x] Add Wan 2.6 endpoint support (generateWan26, generateWan26R2V)
+- [x] Add request/response types
+
+#### P8.3: Workflow Detector Update ✅ COMPLETE
+
+**File**: `libs/business/src/services/modal-workflow-detector.ts`
+
+- [x] Route Qwen-Image workflows
+- [x] Route Qwen-Edit workflows
+- [x] Route Wan 2.6 workflows
+- [x] Add new workflow types to DetectedWorkflow
+
+#### P8.4: Studio Generation Service ✅ COMPLETE
+
+**File**: `apps/api/src/modules/image/services/studio-generation.service.ts`
+
+- [x] Add Qwen model support (qwen-image-2512, qwen-image-2512-fast)
+- [x] Update provider selection logic (Qwen on Modal supports NSFW)
+- [x] Route Qwen models to Modal endpoints
+- [x] Add `submitQwenImage` method to ModalJobRunnerAdapter
+- [x] Add Qwen methods to ModalJobRunner (generateQwenImage2512, generateQwenImage2512Fast, editQwenImage2511, inpaintQwenImage2511)
+
+---
+
+### Phase 9: Frontend Integration ✅ PARTIAL COMPLETE
+
+#### P9.1: Model Selector Update ✅ COMPLETE
+
+- [x] Add Qwen-Image 2512 to model registry with `isMVP: true`
+- [x] Add Qwen-Image 2512 Fast to model registry with `isMVP: true`
+- [x] Update model descriptions (supportsNSFW: true)
+- [x] Add ByteDance icon to ModelIcon component
+- [x] Update defaultModelOptions in UI lib (Qwen Fast as recommended)
+
+#### P9.2: Studio Page Integration
+
+- [x] Models automatically appear via `getModelsForStudioMode()` with `isMVP: true`
+- [ ] Add inpainting UI for mask editing
+- [ ] Test end-to-end studio generation with Qwen models
+
+#### P9.3: Video Generation UI
+
+- [ ] Add Wan 2.6 to video generation
+- [ ] Add reference video upload for R2V
+- [ ] Update video preview component
+
+---
+
+### Phase 10: Production Validation
+
+#### P10.1: Performance Validation
+
+- [ ] Verify < 30s response times
+- [ ] Monitor cold start times
+- [ ] Track cost per generation
+
+#### P10.2: Quality Validation
+
+- [ ] Compare output quality vs benchmarks
+- [ ] Validate face consistency (if using InstantID)
+- [ ] Validate LoRA character consistency
+
+#### P10.3: User Testing
+
+- [ ] Gather user feedback on new models
+- [ ] Track generation success rate
+- [ ] Monitor error rates
 
 ---
 
 ## Success Criteria
 
-### Technical Success
-- [ ] Flux Dev generates images successfully (100% success rate in testing)
-- [ ] InstantID maintains 85-90% face consistency (validated vs reference images)
-- [ ] LoRA models load and work with Flux Dev (100% load success rate)
-- [ ] All models accessible via unified API endpoints
-- [ ] Model persistence working (no re-downloads, volumes mounted correctly)
-- [ ] API response time <30s per generation (average)
+### Technical Success (Updated)
+
+- [x] Qwen-Image 2512 generates images successfully
+- [x] Qwen-Image Edit 2511 editing works
+- [x] Qwen-Image Inpaint 2511 inpainting works
+- [x] Wan 2.6 video generation works
+- [x] All models accessible via unified API endpoints
+- [x] Model persistence working (volumes mounted)
+- [ ] API response time < 30s per generation (average)
+- [ ] NSFW capabilities validated
+- [ ] LoRA integration working for Qwen
 
 ### Business Success
+
 - [ ] MVP Content Studio (EP-005) can use Modal backend
-- [ ] Cost per generation <$0.50 (pay-per-use model)
-- [ ] Infrastructure redundancy achieved (Modal + RunPod)
+- [ ] Cost per generation < $0.50 (pay-per-use model)
+- [x] Infrastructure redundancy achieved (Modal + RunPod)
 - [ ] Documentation complete for API usage
 
 ---
 
-## Constraints
+## Endpoint-to-App Mapping (Complete)
 
-- **Timeline**: Must complete before MVP launch (2 weeks target)
-- **Model sizes**: ~42 GB for P0 models (Flux Dev + InstantID + LoRA support)
-- **Cost**: Monitor Modal usage, stay within budget
-- **GPU Requirements**: Optimize GPU allocation per model (see [GPU Requirements](../../specs/modal/GPU-REQUIREMENTS.md))
-  - Flux Schnell: T4 ($0.59/hr) - 70% cost savings
-  - Flux Dev: L40S ($1.95/hr) - Primary model, needs quality
-  - InstantID: A10 ($1.10/hr) - 44% cost savings
-  - LoRA: T4 ($0.59/hr) - 70% cost savings
-  - Wan2.1: L40S ($1.95/hr) - Video needs memory
-  - SeedVR2: A10 ($1.10/hr) - 44% cost savings
-- **NSFW support**: Must support uncensored checkpoints (Flux Dev uncensored)
-- **Compatibility**: Must work with existing codebase workflows
-- **Serverless**: Must leverage Modal's auto-scaling (no persistent pods)
+| App Name          | Endpoints                                                                     |
+| ----------------- | ----------------------------------------------------------------------------- |
+| `ryla-qwen-image` | `/qwen-image-2512`, `/qwen-image-2512-fast`                                   |
+| `ryla-qwen-edit`  | `/qwen-image-edit-2511`, `/qwen-image-inpaint-2511`                           |
+| `ryla-wan26`      | `/wan2.6`, `/wan2.6-r2v`                                                      |
+| `ryla-z-image`    | `/z-image-simple`, `/z-image-danrisi`, `/z-image-instantid`, `/z-image-pulid` |
+| `ryla-flux`       | `/flux`, `/flux-dev`                                                          |
+| `ryla-instantid`  | `/flux-instantid`, `/sdxl-instantid`, `/flux-ipadapter-faceid`, `/flux-pulid` |
+| `ryla-lora`       | `/flux-lora`                                                                  |
+| `ryla-seedvr2`    | `/seedvr2`                                                                    |
 
 ---
 
-## Dependencies
+## API Base URLs
 
-### Required Before Start
-- ✅ Modal.com account active
-- ✅ HuggingFace access for model downloads
-- ✅ Existing test implementations (Flux Schnell, Z-Image-Turbo) as reference
-- ✅ InstantID workflow implementation in codebase (`libs/business/src/workflows/z-image-instantid.ts`)
-
-### Blocks
-- **EP-005 (Content Studio)**: Needs Modal models for generation
-- **Future epics**: Any epic requiring image generation
-
-### Blocked By
-- None (can start immediately)
-
----
-
-## Open Questions
-
-### Technical Questions
-- [x] What GPU type is optimal for Flux Dev on Modal? (L40S recommended - see [GPU Requirements](../../specs/modal/GPU-REQUIREMENTS.md))
-- [ ] Can InstantID work for character sheet generation? (Test vs PuLID)
-- [ ] How to handle LoRA model uploads to Modal volumes? (Manual vs automated)
-- [ ] What's the optimal volume size for model storage?
-- [ ] Test GPU requirements for each model (T4 for lightweight, A10 for medium, L40S for heavy)
-
-### Business Questions
-- [ ] What's the acceptable cost per generation? (Target: <$0.50)
-- [ ] Should we implement PuLID as fallback if InstantID doesn't work for character sheets?
-- [ ] When should we migrate from RunPod to Modal? (After MVP validation?)
-
-### Process Questions
-- [ ] How to handle model versioning on Modal?
-- [ ] How to monitor Modal costs and usage?
-- [ ] What's the rollback plan if Modal doesn't work?
-
----
-
----
-
-## P2: Scoping
-
-### Features
-
-#### F1: Flux Dev Model Implementation
-- Download Flux Dev models (diffusion, CLIP, T5, VAE)
-- Create Flux Dev text-to-image workflow
-- Support NSFW (uncensored checkpoint)
-- Integrate into unified Modal app
-
-#### F2: InstantID Face Consistency Implementation
-- Install ComfyUI_InstantID custom node
-- Download InstantID models (IP-Adapter, ControlNet, InsightFace)
-- Create InstantID workflow endpoint
-- Support face consistency generation (85-90% match)
-- Test for character sheet generation (may replace PuLID)
-
-#### F3: LoRA Loading Support
-- Support LoRA models from Modal volume
-- Create LoRA-enabled workflows (Flux Dev + LoRA)
-- Support trigger words and strength control
-- Test with user-trained LoRAs
-
-#### F4: Unified Modal App Integration
-- Integrate all models into `comfyui_ryla.py`
-- Create unified API endpoints
-- Support model persistence via volumes
-- Document all endpoints
-
-#### F5: Client Scripts & Documentation
-- Create client scripts for all workflows
-- Document API usage
-- Create testing examples
-- Update README with usage instructions
-
----
-
-### User Stories
-
-#### ST-058-001: As a developer, I want Flux Dev deployed on Modal
-
-**Acceptance Criteria**:
-- [ ] Flux Dev models downloaded to Modal volume (~20 GB)
-- [ ] Flux Dev text-to-image workflow working
-- [ ] API endpoint `/flux-dev` responding correctly
-- [ ] Generates images with 100% success rate (10+ test samples)
-- [ ] Supports NSFW (uncensored checkpoint)
-- [ ] Response time <30s per generation
-
-**Analytics AC**:
-- [ ] Event `modal_flux_dev_generation_requested` fires on API call
-- [ ] Event `modal_flux_dev_generation_completed` fires on success
-- [ ] Event `modal_flux_dev_generation_failed` fires on error
-
----
-
-#### ST-058-002: As a developer, I want InstantID deployed on Modal
-
-**Acceptance Criteria**:
-- [ ] ComfyUI_InstantID custom node installed
-- [ ] InstantID models downloaded (~4 GB: IP-Adapter, ControlNet, InsightFace)
-- [ ] InstantID workflow endpoint `/flux-instantid` working
-- [ ] Face consistency 85-90% match (validated vs reference images)
-- [ ] Works with Flux Dev and Z-Image-Turbo
-- [ ] Response time <30s per generation
-
-**Analytics AC**:
-- [ ] Event `modal_instantid_generation_requested` fires on API call
-- [ ] Event `modal_instantid_generation_completed` fires on success
-- [ ] Event `modal_instantid_face_consistency_measured` fires with consistency score
-
----
-
-#### ST-058-003: As a developer, I want LoRA loading working on Modal
-
-**Acceptance Criteria**:
-- [ ] LoRA models can be loaded from Modal volume
-- [ ] LoRA-enabled workflow `/flux-lora` working
-- [ ] Supports trigger words
-- [ ] Supports LoRA strength control (0.0-1.0)
-- [ ] Works with Flux Dev
-- [ ] 100% LoRA load success rate (test with 5+ LoRAs)
-
-**Analytics AC**:
-- [ ] Event `modal_lora_loaded` fires on successful LoRA load
-- [ ] Event `modal_lora_generation_completed` fires on success
-- [ ] Event `modal_lora_load_failed` fires on error
-
----
-
-#### ST-058-004: As a developer, I want all models integrated into unified Modal app
-
-**Acceptance Criteria**:
-- [ ] All models in single `comfyui_ryla.py` app
-- [ ] Unified API endpoints working
-- [ ] Model persistence via volumes (no re-downloads)
-- [ ] All endpoints documented
-- [ ] Client scripts working for all endpoints
-
-**Analytics AC**:
-- [ ] Event `modal_app_deployed` fires on deployment
-- [ ] Event `modal_model_loaded` fires on model load (with model name)
-
----
-
-#### ST-058-005: As a developer, I want comprehensive documentation and client scripts
-
-**Acceptance Criteria**:
-- [ ] README updated with all endpoints
-- [ ] Client scripts created for all workflows
-- [ ] Usage examples provided
-- [ ] API documentation complete
-- [ ] Testing instructions included
-
-**Analytics AC**:
-- [ ] N/A (documentation only)
-
----
-
-### Non-MVP Items
-
-**Explicitly out of scope**:
-- Video generation (Wan2.1) - Phase 2+, already tested
-- PuLID implementation - InstantID preferred
-- IPAdapter FaceID - InstantID preferred
-- Flux Inpaint - Optional P1, defer if needed
-- Frontend integration - Separate epic (EP-005)
-- Production deployment - Separate phase (P9)
-
----
-
-## Next Steps
-
-1. ✅ **P1: Requirements** - Complete
-2. ✅ **P2: Scoping** - Complete
-3. **P3: Architecture** - Design Modal app structure, API endpoints, model storage
-4. **P4: UI Skeleton** - N/A (backend-only, but document API contracts)
-5. **P5: Technical Spec** - Detailed implementation plan
-6. **P6: Implementation** - Build Modal app with all models
-7. **P7: Testing** - Test all workflows end-to-end
-8. **P8: Integration** - Integrate with existing codebase
-9. **P9: Deployment Prep** - Prepare for production deployment
-10. **P10: Production Validation** - Validate in production environment
+```
+https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run
+https://ryla--ryla-qwen-edit-comfyui-fastapi-app.modal.run
+https://ryla--ryla-wan26-comfyui-fastapi-app.modal.run
+https://ryla--ryla-z-image-comfyui-fastapi-app.modal.run
+https://ryla--ryla-flux-comfyui-fastapi-app.modal.run
+https://ryla--ryla-instantid-comfyui-fastapi-app.modal.run
+https://ryla--ryla-lora-comfyui-fastapi-app.modal.run
+https://ryla--ryla-seedvr2-comfyui-fastapi-app.modal.run
+```
 
 ---
 
 ## References
 
 - Initiative: `docs/initiatives/IN-020-modal-mvp-models.md`
-- MVP Model Requirements: `apps/modal/MVP-MODEL-REQUIREMENTS.md`
-- Face Consistency Alternatives: `apps/modal/FACE-CONSISTENCY-ALTERNATIVES.md`
-- InstantID Workflow: `libs/business/src/workflows/z-image-instantid.ts`
-- Existing Modal Tests: `apps/modal/comfyui_flux_test.py`, `apps/modal/comfyui_ryla.py`
+- Model Stack: `docs/technical/models/RYLA-IDEAL-MODEL-STACK.md`
+- Endpoint Mapping: `apps/modal/ENDPOINT-APP-MAPPING.md`
 - Content Studio Epic: `docs/requirements/epics/mvp/EP-005-content-studio.md`

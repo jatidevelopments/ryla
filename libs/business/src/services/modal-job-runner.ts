@@ -469,6 +469,168 @@ export class ModalJobRunner implements RunPodJobRunner {
     }
   }
 
+  // ============================================================
+  // Qwen-Image Models (Modal.com - Apache 2.0, supports NSFW)
+  // ============================================================
+
+  /**
+   * Generate image using Qwen-Image 2512 (high-quality, 50 steps)
+   */
+  async generateQwenImage2512(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateQwenImage2512(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate image using Qwen-Image 2512 Fast (4 steps with Lightning LoRA)
+   */
+  async generateQwenImage2512Fast(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateQwenImage2512Fast(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Edit image using Qwen-Image Edit 2511 (instruction-based)
+   */
+  async editQwenImage2511(input: {
+    source_image: string;
+    instruction: string;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+    denoise?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.editQwenImage2511(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Inpaint image using Qwen-Image Inpaint 2511 (mask-based)
+   */
+  async inpaintQwenImage2511(input: {
+    source_image: string;
+    mask_image: string;
+    prompt: string;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.inpaintQwenImage2511(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
   /**
    * Health check
    */
