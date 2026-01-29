@@ -554,6 +554,50 @@ export class ModalJobRunner implements RunPodJobRunner {
   }
 
   /**
+   * Generate image using Qwen-Image 2512 with custom character LoRA
+   */
+  async generateQwenImage2512LoRA(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+    lora_id?: string;
+    lora_name?: string;
+    lora_strength?: number;
+    trigger_word?: string;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateQwenImage2512LoRA(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
    * Edit image using Qwen-Image Edit 2511 (instruction-based)
    */
   async editQwenImage2511(input: {

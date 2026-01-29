@@ -28,6 +28,7 @@ export type SelfHostedModelId =
   // Qwen-Image models (Modal.com)
   | 'qwen-image-2512'
   | 'qwen-image-2512-fast'
+  | 'qwen-image-2512-lora'
   | 'qwen-image-edit-2511'
   | 'qwen-image-inpaint-2511'
   // Wan 2.6 video models (Modal.com)
@@ -99,6 +100,7 @@ export type UIModelId =
   | 'bria-32'
   | 'qwen-image-2512'
   | 'qwen-image-2512-fast'
+  | 'qwen-image-2512-lora'
   | 'qwen-edit-2511-modal'
   | 'qwen-inpaint-2511'
   | 'wan2.6'
@@ -290,6 +292,23 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
     isMVP: true,
     isNew: true,
     estimatedCredits1MP: 5,
+  },
+  'qwen-image-2512-lora': {
+    uiId: 'qwen-image-2512-lora' as UIModelId,
+    name: 'Qwen-Image 2512 + LoRA',
+    description: 'High-quality T2I with character LoRA',
+    icon: 'bytedance',
+    provider: 'comfyui',
+    backendId: 'qwen-image-2512-lora',
+    capabilities: ['text-to-image', 'lora'],
+    inputType: 'text',
+    outputType: 'image',
+    isUnlimited: true,
+    supportsNSFW: true,
+    supportsLoRA: true,
+    isMVP: true,
+    isNew: true,
+    estimatedCredits1MP: 20,
   },
   'qwen-edit-2511-modal': {
     uiId: 'qwen-edit-2511-modal' as UIModelId,

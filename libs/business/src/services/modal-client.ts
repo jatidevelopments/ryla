@@ -63,6 +63,13 @@ export interface ModalQwenImageRequest extends Record<string, unknown> {
   seed?: number;
 }
 
+export interface ModalQwenImageLoRARequest extends ModalQwenImageRequest {
+  lora_id?: string; // Auto-prefixed to "character-{id}.safetensors"
+  lora_name?: string; // Direct filename (alternative to lora_id)
+  lora_strength?: number;
+  trigger_word?: string;
+}
+
 export interface ModalQwenEditRequest extends Record<string, unknown> {
   source_image: string; // base64 data URL
   instruction: string;
@@ -162,6 +169,20 @@ export class ModalClient {
     input: ModalQwenImageRequest
   ): Promise<ModalResponse> {
     return this.callEndpoint('/qwen-image-2512-fast', input);
+  }
+
+  /**
+   * Generate image using Qwen-Image 2512 with custom character LoRA
+   *
+   * @param input.lora_id - Character LoRA ID (auto-prefixed to "character-{id}.safetensors")
+   * @param input.lora_name - Direct LoRA filename (alternative to lora_id)
+   * @param input.lora_strength - LoRA strength (default: 1.0)
+   * @param input.trigger_word - Trigger word to prepend to prompt
+   */
+  async generateQwenImage2512LoRA(
+    input: ModalQwenImageLoRARequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-image-2512-lora', input);
   }
 
   /**
