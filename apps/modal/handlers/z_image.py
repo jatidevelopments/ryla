@@ -4,6 +4,7 @@ Z-Image workflow handlers.
 Handles Z-Image-Turbo text-to-image generation with multiple workflow variants:
 - Simple: Direct diffusers pipeline (fastest, no custom nodes needed)
 - Danrisi: Same as simple (custom nodes not available)
+- LoRA: Text-to-image with custom character LoRA
 - InstantID: Not supported (architecture incompatibility)
 - PuLID: Not supported (architecture incompatibility)
 
@@ -14,9 +15,10 @@ with standard ComfyUI CLIPLoader. We use the diffusers pipeline directly.
 import json
 import uuid
 import io
+import subprocess
 from pathlib import Path
 from typing import Dict, Optional
-from fastapi import Response
+from fastapi import Response, HTTPException
 
 from utils.cost_tracker import CostTracker, get_cost_summary
 
@@ -138,6 +140,90 @@ def _generate_z_image(
     )
     
     image = output.images[0]
+    
+    # Convert to JPEG bytes
+    buffer = io.BytesIO()
+    image.save(buffer, format="JPEG", quality=95)
+    buffer.seek(0)
+    
+    return buffer.getvalue()
+
+
+def _generate_z_image_with_lora(
+    prompt: str,
+    lora_path: str,
+    width: int = 1024,
+    height: int = 1024,
+    steps: int = 8,
+    guidance_scale: float = 4.5,
+    seed: int = 42,
+    negative_prompt: str = "",
+    lora_strength: float = 1.0,
+    trigger_word: Optional[str] = None,
+) -> bytes:
+    """
+    Generate an image using Z-Image-Turbo with LoRA applied.
+    
+    Uses diffusers pipeline with load_lora_weights().
+    
+    Args:
+        prompt: Text prompt
+        lora_path: Path to LoRA file (.safetensors)
+        width: Image width
+        height: Image height
+        steps: Inference steps (8 is optimal for Z-Image + LoRA)
+        guidance_scale: CFG scale (4.5 is optimal for Z-Image + LoRA)
+        seed: Random seed
+        negative_prompt: Negative prompt
+        lora_strength: LoRA strength (scale)
+        trigger_word: Trigger word to prepend
+    
+    Returns:
+        JPEG image bytes
+    """
+    import torch
+    from PIL import Image
+    
+    # Prepend trigger word if provided
+    full_prompt = f"{trigger_word} {prompt}".strip() if trigger_word else prompt
+    
+    pipe = _get_z_image_pipeline()
+    
+    # Load LoRA weights
+    print(f"--- Z-Image: Loading LoRA from {lora_path} ---")
+    try:
+        pipe.load_lora_weights(lora_path)
+        pipe.fuse_lora(lora_scale=lora_strength)
+        print(f"--- Z-Image: LoRA loaded with strength {lora_strength} ---")
+    except Exception as e:
+        print(f"--- Z-Image: LoRA loading failed: {e} ---")
+        raise HTTPException(status_code=500, detail=f"Failed to load LoRA: {e}")
+    
+    generator = torch.Generator("cuda").manual_seed(seed)
+    
+    print(f"--- Z-Image+LoRA: Generating {width}x{height}, steps={steps}, cfg={guidance_scale} ---")
+    
+    output = pipe(
+        prompt=full_prompt,
+        negative_prompt=negative_prompt,
+        height=height,
+        width=width,
+        num_inference_steps=steps,
+        guidance_scale=guidance_scale,
+        num_images_per_prompt=1,
+        max_sequence_length=512,
+        generator=generator,
+    )
+    
+    image = output.images[0]
+    
+    # Unload LoRA to restore base model
+    try:
+        pipe.unfuse_lora()
+        pipe.unload_lora_weights()
+        print("--- Z-Image: LoRA unloaded ---")
+    except Exception as e:
+        print(f"--- Z-Image: LoRA unload warning: {e} ---")
     
     # Convert to JPEG bytes
     buffer = io.BytesIO()
@@ -683,13 +769,73 @@ class ZImageHandler:
     
     def _z_image_pulid_impl(self, item: dict) -> Response:
         """Z-Image PuLID implementation - NOT SUPPORTED."""
-        from fastapi import HTTPException
         raise HTTPException(
             status_code=501,
             detail="Z-Image-Turbo PuLID is not supported. The Z-Image model uses Qwen text encoder "
                    "which is incompatible with PuLID. Please use the '/sdxl-instantid' endpoint "
                    "in the ryla-instantid app for face consistency features."
         )
+    
+    def _z_image_lora_impl(self, item: dict) -> Response:
+        """
+        Z-Image with LoRA implementation.
+        
+        Uses diffusers pipeline with load_lora_weights for character LoRA support.
+        """
+        # Validate LoRA parameter
+        if "lora_id" not in item and "lora_name" not in item:
+            raise HTTPException(status_code=400, detail="lora_id or lora_name is required")
+        
+        # Support both lora_id (auto-prefixed) and lora_name (direct filename)
+        if "lora_name" in item:
+            lora_filename = item["lora_name"]
+            if not lora_filename.endswith(".safetensors"):
+                lora_filename += ".safetensors"
+        else:
+            lora_id = item["lora_id"]
+            lora_filename = f"character-{lora_id}.safetensors"
+        
+        # Check LoRA paths
+        volume_lora_path = Path(f"/root/models/loras/{lora_filename}")
+        
+        # Check if LoRA exists
+        if not volume_lora_path.exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"LoRA not found: {lora_filename}. Upload to /root/models/loras/"
+            )
+        
+        if "prompt" not in item:
+            raise HTTPException(status_code=400, detail="prompt is required")
+        
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        
+        # Generate with LoRA using diffusers pipeline
+        image_bytes = _generate_z_image_with_lora(
+            prompt=item["prompt"],
+            lora_path=str(volume_lora_path),
+            width=item.get("width", 1024),
+            height=item.get("height", 1024),
+            steps=item.get("steps", 8),  # 8 steps optimal for Z-Image + LoRA
+            guidance_scale=item.get("guidance_scale", 4.5),  # 4.5 optimal for LoRA
+            seed=item.get("seed", 42),
+            negative_prompt=item.get("negative_prompt", ""),
+            lora_strength=item.get("lora_strength", 1.0),
+            trigger_word=item.get("trigger_word"),
+        )
+        
+        execution_time = tracker.stop()
+        cost_metrics = tracker.calculate_cost("z-image-lora", execution_time)
+        
+        print(f"💰 {get_cost_summary(cost_metrics)}")
+        
+        response = Response(image_bytes, media_type="image/jpeg")
+        response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+        response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+        response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+        response.headers["X-LoRA"] = lora_filename
+        return response
 
 
 def setup_z_image_endpoints(fastapi, comfyui_instance):
@@ -754,5 +900,40 @@ def setup_z_image_endpoints(fastapi, comfyui_instance):
         )
         for key, value in result.headers.items():
             if key.startswith("X-Cost") or key.startswith("X-Execution") or key.startswith("X-GPU"):
+                response.headers[key] = value
+        return response
+    
+    @fastapi.post("/z-image-lora")
+    async def z_image_lora_route(request: Request):
+        """
+        Generate image using Z-Image Turbo with custom character LoRA.
+        
+        Request body:
+        - prompt: str - Text prompt (required)
+        - lora_id: str - Character LoRA ID (auto-prefixed to "character-{id}.safetensors")
+        - lora_name: str - Direct LoRA filename (alternative to lora_id)
+        - lora_strength: float - LoRA strength (default: 1.0)
+        - trigger_word: str - Trigger word to prepend to prompt (optional)
+        - width: int - Image width (default: 1024)
+        - height: int - Image height (default: 1024)
+        - steps: int - Inference steps (default: 8, optimal for Z-Image + LoRA)
+        - guidance_scale: float - CFG scale (default: 4.5, optimal for LoRA)
+        - seed: int - Random seed (optional)
+        - negative_prompt: str - Negative prompt (default: "")
+        
+        Returns:
+        - image/jpeg with cost headers
+        
+        Note: LoRA must be uploaded to /root/models/loras/ on the Modal volume.
+        Z-Image LoRA uses 8 steps and guidance_scale 4.5 for optimal results.
+        """
+        item = await request.json()
+        result = handler._z_image_lora_impl(item)
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
                 response.headers[key] = value
         return response

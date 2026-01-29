@@ -51,6 +51,7 @@
 | -------------------- | ---------------------------------------------------------------------------- | --------------------------------- |
 | `/z-image-simple`    | `https://ryla--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-simple`    | Fast T2I (diffusers pipeline)     |
 | `/z-image-danrisi`   | `https://ryla--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-danrisi`   | Same as simple (custom nodes N/A) |
+| `/z-image-lora`      | `https://ryla--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-lora`      | T2I with custom character LoRA    |
 | `/z-image-instantid` | `https://ryla--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-instantid` | Not supported (returns error)     |
 | `/z-image-pulid`     | `https://ryla--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-pulid`     | Not supported (returns error)     |
 
@@ -104,6 +105,7 @@ def get_endpoint_url(endpoint: str, workspace: str = "ryla") -> str:
         # Z-Image
         "/z-image-simple": "ryla-z-image",
         "/z-image-danrisi": "ryla-z-image",
+        "/z-image-lora": "ryla-z-image",
         "/z-image-instantid": "ryla-z-image",
         "/z-image-pulid": "ryla-z-image",
         # Flux
@@ -148,6 +150,7 @@ const ENDPOINT_APP_MAP: Record<string, string> = {
   // Z-Image (Fast T2I)
   '/z-image-simple': 'ryla-z-image',
   '/z-image-danrisi': 'ryla-z-image',
+  '/z-image-lora': 'ryla-z-image',
   // Flux (Quality T2I)
   '/flux': 'ryla-flux',
   '/flux-dev': 'ryla-flux',
@@ -179,6 +182,7 @@ function getEndpointUrl(endpoint: string, workspace = 'ryla'): string {
 | **T2I (Fast)**        | `/qwen-image-2512-fast`    | `/z-image-simple` |
 | **T2I + LoRA (Qwen)** | `/qwen-image-2512-lora`    | `/flux-lora`      |
 | **T2I + LoRA (Flux)** | `/flux-lora`               | -                 |
+| **T2I + LoRA (Fast)** | `/z-image-lora`            | -                 |
 | **Image Editing**     | `/qwen-image-edit-2511`    | -                 |
 | **Inpainting**        | `/qwen-image-inpaint-2511` | -                 |
 | **Face Consistency**  | `/flux-instantid`          | `/flux-pulid`     |
