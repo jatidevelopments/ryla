@@ -105,7 +105,14 @@ check_app_secrets "Web" "/apps/web" \
     "NEXT_PUBLIC_POSTHOG_KEY" \
     "NEXT_PUBLIC_POSTHOG_HOST" \
     "NEXT_PUBLIC_SUPABASE_URL" \
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY"
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY" \
+    "JWT_ACCESS_SECRET" \
+    "POSTGRES_HOST" \
+    "POSTGRES_PORT" \
+    "POSTGRES_USER" \
+    "POSTGRES_PASSWORD" \
+    "POSTGRES_DB" \
+    "POSTGRES_ENVIRONMENT"
 
 # API
 echo "========================================="

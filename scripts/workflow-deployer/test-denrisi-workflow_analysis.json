@@ -1,0 +1,46 @@
+{
+  "workflowId": "workflow_navk65",
+  "workflowName": "ryla_output",
+  "customNodes": [
+    {
+      "classType": "BetaSamplingScheduler",
+      "managerPackage": "res4lyf",
+      "source": "manager"
+    },
+    {
+      "classType": "Sigmas Rescale",
+      "managerPackage": "res4lyf",
+      "source": "manager"
+    },
+    {
+      "classType": "ClownsharKSampler_Beta",
+      "managerPackage": "res4lyf",
+      "source": "manager"
+    }
+  ],
+  "models": [
+    {
+      "filename": "z_image_turbo_bf16.safetensors",
+      "type": "checkpoint",
+      "source": "huggingface",
+      "path": "diffusion_models"
+    },
+    {
+      "filename": "qwen_3_4b.safetensors",
+      "type": "checkpoint",
+      "source": "huggingface",
+      "path": "text_encoders"
+    },
+    {
+      "filename": "z-image-turbo-vae.safetensors",
+      "type": "checkpoint",
+      "source": "huggingface",
+      "path": "vae"
+    }
+  ],
+  "workflowType": "image",
+  "nodeCount": 3,
+  "modelCount": 3,
+  "missingNodes": [],
+  "missingModels": []
+}

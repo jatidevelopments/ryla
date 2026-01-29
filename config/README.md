@@ -47,13 +47,7 @@ RYLA Project
 
 | File | Description | Committed |
 |------|-------------|-----------|
-| `env.template` | Environment variable template | ✅ Yes |
-| `credentials.csv` | Legacy credentials (deprecated) | ❌ No |
-| `credentials.csv.example` | Credentials template | ✅ Yes |
-| `mcp.config.json` | MCP tools configuration | ✅ Yes |
 | `infisical-secrets-template.md` | All secrets reference | ✅ Yes |
-
-## Environment Templates
 
 ### For Local Development
 
@@ -72,11 +66,13 @@ infisical export --path=/apps/api --path=/shared --env=dev > apps/api/.env
 | `apps/landing` | `/apps/landing`, `/shared` | `infisical run --path=/apps/landing --path=/shared --env=dev -- pnpm nx serve landing` |
 | `apps/mcp` | `/mcp` | `infisical run --path=/mcp --env=dev -- npx tsx apps/mcp/src/main.ts` |
 
-## Legacy Files (Deprecated)
+## Legacy Files (Removed)
 
-These files are being phased out in favor of Infisical:
+The following legacy files have been removed in favor of Infisical:
 
-- `credentials.csv` - Use Infisical `/test` folder instead
+- ~~`credentials.csv`~~ - Use Infisical `/test` folder instead
+- ~~`env.template`~~ - Use `infisical-secrets-template.md` instead
+- ~~`mcp.config.json`~~ - Use `.cursor/mcp.json` instead
 - `.env` files scattered in apps - Use `infisical run` instead
 
 ## Configuration Categories

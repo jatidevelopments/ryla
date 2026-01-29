@@ -11,7 +11,12 @@ This directory contains exported ComfyUI workflow JSON files for reference and c
 
 ### Face Consistency
 
-- `face-swap.json` - IPAdapter FaceID face swap workflow
+- `flux-ipadapter-faceid.json` - ⭐ **Flux Dev + IP-Adapter FaceID** (Recommended for Flux Dev)
+  - Uses XLabs-AI Flux IP-Adapter v2, specifically designed for FLUX.1-dev
+  - Fully compatible with Flux Dev's dual CLIP architecture
+  - No ControlNet shape mismatch issues
+  - Endpoint: `/flux-ipadapter-faceid`
+- `face-swap.json` - IPAdapter FaceID face swap workflow (Flux Schnell, legacy)
 - `character-sheet.json` - PuLID + ControlNet character sheet generation
 
 ### Final Generation
@@ -43,7 +48,9 @@ This directory contains exported ComfyUI workflow JSON files for reference and c
 **API Format** (ready for `/prompt` endpoint):
 
 - `flux-base-image.json`
+- `flux-ipadapter-faceid.json` - ⭐ Flux Dev + IP-Adapter FaceID (endpoint: `/flux-ipadapter-faceid`)
 - `z-image-turbo-base-image.json`
+- `qwen-image-2512-base.json` - ⭐ Qwen Image 2512 (needs conversion to API format)
 - `character-sheet.json`
 - `face-swap.json`
 - `final-generation-lora.json`

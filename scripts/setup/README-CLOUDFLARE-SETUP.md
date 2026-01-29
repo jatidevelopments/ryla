@@ -21,6 +21,19 @@ Get token from: https://dash.cloudflare.com/profile/api-tokens
 
 ### 3. Run Setup Script
 
+**Option A: Complete Setup (Recommended - Phases 1-3)**
+
+```bash
+bash scripts/setup/cloudflare-complete-setup.sh
+```
+
+This automated script handles:
+- ✅ Phase 1: R2 Storage Setup (create bucket, deploy CDN Worker)
+- ✅ Phase 2: Pages Deployment (create Pages projects)
+- ✅ Phase 3: Validation & Monitoring (verify setup, show monitoring commands)
+
+**Option B: API-Based Setup**
+
 ```bash
 bash scripts/setup/setup-cloudflare-infrastructure.sh
 ```
@@ -32,10 +45,11 @@ This will:
 
 ### 4. Complete Manual Steps
 
-The script will guide you through:
+After running the setup script, complete these manual steps:
 - Generating R2 API tokens (Dashboard)
-- Deploying CDN Worker
-- Creating Cloudflare Pages projects
+- Configuring Pages build settings (Dashboard)
+- Connecting GitHub repositories for auto-deployments
+- Setting custom domains
 
 ## Detailed Guides
 
@@ -50,7 +64,8 @@ The script will guide you through:
 | Script | Purpose |
 |--------|---------|
 | `verify-cloudflare-mcp.sh` | Verify MCP configuration and API token |
-| `setup-cloudflare-infrastructure.sh` | Automated infrastructure setup |
+| `setup-cloudflare-infrastructure.sh` | Automated infrastructure setup (API-based) |
+| `cloudflare-complete-setup.sh` | **Complete setup (Phases 1-3) using Wrangler CLI** |
 | `deploy-cdn-worker.sh` | Deploy CDN Worker to Cloudflare |
 
 ## MCP Tools
