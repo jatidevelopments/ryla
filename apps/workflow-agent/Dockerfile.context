@@ -1,0 +1,6 @@
+# NOTE: This Dockerfile must be built from the repository ROOT, not from apps/workflow-agent/
+# 
+# Build command:
+#   docker build -f apps/workflow-agent/Dockerfile -t ryla-workflow-agent .
+#
+# Or use Fly.io which will handle the context automatically

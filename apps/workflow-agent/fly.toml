@@ -1,0 +1,35 @@
+# fly.toml - RYLA Workflow Agent
+# Autonomous AI agent for ComfyUI workflow deployment
+
+app = "ryla-workflow-agent"
+primary_region = "iad"
+
+[build]
+  dockerfile = "Dockerfile"
+  # Note: When deploying, use: flyctl deploy -c apps/workflow-agent/fly.toml
+  # Fly.io will use the directory containing fly.toml as context
+  # But we need to build from repo root, so we'll use a different approach
+
+[env]
+  NODE_ENV = "production"
+  PORT = "3000"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = false
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
+  
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    timeout = "5s"
+    path = "/health"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 2

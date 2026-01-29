@@ -1,0 +1,37 @@
+{
+  "name": "workflow-agent",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/workflow-agent/src",
+  "projectType": "application",
+  "tags": ["scope:ops", "type:infrastructure"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/apps/workflow-agent",
+        "main": "apps/workflow-agent/src/index.ts",
+        "tsConfig": "apps/workflow-agent/tsconfig.json",
+        "assets": ["apps/workflow-agent/src"]
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "options": {
+        "buildTarget": "workflow-agent:build"
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "outputs": ["{options.outputFile}"]
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "apps/workflow-agent/jest.config.ts",
+        "passWithNoTests": true
+      }
+    }
+  }
+}
