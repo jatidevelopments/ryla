@@ -12,6 +12,20 @@ export default defineConfig({
         coverage: {
             reportsDirectory: '../../coverage/apps/api',
             provider: 'v8',
+            reporter: ['text', 'json', 'html'],
+            include: ['src/**/*.{ts,tsx}'],
+            exclude: [
+                '**/*.spec.{ts,tsx}',
+                '**/*.test.{ts,tsx}',
+                '**/test/**',
+                '**/node_modules/**',
+            ],
+            thresholds: {
+                lines: 100,
+                functions: 100,
+                branches: 100,
+                statements: 100,
+            },
         },
     },
     resolve: {

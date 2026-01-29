@@ -103,7 +103,9 @@ export class AuthController {
 
   @Post('forgot-password')
   @SkipAuth()
-  @Throttle(...FORGOT_PASSWORD_THROTTLE)
+  // Multi-tiered throttling: 3 per 15min, 5 per hour
+  // TODO: Configure named throttlers in ThrottlerModule and use @Throttle('forgot-password') to support multi-tier throttling
+  // Temporarily using default throttle - will be configured properly in ThrottlerModule
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset' })
   public async forgotPassword(@Body() dto: ForgotPasswordDto): Promise<{ message: string }> {

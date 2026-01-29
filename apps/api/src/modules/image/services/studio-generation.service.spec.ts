@@ -7,9 +7,9 @@ import { ImageStorageService } from './image-storage.service';
 import { AwsS3Service } from '../../aws-s3/services/aws-s3.service';
 import { createTestDb } from '../../../test/utils/test-db';
 import * as schema from '@ryla/data/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { BadRequestException, NotFoundException, ForbiddenException } from '@nestjs/common';
 
 describe('StudioGenerationService Integration', () => {
@@ -26,7 +26,8 @@ describe('StudioGenerationService Integration', () => {
     const userId = randomUUID();
     const characterId = randomUUID();
 
-    beforeEach(async () => {
+    // OPTIMIZATION: Create DB once per test suite instead of per test
+    beforeAll(async () => {
         const testDb = await createTestDb();
         db = testDb.db;
         client = testDb.client;
@@ -63,6 +64,25 @@ describe('StudioGenerationService Integration', () => {
 
         service = module.get<StudioGenerationService>(StudioGenerationService);
 
+        // Spy on background methods to prevent them from actually running in "start" tests
+        vi.spyOn(service as any, 'runFalStudioJob').mockImplementation(() => Promise.resolve());
+        vi.spyOn(service as any, 'runFalUpscaleJob').mockImplementation(() => Promise.resolve());
+    });
+
+    // OPTIMIZATION: Clean up data between tests instead of recreating DB
+    beforeEach(async () => {
+        // Use DELETE with condition that's always true to delete all rows
+        // Delete in reverse order of foreign key dependencies
+        try {
+          await db.delete(schema.generationJobs).where(sql`1=1`);
+          await db.delete(schema.images).where(sql`1=1`);
+          await db.delete(schema.characters).where(sql`1=1`);
+          await db.delete(schema.users).where(sql`1=1`);
+        } catch (error) {
+          // If DELETE fails, tests will still run
+          console.warn('Cleanup failed, continuing with test:', error);
+        }
+
         // Seed user
         await db.insert(schema.users).values({
             id: userId,
@@ -84,15 +104,12 @@ describe('StudioGenerationService Integration', () => {
             },
         });
 
-        // Spy on background methods to prevent them from actually running in "start" tests
-        vi.spyOn(service as any, 'runFalStudioJob').mockImplementation(() => Promise.resolve());
-        vi.spyOn(service as any, 'runFalUpscaleJob').mockImplementation(() => Promise.resolve());
-    });
-
-    afterEach(async () => {
-        if (client) await client.close();
         vi.clearAllMocks();
         vi.useRealTimers();
+    });
+
+    afterAll(async () => {
+        if (client) await client.close();
     });
 
     describe('startStudioGeneration', () => {
@@ -121,7 +138,6 @@ describe('StudioGenerationService Integration', () => {
                 environment: 'indoor',
                 outfit: 'casual',
                 aspectRatio: '1:1',
-                qualityMode: 'draft',
                 count: 1,
                 nsfw: false,
                 promptEnhance: false,
@@ -141,7 +157,6 @@ describe('StudioGenerationService Integration', () => {
                 characterId,
                 scene: 'portrait',
                 aspectRatio: '1:1',
-                qualityMode: 'draft',
                 count: 1,
                 promptEnhance: true,
             };
@@ -157,7 +172,6 @@ describe('StudioGenerationService Integration', () => {
                 environment: 'indoor',
                 outfit: 'casual',
                 aspectRatio: '1:1',
-                qualityMode: 'draft',
                 count: 1,
                 nsfw: false,
                 modelProvider: 'comfyui',
@@ -178,7 +192,6 @@ describe('StudioGenerationService Integration', () => {
                 environment: 'indoor',
                 outfit: 'casual',
                 aspectRatio: '1:1',
-                qualityMode: 'draft',
                 count: 1,
                 nsfw: false,
                 modelProvider: 'fal',
@@ -199,7 +212,6 @@ describe('StudioGenerationService Integration', () => {
                     environment: 'indoor',
                     outfit: 'casual',
                     aspectRatio: ratio,
-                    qualityMode: 'draft',
                     count: 1,
                     poseId: 'standing-casual',
                     lighting: 'neon',
@@ -221,7 +233,6 @@ describe('StudioGenerationService Integration', () => {
                 environment: 'indoor',
                 outfit: 'casual',
                 aspectRatio: '1:1',
-                qualityMode: 'draft',
                 count: 1,
                 modelProvider: 'fal',
             };

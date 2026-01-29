@@ -15,6 +15,7 @@ import { CharacterSheetService } from './services/character-sheet.service';
 import { ProfilePictureSetService } from './services/profile-picture-set.service';
 import { RunPodJobRunnerAdapter } from './services/runpod-job-runner.adapter';
 import { ComfyUIJobRunnerAdapter } from './services/comfyui-job-runner.adapter';
+import { ModalJobRunnerAdapter } from './services/modal-job-runner.adapter';
 import { ImageStorageService } from './services/image-storage.service';
 import { InpaintEditService } from './services/inpaint-edit.service';
 import { StudioGenerationService } from './services/studio-generation.service';
@@ -26,8 +27,8 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@ryla/data/schema';
 
 /**
- * Token for the job runner adapter (ComfyUI or RunPod serverless)
- * ComfyUI is preferred for instant response (no cold starts)
+ * Token for the job runner adapter (Modal.com or RunPod serverless)
+ * Modal.com is preferred for fast, reliable image generation
  */
 export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
 
@@ -53,29 +54,32 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
     ComfyUIResultsService,
     RunPodJobRunnerAdapter,
     ComfyUIJobRunnerAdapter,
+    ModalJobRunnerAdapter,
     ImageStorageService,
-    // Dynamic provider that selects ComfyUI pod (preferred) or RunPod serverless (fallback)
+    // Dynamic provider that selects Modal.com (preferred) or RunPod serverless (fallback)
+    // Note: ComfyUI RunPod no longer exists, removed from priority chain
     {
       provide: JOB_RUNNER_TOKEN,
       useFactory: (
-        comfyui: ComfyUIJobRunnerAdapter,
+        modal: ModalJobRunnerAdapter,
         runpod: RunPodJobRunnerAdapter,
       ) => {
-        // Use ComfyUI if pod URL is configured (uses process.env directly)
-        if (process.env['COMFYUI_POD_URL']) {
-          return comfyui;
+        // Priority: Modal.com > RunPod
+        // Use Modal.com if endpoint URL or workspace is configured
+        if (process.env['MODAL_ENDPOINT_URL'] || process.env['MODAL_WORKSPACE']) {
+          return modal;
         }
         // Fall back to RunPod serverless endpoints
         return runpod;
       },
-      inject: [ComfyUIJobRunnerAdapter, RunPodJobRunnerAdapter],
+      inject: [ModalJobRunnerAdapter, RunPodJobRunnerAdapter],
     },
     // Factory provider for ImageGenerationService from @ryla/business
     {
       provide: ImageGenerationService,
       useFactory: (
         db: NodePgDatabase<typeof schema>,
-        jobRunner: ComfyUIJobRunnerAdapter | RunPodJobRunnerAdapter,
+        jobRunner: ModalJobRunnerAdapter | RunPodJobRunnerAdapter,
       ) => {
         const generationJobsRepo = new GenerationJobsRepository(db);
         return new ImageGenerationService(generationJobsRepo, jobRunner);

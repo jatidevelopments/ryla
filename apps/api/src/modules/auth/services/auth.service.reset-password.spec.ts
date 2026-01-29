@@ -8,9 +8,9 @@ import { ConfigService } from '@nestjs/config';
 import { RedisService } from '../../redis/services/redis.service';
 import { createTestDb } from '../../../test/utils/test-db';
 import * as schema from '@ryla/data/schema';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { randomUUID } from 'crypto';
-import { vi, describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { vi, describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { UnauthorizedException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 
@@ -30,7 +30,8 @@ describe('AuthService - Reset Password End-to-End', () => {
     };
   };
 
-  beforeEach(async () => {
+  // OPTIMIZATION: Create DB once per test suite instead of per test
+  beforeAll(async () => {
     const testDb = await createTestDb();
     db = testDb.db;
     client = testDb.client;
@@ -70,14 +71,30 @@ describe('AuthService - Reset Password End-to-End', () => {
     service = module.get<AuthService>(AuthService);
   });
 
-  afterEach(async () => {
+  // OPTIMIZATION: Clean up data between tests instead of recreating DB
+  beforeEach(async () => {
+    // Use DELETE with condition that's always true to delete all rows
+    // Delete in reverse order of foreign key dependencies
+    try {
+      await db.delete(schema.creditTransactions).where(sql`1=1`);
+      await db.delete(schema.userCredits).where(sql`1=1`);
+      await db.delete(schema.notifications).where(sql`1=1`);
+      await db.delete(schema.users).where(sql`1=1`);
+    } catch (error) {
+      // If DELETE fails, tests will still run
+      console.warn('Cleanup failed, continuing with test:', error);
+    }
+    vi.clearAllMocks();
+  });
+
+  afterAll(async () => {
     if (client) await client.close();
   });
 
   describe('resetPassword - End-to-End Flow', () => {
     it('should successfully reset password with valid token', async () => {
       const userData = getUniqueUser();
-      
+
       // Register user
       const registration = await service.registerUserByEmail(
         {

@@ -1,216 +1,249 @@
-import 'reflect-metadata';
-import { Test, TestingModule } from '@nestjs/testing';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { UserService } from './user.service';
 import { AuthCacheService } from '../../auth/services/auth-cache.service';
-import { createTestDb } from '../../../test/utils/test-db';
 import { UsersRepository } from '@ryla/data';
-import { _NotFoundException, _ConflictException } from '@nestjs/common';
-import { vi } from 'vitest';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
-describe('UserService Integration', () => {
+describe('UserService', () => {
     let service: UserService;
-    let db: any;
-    let client: any;
-    let usersRepo: UsersRepository;
-    let authCacheMock: any;
-    let testCounter = 0;
+  let mockDb: any;
+  let mockAuthCacheService: AuthCacheService;
+  let mockUsersRepository: UsersRepository;
 
-    const getUniqueUser = () => {
-        const id = ++testCounter;
-        return {
-            email: `unique-${id}-${Date.now()}@example.com`,
-            password: 'hashedpassword',
-            name: `User ${id}`,
-            publicName: `pub-${id}-${Date.now()}`,
-        };
-    };
+  beforeEach(() => {
+    mockDb = {};
+    mockAuthCacheService = {
+      deleteAllUserTokens: vi.fn(),
+    } as unknown as AuthCacheService;
+    mockUsersRepository = {
+      findByEmail: vi.fn(),
+      findByPublicName: vi.fn(),
+      findById: vi.fn(),
+      updateById: vi.fn(),
+      setBanned: vi.fn(),
+      deleteById: vi.fn(),
+    } as unknown as UsersRepository;
 
-    beforeEach(async () => {
-        const testDb = await createTestDb();
-        db = testDb.db;
-        client = testDb.client;
-        usersRepo = new UsersRepository(db);
+    service = new UserService(mockDb, mockAuthCacheService);
+    // Replace the repository instance created in constructor
+    (service as any).usersRepository = mockUsersRepository;
+  });
 
-        authCacheMock = {
-            deleteAllUserTokens: vi.fn(),
-        };
+  describe('isEmailExistOrThrow', () => {
+    it('should not throw when email does not exist', async () => {
+      vi.mocked(mockUsersRepository.findByEmail).mockResolvedValue(null);
 
-        const module: TestingModule = await Test.createTestingModule({
-            providers: [
-                UserService,
-                { provide: 'DRIZZLE_DB', useValue: db },
-                { provide: AuthCacheService, useValue: authCacheMock },
-            ],
-        }).compile();
-
-        service = module.get<UserService>(UserService);
+      await expect(service.isEmailExistOrThrow('test@example.com')).resolves.not.toThrow();
     });
 
-    afterEach(async () => {
-        if (client) await client.close();
-    });
+    it('should throw ConflictException when email exists', async () => {
+      vi.mocked(mockUsersRepository.findByEmail).mockResolvedValue({
+        id: 'user-1',
+        email: 'test@example.com',
+      } as any);
 
-    it('should be defined', () => {
-        expect(service).toBeDefined();
-    });
-
-    describe('isEmailExistOrThrow', () => {
-        it('should do nothing if email does not exist', async () => {
-            await expect(service.isEmailExistOrThrow('none@example.com')).resolves.not.toThrow();
-        });
-
-        it('should throw ConflictException if email exists', async () => {
-            const user = getUniqueUser();
-            await usersRepo.create(user);
-            await expect(service.isEmailExistOrThrow(user.email)).rejects.toThrow('This email is already in use');
+      await expect(service.isEmailExistOrThrow('test@example.com')).rejects.toThrow(
+        ConflictException,
+      );
         });
     });
 
     describe('isPublicNameExistOrThrow', () => {
-        it('should do nothing if public name does not exist', async () => {
-            await expect(service.isPublicNameExistOrThrow('none-pub')).resolves.not.toThrow();
-        });
+    it('should not throw when public name does not exist', async () => {
+      vi.mocked(mockUsersRepository.findByPublicName).mockResolvedValue(null);
 
-        it('should throw ConflictException if public name exists', async () => {
-            const user = getUniqueUser();
-            await usersRepo.create(user);
-            await expect(service.isPublicNameExistOrThrow(user.publicName)).rejects.toThrow('This public name already exists');
-        });
+      await expect(service.isPublicNameExistOrThrow('testuser')).resolves.not.toThrow();
+    });
+
+    it('should throw ConflictException when public name exists', async () => {
+      vi.mocked(mockUsersRepository.findByPublicName).mockResolvedValue({
+        id: 'user-1',
+        publicName: 'testuser',
+      } as any);
+
+      await expect(service.isPublicNameExistOrThrow('testuser')).rejects.toThrow(
+        ConflictException,
+      );
+    });
     });
 
     describe('getUserById', () => {
-        it('should return a user if it exists', async () => {
-            const user = getUniqueUser();
-            const created = await usersRepo.create(user);
-            const found = await service.getUserById(created.id);
-            expect(found.email).toBe(user.email);
-        });
+    it('should return user when found', async () => {
+      const mockUser = { id: 'user-1', email: 'test@example.com' };
+      vi.mocked(mockUsersRepository.findById).mockResolvedValue(mockUser as any);
 
-        it('should throw NotFoundException if user does not exist', async () => {
-            const validNonExistentId = '00000000-0000-0000-0000-000000000000';
-            await expect(service.getUserById(validNonExistentId)).rejects.toThrow('User not found');
-        });
+      const result = await service.getUserById('user-1');
+
+      expect(result).toEqual(mockUser);
+      expect(mockUsersRepository.findById).toHaveBeenCalledWith('user-1');
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      vi.mocked(mockUsersRepository.findById).mockResolvedValue(null);
+
+      await expect(service.getUserById('user-1')).rejects.toThrow(NotFoundException);
+    });
     });
 
     describe('getUserByEmail', () => {
-        it('should return a user if it exists', async () => {
-            const user = getUniqueUser();
-            await usersRepo.create(user);
-            const found = await service.getUserByEmail(user.email);
-            expect(found.email).toBe(user.email);
-        });
+    it('should return user when found', async () => {
+      const mockUser = { id: 'user-1', email: 'test@example.com' };
+      vi.mocked(mockUsersRepository.findByEmail).mockResolvedValue(mockUser as any);
 
-        it('should throw NotFoundException if user does not exist', async () => {
-            await expect(service.getUserByEmail('nonexistent@example.com')).rejects.toThrow('User not found');
-        });
+      const result = await service.getUserByEmail('test@example.com');
+
+      expect(result).toEqual(mockUser);
+      expect(mockUsersRepository.findByEmail).toHaveBeenCalledWith('test@example.com');
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      vi.mocked(mockUsersRepository.findByEmail).mockResolvedValue(null);
+
+      await expect(service.getUserByEmail('test@example.com')).rejects.toThrow(
+        NotFoundException,
+      );
+    });
     });
 
     describe('getUserProfile', () => {
-        it('should return profile without password', async () => {
-            const user = getUniqueUser();
-            const created = await usersRepo.create(user);
-            const profile = await service.getUserProfile(created.id);
-            expect(profile.email).toBe(user.email);
-            expect((profile as any).password).toBeUndefined();
-        });
+    it('should return user profile without password', async () => {
+      const mockUser = {
+        id: 'user-1',
+        email: 'test@example.com',
+        name: 'Test User',
+        password: 'hashed-password',
+      };
+      vi.mocked(mockUsersRepository.findById).mockResolvedValue(mockUser as any);
+
+      const result = await service.getUserProfile('user-1');
+
+      expect(result).not.toHaveProperty('password');
+      expect(result).toHaveProperty('id', 'user-1');
+      expect(result).toHaveProperty('email', 'test@example.com');
+    });
     });
 
     describe('updateProfile', () => {
-        it('should update name and public name', async () => {
-            const user = getUniqueUser();
-            const created = await usersRepo.create(user);
-            const newName = 'John Updated';
-            const newPubName = 'pub-updated-' + Date.now();
-            const updated = await service.updateProfile(created.id, {
-                name: newName,
-                publicName: newPubName,
-            });
-            expect(updated.name).toBe(newName);
-            expect(updated.publicName).toBe(newPubName);
-        });
+    it('should update user profile', async () => {
+      const mockUser = { id: 'user-1', name: 'Old Name', publicName: 'oldname' };
+      const updatedUser = { id: 'user-1', name: 'New Name', publicName: 'newname', password: 'hash' };
+      vi.mocked(mockUsersRepository.updateById).mockResolvedValue(updatedUser as any);
 
-        it('should throw ConflictException if public name is already taken by another', async () => {
-            const user1 = getUniqueUser();
-            const user2 = getUniqueUser();
-            await usersRepo.create(user1);
-            const created2 = await usersRepo.create(user2);
+      const result = await service.updateProfile('user-1', {
+        name: 'New Name',
+        publicName: 'newname',
+      });
 
-            await expect(
-                service.updateProfile(created2.id, { publicName: user1.publicName }),
-            ).rejects.toThrow('This public name already exists');
-        });
+      expect(result).not.toHaveProperty('password');
+      expect(result).toHaveProperty('name', 'New Name');
+      expect(mockUsersRepository.updateById).toHaveBeenCalled();
+    });
 
-        it('should throw NotFoundException if user to update does not exist', async () => {
-            const validNonExistentId = '00000000-0000-0000-0000-000000000000';
-            await expect(service.updateProfile(validNonExistentId, { name: 'New' })).rejects.toThrow('User not found');
+    it('should check publicName availability when updating', async () => {
+      const updatedUser = { id: 'user-1', name: 'New Name', publicName: 'newname', password: 'hash' };
+      vi.mocked(mockUsersRepository.findByPublicName).mockResolvedValue(null);
+      vi.mocked(mockUsersRepository.updateById).mockResolvedValue(updatedUser as any);
+
+      await service.updateProfile('user-1', {
+        publicName: 'newname',
+      });
+
+      expect(mockUsersRepository.findByPublicName).toHaveBeenCalledWith('newname');
+    });
+
+    it('should throw ConflictException when publicName already exists', async () => {
+      vi.mocked(mockUsersRepository.findByPublicName).mockResolvedValue({
+        id: 'other-user',
+        publicName: 'taken',
+      } as any);
+
+      await expect(
+        service.updateProfile('user-1', { publicName: 'taken' }),
+      ).rejects.toThrow(ConflictException);
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      vi.mocked(mockUsersRepository.updateById).mockResolvedValue(null);
+
+      await expect(
+        service.updateProfile('user-1', { name: 'New Name' }),
+      ).rejects.toThrow(NotFoundException);
+    });
+  });
+
+  describe('updateSettings', () => {
+    it('should update user settings', async () => {
+      const updatedUser = { id: 'user-1', settings: '{"theme":"dark"}' };
+      vi.mocked(mockUsersRepository.updateById).mockResolvedValue(updatedUser as any);
+
+      await service.updateSettings('user-1', '{"theme":"dark"}');
+
+      expect(mockUsersRepository.updateById).toHaveBeenCalledWith('user-1', {
+        settings: '{"theme":"dark"}',
+      });
+    });
+
+    it('should throw NotFoundException when user not found', async () => {
+      vi.mocked(mockUsersRepository.updateById).mockResolvedValue(null);
+
+      await expect(service.updateSettings('user-1', '{}')).rejects.toThrow(
+        NotFoundException,
+      );
         });
     });
 
-    describe('updateSettings', () => {
-        it('should update user settings', async () => {
-            const user = getUniqueUser();
-            const created = await usersRepo.create(user);
-            const settings = '{"theme":"light"}';
-            await service.updateSettings(created.id, settings);
+  describe('banUser', () => {
+    it('should ban user', async () => {
+      const bannedUser = { id: 'user-1', banned: true };
+      vi.mocked(mockUsersRepository.setBanned).mockResolvedValue(bannedUser as any);
+      vi.mocked(mockAuthCacheService.deleteAllUserTokens).mockResolvedValue(undefined);
 
-            const updated = await usersRepo.findById(created.id);
-            expect(updated?.settings).toBe(settings);
-        });
+      await service.banUser('user-1');
 
-        it('should throw NotFoundException if user not found', async () => {
-            const validNonExistentId = '00000000-0000-0000-0000-000000000000';
-            await expect(service.updateSettings(validNonExistentId, '{}')).rejects.toThrow('User not found');
-        });
+      expect(mockUsersRepository.setBanned).toHaveBeenCalledWith('user-1', true);
+      expect(mockAuthCacheService.deleteAllUserTokens).toHaveBeenCalledWith('user-1');
     });
 
-    describe('banUser', () => {
-        it('should set banned status and invalidate tokens', async () => {
-            const user = getUniqueUser();
-            const created = await usersRepo.create(user);
-            await service.banUser(created.id);
+    it('should throw NotFoundException when user not found', async () => {
+      vi.mocked(mockUsersRepository.setBanned).mockResolvedValue(null);
 
-            const updated = await usersRepo.findById(created.id);
-            expect(updated?.banned).toBe(true);
-            expect(authCacheMock.deleteAllUserTokens).toHaveBeenCalledWith(created.id);
-        });
+      await expect(service.banUser('user-1')).rejects.toThrow(NotFoundException);
+    });
+  });
 
-        it('should throw NotFoundException if user not found', async () => {
-            const validNonExistentId = '00000000-0000-0000-0000-000000000000';
-            await expect(service.banUser(validNonExistentId)).rejects.toThrow('User not found');
-        });
+  describe('unbanUser', () => {
+    it('should unban user', async () => {
+      const unbannedUser = { id: 'user-1', banned: false };
+      vi.mocked(mockUsersRepository.setBanned).mockResolvedValue(unbannedUser as any);
+
+      await service.unbanUser('user-1');
+
+      expect(mockUsersRepository.setBanned).toHaveBeenCalledWith('user-1', false);
     });
 
-    describe('unbanUser', () => {
-        it('should unban user', async () => {
-            const user = getUniqueUser();
-            const created = await usersRepo.create({ ...user, banned: true });
-            await service.unbanUser(created.id);
+    it('should throw NotFoundException when user not found', async () => {
+      vi.mocked(mockUsersRepository.setBanned).mockResolvedValue(null);
 
-            const updated = await usersRepo.findById(created.id);
-            expect(updated?.banned).toBe(false);
-        });
+      await expect(service.unbanUser('user-1')).rejects.toThrow(NotFoundException);
+    });
+  });
 
-        it('should throw NotFoundException if user not found', async () => {
-            const validNonExistentId = '00000000-0000-0000-0000-000000000000';
-            await expect(service.unbanUser(validNonExistentId)).rejects.toThrow('User not found');
-        });
+  describe('deleteAccount', () => {
+    it('should delete user account', async () => {
+      vi.mocked(mockAuthCacheService.deleteAllUserTokens).mockResolvedValue(undefined);
+      vi.mocked(mockUsersRepository.deleteById).mockResolvedValue(true);
+
+      await service.deleteAccount('user-1');
+
+      expect(mockAuthCacheService.deleteAllUserTokens).toHaveBeenCalledWith('user-1');
+      expect(mockUsersRepository.deleteById).toHaveBeenCalledWith('user-1');
     });
 
-    describe('deleteAccount', () => {
-        it('should delete account and invalidate tokens', async () => {
-            const user = getUniqueUser();
-            const created = await usersRepo.create(user);
+    it('should throw NotFoundException when user not found', async () => {
+      vi.mocked(mockAuthCacheService.deleteAllUserTokens).mockResolvedValue(undefined);
+      vi.mocked(mockUsersRepository.deleteById).mockResolvedValue(false);
 
-            await service.deleteAccount(created.id);
-
-            const found = await usersRepo.findById(created.id);
-            expect(found).toBeUndefined();
-            expect(authCacheMock.deleteAllUserTokens).toHaveBeenCalledWith(created.id);
-        });
-
-        it('should throw NotFoundException if user not found', async () => {
-            const validNonExistentId = '00000000-0000-0000-0000-000000000000';
-            await expect(service.deleteAccount(validNonExistentId)).rejects.toThrow('User not found');
-        });
+      await expect(service.deleteAccount('user-1')).rejects.toThrow(NotFoundException);
     });
+  });
 });

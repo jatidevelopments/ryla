@@ -4,11 +4,13 @@
  * Handles payment-related API endpoints
  */
 
-import { Controller, Post, Body, UseGuards, Req, Logger, Inject } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, Req, Get, Param, Logger, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { FinbyService, CreatePaymentSessionDto } from './services/finby.service';
+import { FinbyFunnelSetupDto } from './dto/finby-funnel-setup.dto';
+import { FinbyRefundDto } from './dto/finby-refund.dto';
 import type { Request } from 'express';
 
 @ApiTags('payments')
@@ -91,6 +93,49 @@ export class PaymentsController {
     // TODO: Verify webhook signature
     await this.finbyService.handleRecurringWebhook(body);
     return { success: true };
+  }
+
+  // Funnel-specific endpoints (no authentication required)
+  @Post('finby/setup-payment')
+  @ApiOperation({ summary: 'Setup Finby payment for funnel (funnel-specific, no auth required)' })
+  @ApiResponse({ status: 200, description: 'Payment session created successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid request' })
+  async setupFunnelPayment(@Body() dto: FinbyFunnelSetupDto) {
+    if (!this.finbyService) {
+      this.logger.error('FinbyService is undefined.');
+      throw new Error('Payment service is not available.');
+    }
+
+    this.logger.log(`Funnel payment setup requested: productId=${dto.productId}, email=${dto.email?.substring(0, 3)}***`);
+
+    return await this.finbyService.setupFunnelPayment(dto);
+  }
+
+  @Get('finby/payment-status/:reference')
+  @ApiOperation({ summary: 'Get payment status by reference (funnel-specific)' })
+  @ApiResponse({ status: 200, description: 'Payment status retrieved successfully' })
+  async getPaymentStatus(@Param('reference') reference: string) {
+    if (!this.finbyService) {
+      this.logger.error('FinbyService is undefined.');
+      throw new Error('Payment service is not available.');
+    }
+
+    return await this.finbyService.getPaymentStatus(reference);
+  }
+
+  @Post('finby/refund')
+  @ApiOperation({ summary: 'Process refund for funnel payment (funnel-specific)' })
+  @ApiResponse({ status: 200, description: 'Refund processed successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid request' })
+  async processFunnelRefund(@Body() dto: FinbyRefundDto) {
+    if (!this.finbyService) {
+      this.logger.error('FinbyService is undefined.');
+      throw new Error('Payment service is not available.');
+    }
+
+    this.logger.log(`Funnel refund requested: reference=${dto.reference}, amount=${dto.amount}`);
+
+    return await this.finbyService.processFunnelRefund(dto);
   }
 }
 

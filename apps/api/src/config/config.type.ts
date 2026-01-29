@@ -33,6 +33,7 @@ export type Config = {
   trustpayConfig: TrustpayConfig;
   trustpayCacheConfig: TrustpayCacheConfig;
   finbyConfig: FinbyConfig;
+  modalConfig: ModalConfig;
   metaConfig: MetaConfig;
   externalAuth: ExternalAuth;
   abTestConfig: AbTestConfig;
@@ -340,3 +341,7 @@ export type FinbyConfig = {
   apiVersion?: 'v1' | 'v3';
 };
 
+export type ModalConfig = {
+  endpointUrl: string;
+  workspace: string;
+};

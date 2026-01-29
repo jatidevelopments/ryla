@@ -94,17 +94,36 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       // Initialize runner with available nodes for optimal workflow selection
       await this.runner.initialize();
       this.availableNodes = await this.client.getAvailableNodes();
+      
+      // Mark as initialized even if no nodes available (pod might be starting up)
       this.isInitialized = true;
 
-      this.logger.log(
-        `ComfyUI pod initialized: ${podUrl} (${this.availableNodes.length} nodes available)`,
-      );
+      if (this.availableNodes.length === 0) {
+        this.logger.warn(
+          `ComfyUI pod at ${podUrl} is not responding or has no nodes available. ` +
+          `ComfyUI features will be disabled. Ensure the pod is running and accessible.`
+        );
+      } else {
+        this.logger.log(
+          `ComfyUI pod initialized: ${podUrl} (${this.availableNodes.length} nodes available)`,
+        );
 
-      // Log recommended workflow
-      const recommended = getRecommendedWorkflow(this.availableNodes);
-      this.logger.log(`Recommended workflow: ${recommended}`);
+        // Log recommended workflow
+        const recommended = getRecommendedWorkflow(this.availableNodes);
+        this.logger.log(`Recommended workflow: ${recommended}`);
+      }
     } catch (error) {
-      this.logger.error('Failed to initialize ComfyUI pod:', error);
+      // Only log unexpected errors (not the expected "pod not available" case)
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (!errorMessage.includes('object_info') && !errorMessage.includes('Not Found')) {
+        this.logger.error('Failed to initialize ComfyUI pod:', error);
+      } else {
+        // Pod not available is expected in some environments - just warn
+        this.logger.warn(
+          `ComfyUI pod at ${podUrl} is not available. ComfyUI features will be disabled.`
+        );
+        this.isInitialized = true; // Still mark as initialized to allow graceful degradation
+      }
     }
   }
 

@@ -18,6 +18,7 @@ import {
 import { CharacterConfig } from '@ryla/data/schema';
 import { characterConfigToDNA } from './character-config-to-dna';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
+import { ModalJobRunnerAdapter } from './modal-job-runner.adapter';
 import { ImageStorageService } from './image-storage.service';
 import { FalImageService, type FalFluxModelId } from './fal-image.service';
 
@@ -97,6 +98,8 @@ export class BaseImageGenerationService {
   constructor(
     @Inject(forwardRef(() => ComfyUIJobRunnerAdapter))
     private readonly comfyuiAdapter: ComfyUIJobRunnerAdapter,
+    @Inject(forwardRef(() => ModalJobRunnerAdapter))
+    private readonly modalAdapter: ModalJobRunnerAdapter,
     @Inject(ConfigService) private readonly configService: ConfigService,
     @Inject(forwardRef(() => ImageStorageService))
     private readonly imageStorage: ImageStorageService,
@@ -139,9 +142,13 @@ export class BaseImageGenerationService {
     }
 
     // Ensure ComfyUI is available
-    if (!this.comfyuiAdapter.isAvailable()) {
+    // Base image generation uses Modal > FAL (never ComfyUI pod or RunPod serverless)
+    const useModal = this.modalAdapter.isAvailable();
+    const useFal = this.fal.isConfigured();
+
+    if (!useModal && !useFal) {
       throw new Error(
-        'ComfyUI pod not available. Check COMFYUI_POD_URL configuration.',
+        'Neither Modal.com nor FAL available. Check MODAL_ENDPOINT_URL or FAL_KEY configuration. Base image generation requires Modal.com or FAL (ComfyUI pod/RunPod not supported).',
       );
     }
 
@@ -301,46 +308,38 @@ export class BaseImageGenerationService {
 
     // Base images are ALWAYS SFW regardless of nsfwEnabled setting
     // This ensures base images are appropriate for profile pictures and public display
-    // Hybrid strategy (SFW only): Fal Schnell + Fal Dev + internal ComfyUI workflow (Danrisi recommended).
-    // If Fal is not configured or errors, we fall back to internal-only.
-    const shouldUseFal = this.fal.isConfigured(); // Always use Fal for base images (they're always SFW)
+    // Priority: Modal.com > FAL (never ComfyUI pod or RunPod serverless)
+    // Hybrid strategy (SFW only): Modal.com /flux-dev + FAL Flux Dev
+    const shouldUseModal = this.modalAdapter.isAvailable();
+    const shouldUseFal = this.fal.isConfigured();
 
-    if (shouldUseFal) {
-      // Generate 6 base images: 2 per model (seedream-4.5, flux-dev, comfyui)
-      // Seedream 4.5 (ByteDance) - highest quality, 9/10 rating in our research
-      // Flux Dev - proven NSFW support, 9/10 rating
+    if (!shouldUseModal && !shouldUseFal) {
+      throw new Error(
+        'Neither Modal.com nor FAL available. Check MODAL_ENDPOINT_URL or FAL_KEY configuration. Base image generation requires Modal.com or FAL (ComfyUI pod/RunPod not supported).',
+      );
+    }
+
+    if (shouldUseModal || shouldUseFal) {
+      // Generate 6 base images: 2 per external provider + 2 ComfyUI
+      // Priority: Modal.com /flux-dev (if available) > Fal.ai Flux Dev > Fal.ai Seedream
       // This gives users variety from different model architectures
-      const falModels: FalFluxModelId[] = ['fal-ai/bytedance/seedream/v4.5/text-to-image', 'fal-ai/flux/dev'];
       const imagesPerModel = 2;
-
-      // Create job IDs for all Fal images (2 per model = 4 total)
-      const falJobIds: string[] = [];
-      for (let modelIdx = 0; modelIdx < falModels.length; modelIdx++) {
-        for (let i = 0; i < imagesPerModel; i++) {
-          const jobId = this.createExternalJobId(`fal:${falModels[modelIdx]}:${i}`);
-          falJobIds.push(jobId);
-        }
-      }
-
-      // Initialize entries as in_progress so polling can start immediately.
-      falJobIds.forEach((id) => {
-        this.externalResults.set(id, {
-          status: 'in_progress',
-          images: [],
-          createdAt: Date.now(),
-        });
-      });
-
-      // Kick off Fal work in background (2 images per model = 4 total)
+      const externalJobIds: string[] = [];
       let seedOffset = 0;
-      for (let modelIdx = 0; modelIdx < falModels.length; modelIdx++) {
-        const modelId = falModels[modelIdx];
+
+      if (shouldUseModal) {
+        // Use Modal.com /flux-dev (2 images)
         for (let i = 0; i < imagesPerModel; i++) {
-          const jobId = falJobIds[seedOffset];
+          const jobId = this.createExternalJobId(`modal:flux-dev:${i}`);
+          externalJobIds.push(jobId);
+          this.externalResults.set(jobId, {
+            status: 'in_progress',
+            images: [],
+            createdAt: Date.now(),
+          });
           const seed = baseSeed + seedOffset;
-          void this.runFalBaseImageJob({
+          void this.runModalBaseImageJob({
             jobId,
-            modelId,
             prompt: basePrompt,
             negativePrompt: negativePrompt,
             width,
@@ -352,95 +351,59 @@ export class BaseImageGenerationService {
         }
       }
 
-      // Internal ComfyUI jobs: 2 images for variety
-      // Base images are ALWAYS SFW (nsfw: false)
-      // Add extra SFW enforcement for ComfyUI/Danrisi - this model needs stronger guidance
-      // Also add smiling for more approachable base images
-      const sfwEnforcedPrompt = basePrompt + ', smiling, friendly expression, warm smile, wearing clothes, fully dressed, appropriate attire, professional portrait';
-      const sfwEnforcedNegativePrompt = negativePrompt + ', nsfw, nude, naked, topless, bottomless, nipples, breasts exposed, revealing clothes, underwear, lingerie, bikini, adult content, serious expression, sad, frowning';
-      
-      const internalJobIds: string[] = [];
-      for (let i = 0; i < imagesPerModel; i++) {
-        const internalSeed = baseSeed + seedOffset + i;
-        const internalJobId = await this.comfyuiAdapter.submitBaseImageWithWorkflow({
-          prompt: sfwEnforcedPrompt,
-          negativePrompt: sfwEnforcedNegativePrompt,
-          nsfw: false, // Base images are always SFW
-          seed: internalSeed,
-          width,
-          height,
-          steps,
-          cfg,
-          workflowId,
-        });
-        internalJobIds.push(internalJobId);
+      if (shouldUseFal) {
+        // Use Fal.ai Flux Dev (2 images) - fallback if Modal.com not available
+        const falModels: FalFluxModelId[] = shouldUseModal 
+          ? ['fal-ai/flux/dev'] // Only Flux Dev if Modal.com is also used
+          : ['fal-ai/bytedance/seedream/v4.5/text-to-image', 'fal-ai/flux/dev']; // Both if Modal.com not available
+        
+        for (let modelIdx = 0; modelIdx < falModels.length; modelIdx++) {
+          const modelId = falModels[modelIdx];
+          for (let i = 0; i < imagesPerModel; i++) {
+            const jobId = this.createExternalJobId(`fal:${modelId}:${i}`);
+            externalJobIds.push(jobId);
+            this.externalResults.set(jobId, {
+              status: 'in_progress',
+              images: [],
+              createdAt: Date.now(),
+            });
+            const seed = baseSeed + seedOffset;
+            void this.runFalBaseImageJob({
+              jobId,
+              modelId,
+              prompt: basePrompt,
+              negativePrompt: negativePrompt,
+              width,
+              height,
+              seed,
+              userId: 'anonymous',
+            });
+            seedOffset++;
+          }
+        }
       }
 
-      const allJobIds = [...falJobIds, ...internalJobIds];
+      // Only use Modal and FAL - no ComfyUI pod or RunPod serverless
+      const allJobIds = [...externalJobIds];
+      const providers = [];
+      if (shouldUseModal) providers.push('modal(flux-dev)');
+      if (shouldUseFal) providers.push('fal');
       this.logger.log(
-        `Base images queued (hybrid): fal(${falModels.join(', ')}) x${imagesPerModel} + comfyui(${workflowId}) x${imagesPerModel} = ${allJobIds.length} total, jobIds=${allJobIds.join(', ')}`,
+        `Base images queued: ${providers.join(' + ')} = ${allJobIds.length} total, jobIds=${allJobIds.join(', ')}`,
       );
 
       return {
         images: [],
         jobId: allJobIds[0],
-        workflowUsed: workflowId,
+        workflowUsed: 'flux-dev' as WorkflowId, // Modal uses flux-dev
         allJobIds,
       };
     }
 
-    // Internal-only fallback (6 ComfyUI jobs for variety)
-    // Base images are ALWAYS SFW (nsfw: false)
-    // Add extra SFW enforcement for ComfyUI/Danrisi - this model needs stronger guidance
-    // Also add smiling for more approachable base images
-    const sfwEnforcedPrompt = basePrompt + ', smiling, friendly expression, warm smile, wearing clothes, fully dressed, appropriate attire, professional portrait';
-    const sfwEnforcedNegativePrompt = negativePrompt + ', nsfw, nude, naked, topless, bottomless, nipples, breasts exposed, revealing clothes, underwear, lingerie, bikini, adult content, serious expression, sad, frowning';
-    
-    const internalImageCount = 6;
-    const jobs = Array.from({ length: internalImageCount }).map((_, i) => {
-      const seed = baseSeed + i;
-      return {
-        seed,
-        promise: this.comfyuiAdapter.submitBaseImageWithWorkflow({
-          prompt: sfwEnforcedPrompt,
-          negativePrompt: sfwEnforcedNegativePrompt,
-          nsfw: false, // Base images are always SFW
-          seed,
-          width,
-          height,
-          steps,
-          cfg,
-          workflowId,
-        }),
-      };
-    });
-
-    const jobIds = await Promise.all(jobs.map((j) => j.promise));
-    jobIds.forEach((jobId, idx) => {
-      this.logger.log(
-        `Job ${jobId} submitted (${idx + 1}/${internalImageCount}) with workflow: ${workflowId}, seed: ${jobs[idx].seed}, steps: ${steps}, size: ${width}x${height}`,
-      );
-    });
-
-    const result = {
-      images: [],
-      jobId: jobIds[0],
-      workflowUsed: workflowId,
-      allJobIds: jobIds,
-    };
-
-    // Store in idempotency cache if key was provided
-    if (input.idempotencyKey) {
-      this.idempotencyCache.set(input.idempotencyKey, {
-        jobId: result.jobId,
-        allJobIds: jobIds,
-        workflowUsed: workflowId,
-        createdAt: Date.now(),
-      });
-      this.logger.log(`Cached idempotency key: ${input.idempotencyKey} -> jobs: ${jobIds.join(', ')}`);
-    }
-
-    return result;
+    // Should never reach here - we check for Modal/FAL availability above
+    throw new Error(
+      'No image generation providers available. Configure MODAL_ENDPOINT_URL or FAL_KEY. ComfyUI pod/RunPod are not supported.',
+    );
   }
 
   /**
@@ -457,14 +420,43 @@ export class BaseImageGenerationService {
     seed?: number;
     workflowId?: WorkflowId;
   }): Promise<{ jobId: string; workflowUsed: WorkflowId }> {
-    if (!this.comfyuiAdapter.isAvailable()) {
-      throw new Error('ComfyUI pod not available.');
+    // Provider priority: Modal > FAL (never ComfyUI/RunPod)
+    const useModal = this.modalAdapter.isAvailable() && !input.nsfw;
+    const useFal = this.fal.isConfigured() && !input.nsfw;
+
+    if (!useModal && !useFal) {
+      throw new Error(
+        'Neither Modal.com nor FAL available. Check MODAL_ENDPOINT_URL or FAL_KEY configuration. Note: Character generation requires Modal.com or FAL (ComfyUI/RunPod not supported).',
+      );
     }
 
-    const jobId = await this.comfyuiAdapter.generateFromCharacterDNA(input);
-    const workflowUsed = input.workflowId || this.comfyuiAdapter.getRecommendedWorkflow();
+    // Build prompt
+    const builder = new PromptBuilder().withCharacter(input.character);
+    if (input.templateId) builder.withTemplate(input.templateId);
+    if (input.scene) builder.withScene(input.scene);
+    if (input.outfit) builder.withOutfit(input.outfit);
+    if (input.lighting) builder.withLighting(input.lighting);
+    if (input.expression) builder.withExpression(input.expression);
+    builder.withStylePreset('quality');
 
-    return { jobId, workflowUsed };
+    const builtPrompt = builder.build();
+
+    if (useModal) {
+      // For Modal: Use /flux-dev endpoint
+      const jobId = await this.modalAdapter.submitBaseImages({
+        prompt: builtPrompt.prompt,
+        nsfw: input.nsfw || false,
+        seed: input.seed,
+      });
+
+      return { jobId, workflowUsed: 'flux-dev' as WorkflowId };
+    } else {
+      // For FAL: Use FAL Flux Dev
+      // Note: FAL doesn't have a direct character DNA method, so we use the prompt
+      throw new Error(
+        'FAL support for character DNA generation not yet implemented. Please use Modal.com.',
+      );
+    }
   }
 
   /**
@@ -672,6 +664,106 @@ export class BaseImageGenerationService {
     }
 
     return sanitized;
+  }
+
+  private async runModalBaseImageJob(params: {
+    jobId: string;
+    prompt: string;
+    negativePrompt?: string;
+    width: number;
+    height: number;
+    seed?: number;
+    userId: string;
+  }) {
+    const { jobId, prompt, negativePrompt, width, height, seed, userId } = params;
+    const modelName = 'Modal.com Flux Dev';
+
+    try {
+      this.logger.log(`Modal base image started jobId=${jobId} model=flux-dev`);
+      
+      // Submit job to Modal.com
+      const externalJobId = await this.modalAdapter.submitBaseImages({
+        prompt,
+        nsfw: false, // Base images are always SFW
+        seed,
+      });
+
+      // Poll for result (Modal.com is synchronous, but we use the job runner pattern)
+      let attempts = 0;
+      const maxAttempts = 30; // 30 seconds max wait
+      let jobStatus;
+      
+      while (attempts < maxAttempts) {
+        jobStatus = await this.modalAdapter.getJobStatus(externalJobId);
+        
+        if (jobStatus.status === 'COMPLETED') {
+          break;
+        }
+        
+        if (jobStatus.status === 'FAILED') {
+          throw new Error(jobStatus.error || 'Modal.com generation failed');
+        }
+        
+        // Wait 1 second before next poll
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        attempts++;
+      }
+
+      if (!jobStatus || jobStatus.status !== 'COMPLETED') {
+        throw new Error('Modal.com job did not complete in time');
+      }
+
+      const output = jobStatus.output as { images?: Array<{ buffer?: Buffer }> };
+      if (!output?.images || output.images.length === 0 || !output.images[0].buffer) {
+        throw new Error('No image buffer returned from Modal.com');
+      }
+
+      // Convert Buffer to base64 data URL
+      const imageBuffer = output.images[0].buffer;
+      const base64 = imageBuffer.toString('base64');
+      const dataUrl = `data:image/jpeg;base64,${base64}`;
+
+      this.logger.log(`Modal base image uploading jobId=${jobId} model=flux-dev`);
+      const { images: stored } = await this.imageStorage.uploadImages([dataUrl], {
+        userId,
+        category: 'base-images',
+        jobId,
+      });
+
+      if (!stored || stored.length === 0) {
+        throw new Error('Failed to upload image to storage');
+      }
+
+      const img = stored[0];
+      this.externalResults.set(jobId, {
+        status: 'completed',
+        images: [
+          {
+            id: `${jobId}-0`,
+            url: img.url,
+            thumbnailUrl: img.thumbnailUrl,
+            s3Key: img.key,
+            model: modelName,
+          },
+        ],
+        model: modelName,
+        createdAt: Date.now(),
+      });
+
+      this.logger.log(`Modal base image completed jobId=${jobId} model=flux-dev url=${img.url}`);
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Modal.com generation failed';
+      const stack = e instanceof Error ? e.stack : undefined;
+
+      this.logger.error(`Modal base image failed jobId=${jobId} model=flux-dev: ${message}`, stack);
+      this.externalResults.set(jobId, {
+        status: 'failed',
+        images: [],
+        error: message,
+        model: modelName,
+        createdAt: Date.now(),
+      });
+    }
   }
 
   private async runFalBaseImageJob(params: {

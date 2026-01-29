@@ -776,5 +776,198 @@ export class FinbyService {
       packageId,
     };
   }
+
+  /**
+   * Setup payment for funnel (not authenticated, uses productId)
+   * This is for the funnel app which doesn't require user authentication
+   */
+  async setupFunnelPayment(dto: {
+    productId: number;
+    email: string;
+    userId?: string;
+    cardHolder?: string;
+    billingStreet?: string;
+    billingCity?: string;
+    billingPostcode?: string;
+    billingCountry?: string;
+    returnUrl?: string;
+    cancelUrl?: string;
+    errorUrl?: string;
+    notificationUrl?: string;
+  }): Promise<{ paymentUrl: string; reference: string; transactionId?: string; requestId?: string }> {
+    this.logger.log(`Setting up funnel payment for productId: ${dto.productId}, email: ${dto.email}`);
+
+    // Check if Finby is configured
+    if (!this.finbyConfig.projectId || !this.finbyConfig.secretKey) {
+      throw new Error('Finby payment is not configured. Please set FINBY_PROJECT_ID and FINBY_SECRET_KEY in environment variables.');
+    }
+
+    // Funnel products (hardcoded for now - matches apps/funnel/constants/products.ts)
+    const funnelProducts = [
+      {
+        id: 1,
+        name: 'Monthly AI Influencer Subscription',
+        amount: 2900, // $29.00 in cents
+        currency: 'USD',
+        durationMonths: 1,
+      },
+    ];
+
+    const product = funnelProducts.find((p) => p.id === dto.productId);
+    if (!product) {
+      throw new NotFoundException(`Product with id ${dto.productId} not found`);
+    }
+
+    const finby = createPaymentProvider('finby', {
+      projectId: this.finbyConfig.projectId,
+      secretKey: this.finbyConfig.secretKey,
+      apiVersion: 'v3',
+    });
+
+    // Generate reference with RYLAFL prefix for funnel
+    const userId = dto.userId || dto.email;
+    const reference = `RYLAFL-${Date.now()}-${userId}`;
+
+    const sessionParams = {
+      priceId: product.id.toString(),
+      userId: userId,
+      email: dto.email,
+      productId: dto.productId,
+      amount: product.amount,
+      currency: product.currency || 'USD',
+      successUrl: dto.returnUrl || '/payment-callback',
+      cancelUrl: dto.cancelUrl || '/payment-callback',
+      errorUrl: dto.errorUrl,
+      notificationUrl: dto.notificationUrl || this.notificationUrl,
+      cardHolder: dto.cardHolder,
+      billingStreet: dto.billingStreet,
+      billingCity: dto.billingCity,
+      billingPostcode: dto.billingPostcode,
+      billingCountry: dto.billingCountry,
+    };
+
+    const session = await finby.createCheckoutSession(sessionParams);
+
+    if (!session || !session.url || !session.reference) {
+      throw new Error('Invalid session response from payment provider');
+    }
+
+    const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    this.logger.log(`Funnel payment session created: ${session.reference}`);
+
+    return {
+      paymentUrl: session.url,
+      reference: session.reference,
+      transactionId: session.transactionId || session.reference,
+      requestId,
+    };
+  }
+
+  /**
+   * Get payment status by reference
+   * Note: This is a simplified implementation - in production should query database or Finby API
+   */
+  async getPaymentStatus(reference: string): Promise<{
+    reference: string;
+    status: string;
+    resultCode: number;
+    paid_status: string;
+    resultMessage: string;
+  }> {
+    this.logger.log(`Getting payment status for reference: ${reference}`);
+
+    // TODO: In production, query database or Finby API for actual status
+    // For now, returning pending status
+    return {
+      reference,
+      status: 'pending',
+      resultCode: 1, // 1 = Pending
+      paid_status: 'pending',
+      resultMessage: 'Payment status check not fully implemented. Check Finby merchant portal or implement status checking.',
+    };
+  }
+
+  /**
+   * Process refund for funnel payment
+   */
+  async processFunnelRefund(dto: {
+    paymentRequestId: string;
+    reference: string;
+    amount: number;
+    currency: string;
+  }): Promise<{ success: boolean; refundId?: string; error?: string }> {
+    this.logger.log(`Processing refund for reference: ${dto.reference}, amount: ${dto.amount}`);
+
+    // Check if Finby is configured
+    if (!this.finbyConfig.projectId || !this.finbyConfig.secretKey) {
+      throw new Error('Finby payment is not configured.');
+    }
+
+    // Verify reference belongs to funnel (must start with RYLAFL prefix)
+    const { isFunnelReference } = await import('@ryla/payments');
+    if (!isFunnelReference(dto.reference)) {
+      this.logger.error(`Refund blocked: Reference does not belong to funnel: ${dto.reference}`);
+      throw new Error('Refund not allowed: Payment reference does not belong to this funnel');
+    }
+
+    // Convert amount from cents to decimal
+    const amountDecimal = (dto.amount / 100).toFixed(2);
+
+    // Call Finby refund API
+    const refundUrl = `https://aapi.finby.eu/api/Payments/Payment/${dto.paymentRequestId}/Refund`;
+    const apiKey = this.finbyConfig.apiKey || this.finbyConfig.secretKey;
+
+    const refundPayload = {
+      MerchantIdentification: {
+        ProjectId: this.finbyConfig.projectId,
+      },
+      PaymentInformation: {
+        Amount: {
+          Amount: parseFloat(amountDecimal),
+          Currency: dto.currency,
+        },
+        References: {
+          MerchantReference: dto.reference,
+        },
+      },
+    };
+
+    const response = await fetch(refundUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify(refundPayload),
+    });
+
+    let responseData;
+    try {
+      responseData = await response.json();
+    } catch {
+      const errorText = await response.text();
+      responseData = { error: errorText };
+    }
+
+    const hasError = responseData?.ResultInfo && 
+                    responseData.ResultInfo.ResultCode && 
+                    responseData.ResultInfo.ResultCode !== 0;
+
+    if (!response.ok || hasError) {
+      const errorMessage = responseData.ResultInfo?.ResultMessage || 
+                          responseData.error || 
+                          `Refund failed: ${response.statusText}`;
+      this.logger.error(`Refund failed: ${errorMessage}`);
+      throw new Error(errorMessage);
+    }
+
+    this.logger.log(`Refund processed successfully for reference: ${dto.reference}`);
+
+    return {
+      success: true,
+      refundId: responseData.RefundId || responseData.id,
+    };
+  }
 }
 

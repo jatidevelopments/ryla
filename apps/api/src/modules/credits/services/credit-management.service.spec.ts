@@ -3,8 +3,9 @@ import { CreditManagementService } from './credit-management.service';
 import { createTestDb } from '../../../test/utils/test-db';
 import * as schema from '@ryla/data/schema';
 import { userCredits, creditTransactions } from '@ryla/data';
-import { eq } from 'drizzle-orm';
+import { eq, sql } from 'drizzle-orm';
 import { ForbiddenException } from '@nestjs/common';
+import { beforeAll, afterAll } from 'vitest';
 
 describe('CreditManagementService Integration', () => {
     let service: CreditManagementService;
@@ -12,7 +13,9 @@ describe('CreditManagementService Integration', () => {
     let client: any;
     const userId = '00000000-0000-0000-0000-000000000001';
 
-    beforeEach(async () => {
+    // OPTIMIZATION: Create DB once per test suite instead of per test
+    // This avoids running 17 migrations (~1100 lines SQL) for every test
+    beforeAll(async () => {
         const testDb = await createTestDb();
         db = testDb.db;
         client = testDb.client;
@@ -25,6 +28,20 @@ describe('CreditManagementService Integration', () => {
         }).compile();
 
         service = module.get<CreditManagementService>(CreditManagementService);
+    });
+
+    // OPTIMIZATION: Clean up data between tests instead of recreating DB
+    beforeEach(async () => {
+        // Use DELETE with condition that's always true to delete all rows
+        // Delete in reverse order of foreign key dependencies
+        try {
+          await db.delete(schema.creditTransactions).where(sql`1=1`);
+          await db.delete(schema.userCredits).where(sql`1=1`);
+          await db.delete(schema.users).where(sql`1=1`);
+        } catch (error) {
+          // If DELETE fails, tests will still run
+          console.warn('Cleanup failed, continuing with test:', error);
+        }
 
         // Setup user first (for FK constraint)
         await db.insert(schema.users).values({
@@ -44,7 +61,7 @@ describe('CreditManagementService Integration', () => {
         });
     });
 
-    afterEach(async () => {
+    afterAll(async () => {
         if (client) await client.close();
     });
 

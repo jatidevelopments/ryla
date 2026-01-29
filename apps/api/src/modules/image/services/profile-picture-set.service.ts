@@ -24,6 +24,8 @@ import { characterConfigToDNA } from './character-config-to-dna';
 import * as schema from '@ryla/data/schema';
 import { GenerationJobsRepository, ImagesRepository } from '@ryla/data';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
+import { ModalJobRunnerAdapter } from './modal-job-runner.adapter';
+import { FalImageService } from './fal-image.service';
 import { ImageStorageService } from './image-storage.service';
 import { getPosePrompt } from './pose-lookup';
 
@@ -70,6 +72,7 @@ export interface ProfilePictureGenerationResult {
 export class ProfilePictureSetService {
   private readonly logger = new Logger(ProfilePictureSetService.name);
   private readonly comfyuiAdapter: ComfyUIJobRunnerAdapter;
+  private readonly modalAdapter: ModalJobRunnerAdapter;
   private readonly imageStorage: ImageStorageService;
   private readonly generationJobsRepo: GenerationJobsRepository;
   private readonly imagesRepo: ImagesRepository;
@@ -80,11 +83,16 @@ export class ProfilePictureSetService {
     db: NodePgDatabase<typeof schema>,
     @Inject(forwardRef(() => ComfyUIJobRunnerAdapter))
     comfyuiAdapter: ComfyUIJobRunnerAdapter,
+    @Inject(forwardRef(() => ModalJobRunnerAdapter))
+    modalAdapter: ModalJobRunnerAdapter,
+    @Inject(forwardRef(() => FalImageService))
+    private readonly fal: FalImageService,
     @Inject(forwardRef(() => ImageStorageService))
     imageStorage: ImageStorageService,
   ) {
     this.db = db;
     this.comfyuiAdapter = comfyuiAdapter;
+    this.modalAdapter = modalAdapter;
     this.imageStorage = imageStorage;
     this.generationJobsRepo = new GenerationJobsRepository(db);
     this.imagesRepo = new ImagesRepository(db);
@@ -96,12 +104,17 @@ export class ProfilePictureSetService {
   async generateProfilePictureSet(
     input: ProfilePictureSetGenerationInput,
   ): Promise<ProfilePictureGenerationResult> {
-    // Ensure ComfyUI is available
-    if (!this.comfyuiAdapter.isAvailable()) {
+    // Priority: Modal.com > FAL (if available) > Error
+    // Never fallback to ComfyUI/RunPod - they are legacy
+    const useModal = this.modalAdapter.isAvailable();
+
+    if (!useModal) {
       throw new BadRequestException(
-        'ComfyUI pod not available. Check COMFYUI_POD_URL configuration.',
+        'Modal.com endpoint not available. Check MODAL_ENDPOINT_URL or MODAL_WORKSPACE configuration. Profile pictures require Modal.com for face consistency workflows.',
       );
     }
+
+    this.logger.log(`Using Modal.com for profile picture generation`);
 
     // Get profile picture set definition
     const set = getProfilePictureSet(input.setId);
@@ -258,12 +271,32 @@ export class ProfilePictureSetService {
 
     const generationMode = input.generationMode ?? 'fast';
 
-    // Only upload reference image when using consistent mode (PuLID).
-    // Uploading adds latency, and fast mode is speed-first.
-    const referenceImageFilename =
-      generationMode === 'consistent'
-        ? await this.uploadReferenceImageToComfyUI(input.baseImageUrl)
-        : null;
+    // Handle reference image based on adapter:
+    // - Modal: Convert to base64 data URL (required for Modal endpoints)
+    // - ComfyUI: Upload to ComfyUI input folder and get filename
+    let referenceImageForModal: string | null = null; // base64 data URL for Modal
+    let referenceImageFilename: string | null = null; // filename for ComfyUI
+
+    if (generationMode === 'consistent') {
+      if (useModal) {
+        // For Modal: Convert baseImageUrl to base64 data URL
+        try {
+          const response = await fetch(input.baseImageUrl);
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const base64 = buffer.toString('base64');
+          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          referenceImageForModal = `data:${contentType};base64,${base64}`;
+          this.logger.log('Converted reference image to base64 for Modal endpoint');
+        } catch (error) {
+          this.logger.error(`Failed to convert reference image to base64: ${error}`);
+          throw new BadRequestException('Failed to load reference image for Modal endpoint');
+        }
+      } else {
+        // For ComfyUI: Upload to input folder
+        referenceImageFilename = await this.uploadReferenceImageToComfyUI(input.baseImageUrl);
+      }
+    }
 
     // Speed-first defaults (can be overridden by input)
     const steps = input.steps ?? (generationMode === 'fast' ? 9 : 20);
@@ -301,37 +334,60 @@ export class ProfilePictureSetService {
         });
       }
 
-      // Consistent mode: Z-Image InstantID (slower), requires reference image uploaded to ComfyUI input
+      // Consistent mode: Z-Image InstantID (slower), requires reference image
       // InstantID works better than PuLID for single-image workflows and handles extreme angles better
-      if (!referenceImageFilename) {
-        throw new BadRequestException('Reference image is required for consistent mode');
+      if (useModal) {
+        if (!referenceImageForModal) {
+          throw new BadRequestException('Reference image is required for consistent mode');
+        }
+        // For Modal: Use base64 data URL in workflow (will be extracted by detector)
+        // We'll pass it as a special marker that the detector can recognize
+        return buildZImageInstantIDWorkflow({
+          prompt: imageData.prompt,
+          negativePrompt: imageData.negativePrompt,
+          referenceImage: referenceImageForModal, // base64 data URL for Modal
+          width,
+          height,
+          steps,
+          cfg,
+          seed: Math.floor(Math.random() * 2 ** 32),
+          instantidStrength: 0.8,
+          controlnetStrength: 0.8,
+          faceProvider: 'CPU', // CPU is more stable
+          filenamePrefix: 'ryla_profile_consistent',
+        });
+      } else {
+        // For ComfyUI: Use filename
+        if (!referenceImageFilename) {
+          throw new BadRequestException('Reference image is required for consistent mode');
+        }
+        return buildZImageInstantIDWorkflow({
+          prompt: imageData.prompt,
+          negativePrompt: imageData.negativePrompt,
+          referenceImage: referenceImageFilename, // filename for ComfyUI
+          width,
+          height,
+          steps,
+          cfg,
+          seed: Math.floor(Math.random() * 2 ** 32),
+          instantidStrength: 0.8,
+          controlnetStrength: 0.8,
+          faceProvider: 'CPU', // CPU is more stable
+          filenamePrefix: 'ryla_profile_consistent',
+        });
       }
-
-      return buildZImageInstantIDWorkflow({
-        prompt: imageData.prompt,
-        negativePrompt: imageData.negativePrompt,
-        referenceImage: referenceImageFilename,
-        width,
-        height,
-        steps,
-        cfg,
-        seed: Math.floor(Math.random() * 2 ** 32),
-        instantidStrength: 0.8,
-        controlnetStrength: 0.8,
-        faceProvider: 'CPU', // CPU is more stable
-        filenamePrefix: 'ryla_profile_consistent',
-      });
     });
 
-    // Submit all workflows in parallel to ComfyUI for simultaneous generation
+    // Submit all workflows in parallel to Modal.com for simultaneous generation
     const jobIds: string[] = [];
     // Always use input.userId (which should be the authenticated user's ID from the controller)
     // Fallback to 'anonymous' only if not provided (shouldn't happen in normal flow)
     const userId = input.userId || 'anonymous';
     try {
       // Queue all workflows simultaneously using Promise.all
+      // Always use Modal.com (checked above)
       const queuePromises = workflows.map((workflow) => {
-        return this.comfyuiAdapter.queueWorkflow(workflow);
+        return this.modalAdapter.queueWorkflow(workflow);
       });
 
       const queuedJobIds = await Promise.all(queuePromises);
@@ -455,11 +511,24 @@ export class ProfilePictureSetService {
     width?: number;
     height?: number;
   }): Promise<{ jobId: string }> {
-    if (!this.comfyuiAdapter.isAvailable()) {
+    // Provider priority: Modal > FAL (never ComfyUI/RunPod)
+    const useModal = this.modalAdapter.isAvailable() && !input.nsfwEnabled;
+    const useFal = this.fal.isConfigured() && !input.nsfwEnabled;
+
+    if (!useModal && !useFal) {
       throw new BadRequestException(
-        'ComfyUI pod not available. Check COMFYUI_POD_URL configuration.',
+        'Neither Modal.com nor FAL available. Check MODAL_ENDPOINT_URL or FAL_KEY configuration. Note: Profile pictures require Modal.com or FAL (ComfyUI/RunPod not supported).',
       );
     }
+
+    if (!useModal) {
+      // FAL doesn't support workflow-based generation
+      throw new BadRequestException(
+        'Profile picture regeneration requires Modal.com. FAL does not support Z-Image or face consistency workflows.',
+      );
+    }
+
+    this.logger.log(`Using Modal.com for profile picture regeneration`);
 
     // Get profile picture set
     const set = getProfilePictureSet(input.setId);
@@ -490,6 +559,9 @@ export class ProfilePictureSetService {
     );
 
     let workflow: unknown;
+    let referenceImageForModal: string | undefined;
+    let referenceImageFilename: string | undefined;
+    
     if (generationMode === 'fast') {
       const workflowId = input.workflowId ?? this.comfyuiAdapter.getRecommendedWorkflow();
       workflow = buildWorkflow(workflowId, {
@@ -504,11 +576,35 @@ export class ProfilePictureSetService {
       });
     } else {
       // Consistent mode: Use Z-Image InstantID (better than PuLID for single-image workflows)
-      const referenceImageFilename = await this.uploadReferenceImageToComfyUI(input.baseImageUrl);
+      // Handle reference image based on adapter
+      if (useModal) {
+        // For Modal: Convert to base64
+        try {
+          const response = await fetch(input.baseImageUrl);
+          const arrayBuffer = await response.arrayBuffer();
+          const buffer = Buffer.from(arrayBuffer);
+          const base64 = buffer.toString('base64');
+          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          referenceImageForModal = `data:${contentType};base64,${base64}`;
+        } catch (error) {
+          throw new BadRequestException('Failed to load reference image for Modal endpoint');
+        }
+      } else {
+        // For ComfyUI: Upload to input folder
+        referenceImageFilename = await this.uploadReferenceImageToComfyUI(input.baseImageUrl);
+      }
+
+      if (useModal && !referenceImageForModal) {
+        throw new BadRequestException('Reference image is required for consistent mode');
+      }
+      if (!useModal && !referenceImageFilename) {
+        throw new BadRequestException('Reference image is required for consistent mode');
+      }
+
       workflow = buildZImageInstantIDWorkflow({
         prompt,
         negativePrompt,
-        referenceImage: referenceImageFilename,
+        referenceImage: useModal ? referenceImageForModal! : referenceImageFilename!,
         width,
         height,
         steps,
@@ -521,8 +617,8 @@ export class ProfilePictureSetService {
       });
     }
 
-    // Submit workflow
-    const jobId = await this.comfyuiAdapter.queueWorkflow(workflow);
+    // Submit workflow using Modal (FAL doesn't support workflows)
+    const jobId = await this.modalAdapter.queueWorkflow(workflow as any);
 
     this.logger.log(`Regenerated profile picture for position '${input.positionId}'`);
 
@@ -613,7 +709,8 @@ export class ProfilePictureSetService {
       })
       : null;
 
-    const status = await this.comfyuiAdapter.getJobStatus(jobId);
+    // Profile pictures always use Modal.com (jobId starts with "modal_")
+    const status = await this.modalAdapter.getJobStatus(jobId);
 
     if (status.status === 'COMPLETED' && status.output) {
       const output = status.output as { images?: string[] };

@@ -9,6 +9,7 @@ import type { OutfitComposition } from '@ryla/shared';
 import { randomUUID } from 'crypto';
 
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
+import { ModalJobRunnerAdapter } from './modal-job-runner.adapter';
 import { FalImageService, type FalFluxModelId } from './fal-image.service';
 import { ImageStorageService } from './image-storage.service';
 import { characterConfigToDNA } from './character-config-to-dna';
@@ -49,6 +50,8 @@ export class StudioGenerationService {
     private readonly db: NodePgDatabase<typeof schema>,
     @Inject(ComfyUIJobRunnerAdapter)
     private readonly comfyui: ComfyUIJobRunnerAdapter,
+    @Inject(ModalJobRunnerAdapter)
+    private readonly modal: ModalJobRunnerAdapter,
     @Inject(FalImageService)
     private readonly fal: FalImageService,
     @Inject(ImageStorageService)
@@ -76,7 +79,7 @@ export class StudioGenerationService {
     nsfw: boolean;
     promptEnhance?: boolean; // Enable AI prompt enhancement
     seed?: number;
-    modelProvider?: 'comfyui' | 'fal';
+    modelProvider?: 'modal' | 'comfyui' | 'fal';
     modelId?: FalFluxModelId;
   }) {
     if (input.count < 1 || input.count > 10) {
@@ -212,9 +215,13 @@ export class StudioGenerationService {
     const results: Array<{ jobId: string; promptId: string }> = [];
 
     // Provider selection:
-    // - NSFW always forces comfyui (self-hosted)
-    // - default provider is comfyui
-    const provider: 'comfyui' | 'fal' = input.nsfw ? 'comfyui' : (input.modelProvider ?? 'comfyui');
+    // - SFW: Modal > FAL (never ComfyUI pod or RunPod serverless)
+    // - NSFW: ComfyUI pod (self-hosted) only - Modal/FAL don't support NSFW
+    const shouldUseModal = this.modal.isAvailable() && !input.nsfw;
+    const shouldUseFal = this.fal.isConfigured() && !input.nsfw;
+    const provider: 'modal' | 'comfyui' | 'fal' = input.nsfw 
+      ? 'comfyui' // NSFW requires self-hosted ComfyUI pod (Modal/FAL don't support NSFW)
+      : (input.modelProvider ?? (shouldUseModal ? 'modal' : (shouldUseFal ? 'fal' : 'comfyui')));
     const falModel: FalFluxModelId = input.modelId ?? 'fal-ai/flux/schnell';
 
     for (let i = 0; i < input.count; i++) {
@@ -262,6 +269,68 @@ export class StudioGenerationService {
       if (promptEnhanceUsed && enhancedPrompt) imageData.enhancedPrompt = enhancedPrompt;
 
       const imageRecord = await this.imagesRepo.createImage(imageData);
+
+      if (provider === 'modal') {
+        if (!this.modal.isAvailable()) {
+          // Safe fallback if Modal.com not available
+          console.warn('Modal.com not available; falling back to comfyui for studio generation');
+        } else {
+          const externalJobId = `modal_${randomUUID()}`;
+          const job = await this.generationJobsRepo.createJob({
+            userId: input.userId,
+            characterId: input.characterId,
+            type: 'image_generation',
+            status: 'processing',
+            input: {
+              scene: input.scene,
+              environment: input.environment,
+              outfit: typeof input.outfit === 'string' ? input.outfit : JSON.stringify(input.outfit),
+              poseId: input.poseId,
+              aspectRatio: input.aspectRatio,
+              imageCount: 1,
+              nsfw: input.nsfw,
+              prompt: basePrompt,
+              negativePrompt,
+              seed: seed?.toString(),
+              width,
+              height,
+              steps,
+              promptEnhance: promptEnhanceUsed,
+              originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
+              enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
+              imageId: imageRecord.id,
+            },
+            imageCount: 1,
+            completedCount: 0,
+            externalJobId,
+            externalProvider: 'modal',
+            startedAt: new Date(),
+            output: {
+              imageIds: [imageRecord.id],
+            },
+          });
+
+          // Map model ID to Modal.com endpoint
+          // fal-ai/flux/dev → /flux-dev, fal-ai/flux/schnell → /flux
+          const modalModel = falModel === 'fal-ai/flux/dev' ? 'flux-dev' : 'flux';
+
+          // handled by ComfyUIResultsService (special-cased for externalProvider='modal').
+          void this.runModalStudioJob({
+            jobId: job.id,
+            externalJobId,
+            imageId: imageRecord.id,
+            prompt: basePrompt,
+            negativePrompt,
+            width,
+            height,
+            seed,
+            model: modalModel,
+          });
+
+          results.push({ jobId: job.id, promptId: imageRecord.id });
+          continue;
+        }
+      }
 
       if (provider === 'fal') {
         if (!this.fal.isConfigured()) {
@@ -342,7 +411,31 @@ export class StudioGenerationService {
         filenamePrefix: 'ryla_studio',
       });
 
-      const promptId = await this.comfyui.queueWorkflow(workflow);
+      // Provider priority for workflows:
+      // - SFW: Modal > FAL (never ComfyUI pod or RunPod serverless)
+      // - NSFW: ComfyUI pod (self-hosted) only
+      // Note: FAL doesn't support workflow-based generation (Z-Image, InstantID, etc.)
+      const shouldUseModalForWorkflow = this.modal.isAvailable() && !input.nsfw;
+      
+      let adapter: ModalJobRunnerAdapter | ComfyUIJobRunnerAdapter;
+      let externalProvider: 'modal' | 'comfyui' | 'fal';
+      
+      if (shouldUseModalForWorkflow) {
+        adapter = this.modal;
+        externalProvider = 'modal';
+      } else if (input.nsfw) {
+        // NSFW content requires self-hosted ComfyUI pod (Modal/FAL don't support NSFW)
+        adapter = this.comfyui;
+        externalProvider = 'comfyui';
+      } else {
+        // SFW but Modal not available - FAL doesn't support workflows
+        // Throw error instead of falling back to ComfyUI pod
+        throw new BadRequestException(
+          'Modal.com is required for workflow-based studio generation. FAL does not support Z-Image or face consistency workflows. Please configure MODAL_ENDPOINT_URL.',
+        );
+      }
+      
+      const promptId = await adapter.queueWorkflow(workflow);
 
       const job = await this.generationJobsRepo.createJob({
         userId: input.userId,
@@ -374,7 +467,7 @@ export class StudioGenerationService {
         imageCount: 1,
         completedCount: 0,
         externalJobId: promptId,
-        externalProvider: 'comfyui',
+        externalProvider,
         startedAt: new Date(),
         // Store image ID in output for reference
         output: {
@@ -422,6 +515,130 @@ export class StudioGenerationService {
       .trim();
 
     return sanitized;
+  }
+
+  private async runModalStudioJob(params: {
+    jobId: string;
+    externalJobId: string;
+    imageId: string;
+    prompt: string;
+    negativePrompt?: string;
+    width: number;
+    height: number;
+    seed?: number;
+    model: 'flux-dev' | 'flux';
+  }) {
+    const { jobId, externalJobId, imageId, prompt, negativePrompt, width, height, seed, model } = params;
+
+    try {
+      const trackedJob = await this.generationJobsRepo.getById(jobId);
+      if (!trackedJob) {
+        throw new Error('Job not found');
+      }
+
+      // Submit job to Modal.com (both flux-dev and flux use submitBaseImages)
+      const modalJobId = await this.modal.submitBaseImages({
+        prompt,
+        nsfw: false, // Studio generation handles NSFW separately
+        seed,
+      });
+
+      // Poll for result
+      let attempts = 0;
+      const maxAttempts = 30;
+      let jobStatus;
+      
+      while (attempts < maxAttempts) {
+        jobStatus = await this.modal.getJobStatus(modalJobId);
+        
+        if (jobStatus.status === 'COMPLETED') {
+          break;
+        }
+        
+        if (jobStatus.status === 'FAILED') {
+          throw new Error(jobStatus.error || 'Modal.com generation failed');
+        }
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        attempts++;
+      }
+
+      if (!jobStatus || jobStatus.status !== 'COMPLETED') {
+        throw new Error('Modal.com job did not complete in time');
+      }
+
+      const output = jobStatus.output as { images?: Array<{ buffer?: Buffer }> };
+      if (!output?.images || output.images.length === 0 || !output.images[0].buffer) {
+        throw new Error('No image buffer returned from Modal.com');
+      }
+
+      // Convert Buffer to base64 data URL
+      const imageBuffer = output.images[0].buffer;
+      const base64 = imageBuffer.toString('base64');
+      const dataUrl = `data:image/jpeg;base64,${base64}`;
+
+      // Upload to storage
+      const { images: stored } = await this.imageStorage.uploadImages([dataUrl], {
+        userId: trackedJob.userId,
+        category: 'studio-images',
+        jobId: externalJobId,
+      });
+
+      if (!stored || stored.length === 0) {
+        throw new Error('Failed to upload image to storage');
+      }
+
+      const img = stored[0];
+
+      // Update job status
+      await this.generationJobsRepo.updateById(jobId, {
+        status: 'completed',
+        completedCount: 1,
+        output: {
+          imageIds: [imageId],
+          images: [
+            {
+              id: imageId,
+              url: img.url,
+              thumbnailUrl: img.thumbnailUrl,
+              s3Key: img.key,
+            },
+          ],
+        },
+      });
+
+      // Update image record
+      await this.imagesRepo.updateById({
+        id: imageId,
+        userId: trackedJob.userId,
+        patch: {
+          s3Key: img.key,
+          thumbnailKey: img.key, // Use same key for thumbnail (StoredImage doesn't have separate thumbnailKey)
+          thumbnailUrl: img.thumbnailUrl,
+          status: 'completed',
+        },
+      });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : 'Modal.com generation failed';
+      
+      await this.generationJobsRepo.updateById(jobId, {
+        status: 'failed',
+        output: {
+          error: message,
+        },
+      });
+
+      const trackedJob = await this.generationJobsRepo.getById(jobId);
+      if (trackedJob) {
+        await this.imagesRepo.updateById({
+          id: imageId,
+          userId: trackedJob.userId,
+          patch: {
+            status: 'failed',
+          },
+        });
+      }
+    }
   }
 
   private async runFalStudioJob(params: {

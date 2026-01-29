@@ -303,4 +303,8 @@ export default (): Config => ({
     webhookSecret: process.env.FINBY_WEBHOOK_SECRET || undefined,
     apiVersion: (process.env.FINBY_API_VERSION as 'v1' | 'v3') || 'v1',
   },
+  modalConfig: {
+    endpointUrl: process.env.MODAL_ENDPOINT_URL || '',
+    workspace: process.env.MODAL_WORKSPACE || '',
+  },
 });

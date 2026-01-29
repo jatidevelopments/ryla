@@ -20,7 +20,7 @@ export class AwsS3Service {
   private readonly logger = new Logger(AwsS3Service.name);
   private awsConfig!: AwsConfig;
   private s3Client!: S3Client;
-  private isConfigured = false;
+  private _isConfigured = false;
   private initialized = false;
 
   constructor(@Optional() private readonly configService: ConfigService<Config> | null) {
@@ -61,7 +61,7 @@ export class AwsS3Service {
         region: 'us-east-1',
         credentials: { accessKeyId: 'dummy', secretAccessKey: 'dummy' },
       });
-      this.isConfigured = false;
+      this._isConfigured = false;
       return;
     }
 
@@ -74,7 +74,7 @@ export class AwsS3Service {
       endpoint,
       forcePathStyle,
     };
-    this.isConfigured = true;
+    this._isConfigured = true;
 
     // Build S3 client options
     const s3Options: {
@@ -103,6 +103,15 @@ export class AwsS3Service {
     );
   }
 
+  /**
+   * Check if S3 is configured
+   * Triggers lazy initialization if not already initialized
+   */
+  public isConfigured(): boolean {
+    this.ensureInitialized();
+    return this._isConfigured;
+  }
+
   public async uploadFile(
     file: ImageFileInterface,
     itemType: ContentType,
@@ -110,7 +119,7 @@ export class AwsS3Service {
   ): Promise<string> {
     this.ensureInitialized();
 
-    if (!this.isConfigured) {
+    if (!this._isConfigured) {
       this.logger.error('S3 not configured! Missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
       throw new ServiceUnavailableException(
         'S3 storage not configured. Check AWS_S3_ACCESS_KEY and AWS_S3_SECRET_KEY environment variables.',
@@ -158,7 +167,7 @@ export class AwsS3Service {
   ): Promise<string> {
     this.ensureInitialized();
 
-    if (!this.isConfigured) {
+    if (!this._isConfigured) {
       this.logger.error('S3 not configured! Missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
       throw new ServiceUnavailableException(
         'S3 storage not configured. Check AWS_S3_ACCESS_KEY and AWS_S3_SECRET_KEY environment variables.',
@@ -190,6 +199,13 @@ export class AwsS3Service {
   public async getFileUrl(filePath: string): Promise<string> {
     this.ensureInitialized();
 
+    if (!this._isConfigured) {
+      this.logger.error('S3 not configured! Missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
+      throw new ServiceUnavailableException(
+        'S3 storage not configured. Check AWS_S3_ACCESS_KEY and AWS_S3_SECRET_KEY environment variables.',
+      );
+    }
+
     try {
       const command = new GetObjectCommand({
         Bucket: this.awsConfig.bucketName,
@@ -207,6 +223,13 @@ export class AwsS3Service {
 
   public async getFileBase64(filePath: string): Promise<string> {
     this.ensureInitialized();
+
+    if (!this._isConfigured) {
+      this.logger.error('S3 not configured! Missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
+      throw new ServiceUnavailableException(
+        'S3 storage not configured. Check AWS_S3_ACCESS_KEY and AWS_S3_SECRET_KEY environment variables.',
+      );
+    }
 
     try {
       // Create command to get object from S3 bucket
@@ -248,6 +271,13 @@ export class AwsS3Service {
 
   public async deleteFile(filePath: string): Promise<void> {
     this.ensureInitialized();
+
+    if (!this._isConfigured) {
+      this.logger.error('S3 not configured! Missing AWS_S3_ACCESS_KEY or AWS_S3_SECRET_KEY');
+      throw new ServiceUnavailableException(
+        'S3 storage not configured. Check AWS_S3_ACCESS_KEY and AWS_S3_SECRET_KEY environment variables.',
+      );
+    }
 
     await this.s3Client.send(
       new DeleteObjectCommand({
