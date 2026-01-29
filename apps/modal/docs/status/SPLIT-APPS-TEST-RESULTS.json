@@ -1,0 +1,87 @@
+{
+  "timestamp": "2026-01-28T15:20:37.933930",
+  "workspace": "ryla",
+  "results": {
+    "/flux": {
+      "success": false,
+      "message": "HTTP 404: modal-http: invalid function call\n",
+      "data": {
+        "status_code": 404,
+        "error": "modal-http: invalid function call\n"
+      },
+      "app": "ryla-flux"
+    },
+    "/flux-dev": {
+      "success": false,
+      "message": "HTTP 404: modal-http: invalid function call\n",
+      "data": {
+        "status_code": 404,
+        "error": "modal-http: invalid function call\n"
+      },
+      "app": "ryla-flux"
+    },
+    "/wan2": {
+      "success": false,
+      "message": "HTTP 404: modal-http: invalid function call\n",
+      "data": {
+        "status_code": 404,
+        "error": "modal-http: invalid function call\n"
+      },
+      "app": "ryla-wan2"
+    },
+    "/seedvr2": {
+      "success": false,
+      "message": "HTTPSConnectionPool(host='ryla--ryla-seedvr2-comfyui-fastapi-app.modal.run', port=443): Max retries exceeded with url: /seedvr2 (Caused by SSLError(SSLError(5, '[SYS] unknown error (_ssl.c:2427)')))",
+      "data": {},
+      "app": "ryla-seedvr2"
+    },
+    "/flux-instantid": {
+      "success": false,
+      "message": "Skipped - requires reference image",
+      "data": {},
+      "app": "ryla-instantid"
+    },
+    "/sdxl-instantid": {
+      "success": false,
+      "message": "Skipped - requires reference image",
+      "data": {},
+      "app": "ryla-instantid"
+    },
+    "/flux-ipadapter-faceid": {
+      "success": false,
+      "message": "Skipped - requires reference image",
+      "data": {},
+      "app": "ryla-instantid"
+    },
+    "/z-image-simple": {
+      "success": false,
+      "message": "Skipped - may have model issues",
+      "data": {},
+      "app": "ryla-z-image"
+    },
+    "/z-image-danrisi": {
+      "success": false,
+      "message": "Skipped - may have model issues",
+      "data": {},
+      "app": "ryla-z-image"
+    },
+    "/z-image-instantid": {
+      "success": false,
+      "message": "Skipped - may have model issues",
+      "data": {},
+      "app": "ryla-z-image"
+    },
+    "/z-image-pulid": {
+      "success": false,
+      "message": "Skipped - may have model issues",
+      "data": {},
+      "app": "ryla-z-image"
+    }
+  },
+  "summary": {
+    "total": 11,
+    "working": 0,
+    "failed": 4,
+    "skipped": 7
+  }
+}

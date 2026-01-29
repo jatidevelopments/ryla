@@ -27,13 +27,39 @@ class WorkflowHandler:
         
         workflow_data = item["workflow"]
         
+        # Check if it's UI format (has "nodes" key) or API format (numeric string keys)
+        is_ui_format = isinstance(workflow_data, dict) and "nodes" in workflow_data
+        
+        if is_ui_format:
+            # UI format - need to convert or use comfy run
+            # Try to convert via converter endpoint first
+            port = getattr(self.comfyui, 'port', 8000)
+            comfy_url = f"http://127.0.0.1:{port}"
+            
+            try:
+                import urllib.request
+                convert_data = json.dumps(workflow_data).encode("utf-8")
+                convert_request = urllib.request.Request(
+                    f"{comfy_url}/workflow/convert",
+                    data=convert_data,
+                    headers={"Content-Type": "application/json"},
+                )
+                convert_response = urllib.request.urlopen(convert_request, timeout=10)
+                convert_result = json.loads(convert_response.read().decode("utf-8"))
+                workflow_data = convert_result.get("prompt") or convert_result
+                print("✅ Converted UI workflow to API format")
+            except Exception as e:
+                print(f"⚠️  Converter endpoint failed: {e}. Using comfy run with UI format...")
+                # Fall through to comfy run which can handle UI format
+        
         # Update prompt if provided
         if "prompt" in item:
             # Find CLIPTextEncode nodes and update
-            for node in workflow_data.values():
-                if node.get("class_type") == "CLIPTextEncode":
-                    if "text" in node.get("inputs", {}):
-                        node["inputs"]["text"] = item["prompt"]
+            if isinstance(workflow_data, dict):
+                for node in workflow_data.values():
+                    if isinstance(node, dict) and node.get("class_type") == "CLIPTextEncode":
+                        if "text" in node.get("inputs", {}):
+                            node["inputs"]["text"] = item["prompt"]
         
         # Save workflow to temp file
         client_id = uuid.uuid4().hex

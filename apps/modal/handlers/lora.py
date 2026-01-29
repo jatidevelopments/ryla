@@ -126,11 +126,17 @@ class LoRAHandler:
     
     def _flux_lora_impl(self, item: dict) -> Response:
         """Flux Dev + LoRA implementation."""
-        if "lora_id" not in item:
-            raise HTTPException(status_code=400, detail="lora_id is required")
+        if "lora_id" not in item and "lora_name" not in item:
+            raise HTTPException(status_code=400, detail="lora_id or lora_name is required")
         
-        lora_id = item["lora_id"]
-        lora_filename = f"character-{lora_id}.safetensors"
+        # Support both lora_id (auto-prefixed) and lora_name (direct filename)
+        if "lora_name" in item:
+            lora_filename = item["lora_name"]
+            if not lora_filename.endswith(".safetensors"):
+                lora_filename += ".safetensors"
+        else:
+            lora_id = item["lora_id"]
+            lora_filename = f"character-{lora_id}.safetensors"
         
         # Check LoRA in ComfyUI loras directory (models should be symlinked there from volume)
         comfy_lora_path = Path(f"/root/comfy/ComfyUI/models/loras/{lora_filename}")
@@ -149,7 +155,7 @@ class LoRAHandler:
         if not comfy_lora_path.exists() and not volume_lora_path.exists():
             raise HTTPException(
                 status_code=404,
-                detail=f"LoRA {lora_id} not found. Expected: {lora_filename} in /root/models/loras/ or /root/comfy/ComfyUI/models/loras/"
+                detail=f"LoRA not found. Expected: {lora_filename} in /root/models/loras/ or /root/comfy/ComfyUI/models/loras/"
             )
         
         # Start cost tracking
@@ -159,13 +165,12 @@ class LoRAHandler:
         # Build workflow
         workflow = build_flux_lora_workflow(item, lora_filename)
         
-        # Save workflow to temp file
-        client_id = uuid.uuid4().hex
-        workflow_file = f"/tmp/{client_id}.json"
-        json.dump(workflow, Path(workflow_file).open("w"))
+        # Get port
+        port = getattr(self.comfyui, 'port', 8000)
         
-        # Execute
-        img_bytes = self.comfyui.infer.local(workflow_file)
+        # Execute via API
+        from comfyui import execute_workflow_via_api
+        img_bytes = execute_workflow_via_api(workflow, port=port, timeout=600)
         
         # Calculate cost
         execution_time = tracker.stop()

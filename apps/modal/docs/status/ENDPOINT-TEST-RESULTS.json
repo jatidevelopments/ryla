@@ -1,0 +1,122 @@
+{
+  "test_date": "2026-01-28T15:00:18.476237",
+  "base_url": "https://ryla--ryla-comfyui-comfyui-fastapi-app.modal.run",
+  "results": {
+    "/flux": {
+      "status": "success",
+      "message": "Success",
+      "data": {
+        "status_code": 200,
+        "response_time": 18.847556,
+        "size_kb": 1638.14453125,
+        "cost": "N/A",
+        "exec_time": "N/A"
+      }
+    },
+    "/flux-dev": {
+      "status": "success",
+      "message": "Success",
+      "data": {
+        "status_code": 200,
+        "response_time": 62.495239,
+        "size_kb": 1204.8828125,
+        "cost": "N/A",
+        "exec_time": "N/A"
+      }
+    },
+    "/flux-ipadapter-faceid": {
+      "status": "failed",
+      "message": "HTTP 503: {\"error\":\"Both API and infer methods failed.\\nAPI Error: Workflow failed at node unknown (unknown): {\\\"status_str\\\": \\\"error\\\", \\\"completed\\\": false, \\\"messages\\\": [[\\\"execution_start\\\", {\\\"prompt_id\\\": \\\"fb5134cd-283f-4c67-8d4f-58177a8154b4\\\", \\\"timestamp\\\": 1769608622912}], [\\\"execution_cached\\\", {\\\"nodes\\\": [\\\"1\\\", \\\"2\\\", \\\"3\\\", \\\"9\\\", \\\"10\\\"], \\\"prompt_id\\\": \\\"fb5134cd-283f-4c67-8d4f-58177a8154b4\\\", \\\"timestamp\\\": 1769608622913}], [\\\"execution_error\\\", {\\\"prompt_id\\\": \\\"fb5134cd-283f-4c67-8d",
+      "data": {
+        "status_code": 503,
+        "error": "{\"error\":\"Both API and infer methods failed.\\nAPI Error: Workflow failed at node unknown (unknown): {\\\"status_str\\\": \\\"error\\\", \\\"completed\\\": false, \\\"messages\\\": [[\\\"execution_start\\\", {\\\"prompt_id\\\": \\\"fb5134cd-283f-4c67-8d4f-58177a8154b4\\\", \\\"timestamp\\\": 1769608622912}], [\\\"execution_cached\\\", {\\\"nodes\\\": [\\\"1\\\", \\\"2\\\", \\\"3\\\", \\\"9\\\", \\\"10\\\"], \\\"prompt_id\\\": \\\"fb5134cd-283f-4c67-8d4f-58177a8154b4\\\", \\\"timestamp\\\": 1769608622913}], [\\\"execution_error\\\", {\\\"prompt_id\\\": \\\"fb5134cd-283f-4c67-8d"
+      }
+    },
+    "/sdxl-instantid": {
+      "status": "failed",
+      "message": "HTTP 503: {\"error\":\"Both API and infer methods failed.\\nAPI Error: Workflow failed at node unknown (unknown): {\\\"status_str\\\": \\\"error\\\", \\\"completed\\\": false, \\\"messages\\\": [[\\\"execution_start\\\", {\\\"prompt_id\\\": \\\"b56613b2-a151-4ee9-bb31-73e1c254e6f1\\\", \\\"timestamp\\\": 1769608689972}], [\\\"execution_cached\\\", {\\\"nodes\\\": [], \\\"prompt_id\\\": \\\"b56613b2-a151-4ee9-bb31-73e1c254e6f1\\\", \\\"timestamp\\\": 1769608690003}], [\\\"execution_error\\\", {\\\"prompt_id\\\": \\\"b56613b2-a151-4ee9-bb31-73e1c254e6f1\\\", \\\"node_id\\\": \\\"",
+      "data": {
+        "status_code": 503,
+        "error": "{\"error\":\"Both API and infer methods failed.\\nAPI Error: Workflow failed at node unknown (unknown): {\\\"status_str\\\": \\\"error\\\", \\\"completed\\\": false, \\\"messages\\\": [[\\\"execution_start\\\", {\\\"prompt_id\\\": \\\"b56613b2-a151-4ee9-bb31-73e1c254e6f1\\\", \\\"timestamp\\\": 1769608689972}], [\\\"execution_cached\\\", {\\\"nodes\\\": [], \\\"prompt_id\\\": \\\"b56613b2-a151-4ee9-bb31-73e1c254e6f1\\\", \\\"timestamp\\\": 1769608690003}], [\\\"execution_error\\\", {\\\"prompt_id\\\": \\\"b56613b2-a151-4ee9-bb31-73e1c254e6f1\\\", \\\"node_id\\\": \\\""
+      }
+    },
+    "/flux-instantid": {
+      "status": "expected_fail",
+      "message": "HTTP 503: {\"error\":\"Both API and infer methods failed.\\nAPI Error: Workflow failed at node unknown (unknown): {\\\"status_str\\\": \\\"error\\\", \\\"completed\\\": false, \\\"messages\\\": [[\\\"execution_start\\\", {\\\"prompt_id\\\": \\\"32d078d2-5c35-4f61-be8b-2a1887a660f9\\\", \\\"timestamp\\\": 1769608712843}], [\\\"execution_cached\\\", {\\\"nodes\\\": [\\\"20\\\", \\\"21\\\", \\\"22\\\"], \\\"prompt_id\\\": \\\"32d078d2-5c35-4f61-be8b-2a1887a660f9\\\", \\\"timestamp\\\": 1769608712855}], [\\\"execution_error\\\", {\\\"prompt_id\\\": \\\"32d078d2-5c35-4f61-be8b-2a1887a66",
+      "data": {
+        "status_code": 503,
+        "error": "{\"error\":\"Both API and infer methods failed.\\nAPI Error: Workflow failed at node unknown (unknown): {\\\"status_str\\\": \\\"error\\\", \\\"completed\\\": false, \\\"messages\\\": [[\\\"execution_start\\\", {\\\"prompt_id\\\": \\\"32d078d2-5c35-4f61-be8b-2a1887a660f9\\\", \\\"timestamp\\\": 1769608712843}], [\\\"execution_cached\\\", {\\\"nodes\\\": [\\\"20\\\", \\\"21\\\", \\\"22\\\"], \\\"prompt_id\\\": \\\"32d078d2-5c35-4f61-be8b-2a1887a660f9\\\", \\\"timestamp\\\": 1769608712855}], [\\\"execution_error\\\", {\\\"prompt_id\\\": \\\"32d078d2-5c35-4f61-be8b-2a1887a66"
+      },
+      "note": "Known incompatible endpoint"
+    },
+    "/wan2": {
+      "status": "success",
+      "message": "Success",
+      "data": {
+        "status_code": 200,
+        "response_time": 19.837583,
+        "size_kb": 713.283203125,
+        "cost": "N/A",
+        "exec_time": "N/A"
+      }
+    },
+    "/seedvr2": {
+      "status": "success",
+      "message": "Success",
+      "data": {
+        "status_code": 200,
+        "response_time": 35.490137,
+        "size_kb": 1711.669921875,
+        "cost": "N/A",
+        "exec_time": "N/A"
+      }
+    },
+    "/z-image-simple": {
+      "status": "failed",
+      "message": "HTTP 500: {\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/311f9de24c654ad0a2ca1c8bdeb577d3.json\\nCached : VAELoader (3)\\nCached : EmptySD3LatentImage (6)\\nExecuting : CLIPLoader (2)\\nError running workflow\\n{\\n  \\\"prompt_id\\\": \\\"7bd6b9c9-b5bf-4db3-a34d-80e45b38bf14\\\",\\n  \\\"node_id\\\": \\\"2\\\",\\n  \\\"node_type\\\": \\\"CLIPLoader\\\",\\n  \\\"executed\\\": [],\\n  \\\"exception_message\\\": \\\"Error(s) in loading state_dict for Llama2:\\\\n\\\\tsize \\nmismatch for model.embed_tokens.weight: copy",
+      "data": {
+        "status_code": 500,
+        "error": "{\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/311f9de24c654ad0a2ca1c8bdeb577d3.json\\nCached : VAELoader (3)\\nCached : EmptySD3LatentImage (6)\\nExecuting : CLIPLoader (2)\\nError running workflow\\n{\\n  \\\"prompt_id\\\": \\\"7bd6b9c9-b5bf-4db3-a34d-80e45b38bf14\\\",\\n  \\\"node_id\\\": \\\"2\\\",\\n  \\\"node_type\\\": \\\"CLIPLoader\\\",\\n  \\\"executed\\\": [],\\n  \\\"exception_message\\\": \\\"Error(s) in loading state_dict for Llama2:\\\\n\\\\tsize \\nmismatch for model.embed_tokens.weight: copy"
+      }
+    },
+    "/z-image-danrisi": {
+      "status": "failed",
+      "message": "HTTP 500: {\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/76abf15b13e4433ebc79a886d75ffa90.json\\n                                           0% 0:00:00  \\nError running workflow\\nAn unknown error occurred\\n\\n\",\"details\":\"Traceback (most recent call last):\\n  File \\\"/root/utils/comfyui.py\\\", line 612, in execute_workflow\\n    return execute_workflow_via_api(workflow, port=8000, timeout=timeout)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  ",
+      "data": {
+        "status_code": 500,
+        "error": "{\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/76abf15b13e4433ebc79a886d75ffa90.json\\n                                           0% 0:00:00  \\nError running workflow\\nAn unknown error occurred\\n\\n\",\"details\":\"Traceback (most recent call last):\\n  File \\\"/root/utils/comfyui.py\\\", line 612, in execute_workflow\\n    return execute_workflow_via_api(workflow, port=8000, timeout=timeout)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  "
+      }
+    },
+    "/z-image-instantid": {
+      "status": "failed",
+      "message": "HTTP 500: {\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/fa7372906b82461f9bd4f51d596daeac.json\\n                                           0% 0:00:00  \\nError running workflow\\nAn unknown error occurred\\n\\n\",\"details\":\"Traceback (most recent call last):\\n  File \\\"/root/utils/comfyui.py\\\", line 612, in execute_workflow\\n    return execute_workflow_via_api(workflow, port=8000, timeout=timeout)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  ",
+      "data": {
+        "status_code": 500,
+        "error": "{\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/fa7372906b82461f9bd4f51d596daeac.json\\n                                           0% 0:00:00  \\nError running workflow\\nAn unknown error occurred\\n\\n\",\"details\":\"Traceback (most recent call last):\\n  File \\\"/root/utils/comfyui.py\\\", line 612, in execute_workflow\\n    return execute_workflow_via_api(workflow, port=8000, timeout=timeout)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  "
+      }
+    },
+    "/z-image-pulid": {
+      "status": "failed",
+      "message": "HTTP 500: {\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/5df6c7c051b041c19099f75555f997c7.json\\n                                           0% 0:00:00  \\nError running workflow\\nAn unknown error occurred\\n\\n\",\"details\":\"Traceback (most recent call last):\\n  File \\\"/root/utils/comfyui.py\\\", line 612, in execute_workflow\\n    return execute_workflow_via_api(workflow, port=8000, timeout=timeout)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  ",
+      "data": {
+        "status_code": 500,
+        "error": "{\"error\":\"Workflow execution failed (exit code 1)\\nStdout: Executing workflow: /tmp/5df6c7c051b041c19099f75555f997c7.json\\n                                           0% 0:00:00  \\nError running workflow\\nAn unknown error occurred\\n\\n\",\"details\":\"Traceback (most recent call last):\\n  File \\\"/root/utils/comfyui.py\\\", line 612, in execute_workflow\\n    return execute_workflow_via_api(workflow, port=8000, timeout=timeout)\\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\\n  "
+      }
+    },
+    "/flux-lora": {
+      "status": "skipped",
+      "note": "Requires LoRA file in Modal volume"
+    },
+    "/workflow": {
+      "status": "skipped",
+      "note": "Requires valid workflow JSON"
+    }
+  },
+  "summary": {
+    "total": 13,
+    "success": 4,
+    "failed": 6,
+    "skipped": 2,
+    "expected_fail": 1
+  }
+}
