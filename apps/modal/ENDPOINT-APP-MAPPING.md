@@ -39,10 +39,11 @@
 
 ### Video Generation - Wan 2.6 (`ryla-wan26`)
 
-| Endpoint      | Full URL                                                            | Purpose                  |
-| ------------- | ------------------------------------------------------------------- | ------------------------ |
-| `/wan2.6`     | `https://ryla--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6`     | Text-to-video            |
-| `/wan2.6-r2v` | `https://ryla--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6-r2v` | Reference video to video |
+| Endpoint       | Full URL                                                             | Purpose                        |
+| -------------- | -------------------------------------------------------------------- | ------------------------------ |
+| `/wan2.6`      | `https://ryla--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6`      | Text-to-video                  |
+| `/wan2.6-r2v`  | `https://ryla--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6-r2v`  | Reference video to video       |
+| `/wan2.6-lora` | `https://ryla--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6-lora` | T2V with custom character LoRA |
 
 ### Z-Image Turbo (`ryla-z-image`)
 
@@ -99,6 +100,7 @@ def get_endpoint_url(endpoint: str, workspace: str = "ryla") -> str:
         # Wan 2.6
         "/wan2.6": "ryla-wan26",
         "/wan2.6-r2v": "ryla-wan26",
+        "/wan2.6-lora": "ryla-wan26",
         # Z-Image
         "/z-image-simple": "ryla-z-image",
         "/z-image-danrisi": "ryla-z-image",
@@ -142,6 +144,7 @@ const ENDPOINT_APP_MAP: Record<string, string> = {
   // Wan 2.6 (Video)
   '/wan2.6': 'ryla-wan26',
   '/wan2.6-r2v': 'ryla-wan26',
+  '/wan2.6-lora': 'ryla-wan26',
   // Z-Image (Fast T2I)
   '/z-image-simple': 'ryla-z-image',
   '/z-image-danrisi': 'ryla-z-image',
@@ -181,6 +184,7 @@ function getEndpointUrl(endpoint: string, workspace = 'ryla'): string {
 | **Face Consistency**  | `/flux-instantid`          | `/flux-pulid`     |
 | **Video (T2V)**       | `/wan2.6`                  | -                 |
 | **Video (V2V)**       | `/wan2.6-r2v`              | -                 |
+| **Video + LoRA**      | `/wan2.6-lora`             | -                 |
 | **Upscaling**         | `/seedvr2`                 | -                 |
 
 ---

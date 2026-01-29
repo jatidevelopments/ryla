@@ -4,21 +4,23 @@ Wan 2.6 workflow handlers.
 Handles Wan 2.6 text-to-video and R2V generation:
 - wan2.6: Standard text-to-video (upgraded from 2.1)
 - wan2.6-r2v: Reference-to-video for character consistency
+- wan2.6-lora: Text-to-video with custom character LoRA
 
 Model: Wan 2.6 (Apache 2.0 - Free for commercial use)
 Features:
 - R2V support (1-3 reference videos for character consistency)
+- LoRA support for trained character consistency
 - Better quality than 2.1
-- No LoRA training required for consistency
 """
 
 import json
 import uuid
 import base64
 import os
+import subprocess
 from pathlib import Path
 from typing import Dict, Optional, List
-from fastapi import Response
+from fastapi import Response, HTTPException
 
 # Import from shared utils
 import sys
@@ -368,6 +370,154 @@ def build_wan26_r2v_workflow(
     return workflow
 
 
+def build_wan26_lora_workflow(
+    prompt: str,
+    lora_filename: str,
+    width: int = 832,
+    height: int = 480,
+    length: int = 33,
+    steps: int = 30,
+    cfg: float = 6.0,
+    fps: int = 16,
+    seed: Optional[int] = None,
+    negative_prompt: str = "",
+    lora_strength: float = 1.0,
+    trigger_word: Optional[str] = None,
+) -> dict:
+    """
+    Build Wan 2.6 text-to-video workflow with custom LoRA.
+    
+    Args:
+        prompt: Text prompt for video generation
+        lora_filename: LoRA filename (e.g., "character-123.safetensors")
+        width: Video width (default: 832)
+        height: Video height (default: 480)
+        length: Number of frames (default: 33)
+        steps: Sampling steps (default: 30)
+        cfg: CFG scale (default: 6.0)
+        fps: Frames per second (default: 16)
+        seed: Random seed (None for random)
+        negative_prompt: Negative prompt (default: "")
+        lora_strength: LoRA strength (default: 1.0, typical: 1.0-2.0)
+        trigger_word: Trigger word to prepend to prompt (optional)
+    
+    Returns:
+        ComfyUI workflow dictionary
+    """
+    if seed is None:
+        import random
+        seed = random.randint(0, 2**32 - 1)
+    
+    # Prepend trigger word if provided
+    full_prompt = f"{trigger_word} {prompt}".strip() if trigger_word else prompt
+    
+    return {
+        # UNET Loader (Wan 2.6)
+        "37": {
+            "class_type": "UNETLoader",
+            "inputs": {
+                "unet_name": "wan2.6_t2v_1.3B_fp16.safetensors",
+                "weight_dtype": "default",
+            },
+        },
+        # LoRA Loader (applied to model only, before ModelSamplingSD3)
+        "50": {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["37", 0],
+                "lora_name": lora_filename,
+                "strength_model": lora_strength,
+            },
+        },
+        # CLIP Loader
+        "38": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+                "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+                "type": "wan",
+                "device": "default",
+            },
+        },
+        # VAE Loader
+        "39": {
+            "class_type": "VAELoader",
+            "inputs": {
+                "vae_name": "wan_2.6_vae.safetensors",
+            },
+        },
+        # Model Sampling patch (uses LoRA-modified model)
+        "48": {
+            "class_type": "ModelSamplingSD3",
+            "inputs": {
+                "model": ["50", 0],  # Use LoRA-modified model
+                "shift": 8,
+            },
+        },
+        # Empty Latent Video
+        "40": {
+            "class_type": "EmptyHunyuanLatentVideo",
+            "inputs": {
+                "width": width,
+                "height": height,
+                "length": length,
+                "batch_size": 1,
+            },
+        },
+        # Positive prompt encoding
+        "6": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": full_prompt,
+                "clip": ["38", 0],
+            },
+        },
+        # Negative prompt encoding
+        "7": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": negative_prompt,
+                "clip": ["38", 0],
+            },
+        },
+        # KSampler
+        "3": {
+            "class_type": "KSampler",
+            "inputs": {
+                "seed": seed,
+                "steps": steps,
+                "cfg": cfg,
+                "sampler_name": "uni_pc",
+                "scheduler": "simple",
+                "denoise": 1,
+                "model": ["48", 0],
+                "positive": ["6", 0],
+                "negative": ["7", 0],
+                "latent_image": ["40", 0],
+            },
+        },
+        # VAE Decode
+        "8": {
+            "class_type": "VAEDecode",
+            "inputs": {
+                "samples": ["3", 0],
+                "vae": ["39", 0],
+            },
+        },
+        # Save as animated WEBP
+        "28": {
+            "class_type": "SaveAnimatedWEBP",
+            "inputs": {
+                "filename_prefix": uuid.uuid4().hex,
+                "fps": fps,
+                "lossless": False,
+                "quality": 90,
+                "method": "default",
+                "images": ["8", 0],
+            },
+        },
+    }
+
+
 class Wan26Handler:
     """Handler for Wan 2.6 API endpoints."""
     
@@ -509,6 +659,107 @@ class Wan26Handler:
         response.headers["X-Reference-Count"] = str(len(reference_filenames))
         
         return response
+    
+    def _wan26_lora_impl(self, item: dict) -> Response:
+        """
+        Generate video using Wan 2.6 with custom character LoRA.
+        
+        Args:
+            item: Request payload with prompt, lora_id/lora_name, etc.
+        
+        Returns:
+            Response with generated video
+        """
+        # Validate LoRA parameter
+        if "lora_id" not in item and "lora_name" not in item:
+            raise HTTPException(status_code=400, detail="lora_id or lora_name is required")
+        
+        # Support both lora_id (auto-prefixed) and lora_name (direct filename)
+        if "lora_name" in item:
+            lora_filename = item["lora_name"]
+            if not lora_filename.endswith(".safetensors"):
+                lora_filename += ".safetensors"
+        else:
+            lora_id = item["lora_id"]
+            lora_filename = f"character-{lora_id}.safetensors"
+        
+        # Check LoRA in ComfyUI loras directory
+        comfy_lora_path = Path(f"/root/comfy/ComfyUI/models/loras/{lora_filename}")
+        volume_lora_path = Path(f"/root/models/loras/{lora_filename}")
+        
+        # If LoRA exists in volume but not in ComfyUI directory, symlink it
+        if volume_lora_path.exists() and not comfy_lora_path.exists():
+            comfy_lora_path.parent.mkdir(parents=True, exist_ok=True)
+            subprocess.run(
+                f"ln -s {volume_lora_path} {comfy_lora_path}",
+                shell=True,
+                check=False,
+            )
+        
+        # Check if LoRA exists
+        if not comfy_lora_path.exists() and not volume_lora_path.exists():
+            raise HTTPException(
+                status_code=404,
+                detail=f"LoRA not found: {lora_filename}. Upload to /root/models/loras/"
+            )
+        
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        
+        # Parse request
+        prompt = item.get("prompt")
+        if not prompt:
+            raise ValueError("prompt is required")
+        
+        width = item.get("width", 832)
+        height = item.get("height", 480)
+        length = item.get("length", 33)
+        steps = item.get("steps", 30)
+        cfg = item.get("cfg", 6.0)
+        fps = item.get("fps", 16)
+        seed = item.get("seed")
+        negative_prompt = item.get("negative_prompt", "")
+        lora_strength = item.get("lora_strength", 1.0)
+        trigger_word = item.get("trigger_word")
+        
+        # Build workflow with custom LoRA
+        workflow = build_wan26_lora_workflow(
+            prompt=prompt,
+            lora_filename=lora_filename,
+            width=width,
+            height=height,
+            length=length,
+            steps=steps,
+            cfg=cfg,
+            fps=fps,
+            seed=seed,
+            negative_prompt=negative_prompt,
+            lora_strength=lora_strength,
+            trigger_word=trigger_word,
+        )
+        
+        # Save workflow to temp file
+        workflow_file = f"/tmp/{uuid.uuid4().hex}.json"
+        with open(workflow_file, "w") as f:
+            json.dump(workflow, f)
+        
+        # Execute workflow
+        output_bytes = self.comfyui.infer.local(workflow_file)
+        
+        # Calculate cost
+        execution_time = tracker.stop()
+        cost_metrics = tracker.calculate_cost("wan2.6-lora", execution_time)
+        
+        # Build response
+        response = Response(output_bytes, media_type="image/webp")
+        response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+        response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+        response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+        response.headers["X-Model"] = "wan2.6-lora"
+        response.headers["X-LoRA"] = lora_filename
+        response.headers["X-Frames"] = str(length)
+        
+        return response
 
 
 def setup_wan26_endpoints(fastapi, comfyui_instance):
@@ -574,6 +825,44 @@ def setup_wan26_endpoints(fastapi, comfyui_instance):
         """
         item = await request.json()
         result = handler._wan26_r2v_impl(item)
+        
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        return response
+    
+    @fastapi.post("/wan2.6-lora")
+    async def wan26_lora_route(request: Request):
+        """
+        Generate video using Wan 2.6 with custom character LoRA.
+        
+        Request body:
+        - prompt: str - Text prompt (required)
+        - lora_id: str - Character LoRA ID (auto-prefixed to "character-{id}.safetensors")
+        - lora_name: str - Direct LoRA filename (alternative to lora_id)
+        - lora_strength: float - LoRA strength (default: 1.0, typical: 1.0-2.0)
+        - trigger_word: str - Trigger word to prepend to prompt (optional)
+        - width: int - Video width (default: 832)
+        - height: int - Video height (default: 480)
+        - length: int - Number of frames (default: 33)
+        - steps: int - Sampling steps (default: 30)
+        - cfg: float - CFG scale (default: 6.0)
+        - fps: int - Frames per second (default: 16)
+        - seed: int - Random seed (optional)
+        - negative_prompt: str - Negative prompt (default: "")
+        
+        Returns:
+        - image/webp (animated WEBP) with cost headers
+        
+        Note: LoRA must be uploaded to /root/models/loras/ on the Modal volume.
+        WAN LoRAs typically use higher strength (1.0-2.0) than image models.
+        """
+        item = await request.json()
+        result = handler._wan26_lora_impl(item)
         
         response = FastAPIResponse(
             content=result.body,

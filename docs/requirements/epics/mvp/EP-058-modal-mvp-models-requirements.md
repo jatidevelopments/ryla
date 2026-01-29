@@ -123,7 +123,7 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 | **Qwen-Image 2512**      | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/qwen-image-2512-lora` deployed ✅ |
 | **Qwen-Image 2512 Fast** | ⚠️ N/A        | ✅ Built-in  | Lightning LoRA      | Already uses LoRA                   |
 | **Qwen-Image Edit 2511** | ❓ Unknown    | ❓ Unknown   | Research needed     | Needs research                      |
-| **Wan 2.6 Video**        | ✅ Supported  | ⏳ Pending   | Musubi Tuner        | Endpoint needed                     |
+| **Wan 2.6 Video**        | ✅ Supported  | ✅ Live      | Musubi Tuner        | `/wan2.6-lora` deployed ✅          |
 | **Flux Dev**             | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
 | **Flux Schnell**         | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
 | **Z-Image Turbo**        | ✅ Supported  | ⏳ Pending   | AI Toolkit (Ostris) | Endpoint needed                     |
@@ -138,7 +138,8 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 
 **Remaining Tasks:**
 
-- [ ] Create `/wan2.6-lora` endpoint for video LoRA
+- [x] Create `/wan2.6-lora` endpoint for video LoRA (handler created)
+- [x] Deploy and test `/wan2.6-lora` endpoint (deployed 2026-01-29)
 - [ ] Create `/z-image-lora` endpoint (if needed)
 - [ ] Document LoRA workflow for all models
 - [ ] Research Qwen-Edit LoRA support
