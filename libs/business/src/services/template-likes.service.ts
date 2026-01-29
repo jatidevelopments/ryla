@@ -6,6 +6,8 @@
  * Initiative: IN-011 (Template Gallery & Content Library)
  */
 
+import 'server-only';
+
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@ryla/data/schema';
 import {
@@ -14,7 +16,7 @@ import {
 } from '@ryla/data/repositories/template-likes.repository';
 import { TemplatesRepository } from '@ryla/data/repositories/templates.repository';
 import { TemplateSetsRepository } from '@ryla/data/repositories/template-sets.repository';
-import type { Template, TemplateSet } from '@ryla/data/schema';
+import type { Template } from '@ryla/data/schema';
 
 export interface SetLikeResponse {
   liked: boolean;
@@ -43,7 +45,11 @@ export class TemplateLikesService {
     }
 
     // Check if public or curated (only public templates can be liked by non-owners)
-    if (!template.isPublic && !template.isCurated && template.userId !== userId) {
+    if (
+      !template.isPublic &&
+      !template.isCurated &&
+      template.userId !== userId
+    ) {
       throw new Error('Cannot like private template');
     }
 
@@ -68,7 +74,11 @@ export class TemplateLikesService {
     }
 
     // Check if public or curated
-    if (!template.isPublic && !template.isCurated && template.userId !== userId) {
+    if (
+      !template.isPublic &&
+      !template.isCurated &&
+      template.userId !== userId
+    ) {
       throw new Error('Cannot like private template');
     }
 

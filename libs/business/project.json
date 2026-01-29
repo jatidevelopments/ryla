@@ -4,10 +4,12 @@
   "projectType": "library",
   "sourceRoot": "libs/business/src",
   "tags": ["type:lib", "scope:business"],
+  "implicitDependencies": ["shared", "data"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build"],
       "options": {
         "outputPath": "dist/libs/business",
         "main": "libs/business/src/index.ts",

@@ -5,6 +5,8 @@
  * Integrates with PromptsService to record analytics.
  */
 
+import 'server-only';
+
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { PromptsRepository } from '@ryla/data/repositories';
 import type { Post } from '@ryla/data/schema';
@@ -99,4 +101,3 @@ export class PostPromptTrackingService {
     });
   }
 }
-

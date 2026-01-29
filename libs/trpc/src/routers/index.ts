@@ -14,3 +14,4 @@ export { templateSetsRouter } from './template-sets.router';
 export { templateCategoriesRouter } from './template-categories.router';
 export { templateTagsRouter } from './template-tags.router';
 export { templateLikesRouter } from './template-likes.router';
+export { funnelRouter } from './funnel.router';

@@ -6,6 +6,8 @@
  * Initiative: IN-011 (Template Gallery & Content Library)
  */
 
+import 'server-only';
+
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@ryla/data/schema';
 import {
@@ -64,17 +66,25 @@ export class TemplateSetService {
   /**
    * Create a new template set
    */
-  async create(userId: string, input: CreateTemplateSetInput): Promise<TemplateSetWithMembers> {
+  async create(
+    userId: string,
+    input: CreateTemplateSetInput
+  ): Promise<TemplateSetWithMembers> {
     // Validate name
     if (!input.name || input.name.trim().length === 0) {
       throw new Error('Template set name is required');
     }
     if (input.name.length > MAX_SET_NAME_LENGTH) {
-      throw new Error(`Template set name must be ${MAX_SET_NAME_LENGTH} characters or less`);
+      throw new Error(
+        `Template set name must be ${MAX_SET_NAME_LENGTH} characters or less`
+      );
     }
 
     // Validate description
-    if (input.description && input.description.length > MAX_SET_DESCRIPTION_LENGTH) {
+    if (
+      input.description &&
+      input.description.length > MAX_SET_DESCRIPTION_LENGTH
+    ) {
       throw new Error(
         `Template set description must be ${MAX_SET_DESCRIPTION_LENGTH} characters or less`
       );
@@ -82,10 +92,14 @@ export class TemplateSetService {
 
     // Validate member count
     if (!input.templateIds || input.templateIds.length < MIN_SET_MEMBERS) {
-      throw new Error(`Template set must have at least ${MIN_SET_MEMBERS} template(s)`);
+      throw new Error(
+        `Template set must have at least ${MIN_SET_MEMBERS} template(s)`
+      );
     }
     if (input.templateIds.length > MAX_SET_MEMBERS) {
-      throw new Error(`Template set can have maximum ${MAX_SET_MEMBERS} templates`);
+      throw new Error(
+        `Template set can have maximum ${MAX_SET_MEMBERS} templates`
+      );
     }
 
     // Validate templates exist
@@ -103,7 +117,9 @@ export class TemplateSetService {
     let previewImageUrl = input.previewImageUrl;
     let thumbnailUrl = input.thumbnailUrl;
     if (!previewImageUrl && input.templateIds.length > 0) {
-      const firstTemplate = await this.templatesRepo.findById(input.templateIds[0]);
+      const firstTemplate = await this.templatesRepo.findById(
+        input.templateIds[0]
+      );
       if (firstTemplate) {
         previewImageUrl = firstTemplate.previewImageUrl;
         thumbnailUrl = firstTemplate.thumbnailUrl;
@@ -157,7 +173,9 @@ export class TemplateSetService {
   /**
    * Find template set by ID with members
    */
-  async findByIdWithMembers(id: string): Promise<TemplateSetWithMembers | null> {
+  async findByIdWithMembers(
+    id: string
+  ): Promise<TemplateSetWithMembers | null> {
     return this.templateSetsRepo.findByIdWithMembers(id);
   }
 
@@ -184,7 +202,9 @@ export class TemplateSetService {
         throw new Error('Template set name is required');
       }
       if (input.name.length > MAX_SET_NAME_LENGTH) {
-        throw new Error(`Template set name must be ${MAX_SET_NAME_LENGTH} characters or less`);
+        throw new Error(
+          `Template set name must be ${MAX_SET_NAME_LENGTH} characters or less`
+        );
       }
     }
 
@@ -202,10 +222,14 @@ export class TemplateSetService {
     // Validate and update members if provided
     if (input.templateIds !== undefined) {
       if (input.templateIds.length < MIN_SET_MEMBERS) {
-        throw new Error(`Template set must have at least ${MIN_SET_MEMBERS} template(s)`);
+        throw new Error(
+          `Template set must have at least ${MIN_SET_MEMBERS} template(s)`
+        );
       }
       if (input.templateIds.length > MAX_SET_MEMBERS) {
-        throw new Error(`Template set can have maximum ${MAX_SET_MEMBERS} templates`);
+        throw new Error(
+          `Template set can have maximum ${MAX_SET_MEMBERS} templates`
+        );
       }
 
       // Validate templates exist
@@ -308,7 +332,9 @@ export class TemplateSetService {
 
     // Check member limit
     if (set.members.length >= MAX_SET_MEMBERS) {
-      throw new Error(`Template set can have maximum ${MAX_SET_MEMBERS} templates`);
+      throw new Error(
+        `Template set can have maximum ${MAX_SET_MEMBERS} templates`
+      );
     }
 
     // Check template exists
@@ -358,7 +384,9 @@ export class TemplateSetService {
 
     // Check minimum members
     if (set.members.length <= MIN_SET_MEMBERS) {
-      throw new Error(`Template set must have at least ${MIN_SET_MEMBERS} template(s)`);
+      throw new Error(
+        `Template set must have at least ${MIN_SET_MEMBERS} template(s)`
+      );
     }
 
     // Remove member

@@ -8,6 +8,7 @@
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build"],
       "options": {
         "outputPath": "dist/libs/email",
         "main": "libs/email/src/index.ts",

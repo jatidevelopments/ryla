@@ -4,11 +4,16 @@
  * Orchestrates bug report creation, storage, and notifications.
  */
 
+import 'server-only';
+
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
 import * as schema from '@ryla/data/schema';
 import { BugReportsRepository, users } from '@ryla/data';
-import type { ConsoleLogEntry, BrowserMetadata } from '@ryla/data/schema/bug-reports.schema';
+import type {
+  ConsoleLogEntry,
+  BrowserMetadata,
+} from '@ryla/data/schema/bug-reports.schema';
 import { sendEmail, BugReportNotificationEmail } from '@ryla/email';
 
 export interface CreateBugReportInput {
@@ -21,9 +26,7 @@ export interface CreateBugReportInput {
 }
 
 export class BugReportService {
-  constructor(
-    private readonly db: NodePgDatabase<typeof schema>
-  ) {}
+  constructor(private readonly db: NodePgDatabase<typeof schema>) {}
 
   async create(input: CreateBugReportInput): Promise<schema.BugReport> {
     const repository = new BugReportsRepository(this.db);
@@ -54,7 +57,9 @@ export class BugReportService {
   ): Promise<void> {
     const notificationEmail = process.env['BUG_REPORT_NOTIFICATION_EMAIL'];
     if (!notificationEmail) {
-      console.warn('BUG_REPORT_NOTIFICATION_EMAIL not configured - skipping email notification');
+      console.warn(
+        'BUG_REPORT_NOTIFICATION_EMAIL not configured - skipping email notification'
+      );
       return;
     }
 
@@ -80,15 +85,23 @@ export class BugReportService {
       }
 
       // Build browser info string
-      const browserInfo = `${input.browserMetadata.userAgent.split(' ')[0]} on ${input.browserMetadata.platform}`;
+      const browserInfo = `${
+        input.browserMetadata.userAgent.split(' ')[0]
+      } on ${input.browserMetadata.platform}`;
 
       // Build view URL (admin page or direct link)
-      const appUrl = process.env['NEXT_PUBLIC_APP_URL'] || 'https://app.ryla.ai';
+      const appUrl =
+        process.env['NEXT_PUBLIC_APP_URL'] || 'https://app.ryla.ai';
       const viewUrl = `${appUrl}/admin/bug-reports/${bugReport.id}`;
 
       await sendEmail({
         to: notificationEmail,
-        subject: `[Bug Report] ${bugReport.id.substring(0, 8)} - ${input.description.substring(0, 50)}${input.description.length > 50 ? '...' : ''}`,
+        subject: `[Bug Report] ${bugReport.id.substring(
+          0,
+          8
+        )} - ${input.description.substring(0, 50)}${
+          input.description.length > 50 ? '...' : ''
+        }`,
         template: BugReportNotificationEmail,
         props: {
           bugReportId: bugReport.id,
@@ -108,4 +121,3 @@ export class BugReportService {
     }
   }
 }
-

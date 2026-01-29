@@ -4,10 +4,12 @@
   "projectType": "library",
   "sourceRoot": "libs/ui/src",
   "tags": ["type:lib", "scope:ui"],
+  "implicitDependencies": ["shared", "analytics"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build"],
       "options": {
         "outputPath": "dist/libs/ui",
         "main": "libs/ui/src/index.ts",

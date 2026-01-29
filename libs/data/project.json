@@ -4,10 +4,12 @@
   "projectType": "library",
   "sourceRoot": "libs/data/src",
   "tags": ["type:lib", "scope:data"],
+  "implicitDependencies": ["shared"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build"],
       "options": {
         "outputPath": "dist/libs/data",
         "main": "libs/data/src/index.ts",

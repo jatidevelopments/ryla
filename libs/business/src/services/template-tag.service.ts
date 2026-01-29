@@ -6,6 +6,8 @@
  * Initiative: IN-011 (Template Gallery & Content Library)
  */
 
+import 'server-only';
+
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@ryla/data/schema';
 import {
@@ -80,10 +82,14 @@ export class TemplateTagService {
     // Validate tag name
     const normalizedName = tagName.trim().toLowerCase();
     if (normalizedName.length < MIN_TAG_NAME_LENGTH) {
-      throw new Error(`Tag name must be at least ${MIN_TAG_NAME_LENGTH} characters`);
+      throw new Error(
+        `Tag name must be at least ${MIN_TAG_NAME_LENGTH} characters`
+      );
     }
     if (normalizedName.length > MAX_TAG_NAME_LENGTH) {
-      throw new Error(`Tag name must be at most ${MAX_TAG_NAME_LENGTH} characters`);
+      throw new Error(
+        `Tag name must be at most ${MAX_TAG_NAME_LENGTH} characters`
+      );
     }
 
     // Check template ownership
@@ -107,7 +113,10 @@ export class TemplateTagService {
     }
 
     // Find or create tag (user-created = not system)
-    const { tag, created } = await this.tagsRepo.findOrCreate(normalizedName, false);
+    const { tag, created } = await this.tagsRepo.findOrCreate(
+      normalizedName,
+      false
+    );
 
     // Assign to template
     await this.tagsRepo.assignToTemplate(templateId, tag.id);
@@ -157,7 +166,10 @@ export class TemplateTagService {
         normalizedName.length >= MIN_TAG_NAME_LENGTH &&
         normalizedName.length <= MAX_TAG_NAME_LENGTH
       ) {
-        const { tag } = await this.tagsRepo.findOrCreate(normalizedName, isSystem);
+        const { tag } = await this.tagsRepo.findOrCreate(
+          normalizedName,
+          isSystem
+        );
         tagIds.push(tag.id);
       }
     }
@@ -184,10 +196,7 @@ export class TemplateTagService {
    * Search tags by name
    */
   async search(query: string, limit = 10): Promise<TemplateTag[]> {
-    const result = await this.tagsRepo.findAll(
-      { search: query },
-      { limit }
-    );
+    const result = await this.tagsRepo.findAll({ search: query }, { limit });
     return result.tags;
   }
 

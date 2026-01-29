@@ -390,7 +390,7 @@ export const postRouter = router({
         columns: { id: true },
       });
 
-      const userPostIds = new Set(userPosts.map((p) => p.id));
+      const userPostIds = new Set(userPosts.map((p: { id: string }) => p.id));
       const validIds = input.ids.filter((id) => userPostIds.has(id));
 
       if (validIds.length === 0) {

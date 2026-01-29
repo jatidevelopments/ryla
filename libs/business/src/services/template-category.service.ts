@@ -6,6 +6,8 @@
  * Initiative: IN-011 (Template Gallery & Content Library)
  */
 
+import 'server-only';
+
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import * as schema from '@ryla/data/schema';
 import {
@@ -160,7 +162,10 @@ export class TemplateCategoryService {
   /**
    * Update category (admin only)
    */
-  async update(id: string, input: UpdateCategoryInput): Promise<TemplateCategory> {
+  async update(
+    id: string,
+    input: UpdateCategoryInput
+  ): Promise<TemplateCategory> {
     const category = await this.categoriesRepo.findById(id);
     if (!category) {
       throw new Error('Category not found');

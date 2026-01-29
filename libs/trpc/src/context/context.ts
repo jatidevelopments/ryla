@@ -59,9 +59,15 @@ export interface Context {
  * Get database configuration from environment
  */
 function getDbConfig() {
+  const postgresEnv = process.env['POSTGRES_ENVIRONMENT'];
+  const nodeEnv = process.env['NODE_ENV'];
+
+  // Consider local if POSTGRES_ENVIRONMENT is 'local' OR NODE_ENV is 'development' or 'local'
   const isLocal =
-    (process.env['POSTGRES_ENVIRONMENT'] || process.env['NODE_ENV']) ===
-    'local';
+    postgresEnv === 'local' ||
+    nodeEnv === 'development' ||
+    (nodeEnv as string) === 'local' ||
+    (!postgresEnv && !nodeEnv); // Default to local if neither is set
 
   return {
     host: process.env['POSTGRES_HOST'] || 'localhost',
@@ -79,10 +85,25 @@ function getDbConfig() {
 function verifyToken(token: string): JwtPayload | null {
   // Use env var or fallback to 'secret' for local development
   // IMPORTANT: In production, JWT_ACCESS_SECRET MUST be set
+  // MUST match the JWT_ACCESS_SECRET in apps/api/.env (or Infisical /apps/api path)
   const secret = process.env['JWT_ACCESS_SECRET'] || 'secret';
 
-  if (process.env['NODE_ENV'] === 'production' && !process.env['JWT_ACCESS_SECRET']) {
-    console.error('[tRPC Context] JWT_ACCESS_SECRET not configured in production!');
+  // Warn if using default secret (might indicate misconfiguration)
+  if (!process.env['JWT_ACCESS_SECRET']) {
+    console.warn(
+      '[tRPC Context] JWT_ACCESS_SECRET not set - using default "secret". ' +
+        'This will cause token verification to fail if the API uses a different secret. ' +
+        'Set JWT_ACCESS_SECRET in Infisical at /apps/web path (must match /apps/api).'
+    );
+  }
+
+  if (
+    process.env['NODE_ENV'] === 'production' &&
+    !process.env['JWT_ACCESS_SECRET']
+  ) {
+    console.error(
+      '[tRPC Context] JWT_ACCESS_SECRET not configured in production!'
+    );
     return null;
   }
 
@@ -90,6 +111,20 @@ function verifyToken(token: string): JwtPayload | null {
     const payload = jwt.verify(token, secret) as JwtPayload;
     return payload;
   } catch (error) {
+    // Log the actual error in development for debugging
+    if (process.env['NODE_ENV'] === 'development') {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.warn('[tRPC Context] Token verification failed:', errorMessage);
+      console.warn(
+        '[tRPC Context] Token (first 20 chars):',
+        token.substring(0, 20)
+      );
+      console.warn(
+        '[tRPC Context] Using secret:',
+        secret === 'secret' ? 'default "secret"' : 'from env'
+      );
+    }
     // Token invalid or expired
     return null;
   }
@@ -118,9 +153,10 @@ export async function createContext(
   // Create database connection
   const db = createDrizzleDb(getDbConfig());
 
-  // Extract authorization header
-  const authHeader = headers.get('authorization');
-  const token = authHeader?.replace('Bearer ', '');
+  // Extract authorization header (case-insensitive)
+  const authHeader =
+    headers.get('authorization') || headers.get('Authorization');
+  const token = authHeader?.replace(/^Bearer\s+/i, '');
 
   // No token = unauthenticated context
   if (!token) {
@@ -135,6 +171,12 @@ export async function createContext(
   const payload = verifyToken(token);
 
   if (!payload) {
+    // Log token verification failure in development for debugging
+    if (process.env['NODE_ENV'] === 'development') {
+      console.warn(
+        '[tRPC Context] Token verification failed - token may be expired or invalid'
+      );
+    }
     return {
       user: null,
       headers,

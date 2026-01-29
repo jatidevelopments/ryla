@@ -24,3 +24,5 @@ export * from './admin-users.schema';
 export * from './feature-flags.schema';
 export * from './system-config.schema';
 export * from './broadcast-notifications.schema';
+export * from './funnel-sessions.schema';
+export * from './funnel-options.schema';

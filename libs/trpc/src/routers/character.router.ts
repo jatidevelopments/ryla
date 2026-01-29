@@ -6,12 +6,19 @@
  */
 
 import { z } from 'zod';
-import { eq, and, isNull, desc, sql, ne, or, inArray } from 'drizzle-orm';
+import { eq, and, isNull, desc, sql, ne, inArray } from 'drizzle-orm';
 import { TRPCError } from '@trpc/server';
 import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { characters, images, influencerRequests, users, NotificationsRepository, type CharacterConfig } from '@ryla/data';
+import {
+  characters,
+  images,
+  influencerRequests,
+  users,
+  NotificationsRepository,
+  type CharacterConfig,
+} from '@ryla/data';
 
 import { sendEmail, InfluencerRequestNotificationEmail } from '@ryla/email';
 
@@ -137,7 +144,10 @@ const characterConfigSchema = z.object({
   videoContentOptions: z.array(z.string()).optional(),
   // Settings
   nsfwEnabled: z.boolean().optional(),
-  profilePictureSetId: z.enum(['classic-influencer', 'professional-model', 'natural-beauty']).nullable().optional(),
+  profilePictureSetId: z
+    .enum(['classic-influencer', 'professional-model', 'natural-beauty'])
+    .nullable()
+    .optional(),
 });
 
 export const characterRouter = router({
@@ -195,7 +205,7 @@ export const characterRouter = router({
       });
 
       // Get image counts for all characters in one query
-      const characterIds = items.map((char) => char.id);
+      const characterIds = items.map((char: (typeof items)[number]) => char.id);
       const imageCountsMap: Record<string, number> = {};
 
       // Initialize all characters with 0 count
@@ -234,7 +244,7 @@ export const characterRouter = router({
       }
 
       // Add image counts to items
-      const itemsWithCounts = items.map((item) => ({
+      const itemsWithCounts = items.map((item: (typeof items)[number]) => ({
         ...item,
         imageCount: imageCountsMap[item.id] ?? 0,
       }));
@@ -242,7 +252,7 @@ export const characterRouter = router({
       // Re-sign baseImageUrl (it is often stored as a presigned URL and expires)
       const s3 = createS3ClientForSigning();
       const itemsWithSignedBaseImage = await Promise.all(
-        itemsWithCounts.map(async (item) => {
+        itemsWithCounts.map(async (item: (typeof itemsWithCounts)[number]) => {
           const baseImageUrl = item.baseImageUrl;
           if (!baseImageUrl || !s3) return item;
 
@@ -250,7 +260,11 @@ export const characterRouter = router({
           let key = tryExtractS3KeyFromStoredUrl(baseImageUrl);
 
           // If extraction failed, check if stored value is already a key
-          if (!key && !baseImageUrl.includes('://') && !baseImageUrl.startsWith('/')) {
+          if (
+            !key &&
+            !baseImageUrl.includes('://') &&
+            !baseImageUrl.startsWith('/')
+          ) {
             key = baseImageUrl;
           }
 
@@ -260,18 +274,21 @@ export const characterRouter = router({
             const url = await getSignedUrl(
               s3.client,
               new GetObjectCommand({ Bucket: s3.bucketName, Key: key }),
-              { expiresIn: s3.urlTtl },
+              { expiresIn: s3.urlTtl }
             );
             return { ...item, baseImageUrl: url };
           } catch (error) {
             // Log error but return item with original URL
-            console.error('Failed to generate signed URL for baseImageUrl in list:', {
-              key,
-              error: error instanceof Error ? error.message : String(error),
-            });
+            console.error(
+              'Failed to generate signed URL for baseImageUrl in list:',
+              {
+                key,
+                error: error instanceof Error ? error.message : String(error),
+              }
+            );
             return item;
           }
-        }),
+        })
       );
 
       // Get total count
@@ -339,7 +356,7 @@ export const characterRouter = router({
             baseImageUrl = await getSignedUrl(
               s3.client,
               new GetObjectCommand({ Bucket: s3.bucketName, Key: key }),
-              { expiresIn: s3.urlTtl },
+              { expiresIn: s3.urlTtl }
             );
           } catch (error) {
             // Log error but keep stored value as fallback
@@ -358,8 +375,11 @@ export const characterRouter = router({
             try {
               baseImageUrl = await getSignedUrl(
                 s3.client,
-                new GetObjectCommand({ Bucket: s3.bucketName, Key: baseImageUrl }),
-                { expiresIn: s3.urlTtl },
+                new GetObjectCommand({
+                  Bucket: s3.bucketName,
+                  Key: baseImageUrl,
+                }),
+                { expiresIn: s3.urlTtl }
               );
             } catch (error) {
               console.error('Failed to generate signed URL from key:', {
@@ -583,15 +603,18 @@ export const characterRouter = router({
       z.object({
         consent: z.boolean(),
         instagram: z.preprocess(
-          (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+          (val) =>
+            typeof val === 'string' && val.trim() === '' ? undefined : val,
           z.string().trim().optional()
         ),
         tiktok: z.preprocess(
-          (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+          (val) =>
+            typeof val === 'string' && val.trim() === '' ? undefined : val,
           z.string().trim().optional()
         ),
         description: z.preprocess(
-          (val) => (typeof val === 'string' && val.trim() === '' ? undefined : val),
+          (val) =>
+            typeof val === 'string' && val.trim() === '' ? undefined : val,
           z.string().trim().max(500).optional()
         ),
       })
@@ -630,16 +653,21 @@ export const characterRouter = router({
       const userEmail = user?.email || ctx.user.email || 'unknown@example.com';
 
       // Send email notification to admin (don't fail request if email fails)
-      const notificationEmail = process.env['INFLUENCER_REQUEST_NOTIFICATION_EMAIL'] || process.env['BUG_REPORT_NOTIFICATION_EMAIL'];
+      const notificationEmail =
+        process.env['INFLUENCER_REQUEST_NOTIFICATION_EMAIL'] ||
+        process.env['BUG_REPORT_NOTIFICATION_EMAIL'];
       if (notificationEmail) {
         try {
           // Build view URL (admin page or direct link)
-          const appUrl = process.env['NEXT_PUBLIC_APP_URL'] || 'https://app.ryla.ai';
+          const appUrl =
+            process.env['NEXT_PUBLIC_APP_URL'] || 'https://app.ryla.ai';
           const viewUrl = `${appUrl}/admin/influencer-requests/${request.id}`;
 
           await sendEmail({
             to: notificationEmail,
-            subject: `[Influencer Request] ${request.id.substring(0, 8)} - ${userName || userEmail}`,
+            subject: `[Influencer Request] ${request.id.substring(0, 8)} - ${
+              userName || userEmail
+            }`,
             template: InfluencerRequestNotificationEmail,
             props: {
               requestId: request.id,
@@ -653,16 +681,22 @@ export const characterRouter = router({
           });
         } catch (error) {
           // Log but don't fail the request submission
-          console.error('Failed to send influencer request notification email:', error);
+          console.error(
+            'Failed to send influencer request notification email:',
+            error
+          );
         }
       } else {
-        console.warn('INFLUENCER_REQUEST_NOTIFICATION_EMAIL not configured - skipping email notification');
+        console.warn(
+          'INFLUENCER_REQUEST_NOTIFICATION_EMAIL not configured - skipping email notification'
+        );
       }
 
       return {
         success: true,
         requestId: request.id,
-        message: 'Your request has been submitted. We will review it and contact you via email.',
+        message:
+          'Your request has been submitted. We will review it and contact you via email.',
       };
     }),
 });

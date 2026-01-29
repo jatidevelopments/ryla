@@ -23,6 +23,7 @@ import {
   templateCategoriesRouter,
   templateTagsRouter,
   templateLikesRouter,
+  funnelRouter,
 } from './routers';
 
 /**
@@ -45,6 +46,7 @@ export const appRouter = router({
   templateCategories: templateCategoriesRouter,
   templateTags: templateTagsRouter,
   templateLikes: templateLikesRouter,
+  funnel: funnelRouter,
 });
 
 /**

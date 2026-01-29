@@ -4,10 +4,12 @@
   "sourceRoot": "libs/payments/src",
   "projectType": "library",
   "tags": ["scope:shared", "type:lib"],
+  "implicitDependencies": ["shared", "data"],
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
       "outputs": ["{options.outputPath}"],
+      "dependsOn": ["^build"],
       "options": {
         "outputPath": "dist/libs/payments",
         "tsConfig": "libs/payments/tsconfig.lib.json",
