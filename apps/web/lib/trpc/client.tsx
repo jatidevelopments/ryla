@@ -1,15 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { httpBatchLink } from '@trpc/client';
+import { httpBatchLink, TRPCLink } from '@trpc/client';
+import { observable } from '@trpc/server/observable';
 import superjson from 'superjson';
 
 // Import only client-side code to avoid bundling server code
 import { trpc } from '@ryla/trpc/client';
 
 // Re-export auth utilities for convenience
-import { getAccessToken, setTokens, clearTokens } from '../auth';
+import { getAccessToken, setTokens, clearTokens, refreshTokens } from '../auth';
 
 /**
  * Get auth token from storage
@@ -93,6 +94,85 @@ function getTrpcUrl() {
 }
 
 /**
+ * Custom link that handles token refresh on 401 errors
+ * Intercepts 401 responses, refreshes the token, and retries the request
+ * Prevents concurrent refresh attempts with a simple flag
+ */
+let isRefreshing = false;
+let refreshPromise: Promise<{ tokens: { accessToken: string } } | null> | null = null;
+
+const tokenRefreshLink: TRPCLink<any> = () => {
+  return ({ next, op }) => {
+    return observable((observer) => {
+      const unsubscribe = next(op).subscribe({
+        next(value) {
+          observer.next(value);
+        },
+        error(err: any) {
+          // Check if it's a 401 error (check multiple possible error structures)
+          const httpStatus =
+            err?.data?.httpStatus ||
+            err?.meta?.response?.status ||
+            err?.status ||
+            err?.cause?.status;
+          if (httpStatus === 401) {
+            // If already refreshing, wait for that to complete
+            if (isRefreshing && refreshPromise) {
+              refreshPromise
+                .then((refreshed) => {
+                  if (refreshed) {
+                    // Retry with new token
+                    const retryUnsubscribe = next(op).subscribe(observer);
+                    return () => retryUnsubscribe.unsubscribe();
+                  } else {
+                    observer.error(err);
+                  }
+                })
+                .catch(() => observer.error(err));
+              return;
+            }
+            
+            // Start refresh process
+            isRefreshing = true;
+            refreshPromise = refreshTokens();
+            
+            refreshPromise
+              .then((refreshed) => {
+                isRefreshing = false;
+                refreshPromise = null;
+                
+                if (refreshed) {
+                  // Token refreshed successfully, retry the request
+                  // The headers function will get the new token automatically
+                  const retryUnsubscribe = next(op).subscribe(observer);
+                  return () => retryUnsubscribe.unsubscribe();
+                } else {
+                  // Refresh failed, clear tokens and pass through the error
+                  clearTokens();
+                  observer.error(err);
+                }
+              })
+              .catch(() => {
+                isRefreshing = false;
+                refreshPromise = null;
+                clearTokens();
+                observer.error(err);
+              });
+          } else {
+            // Not a 401 error, pass through
+            observer.error(err);
+          }
+        },
+        complete() {
+          observer.complete();
+        },
+      });
+      return () => unsubscribe.unsubscribe();
+    });
+  };
+};
+
+/**
  * tRPC + React Query Provider
  *
  * Wrap your app with this provider to enable tRPC hooks.
@@ -101,22 +181,32 @@ function getTrpcUrl() {
 export function TRPCProvider({ children }: { children: React.ReactNode }) {
   const queryClient = getQueryClient();
 
-  const [trpcClient] = useState(() =>
-    trpc.createClient({
-      links: [
-        httpBatchLink({
-          url: getTrpcUrl(),
-          transformer: superjson,
-          headers() {
-            const token = getAuthToken();
-            if (token) {
-              return { authorization: `Bearer ${token}` };
-            }
-            return {};
-          },
-        }),
-      ],
-    })
+  // Create tRPC client with reactive headers that always get the latest token
+  // Using useMemo to recreate client when needed, but headers function is called on every request
+  const trpcClient = useMemo(
+    () =>
+      trpc.createClient({
+        links: [
+          // Token refresh link - handles 401 errors and refreshes tokens
+          tokenRefreshLink,
+          // HTTP batch link - makes the actual requests
+          httpBatchLink({
+            url: getTrpcUrl(),
+            transformer: superjson,
+            headers() {
+              // Always get the latest token from storage (called on every request)
+              const token = getAuthToken();
+              if (token) {
+                return {
+                  authorization: `Bearer ${token}`,
+                };
+              }
+              return {};
+            },
+          }),
+        ],
+      }),
+    [] // Empty deps - headers function is called on every request, so it always gets latest token
   );
 
   return (

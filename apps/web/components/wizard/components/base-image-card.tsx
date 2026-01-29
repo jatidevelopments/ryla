@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { ZoomIn, RefreshCw } from 'lucide-react';
+import { ZoomIn, RefreshCw, AlertCircle } from 'lucide-react';
 import { cn, useIsMobile } from '@ryla/ui';
 import type { GeneratedImage } from '@ryla/business';
 
@@ -28,6 +28,7 @@ export function BaseImageCard({
   onViewFull,
 }: BaseImageCardProps) {
   const isMobile = useIsMobile();
+  const isFailed = image.url === 'failed' || image.url === 'error';
 
   if (isSkeleton) {
     return (
@@ -46,6 +47,56 @@ export function BaseImageCard({
           {/* Image Number Label */}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2.5">
             <div className="h-3 w-16 bg-white/20 rounded animate-pulse" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isFailed) {
+    return (
+      <div
+        className={cn(
+          'relative group rounded-xl overflow-hidden border-2 transition-all cursor-pointer',
+          'border-red-500/50 bg-red-950/20'
+        )}
+        onClick={onSelect}
+      >
+        <div className="relative aspect-square bg-red-950/30">
+          <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+            <AlertCircle className="w-12 h-12 md:w-16 md:h-16 text-red-400 mb-3" />
+            <p className="text-red-300 text-xs md:text-sm font-semibold mb-1">
+              Generation Failed
+            </p>
+            {image.error && (
+              <p className="text-red-400/70 text-[10px] md:text-xs line-clamp-2">
+                {image.error}
+              </p>
+            )}
+          </div>
+
+          {/* Image Number Label */}
+          <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-2.5 z-10">
+            <p className="text-white text-[10px] md:text-sm font-semibold truncate">
+              #{index + 1} - Failed
+            </p>
+          </div>
+
+          {/* Regenerate Button */}
+          <div className="absolute top-2 left-2 z-20">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onRegenerate();
+              }}
+              className={cn(
+                'w-8 h-8 md:w-9 md:h-9 rounded-lg bg-black/60 backdrop-blur-md flex items-center justify-center text-white border border-white/10 shadow-lg transition-all hover:bg-black/80 active:scale-90',
+                !isMobile && 'opacity-0 group-hover:opacity-100'
+              )}
+              aria-label="Regenerate this image"
+            >
+              <RefreshCw className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+            </button>
           </div>
         </div>
       </div>
@@ -71,12 +122,18 @@ export function BaseImageCard({
           </div>
         ) : (
           <>
-            <Image
-              src={image.url}
-              alt={`Base image ${index + 1}`}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-            />
+            {image.url && (image.url.startsWith('http') || image.url.startsWith('data:')) ? (
+              <Image
+                src={image.url}
+                alt={`Base image ${index + 1}`}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/5">
+                <p className="text-white/40 text-xs">Invalid image URL</p>
+              </div>
+            )}
 
             {/* Image Number + Model Label */}
             <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/60 to-transparent p-2.5 z-10">

@@ -48,6 +48,8 @@ export function BaseImageGrid({
                 const isRegenerating =
                   fineTuningImageId === image.id || image.url === 'loading';
                 const isSkeleton = image.url === 'skeleton';
+                const isFailed = image.url === 'failed' || image.url === 'error';
+                const isSelectable = !isSkeleton && !isRegenerating && !isFailed;
 
                 return (
                   <BaseImageCard
@@ -57,10 +59,10 @@ export function BaseImageGrid({
                     isSelected={isSelected}
                     isRegenerating={isRegenerating}
                     isSkeleton={isSkeleton}
-                    onSelect={() => !isSkeleton && !isRegenerating && onSelectImage(image.id)}
+                    onSelect={() => isSelectable && onSelectImage(image.id)}
                     onRegenerate={() => onRegenerateImage(image.id)}
                     onViewFull={
-                      !isSkeleton && !isRegenerating
+                      isSelectable
                         ? () => handleViewFull(image)
                         : undefined
                     }

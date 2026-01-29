@@ -26,8 +26,16 @@ const handler = async (req: Request) => {
         headers: req.headers,
       });
     },
-    onError({ error, path }) {
-      console.error(`[tRPC Error] ${path}:`, error.message);
+    onError({ error, path, type }) {
+      // Don't log UNAUTHORIZED errors as they're expected when users aren't authenticated
+      // Only log actual errors (INTERNAL_SERVER_ERROR, BAD_REQUEST, etc.)
+      if (error.code === 'UNAUTHORIZED') {
+        // Silently handle auth errors - they're expected behavior
+        return;
+      }
+      
+      // Log actual errors
+      console.error(`[tRPC Error] ${type} ${path}:`, error.message);
     },
   });
 };

@@ -17,7 +17,8 @@ export function getInfluencerImage(
   ethnicity: EthnicityValue | string | null,
   optionValue: string
 ): string | null {
-  if (!ethnicity || !optionValue) return null;
+  // Validate inputs - check for null/undefined and whitespace-only strings
+  if (!ethnicity?.trim() || !optionValue?.trim()) return null;
 
   // Normalize ethnicity value
   let normalizedEthnicity = ethnicity.toLowerCase();

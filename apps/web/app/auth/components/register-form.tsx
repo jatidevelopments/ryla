@@ -86,6 +86,7 @@ export function RegisterForm({
             value={email}
             disabled
             readOnly
+            onChange={() => {}}
             className="pl-12 bg-white/5 cursor-not-allowed"
             aria-label="Email address"
           />

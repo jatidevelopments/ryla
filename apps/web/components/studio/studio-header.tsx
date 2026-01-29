@@ -10,7 +10,7 @@ import {
   type InfluencerTab,
 } from './header';
 import { ModeIndicator } from './header/ModeIndicator';
-import type { StudioMode } from '../generation/types';
+import type { StudioMode } from './generation/types';
 
 interface StudioHeaderProps {
   influencers: InfluencerTab[];

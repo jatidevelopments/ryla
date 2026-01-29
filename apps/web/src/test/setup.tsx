@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { vi, beforeAll, afterEach, afterAll } from 'vitest';
+import { server } from '../../lib/test/mocks/server';
 
 // Mock Next.js router
 vi.mock('next/navigation', () => ({
@@ -25,3 +26,18 @@ vi.mock('framer-motion', () => ({
   },
   AnimatePresence: ({ children }: any) => <>{children} </>,
 }));
+
+// Setup MSW server
+beforeAll(() => {
+  server.listen({ onUnhandledRequest: 'error' });
+});
+
+afterEach(() => {
+  server.resetHandlers();
+  // Clear localStorage between tests
+  localStorage.clear();
+});
+
+afterAll(() => {
+  server.close();
+});

@@ -1,6 +1,7 @@
 'use client';
 
 import { trpc } from '../trpc';
+import { getAccessToken } from '../auth';
 
 export interface UseNotificationsOptions {
   limit?: number;
@@ -14,14 +15,24 @@ export interface UseNotificationsOptions {
 export function useNotifications(options?: UseNotificationsOptions) {
   const limit = options?.limit ?? 20;
   const offset = options?.offset ?? 0;
+  const token = getAccessToken();
 
   const utils = trpc.useUtils();
 
   const query = trpc.notifications.list.useQuery(
     { limit, offset },
     {
-      refetchInterval: options?.refetchIntervalMs ?? 30000,
+      // Only fetch if we have a token
+      enabled: !!token,
+      refetchInterval: token ? (options?.refetchIntervalMs ?? 30000) : false,
       placeholderData: (prev) => prev,
+      // Don't retry on 401 errors
+      retry: (failureCount, error) => {
+        if (failureCount >= 3) return false;
+        const status = (error as { data?: { httpStatus?: number } })?.data?.httpStatus;
+        if (status === 401 || status === 403) return false;
+        return true;
+      },
     }
   );
 

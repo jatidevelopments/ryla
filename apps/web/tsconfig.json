@@ -50,6 +50,7 @@
     ".next",
     "vitest.config.ts",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "lib/test/**/*"
   ]
 }

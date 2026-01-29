@@ -104,6 +104,7 @@ export interface GeneratedImage {
   isNSFW?: boolean;
   positionId?: string;
   positionName?: string;
+  error?: string;
 }
 
 export interface JobResult {
@@ -167,23 +168,41 @@ function extractErrorMessage(error: any, defaultMessage: string): string {
 export async function generateBaseImages(
   input: GenerateBaseImagesInput
 ): Promise<GenerationResponse> {
-  const response = await authFetch(
-    `${API_BASE_URL}/characters/generate-base-images`,
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(input),
+  try {
+    const response = await authFetch(
+      `${API_BASE_URL}/characters/generate-base-images`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(input),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(extractErrorMessage(error, 'Failed to start image generation'));
     }
-  );
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(extractErrorMessage(error, 'Failed to start image generation'));
+    return response.json();
+  } catch (err) {
+    // Wrap connection errors with a more descriptive message
+    const error = err instanceof Error ? err : new Error(String(err));
+    const errorMessage = error.message || String(err);
+    
+    if (
+      errorMessage.includes('Failed to fetch') ||
+      errorMessage.includes('NetworkError') ||
+      errorMessage.includes('ERR_CONNECTION_REFUSED') ||
+      errorMessage.includes('ERR_NETWORK') ||
+      error.name === 'TypeError'
+    ) {
+      throw new Error(`ERR_CONNECTION_REFUSED: Unable to connect to server at ${API_BASE_URL}`);
+    }
+    
+    throw error;
   }
-
-  return response.json();
 }
 
 /**
@@ -291,6 +310,13 @@ export async function pollForJobCompletion(
           return result;
         }
       }
+      
+      // If partial status with no images, continue polling (but log for debugging)
+      // This handles edge case where job reports partial but hasn't generated images yet
+      if (result.status === 'partial' && (!result.images || result.images.length === 0)) {
+        // Continue polling - job might still be processing
+        // Will timeout after MAX_POLL_TIME if no progress
+      }
     }
 
     if (result.status === 'failed') {
@@ -310,16 +336,34 @@ export async function pollForJobCompletion(
 export async function getBaseImageJobResult(
   jobId: string
 ): Promise<JobResult> {
-  const response = await authFetch(
-    `${API_BASE_URL}/characters/base-images/${jobId}`
-  );
+  try {
+    const response = await authFetch(
+      `${API_BASE_URL}/characters/base-images/${jobId}`
+    );
 
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({}));
-    throw new Error(extractErrorMessage(error, 'Failed to get base image job result'));
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({}));
+      throw new Error(extractErrorMessage(error, 'Failed to get base image job result'));
+    }
+
+    return response.json();
+  } catch (err) {
+    // Wrap connection errors with a more descriptive message
+    const error = err instanceof Error ? err : new Error(String(err));
+    const errorMessage = error.message || String(err);
+    
+    if (
+      errorMessage.includes('Failed to fetch') ||
+      errorMessage.includes('NetworkError') ||
+      errorMessage.includes('ERR_CONNECTION_REFUSED') ||
+      errorMessage.includes('ERR_NETWORK') ||
+      error.name === 'TypeError'
+    ) {
+      throw new Error(`ERR_CONNECTION_REFUSED: Unable to connect to server at ${API_BASE_URL}`);
+    }
+    
+    throw error;
   }
-
-  return response.json();
 }
 
 /**
@@ -403,8 +447,22 @@ async function pollBaseImagesProgressively(
         });
         pendingJobs.delete(jobId);
       } else if (result.status === 'failed') {
-        // Job failed - remove from pending
+        // Job failed - notify callback with failed state if provided
+        const imageIndex = jobIds.indexOf(jobId);
+        if (onImageComplete) {
+          // Create a failed image object to notify the UI
+          const failedImage: GeneratedImage = {
+            id: `failed-${jobId}`,
+            url: 'failed',
+            thumbnailUrl: 'failed',
+            error: result.error || 'Generation failed',
+          };
+          onImageComplete(failedImage, imageIndex);
+        }
         pendingJobs.delete(jobId);
+      } else if (result.status === 'in_progress' || result.status === 'queued') {
+        // Still in progress, keep polling
+        continue;
       }
     }
 

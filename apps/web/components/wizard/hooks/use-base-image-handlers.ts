@@ -38,7 +38,14 @@ export function useBaseImageHandlers({
 
   const handleRegenerateSingleImage = React.useCallback(
     async (imageId: string) => {
+      const image = safeBaseImages.find((img) => img.id === imageId);
+      if (!image) return;
+
       setFineTuningImageId(imageId);
+      
+      // Set to loading state
+      replaceBaseImage(imageId, { ...image, url: 'loading', thumbnailUrl: 'loading' });
+      
       try {
         await handleRegenerateImage(
           imageId,
@@ -46,11 +53,19 @@ export function useBaseImageHandlers({
           selectBaseImage,
           selectedBaseImageId
         );
+      } catch (error) {
+        // If regeneration fails, mark as failed
+        replaceBaseImage(imageId, {
+          ...image,
+          url: 'failed',
+          thumbnailUrl: 'failed',
+          error: error instanceof Error ? error.message : 'Regeneration failed',
+        });
       } finally {
         setFineTuningImageId(null);
       }
     },
-    [handleRegenerateImage, replaceBaseImage, selectBaseImage, selectedBaseImageId]
+    [handleRegenerateImage, replaceBaseImage, selectBaseImage, selectedBaseImageId, safeBaseImages]
   );
 
   const handleFineTuneAndRegenerate = React.useCallback(async () => {

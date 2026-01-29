@@ -30,6 +30,7 @@ export function StepBaseImageSelection() {
     isPolling,
     completedCount,
     error,
+    connectionError,
     isRegeneratingAll,
     hasValidImages,
     expectedImageCount,
@@ -96,18 +97,22 @@ export function StepBaseImageSelection() {
       />
 
       <RegenerateAllButton
-        onRegenerateAll={() => handleGenerateAll(true)}
+        onRegenerateAll={() => handleGenerateAll(true, true)}
         isGenerating={isGenerating}
         isRegeneratingAll={isRegeneratingAll}
       />
 
-      <BaseImageError error={error} />
+      <BaseImageError 
+        error={error} 
+        connectionError={connectionError}
+        onRetry={() => handleGenerateAll(false, true)}
+      />
 
       <BaseImageEmptyState
         hasImages={hasImages}
         isGenerating={isGenerating}
         hasImagesInStore={safeBaseImages.length > 0}
-        onGenerate={() => handleGenerateAll()}
+        onGenerate={() => handleGenerateAll(false, true)}
       />
     </div>
   );

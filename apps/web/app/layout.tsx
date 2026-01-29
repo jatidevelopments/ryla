@@ -96,7 +96,7 @@ export const metadata: Metadata = {
       { url: '/favicon/favicon-32x32.png', sizes: '32x32', type: 'image/png' },
     ],
     apple: '/favicon/apple-touch-icon.png',
-    shortcut: '/favicon.ico',
+    // Removed shortcut: '/favicon.ico' - file doesn't exist, causes 500 errors
   },
   manifest: '/favicon/site.webmanifest',
   appleWebApp: {

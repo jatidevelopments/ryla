@@ -114,7 +114,6 @@ export function ForgotPasswordForm({
               onClick={onRetry}
               disabled={isLoading}
               loading={isLoading}
-              className="w-full"
             >
               Resend Code
             </PrimaryButton>
@@ -191,7 +190,7 @@ export function ForgotPasswordForm({
         )}
       </div>
 
-      <PrimaryButton type="submit" disabled={isLoading} loading={isLoading} className="w-full">
+      <PrimaryButton type="submit" disabled={isLoading} loading={isLoading}>
         Send Reset Link
       </PrimaryButton>
 

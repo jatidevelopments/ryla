@@ -10,9 +10,18 @@ const withSerwist = require('@serwist/next').default({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'standalone',
-  // Fix standalone output path structure for monorepo
-  outputFileTracingRoot: path.join(__dirname, '../../'),
+  // Output mode: 'standalone' for Fly.io, 'export' for Cloudflare Pages
+  // Set CLOUDFLARE_PAGES=true when building for Cloudflare Pages
+  output: process.env.CLOUDFLARE_PAGES === 'true' ? 'export' : 'standalone',
+  // Fix standalone output path structure for monorepo (only needed for standalone)
+  ...(process.env.CLOUDFLARE_PAGES !== 'true' && {
+    outputFileTracingRoot: path.join(__dirname, '../../'),
+  }),
+  // Disable production source maps in development to prevent stack overflow
+  // This fixes the "Maximum call stack size exceeded" error in Next.js dev overlay
+  // NOTE: If you still see this error after this fix, clear the .next cache:
+  //   rm -rf apps/web/.next
+  productionBrowserSourceMaps: false,
   // Images are pulled from Git LFS during deployment (checkout with lfs: true)
   transpilePackages: [
     '@ryla/ui',
@@ -53,15 +62,42 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer, webpack }) => {
+  webpack: (config, { isServer, webpack, dev }) => {
+    // Disable source maps completely in development to prevent stack overflow in dev overlay
+    // This fixes the "Maximum call stack size exceeded" error when Next.js tries to process source maps
+    // The error occurs in RegExp.exec when processing malformed or circular source map references
+    if (dev) {
+      // Completely disable source maps for both client and server builds
+      config.devtool = false;
+
+      // Suppress source map related warnings and errors
+      config.ignoreWarnings = [
+        ...(config.ignoreWarnings || []),
+        {
+          message: /Failed to get source map/,
+        },
+        {
+          message: /Maximum call stack size exceeded/,
+        },
+        {
+          module: /source-map/,
+        },
+      ];
+    }
+
     // Ensure .js extension is included in resolve.extensions for subpath imports
     if (!config.resolve.extensions) {
       config.resolve.extensions = [];
     }
     // Ensure .js is first (before .ts, .tsx) for dist folder imports
+    const existingExtensions = Array.isArray(config.resolve.extensions)
+      ? config.resolve.extensions
+      : [];
     config.resolve.extensions = [
       '.js',
-      ...config.resolve.extensions.filter((ext) => ext !== '.js'),
+      ...existingExtensions.filter(
+        (/** @type {string} */ ext) => typeof ext === 'string' && ext !== '.js'
+      ),
     ];
 
     // Add dist/libs to modules for better subpath resolution
@@ -185,6 +221,21 @@ const nextConfig = {
             ) {
               return true;
             }
+            // Ignore drizzle-orm pg-core imports (PostgreSQL-specific)
+            if (
+              resource.includes('drizzle-orm') &&
+              resource.includes('pg-core')
+            ) {
+              return true;
+            }
+            // Ignore drizzle-orm imports that reference pg-core via relative paths
+            if (
+              context &&
+              context.includes('drizzle-orm') &&
+              (resource.includes('pg-core') || resource.includes('../pg-core'))
+            ) {
+              return true;
+            }
             return false;
           },
         })
@@ -202,6 +253,42 @@ const nextConfig = {
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
           /drizzle-orm\/node-postgres\/session/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+
+      // Replace drizzle-orm pg-core imports (PostgreSQL-specific modules)
+      // These are dynamically imported by drizzle-orm and cause client bundle errors
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /drizzle-orm\/.*\/pg-core/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+
+      // Replace drizzle-orm sql module imports that reference pg-core
+      // The sql.js file tries to import pg-core/columns/enum.js which doesn't exist in client bundle
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /drizzle-orm\/sql\/sql\.js$/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+
+      // Replace drizzle-orm sql expressions that import pg-core
+      // These modules are imported by sql.js and cause client bundle errors
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /drizzle-orm\/sql\/expressions\/conditions\.js$/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+
+      // Replace drizzle-orm pg-core imports (resolved paths)
+      // When sql.js imports '../pg-core/columns/enum.js', webpack resolves it to drizzle-orm/pg-core/columns/enum.js
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^drizzle-orm\/pg-core/,
           require.resolve('./lib/trpc/empty-module.js')
         )
       );
@@ -269,6 +356,16 @@ const nextConfig = {
       {
         message:
           /Critical dependency: the request of a dependency is an expression/,
+      },
+      // Suppress drizzle-orm pg-core related warnings (server-only modules)
+      {
+        module: /drizzle-orm.*pg-core/,
+      },
+      {
+        message: /Cannot find module.*pg-core/,
+      },
+      {
+        message: /Cannot find module.*drizzle-orm/,
       },
     ];
 

@@ -14,6 +14,21 @@ export default defineConfig({
         coverage: {
             reportsDirectory: '../../coverage/apps/web',
             provider: 'v8',
+            reporter: ['text', 'json', 'html'],
+            include: ['src/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}', 'lib/**/*.{ts,tsx}'],
+            exclude: [
+                '**/*.spec.{ts,tsx}',
+                '**/*.test.{ts,tsx}',
+                '**/test/**',
+                '**/node_modules/**',
+                '**/.next/**',
+            ],
+            thresholds: {
+                lines: 100,
+                functions: 100,
+                branches: 100,
+                statements: 100,
+            },
         },
     },
     resolve: {

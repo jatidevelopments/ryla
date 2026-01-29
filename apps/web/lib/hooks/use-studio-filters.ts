@@ -74,14 +74,22 @@ export function useStudioFilters(): UseStudioFiltersReturn {
       // Old format - migrate to array
       const migrated =
         aspectRatioRaw === 'all' ? [] : [aspectRatioRaw as AspectRatio];
-      // Update localStorage with new format
-      setTimeout(() => setAspectRatioRaw(migrated), 0);
       return migrated;
     }
     if (Array.isArray(aspectRatioRaw)) {
       return aspectRatioRaw;
     }
     return [];
+  }, [aspectRatioRaw]);
+
+  // Migrate old format to new format (moved from useMemo to useEffect to avoid side effects)
+  React.useEffect(() => {
+    if (typeof aspectRatioRaw === 'string') {
+      // Old format - migrate to array
+      const migrated =
+        aspectRatioRaw === 'all' ? [] : [aspectRatioRaw as AspectRatio];
+      setAspectRatioRaw(migrated);
+    }
   }, [aspectRatioRaw, setAspectRatioRaw]);
 
   const setAspectRatios = React.useCallback(

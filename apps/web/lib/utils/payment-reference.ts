@@ -30,9 +30,17 @@ export function parseSubscriptionReference(reference: string): { userId: string;
   if (parts.length < 3 || parts[0] !== 'sub') {
     return null;
   }
+  const userId = parts[1];
+  const planId = parts.slice(2).join('_');
+  
+  // Validate that userId and planId are not empty
+  if (!userId || !planId) {
+    return null;
+  }
+  
   return {
-    userId: parts[1],
-    planId: parts.slice(2).join('_'),
+    userId,
+    planId,
   };
 }
 
@@ -45,9 +53,17 @@ export function parseCreditReference(reference: string): { userId: string; packa
   if (parts.length < 3 || parts[0] !== 'cred') {
     return null;
   }
+  const userId = parts[1];
+  const packageId = parts.slice(2).join('_');
+  
+  // Validate that userId and packageId are not empty
+  if (!userId || !packageId) {
+    return null;
+  }
+  
   return {
-    userId: parts[1],
-    packageId: parts.slice(2).join('_'),
+    userId,
+    packageId,
   };
 }
 

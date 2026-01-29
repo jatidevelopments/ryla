@@ -1,19 +1,31 @@
 'use client';
 
 import { trpc } from '../trpc';
+import { getAccessToken } from '../auth';
 
 /**
  * Hook to get and manage user credits
  * Provides balance, low balance warning state, and refetch functionality
  */
 export function useCredits() {
+  const token = getAccessToken();
+  
   const { data, isLoading, error, refetch } = trpc.credits.getBalance.useQuery(
     undefined,
     {
+      // Only fetch if we have a token
+      enabled: !!token,
       // Refetch every 30 seconds to keep credits updated
-      refetchInterval: 30000,
+      refetchInterval: token ? 30000 : false,
       // Keep previous data while refetching
       placeholderData: (prev) => prev,
+      // Don't retry on 401 errors
+      retry: (failureCount, error) => {
+        if (failureCount >= 3) return false;
+        const status = (error as { data?: { httpStatus?: number } })?.data?.httpStatus;
+        if (status === 401 || status === 403) return false;
+        return true;
+      },
     }
   );
 
