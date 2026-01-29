@@ -118,12 +118,7 @@ export class TemplateService {
     sort: TemplateSortOption = 'popular',
     currentUserId?: string
   ): Promise<TemplateListResult> {
-    return this.templatesRepo.findWithSort(
-      filters,
-      pagination,
-      sort,
-      currentUserId
-    );
+    return this.templatesRepo.findWithSort(filters, pagination, sort, currentUserId);
   }
 
   /**
@@ -161,11 +156,7 @@ export class TemplateService {
       }
     }
 
-    if (
-      input.description !== undefined &&
-      input.description &&
-      input.description.length > 500
-    ) {
+    if (input.description !== undefined && input.description && input.description.length > 500) {
       throw new Error('Template description must be 500 characters or less');
     }
 
@@ -239,12 +230,7 @@ export class TemplateService {
     generationSuccessful: boolean | null
   ): Promise<void> {
     // Track usage
-    await this.templatesRepo.trackUsage(
-      templateId,
-      userId,
-      jobId,
-      generationSuccessful
-    );
+    await this.templatesRepo.trackUsage(templateId, userId, jobId, generationSuccessful);
 
     // Increment usage count
     await this.templatesRepo.incrementUsageCount(templateId);
@@ -276,15 +262,7 @@ export class TemplateService {
    */
   private validateConfig(config: TemplateConfig): void {
     // Validate aspect ratio
-    const validAspectRatios = [
-      '1:1',
-      '9:16',
-      '2:3',
-      '3:4',
-      '4:3',
-      '16:9',
-      '3:2',
-    ];
+    const validAspectRatios = ['1:1', '9:16', '2:3', '3:4', '4:3', '16:9', '3:2'];
     if (config.aspectRatio && !validAspectRatios.includes(config.aspectRatio)) {
       throw new Error(`Invalid aspect ratio: ${config.aspectRatio}`);
     }
@@ -302,3 +280,4 @@ export class TemplateService {
     }
   }
 }
+
