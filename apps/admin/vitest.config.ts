@@ -10,6 +10,7 @@ export default defineConfig({
     include: ['**/*.{test,spec}.{ts,tsx}'],
     exclude: ['node_modules', '.next'],
     setupFiles: ['./lib/test/setup.ts'],
+    testTimeout: 15000, // Increase timeout to 15s for integration tests and database operations
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

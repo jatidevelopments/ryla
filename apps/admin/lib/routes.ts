@@ -43,7 +43,7 @@ export const routes = {
   bug: {
     detail: (id: string) => `/bugs/${id}`,
   },
-  lora: {
+  loraModel: {
     detail: (id: string) => `/lora/${id}`,
   },
   admin: {

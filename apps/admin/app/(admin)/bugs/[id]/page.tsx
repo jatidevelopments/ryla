@@ -265,7 +265,7 @@ export default function BugReportDetailPage() {
             Console Logs ({consoleLogs.length})
           </h3>
           <div className="bg-secondary/50 rounded-lg p-4 max-h-96 overflow-auto font-mono text-sm">
-            {consoleLogs.map((log: { timestamp: string; level: string; message: string }, i: number) => (
+            {consoleLogs.map((log, i) => (
               <div key={i} className="mb-2">
                 <span className="text-muted-foreground">
                   {new Date(log.timestamp).toLocaleTimeString()}

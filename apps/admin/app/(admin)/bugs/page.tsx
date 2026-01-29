@@ -64,8 +64,6 @@ export default function BugsPage() {
     offset: page * limit,
     status: statusFilter === 'all' ? undefined : (statusFilter as any),
     search: search || undefined,
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
   });
 
   // Update status mutation

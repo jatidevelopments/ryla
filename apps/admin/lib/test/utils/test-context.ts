@@ -35,7 +35,7 @@ export function createMockAdminContext(
   return {
     admin: mockAdmin,
     headers: headers || new Headers(),
-    db,
+    db: db as any, // Type assertion for test database compatibility
   };
 }
 
@@ -50,7 +50,7 @@ export function createMockProtectedContext(
   return {
     admin,
     headers: headers || new Headers(),
-    db,
+    db: db as any, // Type assertion for test database compatibility
   };
 }
 

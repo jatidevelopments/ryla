@@ -75,8 +75,6 @@ export default function FlagsPage() {
     search: search || undefined,
     type: typeFilter === 'all' ? undefined : (typeFilter as any),
     enabled: enabledFilter === 'all' ? undefined : enabledFilter === 'enabled',
-    sortBy: 'createdAt',
-    sortOrder: 'desc',
   });
 
   // Get flag details for history

@@ -11,11 +11,8 @@ import { migrate } from 'drizzle-orm/pglite/migrator';
 import * as schema from '@ryla/data/schema';
 import { resolve } from 'path';
 import { readdir, readFile } from 'fs/promises';
-import type { ExtractTablesWithRelations } from 'drizzle-orm';
-import type { PgDatabase } from 'drizzle-orm/pg-core';
-
-// PGlite uses sync mode, so we use 'sync' as the mode
-export type PgLiteDatabase = PgDatabase<'sync', ExtractTablesWithRelations<typeof schema>>;
+// Infer the database type from drizzle return type
+export type PgLiteDatabase = ReturnType<typeof drizzle<typeof schema>>;
 
 export interface TestDb {
   db: PgLiteDatabase;

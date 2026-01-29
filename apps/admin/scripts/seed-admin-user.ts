@@ -6,7 +6,7 @@
  */
 
 import bcrypt from 'bcryptjs';
-import { createDrizzleDb, adminUsers, ROLE_PERMISSIONS } from '@ryla/data';
+import { createDrizzleDb, adminUsers, ROLE_PERMISSIONS, type AdminPermission } from '@ryla/data';
 
 function getDbConfig() {
   const env = process.env['POSTGRES_ENVIRONMENT'] || process.env['NODE_ENV'] || 'development';
@@ -29,7 +29,7 @@ async function seedAdminUser() {
   const email = process.env.ADMIN_EMAIL || 'admin@ryla.ai';
   const password = process.env.ADMIN_PASSWORD || 'admin123';
   const name = process.env.ADMIN_NAME || 'Admin User';
-  const role = (process.env.ADMIN_ROLE || 'super_admin') as 'super_admin' | 'billing_admin' | 'support_admin' | 'content_admin' | 'viewer';
+  const role = (process.env.ADMIN_ROLE || 'super_admin') as 'super_admin' | 'admin' | 'support' | 'moderator' | 'viewer';
 
   // Check if admin already exists
   const existing = await db.query.adminUsers.findFirst({
@@ -45,7 +45,7 @@ async function seedAdminUser() {
   const passwordHash = await bcrypt.hash(password, 12);
 
   // Get permissions for role
-  const permissions = ROLE_PERMISSIONS[role] || [];
+  const permissions = (ROLE_PERMISSIONS[role as keyof typeof ROLE_PERMISSIONS] || []) as AdminPermission[];
 
   // Create admin user
   const [admin] = await db

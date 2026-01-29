@@ -476,6 +476,8 @@ export const usersRouter = router({
           id: true,
           characterId: true,
           s3Key: true,
+          s3Url: true,
+          thumbnailUrl: true,
           status: true,
           createdAt: true,
         },

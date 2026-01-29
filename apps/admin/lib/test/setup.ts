@@ -46,6 +46,6 @@ afterAll(() => {
 beforeAll(() => {
   // Set test environment variables
   process.env.ADMIN_JWT_SECRET = 'test-jwt-secret';
-  process.env.NODE_ENV = 'test';
+  (process.env as any).NODE_ENV = 'test';
   process.env.POSTGRES_ENVIRONMENT = 'local';
 });

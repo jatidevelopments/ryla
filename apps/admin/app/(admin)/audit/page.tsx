@@ -37,7 +37,7 @@ export default function AuditPage() {
   const [dateFrom, setDateFrom] = useState<string>('');
   const [dateTo, setDateTo] = useState<string>('');
   const [page, setPage] = useState(0);
-  const [selectedLog, setSelectedLog] = useState<{ id: string; action: string; entityType: string; entityId: string; adminId: string; details: unknown; createdAt: Date } | null>(null);
+  const [selectedLog, setSelectedLog] = useState<{ id: string; action: string; entityType: string | null; entityId: string | null; adminId: string; details: unknown; createdAt: Date; ipAddress: string | null; userAgent: string | null; admin?: { email: string; name?: string | null; role?: string | null } | null } | null>(null);
   const limit = 50;
 
   // Get stats for filters
@@ -68,8 +68,8 @@ export default function AuditPage() {
     hasMore: false,
   };
 
-  const uniqueActions = stats?.actionCounts.map((a) => a.action) || [];
-  const uniqueEntityTypes = stats?.entityTypeCounts.map((e) => e.entityType) || [];
+  const uniqueActions = stats?.actionCounts.map((a) => a.action).filter((a): a is string => a !== null) || [];
+  const uniqueEntityTypes = stats?.entityTypeCounts.map((e) => e.entityType).filter((e): e is string => e !== null) || [];
 
   return (
     <div className="space-y-6">
@@ -377,7 +377,7 @@ export default function AuditPage() {
                   <div>
                     <label className="text-xs text-muted-foreground">Timestamp</label>
                     <p className="mt-1">
-                      {format(new Date(selectedLog.createdAt), 'PPP p')}
+                      {selectedLog.createdAt ? format(new Date(selectedLog.createdAt), 'PPP p') : 'N/A'}
                     </p>
                   </div>
                   <div>
@@ -420,11 +420,13 @@ export default function AuditPage() {
                       <p className="mt-1 text-xs break-all">{selectedLog.userAgent}</p>
                     </div>
                   )}
-                  {selectedLog.details && (
+                  {selectedLog.details != null && (
                     <div>
                       <label className="text-xs text-muted-foreground">Details</label>
                       <pre className="mt-1 bg-secondary p-2 rounded-lg overflow-x-auto text-xs font-mono">
-                        {JSON.stringify(selectedLog.details, null, 2)}
+                        {typeof selectedLog.details === 'object'
+                          ? JSON.stringify(selectedLog.details, null, 2)
+                          : String(selectedLog.details)}
                       </pre>
                     </div>
                   )}

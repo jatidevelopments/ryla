@@ -293,7 +293,7 @@ export default function JobsPage() {
                     <td className="p-4">
                       <span
                         className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusBadge(
-                          job.status
+                          job.status ?? 'unknown'
                         )}`}
                       >
                         {job.status}
@@ -434,7 +434,7 @@ export default function JobsPage() {
                       <p className="mt-1">
                         <span
                           className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusBadge(
-                            jobDetail.status
+                            jobDetail.status ?? 'unknown'
                           )}`}
                         >
                           {jobDetail.status}

@@ -182,7 +182,7 @@ export default function UserDetailPage() {
             <div>
               <p className="text-sm text-muted-foreground">Created</p>
               <p className="font-medium">
-                {new Date(user.createdAt).toLocaleString()}
+                {user.createdAt ? new Date(user.createdAt).toLocaleString() : 'N/A'}
               </p>
             </div>
           </div>
@@ -287,7 +287,7 @@ export default function UserDetailPage() {
                     <div>
                       <p className="text-sm font-medium">{tx.description || tx.type}</p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(tx.createdAt).toLocaleString()}
+                        {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}
                       </p>
                     </div>
                     <span className={`font-medium ${tx.amount >= 0 ? 'text-green-400' : 'text-red-400'}`}>
@@ -324,7 +324,7 @@ export default function UserDetailPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Period Start</p>
                 <p className="font-medium">
-                  {new Date(subscription.currentPeriodStart).toLocaleDateString()}
+                  {subscription.currentPeriodStart ? new Date(subscription.currentPeriodStart).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
             )}
@@ -332,7 +332,7 @@ export default function UserDetailPage() {
               <div>
                 <p className="text-sm text-muted-foreground">Period End</p>
                 <p className="font-medium">
-                  {new Date(subscription.currentPeriodEnd).toLocaleDateString()}
+                  {subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd).toLocaleDateString() : 'N/A'}
                 </p>
               </div>
             )}

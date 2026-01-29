@@ -311,7 +311,7 @@ export default function LoraPage() {
                       {formatCost(model.trainingCost)}
                     </td>
                     <td className="p-4 text-sm text-muted-foreground">
-                      {formatDistanceToNow(new Date(model.createdAt), { addSuffix: true })}
+                      {model.createdAt ? formatDistanceToNow(new Date(model.createdAt), { addSuffix: true }) : 'N/A'}
                     </td>
                     <td className="p-4 text-sm">
                       <div className="flex items-center gap-2">
@@ -537,14 +537,14 @@ export default function LoraPage() {
                   <div>
                     <label className="text-xs text-muted-foreground">Created At</label>
                     <p className="mt-1">
-                      {format(new Date(selectedModel.createdAt), 'PPP p')}
+                      {selectedModel.createdAt ? format(new Date(selectedModel.createdAt), 'PPP p') : 'N/A'}
                     </p>
                   </div>
                   {selectedModel.trainingStartedAt && (
                     <div>
                       <label className="text-xs text-muted-foreground">Training Started</label>
                       <p className="mt-1">
-                        {format(new Date(selectedModel.trainingStartedAt), 'PPP p')}
+                        {selectedModel.trainingStartedAt ? format(new Date(selectedModel.trainingStartedAt), 'PPP p') : 'N/A'}
                       </p>
                     </div>
                   )}
@@ -552,7 +552,7 @@ export default function LoraPage() {
                     <div>
                       <label className="text-xs text-muted-foreground">Training Completed</label>
                       <p className="mt-1">
-                        {format(new Date(selectedModel.trainingCompletedAt), 'PPP p')}
+                        {selectedModel.trainingCompletedAt ? format(new Date(selectedModel.trainingCompletedAt), 'PPP p') : 'N/A'}
                       </p>
                     </div>
                   )}

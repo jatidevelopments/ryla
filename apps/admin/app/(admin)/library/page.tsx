@@ -51,7 +51,8 @@ const CATEGORY_INFO: Record<
   },
 };
 
-function formatDate(date: Date | string) {
+function formatDate(date: Date | string | null) {
+  if (!date) return 'N/A';
   const d = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -540,7 +541,7 @@ export default function LibraryPage() {
                       </p>
                     )}
                     <p className="text-sm text-muted-foreground mt-1">
-                      {prompt.usageCount.toLocaleString()} uses •{' '}
+                      {(prompt.usageCount ?? 0).toLocaleString()} uses •{' '}
                       {formatDate(prompt.createdAt)}
                     </p>
                     {prompt.category && (
@@ -573,7 +574,7 @@ export default function LibraryPage() {
                       Edit
                     </button>
                     <button
-                      onClick={() => handleTogglePromptStatus(prompt.id, prompt.isActive)}
+                      onClick={() => handleTogglePromptStatus(prompt.id, prompt.isActive ?? false)}
                       disabled={togglePromptStatus.isPending}
                       className="min-h-[44px] min-w-[44px] flex items-center justify-center bg-secondary rounded-lg hover:bg-secondary/80 transition-colors disabled:opacity-50"
                       title={prompt.isActive ? 'Unpublish' : 'Publish'}
@@ -741,7 +742,7 @@ export default function LibraryPage() {
                       {!set.isSystemSet && (
                         <button
                           onClick={() =>
-                            handleTogglePromptSetPublic(set.id, set.isPublic)
+                            handleTogglePromptSetPublic(set.id, set.isPublic ?? false)
                           }
                           disabled={togglePromptSetPublic.isPending}
                           className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors disabled:opacity-50 ${
@@ -827,8 +828,8 @@ export default function LibraryPage() {
                         </p>
                       )}
                       <p className="text-sm text-muted-foreground mt-1">
-                        {template.usageCount.toLocaleString()} uses •{' '}
-                        {template.likesCount.toLocaleString()} likes •{' '}
+                        {(template.usageCount ?? 0).toLocaleString()} uses •{' '}
+                        {(template.likesCount ?? 0).toLocaleString()} likes •{' '}
                         {formatDate(template.createdAt)}
                       </p>
                       {template.user && (
@@ -857,7 +858,7 @@ export default function LibraryPage() {
                         Preview
                       </button>
                       <button
-                        onClick={() => handleCurateTemplate(template.id, template.isCurated)}
+                        onClick={() => handleCurateTemplate(template.id, template.isCurated ?? false)}
                         disabled={curateTemplate.isPending}
                         className={`min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors disabled:opacity-50 ${
                           template.isCurated

@@ -4,9 +4,9 @@
  * Predefined admin user data for testing.
  */
 
-import type { AdminContextUser } from '@/lib/auth-context';
+import type { AdminUser } from '@/lib/auth-context';
 
-export const SUPER_ADMIN_FIXTURE: AdminContextUser = {
+export const SUPER_ADMIN_FIXTURE: AdminUser = {
   id: 'super-admin-fixture-id',
   email: 'super@ryla.ai',
   name: 'Super Admin',
@@ -14,7 +14,7 @@ export const SUPER_ADMIN_FIXTURE: AdminContextUser = {
   permissions: ['*'],
 };
 
-export const ADMIN_FIXTURE: AdminContextUser = {
+export const ADMIN_FIXTURE: AdminUser = {
   id: 'admin-fixture-id',
   email: 'admin@ryla.ai',
   name: 'Admin User',
@@ -22,7 +22,7 @@ export const ADMIN_FIXTURE: AdminContextUser = {
   permissions: ['users:read', 'users:write', 'content:read'],
 };
 
-export const SUPPORT_FIXTURE: AdminContextUser = {
+export const SUPPORT_FIXTURE: AdminUser = {
   id: 'support-fixture-id',
   email: 'support@ryla.ai',
   name: 'Support User',
@@ -30,7 +30,7 @@ export const SUPPORT_FIXTURE: AdminContextUser = {
   permissions: ['users:read', 'bugs:read', 'bugs:write'],
 };
 
-export const MODERATOR_FIXTURE: AdminContextUser = {
+export const MODERATOR_FIXTURE: AdminUser = {
   id: 'moderator-fixture-id',
   email: 'moderator@ryla.ai',
   name: 'Moderator User',
@@ -38,7 +38,7 @@ export const MODERATOR_FIXTURE: AdminContextUser = {
   permissions: ['content:read', 'content:write'],
 };
 
-export const VIEWER_FIXTURE: AdminContextUser = {
+export const VIEWER_FIXTURE: AdminUser = {
   id: 'viewer-fixture-id',
   email: 'viewer@ryla.ai',
   name: 'Viewer User',

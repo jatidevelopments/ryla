@@ -170,7 +170,7 @@ export const notificationsRouter = router({
         if (targeting.tiers && targeting.tiers.length > 0) {
           const tierConditions = [];
           for (const tier of targeting.tiers) {
-            tierConditions.push(eq(subscriptions.tier, tier));
+            tierConditions.push(eq(subscriptions.tier, tier as 'free' | 'starter' | 'pro' | 'unlimited'));
           }
           if (tierConditions.length > 0) {
             // Users with subscriptions matching these tiers

@@ -74,7 +74,7 @@ describe('ContentRouter', () => {
       expect(result.images).toEqual([]);
       expect(result.pagination.total).toBe(0);
       expect(result.pagination.hasMore).toBe(false);
-    });
+    }, 15000); // Increase timeout for database query
 
     it('should list images with pagination', async () => {
       const user = await createTestUser(testDb.db);

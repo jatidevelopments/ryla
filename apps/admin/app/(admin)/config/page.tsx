@@ -202,7 +202,7 @@ export default function ConfigPage() {
                         className="p-4 border-b border-border last:border-b-0 hover:bg-secondary/30 transition-colors"
                       >
                         {editingKey === config.key ? (
-                          <form onSubmit={(e) => handleSave(e, config.key, config)}>
+                          <form onSubmit={(e) => handleSave(e, config.key, { validationType: config.validationType ?? undefined })}>
                             <div className="space-y-3">
                               <div>
                                 <label className="block text-sm font-medium mb-2">

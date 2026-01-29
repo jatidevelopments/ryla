@@ -35,7 +35,7 @@ const nextConfig = {
       },
     ],
   },
-  webpack: (config, { isServer, webpack }) => {
+  webpack: (config, { isServer, webpack, dev }) => {
     // Resolve @ryla/* packages to dist folder
     config.resolve.alias = {
       ...config.resolve.alias,
@@ -58,8 +58,14 @@ const nextConfig = {
       ),
       '@ryla/data': path.resolve(__dirname, '../../dist/libs/data/src'),
       // Also handle subpath imports
-      '@ryla/data/schema': path.resolve(__dirname, '../../dist/libs/data/src/schema'),
-      '@ryla/data/repositories': path.resolve(__dirname, '../../dist/libs/data/src/repositories'),
+      '@ryla/data/schema': path.resolve(
+        __dirname,
+        '../../dist/libs/data/src/schema'
+      ),
+      '@ryla/data/repositories': path.resolve(
+        __dirname,
+        '../../dist/libs/data/src/repositories'
+      ),
     };
 
     // Configure webpack to treat ES modules in dist folder as modules
@@ -113,6 +119,7 @@ const nextConfig = {
 
       config.plugins.push(
         new webpack.IgnorePlugin({
+          // @ts-ignore - webpack plugin types
           checkResource(resource, context) {
             if (resource === '@ryla/data' || resource.includes('@ryla/data')) {
               return true;

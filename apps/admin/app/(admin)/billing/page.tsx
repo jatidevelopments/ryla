@@ -69,7 +69,7 @@ export default function BillingPage() {
       userId: selectedUserId!,
       limit,
       offset: page * limit,
-      type: typeFilter === 'all' ? undefined : typeFilter,
+      type: typeFilter === 'all' ? undefined : typeFilter as 'subscription_grant' | 'purchase' | 'generation' | 'refund' | 'bonus' | 'admin_adjustment',
     },
     { enabled: !!selectedUserId }
   );
@@ -345,7 +345,7 @@ export default function BillingPage() {
                       {transactions.map((tx) => (
                         <tr key={tx.id}>
                           <td className="text-sm text-muted-foreground">
-                            {new Date(tx.createdAt).toLocaleString()}
+                            {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}
                           </td>
                           <td>
                             <span className={`inline-block px-2 py-1 text-xs rounded-full ${getTypeBadge(tx.type)}`}>
@@ -373,7 +373,7 @@ export default function BillingPage() {
                         <div className="flex-1">
                           <p className="font-medium">{tx.description || tx.type}</p>
                           <p className="text-xs text-muted-foreground mt-1">
-                            {new Date(tx.createdAt).toLocaleString()}
+                            {tx.createdAt ? new Date(tx.createdAt).toLocaleString() : 'N/A'}
                           </p>
                         </div>
                         <span className={`font-bold ${tx.amount >= 0 ? 'text-green-400' : 'text-red-400'}`}>

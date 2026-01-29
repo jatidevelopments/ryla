@@ -38,7 +38,8 @@ function getStatusBadge(status: string) {
   }
 }
 
-function formatDate(date: Date | string) {
+function formatDate(date: Date | string | null) {
+  if (!date) return 'N/A';
   const d = typeof date === 'string' ? new Date(date) : date;
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -229,7 +230,7 @@ export default function ContentPage() {
                   <div className="absolute top-2 right-2">
                     <span
                       className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(
-                        img.status
+                        img.status ?? 'unknown'
                       )}`}
                     >
                       {img.status}
@@ -315,7 +316,7 @@ export default function ContentPage() {
                     <span className="font-medium">{img.characterName}</span>
                     <span
                       className={`px-2 py-0.5 text-xs rounded-full ${getStatusBadge(
-                        img.status
+                        img.status ?? 'unknown'
                       )}`}
                     >
                       {img.status}
@@ -416,9 +417,9 @@ export default function ContentPage() {
                       </label>
                       <p className="mt-1">
                         <span
-                          className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(
-                            imageDetail.status
-                          )}`}
+                        className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(
+                          imageDetail.status ?? 'unknown'
+                        )}`}
                         >
                           {imageDetail.status}
                         </span>

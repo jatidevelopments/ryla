@@ -9,7 +9,6 @@ import type * as schema from '@ryla/data/schema';
 import { adminUsers, users } from '@ryla/data';
 import bcrypt from 'bcryptjs';
 import type { PgLiteDatabase } from './test-db';
-import { eq } from 'drizzle-orm';
 
 /**
  * Create a test admin user in the database
@@ -211,4 +210,45 @@ export async function cleanupTestCharacter(
 ) {
   const { characters } = await import('@ryla/data');
   await db.delete(characters).where(eq(characters.id, characterId));
+}
+
+/**
+ * Create a test image in the database
+ */
+export async function createTestImage(
+  db: PgLiteDatabase,
+  overrides: {
+    userId: string;
+    characterId?: string;
+    status?: 'pending' | 'generating' | 'completed' | 'failed';
+    nsfw?: boolean;
+    s3Key?: string;
+    s3Url?: string;
+    thumbnailUrl?: string;
+    prompt?: string;
+  }
+) {
+  const { images } = await import('@ryla/data');
+  const [image] = await db.insert(images).values({
+    userId: overrides.userId,
+    characterId: overrides.characterId || null,
+    s3Key: overrides.s3Key || 'test/image.jpg',
+    s3Url: overrides.s3Url || 'https://example.com/image.jpg',
+    thumbnailUrl: overrides.thumbnailUrl || 'https://example.com/thumb.jpg',
+    status: overrides.status || 'completed',
+    nsfw: overrides.nsfw || false,
+    prompt: overrides.prompt || 'Test prompt',
+  }).returning();
+  return image;
+}
+
+/**
+ * Clean up a test image
+ */
+export async function cleanupTestImage(
+  db: PgLiteDatabase,
+  imageId: string
+) {
+  const { images } = await import('@ryla/data');
+  await db.delete(images).where(eq(images.id, imageId));
 }

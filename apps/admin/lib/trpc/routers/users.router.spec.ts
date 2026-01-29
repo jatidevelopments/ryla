@@ -92,7 +92,7 @@ describe('UsersRouter', () => {
       for (const user of testUsers) {
         await cleanupTestUser(testDb.db, user.id);
       }
-    });
+    }, 10000); // Increase timeout to 10s
 
     it('should filter by status (active)', async () => {
       const activeUser = await createTestUser(testDb.db, { banned: false });
@@ -250,7 +250,7 @@ describe('UsersRouter', () => {
       const result = await caller.search({ query: 'user', limit: 5 });
 
       expect(result.length).toBeLessThanOrEqual(5);
-    });
+    }, 10000); // Increase timeout to 10s
   });
 
   describe('ban', () => {

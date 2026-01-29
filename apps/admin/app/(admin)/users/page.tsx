@@ -186,7 +186,7 @@ export default function UsersPage() {
                       </td>
                       <td>
                         <span
-                          className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusBadge(user.banned)}`}
+                          className={`inline-block px-2 py-1 text-xs rounded-full ${getStatusBadge(user.banned ?? false)}`}
                         >
                           {user.banned ? 'Banned' : 'Active'}
                         </span>
@@ -202,7 +202,7 @@ export default function UsersPage() {
                       <td>{user.characterCount}</td>
                       <td>{user.imageCount}</td>
                       <td className="text-muted-foreground text-sm">
-                        {new Date(user.createdAt).toLocaleDateString()}
+                        {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
                       </td>
                       <td className="text-right">
                         <div className="relative inline-block">
@@ -281,7 +281,7 @@ export default function UsersPage() {
                       <p className="text-sm text-muted-foreground">{user.email}</p>
                     </div>
                     <span
-                      className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(user.banned)}`}
+                      className={`px-2 py-1 text-xs rounded-full ${getStatusBadge(user.banned ?? false)}`}
                     >
                       {user.banned ? 'Banned' : 'Active'}
                     </span>

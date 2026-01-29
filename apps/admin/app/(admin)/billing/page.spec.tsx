@@ -104,7 +104,14 @@ vi.mock('sonner', () => ({
 
 // Mock browser APIs
 global.prompt = vi.fn();
-global.window.location.reload = vi.fn();
+// Mock location.reload by replacing the entire location object
+Object.defineProperty(window, 'location', {
+  writable: true,
+  value: {
+    ...window.location,
+    reload: vi.fn(),
+  },
+});
 
 describe('BillingPage', () => {
   let queryClient: QueryClient;
@@ -351,7 +358,7 @@ describe('BillingPage', () => {
               id: 'tx-1',
               type: 'purchase',
               amount: 100,
-              balance: 1000,
+              balanceAfter: 1000,
               description: 'Credit purchase',
               createdAt: new Date('2024-01-01').toISOString(),
             },
@@ -359,7 +366,7 @@ describe('BillingPage', () => {
               id: 'tx-2',
               type: 'generation',
               amount: -50,
-              balance: 950,
+              balanceAfter: 950,
               description: 'Image generation',
               createdAt: new Date('2024-01-02').toISOString(),
             },
@@ -378,10 +385,16 @@ describe('BillingPage', () => {
       renderWithProviders(<BillingPage />);
 
       await waitFor(() => {
-        expect(screen.getByText('Credit purchase')).toBeInTheDocument();
+        // Use getAllByText since there might be multiple matches, then verify at least one exists
+        const purchaseTexts = screen.getAllByText('Credit purchase');
+        expect(purchaseTexts.length).toBeGreaterThan(0);
+        // Also verify the transaction amount is visible (use getAllByText for +100 too)
+        const amountTexts = screen.getAllByText('+100');
+        expect(amountTexts.length).toBeGreaterThan(0);
+        // Verify second transaction (use getAllByText for multiple matches)
+        const generationTexts = screen.getAllByText('Image generation');
+        expect(generationTexts.length).toBeGreaterThan(0);
       });
-
-      expect(screen.getByText('Image generation')).toBeInTheDocument();
     });
 
     it('should show empty state when no transactions', async () => {
