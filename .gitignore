@@ -34,7 +34,6 @@ out/
 .env.backup/
 
 # Credentials (never commit)
-config/credentials.csv
 config/.secrets.json
 
 # Infisical (project config is safe, but tokens are not)

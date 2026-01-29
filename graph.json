@@ -629,6 +629,15 @@
               ],
               "cache": true
             },
+            "pre-serve": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "pnpm build:libs",
+                "cwd": ""
+              },
+              "configurations": {},
+              "parallelism": true
+            },
             "serve": {
               "executor": "@nx/next:server",
               "defaultConfiguration": "development",
@@ -637,6 +646,10 @@
                 "dev": true,
                 "port": 3003
               },
+              "dependsOn": [
+                "pre-serve",
+                "^build"
+              ],
               "configurations": {
                 "development": {
                   "buildTarget": "landing:build:development",
@@ -656,16 +669,37 @@
               "options": {},
               "parallelism": true,
               "cache": true
+            },
+            "test": {
+              "executor": "@nx/vitest:test",
+              "outputs": [
+                "{workspaceRoot}/coverage/apps/landing"
+              ],
+              "options": {
+                "config": "apps/landing/vitest.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true
             }
           },
           "name": "landing",
-          "$schema": "../../node_modules/nx/schemas/project-schema.json",
-          "sourceRoot": "apps/landing",
-          "projectType": "application",
           "tags": [
+            "npm:private",
             "type:app",
             "scope:landing"
           ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@ryla/landing",
+              "packageVersion": "0.0.0",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "sourceRoot": "apps/landing",
+          "projectType": "application",
           "implicitDependencies": []
         }
       },
@@ -817,6 +851,15 @@
               ],
               "cache": true
             },
+            "pre-serve": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "pnpm build:libs",
+                "cwd": ""
+              },
+              "configurations": {},
+              "parallelism": true
+            },
             "serve": {
               "executor": "@nx/next:server",
               "defaultConfiguration": "development",
@@ -825,6 +868,10 @@
                 "dev": true,
                 "port": 3002
               },
+              "dependsOn": [
+                "pre-serve",
+                "^build"
+              ],
               "configurations": {
                 "development": {
                   "buildTarget": "funnel:build:development",
@@ -844,13 +891,32 @@
               "options": {},
               "parallelism": true,
               "cache": true
+            },
+            "test": {
+              "executor": "@nx/vitest:test",
+              "options": {
+                "config": "apps/funnel/vitest.config.ts"
+              },
+              "configurations": {},
+              "parallelism": true,
+              "cache": true
             }
           },
           "name": "funnel",
+          "tags": [
+            "npm:private"
+          ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@ryla/funnel",
+              "packageVersion": "0.0.0",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
           "$schema": "../../node_modules/nx/schemas/project-schema.json",
           "sourceRoot": "apps/funnel",
           "projectType": "application",
-          "tags": [],
           "implicitDependencies": []
         }
       },
@@ -1077,6 +1143,15 @@
               ],
               "cache": true
             },
+            "pre-serve": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "pnpm build:libs",
+                "cwd": ""
+              },
+              "configurations": {},
+              "parallelism": true
+            },
             "serve": {
               "executor": "@nx/next:server",
               "defaultConfiguration": "development",
@@ -1085,6 +1160,10 @@
                 "dev": true,
                 "port": 3004
               },
+              "dependsOn": [
+                "pre-serve",
+                "^build"
+              ],
               "configurations": {
                 "development": {
                   "buildTarget": "admin:build:development",
@@ -1119,13 +1198,22 @@
             }
           },
           "name": "admin",
-          "$schema": "../../node_modules/nx/schemas/project-schema.json",
-          "projectType": "application",
-          "sourceRoot": "apps/admin",
           "tags": [
+            "npm:private",
             "type:app",
             "scope:admin"
           ],
+          "metadata": {
+            "targetGroups": {},
+            "js": {
+              "packageName": "@ryla/admin",
+              "packageVersion": "0.0.0",
+              "isInPackageManagerWorkspaces": true
+            }
+          },
+          "$schema": "../../node_modules/nx/schemas/project-schema.json",
+          "projectType": "application",
+          "sourceRoot": "apps/admin",
           "implicitDependencies": []
         }
       },
@@ -1820,6 +1908,15 @@
               ],
               "cache": true
             },
+            "pre-serve": {
+              "executor": "nx:run-commands",
+              "options": {
+                "command": "pnpm build:libs",
+                "cwd": ""
+              },
+              "configurations": {},
+              "parallelism": true
+            },
             "serve": {
               "executor": "@nx/next:server",
               "defaultConfiguration": "development",
@@ -1828,6 +1925,10 @@
                 "dev": true,
                 "port": 3000
               },
+              "dependsOn": [
+                "pre-serve",
+                "^build"
+              ],
               "configurations": {
                 "development": {
                   "buildTarget": "web:build:development",
