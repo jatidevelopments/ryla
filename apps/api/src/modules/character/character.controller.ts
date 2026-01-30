@@ -25,7 +25,7 @@ import { GenerateCharacterSheetDto } from './dto/generate-character-sheet.dto';
 import { GenerateProfilePictureSetDto } from '../image/dto/req/generate-profile-picture-set.dto';
 import { RegenerateProfilePictureDto } from '../image/dto/req/regenerate-profile-picture.dto';
 import { TrainLoraDto } from './dto/train-lora.dto';
-import type { FeatureId } from '@ryla/shared';
+import { calculateLoraTrainingCost, type FeatureId } from '@ryla/shared';
 import { LoraTrainingService } from '@ryla/business/services/lora-training.service';
 import { LoraModelsRepository } from '@ryla/data';
 import { eq, and } from 'drizzle-orm';
@@ -483,6 +483,28 @@ export class CharacterController {
   // LoRA Training Endpoints
   // ============================================================
 
+  @Get('lora-training-cost')
+  @ApiOperation({
+    summary: 'Get LoRA training cost estimate',
+    description:
+      'Calculate credit cost for LoRA training based on number of images.',
+  })
+  getLoraTrainingCost(@Query('imageCount') imageCountStr: string) {
+    const imageCount = parseInt(imageCountStr, 10) || 3;
+    const validImageCount = Math.max(3, Math.min(50, imageCount)); // 3-50 images
+
+    const totalCredits = calculateLoraTrainingCost('flux', validImageCount);
+
+    return {
+      imageCount: validImageCount,
+      model: 'flux',
+      baseCost: 25000, // lora_training_flux_base
+      perImageCost: 1000, // lora_training_flux_per_image
+      totalCredits,
+      estimatedMinutes: 5 + Math.ceil(validImageCount / 5), // Rough estimate
+    };
+  }
+
   @Post('train-lora')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
@@ -504,14 +526,21 @@ export class CharacterController {
       throw new NotFoundException('Character not found or access denied');
     }
 
-    // TODO: Add credit deduction for LoRA training
-    // const creditResult = await this.creditService.deductCredits(
-    //   user.userId,
-    //   'lora_training',
-    //   1,
-    //   dto.characterId,
-    //   `LoRA training for ${character.name}`,
-    // );
+    // Calculate LoRA training cost (base + per-image)
+    // Using 'flux' model since we're training on Modal with FLUX.1-dev
+    const totalCredits = calculateLoraTrainingCost(
+      'flux',
+      dto.imageUrls.length
+    );
+
+    // Deduct credits for LoRA training using base feature ID
+    // The total is pre-calculated, we pass count=1 to avoid double-multiplying
+    const creditResult = await this.creditService.deductCreditsRaw(
+      user.userId,
+      totalCredits,
+      dto.characterId,
+      `LoRA training for ${character.name} (${dto.imageUrls.length} images)`
+    );
 
     const result = await this.loraTrainingService.startTraining({
       characterId: dto.characterId,
@@ -526,6 +555,7 @@ export class CharacterController {
     });
 
     if (result.status === 'error') {
+      // TODO: Refund credits on failure
       throw new Error(result.error || 'Failed to start LoRA training');
     }
 
@@ -539,6 +569,8 @@ export class CharacterController {
       message: 'LoRA training started. This will take 5-10 minutes.',
       imageCount: dto.imageUrls.length,
       estimatedMinutes: 5,
+      creditsDeducted: creditResult.creditsDeducted,
+      creditBalance: creditResult.balanceAfter,
     };
   }
 
