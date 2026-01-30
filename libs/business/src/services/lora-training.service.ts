@@ -426,23 +426,24 @@ export class LoraTrainingService {
       status: result.status as TrainingJobResult['status'],
     };
 
-    if (result.job_id) converted.jobId = result.job_id as string;
-    if (result.call_id) converted.callId = result.call_id as string;
-    if (result.character_id)
-      converted.characterId = result.character_id as string;
-    if (result.trigger_word)
-      converted.triggerWord = result.trigger_word as string;
-    if (result.image_count) converted.imageCount = result.image_count as number;
-    if (result.error) converted.error = result.error as string;
-    if (result.message) converted.message = result.message as string;
+    if (result['job_id']) converted.jobId = result['job_id'] as string;
+    if (result['call_id']) converted.callId = result['call_id'] as string;
+    if (result['character_id'])
+      converted.characterId = result['character_id'] as string;
+    if (result['trigger_word'])
+      converted.triggerWord = result['trigger_word'] as string;
+    if (result['image_count'])
+      converted.imageCount = result['image_count'] as number;
+    if (result['error']) converted.error = result['error'] as string;
+    if (result['message']) converted.message = result['message'] as string;
 
-    if (result.result && typeof result.result === 'object') {
-      const r = result.result as Record<string, unknown>;
+    if (result['result'] && typeof result['result'] === 'object') {
+      const r = result['result'] as Record<string, unknown>;
       converted.result = {
-        loraPath: r.lora_path as string,
-        loraFilename: r.lora_filename as string,
-        trainingTimeSeconds: r.training_time_seconds as number,
-        trainingSteps: r.training_steps as number,
+        loraPath: r['lora_path'] as string,
+        loraFilename: r['lora_filename'] as string,
+        trainingTimeSeconds: r['training_time_seconds'] as number,
+        trainingSteps: r['training_steps'] as number,
       };
     }
 
