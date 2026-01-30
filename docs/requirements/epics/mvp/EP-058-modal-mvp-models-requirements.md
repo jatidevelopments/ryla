@@ -118,15 +118,15 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 
 **LoRA Support Matrix - All Models:**
 
-| Model/Endpoint           | LoRA Training | LoRA Loading | Tool                | Status                              |
-| ------------------------ | ------------- | ------------ | ------------------- | ----------------------------------- |
-| **Qwen-Image 2512**      | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/qwen-image-2512-lora` deployed ✅ |
-| **Qwen-Image 2512 Fast** | ⚠️ N/A        | ✅ Built-in  | Lightning LoRA      | Already uses LoRA                   |
-| **Qwen-Image Edit 2511** | ✅ Supported  | ⏳ Pending   | AI Toolkit (Ostris) | `/qwen-image-edit-lora` planned     |
-| **Wan 2.6 Video**        | ✅ Supported  | ✅ Live      | Musubi Tuner        | `/wan2.6-lora` deployed ✅          |
-| **Flux Dev**             | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
-| **Flux Schnell**         | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
-| **Z-Image Turbo**        | ✅ Supported  | ⚠️ Pending   | AI Toolkit (Ostris) | `/z-image-lora` fix pending deploy  |
+| Model/Endpoint           | LoRA Training | LoRA Loading | Tool                | Status                                        |
+| ------------------------ | ------------- | ------------ | ------------------- | --------------------------------------------- |
+| **Qwen-Image 2512**      | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/qwen-image-2512-lora` deployed ✅           |
+| **Qwen-Image 2512 Fast** | ⚠️ N/A        | ✅ Built-in  | Lightning LoRA      | Already uses LoRA                             |
+| **Qwen-Image Edit 2511** | ✅ Supported  | ⏳ Pending   | AI Toolkit (Ostris) | `/qwen-image-edit-lora` planned               |
+| **Wan 2.6 Video**        | ✅ Supported  | ✅ Live      | Musubi Tuner        | `/wan2.6-lora` deployed ✅                    |
+| **Flux Dev**             | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                             |
+| **Flux Schnell**         | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                             |
+| **Z-Image Turbo**        | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/z-image-lora` deployed ✅ (Flux LoRAs only) |
 
 **Completed Tasks:**
 
@@ -150,11 +150,10 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 | `/flux-lora`            | ✅ PASS     | 29.5s | 203KB PNG                              |
 | `/qwen-image-2512-lora` | ✅ PASS     | 54.8s | 289KB PNG                              |
 | `/wan2.6-lora`          | ✅ PASS     | 40.0s | 89KB WebP video                        |
-| `/z-image-lora`         | ⚠️ PENDING  | -     | Path fix committed, deployment pending |
+| `/z-image-lora`         | ✅ PASS     | 3.08s | 31KB JPEG (requires Flux-format LoRAs) |
 
 **Future LoRA Work:**
 
-- [ ] Deploy `/z-image-lora` fix (blocked by slow ModelScope downloads)
 - [ ] Create `/qwen-image-edit-lora` endpoint for editing with character LoRA
 
 #### P6.3: Documentation Updates (Priority: MEDIUM)
