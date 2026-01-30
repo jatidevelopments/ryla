@@ -6,6 +6,7 @@ import { PageContainer } from '@ryla/ui';
 import { InfluencerProfile } from '../../../components/influencer/InfluencerProfile';
 import { ProtectedRoute } from '../../../components/auth/ProtectedRoute';
 import { ProfilePictureGenerationIndicator } from '../../../components/profile-pictures/ProfilePictureGenerationIndicator';
+import { LoraTrainingIndicator } from '../../../components/lora/LoraTrainingIndicator';
 import { useInfluencerData } from './hooks/useInfluencerData';
 import { useInfluencerImages } from './hooks/useInfluencerImages';
 import { InfluencerTabs } from './components/InfluencerTabs';
@@ -73,7 +74,7 @@ function InfluencerProfileContent() {
   // Profile picture generation handler
   const utils = trpc.useUtils();
   const { refetch: refetchCredits } = useCredits();
-  
+
   // Character update mutation for saving profile picture set ID
   const updateCharacterMutation = trpc.character.update.useMutation({
     onSuccess: () => {
@@ -86,7 +87,7 @@ function InfluencerProfileContent() {
    */
   const startGenerationJob = React.useCallback(
     async (
-      setId: 'classic-influencer' | 'professional-model' | 'natural-beauty', 
+      setId: 'classic-influencer' | 'professional-model' | 'natural-beauty',
       nsfwEnabled: boolean,
       existingJobId?: string // For retries
     ) => {
@@ -101,10 +102,13 @@ function InfluencerProfileContent() {
       const totalCount = regularCount + nsfwCount;
 
       // Create unique job ID
-      const jobId = existingJobId || `pp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      const jobId =
+        existingJobId ||
+        `pp-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
       // Get store actions
-      const { startJob, completeJob, failJob, upsertJobImage, retryJob } = useProfilePicturesStore.getState();
+      const { startJob, completeJob, failJob, upsertJobImage, retryJob } =
+        useProfilePicturesStore.getState();
 
       // If retrying, mark job as retrying
       if (existingJobId) {
@@ -162,7 +166,7 @@ function InfluencerProfileContent() {
             negativePrompt: image.negativePrompt,
             isNSFW: image.isNSFW,
           });
-          
+
           // Invalidate character data to refresh imageCount stat
           // This triggers the gallery and stats to update in real-time
           utils.character.getById.invalidate({ id: character.id });
@@ -173,7 +177,13 @@ function InfluencerProfileContent() {
         })
         .catch((error) => {
           console.error('Failed to start profile picture generation:', error);
-          failJob(character.id, jobId, error instanceof Error ? error.message : 'Failed to start generation');
+          failJob(
+            character.id,
+            jobId,
+            error instanceof Error
+              ? error.message
+              : 'Failed to start generation'
+          );
         });
     },
     [character, utils, refetchCredits, updateCharacterMutation]
@@ -183,7 +193,10 @@ function InfluencerProfileContent() {
    * Handler for generating profile pictures (called from modal)
    */
   const handleGenerateProfilePictures = React.useCallback(
-    async (setId: 'classic-influencer' | 'professional-model' | 'natural-beauty', nsfwEnabled: boolean) => {
+    async (
+      setId: 'classic-influencer' | 'professional-model' | 'natural-beauty',
+      nsfwEnabled: boolean
+    ) => {
       return startGenerationJob(setId, nsfwEnabled);
     },
     [startGenerationJob]
@@ -244,10 +257,18 @@ function InfluencerProfileContent() {
 
       {/* Content */}
       <PageContainer>
+        {/* LoRA Training Indicator - shows training status */}
+        <div className="mt-8 mb-4">
+          <LoraTrainingIndicator
+            characterId={influencerId}
+            characterName={influencer.name}
+          />
+        </div>
+
         {/* Profile Picture Generation Indicator - shows stacked jobs with retry support */}
-        <div className="mt-8 mb-6">
-          <ProfilePictureGenerationIndicator 
-            influencerId={influencerId} 
+        <div className="mb-6">
+          <ProfilePictureGenerationIndicator
+            influencerId={influencerId}
             onRetry={handleRetryGeneration}
           />
         </div>
