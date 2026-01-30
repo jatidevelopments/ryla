@@ -685,13 +685,35 @@ jobs:
           NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
           NEXT_PUBLIC_DEBUG_CDN: ${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}
 
+      - name: Find and verify static export output
+        id: find-output
+        run: |
+          echo "Looking for static export output..."
+          if [ -d "apps/landing/out" ]; then
+            echo "Found apps/landing/out"
+            echo "directory=apps/landing/out" >> $GITHUB_OUTPUT
+          elif [ -d "dist/apps/landing/out" ]; then
+            echo "Found dist/apps/landing/out"
+            echo "directory=dist/apps/landing/out" >> $GITHUB_OUTPUT
+          elif [ -d "dist/apps/landing" ]; then
+            echo "Found dist/apps/landing (checking for static files)..."
+            ls -la dist/apps/landing/ | head -20
+            echo "directory=dist/apps/landing" >> $GITHUB_OUTPUT
+          else
+            echo "❌ No static export output found!"
+            echo "Checking available directories..."
+            ls -la apps/landing/ | head -10
+            ls -la dist/ 2>/dev/null | head -10 || echo "dist/ doesn't exist"
+            exit 1
+          fi
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ryla-landing
-          directory: apps/landing/out
+          directory: ${{ steps.find-output.outputs.directory }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
