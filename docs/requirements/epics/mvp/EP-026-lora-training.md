@@ -10,6 +10,18 @@
 
 ## Recent Progress
 
+### ✅ Character Profile UI (2026-01-30)
+
+LoRA training status displayed on character profile:
+
+- **Hook**: `useCharacterLora` with 10s auto-polling during training
+- **Component**: `LoraTrainingIndicator` showing:
+  - Pending/Queued state with clock icon
+  - Training in progress with progress bar
+  - Ready state with trigger word and stats
+  - Failed state with error message
+- **Location**: Above profile picture generation indicator
+
 ### ✅ Wizard UI Integration (2026-01-30)
 
 Full UI integration in character creation wizard:
