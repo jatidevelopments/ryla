@@ -1,13 +1,27 @@
 # [EPIC] EP-026: LoRA Training for Character Consistency
 
-**Status**: Proposed
-**Phase**: P2
+**Status**: In Progress
+**Phase**: P6
 **Created**: 2026-01-21
-**Last Updated**: 2026-01-21
-
+**Last Updated**: 2026-01-30
 
 > **Initiative**: [IN-006: LoRA Character Consistency System](../../../initiatives/IN-006-lora-character-consistency.md)  
 > **Implementation Plan**: [EP-026 Implementation Plan](./EP-026-lora-training/IMPLEMENTATION-PLAN.md)
+
+## Recent Progress
+
+### ✅ Modal Training Infrastructure (2026-01-30)
+
+Modal.com training app deployed and tested:
+
+- **App**: `ryla-lora-training` (function-only, no web endpoint)
+- **GPU**: A100-80GB
+- **Training**: Flux LoRA via diffusers `train_dreambooth_lora_flux.py`
+- **Storage**: LoRAs saved to `ryla-models` volume at `/root/models/loras/`
+- **Cost**: ~$0.50-2.00 per training (3-10 minutes)
+- **Test**: Successfully trained 10-step LoRA in 2.8 minutes
+
+See [LORA-WORKFLOW-GUIDE.md](../../../technical/models/LORA-WORKFLOW-GUIDE.md) for usage.
 
 ## Overview
 
@@ -38,33 +52,33 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
 
 - Toggle button/switch in influencer creation wizard
 - **Location**: After profile set images are generated (Step 7 or final step)
-- **Display**: 
+- **Display**:
   - Shows credit cost prominently
   - Shows estimated training time (~1-1.5 hours)
   - Informational text about benefits
-- **State**: 
+- **State**:
   - Enabled by default (if user has enough credits)
   - Can be toggled off
   - Disabled if insufficient credits
-- **Validation**: 
+- **Validation**:
   - Requires minimum X images (to be determined)
   - Only available after profile set completion
 
 ### F2: Credit Cost Display & Deduction
 
-- **Cost Display**: 
+- **Cost Display**:
   - Show credit cost in toggle UI
   - **Cost Structure**: Base cost + (image count × per-image cost)
   - Show breakdown: "Base: X credits + Y images × Z credits = Total"
   - Cost varies by model (Z-Image vs Flux vs One)
   - Link to credit purchase if insufficient
-- **Deduction Timing**: 
+- **Deduction Timing**:
   - ✅ **Confirmed**: Deduct when training completes successfully (refund if fails)
   - **Reservation**: Credits are reserved (not deducted) when training starts
   - **Deduction**: Credits deducted when training completes successfully
   - **Refund**: Credits refunded if training fails
   - User sees "reserved" status in credit balance
-- **Cost Calculation**: 
+- **Cost Calculation**:
   - Per-model base cost (e.g., Z-Image: 100 credits base)
   - Per-image cost (e.g., 50 credits per image)
   - Total = base + (selectedImageCount × perImageCost)
@@ -72,7 +86,7 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
 
 ### F3: Background Training Execution
 
-- **Trigger**: 
+- **Trigger**:
   - Automatic after profile set completion (if enabled)
   - Or manual trigger from settings (if enabled later)
 - **Process**:
@@ -85,32 +99,32 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
   7. Store in S3
   8. Update database
   9. Send notification
-- **Status Tracking**: 
+- **Status Tracking**:
   - `pending` → `training` → `ready` → `failed`
   - Progress updates (steps, estimated time remaining)
   - Error handling and retries
 
 ### F4: Notification System
 
-- **When Training Starts**: 
+- **When Training Starts**:
   - ✅ **Confirmed**: Yes, notify when training starts
   - Type: `lora.training.started`
   - Title: "LoRA Training Started"
   - Body: "Training your character model... This will take ~1 hour. We'll notify you when it's ready!"
   - Link: `/influencer/[id]/settings` (to view status)
-- **When Training Completes**: 
+- **When Training Completes**:
   - ✅ **Required**: Notification when training completes
   - Type: `lora.training.completed`
   - Title: "LoRA Training Complete"
   - Body: "Your character LoRA is ready! Generate images with >95% consistency."
   - Link: `/influencer/[id]/studio` (to start generating)
-- **When Training Fails**: 
+- **When Training Fails**:
   - ✅ **Required**: Notification on failure
   - Type: `lora.training.failed`
   - Title: "LoRA Training Failed"
   - Body: Error message + "Retry for free in settings"
   - Link: Settings page to retry (free)
-- **New Liked Images Available**: 
+- **New Liked Images Available**:
   - ✅ **Confirmed**: Notify if new liked images available for retraining
   - Type: `lora.retrain.available`
   - Title: "Improve Your Model"
@@ -130,12 +144,12 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
     - Shows "New images available" if new liked images detected
   - Training history: Show past training attempts
   - Image selection: Allow user to select images for retraining
-- **Enable Later**: 
+- **Enable Later**:
   - ✅ **Confirmed**: Yes, but requires minimum 5 images
   - Validates image count before enabling
   - Shows message if insufficient images
-- **Retrain Logic**: 
-  - ✅ **Confirmed**: 
+- **Retrain Logic**:
+  - ✅ **Confirmed**:
     - Anytime (paid, costs credits)
     - Free if previous training failed
     - Detects new liked images and suggests retraining
@@ -143,7 +157,7 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
 
 ### F6: Image Selection UI
 
-- **Image Picker Component**: 
+- **Image Picker Component**:
   - Grid view of available images (profile set + liked images)
   - Checkbox selection (minimum 5 required)
   - Visual indicators: liked images, selected images
@@ -152,25 +166,25 @@ Automated LoRA (Low-Rank Adaptation) training system that enables character-spec
     - If liked images exist: Pre-select all liked images
     - If no liked images: Pre-select all profile set images
     - User can deselect/reselect as needed
-- **Location**: 
+- **Location**:
   - Wizard: After profile set completes, before training starts
   - Settings: When enabling training or retraining
-- **Validation**: 
+- **Validation**:
   - Minimum 5 images required
   - Disable "Start Training" if <5 selected
   - Show error message if insufficient
-- **User Notification**: 
+- **User Notification**:
   - Show which images are selected
   - Count display: "X images selected for training"
   - Info: "Selected images will be used to train your character model"
 
 ### F7: Training Status Display
 
-- **In Wizard**: 
+- **In Wizard**:
   - Show training status after profile set completes
   - Progress indicator (if training in progress)
   - Link to continue wizard (training runs in background)
-- **In Settings**: 
+- **In Settings**:
   - Current LoRA status
   - Training progress (if in progress)
   - Last training date/time
@@ -526,23 +540,23 @@ export function calculateLoraTrainingCost(
 // In character-sheet.service.ts or profile-picture-set.service.ts
 async onProfileSetComplete(characterId: string) {
   const character = await getCharacter(characterId);
-  
+
   // Check if LoRA training is enabled
   if (character.config.loraTrainingEnabled && character.config.loraTrainingAutoStart) {
     // Get available images
     const images = await getProfileSetImages(characterId);
     const likedImages = images.filter(img => img.liked);
-    
+
     // Pre-select images (liked first, then all)
-    const preselectedImages = likedImages.length >= MIN_IMAGES 
-      ? likedImages 
+    const preselectedImages = likedImages.length >= MIN_IMAGES
+      ? likedImages
       : images;
-    
+
     if (preselectedImages.length >= MIN_IMAGES) {
       // Reserve credits (not deduct yet)
       const cost = calculateLoraTrainingCost('z-image-turbo', preselectedImages.length);
       await creditService.reserveCredits(character.userId, cost, 'lora_training');
-      
+
       // Start training in background
       const result = await loraTrainingService.startTraining({
         characterId,
@@ -551,7 +565,7 @@ async onProfileSetComplete(characterId: string) {
         baseModel: 'z-image-turbo', // Default, can be changed in settings
         triggerWord: character.name,
       });
-      
+
       // Send start notification
       await notificationsService.create({
         userId: character.userId,
@@ -567,14 +581,14 @@ async onProfileSetComplete(characterId: string) {
 // When training completes
 async onLoraTrainingComplete(loraModelId: string) {
   const loraModel = await getLoraModel(loraModelId);
-  
+
   // Deduct credits (was reserved, now deduct)
   await creditService.deductReservedCredits(
     loraModel.userId,
     loraModel.trainingCost,
     loraModelId
   );
-  
+
   // Send completion notification
   await notificationsService.create({
     userId: loraModel.userId,
@@ -588,14 +602,14 @@ async onLoraTrainingComplete(loraModelId: string) {
 // When training fails
 async onLoraTrainingFailed(loraModelId: string) {
   const loraModel = await getLoraModel(loraModelId);
-  
+
   // Refund reserved credits
   await creditService.refundReservedCredits(
     loraModel.userId,
     loraModel.trainingCost,
     loraModelId
   );
-  
+
   // Send failure notification (with free retry)
   await notificationsService.create({
     userId: loraModel.userId,
@@ -670,7 +684,7 @@ type NotificationType =
 
 - **Retrain Anytime**: User can retrain anytime (paid, costs credits)
 - **Retrain on Fail**: Free retry if previous training failed
-- **New Liked Images**: 
+- **New Liked Images**:
   - Detect if new liked images added since last training
   - Show notification/banner: "You have X new liked images. Retrain to improve model quality!"
   - Link to settings to retrain
@@ -700,12 +714,12 @@ type NotificationType =
 **Implementation**:
 
 - **Default**: Z-Image Turbo
-- **Model Support Info**: 
+- **Model Support Info**:
   - Add `supportsLoRA: boolean` to model registry
   - Show LoRA indicator in studio model picker
   - Display "LoRA Available" badge for supported models
   - Tooltip: "This model supports character LoRA for >95% consistency"
-- **Future Expansion**: 
+- **Future Expansion**:
   - Support Flux, One 2.1/2.2 LoRA training
   - User can select model in settings
   - Cost varies by model
@@ -719,7 +733,7 @@ type NotificationType =
 **Implementation**:
 
 - **Minimum**: 5 images required
-- **Image Selection UI**: 
+- **Image Selection UI**:
   - Show image picker/grid in wizard/settings
   - User can select which images to use (minimum 5)
   - Pre-select liked images (if available)
@@ -735,7 +749,7 @@ type NotificationType =
 
 **Implementation**:
 
-- **Cost Structure**: 
+- **Cost Structure**:
   - Base cost per model (e.g., Z-Image: 100 credits base)
   - Cost per image (e.g., 50 credits per image)
   - Total = base + (imageCount × perImageCost)

@@ -242,7 +242,32 @@ This is handled automatically by each endpoint handler.
 
 ### Training Infrastructure
 
-LoRA training runs on RunPod with AI Toolkit:
+**Primary: Modal.com (RYLA Production)**
+
+LoRA training runs on Modal.com using the `ryla-lora-training` app:
+
+- **GPU**: A100-80GB
+- **Training time**: 3-10 minutes (500 steps)
+- **Cost**: ~$0.50-2.00 per LoRA
+- **Location**: `/root/models/loras/` on `ryla-models` volume
+
+**Usage from backend**:
+
+```python
+from modal import Function
+
+train_fn = Function.from_name("ryla-lora-training", "train_lora")
+call = train_fn.spawn(
+    job_id="lora-character123-abc",
+    image_urls=["https://...img1.jpg", "https://...img2.jpg", "https://...img3.jpg"],
+    trigger_word="mycharacter",
+    character_id="character123",
+    config={"max_train_steps": 500, "rank": 16, "resolution": 512}
+)
+result = call.get()  # Blocking, or poll for status
+```
+
+**Alternative: RunPod with AI Toolkit**
 
 - GPU: RTX 4090 or A100 (24GB+ VRAM)
 - Training time: 30min - 2hrs depending on steps
