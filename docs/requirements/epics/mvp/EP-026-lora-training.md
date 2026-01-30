@@ -10,6 +10,18 @@
 
 ## Recent Progress
 
+### ✅ LoRA Enable/Disable Toggle (2026-01-27)
+
+Settings toggle to enable/disable LoRA usage for image generation:
+
+- **Schema**: Added `loraEnabled` boolean field to characters table
+- **API**: `PATCH /characters/:id/lora/toggle` endpoint
+- **Hook**: `useToggleLoraEnabled` mutation hook
+- **UI**: Switch component in LoraSettingsSection when LoRA is ready
+  - Purple accent when enabled
+  - Descriptive text showing current state
+- **Note**: Requires migration to add `lora_enabled` column
+
 ### ✅ Image Selection UI (2026-01-27)
 
 User can select which images to use for LoRA training:
