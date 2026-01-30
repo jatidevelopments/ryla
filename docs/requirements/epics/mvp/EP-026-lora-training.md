@@ -10,6 +10,17 @@
 
 ## Recent Progress
 
+### ✅ Webhook Notifications (2026-01-30)
+
+Server-side notifications when LoRA training completes:
+
+- **Webhook Endpoint**: `POST /webhooks/lora/callback`
+- **Authentication**: Uses `LORA_WEBHOOK_SECRET` env var
+- **Notifications**:
+  - `lora.training_completed` - Success with character link
+  - `lora.training_failed` - Failure with refund info
+- **Triggers**: Modal calls webhook or detected on status poll
+
 ### ✅ Credit Refund on Failure (2026-01-30)
 
 Automatic credit refund when LoRA training fails:
