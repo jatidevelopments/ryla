@@ -36,3 +36,4 @@ export * from './modal-workflow-detector';
 // export * from './template-tag.service'; // Server-only - import directly
 // export * from './template-likes.service'; // Server-only - import directly
 // export * from './template-set.service'; // Server-only - import directly
+// export * from './lora-training.service'; // Server-only - import directly

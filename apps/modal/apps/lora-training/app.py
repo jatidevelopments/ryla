@@ -2,20 +2,19 @@
 RYLA LoRA Training Modal App - Train character LoRAs using Diffusers
 
 Deploy: modal deploy apps/modal/apps/lora-training/app.py
+Run:    modal run apps/modal/apps/lora-training/app.py --character-id=test --steps=10
 
-This app handles:
-- /train - Start LoRA training job
-- /status/{job_id} - Get training job status
-- /jobs - List training jobs
+This is a FUNCTION-ONLY app (no web endpoints due to Modal's 8-endpoint limit).
+Training is triggered via:
+  1. Python script: apps/modal/scripts/trigger-lora-training.py
+  2. Direct Modal SDK calls from backend
 
-Endpoints are NOT real-time - training happens in background.
-Use webhooks or polling for status updates.
+See LORA-WORKFLOW-GUIDE.md for integration details.
 """
 
 import modal
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Optional
 import json
 import time
 import uuid
@@ -31,7 +30,6 @@ hf_cache_vol = modal.Volume.from_name("hf-hub-cache", create_if_missing=True)
 huggingface_secret = modal.Secret.from_name("huggingface")
 
 # Training image with all dependencies
-# Use compatible versions that work together
 training_image = (
     modal.Image.debian_slim(python_version="3.10")
     .apt_install("git")
@@ -41,9 +39,9 @@ training_image = (
         "torchvision>=0.20.0",
         "triton>=3.0.0",
         # Training
-        "accelerate>=0.34.0",  # Compatible with peft 0.17+
-        "peft>=0.17.0",        # Required by diffusers main branch
-        "diffusers==0.30.0",   # Stable version with Flux support
+        "accelerate>=0.34.0",
+        "peft>=0.17.0",
+        "diffusers==0.30.0",
         "transformers==4.44.0",
         # Data
         "datasets>=2.14.0",
@@ -55,12 +53,12 @@ training_image = (
         "ftfy",
         "numpy<2",
         "sentencepiece",
-        "bitsandbytes",  # For memory-efficient training
+        "bitsandbytes",
     )
     # Clone and install diffusers from source for latest Flux training script
     .run_commands(
         "git clone --depth=1 https://github.com/huggingface/diffusers.git /root/diffusers",
-        "pip install -e /root/diffusers",  # Install from source
+        "pip install -e /root/diffusers",
         "pip install -r /root/diffusers/examples/dreambooth/requirements_flux.txt || true",
     )
     .env({"HF_XET_HIGH_PERFORMANCE": "1"})
@@ -70,14 +68,9 @@ training_image = (
 @dataclass
 class TrainingConfig:
     """Configuration for LoRA training."""
-    # Model settings
-    base_model: str = "black-forest-labs/FLUX.1-dev"  # or "Tongyi-MAI/Z-Image-Turbo"
-    
-    # LoRA settings
+    base_model: str = "black-forest-labs/FLUX.1-dev"
     rank: int = 16
     lora_alpha: int = 16
-    
-    # Training settings
     resolution: int = 512
     train_batch_size: int = 1
     gradient_accumulation_steps: int = 4
@@ -90,10 +83,6 @@ class TrainingConfig:
     mixed_precision: str = "bf16"
 
 
-# In-memory job tracking (for demo - use Redis in production)
-_training_jobs: dict = {}
-
-
 @app.function(
     image=training_image,
     gpu="A100-80GB",
@@ -102,7 +91,7 @@ _training_jobs: dict = {}
         "/cache": hf_cache_vol,
     },
     secrets=[huggingface_secret],
-    timeout=7200,  # 2 hours max
+    timeout=7200,
 )
 def train_lora(
     job_id: str,
@@ -116,7 +105,7 @@ def train_lora(
     
     Args:
         job_id: Unique job identifier
-        image_urls: List of image URLs to train on
+        image_urls: List of image URLs to train on (min 3)
         trigger_word: Trigger word for the LoRA (e.g., character name)
         character_id: Character ID for organizing output
         config: Training configuration dict
@@ -215,7 +204,6 @@ def train_lora(
     # Find the trained LoRA file
     lora_files = list(output_dir.glob("*.safetensors"))
     if not lora_files:
-        # Check for pytorch_lora_weights.safetensors (default output name)
         lora_file = output_dir / "pytorch_lora_weights.safetensors"
         if not lora_file.exists():
             raise FileNotFoundError(f"No LoRA file found in {output_dir}")
@@ -248,16 +236,6 @@ def train_lora(
     }
 
 
-# Note: No web API to avoid hitting Modal's 8 endpoint limit.
-# Training is triggered directly via train_lora.spawn() from the backend.
-# 
-# Usage from backend:
-#   from modal import Function
-#   train_fn = Function.from_name("ryla-lora-training", "train_lora")
-#   call = train_fn.spawn(job_id=..., image_urls=..., ...)
-#   # Later: result = call.get()
-
-
 # Local entrypoint for testing
 @app.local_entrypoint()
 def main(
@@ -266,7 +244,6 @@ def main(
     steps: int = 100,
 ):
     """Test training locally."""
-    # Use placeholder images for testing
     test_images = [
         "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=512",
         "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=512",
