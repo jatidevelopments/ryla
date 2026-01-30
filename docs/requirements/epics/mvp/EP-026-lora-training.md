@@ -10,6 +10,23 @@
 
 ## Recent Progress
 
+### ✅ Image Selection UI (2026-01-27)
+
+User can select which images to use for LoRA training:
+
+- **Component**: `ImageSelectorModal` with RYLA design patterns
+- **Features**:
+  - Grid view of all completed images for character
+  - Checkbox selection with min 5 / max 10 validation
+  - Liked images pre-selected and shown with heart icon
+  - Purple selection ring with checkmark indicator
+  - Real-time credit cost calculation
+  - Credit balance validation
+- **API**: `GET /characters/:id/lora/available-images`
+  - Returns completed images sorted by liked status
+  - Includes canTrain validation and image counts
+- **Notification**: `lora.training_started` sent when training begins
+
 ### ✅ Settings Page Integration (2026-01-30)
 
 Manual LoRA training from influencer settings page:
