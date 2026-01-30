@@ -5,6 +5,7 @@ import { RedisModule } from '../redis/redis.module';
 import { ImageModule } from '../image/image.module';
 import { CreditsModule } from '../credits/credits.module';
 import { CharacterController } from './character.controller';
+import { LoraWebhookController } from './lora-webhook.controller';
 import { CharacterService } from './services/character.service';
 import { CharacterCacheService } from './services/character-cache.service';
 import { CharacterRepository } from '@ryla/data';
@@ -18,17 +19,8 @@ import { DrizzleModule } from '../drizzle/drizzle.module';
     CreditsModule, // Import for credit management
     DrizzleModule,
   ],
-  controllers: [CharacterController],
-  providers: [
-    CharacterService,
-    CharacterCacheService,
-    CharacterRepository,
-  ],
-  exports: [
-    CharacterService,
-    CharacterCacheService,
-    CharacterRepository,
-  ],
+  controllers: [CharacterController, LoraWebhookController],
+  providers: [CharacterService, CharacterCacheService, CharacterRepository],
+  exports: [CharacterService, CharacterCacheService, CharacterRepository],
 })
 export class CharacterModule {}
-

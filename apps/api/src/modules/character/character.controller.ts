@@ -27,7 +27,7 @@ import { RegenerateProfilePictureDto } from '../image/dto/req/regenerate-profile
 import { TrainLoraDto } from './dto/train-lora.dto';
 import { calculateLoraTrainingCost, type FeatureId } from '@ryla/shared';
 import { LoraTrainingService } from '@ryla/business/services/lora-training.service';
-import { LoraModelsRepository } from '@ryla/data';
+import { LoraModelsRepository, NotificationsRepository } from '@ryla/data';
 import { eq, and } from 'drizzle-orm';
 import * as schema from '@ryla/data/schema';
 import type { CharacterConfig } from '@ryla/data/schema';
@@ -601,10 +601,57 @@ export class CharacterController {
     @Param('jobId') jobId: string
   ) {
     const result = await this.loraTrainingService.getTrainingStatus(jobId);
+    const notificationsRepo = new NotificationsRepository(this.db);
 
     // Check if refund is needed for failed training
     let refundIssued = false;
     let creditsRefunded = 0;
+    let notificationSent = false;
+
+    // Get LoRA model to check if notification already sent
+    let loraModel = result.loraModelId
+      ? await this.loraTrainingService.getLoraById(result.loraModelId)
+      : null;
+
+    // Get character info for notification
+    let characterName = 'your character';
+    if (loraModel?.characterId) {
+      const character = await this.db.query.characters.findFirst({
+        where: eq(schema.characters.id, loraModel.characterId),
+        columns: { name: true },
+      });
+      if (character) {
+        characterName = character.name;
+      }
+    }
+
+    if (result.status === 'completed' && result.loraModelId && loraModel) {
+      // Training completed successfully - send notification if not already sent
+      // We use the trainingCompletedAt field to determine if notification was sent
+      // (If it was just updated, it means we're processing completion now)
+      const wasJustCompleted =
+        loraModel.trainingCompletedAt &&
+        Date.now() - new Date(loraModel.trainingCompletedAt).getTime() < 60000; // Within last minute
+
+      if (wasJustCompleted) {
+        await notificationsRepo.create({
+          userId: user.userId,
+          type: 'lora.training_completed',
+          title: 'LoRA Training Complete!',
+          body: `${characterName}'s AI model is ready. Your images will now have 95%+ face consistency.`,
+          href: `/influencer/${loraModel.characterId}`,
+          metadata: {
+            loraModelId: result.loraModelId,
+            characterId: loraModel.characterId,
+            characterName,
+            triggerWord: loraModel.triggerWord,
+            trainingSteps: result.result?.trainingSteps,
+            trainingTimeSeconds: result.result?.trainingTimeSeconds,
+          },
+        });
+        notificationSent = true;
+      }
+    }
 
     if (result.status === 'error' && result.loraModelId) {
       const refundCheck = await this.loraTrainingService.needsRefund(
@@ -629,6 +676,23 @@ export class CharacterController {
 
         refundIssued = true;
         creditsRefunded = refundCheck.creditsToRefund;
+
+        // Send failure notification with refund info
+        await notificationsRepo.create({
+          userId: user.userId,
+          type: 'lora.training_failed',
+          title: 'LoRA Training Failed',
+          body: `Training for ${characterName} failed. ${refundCheck.creditsToRefund.toLocaleString()} credits have been refunded.`,
+          href: `/influencer/${loraModel?.characterId}`,
+          metadata: {
+            loraModelId: result.loraModelId,
+            characterId: loraModel?.characterId,
+            characterName,
+            error: result.error,
+            creditsRefunded: refundCheck.creditsToRefund,
+          },
+        });
+        notificationSent = true;
       }
     }
 
@@ -641,6 +705,7 @@ export class CharacterController {
       message: result.message,
       refundIssued,
       creditsRefunded,
+      notificationSent,
     };
   }
 
@@ -660,6 +725,9 @@ export class CharacterController {
         modelPath: lora.modelPath,
         trainingSteps: lora.trainingSteps,
         trainingDurationMs: lora.trainingDurationMs,
+        creditsCharged: lora.creditsCharged,
+        creditsRefunded: lora.creditsRefunded,
+        errorMessage: lora.errorMessage,
         createdAt: lora.createdAt,
         completedAt: lora.trainingCompletedAt,
       })),
