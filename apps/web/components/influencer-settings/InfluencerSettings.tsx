@@ -11,6 +11,7 @@ import { NameField } from './components/name-field';
 import { BioField } from './components/bio-field';
 import { HandleField } from './components/handle-field';
 import { SocialMediaSection } from './components/social-media-section';
+import { LoraSettingsSection } from './components/lora-settings-section';
 
 export interface InfluencerSettingsContentProps {
   influencer: AIInfluencer;
@@ -59,6 +60,13 @@ export function InfluencerSettingsContent({
 
       <PageContainer className="py-8">
         <div className="max-w-2xl mx-auto space-y-8">
+          {/* LoRA Settings */}
+          <LoraSettingsSection
+            influencerId={influencer.id}
+            influencerName={influencer.name}
+            baseImageUrl={influencer.avatar}
+          />
+
           <NSFWToggleSection
             nsfwEnabled={nsfwEnabled}
             isSaving={isSavingNsfw}
@@ -67,7 +75,9 @@ export function InfluencerSettingsContent({
 
           {/* Identity Settings */}
           <section className="space-y-4">
-            <h2 className="text-xl font-semibold text-[var(--text-primary)]">Identity Settings</h2>
+            <h2 className="text-xl font-semibold text-[var(--text-primary)]">
+              Identity Settings
+            </h2>
             <div className="bg-[var(--bg-subtle)] border border-[var(--border-default)] rounded-xl p-6 space-y-6">
               <NameField
                 value={name}
@@ -104,4 +114,3 @@ export function InfluencerSettingsContent({
     </div>
   );
 }
-
