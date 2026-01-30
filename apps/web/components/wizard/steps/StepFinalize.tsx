@@ -9,10 +9,12 @@ import { useFinalizeCredits } from '../hooks/use-finalize-credits';
 import { useCharacterCreation } from '../hooks/use-character-creation';
 import { BaseImagePreview } from '../finalize/base-image-preview';
 import { NSFWToggleSection } from '../finalize/nsfw-toggle-section';
+import { LoraTrainingToggleSection } from '../finalize/lora-training-toggle-section';
 import { CreditSummary } from '../finalize/credit-summary';
 import { CreateButton } from '../finalize/create-button';
 import { CreatingLoading } from '../finalize/creating-loading';
 import { useSubscription } from '../../../lib/hooks/use-subscription';
+import { calculateLoraTrainingCost } from '@ryla/shared';
 
 /**
  * Step: Finalize
@@ -27,30 +29,46 @@ export function StepFinalize() {
   const setField = useCharacterWizardStore((s) => s.setField);
   const { isPro } = useSubscription();
 
-  const { balance, isLoading: isLoadingCredits, refetch: refetchCredits } = useCredits();
+  const {
+    balance,
+    isLoading: isLoadingCredits,
+    refetch: refetchCredits,
+  } = useCredits();
   const [showCreditModal, setShowCreditModal] = React.useState(false);
 
   // Get full credit breakdown (including base images with deferred billing)
   const creditBreakdown = useFinalizeCredits(balance);
   const {
-    totalCost,
+    totalCost: baseTotalCost,
     baseImagesCost,
     profileSetCost,
     nsfwExtraCost,
-    hasEnoughCredits,
+    hasEnoughCredits: _hasEnoughForBase,
     PROFILE_SET_CREDITS,
     NSFW_EXTRA_CREDITS,
   } = creditBreakdown;
-  
+
+  // Calculate LoRA training cost (based on profile set image count)
+  const LORA_IMAGE_COUNT = 8; // Profile set generates 8 images
+  const loraTrainingCost = form.loraTrainingEnabled
+    ? calculateLoraTrainingCost('flux', LORA_IMAGE_COUNT)
+    : 0;
+
+  // Total cost including LoRA training
+  const totalCost = baseTotalCost + loraTrainingCost;
+  const hasEnoughCredits = balance >= totalCost;
+
   // Pass credit breakdown to useCharacterCreation for atomic deferred billing
-  const { create, isCreating, error, selectedBaseImage } = useCharacterCreation({
-    creditBreakdown: {
-      baseImagesCost,
-      profileSetCost,
-      nsfwExtraCost,
-      totalCost,
-    },
-  });
+  const { create, isCreating, error, selectedBaseImage } = useCharacterCreation(
+    {
+      creditBreakdown: {
+        baseImagesCost,
+        profileSetCost,
+        nsfwExtraCost,
+        totalCost,
+      },
+    }
+  );
 
   const handleCreate = () => {
     create(hasEnoughCredits, () => setShowCreditModal(true), refetchCredits);
@@ -71,14 +89,18 @@ export function StepFinalize() {
       </div>
 
       {/* Base Image Preview */}
-      {selectedBaseImage && <BaseImagePreview imageUrl={selectedBaseImage.url} />}
+      {selectedBaseImage && (
+        <BaseImagePreview imageUrl={selectedBaseImage.url} />
+      )}
 
       {/* Profile Picture Set Selection */}
       <div className="w-full mb-6">
         <div className="bg-gradient-to-br from-white/[0.06] to-white/[0.02] border border-white/10 rounded-2xl p-5 shadow-lg backdrop-blur-sm">
           <ProfilePictureSetSelector
             selectedSetId={form.selectedProfilePictureSetId}
-            onSelect={(setId) => setField('selectedProfilePictureSetId', setId as any)}
+            onSelect={(setId) =>
+              setField('selectedProfilePictureSetId', setId as any)
+            }
             creditCost={PROFILE_SET_CREDITS}
           />
         </div>
@@ -93,6 +115,20 @@ export function StepFinalize() {
         />
       )}
 
+      {/* LoRA Training Toggle */}
+      <LoraTrainingToggleSection
+        enabled={form.loraTrainingEnabled}
+        onToggle={() =>
+          setField('loraTrainingEnabled', !form.loraTrainingEnabled)
+        }
+        creditCost={calculateLoraTrainingCost('flux', LORA_IMAGE_COUNT)}
+        imageCount={LORA_IMAGE_COUNT}
+        hasEnoughCredits={
+          balance >=
+          baseTotalCost + calculateLoraTrainingCost('flux', LORA_IMAGE_COUNT)
+        }
+      />
+
       {/* Credit Balance & Create Button */}
       <div className="w-full">
         <CreditSummary
@@ -100,6 +136,7 @@ export function StepFinalize() {
           baseImagesCost={baseImagesCost}
           profileSetCost={profileSetCost}
           nsfwExtraCost={nsfwExtraCost}
+          loraTrainingCost={loraTrainingCost}
           balance={balance}
           isLoadingCredits={isLoadingCredits}
           hasEnoughCredits={hasEnoughCredits}
@@ -131,6 +168,7 @@ export function StepFinalize() {
           baseImages: baseImagesCost,
           profileSet: profileSetCost,
           nsfwExtra: nsfwExtraCost,
+          loraTraining: loraTrainingCost,
         }}
       />
     </div>

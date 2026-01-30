@@ -3,3 +3,4 @@ export * from './create-button';
 export * from './creating-loading';
 export * from './credit-summary';
 export * from './nsfw-toggle-section';
+export * from './lora-training-toggle-section';

@@ -19,11 +19,16 @@ export interface WizardStep {
 
 import { GeneratedImage, ProfilePictureImage } from './types';
 
-
 /** Character form data matching the wizard */
 export interface CharacterFormData {
   // Step 0: Creation Method
-  creationMethod: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person' | null;
+  creationMethod:
+    | 'presets'
+    | 'prompt-based'
+    | 'ai'
+    | 'custom'
+    | 'existing-person'
+    | null;
 
   // Prompt-based Flow Fields
   promptInput?: string; // Single prompt for character description
@@ -86,8 +91,15 @@ export interface CharacterFormData {
   aspectRatio: '1:1' | '9:16' | '2:3';
   // qualityMode removed - see EP-045
 
+  // LoRA training for character consistency
+  loraTrainingEnabled: boolean;
+
   // Profile picture set selection (null = skip)
-  selectedProfilePictureSetId: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
+  selectedProfilePictureSetId:
+    | 'classic-influencer'
+    | 'professional-model'
+    | 'natural-beauty'
+    | null;
 
   // Existing Person Request Flow Fields
   influencerRequestConsent?: boolean;
@@ -133,10 +145,15 @@ export interface CharacterWizardState {
   prevStep: () => void;
   setStatus: (status: CharacterWizardState['status']) => void;
   setCharacterId: (id: string | null) => void;
-  updateSteps: (method: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person') => void;
+  updateSteps: (
+    method: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person'
+  ) => void;
 
   // Form actions
-  setField: <K extends keyof CharacterFormData>(field: K, value: CharacterFormData[K]) => void;
+  setField: <K extends keyof CharacterFormData>(
+    field: K,
+    value: CharacterFormData[K]
+  ) => void;
   setFormData: (data: Partial<CharacterFormData>) => void;
   resetForm: () => void;
 
@@ -154,12 +171,15 @@ export interface CharacterWizardState {
   setProfilePictureSetImages: (images: ProfilePictureImage[]) => void;
   addProfilePicture: (image: ProfilePictureImage) => void;
   removeProfilePicture: (imageId: string) => void;
-  updateProfilePicture: (imageId: string, updates: Partial<ProfilePictureImage>) => void;
+  updateProfilePicture: (
+    imageId: string,
+    updates: Partial<ProfilePictureImage>
+  ) => void;
 
   // Validation
   isStepValid: (step: number) => boolean;
   canProceed: () => boolean;
-  
+
   // Navigation helpers
   getNextStepNumber: () => number | null;
   getPrevStepNumber: () => number | null;
@@ -200,17 +220,18 @@ const PROMPT_BASED_STEPS: WizardStep[] = [
 ];
 
 const EXISTING_PERSON_STEPS: WizardStep[] = [
-  { id: 1, title: 'Request Influencer', description: 'Submit request with consent and details' },
+  {
+    id: 1,
+    title: 'Request Influencer',
+    description: 'Submit request with consent and details',
+  },
 ];
 
 /**
  * Reset form fields and state for steps from a given step onwards
  * This is called when going back in the wizard to clear invalidated data
  */
-function resetStepsFrom(
-  state: CharacterWizardState,
-  fromStep: number
-): void {
+function resetStepsFrom(state: CharacterWizardState, fromStep: number): void {
   const { form } = state;
   const { creationMethod } = form;
 
@@ -398,6 +419,8 @@ const DEFAULT_FORM: CharacterFormData = {
   nsfwEnabled: false,
   aspectRatio: '9:16',
   // qualityMode removed - see EP-045
+  // LoRA training (default: enabled for better consistency)
+  loraTrainingEnabled: true,
   // Profile picture set (null = skip by default)
   selectedProfilePictureSetId: null,
   // Existing Person Request Flow
@@ -445,14 +468,14 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           if (state.step < state.steps.length) {
             let nextStepNum = state.step + 1;
             const { form } = state;
-            
+
             // Skip conditional steps for males (breast size/type)
             if (form.gender === 'male') {
               while (nextStepNum === 11 || nextStepNum === 12) {
                 nextStepNum += 1;
               }
             }
-            
+
             if (nextStepNum <= state.steps.length) {
               state.step = nextStepNum;
             }
@@ -464,14 +487,14 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           if (state.step > 0) {
             let targetStep = state.step - 1;
             const { form } = state;
-            
+
             // Skip conditional steps for males (breast size/type) when going backwards
             if (form.gender === 'male') {
               while (targetStep === 11 || targetStep === 12) {
                 targetStep -= 1;
               }
             }
-            
+
             if (targetStep >= 1) {
               // Reset all steps from targetStep onwards (including targetStep)
               resetStepsFrom(state, targetStep);
@@ -490,7 +513,9 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           state.characterId = id;
         }),
 
-      updateSteps: (method: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person') =>
+      updateSteps: (
+        method: 'presets' | 'prompt-based' | 'ai' | 'custom' | 'existing-person'
+      ) =>
         set((state) => {
           if (method === 'prompt-based') {
             state.steps = PROMPT_BASED_STEPS;
@@ -573,14 +598,15 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
 
       removeProfilePicture: (imageId) =>
         set((state) => {
-          state.profilePictureSet.images = state.profilePictureSet.images.filter(
-            (img) => img.id !== imageId
-          );
+          state.profilePictureSet.images =
+            state.profilePictureSet.images.filter((img) => img.id !== imageId);
         }),
 
       updateProfilePicture: (imageId, updates) =>
         set((state) => {
-          const index = state.profilePictureSet.images.findIndex((img) => img.id === imageId);
+          const index = state.profilePictureSet.images.findIndex(
+            (img) => img.id === imageId
+          );
           if (index !== -1) {
             Object.assign(state.profilePictureSet.images[index], updates);
           }
@@ -646,7 +672,10 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
             default:
               return false;
           }
-        } else if (form.creationMethod === 'ai' || form.creationMethod === 'custom') {
+        } else if (
+          form.creationMethod === 'ai' ||
+          form.creationMethod === 'custom'
+        ) {
           // AI and Custom flows use similar validation to prompt-based for now
           switch (step) {
             case 1: // AI Description or Custom Prompts
@@ -715,39 +744,39 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
         const { step, isStepValid } = get();
         return isStepValid(step);
       },
-      
+
       getNextStepNumber: () => {
         const { step, steps, form } = get();
         if (step >= steps.length) return null;
-        
+
         let nextStepNum = step + 1;
-        
+
         // Skip conditional steps for males (breast size/type)
         if (form.gender === 'male') {
           while (nextStepNum === 11 || nextStepNum === 12) {
             nextStepNum += 1;
           }
         }
-        
+
         return nextStepNum <= steps.length ? nextStepNum : null;
       },
-      
+
       getPrevStepNumber: () => {
         const { step, form } = get();
         if (step <= 1) return null;
-        
+
         let prevStepNum = step - 1;
-        
+
         // Skip conditional steps for males (breast size/type) when going backwards
         if (form.gender === 'male') {
           while (prevStepNum === 11 || prevStepNum === 12) {
             prevStepNum -= 1;
           }
         }
-        
+
         return prevStepNum >= 1 ? prevStepNum : null;
       },
-      
+
       getEffectiveStepCount: () => {
         const { steps, form } = get();
         // For males, subtract 2 steps (breast size/type)
@@ -776,16 +805,26 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
               storage.setItem(name, value);
             } catch (error) {
               // Handle quota exceeded error
-              if (error instanceof DOMException && error.name === 'QuotaExceededError') {
-                console.error('localStorage quota exceeded. Clearing old wizard data...');
+              if (
+                error instanceof DOMException &&
+                error.name === 'QuotaExceededError'
+              ) {
+                console.error(
+                  'localStorage quota exceeded. Clearing old wizard data...'
+                );
                 // Clear the wizard storage and try again
                 try {
                   storage.removeItem('ryla-character-wizard');
                   storage.setItem(name, value);
                 } catch (retryError) {
-                  console.error('Failed to save after clearing storage:', retryError);
+                  console.error(
+                    'Failed to save after clearing storage:',
+                    retryError
+                  );
                   // If still failing, the data is too large - persist only essential data
-                  throw new Error('Storage quota exceeded. Please complete the wizard in one session or clear browser storage.');
+                  throw new Error(
+                    'Storage quota exceeded. Please complete the wizard in one session or clear browser storage.'
+                  );
                 }
               } else {
                 throw error;
@@ -810,13 +849,15 @@ export const useCharacterWizardStore = create<CharacterWizardState>()(
           s3Key: img.s3Key,
         }));
 
-        const minimalProfilePictures = state.profilePictureSet.images.map((img) => ({
-          id: img.id,
-          positionId: img.positionId,
-          positionName: img.positionName,
-          url: img.thumbnailUrl || img.url, // Prefer thumbnail if available
-          s3Key: img.s3Key,
-        }));
+        const minimalProfilePictures = state.profilePictureSet.images.map(
+          (img) => ({
+            id: img.id,
+            positionId: img.positionId,
+            positionName: img.positionName,
+            url: img.thumbnailUrl || img.url, // Prefer thumbnail if available
+            s3Key: img.s3Key,
+          })
+        );
 
         return {
           step: state.step,
@@ -861,7 +902,9 @@ export const useCurrentStep = () => {
 /** Helper: Get progress percentage */
 export const useWizardProgress = () => {
   const step = useCharacterWizardStore((s) => s.step);
-  const getEffectiveStepCount = useCharacterWizardStore((s) => s.getEffectiveStepCount);
+  const getEffectiveStepCount = useCharacterWizardStore(
+    (s) => s.getEffectiveStepCount
+  );
   const steps = useCharacterWizardStore((s) => s.steps);
   if (steps.length === 0) return 0; // Return 0 if steps not initialized yet
   const effectiveCount = getEffectiveStepCount();
@@ -888,7 +931,9 @@ export const useCanProceed = () => {
   const step = useCharacterWizardStore((s) => s.step);
   const form = useCharacterWizardStore((s) => s.form);
   const steps = useCharacterWizardStore((s) => s.steps);
-  const selectedBaseImageId = useCharacterWizardStore((s) => s.selectedBaseImageId);
+  const selectedBaseImageId = useCharacterWizardStore(
+    (s) => s.selectedBaseImageId
+  );
 
   // Find current step definition
   const currentStep = steps.find((s) => s.id === step);
@@ -984,4 +1029,3 @@ export const useCanProceed = () => {
     }
   }
 };
-

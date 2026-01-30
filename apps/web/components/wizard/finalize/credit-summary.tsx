@@ -11,6 +11,8 @@ interface CreditSummaryProps {
   profileSetCost: number;
   /** Extra cost for NSFW content (50 credits) */
   nsfwExtraCost: number;
+  /** Cost for LoRA training (optional) */
+  loraTrainingCost?: number;
   /** Current credit balance */
   balance: number;
   /** Whether credits are loading */
@@ -24,13 +26,14 @@ export function CreditSummary({
   baseImagesCost,
   profileSetCost,
   nsfwExtraCost,
+  loraTrainingCost = 0,
   balance,
   isLoadingCredits,
   hasEnoughCredits,
 }: CreditSummaryProps) {
   // Build cost breakdown items
   const costItems: Array<{ label: string; cost: number }> = [];
-  
+
   if (baseImagesCost > 0) {
     costItems.push({ label: 'Base Images', cost: baseImagesCost });
   }
@@ -39,6 +42,9 @@ export function CreditSummary({
   }
   if (nsfwExtraCost > 0) {
     costItems.push({ label: 'Adult Content', cost: nsfwExtraCost });
+  }
+  if (loraTrainingCost > 0) {
+    costItems.push({ label: 'LoRA Training', cost: loraTrainingCost });
   }
 
   return (
@@ -56,7 +62,9 @@ export function CreditSummary({
             clipRule="evenodd"
           />
         </svg>
-        <span className="text-white/80 text-sm font-medium">Credit Summary</span>
+        <span className="text-white/80 text-sm font-medium">
+          Credit Summary
+        </span>
       </div>
 
       {/* Cost breakdown */}
@@ -81,8 +89,8 @@ export function CreditSummary({
               totalCost === 0
                 ? 'text-green-400'
                 : hasEnoughCredits
-                  ? 'text-white'
-                  : 'text-red-400'
+                ? 'text-white'
+                : 'text-red-400'
             )}
           >
             {totalCost === 0 ? 'Free' : `${totalCost} credits`}
@@ -117,9 +125,7 @@ export function CreditSummary({
                 clipRule="evenodd"
               />
             </svg>
-            <span>
-              Need {totalCost - balance} more credits
-            </span>
+            <span>Need {totalCost - balance} more credits</span>
           </div>
         </div>
       )}
