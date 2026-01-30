@@ -547,6 +547,7 @@ export class CharacterController {
       userId: user.userId,
       triggerWord: dto.triggerWord,
       imageUrls: dto.imageUrls,
+      creditsCharged: totalCredits,
       config: {
         maxTrainSteps: dto.maxTrainSteps,
         rank: dto.rank,
@@ -555,7 +556,23 @@ export class CharacterController {
     });
 
     if (result.status === 'error') {
-      // TODO: Refund credits on failure
+      // Refund credits on immediate failure
+      await this.creditService.refundCredits(
+        user.userId,
+        totalCredits,
+        `LoRA training failed to start: ${result.error}`,
+        result.loraModelId
+      );
+
+      // Mark as failed with refund
+      if (result.loraModelId) {
+        await this.loraTrainingService.markFailedWithRefund(
+          result.loraModelId,
+          result.error || 'Failed to start training',
+          totalCredits
+        );
+      }
+
       throw new Error(result.error || 'Failed to start LoRA training');
     }
 
@@ -585,6 +602,36 @@ export class CharacterController {
   ) {
     const result = await this.loraTrainingService.getTrainingStatus(jobId);
 
+    // Check if refund is needed for failed training
+    let refundIssued = false;
+    let creditsRefunded = 0;
+
+    if (result.status === 'error' && result.loraModelId) {
+      const refundCheck = await this.loraTrainingService.needsRefund(
+        result.loraModelId
+      );
+
+      if (refundCheck.needsRefund && refundCheck.userId === user.userId) {
+        // Issue refund
+        await this.creditService.refundCredits(
+          user.userId,
+          refundCheck.creditsToRefund,
+          `LoRA training failed: ${result.error || 'Unknown error'}`,
+          result.loraModelId
+        );
+
+        // Mark as refunded
+        await this.loraTrainingService.markFailedWithRefund(
+          result.loraModelId,
+          result.error || 'Training failed',
+          refundCheck.creditsToRefund
+        );
+
+        refundIssued = true;
+        creditsRefunded = refundCheck.creditsToRefund;
+      }
+    }
+
     return {
       jobId,
       loraModelId: result.loraModelId,
@@ -592,6 +639,8 @@ export class CharacterController {
       result: result.result,
       error: result.error,
       message: result.message,
+      refundIssued,
+      creditsRefunded,
     };
   }
 

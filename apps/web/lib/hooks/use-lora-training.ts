@@ -17,6 +17,9 @@ export interface LoraModel {
   modelPath: string | null;
   trainingSteps: number | null;
   trainingDurationMs: number | null;
+  creditsCharged: number | null;
+  creditsRefunded: number | null;
+  errorMessage: string | null;
   createdAt: string;
   completedAt: string | null;
 }

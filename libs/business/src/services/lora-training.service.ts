@@ -27,6 +27,8 @@ export interface StartTrainingRequest {
   triggerWord: string;
   imageUrls: string[];
   config?: LoraTrainingConfig;
+  /** Credits charged for this training (for refund tracking) */
+  creditsCharged?: number;
 }
 
 export interface TrainingJobResult {
@@ -93,7 +95,14 @@ export class LoraTrainingService {
   async startTraining(
     request: StartTrainingRequest
   ): Promise<TrainingJobResult> {
-    const { characterId, userId, triggerWord, imageUrls, config } = request;
+    const {
+      characterId,
+      userId,
+      triggerWord,
+      imageUrls,
+      config,
+      creditsCharged,
+    } = request;
 
     // Validate input
     if (imageUrls.length < 3) {
@@ -114,6 +123,7 @@ export class LoraTrainingService {
         triggerWord,
         baseModel: 'black-forest-labs/FLUX.1-dev',
         externalProvider: 'modal',
+        creditsCharged: creditsCharged ?? null,
         config: {
           baseModel: 'black-forest-labs/FLUX.1-dev',
           triggerWord,
@@ -284,6 +294,66 @@ export class LoraTrainingService {
       return [];
     }
     return this.repository.getByUserId(userId);
+  }
+
+  /**
+   * Get a LoRA model by ID
+   */
+  async getLoraById(loraModelId: string): Promise<LoraModelRow | null> {
+    if (!this.repository) {
+      return null;
+    }
+    const model = await this.repository.getById(loraModelId);
+    return model ?? null;
+  }
+
+  /**
+   * Mark a LoRA as failed with refund info
+   * Called after credits have been refunded externally
+   */
+  async markFailedWithRefund(
+    loraModelId: string,
+    errorMessage: string,
+    creditsRefunded: number
+  ): Promise<LoraModelRow | null> {
+    if (!this.repository) {
+      return null;
+    }
+    const model = await this.repository.markTrainingFailedWithRefund(
+      loraModelId,
+      errorMessage,
+      creditsRefunded
+    );
+    return model ?? null;
+  }
+
+  /**
+   * Check if a LoRA needs refund (failed with credits charged but not refunded)
+   */
+  async needsRefund(loraModelId: string): Promise<{
+    needsRefund: boolean;
+    creditsToRefund: number;
+    userId?: string;
+  }> {
+    if (!this.repository) {
+      return { needsRefund: false, creditsToRefund: 0 };
+    }
+    const lora = await this.repository.getById(loraModelId);
+    if (!lora) {
+      return { needsRefund: false, creditsToRefund: 0 };
+    }
+
+    const needsRefund =
+      lora.status === 'failed' &&
+      lora.creditsCharged != null &&
+      lora.creditsCharged > 0 &&
+      lora.creditsRefunded == null;
+
+    return {
+      needsRefund,
+      creditsToRefund: needsRefund ? lora.creditsCharged! : 0,
+      userId: lora.userId,
+    };
   }
 
   /**

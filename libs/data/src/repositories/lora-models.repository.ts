@@ -172,6 +172,36 @@ export class LoraModelsRepository {
   }
 
   /**
+   * Mark training as failed and record refund
+   */
+  async markTrainingFailedWithRefund(
+    id: string,
+    errorMessage: string,
+    creditsRefunded: number
+  ): Promise<LoraModelRow | undefined> {
+    const current = await this.getById(id);
+    return this.updateById(id, {
+      status: 'failed',
+      errorMessage,
+      creditsRefunded,
+      retryCount: (current?.retryCount ?? 0) + 1,
+    });
+  }
+
+  /**
+   * Get failed LoRAs that need refund (creditsCharged > 0 and creditsRefunded is null)
+   */
+  async getFailedNeedingRefund(): Promise<LoraModelRow[]> {
+    const failed = await this.getByStatus('failed');
+    return failed.filter(
+      (lora) =>
+        lora.creditsCharged != null &&
+        lora.creditsCharged > 0 &&
+        lora.creditsRefunded == null
+    );
+  }
+
+  /**
    * Delete LoRA model by ID
    */
   async deleteById(id: string): Promise<void> {

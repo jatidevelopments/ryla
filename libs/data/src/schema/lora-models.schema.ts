@@ -79,6 +79,10 @@ export const loraModels = pgTable(
     trainingDurationMs: integer('training_duration_ms'),
     trainingCost: integer('training_cost'), // Cost in cents
 
+    // Credit tracking for refunds
+    creditsCharged: integer('credits_charged'), // Credits charged for training
+    creditsRefunded: integer('credits_refunded'), // Credits refunded if failed
+
     // Error handling
     errorMessage: text('error_message'),
     retryCount: integer('retry_count').default(0),

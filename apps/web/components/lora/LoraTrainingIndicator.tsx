@@ -133,6 +133,9 @@ export function LoraTrainingIndicator({
   }
 
   if (lora.status === 'failed') {
+    const wasRefunded =
+      lora.creditsRefunded != null && lora.creditsRefunded > 0;
+
     return (
       <div
         className={cn(
@@ -152,9 +155,19 @@ export function LoraTrainingIndicator({
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/20 text-red-300">
                 Error
               </span>
+              {wasRefunded && (
+                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-300">
+                  Refunded
+                </span>
+              )}
             </div>
             <p className="text-xs text-white/60 mt-0.5">
-              Training failed. You can retry from the settings page.
+              {lora.errorMessage || 'Training failed.'}
+              {wasRefunded && (
+                <span className="text-green-300 ml-1">
+                  ({lora.creditsRefunded?.toLocaleString()} credits refunded)
+                </span>
+              )}
             </p>
           </div>
         </div>
