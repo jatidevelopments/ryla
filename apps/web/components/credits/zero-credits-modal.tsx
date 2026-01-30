@@ -9,6 +9,7 @@ interface CreditBreakdown {
   baseImages?: number;
   profileSet?: number;
   nsfwExtra?: number;
+  loraTraining?: number;
 }
 
 interface ZeroCreditsModalProps {
