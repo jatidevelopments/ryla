@@ -619,6 +619,7 @@ jobs:
       - name: Build Funnel App
         run: pnpm nx build funnel --configuration=production
         env:
+          CLOUDFLARE_PAGES: 'true'
           NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
           NEXT_PUBLIC_DEBUG_CDN: ${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL_FUNNEL }}
@@ -635,7 +636,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ryla-funnel
-          directory: dist/apps/funnel/.next
+          directory: dist/apps/funnel/out
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
@@ -673,6 +674,7 @@ jobs:
       - name: Build Landing App
         run: pnpm nx build landing --configuration=production
         env:
+          CLOUDFLARE_PAGES: 'true'
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL_LANDING }}
           NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
           NEXT_PUBLIC_DEBUG_CDN: ${{ secrets.NEXT_PUBLIC_DEBUG_CDN }}
@@ -683,7 +685,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ryla-landing
-          directory: dist/apps/landing/.next
+          directory: dist/apps/landing/out
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
