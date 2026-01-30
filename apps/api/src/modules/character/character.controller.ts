@@ -903,4 +903,48 @@ export class CharacterController {
         : 'LoRA will not be used for image generation',
     };
   }
+
+  @Get(':characterId/lora/history')
+  @ApiOperation({
+    summary: 'Get LoRA training history for a character',
+    description:
+      'Returns all LoRA training attempts for a character, including failed and completed ones.',
+  })
+  async getTrainingHistory(
+    @CurrentUser() user: IJwtPayload,
+    @Param('characterId') characterId: string
+  ) {
+    // Verify character ownership
+    const character = await this.db.query.characters.findFirst({
+      where: and(
+        eq(schema.characters.id, characterId),
+        eq(schema.characters.userId, user.userId)
+      ),
+      columns: { id: true },
+    });
+
+    if (!character) {
+      throw new NotFoundException('Character not found or access denied');
+    }
+
+    const loraRepository = new LoraModelsRepository(this.db);
+    const history = await loraRepository.getAllByCharacterId(characterId);
+
+    return {
+      history: history.map((lora) => ({
+        id: lora.id,
+        status: lora.status,
+        triggerWord: lora.triggerWord,
+        trainingSteps: lora.trainingSteps,
+        trainingDurationMs: lora.trainingDurationMs,
+        creditsCharged: lora.creditsCharged,
+        creditsRefunded: lora.creditsRefunded,
+        errorMessage: lora.errorMessage,
+        imageCount: lora.trainingImages?.length ?? 0,
+        createdAt: lora.createdAt,
+        completedAt: lora.trainingCompletedAt,
+      })),
+      totalCount: history.length,
+    };
+  }
 }

@@ -19,7 +19,7 @@ import {
 } from '../../../lib/hooks/use-lora-training';
 import { calculateLoraTrainingCost } from '@ryla/shared';
 import { trpc } from '../../../lib/trpc';
-import { ImageSelectorModal } from '../../lora/ImageSelectorModal';
+import { ImageSelectorModal, TrainingHistorySection } from '../../lora';
 import { Switch } from '@ryla/ui';
 
 interface LoraSettingsSectionProps {
@@ -306,6 +306,9 @@ export function LoraSettingsSection({
             </button>
           </div>
         )}
+
+        {/* Training History */}
+        <TrainingHistorySection characterId={influencerId} />
       </div>
 
       {/* Image Selector Modal */}

@@ -71,6 +71,16 @@ export class LoraModelsRepository {
   }
 
   /**
+   * Get all LoRA models for a character (for training history)
+   */
+  async getAllByCharacterId(characterId: string): Promise<LoraModelRow[]> {
+    return this.db.query.loraModels.findMany({
+      where: eq(schema.loraModels.characterId, characterId),
+      orderBy: [desc(schema.loraModels.createdAt)],
+    });
+  }
+
+  /**
    * Get all LoRA models for a user
    */
   async getByUserId(userId: string): Promise<LoraModelRow[]> {

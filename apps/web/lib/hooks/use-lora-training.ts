@@ -251,3 +251,51 @@ export function useToggleLoraEnabled() {
     },
   });
 }
+
+// ============================================================================
+// Training History
+// ============================================================================
+
+export interface TrainingHistoryItem {
+  id: string;
+  status: 'pending' | 'training' | 'ready' | 'failed' | 'expired';
+  triggerWord: string | null;
+  trainingSteps: number | null;
+  trainingDurationMs: number | null;
+  creditsCharged: number | null;
+  creditsRefunded: number | null;
+  errorMessage: string | null;
+  imageCount: number;
+  createdAt: string;
+  completedAt: string | null;
+}
+
+interface GetTrainingHistoryResponse {
+  history: TrainingHistoryItem[];
+  totalCount: number;
+}
+
+async function fetchTrainingHistory(
+  characterId: string
+): Promise<GetTrainingHistoryResponse> {
+  const response = await authFetch(
+    `${API_BASE_URL}/characters/${characterId}/lora/history`
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch training history');
+  }
+
+  return response.json();
+}
+
+/**
+ * Hook to get LoRA training history for a character
+ */
+export function useTrainingHistory(characterId: string | null | undefined) {
+  return useQuery({
+    queryKey: ['trainingHistory', characterId],
+    queryFn: () => fetchTrainingHistory(characterId!),
+    enabled: !!characterId,
+  });
+}
