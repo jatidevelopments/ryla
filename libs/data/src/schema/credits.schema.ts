@@ -90,13 +90,10 @@ export const creditTransactions = pgTable(
   })
 );
 
-export const userCreditsRelations = relations(
-  userCredits,
-  ({ one, many }) => ({
-    user: one(users, { fields: [userCredits.userId], references: [users.id] }),
-    transactions: many(creditTransactions),
-  })
-);
+export const userCreditsRelations = relations(userCredits, ({ one, many }) => ({
+  user: one(users, { fields: [userCredits.userId], references: [users.id] }),
+  transactions: many(creditTransactions),
+}));
 
 export const creditTransactionsRelations = relations(
   creditTransactions,
@@ -121,16 +118,13 @@ export type CreditTransactionType =
   (typeof creditTransactionTypeEnum.enumValues)[number];
 
 /**
- * Re-export credit costs and plan limits from @ryla/shared
- * This is the single source of truth for all credit pricing
+ * Credit costs and plan limits are defined in @ryla/shared
+ * Import directly from there for credit pricing constants:
+ *
+ * ```typescript
+ * import { CREDIT_COSTS, FEATURE_CREDITS, getFeatureCost } from '@ryla/shared';
+ * ```
  *
  * @see libs/shared/src/credits/pricing.ts
  * @see docs/technical/CREDIT-COST-MARGIN-ANALYSIS.md
  */
-export {
-  CREDIT_COSTS,
-  PLAN_CREDIT_LIMITS,
-  FEATURE_CREDITS,
-  PLAN_CREDITS,
-  getFeatureCost,
-} from '@ryla/shared';
