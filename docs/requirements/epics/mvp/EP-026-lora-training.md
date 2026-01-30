@@ -10,6 +10,20 @@
 
 ## Recent Progress
 
+### ✅ Training History Display (2026-01-27)
+
+Collapsible training history in settings page:
+
+- **Component**: `TrainingHistorySection`
+- **Features**:
+  - Collapsible list showing all training attempts
+  - Status indicators (completed, failed, training, pending)
+  - Shows duration, image count, credits charged/refunded
+  - Current/latest training highlighted with "Current" badge
+  - Only displays when more than 1 training attempt exists
+- **API**: `GET /characters/:id/lora/history`
+- **Hook**: `useTrainingHistory(characterId)`
+
 ### ✅ LoRA Enable/Disable Toggle (2026-01-27)
 
 Settings toggle to enable/disable LoRA usage for image generation:
