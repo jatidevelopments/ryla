@@ -10,7 +10,6 @@ import {
   type JobStatus,
 } from '../../../lib/api/character';
 
-
 interface UseWizardGenerationOptions {
   balance: number;
   creditCost: number;
@@ -125,7 +124,9 @@ export function useWizardGeneration({
       const avatarUrl = images[0]?.url || '';
 
       if (!avatarUrl) {
-        throw new Error('Base image generation returned no images; cannot create character');
+        throw new Error(
+          'Base image generation returned no images; cannot create character'
+        );
       }
 
       const character = await createCharacter.mutateAsync({
@@ -144,11 +145,14 @@ export function useWizardGeneration({
           defaultOutfit: form.outfit || 'casual',
           archetype: form.archetype || 'girl-next-door',
           personalityTraits:
-            form.personalityTraits.length > 0 ? form.personalityTraits : ['friendly'],
+            form.personalityTraits.length > 0
+              ? form.personalityTraits
+              : ['friendly'],
           bio: form.bio,
           handle,
           nsfwEnabled: form.nsfwEnabled,
         },
+        loraEnabled: form.loraTrainingEnabled,
       });
 
       const newInfluencer: AIInfluencer = {
@@ -228,4 +232,3 @@ export function useWizardGeneration({
     handleRetry,
   };
 }
-

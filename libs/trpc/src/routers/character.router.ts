@@ -403,6 +403,7 @@ export const characterRouter = router({
         name: z.string().min(1).max(100),
         config: characterConfigSchema,
         baseImageUrl: z.string().url(),
+        loraEnabled: z.boolean().optional().default(true),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -414,6 +415,7 @@ export const characterRouter = router({
           handle: input.config.handle,
           config: input.config as CharacterConfig,
           baseImageUrl: input.baseImageUrl,
+          loraEnabled: input.loraEnabled,
           status: 'draft',
         })
         .returning();
