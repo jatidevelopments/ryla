@@ -10,6 +10,19 @@
 
 ## Recent Progress
 
+### ✅ Settings Page Integration (2026-01-30)
+
+Manual LoRA training from influencer settings page:
+
+- **Component**: `LoraSettingsSection` in influencer settings
+- **Features**:
+  - Current status display (ready, training, failed, none)
+  - Manual train/retrain button with credit cost
+  - Credit balance validation
+  - Trigger word display when ready
+  - Error and refund info display
+- **Location**: `/influencer/[id]/settings` - above NSFW toggle
+
 ### ✅ Webhook Notifications (2026-01-30)
 
 Server-side notifications when LoRA training completes:
