@@ -52,5 +52,7 @@ export {
   // Legacy (deprecated - remove after migration)
   CREDIT_COSTS,
   PLAN_CREDIT_LIMITS,
+  // LoRA training cost calculation
+  calculateLoraTrainingCost,
 } from './pricing';
 
