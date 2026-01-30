@@ -14,10 +14,10 @@ import {
   userCredits,
   creditTransactions,
   characters,
-  CREDIT_COSTS,
   NotificationsRepository,
   type GenerationInput,
 } from '@ryla/data';
+import { CREDIT_COSTS } from '@ryla/shared';
 
 
 import { router, protectedProcedure } from '../trpc';
