@@ -54,20 +54,24 @@ def _get_z_image_pipeline():
         
         print("--- Z-Image: Loading pipeline (first request) ---")
         
-        # Check if models are cached locally (downloaded during image build)
-        # Primary location: ComfyUI models directory (downloaded during build)
-        comfy_model_dir = "/root/comfy/ComfyUI/models/diffusers/Z-Image-Turbo"
-        # Fallback location: volume directory (for dynamic downloads)
+        # Check if models are cached locally
+        # Primary location: volume directory (persisted across deployments)
         volume_model_dir = "/root/models/diffusers/Z-Image-Turbo"
+        # Fallback location: ComfyUI directory (for legacy or symlinked models)
+        comfy_model_dir = "/root/comfy/ComfyUI/models/diffusers/Z-Image-Turbo"
         
-        # Check ComfyUI dir first (has the pre-downloaded model)
-        comfy_model_file = Path(comfy_model_dir) / "text_encoder" / "model.safetensors.index.json"
-        volume_model_file = Path(volume_model_dir) / "text_encoder" / "model.safetensors.index.json"
+        # Check volume dir first (model is downloaded here during build)
+        volume_model_file = Path(volume_model_dir) / "model_index.json"
+        comfy_model_file = Path(comfy_model_dir) / "model_index.json"
         
-        if comfy_model_file.exists():
+        if volume_model_file.exists():
+            model_dir = volume_model_dir
+            model_file = volume_model_file
+        elif comfy_model_file.exists():
             model_dir = comfy_model_dir
             model_file = comfy_model_file
         else:
+            # Neither exists, will trigger download
             model_dir = volume_model_dir
             model_file = volume_model_file
         

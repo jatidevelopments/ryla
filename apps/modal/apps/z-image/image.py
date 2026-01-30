@@ -29,35 +29,64 @@ except ImportError:
 
 def hf_download_z_image():
     """
-    Download Z-Image-Turbo model from ModelScope during build.
+    Download Z-Image-Turbo model from ModelScope to the persistent volume.
     
-    This downloads the complete diffusers pipeline (~25GB) and caches it
-    in the ComfyUI models directory so it's available at runtime.
+    Downloads to /root/models/diffusers/Z-Image-Turbo (on the volume) so it
+    persists across deployments. Skips download if model already exists.
     """
     from pathlib import Path
     
-    comfy_dir = Path("/root/comfy/ComfyUI/models")
-    local_dir = comfy_dir / "diffusers" / "Z-Image-Turbo"
+    # Download to volume (persists across deployments)
+    volume_dir = Path("/root/models/diffusers/Z-Image-Turbo")
+    # Also create symlink in ComfyUI directory for ZImageLoader node
+    comfy_dir = Path("/root/comfy/ComfyUI/models/diffusers/Z-Image-Turbo")
+    
+    # Check if model already exists on volume
+    check_file = volume_dir / "model_index.json"
+    if check_file.exists():
+        print(f"✅ Z-Image-Turbo already exists on volume at {volume_dir}")
+        # Verify size
+        files = list(volume_dir.rglob("*"))
+        total_size = sum(f.stat().st_size for f in files if f.is_file())
+        print(f"   Total files: {len(files)}, Size: {total_size / 1024**3:.2f} GB")
+        
+        # Create symlink for ComfyUI
+        if not comfy_dir.exists():
+            comfy_dir.parent.mkdir(parents=True, exist_ok=True)
+            import os
+            os.symlink(str(volume_dir), str(comfy_dir))
+            print(f"   Symlinked to {comfy_dir}")
+        return
     
     print("📥 Downloading Z-Image-Turbo from ModelScope (this takes 10-15 minutes)...")
     
     try:
         from modelscope import snapshot_download
         
-        # Download to the exact path ZImageLoader expects
+        # Ensure directory exists
+        volume_dir.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Download to volume
         model_dir = snapshot_download(
             "Tongyi-MAI/Z-Image-Turbo",
-            local_dir=str(local_dir),
+            local_dir=str(volume_dir),
         )
         
         print(f"✅ Z-Image-Turbo downloaded to {model_dir}")
         
         # Verify download
-        if local_dir.exists():
-            files = list(local_dir.rglob("*"))
+        if volume_dir.exists():
+            files = list(volume_dir.rglob("*"))
             total_size = sum(f.stat().st_size for f in files if f.is_file())
             print(f"   Total files: {len(files)}")
             print(f"   Total size: {total_size / 1024**3:.2f} GB")
+        
+        # Create symlink for ComfyUI
+        if not comfy_dir.exists():
+            comfy_dir.parent.mkdir(parents=True, exist_ok=True)
+            import os
+            os.symlink(str(volume_dir), str(comfy_dir))
+            print(f"   Symlinked to {comfy_dir}")
         
     except Exception as e:
         print(f"❌ Failed to download Z-Image-Turbo: {e}")
