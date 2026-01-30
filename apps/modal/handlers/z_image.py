@@ -54,9 +54,22 @@ def _get_z_image_pipeline():
         
         print("--- Z-Image: Loading pipeline (first request) ---")
         
-        # Check if models are cached locally
-        model_dir = "/root/models/diffusers/Z-Image-Turbo"
-        model_file = Path(model_dir) / "text_encoder" / "model.safetensors.index.json"
+        # Check if models are cached locally (downloaded during image build)
+        # Primary location: ComfyUI models directory (downloaded during build)
+        comfy_model_dir = "/root/comfy/ComfyUI/models/diffusers/Z-Image-Turbo"
+        # Fallback location: volume directory (for dynamic downloads)
+        volume_model_dir = "/root/models/diffusers/Z-Image-Turbo"
+        
+        # Check ComfyUI dir first (has the pre-downloaded model)
+        comfy_model_file = Path(comfy_model_dir) / "text_encoder" / "model.safetensors.index.json"
+        volume_model_file = Path(volume_model_dir) / "text_encoder" / "model.safetensors.index.json"
+        
+        if comfy_model_file.exists():
+            model_dir = comfy_model_dir
+            model_file = comfy_model_file
+        else:
+            model_dir = volume_model_dir
+            model_file = volume_model_file
         
         # Import the pipeline
         from modelscope import ZImagePipeline
