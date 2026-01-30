@@ -10,12 +10,20 @@ import {
 } from '@ryla/business';
 import type { AIInfluencer } from '@ryla/shared';
 import { trpc } from '../../../lib/trpc';
-import { generateProfilePictureSetAndWait } from '../../../lib/api/character';
+import {
+  generateProfilePictureSetAndWait,
+  trainLora,
+} from '../../../lib/api/character';
 import type { CreditCostBreakdown } from './use-finalize-credits';
 
 interface UseCharacterCreationOptions {
   /** Credit cost breakdown from useFinalizeCredits */
-  creditBreakdown?: Pick<CreditCostBreakdown, 'baseImagesCost' | 'profileSetCost' | 'nsfwExtraCost' | 'totalCost'>;
+  creditBreakdown?: Pick<
+    CreditCostBreakdown,
+    'baseImagesCost' | 'profileSetCost' | 'nsfwExtraCost' | 'totalCost'
+  > & {
+    loraTrainingCost?: number;
+  };
 }
 
 export function useCharacterCreation(options?: UseCharacterCreationOptions) {
@@ -26,7 +34,9 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
   const setCharacterId = useCharacterWizardStore((s) => s.setCharacterId);
   const resetForm = useCharacterWizardStore((s) => s.resetForm);
   const addInfluencer = useInfluencerStore((s) => s.addInfluencer);
-  const selectedBaseImageId = useCharacterWizardStore((s) => s.selectedBaseImageId);
+  const selectedBaseImageId = useCharacterWizardStore(
+    (s) => s.selectedBaseImageId
+  );
   const baseImages = useCharacterWizardStore((s) => s.baseImages);
 
   const utils = trpc.useUtils();
@@ -36,10 +46,16 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
   const [isCreating, setIsCreating] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
 
-  const selectedBaseImage = baseImages.find((img) => img.id === selectedBaseImageId);
+  const selectedBaseImage = baseImages.find(
+    (img) => img.id === selectedBaseImageId
+  );
 
   const create = React.useCallback(
-    async (hasEnoughCredits: boolean, onShowCreditModal: () => void, onRefetchCredits: () => void) => {
+    async (
+      hasEnoughCredits: boolean,
+      onShowCreditModal: () => void,
+      onRefetchCredits: () => void
+    ) => {
       if (!hasEnoughCredits) {
         onShowCreditModal();
         return;
@@ -56,7 +72,9 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
 
       try {
         // Create real DB-backed character (UUID) so Studio + image gallery work
-        const handle = `@${(form.name || 'unnamed').toLowerCase().replace(/\s+/g, '.')}`;
+        const handle = `@${(form.name || 'unnamed')
+          .toLowerCase()
+          .replace(/\s+/g, '.')}`;
 
         const character = await createCharacter.mutateAsync({
           name: form.name || 'Unnamed',
@@ -92,18 +110,23 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
             defaultOutfit: form.outfit || 'casual',
             archetype: form.archetype || 'girl-next-door',
             personalityTraits:
-              form.personalityTraits.length > 0 ? form.personalityTraits : ['friendly'],
+              form.personalityTraits.length > 0
+                ? form.personalityTraits
+                : ['friendly'],
             bio: form.bio,
             handle,
             // Settings
             // Force NSFW disabled for existing-person creations (Phase 4: Real Person Upload Cleanup)
-            nsfwEnabled: form.creationMethod === 'existing-person' ? false : form.nsfwEnabled,
+            nsfwEnabled:
+              form.creationMethod === 'existing-person'
+                ? false
+                : form.nsfwEnabled,
             // Store selected profile picture set ID (null = skip)
             profilePictureSetId: form.selectedProfilePictureSetId || undefined,
           },
         });
 
-        // Deduct credits atomically for all wizard costs (base images + profile set + NSFW)
+        // Deduct credits atomically for all wizard costs (base images + profile set + NSFW + LoRA)
         // This is deferred billing - base images weren't charged at generation time
         if (options?.creditBreakdown && options.creditBreakdown.totalCost > 0) {
           const result = await deductCredits.mutateAsync({
@@ -112,6 +135,7 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
             baseImagesCost: options.creditBreakdown.baseImagesCost,
             profileSetCost: options.creditBreakdown.profileSetCost,
             nsfwExtraCost: options.creditBreakdown.nsfwExtraCost,
+            loraTrainingCost: options.creditBreakdown.loraTrainingCost || 0,
           });
 
           if (!result.success && 'error' in result) {
@@ -138,10 +162,15 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
           breastSize: form.breastSize || undefined,
           archetype: form.archetype || 'girl-next-door',
           personalityTraits:
-            form.personalityTraits.length > 0 ? form.personalityTraits : ['friendly'],
+            form.personalityTraits.length > 0
+              ? form.personalityTraits
+              : ['friendly'],
           outfit: form.outfit || 'casual',
           // Force NSFW disabled for existing-person creations (Phase 4: Real Person Upload Cleanup)
-          nsfwEnabled: form.creationMethod === 'existing-person' ? false : form.nsfwEnabled,
+          nsfwEnabled:
+            form.creationMethod === 'existing-person'
+              ? false
+              : form.nsfwEnabled,
           profilePictureSetId: form.selectedProfilePictureSetId || undefined,
           postCount: 0,
           imageCount: 0, // Profile pictures generated separately
@@ -177,7 +206,13 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
           const totalCount = regularCount + nsfwCount;
 
           // Start tracking generation in store
-          const { start, complete, fail, upsertImage } = useProfilePicturesStore.getState();
+          const { start, complete, fail, upsertImage } =
+            useProfilePicturesStore.getState();
+
+          // Track completed image URLs for LoRA training
+          const completedImageUrls: string[] = [];
+          const loraTrainingEnabled = form.loraTrainingEnabled;
+          const characterName = form.name || 'Unnamed';
 
           // Generate in background - track progress via store
           // Note: Credits already deducted above, so we pass skipCreditDeduction: true
@@ -194,6 +229,35 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
               // Progress callback - update store status
               if (status === 'completed') {
                 complete(character.id);
+
+                // Start LoRA training after profile pictures complete
+                if (loraTrainingEnabled && completedImageUrls.length >= 3) {
+                  // Add base image to training set
+                  const trainingImages = [
+                    selectedBaseImage.url,
+                    ...completedImageUrls,
+                  ];
+
+                  // Trigger LoRA training in background
+                  trainLora({
+                    characterId: character.id,
+                    triggerWord: characterName
+                      .toLowerCase()
+                      .replace(/\s+/g, ''),
+                    imageUrls: trainingImages.slice(0, 10), // Max 10 images
+                  })
+                    .then(() => {
+                      // LoRA training started successfully
+                      // TODO: Store training job ID for status tracking
+                    })
+                    .catch((trainingError) => {
+                      console.error(
+                        'Failed to start LoRA training:',
+                        trainingError
+                      );
+                      // Don't fail character creation - LoRA is optional
+                    });
+                }
               } else if (status === 'failed') {
                 fail(character.id, error || 'Generation failed');
               }
@@ -211,6 +275,11 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
                 negativePrompt: image.negativePrompt,
                 isNSFW: image.isNSFW,
               });
+
+              // Track completed image URLs for LoRA training
+              if (image.url) {
+                completedImageUrls.push(image.url);
+              }
             }
           )
             .then(({ jobIds }) => {
@@ -222,16 +291,32 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
               });
             })
             .catch((error) => {
-              console.error('Failed to start profile picture generation:', error);
-              fail(character.id, error instanceof Error ? error.message : 'Failed to start generation');
+              console.error(
+                'Failed to start profile picture generation:',
+                error
+              );
+              fail(
+                character.id,
+                error instanceof Error
+                  ? error.message
+                  : 'Failed to start generation'
+              );
               // Don't block navigation - generation happens in background
             });
+        } else if (form.loraTrainingEnabled && selectedBaseImage) {
+          // No profile picture set selected, but LoRA training enabled
+          // Can't train with just 1 image - need at least 3
+          console.warn(
+            'LoRA training enabled but not enough images (need profile set)'
+          );
         }
 
         router.push(`/influencer/${character.id}`);
       } catch (err) {
         console.error('Character creation failed:', err);
-        setError(err instanceof Error ? err.message : 'Character creation failed');
+        setError(
+          err instanceof Error ? err.message : 'Character creation failed'
+        );
         setIsCreating(false);
         setStatus('error');
       }

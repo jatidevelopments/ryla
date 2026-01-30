@@ -14,7 +14,7 @@ import {
   generationJobs,
   NotificationsRepository,
 } from '@ryla/data';
-import type { Notification } from '@ryla/data/schema';
+import type { Notification as _Notification } from '@ryla/data/schema';
 
 import { router, protectedProcedure } from '../trpc';
 
@@ -173,7 +173,12 @@ export const creditsRouter = router({
     .input(
       z.object({
         amount: z.number().positive(),
-        type: z.enum(['subscription_grant', 'purchase', 'bonus', 'admin_adjustment']),
+        type: z.enum([
+          'subscription_grant',
+          'purchase',
+          'bonus',
+          'admin_adjustment',
+        ]),
         description: z.string().optional(),
       })
     )
@@ -220,7 +225,9 @@ export const creditsRouter = router({
         balanceAfter: newBalance,
         description:
           input.description ||
-          `${input.type.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase())}`,
+          `${input.type
+            .replace(/_/g, ' ')
+            .replace(/\b\w/g, (l) => l.toUpperCase())}`,
       });
 
       return {
@@ -233,12 +240,12 @@ export const creditsRouter = router({
 
   /**
    * Deduct credits for wizard character creation (atomic deferred billing)
-   * 
+   *
    * This handles all credit deductions for the wizard flow:
    * - Base images (if generated)
    * - Profile picture set (if selected)
    * - NSFW extra (if enabled with profile set)
-   * 
+   *
    * Returns new balance and breakdown of deductions.
    */
   deductForWizard: protectedProcedure
@@ -249,11 +256,16 @@ export const creditsRouter = router({
         baseImagesCost: z.number().min(0),
         profileSetCost: z.number().min(0),
         nsfwExtraCost: z.number().min(0),
+        loraTrainingCost: z.number().min(0).default(0),
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const totalCost = input.baseImagesCost + input.profileSetCost + input.nsfwExtraCost;
-      
+      const totalCost =
+        input.baseImagesCost +
+        input.profileSetCost +
+        input.nsfwExtraCost +
+        input.loraTrainingCost;
+
       if (totalCost === 0) {
         // Nothing to deduct
         const credits = await ctx.db.query.userCredits.findFirst({
@@ -299,10 +311,16 @@ export const creditsRouter = router({
 
       // Build description for transaction
       const parts: string[] = [];
-      if (input.baseImagesCost > 0) parts.push(`Base Images: ${input.baseImagesCost}`);
-      if (input.profileSetCost > 0) parts.push(`Profile Set: ${input.profileSetCost}`);
+      if (input.baseImagesCost > 0)
+        parts.push(`Base Images: ${input.baseImagesCost}`);
+      if (input.profileSetCost > 0)
+        parts.push(`Profile Set: ${input.profileSetCost}`);
       if (input.nsfwExtraCost > 0) parts.push(`NSFW: ${input.nsfwExtraCost}`);
-      const description = `Character creation: ${input.characterName} (${parts.join(', ')})`;
+      if (input.loraTrainingCost > 0)
+        parts.push(`LoRA Training: ${input.loraTrainingCost}`);
+      const description = `Character creation: ${
+        input.characterName
+      } (${parts.join(', ')})`;
 
       // Record single combined transaction
       await ctx.db.insert(creditTransactions).values({

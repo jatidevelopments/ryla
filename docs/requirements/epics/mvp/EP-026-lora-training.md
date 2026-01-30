@@ -10,6 +10,16 @@
 
 ## Recent Progress
 
+### ✅ Wizard UI Integration (2026-01-30)
+
+Full UI integration in character creation wizard:
+
+- **Toggle Component**: `LoraTrainingToggleSection` with credit cost display
+- **Wizard Store**: Added `loraTrainingEnabled` field (default: true)
+- **Credit Summary**: Shows LoRA training cost in breakdown
+- **Auto-Trigger**: LoRA training starts after profile pictures complete
+- **Credit Deduction**: Included in atomic wizard billing
+
 ### ✅ Credit Integration (2026-01-27)
 
 Credit system integrated for LoRA training:

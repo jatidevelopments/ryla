@@ -65,6 +65,7 @@ export function StepFinalize() {
         baseImagesCost,
         profileSetCost,
         nsfwExtraCost,
+        loraTrainingCost,
         totalCost,
       },
     }
