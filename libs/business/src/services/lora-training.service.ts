@@ -9,6 +9,7 @@
 
 import { spawn } from 'child_process';
 import * as path from 'path';
+import type { LoraModelsRepository, LoraModelRow } from '@ryla/data';
 
 export interface LoraTrainingConfig {
   maxTrainSteps?: number;
@@ -22,6 +23,7 @@ export interface LoraTrainingConfig {
 
 export interface StartTrainingRequest {
   characterId: string;
+  userId: string;
   triggerWord: string;
   imageUrls: string[];
   config?: LoraTrainingConfig;
@@ -30,6 +32,7 @@ export interface StartTrainingRequest {
 export interface TrainingJobResult {
   status: 'started' | 'training' | 'completed' | 'error';
   jobId?: string;
+  loraModelId?: string;
   callId?: string;
   characterId?: string;
   triggerWord?: string;
@@ -48,20 +51,37 @@ export interface TrainingJobResult {
  * LoRA Training Service
  *
  * Manages LoRA training jobs using Modal.com's serverless infrastructure.
+ * Optionally persists to database via LoraModelsRepository.
  */
 export class LoraTrainingService {
   private scriptPath: string;
+  private repository: LoraModelsRepository | null = null;
+
+  // Fallback in-memory cache when no repository is provided
   private jobCache: Map<
     string,
-    { callId: string; characterId: string; startedAt: Date }
+    {
+      callId: string;
+      characterId: string;
+      loraModelId?: string;
+      startedAt: Date;
+    }
   > = new Map();
 
-  constructor() {
+  constructor(repository?: LoraModelsRepository) {
     // Path to the Python trigger script
     this.scriptPath = path.resolve(
       __dirname,
       '../../../../apps/modal/scripts/trigger-lora-training.py'
     );
+    this.repository = repository ?? null;
+  }
+
+  /**
+   * Set the repository (for dependency injection)
+   */
+  setRepository(repository: LoraModelsRepository): void {
+    this.repository = repository;
   }
 
   /**
@@ -73,7 +93,7 @@ export class LoraTrainingService {
   async startTraining(
     request: StartTrainingRequest
   ): Promise<TrainingJobResult> {
-    const { characterId, triggerWord, imageUrls, config } = request;
+    const { characterId, userId, triggerWord, imageUrls, config } = request;
 
     // Validate input
     if (imageUrls.length < 3) {
@@ -81,6 +101,28 @@ export class LoraTrainingService {
         status: 'error',
         error: 'At least 3 images are required for LoRA training',
       };
+    }
+
+    // Create database record if repository is available
+    let loraModel: LoraModelRow | undefined;
+    if (this.repository) {
+      loraModel = await this.repository.create({
+        characterId,
+        userId,
+        type: 'face',
+        status: 'pending',
+        triggerWord,
+        baseModel: 'black-forest-labs/FLUX.1-dev',
+        externalProvider: 'modal',
+        config: {
+          baseModel: 'black-forest-labs/FLUX.1-dev',
+          triggerWord,
+          steps: config?.maxTrainSteps ?? 500,
+          learningRate: config?.learningRate ?? 0.0001,
+          resolution: config?.resolution ?? 512,
+          trainingImages: imageUrls,
+        },
+      });
     }
 
     // Convert config to snake_case for Python
@@ -112,18 +154,47 @@ export class LoraTrainingService {
       ]);
 
       if (result.status === 'started' && result.job_id && result.call_id) {
-        // Cache the job info
-        this.jobCache.set(result.job_id, {
-          callId: result.call_id,
-          characterId: result.character_id,
+        // Update database record with job info
+        if (this.repository && loraModel) {
+          await this.repository.updateById(loraModel.id, {
+            externalJobId: result.call_id as string,
+            status: 'training',
+            trainingStartedAt: new Date(),
+          });
+        }
+
+        // Cache the job info (fallback or supplement)
+        this.jobCache.set(result.job_id as string, {
+          callId: result.call_id as string,
+          characterId: result.character_id as string,
+          loraModelId: loraModel?.id,
           startedAt: new Date(),
         });
+      } else if (this.repository && loraModel) {
+        // Training failed to start - mark as failed
+        await this.repository.markTrainingFailed(
+          loraModel.id,
+          (result.error as string) || 'Failed to start training'
+        );
       }
 
-      return this.convertResult(result);
+      const converted = this.convertResult(result);
+      if (loraModel) {
+        converted.loraModelId = loraModel.id;
+      }
+      return converted;
     } catch (error) {
+      // Mark as failed in database
+      if (this.repository && loraModel) {
+        await this.repository.markTrainingFailed(
+          loraModel.id,
+          error instanceof Error ? error.message : 'Unknown error'
+        );
+      }
+
       return {
         status: 'error',
+        loraModelId: loraModel?.id,
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
@@ -132,15 +203,34 @@ export class LoraTrainingService {
   /**
    * Check the status of a training job
    *
-   * @param jobIdOrCallId Either the job_id or call_id
+   * @param jobIdOrCallId Either the job_id, call_id, or loraModelId
    * @returns Current job status
    */
   async getTrainingStatus(jobIdOrCallId: string): Promise<TrainingJobResult> {
     // Try to get call_id from cache if job_id was provided
     let callId = jobIdOrCallId;
+    let loraModelId: string | undefined;
     const cachedJob = this.jobCache.get(jobIdOrCallId);
+
     if (cachedJob) {
       callId = cachedJob.callId;
+      loraModelId = cachedJob.loraModelId;
+    } else if (this.repository) {
+      // Try to find by loraModel ID
+      const loraModel = await this.repository.getById(jobIdOrCallId);
+      if (loraModel && loraModel.externalJobId) {
+        callId = loraModel.externalJobId;
+        loraModelId = loraModel.id;
+      } else {
+        // Try to find by external job ID
+        const byExternalId = await this.repository.getByExternalJobId(
+          jobIdOrCallId
+        );
+        if (byExternalId) {
+          callId = byExternalId.externalJobId!;
+          loraModelId = byExternalId.id;
+        }
+      }
     }
 
     try {
@@ -148,13 +238,52 @@ export class LoraTrainingService {
         `--call-id=${callId}`,
       ]);
 
-      return this.convertResult(result);
+      const converted = this.convertResult(result);
+
+      // Update database if training completed
+      if (
+        this.repository &&
+        loraModelId &&
+        converted.status === 'completed' &&
+        converted.result
+      ) {
+        await this.repository.markTrainingCompleted(loraModelId, {
+          modelPath: converted.result.loraPath,
+          trainingDurationMs: converted.result.trainingTimeSeconds * 1000,
+          trainingSteps: converted.result.trainingSteps,
+        });
+      }
+
+      converted.loraModelId = loraModelId;
+      return converted;
     } catch (error) {
       return {
         status: 'error',
+        loraModelId,
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
+  }
+
+  /**
+   * Get LoRA model for a character
+   */
+  async getLoraForCharacter(characterId: string): Promise<LoraModelRow | null> {
+    if (!this.repository) {
+      return null;
+    }
+    const model = await this.repository.getReadyByCharacterId(characterId);
+    return model ?? null;
+  }
+
+  /**
+   * Get all LoRA models for a user
+   */
+  async getLorasForUser(userId: string): Promise<LoraModelRow[]> {
+    if (!this.repository) {
+      return [];
+    }
+    return this.repository.getByUserId(userId);
   }
 
   /**

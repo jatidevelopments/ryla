@@ -26,7 +26,8 @@ import { GenerateProfilePictureSetDto } from '../image/dto/req/generate-profile-
 import { RegenerateProfilePictureDto } from '../image/dto/req/regenerate-profile-picture.dto';
 import { TrainLoraDto } from './dto/train-lora.dto';
 import type { FeatureId } from '@ryla/shared';
-import { getLoraTrainingService } from '@ryla/business/services/lora-training.service';
+import { LoraTrainingService } from '@ryla/business/services/lora-training.service';
+import { LoraModelsRepository } from '@ryla/data';
 import { eq, and } from 'drizzle-orm';
 import * as schema from '@ryla/data/schema';
 import type { CharacterConfig } from '@ryla/data/schema';
@@ -36,6 +37,8 @@ import type { CharacterConfig } from '@ryla/data/schema';
 @UseGuards(JwtAccessGuard)
 @ApiBearerAuth()
 export class CharacterController {
+  private readonly loraTrainingService: LoraTrainingService;
+
   constructor(
     @Inject('DRIZZLE_DB')
     private readonly db: any, // NodePgDatabase<typeof schema>
@@ -49,7 +52,11 @@ export class CharacterController {
     private readonly profilePictureSetService: ProfilePictureSetService,
     @Inject(CreditManagementService)
     private readonly creditService: CreditManagementService
-  ) {}
+  ) {
+    // Initialize LoRA training service with repository
+    const loraRepository = new LoraModelsRepository(this.db);
+    this.loraTrainingService = new LoraTrainingService(loraRepository);
+  }
 
   /**
    * Map generation mode to feature ID for credit pricing
@@ -506,9 +513,9 @@ export class CharacterController {
     //   `LoRA training for ${character.name}`,
     // );
 
-    const loraService = getLoraTrainingService();
-    const result = await loraService.startTraining({
+    const result = await this.loraTrainingService.startTraining({
       characterId: dto.characterId,
+      userId: user.userId,
       triggerWord: dto.triggerWord,
       imageUrls: dto.imageUrls,
       config: {
@@ -522,20 +529,9 @@ export class CharacterController {
       throw new Error(result.error || 'Failed to start LoRA training');
     }
 
-    // TODO: Store training job in database for tracking
-    // await this.db.insert(schema.loraTrainingJobs).values({
-    //   id: result.jobId,
-    //   characterId: dto.characterId,
-    //   userId: user.userId,
-    //   callId: result.callId,
-    //   status: 'training',
-    //   triggerWord: dto.triggerWord,
-    //   imageCount: dto.imageUrls.length,
-    //   createdAt: new Date(),
-    // });
-
     return {
       jobId: result.jobId,
+      loraModelId: result.loraModelId,
       callId: result.callId,
       characterId: dto.characterId,
       characterName: character.name,
@@ -555,23 +551,81 @@ export class CharacterController {
     @CurrentUser() user: IJwtPayload,
     @Param('jobId') jobId: string
   ) {
-    // TODO: Verify job ownership via database
-    // const job = await this.db.query.loraTrainingJobs.findFirst({
-    //   where: and(
-    //     eq(schema.loraTrainingJobs.id, jobId),
-    //     eq(schema.loraTrainingJobs.userId, user.userId)
-    //   ),
-    // });
-
-    const loraService = getLoraTrainingService();
-    const result = await loraService.getTrainingStatus(jobId);
+    const result = await this.loraTrainingService.getTrainingStatus(jobId);
 
     return {
       jobId,
+      loraModelId: result.loraModelId,
       status: result.status,
       result: result.result,
       error: result.error,
       message: result.message,
+    };
+  }
+
+  @Get('my-loras')
+  @ApiOperation({
+    summary: 'Get all LoRA models for current user',
+    description: 'Returns all LoRA models trained for the current user.',
+  })
+  async getMyLoras(@CurrentUser() user: IJwtPayload) {
+    const loras = await this.loraTrainingService.getLorasForUser(user.userId);
+    return {
+      loras: loras.map((lora) => ({
+        id: lora.id,
+        characterId: lora.characterId,
+        status: lora.status,
+        triggerWord: lora.triggerWord,
+        modelPath: lora.modelPath,
+        trainingSteps: lora.trainingSteps,
+        trainingDurationMs: lora.trainingDurationMs,
+        createdAt: lora.createdAt,
+        completedAt: lora.trainingCompletedAt,
+      })),
+    };
+  }
+
+  @Get(':characterId/lora')
+  @ApiOperation({
+    summary: 'Get LoRA model for a character',
+    description: 'Returns the ready LoRA model for a specific character.',
+  })
+  async getCharacterLora(
+    @CurrentUser() user: IJwtPayload,
+    @Param('characterId') characterId: string
+  ) {
+    // Verify character ownership
+    const character = await this.db.query.characters.findFirst({
+      where: and(
+        eq(schema.characters.id, characterId),
+        eq(schema.characters.userId, user.userId)
+      ),
+      columns: { id: true },
+    });
+
+    if (!character) {
+      throw new NotFoundException('Character not found or access denied');
+    }
+
+    const lora = await this.loraTrainingService.getLoraForCharacter(
+      characterId
+    );
+
+    if (!lora) {
+      return { lora: null, message: 'No LoRA model found for this character' };
+    }
+
+    return {
+      lora: {
+        id: lora.id,
+        status: lora.status,
+        triggerWord: lora.triggerWord,
+        modelPath: lora.modelPath,
+        trainingSteps: lora.trainingSteps,
+        trainingDurationMs: lora.trainingDurationMs,
+        createdAt: lora.createdAt,
+        completedAt: lora.trainingCompletedAt,
+      },
     };
   }
 }
