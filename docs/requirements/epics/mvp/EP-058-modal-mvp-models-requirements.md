@@ -122,11 +122,11 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 | ------------------------ | ------------- | ------------ | ------------------- | ----------------------------------- |
 | **Qwen-Image 2512**      | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/qwen-image-2512-lora` deployed ✅ |
 | **Qwen-Image 2512 Fast** | ⚠️ N/A        | ✅ Built-in  | Lightning LoRA      | Already uses LoRA                   |
-| **Qwen-Image Edit 2511** | ❓ Unknown    | ❓ Unknown   | Research needed     | Needs research                      |
+| **Qwen-Image Edit 2511** | ✅ Supported  | ⏳ Pending   | AI Toolkit (Ostris) | `/qwen-image-edit-lora` planned     |
 | **Wan 2.6 Video**        | ✅ Supported  | ✅ Live      | Musubi Tuner        | `/wan2.6-lora` deployed ✅          |
 | **Flux Dev**             | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
 | **Flux Schnell**         | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/flux-lora` live                   |
-| **Z-Image Turbo**        | ✅ Supported  | ✅ Live      | AI Toolkit (Ostris) | `/z-image-lora` deployed ✅         |
+| **Z-Image Turbo**        | ✅ Supported  | ⚠️ Pending   | AI Toolkit (Ostris) | `/z-image-lora` fix pending deploy  |
 
 **Completed Tasks:**
 
@@ -143,8 +143,18 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 - [x] Document LoRA workflow for all models (see `docs/technical/models/LORA-WORKFLOW-GUIDE.md`)
 - [x] Research Qwen-Edit LoRA support (AI Toolkit supported, endpoint planned)
 
+**LoRA Endpoint Testing (2026-01-30):**
+
+| Endpoint                | Test Result | Time  | Notes                                  |
+| ----------------------- | ----------- | ----- | -------------------------------------- |
+| `/flux-lora`            | ✅ PASS     | 29.5s | 203KB PNG                              |
+| `/qwen-image-2512-lora` | ✅ PASS     | 54.8s | 289KB PNG                              |
+| `/wan2.6-lora`          | ✅ PASS     | 40.0s | 89KB WebP video                        |
+| `/z-image-lora`         | ⚠️ PENDING  | -     | Path fix committed, deployment pending |
+
 **Future LoRA Work:**
 
+- [ ] Deploy `/z-image-lora` fix (blocked by slow ModelScope downloads)
 - [ ] Create `/qwen-image-edit-lora` endpoint for editing with character LoRA
 
 #### P6.3: Documentation Updates (Priority: MEDIUM)
