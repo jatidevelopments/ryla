@@ -1,3 +1,7 @@
+# Exclude funnel images from LFS (small files, needed for static export)
+apps/funnel/public/images/** -filter -diff -merge binary
+
+# Track all other images with LFS
 *.webp filter=lfs diff=lfs merge=lfs -text
 *.png filter=lfs diff=lfs merge=lfs -text
 *.jpg filter=lfs diff=lfs merge=lfs -text
