@@ -10,6 +10,15 @@
 
 ## Recent Progress
 
+### ✅ Wizard LoRA Setting Integration (2026-01-27)
+
+Wizard passes loraEnabled setting to character creation:
+
+- **tRPC**: Added `loraEnabled` to character.create mutation input
+- **Wizard Hooks**: Updated `use-character-creation.ts` and `use-wizard-generation.ts`
+- **Behavior**: When user toggles LoRA in wizard, it's saved to character
+- **Default**: `loraEnabled: true` (LoRA on by default)
+
 ### ✅ Training History Display (2026-01-27)
 
 Collapsible training history in settings page:
