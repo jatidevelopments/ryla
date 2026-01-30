@@ -671,6 +671,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Remove API routes for static export
+        run: |
+          echo "Removing API routes for static export (not supported by Cloudflare Pages)..."
+          rm -rf apps/landing/app/api
+          echo "✅ API routes removed"
+
       - name: Build Landing App
         run: pnpm nx build landing --configuration=production
         env:
