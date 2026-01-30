@@ -1,6 +1,7 @@
 import {
   Controller,
   Post,
+  Patch,
   Body,
   Get,
   Param,
@@ -776,7 +777,7 @@ export class CharacterController {
         eq(schema.characters.id, characterId),
         eq(schema.characters.userId, user.userId)
       ),
-      columns: { id: true },
+      columns: { id: true, loraEnabled: true },
     });
 
     if (!character) {
@@ -788,7 +789,11 @@ export class CharacterController {
     );
 
     if (!lora) {
-      return { lora: null, message: 'No LoRA model found for this character' };
+      return {
+        lora: null,
+        loraEnabled: character.loraEnabled ?? true,
+        message: 'No LoRA model found for this character',
+      };
     }
 
     return {
@@ -802,6 +807,7 @@ export class CharacterController {
         createdAt: lora.createdAt,
         completedAt: lora.trainingCompletedAt,
       },
+      loraEnabled: character.loraEnabled ?? true,
     };
   }
 
@@ -853,6 +859,48 @@ export class CharacterController {
         result.totalCount < MIN_IMAGES_FOR_TRAINING
           ? `Need at least ${MIN_IMAGES_FOR_TRAINING} images for training. You have ${result.totalCount}.`
           : null,
+    };
+  }
+
+  @Patch(':characterId/lora/toggle')
+  @ApiOperation({
+    summary: 'Toggle LoRA usage for image generation',
+    description:
+      'Enable or disable using the trained LoRA model for this character when generating images.',
+  })
+  async toggleLoraEnabled(
+    @CurrentUser() user: IJwtPayload,
+    @Param('characterId') characterId: string,
+    @Body() body: { enabled: boolean }
+  ) {
+    // Verify character ownership
+    const character = await this.db.query.characters.findFirst({
+      where: and(
+        eq(schema.characters.id, characterId),
+        eq(schema.characters.userId, user.userId)
+      ),
+      columns: { id: true, name: true, loraModelId: true },
+    });
+
+    if (!character) {
+      throw new NotFoundException('Character not found or access denied');
+    }
+
+    // Update the loraEnabled field
+    await this.db
+      .update(schema.characters)
+      .set({
+        loraEnabled: body.enabled,
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.characters.id, characterId));
+
+    return {
+      characterId,
+      loraEnabled: body.enabled,
+      message: body.enabled
+        ? 'LoRA will be used for image generation'
+        : 'LoRA will not be used for image generation',
     };
   }
 }

@@ -22,10 +22,12 @@ export interface LoraModel {
   errorMessage: string | null;
   createdAt: string;
   completedAt: string | null;
+  loraEnabled?: boolean;
 }
 
 interface GetCharacterLoraResponse {
   lora: LoraModel | null;
+  loraEnabled: boolean;
   message?: string;
 }
 
@@ -193,5 +195,59 @@ export function useAvailableTrainingImages(
     queryKey: ['availableTrainingImages', characterId],
     queryFn: () => fetchAvailableTrainingImages(characterId!),
     enabled: !!characterId,
+  });
+}
+
+// ============================================================================
+// Toggle LoRA Enabled
+// ============================================================================
+
+interface ToggleLoraInput {
+  characterId: string;
+  enabled: boolean;
+}
+
+interface ToggleLoraResponse {
+  characterId: string;
+  loraEnabled: boolean;
+  message: string;
+}
+
+async function toggleLoraEnabled(
+  input: ToggleLoraInput
+): Promise<ToggleLoraResponse> {
+  const response = await authFetch(
+    `${API_BASE_URL}/characters/${input.characterId}/lora/toggle`,
+    {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled: input.enabled }),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to toggle LoRA setting');
+  }
+
+  return response.json();
+}
+
+/**
+ * Hook to toggle LoRA enabled/disabled for a character
+ */
+export function useToggleLoraEnabled() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: toggleLoraEnabled,
+    onSuccess: (data, variables) => {
+      // Invalidate character queries to refresh state
+      queryClient.invalidateQueries({
+        queryKey: ['characterLora', variables.characterId],
+      });
+      queryClient.invalidateQueries({
+        queryKey: ['character', variables.characterId],
+      });
+    },
   });
 }

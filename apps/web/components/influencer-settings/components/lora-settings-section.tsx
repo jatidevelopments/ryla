@@ -15,10 +15,12 @@ import {
 import {
   useCharacterLora,
   useStartLoraTraining,
+  useToggleLoraEnabled,
 } from '../../../lib/hooks/use-lora-training';
 import { calculateLoraTrainingCost } from '@ryla/shared';
 import { trpc } from '../../../lib/trpc';
 import { ImageSelectorModal } from '../../lora/ImageSelectorModal';
+import { Switch } from '@ryla/ui';
 
 interface LoraSettingsSectionProps {
   influencerId: string;
@@ -37,6 +39,7 @@ export function LoraSettingsSection({
     refetch,
   } = useCharacterLora(influencerId);
   const startTraining = useStartLoraTraining();
+  const toggleLora = useToggleLoraEnabled();
   const { data: credits } = trpc.credits.getBalance.useQuery();
 
   const [isStarting, setIsStarting] = React.useState(false);
@@ -48,6 +51,7 @@ export function LoraSettingsSection({
   const isTraining = lora?.status === 'training' || lora?.status === 'pending';
   const isReady = lora?.status === 'ready';
   const isFailed = lora?.status === 'failed';
+  const loraEnabled = loraData?.loraEnabled ?? true;
 
   // Estimate cost for training
   const estimatedImageCount = 8; // Profile set generates 8 images
@@ -57,6 +61,20 @@ export function LoraSettingsSection({
   const handleOpenSelector = () => {
     setError(null);
     setIsModalOpen(true);
+  };
+
+  const handleToggleLora = async (enabled: boolean) => {
+    try {
+      await toggleLora.mutateAsync({
+        characterId: influencerId,
+        enabled,
+      });
+      await refetch();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : 'Failed to toggle LoRA setting'
+      );
+    }
   };
 
   const handleStartTraining = async (selectedImageUrls: string[]) => {
@@ -105,7 +123,7 @@ export function LoraSettingsSection({
         {/* Status Display */}
         {isReady && (
           <div className="flex items-center gap-3 p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
               <CheckCircle2 className="h-5 w-5 text-green-400" />
             </div>
             <div className="flex-1 min-w-0">
@@ -124,9 +142,31 @@ export function LoraSettingsSection({
           </div>
         )}
 
+        {/* Enable/Disable Toggle (only show when LoRA is ready) */}
+        {isReady && (
+          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 border border-white/10">
+            <div className="flex-1">
+              <p className="text-sm font-medium text-white">
+                Use LoRA for Generation
+              </p>
+              <p className="text-xs text-white/60 mt-0.5">
+                {loraEnabled
+                  ? 'LoRA will be applied to all image generations'
+                  : 'LoRA is disabled, using base model only'}
+              </p>
+            </div>
+            <Switch
+              checked={loraEnabled}
+              onCheckedChange={handleToggleLora}
+              disabled={toggleLora.isPending}
+              className="data-[state=checked]:bg-purple-500"
+            />
+          </div>
+        )}
+
         {isTraining && (
           <div className="flex items-center gap-3 p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
               {lora?.status === 'pending' ? (
                 <Clock className="h-5 w-5 text-amber-400" />
               ) : (
@@ -148,7 +188,7 @@ export function LoraSettingsSection({
 
         {isFailed && (
           <div className="flex items-center gap-3 p-4 rounded-lg bg-red-500/10 border border-red-500/20">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center">
               <XCircle className="h-5 w-5 text-red-400" />
             </div>
             <div className="flex-1 min-w-0">
@@ -167,7 +207,7 @@ export function LoraSettingsSection({
 
         {!hasLora && (
           <div className="flex items-center gap-3 p-4 rounded-lg bg-white/5 border border-white/10">
-            <div className="flex-shrink-0 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
+            <div className="shrink-0 w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
               <Sparkles className="h-5 w-5 text-white/40" />
             </div>
             <div className="flex-1 min-w-0">
@@ -183,7 +223,7 @@ export function LoraSettingsSection({
         {/* Info Box */}
         <div className="p-4 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-start gap-3">
-            <Zap className="h-4 w-4 text-amber-400 mt-0.5 flex-shrink-0" />
+            <Zap className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
             <div className="text-xs text-white/60">
               <p className="font-medium text-white/80 mb-1">What is LoRA?</p>
               <p>

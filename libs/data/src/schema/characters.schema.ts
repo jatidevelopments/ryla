@@ -6,6 +6,7 @@ import {
   timestamp,
   pgEnum,
   index,
+  boolean,
 } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { users } from './users.schema';
@@ -69,7 +70,11 @@ export interface CharacterConfig {
   nsfwEnabled?: boolean;
 
   // Profile picture set selection (string ID, not UUID)
-  profilePictureSetId?: 'classic-influencer' | 'professional-model' | 'natural-beauty' | null;
+  profilePictureSetId?:
+    | 'classic-influencer'
+    | 'professional-model'
+    | 'natural-beauty'
+    | null;
 
   // Step 9: Advanced (removed from wizard but kept for backward compatibility)
   voice?: string; // e.g., "sultry", "sweet", "confident"
@@ -102,20 +107,23 @@ export const characters = pgTable(
       () => promptSets.id,
       { onDelete: 'set null' }
     ), // Reference to prompt_sets table
-    profilePictureImages: jsonb('profile_picture_images').$type<Array<{
-      id: string;
-      url: string;
-      thumbnailUrl?: string;
-      positionId: string;
-      positionName: string;
-      prompt?: string;
-      negativePrompt?: string;
-      isNSFW?: boolean;
-    }>>(), // Array of profile picture image data
+    profilePictureImages: jsonb('profile_picture_images').$type<
+      Array<{
+        id: string;
+        url: string;
+        thumbnailUrl?: string;
+        positionId: string;
+        positionName: string;
+        prompt?: string;
+        negativePrompt?: string;
+        isNSFW?: boolean;
+      }>
+    >(), // Array of profile picture image data
 
     // LoRA training status
     loraStatus: text('lora_status'), // 'pending', 'generating_sheets', 'training', 'ready', 'failed'
     loraModelId: uuid('lora_model_id'), // Reference to active LoRA model
+    loraEnabled: boolean('lora_enabled').default(true), // Whether to use LoRA for image generation
 
     // Stats (denormalized for performance)
     postCount: text('post_count').default('0'),
