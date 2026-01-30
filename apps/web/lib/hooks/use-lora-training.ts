@@ -82,7 +82,7 @@ async function fetchCharacterLora(
 
   if (!response.ok) {
     if (response.status === 404) {
-      return { lora: null };
+      return { lora: null, loraEnabled: false };
     }
     throw new Error('Failed to fetch LoRA status');
   }
