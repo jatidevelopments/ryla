@@ -616,6 +616,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Remove API routes for static export
+        run: |
+          echo "Removing API routes for static export (not supported by Cloudflare Pages)..."
+          rm -rf apps/funnel/app/api
+          echo "✅ API routes removed"
+
       - name: Build Funnel App
         run: pnpm nx build funnel --configuration=production
         env:
@@ -630,13 +636,33 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
 
+      - name: Find and verify static export output
+        id: find-output
+        run: |
+          echo "Looking for static export output..."
+          if [ -d "apps/funnel/out" ]; then
+            echo "Found apps/funnel/out"
+            echo "directory=apps/funnel/out" >> $GITHUB_OUTPUT
+          elif [ -d "dist/apps/funnel/out" ]; then
+            echo "Found dist/apps/funnel/out"
+            echo "directory=dist/apps/funnel/out" >> $GITHUB_OUTPUT
+          elif [ -d "dist/apps/funnel" ]; then
+            echo "Found dist/apps/funnel"
+            echo "directory=dist/apps/funnel" >> $GITHUB_OUTPUT
+          else
+            echo "❌ No static export output found!"
+            ls -la apps/funnel/ | head -10
+            ls -la dist/ 2>/dev/null | head -10 || echo "dist/ doesn't exist"
+            exit 1
+          fi
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ryla-funnel
-          directory: apps/funnel/out
+          directory: ${{ steps.find-output.outputs.directory }}
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
