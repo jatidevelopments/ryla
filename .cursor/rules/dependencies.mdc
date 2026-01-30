@@ -55,18 +55,28 @@ alwaysApply: true
 ## Env Vars Required
 
 ```bash
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+# Database
+DATABASE_URL=postgresql://user:password@host:port/dbname
+
+# JWT Authentication
+JWT_ACCESS_SECRET=
+JWT_REFRESH_SECRET=
+
+# Cloudflare R2 Storage
+R2_ACCOUNT_ID=
+R2_ACCESS_KEY_ID=
+R2_SECRET_ACCESS_KEY=
+R2_BUCKET_NAME=
 
 # Finby
 FINBY_API_KEY=
 FINBY_MERCHANT_ID=
 FINBY_WEBHOOK_SECRET=
 
-# AI
+# AI (Modal / Replicate)
 REPLICATE_API_TOKEN=
+MODAL_TOKEN_ID=
+MODAL_TOKEN_SECRET=
 
 # RunPod (GPU Infrastructure - MCP)
 RUNPOD_API_KEY=
@@ -74,6 +84,9 @@ RUNPOD_API_KEY=
 # Analytics
 NEXT_PUBLIC_POSTHOG_KEY=
 NEXT_PUBLIC_POSTHOG_HOST=
+
+# LoRA Training
+LORA_WEBHOOK_SECRET=
 ```
 
 ## Full Reference

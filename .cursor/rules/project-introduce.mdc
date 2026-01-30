@@ -23,7 +23,7 @@ Supported platforms:
 - **Monorepo**: Nx 22
 - **State Management**: Zustand 5
 - **Database**: PostgreSQL with Drizzle ORM
-- **Auth**: Supabase Auth
+- **Auth**: Custom JWT (Passport.js)
 - **Storage**: Cloudflare R2 (S3-compatible)
 - **Payments**: Finby
 - **Analytics**: PostHog

@@ -220,13 +220,14 @@ JWT_ACCESS_SECRET=your-access-secret-min-32-chars
 JWT_REFRESH_SECRET=your-refresh-secret-min-32-chars
 
 # -------------------------------------------
-# Supabase (Auth, Database, Storage)
+# Cloudflare R2 Storage
 # Required: Yes
-# Dashboard: https://supabase.com/dashboard
+# Dashboard: https://dash.cloudflare.com
 # -------------------------------------------
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+R2_ACCOUNT_ID=your-account-id
+R2_ACCESS_KEY_ID=your-access-key
+R2_SECRET_ACCESS_KEY=your-secret-key
+R2_BUCKET_NAME=ryla-uploads
 
 # -------------------------------------------
 # Analytics (PostHog)
