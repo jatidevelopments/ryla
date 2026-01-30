@@ -48,7 +48,8 @@ export type ModelCapability =
   | 'video-to-video' // Transform video
   | 'face-swap' // Swap faces in images
   | 'background-removal' // Remove backgrounds
-  | 'style-transfer'; // Transfer artistic style
+  | 'style-transfer' // Transfer artistic style
+  | 'lora'; // LoRA fine-tuning support
 
 /**
  * Input type - what the model requires as input
