@@ -140,8 +140,12 @@ Deploy primary AI models on Modal.com enabling scalable image/video generation:
 
 - [x] Create `/wan2.6-lora` endpoint for video LoRA (deployed 2026-01-29)
 - [x] Create `/z-image-lora` endpoint (deployed 2026-01-29)
-- [ ] Document LoRA workflow for all models
-- [ ] Research Qwen-Edit LoRA support
+- [x] Document LoRA workflow for all models (see `docs/technical/models/LORA-WORKFLOW-GUIDE.md`)
+- [x] Research Qwen-Edit LoRA support (AI Toolkit supported, endpoint planned)
+
+**Future LoRA Work:**
+
+- [ ] Create `/qwen-image-edit-lora` endpoint for editing with character LoRA
 
 #### P6.3: Documentation Updates (Priority: MEDIUM)
 
