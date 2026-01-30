@@ -27,7 +27,11 @@ import { RegenerateProfilePictureDto } from '../image/dto/req/regenerate-profile
 import { TrainLoraDto } from './dto/train-lora.dto';
 import { calculateLoraTrainingCost, type FeatureId } from '@ryla/shared';
 import { LoraTrainingService } from '@ryla/business/services/lora-training.service';
-import { LoraModelsRepository, NotificationsRepository } from '@ryla/data';
+import {
+  LoraModelsRepository,
+  NotificationsRepository,
+  ImagesRepository,
+} from '@ryla/data';
 import { eq, and } from 'drizzle-orm';
 import * as schema from '@ryla/data/schema';
 import type { CharacterConfig } from '@ryla/data/schema';
@@ -576,6 +580,29 @@ export class CharacterController {
       throw new Error(result.error || 'Failed to start LoRA training');
     }
 
+    // Send training started notification
+    try {
+      const notificationsRepo = new NotificationsRepository(this.db);
+      await notificationsRepo.create({
+        userId: user.userId,
+        type: 'lora.training_started',
+        title: 'LoRA Training Started',
+        body: `Training model for ${character.name}... This will take 5-10 minutes. We'll notify you when it's ready!`,
+        href: `/influencer/${dto.characterId}/settings`,
+        metadata: {
+          characterId: dto.characterId,
+          loraModelId: result.loraModelId,
+          imageCount: dto.imageUrls.length,
+        },
+      });
+    } catch (notifError) {
+      // Don't fail the training if notification fails
+      console.error(
+        'Failed to send training started notification:',
+        notifError
+      );
+    }
+
     return {
       jobId: result.jobId,
       loraModelId: result.loraModelId,
@@ -775,6 +802,57 @@ export class CharacterController {
         createdAt: lora.createdAt,
         completedAt: lora.trainingCompletedAt,
       },
+    };
+  }
+
+  @Get(':characterId/lora/available-images')
+  @ApiOperation({
+    summary: 'Get available images for LoRA training',
+    description:
+      'Returns completed images for a character that can be used for LoRA training. Images are sorted by liked status (liked first) then by creation date.',
+  })
+  async getAvailableTrainingImages(
+    @CurrentUser() user: IJwtPayload,
+    @Param('characterId') characterId: string
+  ) {
+    // Verify character ownership
+    const character = await this.db.query.characters.findFirst({
+      where: and(
+        eq(schema.characters.id, characterId),
+        eq(schema.characters.userId, user.userId)
+      ),
+      columns: { id: true, name: true },
+    });
+
+    if (!character) {
+      throw new NotFoundException('Character not found or access denied');
+    }
+
+    const imagesRepository = new ImagesRepository(this.db);
+    const result = await imagesRepository.getAvailableForTraining({
+      characterId,
+      userId: user.userId,
+      limit: 50,
+    });
+
+    const MIN_IMAGES_FOR_TRAINING = 5;
+
+    return {
+      images: result.images.map((img) => ({
+        id: img.id,
+        url: img.s3Url,
+        thumbnailUrl: img.thumbnailUrl || img.s3Url,
+        liked: img.liked ?? false,
+        createdAt: img.createdAt,
+      })),
+      likedCount: result.likedCount,
+      totalCount: result.totalCount,
+      canTrain: result.totalCount >= MIN_IMAGES_FOR_TRAINING,
+      minImagesRequired: MIN_IMAGES_FOR_TRAINING,
+      message:
+        result.totalCount < MIN_IMAGES_FOR_TRAINING
+          ? `Need at least ${MIN_IMAGES_FOR_TRAINING} images for training. You have ${result.totalCount}.`
+          : null,
     };
   }
 }

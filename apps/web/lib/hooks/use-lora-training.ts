@@ -42,6 +42,23 @@ interface TrainLoraInput {
   resolution?: number;
 }
 
+export interface TrainingImage {
+  id: string;
+  url: string;
+  thumbnailUrl: string;
+  liked: boolean;
+  createdAt: string;
+}
+
+interface GetAvailableImagesResponse {
+  images: TrainingImage[];
+  likedCount: number;
+  totalCount: number;
+  canTrain: boolean;
+  minImagesRequired: number;
+  message: string | null;
+}
+
 interface TrainLoraResponse {
   jobId: string;
   loraModelId: string;
@@ -98,6 +115,20 @@ async function startLoraTraining(
   return response.json();
 }
 
+async function fetchAvailableTrainingImages(
+  characterId: string
+): Promise<GetAvailableImagesResponse> {
+  const response = await authFetch(
+    `${API_BASE_URL}/characters/${characterId}/lora/available-images`
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch available images');
+  }
+
+  return response.json();
+}
+
 // ============================================================================
 // Hooks
 // ============================================================================
@@ -149,5 +180,18 @@ export function useStartLoraTraining() {
       });
       queryClient.invalidateQueries({ queryKey: ['myLoras'] });
     },
+  });
+}
+
+/**
+ * Hook to get available images for LoRA training
+ */
+export function useAvailableTrainingImages(
+  characterId: string | null | undefined
+) {
+  return useQuery({
+    queryKey: ['availableTrainingImages', characterId],
+    queryFn: () => fetchAvailableTrainingImages(characterId!),
+    enabled: !!characterId,
   });
 }

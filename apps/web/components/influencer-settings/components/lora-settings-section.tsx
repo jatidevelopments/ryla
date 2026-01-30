@@ -10,6 +10,7 @@ import {
   Zap,
   Clock,
   RefreshCw,
+  Images,
 } from 'lucide-react';
 import {
   useCharacterLora,
@@ -17,6 +18,7 @@ import {
 } from '../../../lib/hooks/use-lora-training';
 import { calculateLoraTrainingCost } from '@ryla/shared';
 import { trpc } from '../../../lib/trpc';
+import { ImageSelectorModal } from '../../lora/ImageSelectorModal';
 
 interface LoraSettingsSectionProps {
   influencerId: string;
@@ -27,7 +29,7 @@ interface LoraSettingsSectionProps {
 export function LoraSettingsSection({
   influencerId,
   influencerName,
-  baseImageUrl,
+  baseImageUrl: _baseImageUrl,
 }: LoraSettingsSectionProps) {
   const {
     data: loraData,
@@ -39,6 +41,7 @@ export function LoraSettingsSection({
 
   const [isStarting, setIsStarting] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const lora = loraData?.lora;
   const hasLora = !!lora;
@@ -49,14 +52,14 @@ export function LoraSettingsSection({
   // Estimate cost for training
   const estimatedImageCount = 8; // Profile set generates 8 images
   const trainingCost = calculateLoraTrainingCost('flux', estimatedImageCount);
-  const hasEnoughCredits = (credits?.balance ?? 0) >= trainingCost;
+  const creditBalance = credits?.balance ?? 0;
 
-  const handleStartTraining = async () => {
-    if (!baseImageUrl) {
-      setError('No base image available for training');
-      return;
-    }
+  const handleOpenSelector = () => {
+    setError(null);
+    setIsModalOpen(true);
+  };
 
+  const handleStartTraining = async (selectedImageUrls: string[]) => {
     setIsStarting(true);
     setError(null);
 
@@ -64,11 +67,12 @@ export function LoraSettingsSection({
       await startTraining.mutateAsync({
         characterId: influencerId,
         triggerWord: influencerName.toLowerCase().replace(/\s+/g, ''),
-        imageUrls: [baseImageUrl], // Will need more images in practice
+        imageUrls: selectedImageUrls,
       });
 
       // Refetch to update status
       await refetch();
+      setIsModalOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to start training');
     } finally {
@@ -196,11 +200,11 @@ export function LoraSettingsSection({
         {(!hasLora || isFailed) && (
           <div className="pt-2">
             <button
-              onClick={handleStartTraining}
-              disabled={isStarting || !hasEnoughCredits || !baseImageUrl}
+              onClick={handleOpenSelector}
+              disabled={isStarting}
               className={cn(
                 'w-full p-4 rounded-xl border-2 transition-all duration-200 text-left relative overflow-hidden',
-                isStarting || !hasEnoughCredits || !baseImageUrl
+                isStarting
                   ? 'opacity-50 cursor-not-allowed border-white/10 bg-white/5'
                   : 'border-amber-400/50 bg-gradient-to-br from-amber-500/20 to-orange-500/20 hover:shadow-lg hover:shadow-amber-500/20'
               )}
@@ -213,38 +217,25 @@ export function LoraSettingsSection({
                     ) : isFailed ? (
                       <RefreshCw className="h-4 w-4 text-amber-400" />
                     ) : (
-                      <Sparkles className="h-4 w-4 text-amber-400" />
+                      <Images className="h-4 w-4 text-amber-400" />
                     )}
                     <p className="text-base font-semibold text-white">
                       {isStarting
                         ? 'Starting Training...'
                         : isFailed
                         ? 'Retry Training'
-                        : 'Train LoRA Model'}
+                        : 'Select Images & Train'}
                     </p>
                     <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-amber-500/30 text-amber-300">
-                      {trainingCost.toLocaleString()} credits
+                      ~{trainingCost.toLocaleString()} credits
                     </span>
                   </div>
                   <p className="text-sm text-white/60">
-                    Takes 5-10 minutes • Uses profile pictures for training
+                    Choose 5-10 images • Training takes 5-10 minutes
                   </p>
                 </div>
               </div>
             </button>
-
-            {!hasEnoughCredits && (
-              <p className="mt-2 text-xs text-red-300/80">
-                Insufficient credits. You need {trainingCost.toLocaleString()}{' '}
-                credits.
-              </p>
-            )}
-
-            {!baseImageUrl && (
-              <p className="mt-2 text-xs text-amber-300/80">
-                Generate a base image first before training LoRA.
-              </p>
-            )}
 
             {error && <p className="mt-2 text-xs text-red-300/80">{error}</p>}
           </div>
@@ -253,11 +244,11 @@ export function LoraSettingsSection({
         {isReady && (
           <div className="pt-2">
             <button
-              onClick={handleStartTraining}
-              disabled={isStarting || !hasEnoughCredits}
+              onClick={handleOpenSelector}
+              disabled={isStarting}
               className={cn(
                 'w-full p-3 rounded-lg border transition-all duration-200 text-center',
-                isStarting || !hasEnoughCredits
+                isStarting
                   ? 'opacity-50 cursor-not-allowed border-white/10 bg-white/5 text-white/40'
                   : 'border-white/20 bg-white/5 hover:bg-white/10 text-white/70 hover:text-white'
               )}
@@ -269,16 +260,24 @@ export function LoraSettingsSection({
                   <RefreshCw className="h-4 w-4" />
                 )}
                 <span className="text-sm">
-                  {isStarting ? 'Starting...' : 'Retrain LoRA Model'}
-                </span>
-                <span className="text-xs text-white/50">
-                  ({trainingCost.toLocaleString()} credits)
+                  {isStarting ? 'Starting...' : 'Retrain with New Images'}
                 </span>
               </div>
             </button>
           </div>
         )}
       </div>
+
+      {/* Image Selector Modal */}
+      <ImageSelectorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleStartTraining}
+        characterId={influencerId}
+        characterName={influencerName}
+        isSubmitting={isStarting}
+        creditBalance={creditBalance}
+      />
     </section>
   );
 }
