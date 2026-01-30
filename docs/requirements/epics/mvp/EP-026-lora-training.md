@@ -10,6 +10,16 @@
 
 ## Recent Progress
 
+### ✅ Credit Refund on Failure (2026-01-30)
+
+Automatic credit refund when LoRA training fails:
+
+- **Schema**: Added `creditsCharged` and `creditsRefunded` columns
+- **Tracking**: Credits charged stored at training start
+- **Refund Trigger**: On immediate failure or when status check reveals error
+- **UI**: Shows "Refunded" badge with amount on failed training
+- **Note**: Requires migration to add new columns
+
 ### ✅ Character Profile UI (2026-01-30)
 
 LoRA training status displayed on character profile:
@@ -19,7 +29,7 @@ LoRA training status displayed on character profile:
   - Pending/Queued state with clock icon
   - Training in progress with progress bar
   - Ready state with trigger word and stats
-  - Failed state with error message
+  - Failed state with error message and refund info
 - **Location**: Above profile picture generation indicator
 
 ### ✅ Wizard UI Integration (2026-01-30)
