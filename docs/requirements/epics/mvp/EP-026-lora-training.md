@@ -10,6 +10,34 @@
 
 ## Recent Progress
 
+### ✅ Credit Integration (2026-01-27)
+
+Credit system integrated for LoRA training:
+
+- **Cost Calculation**: Uses `calculateLoraTrainingCost('flux', imageCount)`
+- **Pricing**: Base 25,000 credits + 1,000 per image
+- **Deduction**: Credits deducted upfront when training starts
+- **Endpoint**: `GET /characters/lora-training-cost?imageCount=N`
+
+### ✅ Database Persistence (2026-01-27)
+
+Full database tracking for LoRA training jobs:
+
+- **Repository**: `LoraModelsRepository` with CRUD operations
+- **Schema**: Uses existing `lora_models` table
+- **Tracking**: Status, triggerWord, modelPath, trainingSteps, etc.
+- **Endpoints**:
+  - `GET /characters/my-loras` - List user's LoRAs
+  - `GET /characters/:characterId/lora` - Get character's LoRA
+
+### ✅ API Endpoints (2026-01-27)
+
+Full API integration:
+
+- `POST /characters/train-lora` - Start LoRA training
+- `GET /characters/lora-status/:jobId` - Check training status
+- `GET /characters/lora-training-cost` - Cost estimation
+
 ### ✅ Modal Training Infrastructure (2026-01-30)
 
 Modal.com training app deployed and tested:
