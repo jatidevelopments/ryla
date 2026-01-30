@@ -163,20 +163,24 @@ export class LoraTrainingService {
         `--config=${JSON.stringify(pythonConfig)}`,
       ]);
 
-      if (result.status === 'started' && result.job_id && result.call_id) {
+      if (
+        result['status'] === 'started' &&
+        result['job_id'] &&
+        result['call_id']
+      ) {
         // Update database record with job info
         if (this.repository && loraModel) {
           await this.repository.updateById(loraModel.id, {
-            externalJobId: result.call_id as string,
+            externalJobId: result['call_id'] as string,
             status: 'training',
             trainingStartedAt: new Date(),
           });
         }
 
         // Cache the job info (fallback or supplement)
-        this.jobCache.set(result.job_id as string, {
-          callId: result.call_id as string,
-          characterId: result.character_id as string,
+        this.jobCache.set(result['job_id'] as string, {
+          callId: result['call_id'] as string,
+          characterId: result['character_id'] as string,
           loraModelId: loraModel?.id,
           startedAt: new Date(),
         });
@@ -184,7 +188,7 @@ export class LoraTrainingService {
         // Training failed to start - mark as failed
         await this.repository.markTrainingFailed(
           loraModel.id,
-          (result.error as string) || 'Failed to start training'
+          (result['error'] as string) || 'Failed to start training'
         );
       }
 
@@ -423,7 +427,7 @@ export class LoraTrainingService {
    */
   private convertResult(result: Record<string, unknown>): TrainingJobResult {
     const converted: TrainingJobResult = {
-      status: result.status as TrainingJobResult['status'],
+      status: result['status'] as TrainingJobResult['status'],
     };
 
     if (result['job_id']) converted.jobId = result['job_id'] as string;
