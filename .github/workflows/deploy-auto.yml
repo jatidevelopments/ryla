@@ -636,7 +636,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ryla-funnel
-          directory: dist/apps/funnel/out
+          directory: apps/funnel/out
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
@@ -691,7 +691,7 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           projectName: ryla-landing
-          directory: dist/apps/landing/out
+          directory: apps/landing/out
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Notify Slack
