@@ -131,10 +131,9 @@ def hf_download_flux_dev():
 
 # Flux image extends base image with Flux-specific models
 # Note: This will be imported in app.py with proper path setup
+# v4 - Moved add_local_file to end for runtime mounting (faster iteration)
 flux_image = (
     base_image
-    # Copy ORIGINAL handler file (not split copy) - same as original working app
-    .add_local_file("apps/modal/handlers/flux.py", "/root/handlers/flux.py", copy=True)
     .run_function(
         hf_download_flux,
         volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
@@ -144,4 +143,6 @@ flux_image = (
         volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
         secrets=[modal.Secret.from_name("huggingface")],
     )
+    # Handler file mounted at runtime (MUST be last for copy=False to work)
+    .add_local_file("apps/modal/handlers/flux.py", "/root/handlers/flux.py", copy=False)
 )

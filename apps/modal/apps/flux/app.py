@@ -6,6 +6,7 @@ Deploy: modal deploy apps/modal/apps/flux/app.py
 This app handles:
 - /flux - Flux Schnell text-to-image
 - /flux-dev - Flux Dev text-to-image
+- /flux-dev-lora - Flux Dev + LoRA character-specific generation
 
 Agent Assignment: Flux Agent (isolated files)
 """
@@ -64,7 +65,33 @@ class ComfyUI:
         
         import time
         time.sleep(5)
-        print("✅ ComfyUI server started for Flux app")
+        
+        # Set up LoRA symlinks from volume to ComfyUI
+        self._setup_lora_symlinks()
+        
+        print("✅ ComfyUI server started for Flux app (with LoRA support)")
+    
+    def _setup_lora_symlinks(self):
+        """Symlink LoRA files from volume to ComfyUI models directory."""
+        import os
+        from pathlib import Path
+        
+        volume_loras = Path("/root/models/loras")
+        comfy_loras = Path("/root/comfy/ComfyUI/models/loras")
+        
+        if volume_loras.exists():
+            comfy_loras.mkdir(parents=True, exist_ok=True)
+            lora_count = 0
+            for lora_file in volume_loras.glob("*.safetensors"):
+                target = comfy_loras / lora_file.name
+                if not target.exists():
+                    os.symlink(str(lora_file), str(target))
+                    print(f"   ✅ Symlinked LoRA: {lora_file.name}")
+                    lora_count += 1
+            if lora_count > 0:
+                print(f"   📦 Loaded {lora_count} LoRA(s) from volume")
+            else:
+                print("   ℹ️ No new LoRAs to symlink")
 
     @modal.method()
     def infer(self, workflow_path: str = "/root/workflow_api.json"):
@@ -116,6 +143,19 @@ class ComfyUI:
         @fastapi.get("/health")
         async def health():
             return {"status": "healthy", "app": "ryla-flux"}
+        
+        # List available LoRAs
+        @fastapi.get("/loras")
+        async def list_loras():
+            """List available LoRA files for /flux-dev-lora endpoint."""
+            from pathlib import Path
+            loras = []
+            for lora_dir in [Path("/root/models/loras"), Path("/root/comfy/ComfyUI/models/loras")]:
+                if lora_dir.exists():
+                    for f in lora_dir.glob("*.safetensors"):
+                        if f.name not in [l["name"] for l in loras]:
+                            loras.append({"name": f.name, "path": str(f)})
+            return {"loras": loras, "count": len(loras)}
         
         # Debug endpoint to test handler import
         @fastapi.get("/debug/test")
