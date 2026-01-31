@@ -5,9 +5,9 @@ import {
   subscriptions,
   userCredits,
   creditTransactions,
-  PLAN_CREDIT_LIMITS,
   NotificationsRepository,
 } from '@ryla/data';
+import { PLAN_CREDIT_LIMITS } from '@ryla/shared';
 
 
 // Map subscription tiers to plan credit limits

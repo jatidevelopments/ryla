@@ -27,7 +27,6 @@ import {
   User,
   userCredits,
   creditTransactions,
-  PLAN_CREDIT_LIMITS,
   NotificationsRepository,
 } from '@ryla/data';
 import * as schema from '@ryla/data/schema';
@@ -36,6 +35,7 @@ import {
   generateBaseUsername,
   generateUsernameWithSuffix,
   generateRandomUsername,
+  PLAN_CREDIT_LIMITS,
 } from '@ryla/shared';
 
 const BCRYPT_SALT_ROUNDS = 10;

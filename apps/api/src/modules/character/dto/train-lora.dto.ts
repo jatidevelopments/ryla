@@ -17,7 +17,7 @@ export class TrainLoraDto {
     example: '550e8400-e29b-41d4-a716-446655440000',
   })
   @IsUUID()
-  characterId: string;
+  characterId!: string;
 
   @ApiProperty({
     description: 'Trigger word for the LoRA (e.g., character name)',
@@ -26,7 +26,7 @@ export class TrainLoraDto {
   })
   @IsString()
   @MinLength(2)
-  triggerWord: string;
+  triggerWord!: string;
 
   @ApiProperty({
     description: 'List of image URLs to train on (min 3)',
@@ -41,7 +41,7 @@ export class TrainLoraDto {
   @IsArray()
   @ArrayMinSize(3)
   @IsString({ each: true })
-  imageUrls: string[];
+  imageUrls!: string[];
 
   @ApiPropertyOptional({
     description: 'Maximum training steps (default: 500)',
@@ -86,5 +86,5 @@ export class GetLoraTrainingStatusDto {
     example: 'lora-abc123-xyz789',
   })
   @IsString()
-  jobId: string;
+  jobId!: string;
 }

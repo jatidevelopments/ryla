@@ -178,6 +178,59 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   }
 
   /**
+   * Submit Qwen face swap (RECOMMENDED for face consistency with Qwen)
+   * 
+   * Two-step pipeline:
+   * 1. Generate with Qwen-Image 2512 (best quality)
+   * 2. Swap face using ReActor with GFPGAN restoration
+   */
+  async submitQwenFaceSwap(input: {
+    referenceImageUrl: string;
+    prompt: string;
+    nsfw: boolean;
+    aspectRatio?: '1:1' | '9:16' | '2:3';
+    seed?: number;
+    fast?: boolean;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.submitQwenFaceSwap(input);
+  }
+
+  /**
+   * Submit Qwen character scene (Qwen-Edit based)
+   */
+  async submitQwenCharacterScene(input: {
+    characterImageUrl: string;
+    scene: string;
+    denoise?: number;
+    seed?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.submitQwenCharacterScene(input);
+  }
+
+  /**
+   * Submit video face swap job
+   * Uses /video-faceswap endpoint (ReActor-based frame-by-frame)
+   * 
+   * Processes video frame-by-frame:
+   * 1. Load source video frames
+   * 2. Apply ReActor face swap to each frame
+   * 3. Reassemble with original audio
+   * 
+   * Note: Processing time depends on video length (~1-2 seconds per frame)
+   */
+  async submitVideoFaceSwap(input: {
+    sourceVideoUrl: string;
+    referenceImageUrl: string;
+    fps?: number;
+    restoreFace?: boolean;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.submitVideoFaceSwap(input);
+  }
+
+  /**
    * Health check - verify endpoint is available
    */
   async healthCheck(): Promise<boolean> {

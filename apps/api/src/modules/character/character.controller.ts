@@ -940,7 +940,7 @@ export class CharacterController {
         creditsCharged: lora.creditsCharged,
         creditsRefunded: lora.creditsRefunded,
         errorMessage: lora.errorMessage,
-        imageCount: lora.trainingImages?.length ?? 0,
+        imageCount: lora.config?.trainingImages?.length ?? 0,
         createdAt: lora.createdAt,
         completedAt: lora.trainingCompletedAt,
       })),

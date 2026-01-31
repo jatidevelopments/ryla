@@ -10,14 +10,14 @@ export class LoraWebhookDto {
     example: 'your-webhook-secret',
   })
   @IsString()
-  secret: string;
+  secret!: string;
 
   @ApiProperty({
     description: 'Modal call ID for the training job',
     example: 'fc-xxxxx',
   })
   @IsString()
-  callId: string;
+  callId!: string;
 
   @ApiProperty({
     description: 'Training status',
@@ -25,14 +25,14 @@ export class LoraWebhookDto {
   })
   @IsString()
   @IsIn(['completed', 'failed'])
-  status: 'completed' | 'failed';
+  status!: 'completed' | 'failed';
 
   @ApiProperty({
     description: 'Character ID',
     example: 'uuid-here',
   })
   @IsString()
-  characterId: string;
+  characterId!: string;
 
   @ApiProperty({
     description: 'Path to the trained LoRA model',

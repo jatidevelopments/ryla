@@ -378,10 +378,11 @@ export class StudioGenerationService {
           // Map model ID to Modal.com endpoint
           // Qwen models: qwen-image-2512 → /qwen-image-2512, etc.
           // Flux models: fal-ai/flux/dev → /flux-dev, fal-ai/flux/schnell → /flux
-          let modalModel: string;
+          type ModalModelType = 'flux-dev' | 'flux' | 'qwen-image-2512' | 'qwen-image-2512-fast';
+          let modalModel: ModalModelType;
           if (input.modelId?.startsWith('qwen-')) {
             // Map Qwen UI model IDs to Modal endpoints
-            const qwenModelMap: Record<string, string> = {
+            const qwenModelMap: Record<string, ModalModelType> = {
               'qwen-image-2512': 'qwen-image-2512',
               'qwen-image-2512-fast': 'qwen-image-2512-fast',
             };
