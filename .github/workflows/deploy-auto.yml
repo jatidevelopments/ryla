@@ -286,12 +286,19 @@ jobs:
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
 
           # Export secrets to temporary file
+          # Filter output to only include valid dotenv lines (KEY=value format)
           infisical export \
             --domain=https://eu.infisical.com/api \
             --path=/apps/web \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env
+            --format=dotenv 2>/dev/null | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env || true
+
+          # Check if file was created and has content
+          if [ ! -s /tmp/build-args.env ]; then
+            echo "⚠️  Build args file is empty, but continuing with defaults..."
+            echo "# Empty build args - using code defaults" > /tmp/build-args.env
+          fi
 
           # Source the file to make variables available
           set -a
@@ -887,21 +894,24 @@ jobs:
 
           # Export secrets to temporary file
           # Try with /apps/admin first, fallback to /shared only if folder doesn't exist
+          # Note: Redirect stderr separately and filter output to only include valid dotenv lines
           if ! infisical export \
             --domain=https://eu.infisical.com/api \
             --path=/apps/admin \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv > /tmp/build-args.env 2>&1; then
+            --format=dotenv 2>/tmp/infisical-stderr.log | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env; then
             echo "⚠️  Failed to export from /apps/admin, trying /shared only..."
+            echo "Stderr from first attempt:"
+            cat /tmp/infisical-stderr.log || true
             if ! infisical export \
               --domain=https://eu.infisical.com/api \
               --path=/shared \
               --env=${{ needs.detect-environment.outputs.infisical_env }} \
-              --format=dotenv > /tmp/build-args.env 2>&1; then
+              --format=dotenv 2>/tmp/infisical-stderr.log | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env; then
               echo "❌ Failed to export secrets from Infisical"
-              echo "Error output:"
-              cat /tmp/build-args.env || echo "Could not read error output"
+              echo "Stderr output:"
+              cat /tmp/infisical-stderr.log || echo "Could not read stderr"
               exit 1
             fi
           fi
@@ -912,7 +922,7 @@ jobs:
             echo "# Empty build args - using code defaults" > /tmp/build-args.env
           fi
 
-          # Source the file to make variables available
+          # Source the file to make variables available (now safe - only contains valid dotenv lines)
           set -a
           source /tmp/build-args.env
           set +a
