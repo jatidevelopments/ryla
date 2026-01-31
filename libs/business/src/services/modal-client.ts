@@ -104,6 +104,34 @@ export interface ModalWan26R2VRequest extends ModalWan26Request {
   reference_video: string; // base64 data URL
 }
 
+export interface ModalQwenFaceSwapRequest extends Record<string, unknown> {
+  prompt: string;
+  reference_image: string; // base64 data URL of face to use
+  negative_prompt?: string;
+  width?: number;
+  height?: number;
+  seed?: number;
+  restore_face?: boolean; // Apply GFPGAN face restoration (default: true)
+}
+
+export interface ModalQwenCharacterSceneRequest extends Record<string, unknown> {
+  character_image: string; // base64 data URL of character reference
+  scene: string; // Description of target scene
+  steps?: number;
+  cfg?: number;
+  seed?: number;
+  denoise?: number; // 0.0-1.0, lower = more preservation (default: 0.7)
+}
+
+export interface ModalVideoFaceSwapRequest extends Record<string, unknown> {
+  source_video: string; // base64 data URL of source video
+  reference_image: string; // base64 data URL of face to swap in
+  fps?: number; // Output FPS (default: 30)
+  restore_face?: boolean; // Apply GFPGAN restoration (default: true)
+  face_restore_visibility?: number; // Face restore blend 0-1 (default: 1.0)
+  codeformer_weight?: number; // CodeFormer weight (default: 0.5)
+}
+
 export interface ModalResponse {
   image: Buffer;
   contentType: string;
@@ -217,6 +245,72 @@ export class ModalClient {
    */
   async generateWan26R2V(input: ModalWan26R2VRequest): Promise<ModalResponse> {
     return this.callEndpoint('/wan2.6-r2v', input);
+  }
+
+  // ============================================================
+  // Face Consistency (ReActor-based)
+  // ============================================================
+
+  /**
+   * Generate image with face swap using Qwen-Image 2512 + ReActor
+   * 
+   * Two-step pipeline:
+   * 1. Generate high-quality image with Qwen-Image 2512
+   * 2. Swap face using ReActor with GFPGAN restoration
+   * 
+   * @param input.reference_image - Base64 data URL of face to use
+   * @param input.restore_face - Apply GFPGAN face restoration (default: true)
+   */
+  async generateQwenFaceSwap(
+    input: ModalQwenFaceSwapRequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-faceswap', input);
+  }
+
+  /**
+   * Fast face swap using Qwen-Image 2512 (4 steps) + ReActor
+   * 
+   * Same as generateQwenFaceSwap but ~10x faster (Lightning LoRA)
+   */
+  async generateQwenFaceSwapFast(
+    input: ModalQwenFaceSwapRequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-faceswap-fast', input);
+  }
+
+  /**
+   * Place character in new scene using Qwen-Edit
+   * 
+   * Uses Qwen-Edit's native character consistency to edit
+   * a character image into a new scene while preserving identity.
+   * 
+   * @param input.character_image - Base64 data URL of character reference
+   * @param input.scene - Description of target scene
+   * @param input.denoise - Preservation strength (lower = more preservation)
+   */
+  async generateQwenCharacterScene(
+    input: ModalQwenCharacterSceneRequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/qwen-character-scene', input);
+  }
+
+  /**
+   * Apply face swap to video using ReActor
+   * 
+   * Processes video frame-by-frame:
+   * 1. Load source video frames
+   * 2. Apply ReActor face swap to each frame
+   * 3. Reassemble with original audio
+   * 
+   * @param input.source_video - Base64 data URL of source video
+   * @param input.reference_image - Base64 data URL of face to swap in
+   * @param input.fps - Output FPS (default: 30)
+   * @param input.restore_face - Apply GFPGAN face restoration (default: true)
+   */
+  async videoFaceSwap(
+    input: ModalVideoFaceSwapRequest
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/video-faceswap', input);
   }
 
   /**

@@ -16,6 +16,9 @@ import {
   ModalIPAdapterFaceIDRequest,
   ModalInstantIDRequest,
   ModalPuLIDRequest,
+  ModalQwenFaceSwapRequest,
+  ModalQwenCharacterSceneRequest,
+  ModalVideoFaceSwapRequest,
 } from './modal-client';
 import { randomUUID } from 'crypto';
 
@@ -159,6 +162,209 @@ export class ModalJobRunner implements RunPodJobRunner {
               buffer: response.image,
             },
           ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Submit Qwen face swap job (RECOMMENDED for face consistency)
+   * Uses /qwen-faceswap or /qwen-faceswap-fast endpoint
+   * 
+   * Two-step pipeline:
+   * 1. Generate with Qwen-Image 2512 (best quality T2I)
+   * 2. Swap face using ReActor with GFPGAN restoration
+   */
+  async submitQwenFaceSwap(input: {
+    referenceImageUrl: string;
+    prompt: string;
+    nsfw: boolean;
+    aspectRatio?: '1:1' | '9:16' | '2:3';
+    seed?: number;
+    fast?: boolean; // Use fast mode (4 steps, default: false)
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      // Convert referenceImageUrl to base64 data URL if needed
+      let referenceImage: string;
+      if (input.referenceImageUrl.startsWith('data:')) {
+        referenceImage = input.referenceImageUrl;
+      } else if (input.referenceImageUrl.startsWith('http')) {
+        const response = await fetch(input.referenceImageUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+        const contentType =
+          response.headers.get('content-type') || 'image/jpeg';
+        referenceImage = `data:${contentType};base64,${base64}`;
+      } else {
+        throw new Error('Invalid referenceImageUrl format');
+      }
+
+      const request: ModalQwenFaceSwapRequest = {
+        prompt: input.prompt,
+        reference_image: referenceImage,
+        negative_prompt: input.nsfw
+          ? '低分辨率，低画质，肢体畸形，手指畸形'
+          : '低分辨率，低画质，肢体畸形，手指畸形，nsfw, nude, naked',
+        seed: input.seed,
+        restore_face: true,
+      };
+
+      // Use fast or standard endpoint
+      const response = input.fast
+        ? await this.client.generateQwenFaceSwapFast(request)
+        : await this.client.generateQwenFaceSwap(request);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [{ buffer: response.image }],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Submit Qwen character scene job
+   * Uses /qwen-character-scene endpoint (Qwen-Edit based)
+   */
+  async submitQwenCharacterScene(input: {
+    characterImageUrl: string;
+    scene: string;
+    denoise?: number;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      let characterImage: string;
+      if (input.characterImageUrl.startsWith('data:')) {
+        characterImage = input.characterImageUrl;
+      } else if (input.characterImageUrl.startsWith('http')) {
+        const response = await fetch(input.characterImageUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+        const contentType =
+          response.headers.get('content-type') || 'image/jpeg';
+        characterImage = `data:${contentType};base64,${base64}`;
+      } else {
+        throw new Error('Invalid characterImageUrl format');
+      }
+
+      const request: ModalQwenCharacterSceneRequest = {
+        character_image: characterImage,
+        scene: input.scene,
+        denoise: input.denoise ?? 0.7,
+        seed: input.seed,
+      };
+
+      const response = await this.client.generateQwenCharacterScene(request);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [{ buffer: response.image }],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Submit video face swap job
+   * Uses /video-faceswap endpoint (ReActor-based frame-by-frame)
+   * 
+   * Processes video frame-by-frame:
+   * 1. Load source video frames
+   * 2. Apply ReActor face swap to each frame
+   * 3. Reassemble with original audio
+   */
+  async submitVideoFaceSwap(input: {
+    sourceVideoUrl: string;
+    referenceImageUrl: string;
+    fps?: number;
+    restoreFace?: boolean;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      // Convert source video to base64
+      let sourceVideo: string;
+      if (input.sourceVideoUrl.startsWith('data:')) {
+        sourceVideo = input.sourceVideoUrl;
+      } else if (input.sourceVideoUrl.startsWith('http')) {
+        const response = await fetch(input.sourceVideoUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+        const contentType =
+          response.headers.get('content-type') || 'video/mp4';
+        sourceVideo = `data:${contentType};base64,${base64}`;
+      } else {
+        throw new Error('Invalid sourceVideoUrl format');
+      }
+
+      // Convert reference image to base64
+      let referenceImage: string;
+      if (input.referenceImageUrl.startsWith('data:')) {
+        referenceImage = input.referenceImageUrl;
+      } else if (input.referenceImageUrl.startsWith('http')) {
+        const response = await fetch(input.referenceImageUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64 = buffer.toString('base64');
+        const contentType =
+          response.headers.get('content-type') || 'image/jpeg';
+        referenceImage = `data:${contentType};base64,${base64}`;
+      } else {
+        throw new Error('Invalid referenceImageUrl format');
+      }
+
+      const request: ModalVideoFaceSwapRequest = {
+        source_video: sourceVideo,
+        reference_image: referenceImage,
+        fps: input.fps ?? 30,
+        restore_face: input.restoreFace ?? true,
+      };
+
+      const response = await this.client.videoFaceSwap(request);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: { buffer: response.image }, // Response contains video buffer
         },
         createdAt: new Date(),
       });
