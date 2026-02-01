@@ -18,3 +18,4 @@ export async function GET() {
   );
 }
 
+// Redeploy for compat flags Sun Feb  1 20:31:40 CET 2026
