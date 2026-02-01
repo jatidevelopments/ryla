@@ -243,8 +243,9 @@ def hf_download_instantid():
         print(f"   ⚠️  Error downloading ControlNet: {e}")
     
     # Download InsightFace models
+    # NOTE: ComfyUI_InstantID looks for models at: folder_paths.models_dir/insightface/antelopev2
     print("📥 Downloading InsightFace models (antelopev2)...")
-    insightface_dir = comfy_dir / "models" / "insightface" / "models"
+    insightface_dir = comfy_dir / "models" / "insightface"
     insightface_dir.mkdir(parents=True, exist_ok=True)
     antelopev2_dir = insightface_dir / "antelopev2"
     

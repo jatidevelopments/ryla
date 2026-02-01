@@ -9,6 +9,11 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 // Types
 // ============================================================================
 
+/**
+ * Supported LoRA model types for training
+ */
+export type LoraModelType = 'flux' | 'wan' | 'wan-14b' | 'qwen';
+
 export interface LoraModel {
   id: string;
   characterId: string;
@@ -23,6 +28,8 @@ export interface LoraModel {
   createdAt: string;
   completedAt: string | null;
   loraEnabled?: boolean;
+  /** Model type used for training */
+  trainingModel?: LoraModelType;
 }
 
 interface GetCharacterLoraResponse {
@@ -38,10 +45,19 @@ interface GetMyLorasResponse {
 interface TrainLoraInput {
   characterId: string;
   triggerWord: string;
-  imageUrls: string[];
+  /** Model type for training: flux (images), wan (video), wan-14b (video HQ), qwen (images) */
+  modelType?: LoraModelType;
+  /** Media URLs (images for flux/qwen, videos for wan) */
+  mediaUrls?: string[];
+  /** @deprecated Use mediaUrls instead */
+  imageUrls?: string[];
   maxTrainSteps?: number;
   rank?: number;
   resolution?: number;
+  /** Model size for Wan training: "1.3B" or "14B" */
+  modelSize?: string;
+  /** Number of frames for video training */
+  numFrames?: number;
 }
 
 export interface TrainingImage {
@@ -67,6 +83,9 @@ interface TrainLoraResponse {
   callId: string;
   status: string;
   message: string;
+  modelType?: LoraModelType;
+  mediaCount?: number;
+  estimatedMinutes?: number;
 }
 
 // ============================================================================
@@ -199,6 +218,47 @@ export function useAvailableTrainingImages(
 }
 
 // ============================================================================
+// Model Types
+// ============================================================================
+
+export interface LoraModelTypeInfo {
+  id: LoraModelType;
+  name: string;
+  description: string;
+  mediaType: 'images' | 'videos';
+  minMedia: number;
+  maxMedia: number;
+  estimatedMinutes: string;
+}
+
+interface GetModelTypesResponse {
+  modelTypes: LoraModelTypeInfo[];
+}
+
+async function fetchLoraModelTypes(): Promise<GetModelTypesResponse> {
+  const response = await authFetch(
+    `${API_BASE_URL}/characters/lora-model-types`
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch model types');
+  }
+
+  return response.json();
+}
+
+/**
+ * Hook to get available LoRA model types
+ */
+export function useLoraModelTypes() {
+  return useQuery({
+    queryKey: ['loraModelTypes'],
+    queryFn: fetchLoraModelTypes,
+    staleTime: 1000 * 60 * 60, // Cache for 1 hour
+  });
+}
+
+// ============================================================================
 // Toggle LoRA Enabled
 // ============================================================================
 
@@ -297,5 +357,50 @@ export function useTrainingHistory(characterId: string | null | undefined) {
     queryKey: ['trainingHistory', characterId],
     queryFn: () => fetchTrainingHistory(characterId!),
     enabled: !!characterId,
+  });
+}
+
+// ============================================================================
+// New Liked Images Check
+// ============================================================================
+
+export interface NewLikedImagesCheckResponse {
+  hasNewLikedImages: boolean;
+  newLikedImageCount: number;
+  totalLikedCount: number;
+  lastTrainingDate: string | null;
+  lastTrainingStatus?: 'pending' | 'training' | 'ready' | 'failed' | 'expired';
+  canRetrain?: boolean;
+  freeRetry?: boolean;
+  canTrain?: boolean;
+  suggestion: string | null;
+}
+
+async function fetchNewLikedImagesCheck(
+  characterId: string
+): Promise<NewLikedImagesCheckResponse> {
+  const response = await authFetch(
+    `${API_BASE_URL}/characters/${characterId}/lora/new-images-check`
+  );
+
+  if (!response.ok) {
+    throw new Error('Failed to check new liked images');
+  }
+
+  return response.json();
+}
+
+/**
+ * Hook to check for new liked images since last LoRA training
+ * Used to suggest retraining for better model quality
+ */
+export function useNewLikedImagesCheck(
+  characterId: string | null | undefined
+) {
+  return useQuery({
+    queryKey: ['newLikedImagesCheck', characterId],
+    queryFn: () => fetchNewLikedImagesCheck(characterId!),
+    enabled: !!characterId,
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
   });
 }

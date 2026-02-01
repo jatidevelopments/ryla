@@ -4,12 +4,61 @@
  * Service for managing LoRA training jobs on Modal.com.
  * Uses the Python trigger script to communicate with Modal's function API.
  *
+ * Supports multiple model types:
+ * - flux: Flux LoRA for image generation (default)
+ * - wan: Wan 2.6 LoRA for video generation
+ * - wan-14b: Wan 2.6 14B LoRA for high-quality video
+ * - qwen: Qwen-Image LoRA for image generation
+ *
  * @module @ryla/business
  */
 
 import { spawn } from 'child_process';
 import * as path from 'path';
 import type { LoraModelsRepository, LoraModelRow } from '@ryla/data';
+
+/**
+ * Supported LoRA model types for training
+ */
+export type LoraModelType = 'flux' | 'wan' | 'wan-14b' | 'qwen';
+
+/**
+ * Model type configuration
+ */
+export const LORA_MODEL_CONFIG: Record<
+  LoraModelType,
+  {
+    baseModel: string;
+    mediaType: 'images' | 'videos';
+    minMedia: number;
+    description: string;
+  }
+> = {
+  flux: {
+    baseModel: 'black-forest-labs/FLUX.1-dev',
+    mediaType: 'images',
+    minMedia: 3,
+    description: 'Flux LoRA for high-quality image generation',
+  },
+  wan: {
+    baseModel: 'Wan-AI/Wan2.1-T2V-1.3B-Diffusers',
+    mediaType: 'videos',
+    minMedia: 3,
+    description: 'Wan 2.6 LoRA for video generation (1.3B model)',
+  },
+  'wan-14b': {
+    baseModel: 'Wan-AI/Wan2.1-T2V-14B-Diffusers',
+    mediaType: 'videos',
+    minMedia: 3,
+    description: 'Wan 2.6 LoRA for high-quality video generation (14B model)',
+  },
+  qwen: {
+    baseModel: 'Qwen/Qwen2.5-VL-7B',
+    mediaType: 'images',
+    minMedia: 5,
+    description: 'Qwen-Image LoRA for image generation',
+  },
+};
 
 export interface LoraTrainingConfig {
   maxTrainSteps?: number;
@@ -19,15 +68,34 @@ export interface LoraTrainingConfig {
   trainBatchSize?: number;
   gradientAccumulationSteps?: number;
   seed?: number;
+  /** Model size for Wan training: "1.3B" or "14B" */
+  modelSize?: string;
+  /** Number of frames for video training */
+  numFrames?: number;
 }
 
 export interface StartTrainingRequest {
   characterId: string;
   userId: string;
   triggerWord: string;
-  imageUrls: string[];
+  /** Image URLs for flux/qwen, Video URLs for wan */
+  mediaUrls: string[];
+  /** Model type for training */
+  modelType?: LoraModelType;
   config?: LoraTrainingConfig;
   /** Credits charged for this training (for refund tracking) */
+  creditsCharged?: number;
+}
+
+/**
+ * @deprecated Use StartTrainingRequest with mediaUrls instead
+ */
+export interface LegacyStartTrainingRequest {
+  characterId: string;
+  userId: string;
+  triggerWord: string;
+  imageUrls: string[];
+  config?: LoraTrainingConfig;
   creditsCharged?: number;
 }
 
@@ -38,7 +106,12 @@ export interface TrainingJobResult {
   callId?: string;
   characterId?: string;
   triggerWord?: string;
+  /** Number of media items (images or videos) */
+  mediaCount?: number;
+  /** @deprecated Use mediaCount */
   imageCount?: number;
+  /** Model type used for training */
+  modelType?: LoraModelType;
   result?: {
     loraPath: string;
     loraFilename: string;
@@ -89,26 +162,29 @@ export class LoraTrainingService {
   /**
    * Start a LoRA training job
    *
-   * @param request Training request with character info and images
+   * @param request Training request with character info and media
    * @returns Job result with job_id and call_id for tracking
    */
   async startTraining(
-    request: StartTrainingRequest
+    request: StartTrainingRequest | LegacyStartTrainingRequest
   ): Promise<TrainingJobResult> {
-    const {
-      characterId,
-      userId,
-      triggerWord,
-      imageUrls,
-      config,
-      creditsCharged,
-    } = request;
+    // Handle legacy request format
+    const mediaUrls =
+      'mediaUrls' in request ? request.mediaUrls : request.imageUrls;
+    const modelType: LoraModelType =
+      'modelType' in request ? (request.modelType ?? 'flux') : 'flux';
+
+    const { characterId, userId, triggerWord, config, creditsCharged } =
+      request;
+
+    const modelConfig = LORA_MODEL_CONFIG[modelType];
 
     // Validate input
-    if (imageUrls.length < 3) {
+    if (mediaUrls.length < modelConfig.minMedia) {
       return {
         status: 'error',
-        error: 'At least 3 images are required for LoRA training',
+        modelType,
+        error: `At least ${modelConfig.minMedia} ${modelConfig.mediaType} are required for ${modelType} LoRA training`,
       };
     }
 
@@ -121,22 +197,23 @@ export class LoraTrainingService {
         type: 'face',
         status: 'pending',
         triggerWord,
-        baseModel: 'black-forest-labs/FLUX.1-dev',
+        baseModel: modelConfig.baseModel,
+        trainingModel: modelType,
         externalProvider: 'modal',
         creditsCharged: creditsCharged ?? null,
         config: {
-          baseModel: 'black-forest-labs/FLUX.1-dev',
+          baseModel: modelConfig.baseModel,
           triggerWord,
           steps: config?.maxTrainSteps ?? 500,
           learningRate: config?.learningRate ?? 0.0001,
           resolution: config?.resolution ?? 512,
-          trainingImages: imageUrls,
+          trainingImages: mediaUrls,
         },
       });
     }
 
     // Convert config to snake_case for Python
-    const pythonConfig = config
+    const pythonConfig: Record<string, unknown> = config
       ? {
           max_train_steps: config.maxTrainSteps,
           rank: config.rank,
@@ -145,21 +222,24 @@ export class LoraTrainingService {
           train_batch_size: config.trainBatchSize,
           gradient_accumulation_steps: config.gradientAccumulationSteps,
           seed: config.seed,
+          model_size: config.modelSize,
+          num_frames: config.numFrames,
         }
       : {};
 
     // Remove undefined values
     Object.keys(pythonConfig).forEach((key) => {
-      if (pythonConfig[key as keyof typeof pythonConfig] === undefined) {
-        delete pythonConfig[key as keyof typeof pythonConfig];
+      if (pythonConfig[key] === undefined) {
+        delete pythonConfig[key];
       }
     });
 
     try {
       const result = await this.runPythonScript('start', [
+        `--model-type=${modelType}`,
         `--character-id=${characterId}`,
         `--trigger-word=${triggerWord}`,
-        `--image-urls=${JSON.stringify(imageUrls)}`,
+        `--media-urls=${JSON.stringify(mediaUrls)}`,
         `--config=${JSON.stringify(pythonConfig)}`,
       ]);
 
@@ -196,6 +276,7 @@ export class LoraTrainingService {
       if (loraModel) {
         converted.loraModelId = loraModel.id;
       }
+      converted.modelType = modelType;
       return converted;
     } catch (error) {
       // Mark as failed in database
@@ -209,9 +290,17 @@ export class LoraTrainingService {
       return {
         status: 'error',
         loraModelId: loraModel?.id,
+        modelType,
         error: error instanceof Error ? error.message : 'Unknown error',
       };
     }
+  }
+
+  /**
+   * Get available model types and their requirements
+   */
+  getModelTypes(): typeof LORA_MODEL_CONFIG {
+    return LORA_MODEL_CONFIG;
   }
 
   /**
@@ -436,8 +525,18 @@ export class LoraTrainingService {
       converted.characterId = result['character_id'] as string;
     if (result['trigger_word'])
       converted.triggerWord = result['trigger_word'] as string;
-    if (result['image_count'])
+    if (result['model_type'])
+      converted.modelType = result['model_type'] as LoraModelType;
+
+    // Handle both media_count (new) and image_count (legacy)
+    if (result['media_count']) {
+      converted.mediaCount = result['media_count'] as number;
+      converted.imageCount = result['media_count'] as number; // backward compat
+    } else if (result['image_count']) {
       converted.imageCount = result['image_count'] as number;
+      converted.mediaCount = result['image_count'] as number;
+    }
+
     if (result['error']) converted.error = result['error'] as string;
     if (result['message']) converted.message = result['message'] as string;
 

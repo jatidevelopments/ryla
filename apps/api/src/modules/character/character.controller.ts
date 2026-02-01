@@ -492,21 +492,99 @@ export class CharacterController {
   @ApiOperation({
     summary: 'Get LoRA training cost estimate',
     description:
-      'Calculate credit cost for LoRA training based on number of images.',
+      'Calculate credit cost for LoRA training based on model type and number of media items.',
   })
-  getLoraTrainingCost(@Query('imageCount') imageCountStr: string) {
-    const imageCount = parseInt(imageCountStr, 10) || 3;
-    const validImageCount = Math.max(3, Math.min(50, imageCount)); // 3-50 images
+  getLoraTrainingCost(
+    @Query('imageCount') imageCountStr?: string,
+    @Query('mediaCount') mediaCountStr?: string,
+    @Query('modelType') modelType?: string
+  ) {
+    const count = parseInt(mediaCountStr || imageCountStr || '3', 10);
+    const model = (modelType || 'flux') as
+      | 'flux'
+      | 'wan'
+      | 'wan-14b'
+      | 'qwen'
+      | 'one-2.1';
 
-    const totalCredits = calculateLoraTrainingCost('flux', validImageCount);
+    // Validate model type
+    const validModels = ['flux', 'wan', 'wan-14b', 'qwen', 'one-2.1', 'one-2.2'];
+    if (!validModels.includes(model)) {
+      throw new Error(
+        `Invalid modelType: ${model}. Valid options: ${validModels.join(', ')}`
+      );
+    }
+
+    // Determine min/max media based on model type
+    const isVideoModel = ['wan', 'wan-14b'].includes(model);
+    const minMedia = model === 'qwen' ? 5 : 3;
+    const maxMedia = isVideoModel ? 20 : 50;
+    const validMediaCount = Math.max(minMedia, Math.min(maxMedia, count));
+
+    const totalCredits = calculateLoraTrainingCost(model, validMediaCount);
+
+    // Estimate training time based on model
+    const baseMinutes =
+      model === 'wan-14b' ? 30 : model === 'wan' ? 15 : model === 'qwen' ? 10 : 5;
+    const estimatedMinutes = baseMinutes + Math.ceil(validMediaCount / 5);
 
     return {
-      imageCount: validImageCount,
-      model: 'flux',
-      baseCost: 25000, // lora_training_flux_base
-      perImageCost: 1000, // lora_training_flux_per_image
+      mediaCount: validMediaCount,
+      imageCount: validMediaCount, // backward compatibility
+      modelType: model,
+      mediaType: isVideoModel ? 'videos' : 'images',
+      minMedia,
+      maxMedia,
       totalCredits,
-      estimatedMinutes: 5 + Math.ceil(validImageCount / 5), // Rough estimate
+      estimatedMinutes,
+    };
+  }
+
+  @Get('lora-model-types')
+  @ApiOperation({
+    summary: 'Get available LoRA model types',
+    description: 'List all available model types for LoRA training.',
+  })
+  getLoraModelTypes() {
+    return {
+      modelTypes: [
+        {
+          id: 'flux',
+          name: 'Flux',
+          description: 'High-quality image generation LoRA',
+          mediaType: 'images',
+          minMedia: 3,
+          maxMedia: 50,
+          estimatedMinutes: '5-15',
+        },
+        {
+          id: 'wan',
+          name: 'Wan 2.6 (1.3B)',
+          description: 'Video generation LoRA (faster, good quality)',
+          mediaType: 'videos',
+          minMedia: 3,
+          maxMedia: 20,
+          estimatedMinutes: '15-30',
+        },
+        {
+          id: 'wan-14b',
+          name: 'Wan 2.6 (14B)',
+          description: 'Video generation LoRA (highest quality)',
+          mediaType: 'videos',
+          minMedia: 3,
+          maxMedia: 20,
+          estimatedMinutes: '30-60',
+        },
+        {
+          id: 'qwen',
+          name: 'Qwen-Image',
+          description: 'Image generation LoRA (Qwen architecture)',
+          mediaType: 'images',
+          minMedia: 5,
+          maxMedia: 50,
+          estimatedMinutes: '10-20',
+        },
+      ],
     };
   }
 
@@ -515,7 +593,7 @@ export class CharacterController {
   @ApiOperation({
     summary: 'Start LoRA training for a character',
     description:
-      'Trains a custom LoRA model for character consistency. Requires at least 3 images. Training runs in background (5-10 minutes).',
+      'Trains a custom LoRA model for character consistency. Supports multiple model types: flux (images), wan (video), wan-14b (video HQ), qwen (images). Training runs in background (5-30 minutes depending on model).',
   })
   async trainLora(@CurrentUser() user: IJwtPayload, @Body() dto: TrainLoraDto) {
     // Verify character ownership
@@ -531,32 +609,45 @@ export class CharacterController {
       throw new NotFoundException('Character not found or access denied');
     }
 
-    // Calculate LoRA training cost (base + per-image)
-    // Using 'flux' model since we're training on Modal with FLUX.1-dev
-    const totalCredits = calculateLoraTrainingCost(
-      'flux',
-      dto.imageUrls.length
-    );
+    // Determine model type and media URLs (handle backward compatibility)
+    const modelType = dto.modelType || 'flux';
+    const mediaUrls = dto.mediaUrls || dto.imageUrls || [];
+    const mediaType = ['wan', 'wan-14b'].includes(modelType)
+      ? 'videos'
+      : 'images';
 
-    // Deduct credits for LoRA training using base feature ID
-    // The total is pre-calculated, we pass count=1 to avoid double-multiplying
+    // Validate media count
+    const minMedia = modelType === 'qwen' ? 5 : 3;
+    if (mediaUrls.length < minMedia) {
+      throw new Error(
+        `At least ${minMedia} ${mediaType} are required for ${modelType} LoRA training`
+      );
+    }
+
+    // Calculate LoRA training cost based on model type
+    const totalCredits = calculateLoraTrainingCost(modelType, mediaUrls.length);
+
+    // Deduct credits for LoRA training
     const creditResult = await this.creditService.deductCreditsRaw(
       user.userId,
       totalCredits,
       dto.characterId,
-      `LoRA training for ${character.name} (${dto.imageUrls.length} images)`
+      `${modelType.toUpperCase()} LoRA training for ${character.name} (${mediaUrls.length} ${mediaType})`
     );
 
     const result = await this.loraTrainingService.startTraining({
       characterId: dto.characterId,
       userId: user.userId,
       triggerWord: dto.triggerWord,
-      imageUrls: dto.imageUrls,
+      mediaUrls,
+      modelType,
       creditsCharged: totalCredits,
       config: {
         maxTrainSteps: dto.maxTrainSteps,
         rank: dto.rank,
         resolution: dto.resolution,
+        modelSize: dto.modelSize,
+        numFrames: dto.numFrames,
       },
     });
 
@@ -581,6 +672,10 @@ export class CharacterController {
       throw new Error(result.error || 'Failed to start LoRA training');
     }
 
+    // Estimate training time based on model type
+    const estimatedMinutes =
+      modelType === 'wan-14b' ? 30 : modelType === 'wan' ? 15 : 10;
+
     // Send training started notification
     try {
       const notificationsRepo = new NotificationsRepository(this.db);
@@ -588,12 +683,13 @@ export class CharacterController {
         userId: user.userId,
         type: 'lora.training_started',
         title: 'LoRA Training Started',
-        body: `Training model for ${character.name}... This will take 5-10 minutes. We'll notify you when it's ready!`,
+        body: `Training ${modelType.toUpperCase()} model for ${character.name}... This will take ${estimatedMinutes}-${estimatedMinutes * 2} minutes. We'll notify you when it's ready!`,
         href: `/influencer/${dto.characterId}/settings`,
         metadata: {
           characterId: dto.characterId,
           loraModelId: result.loraModelId,
-          imageCount: dto.imageUrls.length,
+          mediaCount: mediaUrls.length,
+          modelType,
         },
       });
     } catch (notifError) {
@@ -611,9 +707,11 @@ export class CharacterController {
       characterId: dto.characterId,
       characterName: character.name,
       status: 'training',
-      message: 'LoRA training started. This will take 5-10 minutes.',
-      imageCount: dto.imageUrls.length,
-      estimatedMinutes: 5,
+      modelType,
+      message: `${modelType.toUpperCase()} LoRA training started. This will take ${estimatedMinutes}-${estimatedMinutes * 2} minutes.`,
+      mediaCount: mediaUrls.length,
+      imageCount: mediaUrls.length, // backward compatibility
+      estimatedMinutes,
       creditsDeducted: creditResult.creditsDeducted,
       creditBalance: creditResult.balanceAfter,
     };
@@ -945,6 +1043,91 @@ export class CharacterController {
         completedAt: lora.trainingCompletedAt,
       })),
       totalCount: history.length,
+    };
+  }
+
+  @Get(':characterId/lora/new-images-check')
+  @ApiOperation({
+    summary: 'Check for new liked images since last LoRA training',
+    description:
+      'Returns whether there are new liked images available since the last LoRA training. Used to suggest retraining for better model quality.',
+  })
+  async checkNewLikedImages(
+    @CurrentUser() user: IJwtPayload,
+    @Param('characterId') characterId: string
+  ) {
+    // Verify character ownership
+    const character = await this.db.query.characters.findFirst({
+      where: and(
+        eq(schema.characters.id, characterId),
+        eq(schema.characters.userId, user.userId)
+      ),
+      columns: { id: true, name: true },
+    });
+
+    if (!character) {
+      throw new NotFoundException('Character not found or access denied');
+    }
+
+    // Get the latest LoRA model for this character
+    const loraRepository = new LoraModelsRepository(this.db);
+    const latestLora = await loraRepository.getByCharacterId(characterId);
+
+    const imagesRepository = new ImagesRepository(this.db);
+    const totalLikedCount = await imagesRepository.countLikedImages({
+      characterId,
+      userId: user.userId,
+    });
+
+    // If no LoRA exists, check if there are enough liked images to train
+    if (!latestLora) {
+      const MIN_IMAGES = 5;
+      return {
+        hasNewLikedImages: false,
+        newLikedImageCount: 0,
+        totalLikedCount,
+        lastTrainingDate: null,
+        canTrain: totalLikedCount >= MIN_IMAGES,
+        suggestion:
+          totalLikedCount >= MIN_IMAGES
+            ? `You have ${totalLikedCount} liked images. Train a LoRA model for better face consistency!`
+            : `Like at least ${MIN_IMAGES} images to enable LoRA training.`,
+      };
+    }
+
+    // Get new liked images since last training
+    const lastTrainingDate =
+      latestLora.trainingCompletedAt || latestLora.createdAt;
+    const newLikedCount = await imagesRepository.countLikedImagesSince({
+      characterId,
+      userId: user.userId,
+      sinceDate: lastTrainingDate!,
+    });
+
+    const hasNewLikedImages = newLikedCount > 0;
+
+    // Determine suggestion message
+    let suggestion: string | null = null;
+    if (latestLora.status === 'failed') {
+      suggestion =
+        'Previous training failed. Retry for free with your current images.';
+    } else if (hasNewLikedImages) {
+      suggestion = `You have ${newLikedCount} new liked image${newLikedCount > 1 ? 's' : ''} since your last training. Retrain your LoRA for improved quality!`;
+    } else if (latestLora.status === 'ready') {
+      suggestion = null; // No action needed
+    } else if (latestLora.status === 'training') {
+      suggestion = 'LoRA training is in progress...';
+    }
+
+    return {
+      hasNewLikedImages,
+      newLikedImageCount: newLikedCount,
+      totalLikedCount,
+      lastTrainingDate: lastTrainingDate?.toISOString() ?? null,
+      lastTrainingStatus: latestLora.status,
+      canRetrain: latestLora.status === 'ready' || latestLora.status === 'failed',
+      freeRetry: latestLora.status === 'failed',
+      suggestion,
     };
   }
 }

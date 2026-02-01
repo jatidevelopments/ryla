@@ -120,6 +120,13 @@
       "when": 1769607929927,
       "tag": "0016_needy_frightful_four",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1769791738164,
+      "tag": "0017_nifty_ma_gnuci",
+      "breakpoints": true
     }
   ]
 }

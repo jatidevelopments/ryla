@@ -28,6 +28,7 @@ hf_cache_vol = modal.Volume.from_name("hf-hub-cache", create_if_missing=True)
 
 # Secrets
 huggingface_secret = modal.Secret.from_name("huggingface")
+cloudflare_r2_secret = modal.Secret.from_name("cloudflare-r2")
 
 # Training image with all dependencies
 training_image = (
@@ -54,6 +55,8 @@ training_image = (
         "numpy<2",
         "sentencepiece",
         "bitsandbytes",
+        # S3 upload
+        "boto3",
     )
     # Clone and install diffusers from source for latest Flux training script
     .run_commands(
@@ -90,7 +93,7 @@ class TrainingConfig:
         "/root/models": models_volume,
         "/cache": hf_cache_vol,
     },
-    secrets=[huggingface_secret],
+    secrets=[huggingface_secret, cloudflare_r2_secret],
     timeout=7200,
 )
 def train_lora(
@@ -223,12 +226,55 @@ def train_lora(
     print(f"   Duration: {training_time/60:.1f} minutes")
     print(f"   LoRA saved to: {final_lora_path}")
     
+    # Upload to S3/R2 storage for persistent access
+    s3_key = None
+    s3_url = None
+    try:
+        import os
+        import boto3
+        
+        r2_account_id = os.environ.get("CLOUDFLARE_R2_ACCOUNT_ID")
+        r2_access_key = os.environ.get("CLOUDFLARE_R2_ACCESS_KEY_ID")
+        r2_secret_key = os.environ.get("CLOUDFLARE_R2_SECRET_ACCESS_KEY")
+        r2_bucket = os.environ.get("CLOUDFLARE_R2_BUCKET", "ryla-storage")
+        r2_public_url = os.environ.get("CLOUDFLARE_R2_PUBLIC_URL", "")
+        
+        if r2_account_id and r2_access_key and r2_secret_key:
+            s3_client = boto3.client(
+                "s3",
+                endpoint_url=f"https://{r2_account_id}.r2.cloudflarestorage.com",
+                aws_access_key_id=r2_access_key,
+                aws_secret_access_key=r2_secret_key,
+            )
+            
+            s3_key = f"loras/character-{character_id}/{job_id}.safetensors"
+            
+            print(f"📤 Uploading LoRA to S3: {s3_key}")
+            s3_client.upload_file(
+                str(final_lora_path),
+                r2_bucket,
+                s3_key,
+                ExtraArgs={"ContentType": "application/octet-stream"}
+            )
+            
+            # Build public URL if available
+            if r2_public_url:
+                s3_url = f"{r2_public_url.rstrip('/')}/{s3_key}"
+            
+            print(f"✅ Uploaded to S3: {s3_key}")
+        else:
+            print("⚠️ S3/R2 credentials not configured, skipping upload")
+    except Exception as e:
+        print(f"⚠️ Failed to upload to S3: {e}")
+    
     return {
         "status": "completed",
         "job_id": job_id,
         "character_id": character_id,
-        "lora_path": str(final_lora_path),
+        "lora_path": str(final_lora_path),  # Modal volume path (for Modal usage)
         "lora_filename": final_lora_path.name,
+        "s3_key": s3_key,  # S3 key for database storage
+        "s3_url": s3_url,  # Public URL for direct access
         "trigger_word": trigger_word,
         "training_time_seconds": training_time,
         "training_steps": cfg.max_train_steps,

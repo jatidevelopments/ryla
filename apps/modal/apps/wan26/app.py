@@ -41,6 +41,7 @@ from image import wan26_image
 
 # Import handlers
 from handlers.wan26 import setup_wan26_endpoints
+from handlers.wan2 import setup_wan2_endpoints
 
 # Create Modal app
 app = modal.App(name="ryla-wan26", image=wan26_image)
@@ -67,7 +68,45 @@ class ComfyUI:
         
         import time
         time.sleep(5)
+        
+        # Setup Wan LoRA symlinks from volume to ComfyUI
+        self._setup_wan_lora_symlinks()
+        
         print("✅ ComfyUI server started for Wan2.6 app")
+    
+    def _setup_wan_lora_symlinks(self):
+        """Symlink Wan LoRAs from volume to ComfyUI loras directory."""
+        import os
+        from pathlib import Path
+        
+        wan_loras_dir = Path("/root/models/wan-loras")
+        flux_loras_dir = Path("/root/models/loras")
+        comfy_loras_dir = Path("/root/comfy/ComfyUI/models/loras")
+        
+        comfy_loras_dir.mkdir(parents=True, exist_ok=True)
+        
+        symlinked = 0
+        
+        # Symlink Wan-specific LoRAs (preferred for video)
+        if wan_loras_dir.exists():
+            for lora_file in wan_loras_dir.glob("*.safetensors"):
+                target = comfy_loras_dir / lora_file.name
+                if not target.exists():
+                    os.symlink(lora_file, target)
+                    symlinked += 1
+                    print(f"  Symlinked Wan LoRA: {lora_file.name}")
+        
+        # Also symlink FLUX LoRAs (may work for some video models)
+        if flux_loras_dir.exists():
+            for lora_file in flux_loras_dir.glob("*.safetensors"):
+                target = comfy_loras_dir / lora_file.name
+                if not target.exists():
+                    os.symlink(lora_file, target)
+                    symlinked += 1
+                    print(f"  Symlinked LoRA: {lora_file.name}")
+        
+        if symlinked > 0:
+            print(f"✅ Symlinked {symlinked} LoRAs to ComfyUI")
 
     @modal.method()
     def infer(self, workflow_path: str = "/root/workflow_api.json"):
@@ -112,5 +151,6 @@ class ComfyUI:
             return {"status": "healthy", "app": "ryla-wan26"}
         
         setup_wan26_endpoints(fastapi, self)
+        setup_wan2_endpoints(fastapi, self)  # Include Wan2.1 endpoint for backwards compatibility
         
         return fastapi

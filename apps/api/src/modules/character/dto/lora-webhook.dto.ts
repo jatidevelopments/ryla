@@ -35,13 +35,31 @@ export class LoraWebhookDto {
   characterId!: string;
 
   @ApiProperty({
-    description: 'Path to the trained LoRA model',
+    description: 'Path to the trained LoRA model (Modal volume path)',
     example: '/root/models/loras/uuid-here/lora.safetensors',
     required: false,
   })
   @IsString()
   @IsOptional()
   loraPath?: string;
+
+  @ApiProperty({
+    description: 'S3 key for the trained LoRA model',
+    example: 'loras/character-uuid/job-id.safetensors',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  s3Key?: string;
+
+  @ApiProperty({
+    description: 'Public URL for the trained LoRA model',
+    example: 'https://storage.ryla.ai/loras/character-uuid/job-id.safetensors',
+    required: false,
+  })
+  @IsString()
+  @IsOptional()
+  s3Url?: string;
 
   @ApiProperty({
     description: 'Training time in seconds',

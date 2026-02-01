@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -10,6 +11,16 @@ import {
   MinLength,
   ArrayMinSize,
 } from 'class-validator';
+
+/**
+ * Supported LoRA model types for training
+ */
+export enum LoraModelTypeDto {
+  FLUX = 'flux',
+  WAN = 'wan',
+  WAN_14B = 'wan-14b',
+  QWEN = 'qwen',
+}
 
 export class TrainLoraDto {
   @ApiProperty({
@@ -28,20 +39,47 @@ export class TrainLoraDto {
   @MinLength(2)
   triggerWord!: string;
 
-  @ApiProperty({
-    description: 'List of image URLs to train on (min 3)',
+  @ApiPropertyOptional({
+    description:
+      'Model type: flux (images), wan (video 1.3B), wan-14b (video 14B), qwen (images)',
+    example: 'flux',
+    enum: LoraModelTypeDto,
+    default: 'flux',
+  })
+  @IsOptional()
+  @IsEnum(LoraModelTypeDto)
+  modelType?: LoraModelTypeDto;
+
+  @ApiPropertyOptional({
+    description:
+      'List of media URLs to train on (images for flux/qwen, videos for wan)',
+    example: [
+      'https://example.com/media1.jpg',
+      'https://example.com/media2.jpg',
+      'https://example.com/media3.jpg',
+    ],
+    type: [String],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  mediaUrls?: string[];
+
+  @ApiPropertyOptional({
+    description: '(deprecated) Use mediaUrls instead. List of image URLs.',
     example: [
       'https://example.com/img1.jpg',
       'https://example.com/img2.jpg',
       'https://example.com/img3.jpg',
     ],
     type: [String],
-    minItems: 3,
+    deprecated: true,
   })
+  @IsOptional()
   @IsArray()
   @ArrayMinSize(3)
   @IsString({ each: true })
-  imageUrls!: string[];
+  imageUrls?: string[];
 
   @ApiPropertyOptional({
     description: 'Maximum training steps (default: 500)',
@@ -68,7 +106,7 @@ export class TrainLoraDto {
   rank?: number;
 
   @ApiPropertyOptional({
-    description: 'Training image resolution (default: 512)',
+    description: 'Training image/video resolution (default: 512)',
     example: 512,
     minimum: 256,
     maximum: 1024,
@@ -78,6 +116,26 @@ export class TrainLoraDto {
   @Min(256)
   @Max(1024)
   resolution?: number;
+
+  @ApiPropertyOptional({
+    description: 'Model size for Wan training: "1.3B" or "14B"',
+    example: '1.3B',
+  })
+  @IsOptional()
+  @IsString()
+  modelSize?: string;
+
+  @ApiPropertyOptional({
+    description: 'Number of frames for video training (Wan only)',
+    example: 17,
+    minimum: 9,
+    maximum: 49,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(9)
+  @Max(49)
+  numFrames?: number;
 }
 
 export class GetLoraTrainingStatusDto {

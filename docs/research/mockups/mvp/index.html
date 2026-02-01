@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - RYLA MVP</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 900px; margin: 0 auto; padding: 20px; min-height: 100vh; }
+    
+    /* Header */
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; border-bottom: 1px solid #eee; margin-bottom: 24px; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .header-right { display: flex; align-items: center; gap: 16px; }
+    .credits { background: #f5f5f5; padding: 8px 16px; font-size: 14px; }
+    .credits strong { color: #000; }
+    nav a { color: #000; text-decoration: none; font-size: 14px; }
+    nav a:hover { text-decoration: underline; }
+    
+    /* Page Header */
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    h1 { font-size: 28px; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; font-weight: bold; }
+    .btn:hover { background: #333; }
+    
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+    .stat { background: #f5f5f5; padding: 16px; text-align: center; }
+    .stat-value { font-size: 24px; font-weight: bold; }
+    .stat-label { font-size: 12px; color: #666; text-transform: uppercase; }
+    
+    /* Character Grid - Profile Card Style */
+    .characters-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+    
+    .character-card { border: 1px solid #ddd; overflow: hidden; text-decoration: none; color: inherit; }
+    .character-card:hover { border-color: #000; }
+    
+    .character-header { display: flex; gap: 12px; padding: 16px; background: #fafafa; }
+    .character-avatar { width: 60px; height: 60px; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #888; flex-shrink: 0; }
+    .character-meta { flex: 1; }
+    .character-name { font-weight: bold; font-size: 16px; margin-bottom: 2px; }
+    .character-handle { font-size: 13px; color: #666; margin-bottom: 4px; }
+    .character-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+    .character-tag { background: #eee; padding: 2px 6px; font-size: 10px; }
+    .character-tag.nsfw { background: #ff4444; color: #fff; }
+    
+    .character-stats { display: flex; border-top: 1px solid #eee; }
+    .character-stat { flex: 1; text-align: center; padding: 12px; border-right: 1px solid #eee; }
+    .character-stat:last-child { border-right: none; }
+    .character-stat-value { font-weight: bold; font-size: 16px; }
+    .character-stat-label { font-size: 10px; color: #666; text-transform: uppercase; }
+    
+    .character-preview { display: flex; gap: 2px; padding: 2px; background: #f5f5f5; }
+    .preview-thumb { flex: 1; aspect-ratio: 3/4; background: #e0e0e0; display: flex; align-items: center; justify-content: center; font-size: 8px; color: #888; }
+    
+    /* Create Card */
+    .create-card { border: 2px dashed #ccc; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 240px; text-decoration: none; color: #666; }
+    .create-card:hover { border-color: #000; color: #000; }
+    .create-icon { font-size: 48px; margin-bottom: 8px; }
+    
+    /* Decision Callout */
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 16px; margin: 24px 0; }
+    .decision h3 { font-size: 14px; color: #996600; margin-bottom: 8px; }
+    .decision p { font-size: 13px; color: #664400; margin-bottom: 8px; }
+    
+    /* Footer Nav */
+    footer { margin-top: 48px; padding: 24px 0; border-top: 1px solid #eee; text-align: center; font-size: 14px; }
+    footer a { color: #666; margin: 0 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <div class="header-right">
+        <div class="credits">
+          <strong>87</strong> credits
+        </div>
+        <nav>
+          <a href="settings.html">Settings</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="decision">
+      <h3>🎯 NEW: AI Influencers as Social Profiles</h3>
+      <p>Each AI Influencer now looks like a social media profile with posts (images + captions). Open Content Studio to generate content with scenes + environments.</p>
+    </div>
+
+    <div class="page-header">
+      <h1>My AI Influencers</h1>
+      <a href="wizard-1.html" class="btn">+ Create AI Influencer</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Influencers</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">68</div>
+        <div class="stat-label">Posts</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">28</div>
+        <div class="stat-label">Liked</div>
+      </div>
+      <div class="stat">
+        <div class="stat-value">87</div>
+        <div class="stat-label">Credits</div>
+      </div>
+    </div>
+
+    <div class="characters-grid">
+      <a href="character.html" class="character-card">
+        <div class="character-header">
+          <div class="character-avatar">[Luna]</div>
+          <div class="character-meta">
+            <div class="character-name">Luna Martinez</div>
+            <div class="character-handle">@luna.dreams</div>
+            <div class="character-tags">
+              <span class="character-tag">Girl Next Door</span>
+              <span class="character-tag nsfw">NSFW</span>
+            </div>
+          </div>
+        </div>
+        <div class="character-preview">
+          <div class="preview-thumb">[1]</div>
+          <div class="preview-thumb">[2]</div>
+          <div class="preview-thumb">[3]</div>
+          <div class="preview-thumb">[4]</div>
+        </div>
+        <div class="character-stats">
+          <div class="character-stat">
+            <div class="character-stat-value">24</div>
+            <div class="character-stat-label">Posts</div>
+          </div>
+          <div class="character-stat">
+            <div class="character-stat-value">12</div>
+            <div class="character-stat-label">Liked</div>
+          </div>
+          <div class="character-stat">
+            <div class="character-stat-value">Today</div>
+            <div class="character-stat-label">Updated</div>
+          </div>
+        </div>
+      </a>
+      
+      <a href="character.html" class="character-card">
+        <div class="character-header">
+          <div class="character-avatar">[Sofia]</div>
+          <div class="character-meta">
+            <div class="character-name">Sofia Reyes</div>
+            <div class="character-handle">@sofia.fire</div>
+            <div class="character-tags">
+              <span class="character-tag">Luxury</span>
+              <span class="character-tag nsfw">NSFW</span>
+            </div>
+          </div>
+        </div>
+        <div class="character-preview">
+          <div class="preview-thumb">[1]</div>
+          <div class="preview-thumb">[2]</div>
+          <div class="preview-thumb">[3]</div>
+          <div class="preview-thumb">[4]</div>
+        </div>
+        <div class="character-stats">
+          <div class="character-stat">
+            <div class="character-stat-value">32</div>
+            <div class="character-stat-label">Posts</div>
+          </div>
+          <div class="character-stat">
+            <div class="character-stat-value">10</div>
+            <div class="character-stat-label">Liked</div>
+          </div>
+          <div class="character-stat">
+            <div class="character-stat-value">Yesterday</div>
+            <div class="character-stat-label">Updated</div>
+          </div>
+        </div>
+      </a>
+      
+      <a href="character.html" class="character-card">
+        <div class="character-header">
+          <div class="character-avatar">[Emma]</div>
+          <div class="character-meta">
+            <div class="character-name">Emma Stone</div>
+            <div class="character-handle">@emma.fit</div>
+            <div class="character-tags">
+              <span class="character-tag">Fitness</span>
+            </div>
+          </div>
+        </div>
+        <div class="character-preview">
+          <div class="preview-thumb">[1]</div>
+          <div class="preview-thumb">[2]</div>
+          <div class="preview-thumb">[3]</div>
+          <div class="preview-thumb">[4]</div>
+        </div>
+        <div class="character-stats">
+          <div class="character-stat">
+            <div class="character-stat-value">12</div>
+            <div class="character-stat-label">Posts</div>
+          </div>
+          <div class="character-stat">
+            <div class="character-stat-value">6</div>
+            <div class="character-stat-label">Liked</div>
+          </div>
+          <div class="character-stat">
+            <div class="character-stat-value">2 days</div>
+            <div class="character-stat-label">Updated</div>
+          </div>
+        </div>
+      </a>
+      
+      <a href="wizard-1.html" class="create-card">
+        <div class="create-icon">+</div>
+        <div>Create AI Influencer</div>
+      </a>
+    </div>
+
+    <footer>
+      <a href="subscription.html">Subscription</a>
+      <a href="settings.html">Settings</a>
+      <a href="education.html">Help & Guides</a>
+      <a href="legal.html">Legal</a>
+    </footer>
+  </div>
+</body>
+</html>

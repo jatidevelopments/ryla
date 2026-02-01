@@ -21,11 +21,19 @@ export const loraStatusEnum = pgEnum('lora_status', [
   'expired', // Model has expired/been deleted
 ]);
 
-// LoRA model type
+// LoRA model type (purpose)
 export const loraTypeEnum = pgEnum('lora_type', [
   'face', // Face LoRA for character consistency
   'style', // Style LoRA (future)
   'pose', // Pose LoRA (future)
+]);
+
+// LoRA training model type (which AI model was used)
+export const loraTrainingModelEnum = pgEnum('lora_training_model', [
+  'flux', // Flux LoRA for image generation
+  'wan', // Wan 2.6 LoRA for video generation (1.3B)
+  'wan-14b', // Wan 2.6 LoRA for video generation (14B)
+  'qwen', // Qwen-Image LoRA for image generation
 ]);
 
 /**
@@ -58,6 +66,8 @@ export const loraModels = pgTable(
     // Model info
     type: loraTypeEnum('type').notNull().default('face'),
     status: loraStatusEnum('status').notNull().default('pending'),
+    /** Which AI model was used for training (flux, wan, qwen, etc.) */
+    trainingModel: loraTrainingModelEnum('training_model').default('flux'),
 
     // Training configuration
     config: jsonb('config').$type<LoraTrainingConfig>(),
@@ -98,6 +108,9 @@ export const loraModels = pgTable(
     characterIdx: index('lora_models_character_idx').on(table.characterId),
     userIdx: index('lora_models_user_idx').on(table.userId),
     statusIdx: index('lora_models_status_idx').on(table.status),
+    trainingModelIdx: index('lora_models_training_model_idx').on(
+      table.trainingModel
+    ),
   })
 );
 
@@ -114,3 +127,4 @@ export type LoraModel = typeof loraModels.$inferSelect;
 export type NewLoraModel = typeof loraModels.$inferInsert;
 export type LoraStatus = (typeof loraStatusEnum.enumValues)[number];
 export type LoraType = (typeof loraTypeEnum.enumValues)[number];
+export type LoraTrainingModel = (typeof loraTrainingModelEnum.enumValues)[number];

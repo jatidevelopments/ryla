@@ -5,6 +5,7 @@ Handles Qwen-Image 2512 text-to-image generation:
 - qwen-image-2512: High quality (50 steps)
 - qwen-image-2512-fast: Fast generation with Lightning LoRA (4 steps)
 - qwen-image-2512-lora: Custom character LoRA support
+- video-faceswap: Frame-by-frame video face swap using ReActor
 
 Model: Qwen-Image 2512 (Apache 2.0 - Free for commercial use)
 Features:
@@ -12,13 +13,16 @@ Features:
 - >95% LoRA consistency
 - Multiple aspect ratios support
 - Custom character LoRA loading
+- Video face swap with character consistency
 """
 
 import json
 import uuid
 import subprocess
+import base64
+import os
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List
 from fastapi import Response, HTTPException
 
 # Import from shared utils
@@ -41,6 +45,163 @@ ASPECT_RATIOS = {
 
 # Default negative prompt (Chinese - model was trained on this)
 DEFAULT_NEGATIVE_PROMPT = "低分辨率，低画质，肢体畸形，手指畸形，画面过饱和，蜡像感，人脸无细节，过度光滑，画面具有AI感。构图混乱。文字模糊，扭曲"
+
+
+def _save_video_to_input(video_data: str) -> str:
+    """
+    Save base64 video data to ComfyUI input folder.
+    
+    Args:
+        video_data: Base64 data URL (e.g., "data:video/mp4;base64,...")
+    
+    Returns:
+        Filename in ComfyUI input folder
+    """
+    # Parse data URL
+    if video_data.startswith("data:"):
+        header, encoded = video_data.split(",", 1)
+        mime_type = header.split(";")[0].split(":")[1]
+        ext = "mp4" if "mp4" in mime_type else "webm" if "webm" in mime_type else "mp4"
+    else:
+        encoded = video_data
+        ext = "mp4"
+    
+    # Decode and save
+    video_bytes = base64.b64decode(encoded)
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    input_dir = "/root/comfy/ComfyUI/input"
+    os.makedirs(input_dir, exist_ok=True)
+    filepath = os.path.join(input_dir, filename)
+    
+    with open(filepath, "wb") as f:
+        f.write(video_bytes)
+    
+    return filename
+
+
+def _save_image_to_input(image_data: str) -> str:
+    """
+    Save base64 image data to ComfyUI input folder.
+    
+    Args:
+        image_data: Base64 data URL (e.g., "data:image/jpeg;base64,...")
+    
+    Returns:
+        Filename in ComfyUI input folder
+    """
+    # Parse data URL
+    if image_data.startswith("data:"):
+        header, encoded = image_data.split(",", 1)
+        mime_type = header.split(";")[0].split(":")[1]
+        ext = "png" if "png" in mime_type else "jpg"
+    else:
+        encoded = image_data
+        ext = "jpg"
+    
+    # Decode and save
+    image_bytes = base64.b64decode(encoded)
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    input_dir = "/root/comfy/ComfyUI/input"
+    os.makedirs(input_dir, exist_ok=True)
+    filepath = os.path.join(input_dir, filename)
+    
+    with open(filepath, "wb") as f:
+        f.write(image_bytes)
+    
+    return filename
+
+
+def build_video_faceswap_workflow(
+    video_filename: str,
+    face_image_filename: str,
+    fps: int = 30,
+    restore_face: bool = True,
+    face_restore_visibility: float = 1.0,
+    codeformer_weight: float = 0.5,
+) -> dict:
+    """
+    Build video face swap workflow using ReActor.
+    
+    Pipeline:
+    1. VHS_LoadVideo - Load source video frames
+    2. LoadImage - Load reference face image
+    3. ReActorFaceSwap - Swap face on each frame
+    4. VHS_VideoCombine - Combine frames back to video
+    
+    Args:
+        video_filename: Video filename in ComfyUI input folder
+        face_image_filename: Face image filename in ComfyUI input folder
+        fps: Output video FPS (default: 30)
+        restore_face: Apply GFPGAN face restoration (default: True)
+        face_restore_visibility: Face restore blend (default: 1.0)
+        codeformer_weight: CodeFormer weight for restoration (default: 0.5)
+    
+    Returns:
+        ComfyUI workflow dictionary
+    """
+    output_prefix = uuid.uuid4().hex
+    
+    workflow = {
+        # Load source video
+        "1": {
+            "class_type": "VHS_LoadVideo",
+            "inputs": {
+                "video": video_filename,
+                "force_rate": fps,
+                "force_size": "Disabled",
+                "custom_width": 0,
+                "custom_height": 0,
+                "frame_load_cap": 0,
+                "skip_first_frames": 0,
+                "select_every_nth": 1,
+            },
+        },
+        # Load reference face image
+        "2": {
+            "class_type": "LoadImage",
+            "inputs": {
+                "image": face_image_filename,
+            },
+        },
+        # ReActor face swap on each frame
+        "3": {
+            "class_type": "ReActorFaceSwap",
+            "inputs": {
+                "enabled": True,
+                "input_image": ["1", 0],  # Video frames
+                "source_image": ["2", 0],  # Face reference
+                "swap_model": "inswapper_128.onnx",
+                "facedetection": "retinaface_resnet50",
+                "face_restore_model": "GFPGANv1.4.pth" if restore_face else "none",
+                "face_restore_visibility": face_restore_visibility,
+                "codeformer_weight": codeformer_weight,
+                "detect_gender_input": "no",
+                "detect_gender_source": "no",
+                "input_faces_index": "0",
+                "source_faces_index": "0",
+                "console_log_level": 1,
+            },
+        },
+        # Combine frames back to video
+        "4": {
+            "class_type": "VHS_VideoCombine",
+            "inputs": {
+                "images": ["3", 0],  # Swapped frames
+                "frame_rate": fps,
+                "loop_count": 0,
+                "filename_prefix": output_prefix,
+                "format": "video/h264-mp4",
+                "pingpong": False,
+                "save_output": True,
+                "pix_fmt": "yuv420p",
+                "crf": 19,
+                "save_metadata": False,
+                "audio": ["1", 2],  # Audio from original video
+            },
+        },
+    }
+    
+    return workflow
 
 
 def build_qwen_image_2512_workflow(
@@ -436,14 +597,41 @@ class QwenImageHandler:
                 lora_filename += ".safetensors"
         else:
             lora_id = item["lora_id"]
-            lora_filename = f"character-{lora_id}.safetensors"
+            # Check both Qwen-Image LoRA path and legacy FLUX LoRA path
+            lora_filename = f"qwen-character-{lora_id}.safetensors"
         
-        # Check LoRA in ComfyUI loras directory
+        # Check LoRA in ComfyUI loras directory and multiple volume paths
         comfy_lora_path = Path(f"/root/comfy/ComfyUI/models/loras/{lora_filename}")
-        volume_lora_path = Path(f"/root/models/loras/{lora_filename}")
+        # Qwen-specific LoRA volume path (preferred)
+        qwen_volume_lora_path = Path(f"/root/models/qwen-loras/{lora_filename}")
+        # Legacy FLUX LoRA volume path (fallback)
+        flux_volume_lora_path = Path(f"/root/models/loras/{lora_filename}")
+        # Also check without 'qwen-' prefix for compatibility
+        legacy_filename = f"character-{item.get('lora_id', '')}.safetensors"
+        legacy_qwen_path = Path(f"/root/models/qwen-loras/{legacy_filename}")
+        legacy_flux_path = Path(f"/root/models/loras/{legacy_filename}")
+        
+        # Determine which volume path has the LoRA
+        volume_lora_path = None
+        actual_lora_filename = lora_filename
+        
+        if qwen_volume_lora_path.exists():
+            volume_lora_path = qwen_volume_lora_path
+        elif flux_volume_lora_path.exists():
+            volume_lora_path = flux_volume_lora_path
+        elif legacy_qwen_path.exists():
+            volume_lora_path = legacy_qwen_path
+            actual_lora_filename = legacy_filename
+        elif legacy_flux_path.exists():
+            volume_lora_path = legacy_flux_path
+            actual_lora_filename = legacy_filename
+        
+        # Update comfy path with actual filename
+        comfy_lora_path = Path(f"/root/comfy/ComfyUI/models/loras/{actual_lora_filename}")
+        lora_filename = actual_lora_filename
         
         # If LoRA exists in volume but not in ComfyUI directory, symlink it
-        if volume_lora_path.exists() and not comfy_lora_path.exists():
+        if volume_lora_path and volume_lora_path.exists() and not comfy_lora_path.exists():
             comfy_lora_path.parent.mkdir(parents=True, exist_ok=True)
             subprocess.run(
                 f"ln -s {volume_lora_path} {comfy_lora_path}",
@@ -452,10 +640,10 @@ class QwenImageHandler:
             )
         
         # Check if LoRA exists
-        if not comfy_lora_path.exists() and not volume_lora_path.exists():
+        if not comfy_lora_path.exists() and (not volume_lora_path or not volume_lora_path.exists()):
             raise HTTPException(
                 status_code=404,
-                detail=f"LoRA not found: {lora_filename}. Upload to /root/models/loras/"
+                detail=f"LoRA not found: {lora_filename}. Train a Qwen LoRA using /ryla-qwen-lora-training or upload to /root/models/qwen-loras/"
             )
         
         tracker = CostTracker(gpu_type="L40S")
@@ -507,6 +695,156 @@ class QwenImageHandler:
         response.headers["X-Steps"] = str(steps)
         
         return response
+    
+    def _video_faceswap_impl(self, item: dict) -> Response:
+        """
+        Apply face swap to video using ReActor.
+        
+        Pipeline:
+        1. Load source video frames
+        2. Load reference face image
+        3. Apply ReActor face swap to each frame
+        4. Combine frames back to video with original audio
+        
+        Args:
+            item: Request payload with source_video, reference_image, etc.
+        
+        Returns:
+            Response with face-swapped video (MP4)
+        """
+        import glob
+        import time
+        import requests
+        
+        # Validate required parameters
+        if "source_video" not in item:
+            raise HTTPException(status_code=400, detail="source_video is required (base64 data URL)")
+        if "reference_image" not in item:
+            raise HTTPException(status_code=400, detail="reference_image is required (base64 data URL)")
+        
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        
+        # Save inputs to ComfyUI input folder
+        video_filename = _save_video_to_input(item["source_video"])
+        face_filename = _save_image_to_input(item["reference_image"])
+        
+        # Parse options
+        fps = item.get("fps", 30)
+        restore_face = item.get("restore_face", True)
+        face_restore_visibility = item.get("face_restore_visibility", 1.0)
+        codeformer_weight = item.get("codeformer_weight", 0.5)
+        
+        # Generate unique output prefix for finding the output video
+        output_prefix = uuid.uuid4().hex
+        
+        try:
+            # Build workflow with our output prefix
+            workflow = build_video_faceswap_workflow(
+                video_filename=video_filename,
+                face_image_filename=face_filename,
+                fps=fps,
+                restore_face=restore_face,
+                face_restore_visibility=face_restore_visibility,
+                codeformer_weight=codeformer_weight,
+            )
+            
+            # Override the output prefix so we can find the file
+            workflow["4"]["inputs"]["filename_prefix"] = output_prefix
+            
+            # Queue workflow via ComfyUI API directly (skip the image-specific utility)
+            comfy_port = 8000
+            queue_url = f"http://127.0.0.1:{comfy_port}/prompt"
+            
+            prompt_id = str(uuid.uuid4())
+            payload = {
+                "prompt": workflow,
+                "client_id": prompt_id,
+            }
+            
+            response = requests.post(queue_url, json=payload, timeout=30)
+            if response.status_code != 200:
+                raise Exception(f"Failed to queue workflow: HTTP {response.status_code} - {response.text}")
+            
+            queue_response = response.json()
+            if "error" in queue_response:
+                raise Exception(f"Workflow error: {queue_response['error']}")
+            
+            actual_prompt_id = queue_response.get("prompt_id", prompt_id)
+            
+            # Poll for completion
+            history_url = f"http://127.0.0.1:{comfy_port}/history/{actual_prompt_id}"
+            max_wait = 600  # 10 minutes max
+            poll_interval = 2
+            waited = 0
+            
+            while waited < max_wait:
+                time.sleep(poll_interval)
+                waited += poll_interval
+                
+                try:
+                    history_response = requests.get(history_url, timeout=10)
+                    if history_response.status_code == 200:
+                        history = history_response.json()
+                        if actual_prompt_id in history:
+                            outputs = history[actual_prompt_id].get("outputs", {})
+                            if outputs:
+                                break
+                except Exception:
+                    pass
+            
+            if waited >= max_wait:
+                raise Exception("Video processing timed out after 10 minutes")
+            
+            # Find the output video file
+            output_dir = "/root/comfy/ComfyUI/output"
+            video_pattern = f"{output_dir}/{output_prefix}*.mp4"
+            video_files = glob.glob(video_pattern)
+            
+            if not video_files:
+                # Try in a subdirectory
+                video_pattern = f"{output_dir}/**/{output_prefix}*.mp4"
+                video_files = glob.glob(video_pattern, recursive=True)
+            
+            if not video_files:
+                raise Exception(f"Output video not found. Searched for: {output_prefix}*.mp4")
+            
+            # Read the output video
+            output_video_path = video_files[0]
+            with open(output_video_path, "rb") as f:
+                output_bytes = f.read()
+            
+            # Cleanup output video
+            try:
+                os.remove(output_video_path)
+            except Exception:
+                pass
+            
+            # Calculate cost (video processing is more expensive)
+            execution_time = tracker.stop()
+            cost_metrics = tracker.calculate_cost("video-faceswap", execution_time)
+            
+            # Build response
+            response = Response(output_bytes, media_type="video/mp4")
+            response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+            response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+            response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+            response.headers["X-Model"] = "reactor-video-faceswap"
+            response.headers["X-FPS"] = str(fps)
+            
+            return response
+            
+        finally:
+            # Cleanup input files
+            try:
+                video_path = f"/root/comfy/ComfyUI/input/{video_filename}"
+                face_path = f"/root/comfy/ComfyUI/input/{face_filename}"
+                if os.path.exists(video_path):
+                    os.remove(video_path)
+                if os.path.exists(face_path):
+                    os.remove(face_path)
+            except Exception as e:
+                print(f"Warning: Failed to cleanup input files: {e}")
 
 
 def setup_qwen_image_endpoints(fastapi, comfyui_instance):
@@ -598,6 +936,40 @@ def setup_qwen_image_endpoints(fastapi, comfyui_instance):
         """
         item = await request.json()
         result = handler._qwen_image_2512_lora_impl(item)
+        
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        return response
+    
+    @fastapi.post("/video-faceswap")
+    async def video_faceswap_route(request: Request):
+        """
+        Apply face swap to video using ReActor.
+        
+        Swaps faces in a source video with a reference face image.
+        Processes frame-by-frame with optional face restoration.
+        
+        Request body:
+        - source_video: str - Base64 data URL of source video (required)
+        - reference_image: str - Base64 data URL of face to swap in (required)
+        - fps: int - Output video FPS (default: 30)
+        - restore_face: bool - Apply GFPGAN face restoration (default: true)
+        - face_restore_visibility: float - Face restore blend 0-1 (default: 1.0)
+        - codeformer_weight: float - CodeFormer weight for restoration (default: 0.5)
+        
+        Returns:
+        - video/mp4 with cost headers
+        
+        Note: Processing time depends on video length. Expect ~1-2 seconds per frame.
+        Short clips (< 10 seconds) recommended for optimal performance.
+        """
+        item = await request.json()
+        result = handler._video_faceswap_impl(item)
         
         response = FastAPIResponse(
             content=result.body,

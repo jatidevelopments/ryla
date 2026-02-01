@@ -148,6 +148,58 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   }
 
   /**
+   * Submit Qwen-Image generation with custom LoRA
+   * Uses trained character LoRA for >95% face consistency
+   */
+  async submitQwenImageLora(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    seed?: number;
+    lora_id: string;
+    lora_strength?: number;
+    trigger_word?: string;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateQwenImage2512LoRA({
+      prompt: input.prompt,
+      negative_prompt: input.negative_prompt,
+      width: input.width,
+      height: input.height,
+      seed: input.seed,
+      lora_id: input.lora_id,
+      lora_strength: input.lora_strength ?? 1.0,
+      trigger_word: input.trigger_word,
+    });
+  }
+
+  /**
+   * Submit Flux generation with custom LoRA
+   * Uses trained character LoRA for >95% face consistency
+   */
+  async submitFluxLora(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    seed?: number;
+    lora_id: string;
+    lora_strength?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateFluxLoRA({
+      prompt: input.prompt,
+      negative_prompt: input.negative_prompt,
+      width: input.width ?? 1024,
+      height: input.height ?? 1024,
+      seed: input.seed,
+      lora_id: input.lora_id,
+      lora_strength: input.lora_strength ?? 1.0,
+    });
+  }
+
+  /**
    * Submit Qwen-Image Edit (instruction-based editing)
    */
   async submitQwenEdit(input: {

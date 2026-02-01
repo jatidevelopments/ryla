@@ -1,5 +1,5 @@
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { and, desc, eq } from 'drizzle-orm';
+import { and, desc, eq, gt, count } from 'drizzle-orm';
 
 import * as schema from '../schema';
 
@@ -133,5 +133,52 @@ export class ImagesRepository {
       likedCount,
       totalCount: allImages.length,
     };
+  }
+
+  /**
+   * Count liked images created/liked after a specific date
+   * Used to detect new liked images since last LoRA training
+   */
+  async countLikedImagesSince(input: {
+    characterId: string;
+    userId: string;
+    sinceDate: Date;
+  }): Promise<number> {
+    const result = await this.db
+      .select({ count: count() })
+      .from(schema.images)
+      .where(
+        and(
+          eq(schema.images.characterId, input.characterId),
+          eq(schema.images.userId, input.userId),
+          eq(schema.images.status, 'completed'),
+          eq(schema.images.liked, true),
+          gt(schema.images.updatedAt, input.sinceDate)
+        )
+      );
+
+    return result[0]?.count ?? 0;
+  }
+
+  /**
+   * Get total liked images count for a character
+   */
+  async countLikedImages(input: {
+    characterId: string;
+    userId: string;
+  }): Promise<number> {
+    const result = await this.db
+      .select({ count: count() })
+      .from(schema.images)
+      .where(
+        and(
+          eq(schema.images.characterId, input.characterId),
+          eq(schema.images.userId, input.userId),
+          eq(schema.images.status, 'completed'),
+          eq(schema.images.liked, true)
+        )
+      );
+
+    return result[0]?.count ?? 0;
   }
 }

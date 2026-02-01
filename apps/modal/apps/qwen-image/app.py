@@ -67,7 +67,45 @@ class ComfyUI:
         
         import time
         time.sleep(5)
+        
+        # Setup Qwen LoRA symlinks from volume to ComfyUI
+        self._setup_qwen_lora_symlinks()
+        
         print("✅ ComfyUI server started for Qwen-Image app")
+    
+    def _setup_qwen_lora_symlinks(self):
+        """Symlink Qwen LoRAs from volume to ComfyUI loras directory."""
+        import os
+        from pathlib import Path
+        
+        qwen_loras_dir = Path("/root/models/qwen-loras")
+        flux_loras_dir = Path("/root/models/loras")
+        comfy_loras_dir = Path("/root/comfy/ComfyUI/models/loras")
+        
+        comfy_loras_dir.mkdir(parents=True, exist_ok=True)
+        
+        symlinked = 0
+        
+        # Symlink Qwen-specific LoRAs
+        if qwen_loras_dir.exists():
+            for lora_file in qwen_loras_dir.glob("*.safetensors"):
+                target = comfy_loras_dir / lora_file.name
+                if not target.exists():
+                    os.symlink(lora_file, target)
+                    symlinked += 1
+                    print(f"  Symlinked Qwen LoRA: {lora_file.name}")
+        
+        # Also symlink FLUX LoRAs that might be compatible
+        if flux_loras_dir.exists():
+            for lora_file in flux_loras_dir.glob("*.safetensors"):
+                target = comfy_loras_dir / lora_file.name
+                if not target.exists():
+                    os.symlink(lora_file, target)
+                    symlinked += 1
+                    print(f"  Symlinked LoRA: {lora_file.name}")
+        
+        if symlinked > 0:
+            print(f"✅ Symlinked {symlinked} LoRAs to ComfyUI")
 
     @modal.method()
     def infer(self, workflow_path: str = "/root/workflow_api.json"):

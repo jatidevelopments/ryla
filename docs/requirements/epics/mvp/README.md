@@ -31,7 +31,7 @@ These epics define the **MVP Product** — what users interact with after conver
 | [EP-022](./EP-022-unified-auth-page.md) | Unified Login/Registration Page | P1 | A-Activation | 📝 Proposed |  |  |
 | [EP-023](./EP-023-prompt-builder-optimization.md) | Prompt Builder Optimization | P1 | C-Core Value | 📝 Proposed |  |  |
 | [EP-024](./EP-024-contextual-page-tutorials.md) | Contextual Page Tutorials | P1 | A-Activation, C-Core Value | 🔄 In Progress |  |  |
-| [EP-026](./EP-026-lora-training.md) | LoRA Training for Character Consistency | P1 | C-Core Value | 📝 Proposed |  |  |
+| [EP-026](./EP-026-lora-training.md) | LoRA Training for Character Consistency | P1 | C-Core Value | 🔄 In Progress |  |  |
 | [EP-027](./EP-027-hide-nsfw-for-non-pro-users.md) | Hide NSFW Toggles for Non-Pro Users (Phase 1) | P1 | D-Conversion, A-Activation | ✅ Completed |  |  |
 | [EP-028](./EP-028-dna-foundation-auto-generation.md) | DNA Foundation & Auto-Generation Engine | P1 | C-Core Value | 📝 Defined |  |  |
 | [EP-029](./EP-029-enhanced-prompt-builder.md) | Enhanced Prompt Builder | P1 | C-Core Value | 📝 Defined |  |  |
@@ -43,7 +43,7 @@ These epics define the **MVP Product** — what users interact with after conver
 | [EP-035](./EP-035-body-type-image-generation.md) | Body Type Image Generation | P1 | A-Activation, C-Core Value | 📝 Proposed |  |  |
 | [EP-036](./EP-036-ethnicity-specific-feature-images.md) | Ethnicity-Specific Feature Images | P1 | A-Activation, C-Core Value | 📝 Proposed |  |  |
 | [EP-037](./EP-037-profile-picture-generation-from-detail-page.md) | Profile Picture Generation from Detail Page | P1 | B-Retention, C-Core Value | 📝 Proposed |  |  |
-| [EP-038](./EP-038-lora-usage-in-generation.md) | LoRA Usage in Image Generation | P1 | C-Core Value | 📝 Proposed |  |  |
+| [EP-038](./EP-038-lora-usage-in-generation.md) | LoRA Usage in Image Generation | P1 | C-Core Value | 🔄 In Progress |  |  |
 | [EP-039](./EP-039-comfyui-dependency-management.md) | ComfyUI Dependency Management & Versioning | P1 | E-CAC, C-Core Value | ✅ Completed |  |  |
 | [EP-042](./EP-042-wizard-single-selection-layout.md) | Wizard Single Selection & Layout Optimization | P1 | A-Activation, C-Core Value | 📝 Defined |  |  |
 | [EP-050](./EP-050-forgot-password-completion.md) | Forgot Password Feature Completion (IN-025) | P1 | A-Activation, B-Retention | 🔄 In Progress |  |  |

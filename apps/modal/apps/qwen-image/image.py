@@ -103,12 +103,117 @@ def hf_download_qwen_image():
     print("✅ Qwen-Image 2512 models ready")
 
 
+def download_reactor_models():
+    """Download ReActor models for face swap."""
+    import os
+    import urllib.request
+    from pathlib import Path
+    
+    print("📥 Downloading ReActor models...")
+    
+    # ReActor expects models in /root/comfy/ComfyUI/models/reactor/
+    reactor_dir = Path("/root/comfy/ComfyUI/models/reactor")
+    reactor_dir.mkdir(parents=True, exist_ok=True)
+    
+    faces_dir = reactor_dir / "faces"
+    faces_dir.mkdir(parents=True, exist_ok=True)
+    
+    facerestore_dir = Path("/root/comfy/ComfyUI/models/facerestore_models")
+    facerestore_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Also create insightface directory as fallback
+    insightface_dir = Path("/root/comfy/ComfyUI/models/insightface")
+    insightface_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Download inswapper model to reactor folder
+    inswapper_path = insightface_dir / "inswapper_128.onnx"
+    if not inswapper_path.exists():
+        print("   Downloading inswapper_128.onnx...")
+        urllib.request.urlretrieve(
+            "https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/inswapper_128.onnx",
+            str(inswapper_path)
+        )
+        print("   ✓ inswapper_128.onnx downloaded")
+    
+    # Download GFPGAN model
+    gfpgan_path = facerestore_dir / "GFPGANv1.4.pth"
+    if not gfpgan_path.exists():
+        print("   Downloading GFPGANv1.4.pth...")
+        urllib.request.urlretrieve(
+            "https://github.com/TencentARC/GFPGAN/releases/download/v1.3.0/GFPGANv1.4.pth",
+            str(gfpgan_path)
+        )
+        print("   ✓ GFPGANv1.4.pth downloaded")
+    
+    # Download buffalo_l model for InsightFace face detection
+    buffalo_dir = Path("/root/.insightface/models/buffalo_l")
+    buffalo_dir.mkdir(parents=True, exist_ok=True)
+    buffalo_files = [
+        "1k3d68.onnx",
+        "2d106det.onnx", 
+        "det_10g.onnx",
+        "genderage.onnx",
+        "w600k_r50.onnx",
+    ]
+    
+    for fname in buffalo_files:
+        fpath = buffalo_dir / fname
+        if not fpath.exists():
+            print(f"   Downloading buffalo_l/{fname}...")
+            try:
+                urllib.request.urlretrieve(
+                    f"https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/buffalo_l/{fname}",
+                    str(fpath)
+                )
+            except Exception as e:
+                print(f"   ⚠️ Failed to download {fname}: {e}")
+    
+    print("✅ ReActor models ready")
+
+
 # Qwen-Image image extends base image with Qwen-Image-specific models
+# Cache buster: v7 - Fix video output handling for VHS_VideoCombine
 qwen_image_image = (
     base_image
-    # Copy handler file
+    # Install system dependencies for ReActor (libGL, etc.)
+    .apt_install(["libgl1-mesa-glx", "libglib2.0-0"])
+    # Copy handler file - includes video face swap endpoint
     .add_local_file("apps/modal/handlers/qwen_image.py", "/root/handlers/qwen_image.py", copy=True)
-    # Download models
+    # Install ComfyUI-ReActor for face swap
+    .run_commands(
+        "cd /root/comfy/ComfyUI/custom_nodes && "
+        "if [ -d ComfyUI-ReActor ]; then rm -rf ComfyUI-ReActor; fi && "
+        "git clone https://github.com/Gourieff/ComfyUI-ReActor.git ComfyUI-ReActor"
+    )
+    # Install ReActor Python dependencies
+    .pip_install([
+        "insightface==0.7.3",
+        "onnxruntime-gpu",
+        "opencv-python-headless",
+        "albumentations",
+        "scipy",
+    ])
+    .run_commands(
+        "cd /root/comfy/ComfyUI/custom_nodes/ComfyUI-ReActor && "
+        "(if [ -f requirements.txt ]; then pip install -r requirements.txt || true; fi) && "
+        "echo '✅ ComfyUI-ReActor installed'"
+    )
+    # Install ComfyUI-VideoHelperSuite for video processing
+    .run_commands(
+        "cd /root/comfy/ComfyUI/custom_nodes && "
+        "if [ -d ComfyUI-VideoHelperSuite ]; then cd ComfyUI-VideoHelperSuite && git pull; else git clone https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite.git ComfyUI-VideoHelperSuite; fi"
+    )
+    .run_commands(
+        "cd /root/comfy/ComfyUI/custom_nodes/ComfyUI-VideoHelperSuite && "
+        "pip install opencv-python-headless imageio imageio-ffmpeg av && "
+        "(if [ -f requirements.txt ]; then pip install -r requirements.txt; fi) && "
+        "echo '✅ VideoHelperSuite installed'"
+    )
+    # Install ffmpeg for video processing
+    .apt_install(["ffmpeg"])
+    # Download ReActor models
+    .run_function(download_reactor_models)
+    # Download Qwen-Image models
     .run_function(
         hf_download_qwen_image,
         volumes={

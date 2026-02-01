@@ -80,8 +80,10 @@ export class LoraWebhookController {
 
     if (dto.status === 'completed') {
       // Mark training as completed
+      // Prefer S3 path for storage, fallback to Modal volume path
       await loraRepository.markTrainingCompleted(loraModel.id, {
-        modelPath: dto.loraPath || '',
+        modelPath: dto.s3Key || dto.loraPath || '',
+        modelUrl: dto.s3Url,
         trainingDurationMs: (dto.trainingTimeSeconds || 0) * 1000,
         trainingSteps: dto.trainingSteps || 0,
       });

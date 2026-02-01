@@ -1,8 +1,9 @@
 /**
  * Health Check Endpoint
- * Used by Fly.io for health checks and monitoring
+ * Used by Fly.io/Cloudflare for health checks and monitoring
  */
 
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 

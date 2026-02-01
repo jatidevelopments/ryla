@@ -32,7 +32,13 @@ export type FeatureId =
   | 'lora_training_flux_base' // LoRA training base cost (Flux)
   | 'lora_training_flux_per_image' // LoRA training per-image cost (Flux)
   | 'lora_training_one_base' // LoRA training base cost (One 2.1/2.2)
-  | 'lora_training_one_per_image'; // LoRA training per-image cost (One 2.1/2.2)
+  | 'lora_training_one_per_image' // LoRA training per-image cost (One 2.1/2.2)
+  | 'lora_training_wan_base' // LoRA training base cost (Wan 2.6 video)
+  | 'lora_training_wan_per_video' // LoRA training per-video cost (Wan 2.6)
+  | 'lora_training_wan_14b_base' // LoRA training base cost (Wan 2.6 14B)
+  | 'lora_training_wan_14b_per_video' // LoRA training per-video cost (Wan 14B)
+  | 'lora_training_qwen_base' // LoRA training base cost (Qwen-Image)
+  | 'lora_training_qwen_per_image'; // LoRA training per-image cost (Qwen)
 
 /**
  * AI model identifiers
@@ -223,6 +229,54 @@ export const FEATURE_CREDITS: Record<FeatureId, FeatureDefinition> = {
     id: 'lora_training_one_per_image',
     name: 'LoRA Training Per Image (One)',
     description: 'Per-image processing cost for One 2.1/2.2 LoRA training',
+    credits: 1000, // 1,000 credits = ~$1 per image (Cost ~$0.10-0.15) - 7-10x margin
+    defaultImageCount: 1,
+    costPerImage: 0.12, // Actual cost ~$0.12 per image processing
+  },
+  lora_training_wan_base: {
+    id: 'lora_training_wan_base',
+    name: 'LoRA Training Base (Wan 2.6)',
+    description: 'Base cost for Wan 2.6 video LoRA training (~2 hours GPU time)',
+    credits: 35000, // 35,000 credits = ~$35 (Cost ~$7-8) - 4-5x margin
+    defaultImageCount: 0,
+    costPerImage: 7.5, // Actual cost ~$7.5 for base training (L40S GPU)
+  },
+  lora_training_wan_per_video: {
+    id: 'lora_training_wan_per_video',
+    name: 'LoRA Training Per Video (Wan 2.6)',
+    description: 'Per-video processing cost for Wan 2.6 video LoRA training',
+    credits: 2000, // 2,000 credits = ~$2 per video (Cost ~$0.30-0.40) - 5-7x margin
+    defaultImageCount: 1,
+    costPerImage: 0.35, // Actual cost ~$0.35 per video processing
+  },
+  lora_training_wan_14b_base: {
+    id: 'lora_training_wan_14b_base',
+    name: 'LoRA Training Base (Wan 2.6 14B)',
+    description: 'Base cost for Wan 2.6 14B video LoRA training (~4 hours A100 GPU)',
+    credits: 75000, // 75,000 credits = ~$75 (Cost ~$15-18) - 4-5x margin
+    defaultImageCount: 0,
+    costPerImage: 16.0, // Actual cost ~$16 for base training (A100-80GB GPU)
+  },
+  lora_training_wan_14b_per_video: {
+    id: 'lora_training_wan_14b_per_video',
+    name: 'LoRA Training Per Video (Wan 14B)',
+    description: 'Per-video processing cost for Wan 2.6 14B video LoRA training',
+    credits: 3000, // 3,000 credits = ~$3 per video (Cost ~$0.50-0.60) - 5-6x margin
+    defaultImageCount: 1,
+    costPerImage: 0.55, // Actual cost ~$0.55 per video processing
+  },
+  lora_training_qwen_base: {
+    id: 'lora_training_qwen_base',
+    name: 'LoRA Training Base (Qwen-Image)',
+    description: 'Base cost for Qwen-Image LoRA training (~1.5 hours GPU time)',
+    credits: 25000, // 25,000 credits = ~$25 (Cost ~$5-6) - 4-5x margin
+    defaultImageCount: 0,
+    costPerImage: 5.5, // Actual cost ~$5.5 for base training (A100-80GB GPU)
+  },
+  lora_training_qwen_per_image: {
+    id: 'lora_training_qwen_per_image',
+    name: 'LoRA Training Per Image (Qwen)',
+    description: 'Per-image processing cost for Qwen-Image LoRA training',
     credits: 1000, // 1,000 credits = ~$1 per image (Cost ~$0.10-0.15) - 7-10x margin
     defaultImageCount: 1,
     costPerImage: 0.12, // Actual cost ~$0.12 per image processing
@@ -477,24 +531,65 @@ export function getFeatureDefinition(
  * @param imageCount - Number of images to use for training (minimum 5)
  * @returns Total credit cost
  */
-export function calculateLoraTrainingCost(
-  model: 'z-image-turbo' | 'flux' | 'one-2.1' | 'one-2.2',
-  imageCount: number
-): number {
-  const baseFeatureId =
-    model === 'z-image-turbo' ? 'lora_training_z_image_base' :
-      model === 'flux' ? 'lora_training_flux_base' :
-        'lora_training_one_base';
+/**
+ * LoRA training model types
+ */
+export type LoraTrainingModelType =
+  | 'z-image-turbo'
+  | 'flux'
+  | 'one-2.1'
+  | 'one-2.2'
+  | 'wan'
+  | 'wan-14b'
+  | 'qwen';
 
-  const perImageFeatureId =
-    model === 'z-image-turbo' ? 'lora_training_z_image_per_image' :
-      model === 'flux' ? 'lora_training_flux_per_image' :
-        'lora_training_one_per_image';
+/**
+ * Calculate the total credit cost for LoRA training
+ *
+ * @param model - Model type for LoRA training
+ * @param mediaCount - Number of images/videos to use for training
+ * @returns Total credit cost
+ */
+export function calculateLoraTrainingCost(
+  model: LoraTrainingModelType,
+  mediaCount: number
+): number {
+  let baseFeatureId: FeatureId;
+  let perMediaFeatureId: FeatureId;
+
+  switch (model) {
+    case 'z-image-turbo':
+      baseFeatureId = 'lora_training_z_image_base';
+      perMediaFeatureId = 'lora_training_z_image_per_image';
+      break;
+    case 'flux':
+      baseFeatureId = 'lora_training_flux_base';
+      perMediaFeatureId = 'lora_training_flux_per_image';
+      break;
+    case 'wan':
+      baseFeatureId = 'lora_training_wan_base';
+      perMediaFeatureId = 'lora_training_wan_per_video';
+      break;
+    case 'wan-14b':
+      baseFeatureId = 'lora_training_wan_14b_base';
+      perMediaFeatureId = 'lora_training_wan_14b_per_video';
+      break;
+    case 'qwen':
+      baseFeatureId = 'lora_training_qwen_base';
+      perMediaFeatureId = 'lora_training_qwen_per_image';
+      break;
+    case 'one-2.1':
+    case 'one-2.2':
+    default:
+      baseFeatureId = 'lora_training_one_base';
+      perMediaFeatureId = 'lora_training_one_per_image';
+      break;
+  }
 
   const baseCost = FEATURE_CREDITS[baseFeatureId]?.credits ?? 0;
-  const perImageCost = FEATURE_CREDITS[perImageFeatureId]?.credits ?? 0;
+  const perMediaCost = FEATURE_CREDITS[perMediaFeatureId]?.credits ?? 0;
 
-  return baseCost + (imageCount * perImageCost);
+  return baseCost + mediaCount * perMediaCost;
 }
 
 /**

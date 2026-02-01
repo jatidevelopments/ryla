@@ -9,7 +9,7 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { and, eq } from 'drizzle-orm';
 
 import * as schema from '@ryla/data/schema';
-import { GenerationJobsRepository, ImagesRepository } from '@ryla/data';
+import { GenerationJobsRepository, ImagesRepository, LoraModelsRepository } from '@ryla/data';
 import {
   buildWorkflow,
   getRecommendedWorkflow,
@@ -61,6 +61,7 @@ function asValidEnumOrNull<T extends readonly string[]>(
 export class StudioGenerationService {
   private readonly generationJobsRepo: GenerationJobsRepository;
   private readonly imagesRepo: ImagesRepository;
+  private readonly loraModelsRepo: LoraModelsRepository;
 
   constructor(
     @Inject('DRIZZLE_DB')
@@ -78,6 +79,7 @@ export class StudioGenerationService {
   ) {
     this.generationJobsRepo = new GenerationJobsRepository(this.db);
     this.imagesRepo = new ImagesRepository(this.db);
+    this.loraModelsRepo = new LoraModelsRepository(this.db);
   }
 
   async startStudioGeneration(input: {
@@ -111,6 +113,21 @@ export class StudioGenerationService {
       ),
     });
     if (!character) throw new NotFoundException('Character not found');
+
+    // Check for ready LoRA model if character has LoRA enabled
+    // LoRA provides >95% face consistency vs ~80% with face swap
+    let loraConfig: { id: string; triggerWord: string; modelPath: string } | null = null;
+    const loraEnabled = character.loraEnabled !== false; // Default to enabled if not set
+    if (loraEnabled) {
+      const loraModel = await this.loraModelsRepo.getReadyByCharacterId(input.characterId);
+      if (loraModel && loraModel.triggerWord && loraModel.modelPath) {
+        loraConfig = {
+          id: loraModel.id,
+          triggerWord: loraModel.triggerWord,
+          modelPath: loraModel.modelPath,
+        };
+      }
+    }
 
     // Convert CharacterConfig to CharacterDNA
     // For SFW content, exclude breast/ass size from the prompt to avoid triggering NSFW content
@@ -241,6 +258,17 @@ export class StudioGenerationService {
       // If timeout or error, continue with base prompt (already set above)
     }
 
+    // If LoRA is available, prepend trigger word to prompt for character consistency
+    let loraUsed = false;
+    if (loraConfig) {
+      basePrompt = `${loraConfig.triggerWord}, ${basePrompt}`;
+      loraUsed = true;
+      // Also update enhanced prompt if it was used
+      if (enhancedPrompt) {
+        enhancedPrompt = `${loraConfig.triggerWord}, ${enhancedPrompt}`;
+      }
+    }
+
     const { width, height } = aspectRatioToSize(input.aspectRatio);
     const { steps, cfg } = getStandardQualityParams(); // qualityMode removed - EP-045
 
@@ -364,6 +392,9 @@ export class StudioGenerationService {
               originalPrompt: promptEnhanceUsed ? originalPrompt : undefined,
               enhancedPrompt: promptEnhanceUsed ? enhancedPrompt : undefined,
               imageId: imageRecord.id,
+              // LoRA tracking for face consistency analytics
+              loraModelId: loraConfig?.id,
+              triggerWord: loraConfig?.triggerWord,
             },
             imageCount: 1,
             completedCount: 0,
@@ -402,6 +433,11 @@ export class StudioGenerationService {
             height,
             seed,
             model: modalModel,
+            lora: loraConfig ? {
+              id: loraConfig.id,
+              triggerWord: loraConfig.triggerWord,
+              strength: 1.0,
+            } : undefined,
           });
 
           results.push({ jobId: job.id, promptId: imageRecord.id });
@@ -616,6 +652,11 @@ export class StudioGenerationService {
     height: number;
     seed?: number;
     model: 'flux-dev' | 'flux' | 'qwen-image-2512' | 'qwen-image-2512-fast';
+    lora?: {
+      id: string;
+      triggerWord: string;
+      strength: number;
+    };
   }) {
     const {
       jobId,
@@ -627,6 +668,7 @@ export class StudioGenerationService {
       height,
       seed,
       model,
+      lora,
     } = params;
 
     try {
@@ -636,24 +678,52 @@ export class StudioGenerationService {
       }
 
       // Submit job to Modal.com based on model type
+      // If LoRA is available, use LoRA-specific endpoints for better face consistency
       let modalJobId: string;
       if (model === 'qwen-image-2512' || model === 'qwen-image-2512-fast') {
-        // Use Qwen-Image endpoints (support NSFW)
-        modalJobId = await this.modal.submitQwenImage({
-          prompt,
-          negative_prompt: negativePrompt,
-          width,
-          height,
-          seed,
-          fast: model === 'qwen-image-2512-fast',
-        });
+        // Use Qwen-Image endpoints (support NSFW and LoRA)
+        if (lora) {
+          // Use Qwen with LoRA for >95% face consistency
+          modalJobId = await this.modal.submitQwenImageLora({
+            prompt,
+            negative_prompt: negativePrompt,
+            width,
+            height,
+            seed,
+            lora_id: lora.id,
+            lora_strength: lora.strength,
+            trigger_word: lora.triggerWord,
+          });
+        } else {
+          modalJobId = await this.modal.submitQwenImage({
+            prompt,
+            negative_prompt: negativePrompt,
+            width,
+            height,
+            seed,
+            fast: model === 'qwen-image-2512-fast',
+          });
+        }
       } else {
-        // Use Flux endpoints (flux-dev and flux use submitBaseImages)
-        modalJobId = await this.modal.submitBaseImages({
-          prompt,
-          nsfw: false, // Studio generation handles NSFW separately
-          seed,
-        });
+        // Use Flux endpoints
+        if (lora) {
+          // Use Flux with LoRA for >95% face consistency
+          modalJobId = await this.modal.submitFluxLora({
+            prompt,
+            negative_prompt: negativePrompt,
+            width,
+            height,
+            seed,
+            lora_id: lora.id,
+            lora_strength: lora.strength,
+          });
+        } else {
+          modalJobId = await this.modal.submitBaseImages({
+            prompt,
+            nsfw: false, // Studio generation handles NSFW separately
+            seed,
+          });
+        }
       }
 
       // Poll for result

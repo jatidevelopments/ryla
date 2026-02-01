@@ -36,6 +36,7 @@ from image import instantid_image
 # Import handlers
 from handlers.instantid import setup_instantid_endpoints
 from handlers.pulid_flux import setup_pulid_flux_endpoints
+from handlers.ipadapter_faceid import setup_ipadapter_faceid_endpoints
 
 # Create Modal app
 app = modal.App(name="ryla-instantid", image=instantid_image)
@@ -117,5 +118,6 @@ class ComfyUI:
         
         setup_instantid_endpoints(fastapi, self)
         setup_pulid_flux_endpoints(fastapi, self)
+        setup_ipadapter_faceid_endpoints(fastapi, self)
         
         return fastapi

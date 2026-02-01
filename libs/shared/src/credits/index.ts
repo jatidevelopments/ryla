@@ -28,6 +28,7 @@ export {
   type PlanDefinition,
   type CreditPackage,
   type SubscriptionPlan,
+  type LoraTrainingModelType,
   // Constants - Features
   FEATURE_CREDITS,
   // Constants - Plans

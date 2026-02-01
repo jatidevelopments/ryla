@@ -2,19 +2,26 @@
 
 const path = require('path');
 
+// Cloudflare Pages with Edge SSR uses @cloudflare/next-on-pages
+// For Cloudflare: Don't set output (next-on-pages handles it)
+// For Fly.io: Use 'standalone' output
+const isCloudflarePages = process.env.CLOUDFLARE_PAGES === 'true';
+
+// Service Worker (PWA) - disable for Cloudflare Pages as Workers handle caching
 const withSerwist = require('@serwist/next').default({
   swSrc: 'app/sw.ts',
   swDest: 'public/sw.js',
-  disable: process.env.NODE_ENV === 'development',
+  disable: process.env.NODE_ENV === 'development' || isCloudflarePages,
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Output mode: 'standalone' for Fly.io, 'export' for Cloudflare Pages
-  // Set CLOUDFLARE_PAGES=true when building for Cloudflare Pages
-  output: process.env.CLOUDFLARE_PAGES === 'true' ? 'export' : 'standalone',
-  // Fix standalone output path structure for monorepo (only needed for standalone)
-  ...(process.env.CLOUDFLARE_PAGES !== 'true' && {
+  // Output mode:
+  // - Fly.io: 'standalone' for Docker deployment
+  // - Cloudflare Pages: undefined (next-on-pages handles build output)
+  ...(isCloudflarePages ? {} : { output: 'standalone' }),
+  // Fix standalone output path structure for monorepo (only needed for standalone/Fly.io)
+  ...(!isCloudflarePages && {
     outputFileTracingRoot: path.join(__dirname, '../../'),
   }),
   // Disable production source maps in development to prevent stack overflow
@@ -43,6 +50,8 @@ const nextConfig = {
     // No additional config needed - browserslist is automatically detected
   },
   images: {
+    // For Cloudflare Pages, use unoptimized images (Cloudflare handles optimization)
+    ...(isCloudflarePages && { unoptimized: true }),
     remotePatterns: [
       {
         protocol: 'http',
@@ -58,6 +67,11 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: '*.s3.*.amazonaws.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'cdn.ryla.ai',
         pathname: '/**',
       },
     ],
@@ -165,8 +179,11 @@ const nextConfig = {
       );
     }
 
-    // Exclude server-only modules from client bundle
-    if (!isServer) {
+    // Exclude server-only modules from client bundle and Edge runtime (Cloudflare)
+    // For Cloudflare Pages, even server components run on Edge and can't use Node.js modules
+    const excludeServerModules = !isServer || isCloudflarePages;
+    
+    if (excludeServerModules) {
       // Add all Node.js built-ins to fallback
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -211,6 +228,10 @@ const nextConfig = {
             }
             // Ignore pg and related packages
             if (resource === 'pg' || resource === 'pg-native') {
+              return true;
+            }
+            // Ignore ioredis (Redis client - Node.js only)
+            if (resource === 'ioredis' || resource.includes('ioredis')) {
               return true;
             }
             // Also ignore pg when imported from drizzle-orm
@@ -301,6 +322,14 @@ const nextConfig = {
         )
       );
 
+      // Replace ioredis with empty module (Node.js-only Redis client)
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^ioredis$/,
+          require.resolve('./lib/trpc/empty-module.js')
+        )
+      );
+
       // Replace @ryla/data and @ryla/email with empty module on client side (server-only)
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
@@ -363,6 +392,13 @@ const nextConfig = {
       },
       {
         message: /Cannot find module.*pg-core/,
+      },
+      // Suppress ioredis related warnings (Node.js-only Redis client)
+      {
+        module: /ioredis/,
+      },
+      {
+        message: /Can't resolve.*ioredis/,
       },
       {
         message: /Cannot find module.*drizzle-orm/,

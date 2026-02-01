@@ -77,7 +77,7 @@ Create an initiative when:
 | [IN-003](./IN-003-sfw-nsfw-separation.md) | SFW/NSFW Content Separation for Growth & Marketability | Proposed | A-Activation, D-Conversion, E-CAC | Product Team |
 | [IN-004](./IN-004-wizard-image-generation.md) | Wizard Image Generation & Asset Creation | Proposed | A-Activation, C-Core Value | Product Team |
 | [IN-005](./IN-005-bunny-cdn-production.md) | Bunny CDN Production Implementation | Proposed | E-CAC, C-Core Value | Infrastructure Team |
-| [IN-006](./IN-006-lora-character-consistency.md) | LoRA Character Consistency System | Proposed | B-Retention, C-Core Value | Product Team |
+| [IN-006](./IN-006-lora-character-consistency.md) | LoRA Character Consistency System | Active | B-Retention, C-Core Value | Product Team |
 | [IN-007](./IN-007-comfyui-infrastructure-improvements.md) | ComfyUI Infrastructure Improvements (MDC-Inspired) | Proposed | C-Core Value, B-Retention, E-CAC | Infrastructure Team |
 | [IN-008](./IN-008-comfyui-dependency-management.md) | ComfyUI Dependency Management & Versioning System | Proposed | E-CAC, C-Core Value, B-Retention | Infrastructure Team |
 | [IN-009](./IN-009-wizard-deferred-credits.md) | Wizard Deferred Credit System | Active | D-Conversion, A-Activation, C-Core Value | Product Team |
@@ -104,7 +104,8 @@ Create an initiative when:
 | [IN-030](./IN-030-vast-ai-alternative-infrastructure.md) | Vast.ai Alternative Infrastructure Evaluation | Proposed | E-CAC, C-Core Value, B-Retention | Infrastructure Team |
 | [IN-031](./IN-031-agentic-workflow-deployment.md) | Agentic ComfyUI Workflow Deployment System | Proposed | E-CAC, C-Core Value, A-Activation, B-Retention | Infrastructure Team |
 | [IN-032](./IN-032-funnel-supabase-to-backend-migration.md) | Funnel Supabase to Backend Migration | Active | E-CAC, C-Core Value, B-Retention, A-Activation | Engineering Team |
+| [IN-035](./IN-035-runpod-vast-ai-poc-cost-reduction.md) | RunPod & Vast.ai POC for Cost Reduction | Proposed (Future) | E-CAC, C-Core Value, B-Retention | Infrastructure Team |
 
 ---
 
-**Last Updated**: 2026-01-28
+**Last Updated**: 2026-01-31

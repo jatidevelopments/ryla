@@ -11,6 +11,7 @@ import { NextRequest, NextResponse } from 'next/server';
  * Migration: Update payment.service.ts to call the backend API directly.
  */
 
+export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 

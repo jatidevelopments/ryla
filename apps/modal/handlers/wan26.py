@@ -681,14 +681,42 @@ class Wan26Handler:
                 lora_filename += ".safetensors"
         else:
             lora_id = item["lora_id"]
-            lora_filename = f"character-{lora_id}.safetensors"
+            # Check Wan-specific LoRA path first, then fallback
+            lora_filename = f"wan-character-{lora_id}.safetensors"
         
-        # Check LoRA in ComfyUI loras directory
+        # Check LoRA in multiple locations
         comfy_lora_path = Path(f"/root/comfy/ComfyUI/models/loras/{lora_filename}")
-        volume_lora_path = Path(f"/root/models/loras/{lora_filename}")
+        
+        # Wan-specific LoRA volume path (preferred for video LoRAs)
+        wan_volume_lora_path = Path(f"/root/models/wan-loras/{lora_filename}")
+        # Legacy/FLUX LoRA volume path (fallback)
+        flux_volume_lora_path = Path(f"/root/models/loras/{lora_filename}")
+        # Also check without 'wan-' prefix for compatibility
+        legacy_filename = f"character-{item.get('lora_id', '')}.safetensors"
+        legacy_wan_path = Path(f"/root/models/wan-loras/{legacy_filename}")
+        legacy_flux_path = Path(f"/root/models/loras/{legacy_filename}")
+        
+        # Determine which volume path has the LoRA
+        volume_lora_path = None
+        actual_lora_filename = lora_filename
+        
+        if wan_volume_lora_path.exists():
+            volume_lora_path = wan_volume_lora_path
+        elif flux_volume_lora_path.exists():
+            volume_lora_path = flux_volume_lora_path
+        elif legacy_wan_path.exists():
+            volume_lora_path = legacy_wan_path
+            actual_lora_filename = legacy_filename
+        elif legacy_flux_path.exists():
+            volume_lora_path = legacy_flux_path
+            actual_lora_filename = legacy_filename
+        
+        # Update comfy path with actual filename
+        comfy_lora_path = Path(f"/root/comfy/ComfyUI/models/loras/{actual_lora_filename}")
+        lora_filename = actual_lora_filename
         
         # If LoRA exists in volume but not in ComfyUI directory, symlink it
-        if volume_lora_path.exists() and not comfy_lora_path.exists():
+        if volume_lora_path and volume_lora_path.exists() and not comfy_lora_path.exists():
             comfy_lora_path.parent.mkdir(parents=True, exist_ok=True)
             subprocess.run(
                 f"ln -s {volume_lora_path} {comfy_lora_path}",
@@ -697,10 +725,10 @@ class Wan26Handler:
             )
         
         # Check if LoRA exists
-        if not comfy_lora_path.exists() and not volume_lora_path.exists():
+        if not comfy_lora_path.exists() and (not volume_lora_path or not volume_lora_path.exists()):
             raise HTTPException(
                 status_code=404,
-                detail=f"LoRA not found: {lora_filename}. Upload to /root/models/loras/"
+                detail=f"LoRA not found: {lora_filename}. Train a Wan LoRA using ryla-wan-lora-training or upload to /root/models/wan-loras/"
             )
         
         tracker = CostTracker(gpu_type="L40S")

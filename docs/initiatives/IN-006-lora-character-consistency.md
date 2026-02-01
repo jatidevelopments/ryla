@@ -1,8 +1,8 @@
 # [INITIATIVE] IN-006: LoRA Character Consistency System
 
-**Status**: Proposed  
+**Status**: Active  
 **Created**: 2026-01-27  
-**Last Updated**: 2026-01-27  
+**Last Updated**: 2026-02-01  
 **Owner**: Product Team  
 **Stakeholders**: Backend Team, Infrastructure Team, AI/ML Team
 
@@ -232,12 +232,12 @@ Currently, RYLA generates images with ~80% face consistency using face swap tech
 
 ### Initiative Complete When:
 
-- [ ] LoRA training infrastructure deployed (AI Toolkit on RunPod)
-- [ ] Automated training pipeline working (triggers after character sheet)
-- [ ] LoRA usage integrated in all generation workflows (Z-Image, Flux, etc.)
-- [ ] User toggle in wizard implemented and working
-- [ ] Settings page for LoRA management implemented
-- [ ] Notifications for training status working
+- [x] LoRA training infrastructure deployed (Modal.com - Flux, Wan, Qwen)
+- [x] Automated training pipeline working (API endpoints, background processing)
+- [x] LoRA usage integrated in generation workflows (Qwen, Flux via Modal.com)
+- [x] User toggle in wizard implemented and working
+- [x] Settings page for LoRA management implemented (with model type selector)
+- [x] Notifications for training status working
 - [ ] >60% adoption rate achieved
 - [ ] >90% training completion rate achieved
 - [ ] >95% face consistency validated
@@ -311,20 +311,35 @@ Currently, RYLA generates images with ~80% face consistency using face swap tech
 
 ### Current Phase
 
-**Phase**: Phase 1 - LoRA Training Infrastructure  
-**Status**: Not Started
+**Phase**: Phase 2 - LoRA Usage in Generation  
+**Status**: In Progress (60% Complete)
 
 ### Recent Updates
 
-- **2026-01-27**: Initiative created, epics identified, ready to start Phase 1
+- **2026-02-01**: LoRA usage integrated into image generation (EP-038)
+  - Added LoRA detection in `StudioGenerationService`
+  - Automatic trigger word prepending to prompts
+  - Modal.com endpoints: `/qwen-image-2512-lora`, `/flux-lora`
+  - Graceful fallback when no LoRA available
+- **2026-02-01**: Multi-model LoRA training fully integrated end-to-end (EP-026)
+  - Added support for Flux, Wan 2.6 (1.3B/14B), and Qwen-Image LoRAs
+  - Updated trigger script with `--model-type` parameter
+  - Extended `LoraTrainingService` with model type routing
+  - Added `training_model` column to database schema (migration 0018)
+  - Updated API endpoints: `/train-lora`, `/lora-training-cost`, `/lora-model-types`
+  - Added Web UI model type selector in LoRA settings
+  - Added pricing for all model types
+- **2026-01-30**: Modal training apps deployed (ryla-lora-training, ryla-wan-lora-training, ryla-qwen-lora-training)
+- **2026-01-27**: Initiative created, epics identified
 
 ### Next Steps
 
-1. Review and finalize EP-026 (LoRA Training Epic)
-2. Create new epic for LoRA Usage in Image Generation
-3. Set up AI Toolkit on RunPod (Phase 1)
-4. Implement LoRA training service (Phase 1)
-5. Integrate LoRA into generation workflows (Phase 2)
+1. ~~Set up Modal.com training infrastructure~~ ✅ Complete
+2. ~~Implement multi-model LoRA training~~ ✅ Complete
+3. ~~Integrate LoRA usage in generation workflows~~ ✅ Complete (basic integration)
+4. Add LoRA usage tracking in generation metadata
+5. Test end-to-end LoRA training + usage flow
+6. Complete user experience polish (Phase 3)
 
 ---
 

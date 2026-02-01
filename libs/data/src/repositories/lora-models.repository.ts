@@ -103,6 +103,39 @@ export class LoraModelsRepository {
   }
 
   /**
+   * Get ready LoRA model for a character by training model type
+   */
+  async getReadyByCharacterIdAndModel(
+    characterId: string,
+    trainingModel: 'flux' | 'wan' | 'wan-14b' | 'qwen'
+  ): Promise<LoraModelRow | undefined> {
+    return this.db.query.loraModels.findFirst({
+      where: and(
+        eq(schema.loraModels.characterId, characterId),
+        eq(schema.loraModels.status, 'ready'),
+        eq(schema.loraModels.trainingModel, trainingModel)
+      ),
+      orderBy: [desc(schema.loraModels.createdAt)],
+    });
+  }
+
+  /**
+   * Get all LoRA models for a character by training model type
+   */
+  async getByCharacterIdAndModel(
+    characterId: string,
+    trainingModel: 'flux' | 'wan' | 'wan-14b' | 'qwen'
+  ): Promise<LoraModelRow[]> {
+    return this.db.query.loraModels.findMany({
+      where: and(
+        eq(schema.loraModels.characterId, characterId),
+        eq(schema.loraModels.trainingModel, trainingModel)
+      ),
+      orderBy: [desc(schema.loraModels.createdAt)],
+    });
+  }
+
+  /**
    * Update LoRA model by ID
    */
   async updateById(

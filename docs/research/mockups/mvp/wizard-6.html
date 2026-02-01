@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 6: Generate - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .close { text-decoration: none; color: #666; font-size: 24px; }
+    
+    .progress { height: 4px; background: #eee; margin: 16px 0; }
+    .progress-bar { height: 100%; background: #000; width: 100%; }
+    .step-info { font-size: 14px; color: #666; margin-bottom: 8px; }
+    
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 12px; margin-bottom: 24px; font-size: 13px; }
+    .decision h3 { font-size: 12px; color: #996600; margin-bottom: 4px; }
+    .decision p { color: #664400; }
+    
+    /* Character Preview */
+    .preview-section { display: flex; gap: 24px; margin-bottom: 24px; }
+    .preview-image { flex: 1; background: #f0f0f0; aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; font-size: 12px; color: #888; }
+    .preview-summary { flex: 1; }
+    
+    .summary-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+    .summary-label { color: #666; }
+    
+    /* Name input */
+    .name-input { margin-bottom: 24px; }
+    .name-input label { display: block; font-weight: bold; margin-bottom: 8px; }
+    .name-input input { width: 100%; padding: 12px; border: 2px solid #ddd; font-size: 16px; }
+    .name-input input:focus { outline: none; border-color: #000; }
+    
+    /* Generation Options */
+    .gen-options { background: #f5f5f5; padding: 16px; margin-bottom: 24px; }
+    .gen-options h3 { font-size: 14px; margin-bottom: 12px; }
+    
+    .option-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .option-row:last-child { margin-bottom: 0; }
+    .option-name { font-size: 14px; }
+    .option-hint { font-size: 11px; color: #666; }
+    
+    /* Toggle buttons */
+    .toggle-group { display: flex; border: 1px solid #ddd; }
+    .toggle-btn { padding: 8px 16px; background: #fff; border: none; cursor: pointer; font-size: 13px; }
+    .toggle-btn.active { background: #000; color: #fff; }
+    
+    /* NSFW Toggle */
+    .nsfw-toggle { display: flex; align-items: center; gap: 12px; padding: 16px; border: 2px solid #ddd; margin-bottom: 24px; }
+    .nsfw-toggle.enabled { border-color: #ff4444; background: #fff5f5; }
+    .toggle-switch { width: 48px; height: 24px; background: #ccc; border-radius: 12px; position: relative; cursor: pointer; }
+    .toggle-switch.on { background: #ff4444; }
+    .toggle-switch::after { content: ''; width: 20px; height: 20px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: 0.2s; }
+    .toggle-switch.on::after { left: 26px; }
+    .nsfw-label { font-weight: bold; }
+    .nsfw-hint { font-size: 12px; color: #666; }
+    
+    /* Credit cost */
+    .credit-cost { text-align: center; padding: 16px; background: #f5f5f5; margin-bottom: 16px; }
+    .credit-cost .cost { font-size: 24px; font-weight: bold; }
+    .credit-cost .balance { font-size: 14px; color: #666; }
+    
+    .generate-btn { display: block; width: 100%; background: #000; color: #fff; padding: 20px; text-align: center; text-decoration: none; font-weight: bold; font-size: 18px; border: none; cursor: pointer; }
+    .generate-btn:hover { background: #333; }
+    
+    .nav { display: flex; justify-content: center; margin-top: 16px; }
+    .btn-back { background: #fff; color: #000; border: 1px solid #000; padding: 12px 24px; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <a href="index.html" class="close">×</a>
+    </header>
+
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="step-info">Step 6 of 6 • Generate</div>
+    
+    <h1>Review & Generate</h1>
+    <p class="subtitle">Confirm your character settings</p>
+
+    <div class="decision">
+      <h3>🎯 DECISION: Generation Controls Layout</h3>
+      <p><strong>A:</strong> All options visible (current) | <strong>B:</strong> Collapsed "Advanced" section | <strong>C:</strong> Sidebar panel</p>
+    </div>
+
+    <div class="name-input">
+      <label>Character Name</label>
+      <input type="text" placeholder="e.g., Luna, Sofia, Emma..." value="Sofia">
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-image">[Character Preview]</div>
+      <div class="preview-summary">
+        <div class="summary-item"><span class="summary-label">Style</span><span>Female, Realistic</span></div>
+        <div class="summary-item"><span class="summary-label">Ethnicity</span><span>White, 25</span></div>
+        <div class="summary-item"><span class="summary-label">Hair</span><span>Long, Black</span></div>
+        <div class="summary-item"><span class="summary-label">Eyes</span><span>Blue</span></div>
+        <div class="summary-item"><span class="summary-label">Body</span><span>Curvy, Medium</span></div>
+        <div class="summary-item"><span class="summary-label">Outfit</span><span>Date Night</span></div>
+        <div class="summary-item"><span class="summary-label">Archetype</span><span>Girl Next Door</span></div>
+      </div>
+    </div>
+
+    <div class="gen-options">
+      <h3>Generation Options</h3>
+      
+      <div class="option-row">
+        <div>
+          <div class="option-name">Aspect Ratio</div>
+          <div class="option-hint">Choose based on platform</div>
+        </div>
+        <div class="toggle-group">
+          <button class="toggle-btn">1:1</button>
+          <button class="toggle-btn active">9:16</button>
+          <button class="toggle-btn">2:3</button>
+        </div>
+      </div>
+      
+      <div class="option-row">
+        <div>
+          <div class="option-name">Quality Mode</div>
+          <div class="option-hint">Draft: 1 credit, HQ: 3 credits</div>
+        </div>
+        <div class="toggle-group">
+          <button class="toggle-btn">Draft</button>
+          <button class="toggle-btn active">HQ</button>
+        </div>
+      </div>
+      
+      <div class="option-row">
+        <div>
+          <div class="option-name">Images</div>
+          <div class="option-hint">Number per generation</div>
+        </div>
+        <div class="toggle-group">
+          <button class="toggle-btn">1</button>
+          <button class="toggle-btn active">5</button>
+          <button class="toggle-btn">10</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="decision">
+      <h3>🎯 DECISION: NSFW Toggle Placement</h3>
+      <p><strong>A:</strong> Prominent with warning (current) | <strong>B:</strong> Inside gen options | <strong>C:</strong> Character settings (Step 1)</p>
+    </div>
+
+    <div class="nsfw-toggle enabled">
+      <div class="toggle-switch on"></div>
+      <div>
+        <div class="nsfw-label">NSFW Mode</div>
+        <div class="nsfw-hint">Generate adult content (18+ only)</div>
+      </div>
+    </div>
+
+    <div class="credit-cost">
+      <div class="cost">15 credits</div>
+      <div class="balance">5 HQ images × 3 credits each • You have 87 credits</div>
+    </div>
+
+    <a href="generating.html" class="generate-btn">✨ Generate Character</a>
+
+    <div class="nav">
+      <a href="wizard-5.html" class="btn-back">← Edit Settings</a>
+    </div>
+  </div>
+</body>
+</html>
+

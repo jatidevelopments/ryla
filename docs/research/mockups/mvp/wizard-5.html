@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 5: Identity - RYLA</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, sans-serif; background: #fff; color: #000; line-height: 1.5; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+    
+    header { display: flex; justify-content: space-between; align-items: center; padding: 16px 0; }
+    .logo { font-weight: bold; font-size: 20px; text-decoration: none; color: #000; }
+    .close { text-decoration: none; color: #666; font-size: 24px; }
+    
+    .progress { height: 4px; background: #eee; margin: 16px 0; }
+    .progress-bar { height: 100%; background: #000; width: 83.33%; }
+    .step-info { font-size: 14px; color: #666; margin-bottom: 8px; }
+    
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    
+    .decision { background: #fffbe6; border: 2px solid #ffd700; padding: 12px; margin-bottom: 24px; font-size: 13px; }
+    .decision h3 { font-size: 12px; color: #996600; margin-bottom: 4px; }
+    
+    .option-group { margin-bottom: 24px; }
+    .option-label { font-weight: bold; margin-bottom: 8px; }
+    .option-sublabel { font-size: 12px; color: #666; margin-bottom: 12px; }
+    
+    /* Outfit grid */
+    .outfit-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    .outfit-option { border: 2px solid #ddd; padding: 8px; text-align: center; cursor: pointer; font-size: 11px; }
+    .outfit-option:hover { border-color: #999; }
+    .outfit-option.selected { border-color: #000; background: #f5f5f5; }
+    .outfit-option.popular { border-color: #ffd700; }
+    
+    /* Archetype */
+    .archetype-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .archetype-option { border: 2px solid #ddd; padding: 12px; text-align: center; cursor: pointer; }
+    .archetype-option:hover { border-color: #999; }
+    .archetype-option.selected { border-color: #000; background: #f5f5f5; }
+    .archetype-name { font-weight: bold; font-size: 13px; }
+    .archetype-desc { font-size: 10px; color: #666; margin-top: 4px; }
+    
+    /* Personality traits */
+    .traits-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .trait-chip { border: 1px solid #ddd; padding: 6px 12px; cursor: pointer; font-size: 12px; }
+    .trait-chip:hover { border-color: #999; }
+    .trait-chip.selected { border-color: #000; background: #000; color: #fff; }
+    .trait-counter { font-size: 12px; color: #666; margin-top: 8px; }
+    
+    /* Bio */
+    textarea { width: 100%; padding: 12px; border: 1px solid #ddd; font-size: 14px; font-family: inherit; resize: vertical; }
+    textarea:focus { outline: none; border-color: #000; }
+    .char-count { font-size: 12px; color: #666; text-align: right; margin-top: 4px; }
+    
+    .nav { display: flex; justify-content: space-between; margin-top: auto; padding: 24px 0; }
+    .btn { display: inline-block; background: #000; color: #fff; padding: 12px 24px; text-decoration: none; font-weight: bold; }
+    .btn-back { background: #fff; color: #000; border: 1px solid #000; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <a href="index.html" class="logo">RYLA</a>
+      <a href="index.html" class="close">×</a>
+    </header>
+
+    <div class="progress"><div class="progress-bar"></div></div>
+    <div class="step-info">Step 5 of 6 • Identity</div>
+    
+    <h1>Outfit & Personality</h1>
+    <p class="subtitle">Define your character's style and persona</p>
+
+    <div class="decision">
+      <h3>🎯 DATA: "Date night glam" most popular (31% US)</h3>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Outfit</div>
+      <div class="outfit-grid">
+        <div class="outfit-option">Casual</div>
+        <div class="outfit-option">Athleisure</div>
+        <div class="outfit-option">Yoga</div>
+        <div class="outfit-option popular selected">Date Night</div>
+        <div class="outfit-option">Cocktail</div>
+        <div class="outfit-option">Bikini</div>
+        <div class="outfit-option">Lingerie</div>
+        <div class="outfit-option">Swimsuit</div>
+        <div class="outfit-option">Mini Skirt</div>
+        <div class="outfit-option">Crop Top</div>
+        <div class="outfit-option">Cheerleader</div>
+        <div class="outfit-option">Nurse</div>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Archetype</div>
+      <div class="archetype-grid">
+        <div class="archetype-option selected">
+          <div class="archetype-name">Girl Next Door</div>
+          <div class="archetype-desc">Sweet, approachable</div>
+        </div>
+        <div class="archetype-option">
+          <div class="archetype-name">Fitness</div>
+          <div class="archetype-desc">Athletic, motivated</div>
+        </div>
+        <div class="archetype-option">
+          <div class="archetype-name">Luxury</div>
+          <div class="archetype-desc">Glamorous, refined</div>
+        </div>
+        <div class="archetype-option">
+          <div class="archetype-name">Mysterious</div>
+          <div class="archetype-desc">Edgy, intriguing</div>
+        </div>
+        <div class="archetype-option">
+          <div class="archetype-name">Playful</div>
+          <div class="archetype-desc">Fun, energetic</div>
+        </div>
+        <div class="archetype-option">
+          <div class="archetype-name">Boss</div>
+          <div class="archetype-desc">Professional, confident</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Personality Traits</div>
+      <div class="option-sublabel">Select up to 3</div>
+      <div class="traits-grid">
+        <div class="trait-chip selected">Confident</div>
+        <div class="trait-chip">Shy</div>
+        <div class="trait-chip selected">Bold</div>
+        <div class="trait-chip">Laid-back</div>
+        <div class="trait-chip selected">Playful</div>
+        <div class="trait-chip">Mysterious</div>
+        <div class="trait-chip">Caring</div>
+        <div class="trait-chip">Independent</div>
+        <div class="trait-chip">Adventurous</div>
+        <div class="trait-chip">Flirty</div>
+        <div class="trait-chip">Classy</div>
+        <div class="trait-chip">Sweet</div>
+      </div>
+      <div class="trait-counter">3/3 selected</div>
+    </div>
+
+    <div class="option-group">
+      <div class="option-label">Bio <span style="font-weight: normal; color: #666;">(optional)</span></div>
+      <textarea rows="3" placeholder="Write a short bio for your character..."></textarea>
+      <div class="char-count">0/200</div>
+    </div>
+
+    <div class="nav">
+      <a href="wizard-4.html" class="btn btn-back">← Back</a>
+      <a href="wizard-6.html" class="btn">Next →</a>
+    </div>
+  </div>
+</body>
+</html>
+
