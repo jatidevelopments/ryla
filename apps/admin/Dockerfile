@@ -70,6 +70,7 @@ ENV NX_DAEMON=false
 # Build library dependencies first (admin depends on these)
 RUN npx nx build shared --skip-nx-cache && \
     npx nx build data --skip-nx-cache && \
+    npx nx build email --skip-nx-cache && \
     npx nx build business --skip-nx-cache
 
 # Build the admin app with Nx
