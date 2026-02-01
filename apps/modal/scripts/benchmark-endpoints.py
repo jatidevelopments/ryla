@@ -28,7 +28,8 @@ from io import BytesIO
 # ==============================================================================
 
 WORKSPACE = "ryla"
-TIMEOUT = 900  # 15 minutes max for video endpoints
+TIMEOUT = 300  # 5 minutes max (reduce for faster iterations)
+TIMEOUT_LONG = 600  # 10 minutes for video/heavy endpoints
 SCRIPT_DIR = Path(__file__).parent
 TEST_RESOURCES_DIR = SCRIPT_DIR / "test_resources"
 RESULTS_DIR = Path(__file__).parent.parent / "docs" / "status"
@@ -465,13 +466,19 @@ def run_endpoint_test(path: str, resources: dict, run_cold: bool = True) -> Endp
     return result
 
 
-def run_benchmark(resources: dict, quick: bool = False) -> List[EndpointResult]:
+def run_benchmark(resources: dict, quick: bool = False, fast: bool = False) -> List[EndpointResult]:
     """Run the full benchmark suite."""
     results = []
+    
+    # In fast mode, only test quick endpoints
+    fast_endpoints = ["/z-image-simple", "/z-image-danrisi", "/qwen-image-2512-fast"]
     
     # Group endpoints by app for efficient cold/warm testing
     app_endpoints = {}
     for path in ENDPOINT_CONFIG.keys():
+        # Skip non-fast endpoints in fast mode
+        if fast and path not in fast_endpoints:
+            continue
         url = get_endpoint_url(path)
         # Extract app name from URL
         app = url.split("--")[1].split("-comfyui")[0] if "--" in url else "default"
@@ -652,6 +659,7 @@ def generate_json_results(results: List[EndpointResult], resources: dict) -> dic
 def main():
     parser = argparse.ArgumentParser(description="Benchmark Modal endpoints")
     parser.add_argument("--quick", action="store_true", help="Quick mode (warm runs only)")
+    parser.add_argument("--fast", action="store_true", help="Fast mode (only Z-Image and Qwen Fast endpoints)")
     parser.add_argument("--generate", action="store_true", help="Generate test image only")
     parser.add_argument("--generate-video", action="store_true", help="Generate test video (slow, 5-10 min)")
     parser.add_argument("--skip-video", action="store_true", help="Skip video endpoints entirely")
@@ -682,8 +690,9 @@ def main():
         return
     
     # Run benchmark
-    print(f"\n🚀 Running benchmark ({'quick' if args.quick else 'full'} mode)...")
-    results = run_benchmark(resources, quick=args.quick)
+    mode = "fast" if args.fast else ("quick" if args.quick else "full")
+    print(f"\n🚀 Running benchmark ({mode} mode)...")
+    results = run_benchmark(resources, quick=args.quick, fast=args.fast)
     
     # Generate reports
     print("\n📝 Generating reports...")

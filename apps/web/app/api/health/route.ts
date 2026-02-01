@@ -5,15 +5,20 @@
 
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export async function GET() {
-  return Response.json(
-    {
+  // Simple response using standard Web API
+  return new Response(
+    JSON.stringify({
       status: 'ok',
       timestamp: Date.now(),
       service: 'web',
-    },
-    { status: 200 }
+    }),
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    }
   );
 }

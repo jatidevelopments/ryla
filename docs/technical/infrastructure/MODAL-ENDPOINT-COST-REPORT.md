@@ -313,5 +313,43 @@ print(f"Cost: ${cost:.4f}, Time: {time:.1f}s")
 
 ---
 
-**Regenerate**: Run `python3 apps/modal/scripts/benchmark-endpoints.py` to update this data.  
+## How to Run This Benchmark
+
+```bash
+# Fast benchmark (Z-Image + Qwen Fast only, ~2 min)
+python apps/modal/scripts/benchmark-endpoints.py --fast
+
+# Quick benchmark (all endpoints, warm runs only)
+python apps/modal/scripts/benchmark-endpoints.py --quick
+
+# Full benchmark (cold + warm runs for all endpoints)
+python apps/modal/scripts/benchmark-endpoints.py
+
+# Generate test image only
+python apps/modal/scripts/benchmark-endpoints.py --generate
+
+# Generate test video (slow, 5-10 min cold start)
+python apps/modal/scripts/benchmark-endpoints.py --generate-video
+
+# To enable LoRA endpoints, train a test LoRA first:
+modal run apps/modal/apps/lora-training/app.py --character-id=test-benchmark --steps=100
+```
+
+### Test Resources
+
+| Resource | Location | How to Generate |
+|----------|----------|-----------------|
+| Test Image | `apps/modal/scripts/test_resources/test_portrait.jpg` | Auto-generated on first run |
+| Test Video | `apps/modal/scripts/test_resources/test_video.mp4` | `--generate-video` flag |
+| Test LoRA | Modal volume `/root/models/loras/` | Train with LoRA training endpoint |
+
+### Generated Reports
+
+| File | Description |
+|------|-------------|
+| `apps/modal/docs/status/BENCHMARK-RESULTS.md` | Human-readable markdown report |
+| `apps/modal/docs/status/BENCHMARK-RESULTS.json` | Machine-readable JSON results |
+
+---
+
 **API Headers**: Use `X-Cost-USD` and `X-Execution-Time-Sec` headers for actual billing values.
