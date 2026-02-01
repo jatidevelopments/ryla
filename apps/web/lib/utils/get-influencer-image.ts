@@ -3,7 +3,17 @@
  * Similar to funnel's getInfluencerImage helper
  */
 
-export type EthnicityValue = 'caucasian' | 'latina' | 'black' | 'asian' | 'arab' | 'mixed' | 'indian' | 'arabian';
+import { withCdn } from '@ryla/shared';
+
+export type EthnicityValue =
+  | 'caucasian'
+  | 'latina'
+  | 'black'
+  | 'asian'
+  | 'arab'
+  | 'mixed'
+  | 'indian'
+  | 'arabian';
 
 /**
  * Get ethnicity-specific influencer asset image path
@@ -13,7 +23,13 @@ export type EthnicityValue = 'caucasian' | 'latina' | 'black' | 'asian' | 'arab'
  * @returns The image path or null if not found
  */
 export function getInfluencerImage(
-  category: 'skin-colors' | 'eye-colors' | 'hair-colors' | 'hair-styles' | 'face-shapes' | 'age-ranges',
+  category:
+    | 'skin-colors'
+    | 'eye-colors'
+    | 'hair-colors'
+    | 'hair-styles'
+    | 'face-shapes'
+    | 'age-ranges',
   ethnicity: EthnicityValue | string | null,
   optionValue: string
 ): string | null {
@@ -22,7 +38,7 @@ export function getInfluencerImage(
 
   // Normalize ethnicity value
   let normalizedEthnicity = ethnicity.toLowerCase();
-  
+
   // Map some ethnicity values - NOTE: Folder structure uses 'arabian', not 'arab'
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
@@ -45,10 +61,10 @@ export function getInfluencerImage(
     'face-shapes': { folder: 'appearance', subfolder: 'face-shapes' },
     'age-ranges': { folder: 'appearance', subfolder: 'age-ranges' },
   };
-  
+
   const mapping = categoryMap[category];
   if (!mapping) return null;
-  
+
   const subfolderPath = mapping.subfolder ? `${mapping.subfolder}/` : '';
   return `/images/wizard/${mapping.folder}/${normalizedEthnicity}/${subfolderPath}${fileName}-${normalizedEthnicity}.webp`;
 }
@@ -62,13 +78,15 @@ export function getSkinFeatureImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!value || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
-  const fileName = `${featureType}-${value.toLowerCase().replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
+
+  const fileName = `${featureType}-${value
+    .toLowerCase()
+    .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
   return `/images/wizard/skin/${normalizedEthnicity}/features/${featureType}/${fileName}`;
 }
 
@@ -81,12 +99,12 @@ export function getBodyTypeImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!bodyType || !gender || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
+
   const fileName = `body-${bodyType}-${gender}-${normalizedEthnicity}.webp`;
   return `/images/wizard/body/${normalizedEthnicity}/body-types/${fileName}`;
 }
@@ -99,12 +117,12 @@ export function getBreastSizeImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!size || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
+
   const fileName = `breast-${size}-${normalizedEthnicity}.webp`;
   return `/images/wizard/body/${normalizedEthnicity}/breast-sizes/${fileName}`;
 }
@@ -117,12 +135,12 @@ export function getAssSizeImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!size || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
+
   const fileName = `ass-${size}-${normalizedEthnicity}.webp`;
   return `/images/wizard/body/${normalizedEthnicity}/ass-sizes/${fileName}`;
 }
@@ -135,12 +153,12 @@ export function getBreastTypeImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!type || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
+
   const fileName = `breast-type-${type}-${normalizedEthnicity}.webp`;
   return `/images/wizard/body/${normalizedEthnicity}/breast-types/${fileName}`;
 }
@@ -153,13 +171,15 @@ export function getTattooImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!value || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
-  const fileName = `${value.toLowerCase().replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
+
+  const fileName = `${value
+    .toLowerCase()
+    .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
   return `/images/wizard/modifications/${normalizedEthnicity}/tattoos/${fileName}`;
 }
 
@@ -171,13 +191,15 @@ export function getPiercingImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!value || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
-  const fileName = `${value.toLowerCase().replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
+
+  const fileName = `${value
+    .toLowerCase()
+    .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
   return `/images/wizard/modifications/${normalizedEthnicity}/piercings/${fileName}`;
 }
 
@@ -189,18 +211,21 @@ export function getSkinColorImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!color || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
-  const fileName = `${color.toLowerCase().replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
+
+  const fileName = `${color
+    .toLowerCase()
+    .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
   return `/images/wizard/skin/${normalizedEthnicity}/colors/${fileName}`;
 }
 
 /**
  * Get ethnicity-specific portrait image path
+ * Returns CDN-prefixed URL if CDN is configured
  */
 export function getEthnicityImage(
   ethnicity: EthnicityValue | string | null,
@@ -208,7 +233,7 @@ export function getEthnicityImage(
   type: 'portrait' | 'full-body' = 'portrait'
 ): string | null {
   if (!ethnicity || !gender) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
@@ -216,9 +241,12 @@ export function getEthnicityImage(
   if (normalizedEthnicity === 'indian') {
     normalizedEthnicity = 'indian'; // Keep indian as is
   }
-  
-  const fileName = `${gender}-${type === 'portrait' ? 'portrait' : 'full-body'}.webp`;
-  return `/images/wizard/appearance/${normalizedEthnicity}/ethnicity/${fileName}`;
+
+  const fileName = `${gender}-${
+    type === 'portrait' ? 'portrait' : 'full-body'
+  }.webp`;
+  const path = `/images/wizard/appearance/${normalizedEthnicity}/ethnicity/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -232,12 +260,12 @@ export function getArchetypeImage(
   ethnicity: EthnicityValue | string | null
 ): string | null {
   if (!archetypeId || !ethnicity) return null;
-  
+
   let normalizedEthnicity = ethnicity.toLowerCase();
   if (normalizedEthnicity === 'arab') {
     normalizedEthnicity = 'arabian';
   }
-  
+
   const fileName = `archetype-${archetypeId}-${normalizedEthnicity}.webp`;
   return `/images/wizard/personality/${normalizedEthnicity}/archetypes/${fileName}`;
 }
