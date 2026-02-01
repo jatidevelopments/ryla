@@ -94,10 +94,11 @@ find "$SOURCE_DIR" -type f \( -name "*.jpg" -o -name "*.jpeg" -o -name "*.png" -
     # Check if file already exists (optional - can skip if you want to overwrite)
     echo -n "Uploading $rel_path (${file_size_mb}MB)... "
     
-    # Upload to R2
+    # Upload to R2 (--remote flag ensures upload to remote bucket, not local)
     if wrangler r2 object put "$BUCKET/$object_key" \
         --file="$file" \
         --content-type="$content_type" \
+        --remote \
         &> /dev/null; then
         echo -e "${GREEN}✅${NC}"
         ((UPLOADED++))
