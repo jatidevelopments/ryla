@@ -7,7 +7,6 @@ export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  // Simple response using standard Web API
   return new Response(
     JSON.stringify({
       status: 'ok',
@@ -22,4 +21,3 @@ export async function GET() {
     }
   );
 }
-// Deploy 1769975905
