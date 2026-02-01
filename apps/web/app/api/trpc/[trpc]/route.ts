@@ -1,80 +1,44 @@
 /**
- * tRPC API Route Handler - PROXY TO BACKEND API
+ * tRPC API Route Handler
  *
- * For Cloudflare Pages Edge Runtime, we proxy tRPC requests to the backend API.
- * This allows the web app to work on both Fly.io (direct) and Cloudflare Pages (proxy).
+ * This handles all tRPC requests for the web app.
+ * All requests to /api/trpc/* are handled here.
  */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
 
-export const runtime = 'edge';
+import { appRouter, createContext } from '@ryla/trpc';
+
+// Disable caching for tRPC routes
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
-async function handler(
-  request: NextRequest,
-  { params }: { params: Promise<{ trpc: string }> }
-) {
-  const { trpc } = await params;
-  const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://end.ryla.ai';
-  const targetUrl = `${backendUrl}/api/trpc/${trpc}`;
-
-  try {
-    // Forward headers, including auth
-    const headers = new Headers();
-    request.headers.forEach((value, key) => {
-      // Skip host header as it will be wrong
-      if (key.toLowerCase() !== 'host') {
-        headers.set(key, value);
+/**
+ * Handle tRPC requests
+ */
+const handler = async (req: Request) => {
+  return fetchRequestHandler({
+    endpoint: '/api/trpc',
+    req,
+    router: appRouter,
+    createContext: async () => {
+      return createContext({
+        headers: req.headers,
+      });
+    },
+    onError({ error, path, type }) {
+      // Don't log UNAUTHORIZED errors as they're expected when users aren't authenticated
+      // Only log actual errors (INTERNAL_SERVER_ERROR, BAD_REQUEST, etc.)
+      if (error.code === 'UNAUTHORIZED') {
+        // Silently handle auth errors - they're expected behavior
+        return;
       }
-    });
 
-    // Handle GET requests (queries)
-    if (request.method === 'GET') {
-      const url = new URL(request.url);
-      const queryString = url.search;
-      const response = await fetch(`${targetUrl}${queryString}`, {
-        method: 'GET',
-        headers,
-      });
+      // Log actual errors
+      console.error(`[tRPC Error] ${type} ${path}:`, error.message);
+    },
+  });
+};
 
-      const data = await response.text();
-      return new NextResponse(data, {
-        status: response.status,
-        headers: {
-          'Content-Type':
-            response.headers.get('Content-Type') || 'application/json',
-        },
-      });
-    }
-
-    // Handle POST requests (mutations)
-    if (request.method === 'POST') {
-      const body = await request.text();
-      const response = await fetch(targetUrl, {
-        method: 'POST',
-        headers,
-        body,
-      });
-
-      const data = await response.text();
-      return new NextResponse(data, {
-        status: response.status,
-        headers: {
-          'Content-Type':
-            response.headers.get('Content-Type') || 'application/json',
-        },
-      });
-    }
-
-    return NextResponse.json({ error: 'Method not allowed' }, { status: 405 });
-  } catch (error) {
-    console.error('Failed to proxy tRPC request:', error);
-    return NextResponse.json(
-      { error: 'Failed to proxy tRPC request' },
-      { status: 502 }
-    );
-  }
-}
-
-export const GET = handler;
-export const POST = handler;
+// Export handlers for all HTTP methods
+export { handler as GET, handler as POST };

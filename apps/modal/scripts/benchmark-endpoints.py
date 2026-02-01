@@ -5,10 +5,19 @@ Modal Endpoint Benchmarking Script
 Generates test resources and benchmarks ALL endpoints with cold/warm timing.
 Outputs a comprehensive markdown report.
 
+IMPORTANT: This script can take 30-90 minutes to complete due to Modal cold starts.
+Run in background: nohup python benchmark-endpoints.py > benchmark.log 2>&1 &
+
 Usage:
-    python benchmark-endpoints.py              # Run full benchmark
-    python benchmark-endpoints.py --quick      # Quick benchmark (warm only)
-    python benchmark-endpoints.py --generate   # Generate test resources only
+    python benchmark-endpoints.py              # Full benchmark (~60-90 min)
+    python benchmark-endpoints.py --quick      # Warm runs only (~30-60 min)
+    python benchmark-endpoints.py --fast       # Fast endpoints only (~3-5 min)
+    python benchmark-endpoints.py --generate   # Generate test image only
+    python benchmark-endpoints.py --generate-video  # Generate test video (~10 min)
+
+Output:
+    apps/modal/docs/status/BENCHMARK-RESULTS.md   # Markdown report
+    apps/modal/docs/status/BENCHMARK-RESULTS.json # JSON data
 """
 
 import sys
@@ -28,8 +37,9 @@ from io import BytesIO
 # ==============================================================================
 
 WORKSPACE = "ryla"
-TIMEOUT = 300  # 5 minutes max (reduce for faster iterations)
-TIMEOUT_LONG = 600  # 10 minutes for video/heavy endpoints
+TIMEOUT_SHORT = 180  # 3 minutes for warm endpoints
+TIMEOUT_DEFAULT = 600  # 10 minutes for most cold starts
+TIMEOUT_LONG = 900  # 15 minutes for video/heavy endpoints (InstantID, Video, etc.)
 SCRIPT_DIR = Path(__file__).parent
 TEST_RESOURCES_DIR = SCRIPT_DIR / "test_resources"
 RESULTS_DIR = Path(__file__).parent.parent / "docs" / "status"
@@ -66,31 +76,42 @@ SPLIT_APPS = {
     "/seedvr2": f"https://{WORKSPACE}--ryla-seedvr2-comfyui-fastapi-app.modal.run/seedvr2",
 }
 
-# Endpoint categories and requirements
+# Endpoint categories, requirements, and timeouts
+# "timeout": "short" (3min), "default" (10min), or "long" (15min)
 ENDPOINT_CONFIG = {
-    # Format: "path": {"category": str, "requires": list, "description": str}
-    "/flux": {"category": "Flux", "requires": [], "description": "Flux Schnell text-to-image"},
-    "/flux-dev": {"category": "Flux", "requires": [], "description": "Flux Dev text-to-image"},
-    "/flux-dev-lora": {"category": "Flux", "requires": ["lora"], "description": "Flux Dev + LoRA"},
-    "/flux-lora": {"category": "Flux", "requires": ["lora"], "description": "Flux + LoRA"},
-    "/sdxl-instantid": {"category": "Face Consistency", "requires": ["image"], "description": "SDXL + InstantID"},
-    "/flux-pulid": {"category": "Face Consistency", "requires": ["image"], "description": "Flux + PuLID"},
-    "/flux-ipadapter-faceid": {"category": "Face Consistency", "requires": ["image"], "description": "Flux + IP-Adapter FaceID"},
-    "/qwen-image-2512": {"category": "Qwen Image", "requires": [], "description": "Qwen Image (50 steps)"},
-    "/qwen-image-2512-fast": {"category": "Qwen Image", "requires": [], "description": "Qwen Image Fast (4 steps)"},
-    "/qwen-image-2512-lora": {"category": "Qwen Image", "requires": ["lora"], "description": "Qwen Image + LoRA"},
-    "/video-faceswap": {"category": "Qwen Image", "requires": ["video", "image"], "description": "Video face swap"},
-    "/qwen-image-edit-2511": {"category": "Qwen Edit", "requires": ["image"], "description": "Image editing"},
-    "/qwen-image-inpaint-2511": {"category": "Qwen Edit", "requires": ["image"], "description": "Image inpainting"},
-    "/z-image-simple": {"category": "Z-Image", "requires": [], "description": "Z-Image basic"},
-    "/z-image-danrisi": {"category": "Z-Image", "requires": [], "description": "Z-Image Danrisi"},
-    "/z-image-lora": {"category": "Z-Image", "requires": ["lora"], "description": "Z-Image + LoRA"},
-    "/wan2": {"category": "Video", "requires": [], "description": "Wan2.1 text-to-video"},
-    "/wan2.6": {"category": "Video", "requires": [], "description": "Wan2.6 text-to-video"},
-    "/wan2.6-r2v": {"category": "Video", "requires": ["video"], "description": "Wan2.6 reference-to-video"},
-    "/wan2.6-lora": {"category": "Video", "requires": ["lora"], "description": "Wan2.6 + LoRA"},
-    "/seedvr2": {"category": "Upscaling", "requires": ["video"], "description": "SeedVR2 video upscaling"},
+    # Format: "path": {"category": str, "requires": list, "description": str, "timeout": str}
+    "/flux": {"category": "Flux", "requires": [], "description": "Flux Schnell text-to-image", "timeout": "default"},
+    "/flux-dev": {"category": "Flux", "requires": [], "description": "Flux Dev text-to-image", "timeout": "default"},
+    "/flux-dev-lora": {"category": "Flux", "requires": ["lora"], "description": "Flux Dev + LoRA", "timeout": "default"},
+    "/flux-lora": {"category": "Flux", "requires": ["lora"], "description": "Flux + LoRA", "timeout": "default"},
+    "/sdxl-instantid": {"category": "Face Consistency", "requires": ["image"], "description": "SDXL + InstantID", "timeout": "long"},
+    "/flux-pulid": {"category": "Face Consistency", "requires": ["image"], "description": "Flux + PuLID", "timeout": "long"},
+    "/flux-ipadapter-faceid": {"category": "Face Consistency", "requires": ["image"], "description": "Flux + IP-Adapter FaceID", "timeout": "long"},
+    "/qwen-image-2512": {"category": "Qwen Image", "requires": [], "description": "Qwen Image (50 steps)", "timeout": "default"},
+    "/qwen-image-2512-fast": {"category": "Qwen Image", "requires": [], "description": "Qwen Image Fast (4 steps)", "timeout": "default"},
+    "/qwen-image-2512-lora": {"category": "Qwen Image", "requires": ["lora"], "description": "Qwen Image + LoRA", "timeout": "default"},
+    "/video-faceswap": {"category": "Qwen Image", "requires": ["video", "image"], "description": "Video face swap", "timeout": "long"},
+    "/qwen-image-edit-2511": {"category": "Qwen Edit", "requires": ["image"], "description": "Image editing", "timeout": "default"},
+    "/qwen-image-inpaint-2511": {"category": "Qwen Edit", "requires": ["image"], "description": "Image inpainting", "timeout": "default"},
+    "/z-image-simple": {"category": "Z-Image", "requires": [], "description": "Z-Image basic", "timeout": "default"},
+    "/z-image-danrisi": {"category": "Z-Image", "requires": [], "description": "Z-Image Danrisi", "timeout": "short"},
+    "/z-image-lora": {"category": "Z-Image", "requires": ["lora"], "description": "Z-Image + LoRA", "timeout": "default"},
+    "/wan2": {"category": "Video", "requires": [], "description": "Wan2.1 text-to-video", "timeout": "long"},
+    "/wan2.6": {"category": "Video", "requires": [], "description": "Wan2.6 text-to-video", "timeout": "long"},
+    "/wan2.6-r2v": {"category": "Video", "requires": ["video"], "description": "Wan2.6 reference-to-video", "timeout": "long"},
+    "/wan2.6-lora": {"category": "Video", "requires": ["lora"], "description": "Wan2.6 + LoRA", "timeout": "long"},
+    "/seedvr2": {"category": "Upscaling", "requires": ["video"], "description": "SeedVR2 video upscaling", "timeout": "long"},
 }
+
+def get_timeout(path: str) -> int:
+    """Get appropriate timeout for an endpoint."""
+    config = ENDPOINT_CONFIG.get(path, {})
+    timeout_type = config.get("timeout", "default")
+    return {
+        "short": TIMEOUT_SHORT,
+        "default": TIMEOUT_DEFAULT,
+        "long": TIMEOUT_LONG,
+    }.get(timeout_type, TIMEOUT_DEFAULT)
 
 # ==============================================================================
 # DATA CLASSES
@@ -138,7 +159,7 @@ def encode_file_to_base64(file_path: Path, mime_type: str = None) -> str:
     return f"data:{mime_type};base64,{content}"
 
 
-def call_endpoint(url: str, payload: dict, timeout: int = TIMEOUT) -> Tuple[bool, dict]:
+def call_endpoint(url: str, payload: dict, timeout: int = TIMEOUT_DEFAULT) -> Tuple[bool, dict]:
     """
     Call an endpoint and return timing/cost info.
     
@@ -427,12 +448,13 @@ def run_endpoint_test(path: str, resources: dict, run_cold: bool = True) -> Endp
         return result
     
     url = get_endpoint_url(path)
-    print(f"\n  Testing {path}...")
+    timeout = get_timeout(path)
+    print(f"\n  Testing {path}... (timeout: {timeout}s)")
     
     # Cold run (if requested)
     if run_cold:
         print(f"    Cold run...")
-        success, data = call_endpoint(url, payload)
+        success, data = call_endpoint(url, payload, timeout=timeout)
         if success:
             result.cold_time_sec = data["time_sec"]
             result.cost_usd = data["cost_usd"]
@@ -445,9 +467,10 @@ def run_endpoint_test(path: str, resources: dict, run_cold: bool = True) -> Endp
             print(f"    ❌ Cold failed: {result.error}")
             return result
     
-    # Warm run
+    # Warm run (use shorter timeout since container should be warm)
     print(f"    Warm run...")
-    success, data = call_endpoint(url, payload)
+    warm_timeout = TIMEOUT_SHORT if not run_cold else timeout
+    success, data = call_endpoint(url, payload, timeout=warm_timeout)
     if success:
         result.warm_time_sec = data["time_sec"]
         if not result.cost_usd:
@@ -467,7 +490,14 @@ def run_endpoint_test(path: str, resources: dict, run_cold: bool = True) -> Endp
 
 
 def run_benchmark(resources: dict, quick: bool = False, fast: bool = False) -> List[EndpointResult]:
-    """Run the full benchmark suite."""
+    """
+    Run the full benchmark suite.
+    
+    Timing estimates:
+    - Fast mode: ~3-5 min (3 endpoints)
+    - Quick mode: ~30-60 min (all endpoints, cold starts may occur)
+    - Full mode: ~60-90 min (all endpoints, cold + warm runs)
+    """
     results = []
     
     # In fast mode, only test quick endpoints

@@ -174,7 +174,7 @@ jobs:
           fi
 
   deploy-web:
-    name: Deploy Web App (Cloudflare Pages)
+    name: Deploy Web App (Fly.io)
     needs: [detect-environment, detect-changes]
     if: needs.detect-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
@@ -190,8 +190,10 @@ jobs:
       - name: Try to fetch LFS files (optional)
         continue-on-error: true
         run: |
+          echo "Attempting to fetch Git LFS files..."
           git lfs install || echo "⚠️ Git LFS install failed"
-          git lfs pull 2>&1 || echo "⚠️ Git LFS pull failed"
+          git lfs pull 2>&1 || echo "⚠️ Git LFS pull failed (quota exceeded or other error)"
+          echo "Continuing with deployment..."
 
       - uses: actions/setup-node@v4
         with:
@@ -201,64 +203,152 @@ jobs:
         run: |
           corepack enable
           corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
 
-      - name: Install dependencies
+      - name: Install dependencies (optional - Docker handles deps)
         timeout-minutes: 15
-        run: pnpm install --frozen-lockfile
-
-      - name: Build libs
+        continue-on-error: true
         run: |
-          pnpm nx build shared
-          pnpm nx build data
-          pnpm nx build email
-          pnpm nx build business
-          pnpm nx build trpc
-          pnpm nx build ui
-          pnpm nx build analytics
-          pnpm nx build payments
+          set +e
+          echo "Installing dependencies..."
+          pnpm config set store-dir ~/.pnpm-store || true
+          pnpm config set network-timeout 180000 || true
+          rm -rf ~/.pnpm-store || true
+          pnpm install --network-timeout=180000 --reporter=append-only 2>&1 | tee /tmp/pnpm-install.log
+          INSTALL_STATUS=${PIPESTATUS[0]}
+          if [ $INSTALL_STATUS -ne 0 ]; then
+            echo "⚠️  pnpm install failed, Docker will handle dependencies"
+            exit 0
+          fi
+          echo "✅ Dependencies installed successfully"
 
-      - name: Build Web App for Cloudflare Pages
+      - name: Verify images from Git LFS (optional)
+        continue-on-error: true
         run: |
-          cd apps/web
-          npx @cloudflare/next-on-pages
+          echo "Checking image directories:"
+          if [ -d "./apps/web/public/images" ]; then
+            echo "✅ Found apps/web/public/images/"
+            echo "Age range images: $(find ./apps/web/public/images/age-ranges -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+            echo "Skin color images: $(find ./apps/web/public/images/skin-colors -name "*.webp" 2>/dev/null | wc -l | tr -d ' ') files"
+          else
+            echo "⚠️ WARNING: apps/web/public/images/ not found (LFS quota may have been exceeded)"
+          fi
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install infisical
+
+      - name: Export Build Args from Infisical
+        id: build-args
         env:
-          CLOUDFLARE_PAGES: 'true'
-          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
-          NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL_WEB }}
-          NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
-          NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
-
-      - name: Configure Cloudflare Pages compatibility flags
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
         run: |
-          # Set nodejs_compat compatibility flag for the project
-          curl -sS -X PATCH \
-            "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/pages/projects/ryla-web" \
-            -H "Authorization: Bearer ${CLOUDFLARE_API_TOKEN}" \
-            -H "Content-Type: application/json" \
-            --data '{"deployment_configs":{"production":{"compatibility_date":"2024-01-01","compatibility_flags":["nodejs_compat"]},"preview":{"compatibility_date":"2024-01-01","compatibility_flags":["nodejs_compat"]}}}'
+          echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
+
+          # Export secrets to temporary file
+          infisical export \
+            --domain=https://eu.infisical.com/api \
+            --path=/apps/web \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv 2>/dev/null | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env || true
+
+          if [ ! -s /tmp/build-args.env ]; then
+            echo "⚠️  Build args file is empty, continuing with defaults..."
+            echo "# Empty build args" > /tmp/build-args.env
+          fi
+
+          set -a
+          source /tmp/build-args.env
+          set +a
+
+          # Set as outputs for use in deployment step
+          echo "api_url=$NEXT_PUBLIC_API_URL" >> $GITHUB_OUTPUT
+          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
+          echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
+          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
+          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
+          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+
+          echo "✅ Build args exported"
+          echo "  NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
+          echo "  NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
+          echo "  NEXT_PUBLIC_CDN_URL: $NEXT_PUBLIC_CDN_URL"
+
+      - name: Stop old machines (if any)
+        run: |
+          sudo apt-get update && sudo apt-get install -y jq || true
+          MACHINES=$(flyctl machines list --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} --json 2>/dev/null || echo "[]")
+          echo "$MACHINES" | jq -r '.[].id' | while read machine_id; do
+            if [ -n "$machine_id" ]; then
+              echo "Stopping machine: $machine_id"
+              flyctl machines stop "$machine_id" --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} || true
+            fi
+          done
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         continue-on-error: true
 
-      - name: Deploy to Cloudflare Pages
-        env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+      - name: Sync Runtime Secrets to Fly.io (via Infisical)
         run: |
-          npx wrangler pages deploy apps/web/.vercel/output/static \
-            --project-name=ryla-web \
-            --branch=${{ github.ref_name }} \
-            --commit-hash=${{ github.sha }} \
-            --commit-dirty=true
+          echo "🔄 Syncing runtime secrets from Infisical to Fly.io..."
+          echo "Environment: ${{ needs.detect-environment.outputs.infisical_env }}"
+
+          infisical export \
+            --domain=https://eu.infisical.com/api \
+            --path=/apps/web \
+            --path=/shared \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            --format=dotenv | while IFS='=' read -r key value; do
+            [[ -z "$key" || "$key" =~ ^# ]] && continue
+            [[ "$key" =~ ^NEXT_PUBLIC_ ]] && continue
+            value="${value%\"}"
+            value="${value#\"}"
+            echo "  Setting $key..."
+            flyctl secrets set "$key=$value" --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} --stage
+          done
+
+          flyctl secrets deploy --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }}
+          echo "✅ Secrets synced successfully"
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Deploy Web App to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/web/fly.toml \
+            --dockerfile apps/web/Dockerfile \
+            --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }} \
+            --strategy immediate \
+            --build-arg NEXT_PUBLIC_API_URL="${{ steps.build-args.outputs.api_url }}" \
+            --build-arg NEXT_PUBLIC_SITE_URL="${{ steps.build-args.outputs.site_url }}" \
+            --build-arg NEXT_PUBLIC_CDN_URL="${{ steps.build-args.outputs.cdn_url }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_KEY="${{ steps.build-args.outputs.posthog_key }}" \
+            --build-arg NEXT_PUBLIC_POSTHOG_HOST="${{ steps.build-args.outputs.posthog_host }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_URL="${{ steps.build-args.outputs.supabase_url }}" \
+            --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY="${{ steps.build-args.outputs.supabase_anon_key }}"
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Health Check
+        run: |
+          sleep 10
+          flyctl status --app ryla-web-${{ needs.detect-environment.outputs.fly_suffix }}
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
 
       - name: Notify Slack
         if: success()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - web app success (Cloudflare Pages)"}' \
+            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - web app success (Fly.io)"}' \
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
         continue-on-error: true
 
