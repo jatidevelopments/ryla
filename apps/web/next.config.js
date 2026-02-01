@@ -410,4 +410,3 @@ const nextConfig = {
 };
 
 module.exports = withSerwist(nextConfig);
-// Trigger deployment Sun Feb  1 20:14:08 CET 2026

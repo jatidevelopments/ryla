@@ -1,7 +1,7 @@
 # Endpoint Fixes Implementation Status
 
-**Date**: 2026-01-28  
-**Status**: ✅ Deployment Complete - SeedVR2 Fix Deployed  
+**Date**: 2026-02-01 (Updated)  
+**Status**: ✅ Both Endpoints Working  
 **Epic**: EP-059 (Modal Code Organization) - Endpoint Fixes
 
 ---
@@ -75,8 +75,14 @@
   - **Option 2**: Use IP-Adapter FaceID instead (designed for Flux models)
   - **Option 3**: Wait for Flux-compatible InstantID version or custom node update
 
-#### InstantID (`/sdxl-instantid`) ⭐ NEW
-- ✅ **Status**: Implemented and ready for testing
+#### InstantID (`/sdxl-instantid`) ⭐ WORKING
+- ✅ **Status**: Working correctly
+- **Last Test**: 2026-02-01
+- **Fixes Applied**:
+  - ✅ Fixed InsightFace model path: `{root}/models/antelopev2/` (FaceAnalysis expects this structure)
+  - ✅ Fixed relative paths in image.py for Modal deployment
+  - ✅ Node names corrected: `InstantIDFaceAnalysis` (not `InsightFaceLoader`)
+- **Test Result**: Successfully generated image with face preservation from reference image
 - **Last Updated**: 2026-01-27
 - **Description**: SDXL + InstantID face consistency generation
 - **Compatibility**: ✅ Fully compatible - SDXL uses single CLIP encoder (CLIP-L, 768 dimensions) matching InstantID's ControlNet expectations
