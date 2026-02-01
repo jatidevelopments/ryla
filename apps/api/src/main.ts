@@ -12,12 +12,18 @@ import { existsSync } from 'fs';
 // Works in both development (tsx from source) and production (compiled)
 const moduleAlias = require('module-alias');
 
-// Detect workspace root by looking for package.json or nx.json
+// Detect workspace root by looking for nx.json (more reliable than package.json)
 // __dirname is either apps/api/src (dev) or dist/apps/api/src (prod)
+// In Docker, we need to find the root that has dist/libs, not apps/api/package.json
 function findWorkspaceRoot(startPath: string): string {
   let current = startPath;
   while (current !== '/') {
-    if (existsSync(resolve(current, 'package.json')) || existsSync(resolve(current, 'nx.json'))) {
+    // Check for nx.json (only exists at monorepo root, not in individual apps)
+    if (existsSync(resolve(current, 'nx.json'))) {
+      return current;
+    }
+    // Fallback: check for package.json AND dist/libs (production Docker)
+    if (existsSync(resolve(current, 'package.json')) && existsSync(resolve(current, 'dist/libs'))) {
       return current;
     }
     current = resolve(current, '..');
