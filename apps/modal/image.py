@@ -311,10 +311,12 @@ def hf_download_instantid():
         print("   ⚠️  ControlNet will need to be downloaded manually")
     
     # Download InsightFace models (antelopev2) - required for InstantIDFaceAnalysis
-    # NOTE: ComfyUI_InstantID looks for models at: folder_paths.models_dir/insightface/antelopev2
-    # So the path should be: /root/comfy/ComfyUI/models/insightface/antelopev2
-    print("📥 Downloading InsightFace models (antelopev2)...")
-    insightface_dir = comfy_dir / "models" / "insightface"
+    # NOTE: InsightFace FaceAnalysis looks for models at: {root}/models/{name}/
+    # ComfyUI_InstantID sets root = folder_paths.models_dir/insightface
+    # So FaceAnalysis(name="antelopev2", root=...) looks for: models_dir/insightface/models/antelopev2/
+    # v2: Fixed path structure to include /models/ subdirectory
+    print("📥 Downloading InsightFace models (antelopev2) to correct path...")
+    insightface_dir = comfy_dir / "models" / "insightface" / "models"
     insightface_dir.mkdir(parents=True, exist_ok=True)
     antelopev2_dir = insightface_dir / "antelopev2"
     
