@@ -381,7 +381,7 @@ const features = [
     background: (
       <div className="absolute inset-0 [mask-image:linear-gradient(to_top,transparent_25%,#000_100%)]">
         <img
-          src="/images/features/community.webp"
+          src={withCdn('/images/features/community.webp')}
           alt="Community"
           className="w-full h-full object-cover opacity-40"
         />

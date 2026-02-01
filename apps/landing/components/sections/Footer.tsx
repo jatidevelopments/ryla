@@ -1,6 +1,7 @@
 'use client';
 
 import { Divider } from '@/components/ryla-ui';
+import { withCdn } from '@/lib/cdn';
 
 interface FooterLink {
   label: string;
@@ -78,7 +79,7 @@ export function Footer() {
             {/* Logo */}
             <a href="/" className="inline-block mb-4">
               <img
-                src="/logos/Ryla_Logo_white.png"
+                src={withCdn('/logos/Ryla_Logo_white.png')}
                 alt="RYLA"
                 className="h-8 w-auto"
               />

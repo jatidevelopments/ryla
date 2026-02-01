@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { withCdn } from '@/lib/cdn';
 
 /**
  * Navigation Component
@@ -56,7 +57,7 @@ export function Navigation() {
           className="flex items-center transition-opacity hover:opacity-80"
         >
           <img
-            src="/logos/Ryla_Logo_white.png"
+            src={withCdn('/logos/Ryla_Logo_white.png')}
             alt="RYLA"
             className="h-6 w-auto"
           />
