@@ -94,12 +94,19 @@ The following endpoints were **removed** because they cannot work due to fundame
 
 ### Face Consistency
 
-| Endpoint                 | Steps | Resolution | Cold | Warm      | Warm Cost  | Notes            |
-| ------------------------ | ----- | ---------- | ---- | --------- | ---------- | ---------------- |
-| `/flux-pulid`            | 20    | 1024×1024  | 76s  | **13.2s** | **$0.007** | Flux Dev + PuLID |
-| `/sdxl-instantid`        | 20    | 1024×1024  | 25s  | **8.9s**  | **$0.005** | SDXL + InstantID |
-| `/flux-instantid`        | 20    | 1024×1024  | —    | —         | —          | Not deployed     |
-| `/flux-ipadapter-faceid` | 20    | 1024×1024  | —    | —         | —          | Not deployed     |
+| Endpoint                 | Steps | Resolution | Cold | Warm      | Warm Cost  | Notes                                                                                                                           |
+| ------------------------ | ----- | ---------- | ---- | --------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `/flux-pulid`            | 20    | 1024×1024  | 76s  | **13.2s** | **$0.007** | Flux Dev + PuLID                                                                                                                |
+| `/sdxl-instantid`        | 20    | 1024×1024  | 25s  | **8.9s**  | **$0.005** | SDXL + InstantID; optional `sdxl_checkpoint`: `RealVisXL_V4.0.safetensors`, `Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors` |
+| `/flux-instantid`        | 20    | 1024×1024  | —    | —         | —          | Not deployed                                                                                                                    |
+| `/flux-ipadapter-faceid` | 20    | 1024×1024  | —    | —         | —          | Not deployed                                                                                                                    |
+
+### SDXL (txt2img, no face)
+
+| Endpoint          | Steps | Resolution | Cold | Warm | Warm Cost | Notes                               |
+| ----------------- | ----- | ---------- | ---- | ---- | --------- | ----------------------------------- |
+| `/sdxl-turbo`     | 1–4   | 1024×1024  | —    | —    | —         | SDXL Turbo (Stability); fast drafts |
+| `/sdxl-lightning` | 4     | 1024×1024  | —    | —    | —         | SDXL Lightning (ByteDance); 4-step  |
 
 ### Qwen Image
 

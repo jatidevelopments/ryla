@@ -53,6 +53,8 @@ SPLIT_APPS = {
     "/flux-lora": f"https://{WORKSPACE}--ryla-lora-comfyui-fastapi-app.modal.run/flux-lora",
     # Face Consistency
     "/sdxl-instantid": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/sdxl-instantid",
+    "/sdxl-turbo": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/sdxl-turbo",
+    "/sdxl-lightning": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/sdxl-lightning",
     "/flux-pulid": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/flux-pulid",
     "/flux-ipadapter-faceid": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/flux-ipadapter-faceid",
     # Qwen Image
@@ -85,6 +87,8 @@ ENDPOINT_CONFIG = {
     "/flux-dev-lora": {"category": "Flux", "requires": ["lora"], "description": "Flux Dev + LoRA", "timeout": "default"},
     "/flux-lora": {"category": "Flux", "requires": ["lora"], "description": "Flux + LoRA", "timeout": "default"},
     "/sdxl-instantid": {"category": "Face Consistency", "requires": ["image"], "description": "SDXL + InstantID", "timeout": "long"},
+    "/sdxl-turbo": {"category": "SDXL", "requires": [], "description": "SDXL Turbo txt2img (1-4 steps)", "timeout": "default"},
+    "/sdxl-lightning": {"category": "SDXL", "requires": [], "description": "SDXL Lightning 4-step", "timeout": "default"},
     "/flux-pulid": {"category": "Face Consistency", "requires": ["image"], "description": "Flux + PuLID", "timeout": "long"},
     "/flux-ipadapter-faceid": {"category": "Face Consistency", "requires": ["image"], "description": "Flux + IP-Adapter FaceID", "timeout": "long"},
     "/qwen-image-2512": {"category": "Qwen Image", "requires": [], "description": "Qwen Image (50 steps)", "timeout": "default"},
@@ -369,6 +373,8 @@ def build_payload(path: str, resources: dict) -> Optional[dict]:
         "/flux-dev-lora": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 10, "lora_id": "test-benchmark", "lora_strength": 0.8},
         "/flux-lora": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 4, "lora_id": "test-benchmark", "lora_strength": 0.8},
         "/sdxl-instantid": {"prompt": "Professional portrait", "width": 512, "height": 512, "steps": 15, "cfg": 5.0, "face_provider": "CPU"},
+        "/sdxl-turbo": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 4},
+        "/sdxl-lightning": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 4, "cfg": 1.0},
         "/flux-pulid": {"prompt": "Professional portrait", "width": 512, "height": 512, "steps": 15, "cfg": 1.0, "face_provider": "CPU"},
         "/flux-ipadapter-faceid": {"prompt": "Professional portrait", "width": 512, "height": 512, "steps": 15, "cfg": 1.0, "face_provider": "CPU"},
         "/qwen-image-2512": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 20, "cfg": 4.0},

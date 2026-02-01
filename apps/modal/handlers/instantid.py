@@ -77,7 +77,7 @@ def build_sdxl_instantid_workflow(item: dict) -> dict:
     # Handle reference image
     reference_image = _save_reference_image(item["reference_image"])
     
-    # SDXL checkpoint (default to common SDXL base model)
+    # SDXL checkpoint. Allowed: sd_xl_base_1.0.safetensors | RealVisXL_V4.0.safetensors | Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors
     sdxl_checkpoint = item.get("sdxl_checkpoint", "sd_xl_base_1.0.safetensors")
     
     return {
@@ -311,6 +311,140 @@ class InstantIDHandler:
         response.headers["X-GPU-Type"] = cost_metrics.gpu_type
         return response
 
+    def _sdxl_turbo_impl(self, item: dict) -> Response:
+        """SDXL Turbo txt2img (1–4 steps, no face). Fast drafts/backgrounds."""
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        port = getattr(self.comfyui, "port", 8000)
+        workflow = build_sdxl_turbo_workflow(item)
+        try:
+            from utils.comfyui import execute_workflow_via_api
+            img_bytes = execute_workflow_via_api(workflow, port=port, timeout=300)
+        except Exception as e:
+            tracker.stop()
+            raise e
+        execution_time = tracker.stop()
+        cost_metrics = tracker.calculate_cost("sdxl-turbo", execution_time)
+        print(f"💰 {get_cost_summary(cost_metrics)}")
+        response = Response(img_bytes, media_type="image/jpeg")
+        response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+        response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+        response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+        return response
+
+    def _sdxl_lightning_impl(self, item: dict) -> Response:
+        """SDXL Lightning 4-step txt2img (ByteDance). Fast, no face."""
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        port = getattr(self.comfyui, "port", 8000)
+        workflow = build_sdxl_lightning_workflow(item)
+        try:
+            from utils.comfyui import execute_workflow_via_api
+            img_bytes = execute_workflow_via_api(workflow, port=port, timeout=300)
+        except Exception as e:
+            tracker.stop()
+            raise e
+        execution_time = tracker.stop()
+        cost_metrics = tracker.calculate_cost("sdxl-lightning", execution_time)
+        print(f"💰 {get_cost_summary(cost_metrics)}")
+        response = Response(img_bytes, media_type="image/jpeg")
+        response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+        response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+        response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+        return response
+
+
+def build_sdxl_turbo_workflow(item: dict) -> dict:
+    """Build SDXL Turbo txt2img workflow (1–4 steps, CFG 0)."""
+    return {
+        "1": {
+            "class_type": "CheckpointLoaderSimple",
+            "inputs": {"ckpt_name": "sd_xl_turbo_1.0_fp16.safetensors"},
+        },
+        "4": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": item["prompt"], "clip": ["1", 1]},
+        },
+        "5": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": item.get("negative_prompt", ""), "clip": ["1", 1]},
+        },
+        "6": {
+            "class_type": "EmptyLatentImage",
+            "inputs": {
+                "width": item.get("width", 1024),
+                "height": item.get("height", 1024),
+                "batch_size": 1,
+            },
+        },
+        "7": {
+            "class_type": "KSampler",
+            "inputs": {
+                "seed": item.get("seed", 42),
+                "steps": min(max(item.get("steps", 4), 1), 4),
+                "cfg": 0.0,
+                "sampler_name": "euler",
+                "scheduler": "simple",
+                "denoise": 1.0,
+                "model": ["1", 0],
+                "positive": ["4", 0],
+                "negative": ["5", 0],
+                "latent_image": ["6", 0],
+            },
+        },
+        "8": {"class_type": "VAEDecode", "inputs": {"samples": ["7", 0], "vae": ["1", 2]}},
+        "9": {
+            "class_type": "SaveImage",
+            "inputs": {"filename_prefix": uuid.uuid4().hex, "images": ["8", 0]},
+        },
+    }
+
+
+def build_sdxl_lightning_workflow(item: dict) -> dict:
+    """Build SDXL Lightning 4-step txt2img workflow (ByteDance)."""
+    return {
+        "1": {
+            "class_type": "CheckpointLoaderSimple",
+            "inputs": {"ckpt_name": "sdxl_lightning_4step.safetensors"},
+        },
+        "4": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": item["prompt"], "clip": ["1", 1]},
+        },
+        "5": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {"text": item.get("negative_prompt", ""), "clip": ["1", 1]},
+        },
+        "6": {
+            "class_type": "EmptyLatentImage",
+            "inputs": {
+                "width": item.get("width", 1024),
+                "height": item.get("height", 1024),
+                "batch_size": 1,
+            },
+        },
+        "7": {
+            "class_type": "KSampler",
+            "inputs": {
+                "seed": item.get("seed", 42),
+                "steps": 4,
+                "cfg": item.get("cfg", 1.0),
+                "sampler_name": "euler",
+                "scheduler": "simple",
+                "denoise": 1.0,
+                "model": ["1", 0],
+                "positive": ["4", 0],
+                "negative": ["5", 0],
+                "latent_image": ["6", 0],
+            },
+        },
+        "8": {"class_type": "VAEDecode", "inputs": {"samples": ["7", 0], "vae": ["1", 2]}},
+        "9": {
+            "class_type": "SaveImage",
+            "inputs": {"filename_prefix": uuid.uuid4().hex, "images": ["8", 0]},
+        },
+    }
+
 
 def setup_instantid_endpoints(fastapi, comfyui_instance):
     """
@@ -374,3 +508,39 @@ def setup_instantid_endpoints(fastapi, comfyui_instance):
                     "type": type(e).__name__
                 }
             )
+
+    @fastapi.post("/sdxl-turbo")
+    async def sdxl_turbo_route(request: Request):
+        """SDXL Turbo txt2img (1–4 steps). No face; fast drafts/backgrounds."""
+        try:
+            item = await request.json()
+            result = handler._sdxl_turbo_impl(item)
+            response = FastAPIResponse(content=result.body, media_type=result.media_type)
+            for key, value in result.headers.items():
+                if key.startswith("X-Cost") or key.startswith("X-Execution") or key.startswith("X-GPU"):
+                    response.headers[key] = value
+            return response
+        except Exception as e:
+            import traceback
+            from fastapi.responses import JSONResponse
+            error_msg = str(e)
+            status_code = 500 if not isinstance(e, HTTPException) else e.status_code
+            return JSONResponse(status_code=status_code, content={"error": error_msg, "type": type(e).__name__})
+
+    @fastapi.post("/sdxl-lightning")
+    async def sdxl_lightning_route(request: Request):
+        """SDXL Lightning 4-step txt2img (ByteDance). No face; fast."""
+        try:
+            item = await request.json()
+            result = handler._sdxl_lightning_impl(item)
+            response = FastAPIResponse(content=result.body, media_type=result.media_type)
+            for key, value in result.headers.items():
+                if key.startswith("X-Cost") or key.startswith("X-Execution") or key.startswith("X-GPU"):
+                    response.headers[key] = value
+            return response
+        except Exception as e:
+            import traceback
+            from fastapi.responses import JSONResponse
+            error_msg = str(e)
+            status_code = 500 if not isinstance(e, HTTPException) else e.status_code
+            return JSONResponse(status_code=status_code, content={"error": error_msg, "type": type(e).__name__})

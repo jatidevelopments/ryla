@@ -133,6 +133,130 @@ def hf_download_sdxl():
         print(f"❌ Failed to download SDXL model: {e}")
 
 
+def hf_download_realvisxl():
+    """Download RealVisXL V4.0 (photorealistic SDXL, optional for /sdxl-instantid sdxl_checkpoint param)."""
+    from huggingface_hub import hf_hub_download
+    import os
+
+    comfy_dir = Path("/root/comfy/ComfyUI")
+    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+
+    if not token:
+        print("⚠️  WARNING: HF_TOKEN not found. Skipping RealVisXL download.")
+        return
+
+    try:
+        print("📥 Downloading RealVisXL V4.0...")
+        model = hf_hub_download(
+            repo_id="SG161222/RealVisXL_V4.0",
+            filename="RealVisXL_V4.0.safetensors",
+            cache_dir="/cache",
+            token=token,
+        )
+        subprocess.run(
+            f"mkdir -p {comfy_dir}/models/checkpoints && "
+            f"ln -s {model} {comfy_dir}/models/checkpoints/RealVisXL_V4.0.safetensors",
+            shell=True,
+            check=True,
+        )
+        print("✅ RealVisXL V4.0 downloaded successfully")
+    except Exception as e:
+        print(f"❌ Failed to download RealVisXL: {e}")
+
+
+def hf_download_rundiffusion_photo():
+    """Download Juggernaut-XL v9 RunDiffusion Photo (photorealistic SDXL, optional for /sdxl-instantid sdxl_checkpoint param)."""
+    from huggingface_hub import hf_hub_download
+    import os
+
+    comfy_dir = Path("/root/comfy/ComfyUI")
+    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+
+    if not token:
+        print("⚠️  WARNING: HF_TOKEN not found. Skipping RunDiffusion Photo download.")
+        return
+
+    try:
+        print("📥 Downloading Juggernaut-XL v9 RunDiffusion Photo v2...")
+        model = hf_hub_download(
+            repo_id="RunDiffusion/Juggernaut-XL-v9",
+            filename="Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
+            cache_dir="/cache",
+            token=token,
+        )
+        subprocess.run(
+            f"mkdir -p {comfy_dir}/models/checkpoints && "
+            f"ln -s {model} {comfy_dir}/models/checkpoints/Juggernaut-XL_v9_RunDiffusionPhoto_v2.safetensors",
+            shell=True,
+            check=True,
+        )
+        print("✅ Juggernaut-XL v9 RunDiffusion Photo downloaded successfully")
+    except Exception as e:
+        print(f"❌ Failed to download RunDiffusion Photo: {e}")
+
+
+def hf_download_sdxl_turbo():
+    """Download SDXL Turbo (1–4 step txt2img, /sdxl-turbo endpoint)."""
+    from huggingface_hub import hf_hub_download
+    import os
+
+    comfy_dir = Path("/root/comfy/ComfyUI")
+    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+
+    if not token:
+        print("⚠️  WARNING: HF_TOKEN not found. Skipping SDXL Turbo download.")
+        return
+
+    try:
+        print("📥 Downloading SDXL Turbo...")
+        model = hf_hub_download(
+            repo_id="stabilityai/sdxl-turbo",
+            filename="sd_xl_turbo_1.0_fp16.safetensors",
+            cache_dir="/cache",
+            token=token,
+        )
+        subprocess.run(
+            f"mkdir -p {comfy_dir}/models/checkpoints && "
+            f"ln -s {model} {comfy_dir}/models/checkpoints/sd_xl_turbo_1.0_fp16.safetensors",
+            shell=True,
+            check=True,
+        )
+        print("✅ SDXL Turbo downloaded successfully")
+    except Exception as e:
+        print(f"❌ Failed to download SDXL Turbo: {e}")
+
+
+def hf_download_sdxl_lightning():
+    """Download SDXL Lightning 4-step (ByteDance, /sdxl-lightning endpoint)."""
+    from huggingface_hub import hf_hub_download
+    import os
+
+    comfy_dir = Path("/root/comfy/ComfyUI")
+    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+
+    if not token:
+        print("⚠️  WARNING: HF_TOKEN not found. Skipping SDXL Lightning download.")
+        return
+
+    try:
+        print("📥 Downloading SDXL Lightning 4-step...")
+        model = hf_hub_download(
+            repo_id="ByteDance/SDXL-Lightning",
+            filename="sdxl_lightning_4step.safetensors",
+            cache_dir="/cache",
+            token=token,
+        )
+        subprocess.run(
+            f"mkdir -p {comfy_dir}/models/checkpoints && "
+            f"ln -s {model} {comfy_dir}/models/checkpoints/sdxl_lightning_4step.safetensors",
+            shell=True,
+            check=True,
+        )
+        print("✅ SDXL Lightning 4-step downloaded successfully")
+    except Exception as e:
+        print(f"❌ Failed to download SDXL Lightning: {e}")
+
+
 def hf_download_flux_ipadapter():
     """Download Shakker-Labs IP-Adapter Flux model (alternative to XLabs)."""
     from huggingface_hub import hf_hub_download
@@ -301,6 +425,26 @@ instantid_image = (
     )
     .run_function(
         hf_download_sdxl,
+        volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
+        secrets=[modal.Secret.from_name("huggingface")],
+    )
+    .run_function(
+        hf_download_realvisxl,
+        volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
+        secrets=[modal.Secret.from_name("huggingface")],
+    )
+    .run_function(
+        hf_download_rundiffusion_photo,
+        volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
+        secrets=[modal.Secret.from_name("huggingface")],
+    )
+    .run_function(
+        hf_download_sdxl_turbo,
+        volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
+        secrets=[modal.Secret.from_name("huggingface")],
+    )
+    .run_function(
+        hf_download_sdxl_lightning,
         volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
         secrets=[modal.Secret.from_name("huggingface")],
     )

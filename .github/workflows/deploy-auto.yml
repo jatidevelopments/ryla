@@ -246,39 +246,67 @@ jobs:
         id: build-args
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          # GitHub secrets as fallback
+          GH_NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          GH_NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
+          GH_NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
+          GH_NEXT_PUBLIC_POSTHOG_KEY: ${{ secrets.NEXT_PUBLIC_POSTHOG_KEY }}
+          GH_NEXT_PUBLIC_POSTHOG_HOST: ${{ secrets.NEXT_PUBLIC_POSTHOG_HOST }}
+          GH_NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          GH_NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         run: |
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
 
-          # Export secrets to temporary file
-          infisical export \
+          # Try Infisical export, capture stderr for debugging
+          if infisical export \
             --domain=https://eu.infisical.com/api \
             --path=/apps/web \
             --path=/shared \
             --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv 2>/dev/null | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env || true
-
-          if [ ! -s /tmp/build-args.env ]; then
-            echo "⚠️  Build args file is empty, continuing with defaults..."
-            echo "# Empty build args" > /tmp/build-args.env
+            --format=dotenv 2>/tmp/infisical-err.log | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env; then
+            echo "✅ Infisical export succeeded"
+          else
+            echo "⚠️  Infisical export failed or returned empty"
+            cat /tmp/infisical-err.log || true
           fi
 
-          set -a
-          source /tmp/build-args.env
-          set +a
+          if [ -s /tmp/build-args.env ]; then
+            echo "Found $(wc -l < /tmp/build-args.env) secrets from Infisical"
+            set -a
+            source /tmp/build-args.env
+            set +a
+          else
+            echo "⚠️  Infisical returned empty, using GitHub secrets as fallback"
+          fi
+
+          # Use Infisical values if available, otherwise fall back to GitHub secrets
+          API_URL="${NEXT_PUBLIC_API_URL:-$GH_NEXT_PUBLIC_API_URL}"
+          SITE_URL="${NEXT_PUBLIC_SITE_URL:-$GH_NEXT_PUBLIC_SITE_URL}"
+          CDN_URL="${NEXT_PUBLIC_CDN_URL:-$GH_NEXT_PUBLIC_CDN_URL}"
+          POSTHOG_KEY="${NEXT_PUBLIC_POSTHOG_KEY:-$GH_NEXT_PUBLIC_POSTHOG_KEY}"
+          POSTHOG_HOST="${NEXT_PUBLIC_POSTHOG_HOST:-$GH_NEXT_PUBLIC_POSTHOG_HOST}"
+          SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL:-$GH_NEXT_PUBLIC_SUPABASE_URL}"
+          SUPABASE_ANON_KEY="${NEXT_PUBLIC_SUPABASE_ANON_KEY:-$GH_NEXT_PUBLIC_SUPABASE_ANON_KEY}"
 
           # Set as outputs for use in deployment step
-          echo "api_url=$NEXT_PUBLIC_API_URL" >> $GITHUB_OUTPUT
-          echo "site_url=$NEXT_PUBLIC_SITE_URL" >> $GITHUB_OUTPUT
-          echo "cdn_url=$NEXT_PUBLIC_CDN_URL" >> $GITHUB_OUTPUT
-          echo "posthog_key=$NEXT_PUBLIC_POSTHOG_KEY" >> $GITHUB_OUTPUT
-          echo "posthog_host=$NEXT_PUBLIC_POSTHOG_HOST" >> $GITHUB_OUTPUT
-          echo "supabase_url=$NEXT_PUBLIC_SUPABASE_URL" >> $GITHUB_OUTPUT
-          echo "supabase_anon_key=$NEXT_PUBLIC_SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
+          echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+          echo "site_url=$SITE_URL" >> $GITHUB_OUTPUT
+          echo "cdn_url=$CDN_URL" >> $GITHUB_OUTPUT
+          echo "posthog_key=$POSTHOG_KEY" >> $GITHUB_OUTPUT
+          echo "posthog_host=$POSTHOG_HOST" >> $GITHUB_OUTPUT
+          echo "supabase_url=$SUPABASE_URL" >> $GITHUB_OUTPUT
+          echo "supabase_anon_key=$SUPABASE_ANON_KEY" >> $GITHUB_OUTPUT
 
           echo "✅ Build args exported"
-          echo "  NEXT_PUBLIC_API_URL: $NEXT_PUBLIC_API_URL"
-          echo "  NEXT_PUBLIC_SITE_URL: $NEXT_PUBLIC_SITE_URL"
-          echo "  NEXT_PUBLIC_CDN_URL: $NEXT_PUBLIC_CDN_URL"
+          echo "  NEXT_PUBLIC_API_URL: $API_URL"
+          echo "  NEXT_PUBLIC_SITE_URL: $SITE_URL"
+          echo "  NEXT_PUBLIC_CDN_URL: $CDN_URL"
+
+          # Verify critical values are set
+          if [ -z "$API_URL" ]; then
+            echo "❌ ERROR: NEXT_PUBLIC_API_URL is empty!"
+            exit 1
+          fi
 
       - name: Stop old machines (if any)
         run: |
