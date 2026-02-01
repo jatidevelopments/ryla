@@ -73,6 +73,9 @@ RUN npx nx build shared --skip-nx-cache && \
     npx nx build email --skip-nx-cache && \
     npx nx build business --skip-nx-cache
 
+# Remove test files before production build (they reference dev dependencies like msw)
+RUN rm -rf apps/admin/lib/test
+
 # Build the admin app with Nx
 RUN npx nx build admin --configuration=production --skip-nx-cache
 
