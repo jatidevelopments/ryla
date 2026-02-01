@@ -727,6 +727,16 @@ jobs:
           rm -rf apps/landing/app/api
           echo "✅ API routes removed"
 
+      - name: Verify CDN secret for landing images
+        env:
+          NEXT_PUBLIC_CDN_URL: ${{ secrets.NEXT_PUBLIC_CDN_URL }}
+        run: |
+          if [ -z "$NEXT_PUBLIC_CDN_URL" ]; then
+            echo "::error::NEXT_PUBLIC_CDN_URL must be set for landing images to load from CDN. Add it in GitHub: Settings → Secrets and variables → Actions → Repository secrets (use https://cdn.ryla.ai)."
+            exit 1
+          fi
+          echo "✅ NEXT_PUBLIC_CDN_URL is set (landing images will use CDN)"
+
       - name: Build Landing App
         run: pnpm nx build landing --configuration=production
         env:

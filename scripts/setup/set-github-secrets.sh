@@ -70,7 +70,7 @@ gh secret set NEXT_PUBLIC_SUPABASE_ANON_KEY --repo $REPO --body "eyJhbGciOiJIUzI
 # Funnel App Secrets
 echo ""
 echo "📦 Setting Funnel App secrets..."
-gh secret set NEXT_PUBLIC_CDN_URL --repo $REPO --body "https://rylaai.b-cdn.net"
+gh secret set NEXT_PUBLIC_CDN_URL --repo $REPO --body "https://cdn.ryla.ai"
 gh secret set NEXT_PUBLIC_DEBUG_CDN --repo $REPO --body "true"
 gh secret set NEXT_PUBLIC_SITE_URL_FUNNEL --repo $REPO --body "https://goviral.ryla.ai"
 gh secret set NEXT_PUBLIC_API_BASE_URL --repo $REPO --body "https://end.ryla.ai"
