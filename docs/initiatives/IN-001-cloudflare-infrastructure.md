@@ -212,9 +212,12 @@ Hybrid approach: Cloudflare for frontend/CDN, Fly.io for backend API
 ### Initiative Complete When:
 
 - [x] R2 buckets created and configured
-- [x] CDN Worker deployed and tested
-- [ ] All frontend apps deployed to Cloudflare Pages
-- [ ] Custom domains configured
+- [x] CDN Worker deployed and tested (`cdn.ryla.ai`)
+- [x] Landing app deployed to Cloudflare Pages (`ryla.ai`)
+- [x] Funnel app deployed to Cloudflare Pages (`goviral.ryla.ai`)
+- [ ] Web app deployed to Cloudflare Pages (EP-077)
+- [ ] Admin app deployed to Cloudflare Pages (EP-078)
+- [ ] Custom domains configured for all apps
 - [ ] Cost reduction validated (30%+)
 - [ ] Performance benchmarks met (<2s p95)
 - [ ] Documentation updated
@@ -238,9 +241,10 @@ Hybrid approach: Cloudflare for frontend/CDN, Fly.io for backend API
 
 ### Epics
 
-| Epic | Name                     | Status | Link            |
-| ---- | ------------------------ | ------ | --------------- |
-| N/A  | Infrastructure Migration | Active | This initiative |
+| Epic | Name | Status | Link |
+|------|------|--------|------|
+| EP-077 | Web App Cloudflare Pages Migration | Proposed | [EP-077](../requirements/epics/ops/EP-077-web-cloudflare-pages-migration.md) |
+| EP-078 | Admin App Cloudflare Pages Migration | Proposed | [EP-078](../requirements/epics/ops/EP-078-admin-cloudflare-pages-migration.md) |
 
 ### Dependencies
 
@@ -271,22 +275,33 @@ Hybrid approach: Cloudflare for frontend/CDN, Fly.io for backend API
 
 ### Current Phase
 
-**Phase**: Phase 1 - R2 Storage Setup  
+**Phase**: Phase 2 - Pages Deployment (Web & Admin)  
 **Status**: On Track
 
 ### Recent Updates
 
+- **2026-02-01**: Created EP-077 (Web) and EP-078 (Admin) for Cloudflare Pages migration
+- **2026-02-01**: Landing and Funnel apps successfully deployed to Cloudflare Pages
+- **2026-02-01**: R2 storage configured and CDN Worker deployed at `cdn.ryla.ai`
+- **2026-02-01**: API app configured with R2 storage credentials
 - **2026-01-XX**: Initiative created, Cloudflare MCP servers configured
-- **2026-01-XX**: R2 bucket creation planned, CDN Worker code written
-- **2026-01-XX**: API token configuration in progress
+
+### Completed
+
+- [x] R2 bucket `ryla-images` created
+- [x] CDN Worker deployed (`cdn.ryla.ai`)
+- [x] API configured with R2 credentials
+- [x] Landing app on Cloudflare Pages (`ryla.ai`)
+- [x] Funnel app on Cloudflare Pages (`goviral.ryla.ai`)
+- [x] deploy-auto.yml workflow updated for Cloudflare Pages
 
 ### Next Steps
 
-1. Complete API token setup
-2. Create R2 buckets via Cloudflare MCP
-3. Deploy CDN Worker
-4. Test R2 storage access
-5. Begin Phase 2 planning
+1. **EP-077**: Migrate Web app to Cloudflare Pages with Edge SSR
+2. **EP-078**: Migrate Admin app to Cloudflare Pages with Edge SSR
+3. Update deploy-auto.yml for Web/Admin Cloudflare Pages deployment
+4. Validate cost reduction (target: 30%+)
+5. Complete performance benchmarking
 
 ---
 

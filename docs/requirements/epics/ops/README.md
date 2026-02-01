@@ -17,7 +17,9 @@ These epics define **operational infrastructure** — deployment, monitoring, se
 | [EP-064](./EP-064-error-handling-iterative-fixes.md) | Error Handling & Iterative Fixes (Ralph Pattern) | P0 | C-Core Value, E-CAC | 📝 Proposed |
 | [EP-065](./EP-065-cost-tracking-limits.md) | Cost Tracking & Limits | P0 | E-CAC, Risk | 📝 Proposed |
 | [EP-066](./EP-066-knowledge-base-documentation.md) | Knowledge Base & Documentation | P1 | C-Core Value, E-CAC | 📝 Proposed |
+| [EP-077](./EP-077-web-cloudflare-pages-migration.md) | Web App Cloudflare Pages Migration | P1 | E-CAC, A-Activation | 📝 Proposed |
+| [EP-078](./EP-078-admin-cloudflare-pages-migration.md) | Admin App Cloudflare Pages Migration | P1 | E-CAC | 📝 Proposed |
 
 ---
 
-**Last Updated**: 2026-01-28
+**Last Updated**: 2026-02-01
