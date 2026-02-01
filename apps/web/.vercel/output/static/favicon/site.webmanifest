@@ -1,0 +1,36 @@
+{
+  "name": "RYLA - AI Influencer Platform",
+  "short_name": "RYLA",
+  "description": "Create hyper-realistic AI influencers that earn 24/7",
+  "icons": [
+    {
+      "src": "/favicon/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/favicon/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "theme_color": "#0a0a0f",
+  "background_color": "#0a0a0f",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/?source=pwa",
+  "shortcuts": [
+    {
+      "name": "Studio",
+      "short_name": "Studio",
+      "description": "Create new AI influencers",
+      "url": "/studio",
+      "icons": [
+        { "src": "/favicon/android-chrome-192x192.png", "sizes": "192x192" }
+      ]
+    }
+  ]
+}

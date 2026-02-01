@@ -17,5 +17,3 @@ export async function GET() {
     { status: 200 }
   );
 }
-
-// Redeploy for compat flags Sun Feb  1 20:31:40 CET 2026

@@ -293,7 +293,7 @@ def check_lora_available() -> bool:
         return False
 
 
-def ensure_test_resources() -> dict:
+def ensure_test_resources(skip_video: bool = False) -> dict:
     """Ensure all test resources exist, generating if needed."""
     TEST_RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
     
@@ -311,16 +311,22 @@ def ensure_test_resources() -> dict:
     else:
         print(f"  ✅ Test image exists: {resources['image']}")
     
-    # Check/generate test video
-    if not resources["video"].exists():
-        if not generate_test_video(resources["video"]):
-            print("  ⚠️  Will skip endpoints requiring test video")
+    # Check/generate test video (skip if flag set or in quick mode)
+    if skip_video:
+        print("  ⏭️  Skipping video generation (use --generate-video to create)")
+        if resources["video"].exists():
+            print(f"     Existing video found: {resources['video']}")
+        else:
             resources["video"] = None
+    elif not resources["video"].exists():
+        print("  ⚠️  No test video. Run with --generate-video to create (takes 5-10 min)")
+        resources["video"] = None
     else:
         print(f"  ✅ Test video exists: {resources['video']}")
     
-    # Check LoRA availability
-    resources["lora_available"] = check_lora_available()
+    # Check LoRA availability (quick check - don't wait for cold start)
+    print("\n🔍 Note: LoRA endpoints will be skipped unless a 'test-benchmark' LoRA is trained")
+    resources["lora_available"] = False  # Skip LoRA check to avoid long wait
     
     return resources
 
@@ -646,7 +652,9 @@ def generate_json_results(results: List[EndpointResult], resources: dict) -> dic
 def main():
     parser = argparse.ArgumentParser(description="Benchmark Modal endpoints")
     parser.add_argument("--quick", action="store_true", help="Quick mode (warm runs only)")
-    parser.add_argument("--generate", action="store_true", help="Generate test resources only")
+    parser.add_argument("--generate", action="store_true", help="Generate test image only")
+    parser.add_argument("--generate-video", action="store_true", help="Generate test video (slow, 5-10 min)")
+    parser.add_argument("--skip-video", action="store_true", help="Skip video endpoints entirely")
     args = parser.parse_args()
     
     print("=" * 60)
@@ -655,7 +663,19 @@ def main():
     
     # Ensure test resources exist
     print("\n📦 Checking test resources...")
-    resources = ensure_test_resources()
+    skip_video = args.quick or args.skip_video
+    
+    if args.generate_video:
+        # Generate video specifically
+        TEST_RESOURCES_DIR.mkdir(parents=True, exist_ok=True)
+        video_path = TEST_RESOURCES_DIR / "test_video.mp4"
+        if generate_test_video(video_path):
+            print("\n✅ Test video generated successfully.")
+        else:
+            print("\n❌ Failed to generate test video.")
+        return
+    
+    resources = ensure_test_resources(skip_video=skip_video)
     
     if args.generate:
         print("\n✅ Test resources generated. Exiting.")
