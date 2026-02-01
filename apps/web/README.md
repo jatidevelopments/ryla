@@ -30,18 +30,21 @@ Main web application for RYLA - the authenticated user experience.
 ## Key Features
 
 ### Character Wizard
+
 - Multi-step character creation
 - Base image selection
 - Profile picture generation
 - Character DNA persistence
 
 ### Content Studio
+
 - Image generation workflows
 - Scene and environment selection
 - Post creation and management
 - Export to platforms
 
 ### User Management
+
 - Profile settings
 - Subscription management
 - Credit system
@@ -99,3 +102,4 @@ NEXT_PUBLIC_CDN_URL=...
 - **UI Components**: [`libs/ui`](../../libs/ui/README.md)
 - **Analytics**: [`libs/analytics`](../../libs/analytics/README.md)
 
+# Build trigger: Sun Feb 1 23:16:02 CET 2026
