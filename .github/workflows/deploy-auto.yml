@@ -12,6 +12,11 @@ on:
         options:
           - staging
           - production
+      force_deploy_landing:
+        description: 'Force deploy landing app (even if no landing changes)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -140,6 +145,12 @@ jobs:
           if echo "$CHANGED_FILES" | grep -qE "^apps/admin/"; then
             ADMIN_CHANGED=true
             echo "✓ Admin app has changes"
+          fi
+
+          # workflow_dispatch: allow forcing landing deploy without file changes
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force_deploy_landing }}" = "true" ]; then
+            LANDING_CHANGED=true
+            echo "✓ Landing deploy forced via workflow input"
           fi
 
           # Also check if workflow files changed (affects all apps)
@@ -702,7 +713,10 @@ jobs:
           node-version: '20'
 
       - name: Enable corepack (for pnpm)
-        run: corepack enable
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
@@ -731,6 +745,9 @@ jobs:
           elif [ -d "dist/apps/landing/out" ]; then
             echo "Found dist/apps/landing/out"
             echo "directory=dist/apps/landing/out" >> $GITHUB_OUTPUT
+          elif [ -f "dist/apps/landing/.next/index.html" ]; then
+            echo "Found dist/apps/landing/.next (Nx static export)"
+            echo "directory=dist/apps/landing/.next" >> $GITHUB_OUTPUT
           elif [ -d "dist/apps/landing" ]; then
             echo "Found dist/apps/landing (checking for static files)..."
             ls -la dist/apps/landing/ | head -20
