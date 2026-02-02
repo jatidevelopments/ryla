@@ -88,6 +88,10 @@ jobs:
       - name: Detect affected apps (using git diff)
         id: affected
         run: |
+          set +e  # Don't exit on first failure; we have fallbacks
+          # Ensure we have origin refs for fallbacks
+          git fetch origin main --depth=1 2>/dev/null || true
+
           # Get base commit (previous commit on main, or main branch if first commit)
           # For push events, use github.event.before if available, otherwise HEAD~1
           if [ "${{ github.event_name }}" = "push" ]; then
@@ -99,18 +103,19 @@ jobs:
               # Try HEAD~1, fallback to origin/main
               BASE=$(git rev-parse HEAD~1 2>/dev/null || echo "origin/main")
             fi
-            HEAD=$(git rev-parse HEAD)
+            HEAD=$(git rev-parse HEAD 2>/dev/null || echo "HEAD")
           else
             # For workflow_dispatch, compare with origin/main
-            git fetch origin main --depth=1 || true
+            git fetch origin main --depth=1 2>/dev/null || true
             BASE=$(git merge-base HEAD origin/main 2>/dev/null || echo "origin/main")
-            HEAD=$(git rev-parse HEAD)
+            HEAD=$(git rev-parse HEAD 2>/dev/null || echo "HEAD")
           fi
 
           echo "Base: $BASE"
           echo "Head: $HEAD"
 
           # Use git diff to detect changes in app directories (faster than Nx, no dependencies needed)
+          # If diff fails (e.g. invalid refs), treat as no changed files; deploy jobs will be skipped unless forced
           CHANGED_FILES=$(git diff --name-only $BASE..$HEAD 2>/dev/null || echo "")
 
           echo "Changed files detected: $(echo "$CHANGED_FILES" | wc -l | tr -d ' ') files"
@@ -405,14 +410,13 @@ jobs:
 
       - name: Configure Git LFS and pull files
         run: |
-          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
-          # Configure git to use the token for LFS operations
-          git config --global credential.helper store || true
-          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
-          # Try to pull LFS files, but don't fail if it doesn't work
-          # LFS files are not critical for deployment (they're mostly images)
+          set +e  # Don't fail job on LFS/git errors; deployment doesn't require LFS
+          git lfs install 2>/dev/null || echo "⚠️  Git LFS install failed, continuing..."
+          git config --global credential.helper store 2>/dev/null || true
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials 2>/dev/null || true
           git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
           echo "✅ Git LFS configuration complete (or skipped)"
+          exit 0  # Always succeed so deploy continues
 
       - uses: actions/setup-node@v4
         with:
@@ -770,14 +774,13 @@ jobs:
 
       - name: Configure Git LFS and pull files
         run: |
-          git lfs install || echo "⚠️  Git LFS install failed, continuing..."
-          # Configure git to use the token for LFS operations
-          git config --global credential.helper store || true
-          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials || true
-          # Try to pull LFS files, but don't fail if it doesn't work
-          # LFS files are not critical for deployment (they're mostly images)
+          set +e  # Don't fail job on LFS/git errors; deployment doesn't require LFS
+          git lfs install 2>/dev/null || echo "⚠️  Git LFS install failed, continuing..."
+          git config --global credential.helper store 2>/dev/null || true
+          echo "https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com" > ~/.git-credentials 2>/dev/null || true
           git lfs pull 2>&1 || echo "⚠️  Git LFS pull failed, continuing without LFS files..."
           echo "✅ Git LFS configuration complete (or skipped)"
+          exit 0  # Always succeed so deploy continues
 
       - uses: actions/setup-node@v4
         with:
