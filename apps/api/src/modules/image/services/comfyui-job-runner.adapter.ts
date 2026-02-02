@@ -8,7 +8,13 @@
  * @see ADR-003: Use Dedicated ComfyUI Pod Over Serverless
  */
 
-import { Injectable, OnModuleInit, Logger, Inject, Optional } from '@nestjs/common';
+import {
+  Injectable,
+  OnModuleInit,
+  Logger,
+  Inject,
+  Optional,
+} from '@nestjs/common';
 import {
   ComfyUIPodClient,
   ComfyUIJobRunner,
@@ -17,9 +23,10 @@ import {
   WorkflowId,
   CharacterDNA,
   BuiltPrompt,
-  ComfyUIJobPersistenceService,
 } from '@ryla/business';
 import type { RunPodJobRunner, RunPodJobStatus } from '@ryla/business';
+// Server-only service - import directly from file path (not from barrel export)
+import { ComfyUIJobPersistenceService } from '@ryla/business/services/comfyui-job-persistence.service';
 import { REDIS_CLIENT } from '../../redis/redis.constants';
 import type { Redis } from 'ioredis';
 
@@ -46,7 +53,7 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   constructor(
     @Optional()
     @Inject(REDIS_CLIENT)
-    private readonly redisClient?: Redis,
+    private readonly redisClient?: Redis
   ) {}
 
   async onModuleInit() {
@@ -55,7 +62,7 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
     if (!podUrl) {
       this.logger.warn(
-        'COMFYUI_POD_URL not configured - ComfyUI image generation disabled',
+        'COMFYUI_POD_URL not configured - ComfyUI image generation disabled'
       );
       return;
     }
@@ -73,14 +80,17 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
             setTimeout(() => reject(new Error('Redis ping timeout')), 2000)
           );
           await Promise.race([pingPromise, timeoutPromise]);
-          
+
           // Create persistence service using the imported class
           persistenceService = new ComfyUIJobPersistenceService({
             redisClient: this.redisClient,
           });
           this.logger.log('Redis job persistence enabled');
         } catch (error) {
-          this.logger.warn('Redis not available, job persistence disabled:', error);
+          this.logger.warn(
+            'Redis not available, job persistence disabled:',
+            error
+          );
         }
       } else {
         this.logger.warn('Redis client not injected, job persistence disabled');
@@ -94,18 +104,18 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       // Initialize runner with available nodes for optimal workflow selection
       await this.runner.initialize();
       this.availableNodes = await this.client.getAvailableNodes();
-      
+
       // Mark as initialized even if no nodes available (pod might be starting up)
       this.isInitialized = true;
 
       if (this.availableNodes.length === 0) {
         this.logger.warn(
           `ComfyUI pod at ${podUrl} is not responding or has no nodes available. ` +
-          `ComfyUI features will be disabled. Ensure the pod is running and accessible.`
+            `ComfyUI features will be disabled. Ensure the pod is running and accessible.`
         );
       } else {
         this.logger.log(
-          `ComfyUI pod initialized: ${podUrl} (${this.availableNodes.length} nodes available)`,
+          `ComfyUI pod initialized: ${podUrl} (${this.availableNodes.length} nodes available)`
         );
 
         // Log recommended workflow
@@ -114,8 +124,12 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       }
     } catch (error) {
       // Only log unexpected errors (not the expected "pod not available" case)
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      if (!errorMessage.includes('object_info') && !errorMessage.includes('Not Found')) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      if (
+        !errorMessage.includes('object_info') &&
+        !errorMessage.includes('Not Found')
+      ) {
         this.logger.error('Failed to initialize ComfyUI pod:', error);
       } else {
         // Pod not available is expected in some environments - just warn
@@ -129,7 +143,9 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
   private ensureInitialized(): void {
     if (!this.isInitialized || !this.runner) {
-      throw new Error('ComfyUI pod not initialized. Check COMFYUI_POD_URL configuration.');
+      throw new Error(
+        'ComfyUI pod not initialized. Check COMFYUI_POD_URL configuration.'
+      );
     }
   }
 
@@ -212,7 +228,7 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       seed?: number;
       nsfw?: boolean;
       workflowId?: WorkflowId;
-    },
+    }
   ): Promise<string> {
     this.ensureInitialized();
     return this.runner!.submitFromBuiltPrompt(builtPrompt, options);
@@ -311,4 +327,3 @@ export class ComfyUIJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
     return this.isInitialized;
   }
 }
-
