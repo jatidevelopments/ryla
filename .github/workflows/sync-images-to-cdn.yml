@@ -1,0 +1,360 @@
+name: Sync Images to CDN (R2)
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'apps/web/public/images/**'
+      - 'apps/funnel/public/**/*.webp'
+      - 'apps/funnel/public/**/*.png'
+      - 'apps/funnel/public/**/*.jpg'
+      - 'apps/landing/public/**/*.webp'
+      - 'apps/landing/public/**/*.png'
+      - 'apps/landing/public/**/*.jpg'
+  workflow_dispatch:
+    inputs:
+      force_sync:
+        description: 'Force sync all images (not just changed)'
+        required: false
+        default: 'false'
+        type: boolean
+      app:
+        description: 'App to sync (web, funnel, landing, all)'
+        required: false
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - web
+          - funnel
+          - landing
+
+env:
+  R2_BUCKET: ryla-images
+
+jobs:
+  detect-changes:
+    name: Detect Image Changes
+    runs-on: ubuntu-latest
+    outputs:
+      web_changed: ${{ steps.changes.outputs.web }}
+      funnel_changed: ${{ steps.changes.outputs.funnel }}
+      landing_changed: ${{ steps.changes.outputs.landing }}
+      any_changed: ${{ steps.changes.outputs.any }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          lfs: false
+
+      - name: Detect changed image paths
+        id: changes
+        run: |
+          # For workflow_dispatch with force_sync, mark all as changed
+          if [ "${{ github.event.inputs.force_sync }}" = "true" ]; then
+            APP="${{ github.event.inputs.app }}"
+            if [ "$APP" = "all" ] || [ "$APP" = "web" ]; then
+              echo "web=true" >> $GITHUB_OUTPUT
+            else
+              echo "web=false" >> $GITHUB_OUTPUT
+            fi
+            if [ "$APP" = "all" ] || [ "$APP" = "funnel" ]; then
+              echo "funnel=true" >> $GITHUB_OUTPUT
+            else
+              echo "funnel=false" >> $GITHUB_OUTPUT
+            fi
+            if [ "$APP" = "all" ] || [ "$APP" = "landing" ]; then
+              echo "landing=true" >> $GITHUB_OUTPUT
+            else
+              echo "landing=false" >> $GITHUB_OUTPUT
+            fi
+            echo "any=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          # Get changed files
+          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || git diff --name-only HEAD)
+
+          WEB_CHANGED=false
+          FUNNEL_CHANGED=false
+          LANDING_CHANGED=false
+
+          if echo "$CHANGED" | grep -q "^apps/web/public/images/"; then
+            WEB_CHANGED=true
+          fi
+          if echo "$CHANGED" | grep -qE "^apps/funnel/public/.*\.(webp|png|jpg|jpeg)$"; then
+            FUNNEL_CHANGED=true
+          fi
+          if echo "$CHANGED" | grep -qE "^apps/landing/public/.*\.(webp|png|jpg|jpeg)$"; then
+            LANDING_CHANGED=true
+          fi
+
+          echo "web=$WEB_CHANGED" >> $GITHUB_OUTPUT
+          echo "funnel=$FUNNEL_CHANGED" >> $GITHUB_OUTPUT
+          echo "landing=$LANDING_CHANGED" >> $GITHUB_OUTPUT
+
+          if [ "$WEB_CHANGED" = "true" ] || [ "$FUNNEL_CHANGED" = "true" ] || [ "$LANDING_CHANGED" = "true" ]; then
+            echo "any=true" >> $GITHUB_OUTPUT
+          else
+            echo "any=false" >> $GITHUB_OUTPUT
+          fi
+
+          echo "📊 Change detection:"
+          echo "  Web images: $WEB_CHANGED"
+          echo "  Funnel images: $FUNNEL_CHANGED"
+          echo "  Landing images: $LANDING_CHANGED"
+
+  sync-web-images:
+    name: Sync Web Images to R2
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.web_changed == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS files
+        run: |
+          git lfs install
+          git lfs pull
+        env:
+          GIT_LFS_SKIP_SMUDGE: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Sync web images to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "📤 Syncing web images to R2..."
+
+          SOURCE_DIR="apps/web/public/images"
+          if [ ! -d "$SOURCE_DIR" ]; then
+            echo "⚠️ Source directory not found: $SOURCE_DIR"
+            echo "This may be due to LFS quota exceeded"
+            exit 0
+          fi
+
+          TOTAL=$(find "$SOURCE_DIR" -type f \( -name "*.webp" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | wc -l)
+          echo "Found $TOTAL images to sync"
+
+          COUNT=0
+          ERRORS=0
+
+          find "$SOURCE_DIR" -type f \( -name "*.webp" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | while read -r file; do
+            REL_PATH="${file#apps/web/public/}"
+            
+            # Determine content type
+            case "${file##*.}" in
+              webp) CONTENT_TYPE="image/webp" ;;
+              png) CONTENT_TYPE="image/png" ;;
+              jpg|jpeg) CONTENT_TYPE="image/jpeg" ;;
+              *) CONTENT_TYPE="application/octet-stream" ;;
+            esac
+            
+            COUNT=$((COUNT + 1))
+            echo "[$COUNT/$TOTAL] Uploading: $REL_PATH"
+            
+            if ! wrangler r2 object put "$R2_BUCKET/$REL_PATH" \
+              --file="$file" \
+              --content-type="$CONTENT_TYPE" \
+              --remote 2>&1; then
+              ERRORS=$((ERRORS + 1))
+              echo "❌ Failed to upload: $REL_PATH"
+            fi
+          done
+
+          echo "✅ Sync complete"
+
+      - name: Verify sample images
+        run: |
+          echo "🔍 Verifying sample images on CDN..."
+
+          SAMPLES=(
+            "https://cdn.ryla.ai/images/wizard/appearance/asian/ethnicity/female-portrait.webp"
+            "https://cdn.ryla.ai/images/wizard/appearance/caucasian/ethnicity/female-portrait.webp"
+          )
+
+          for url in "${SAMPLES[@]}"; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$url")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ $url (HTTP $HTTP_CODE)"
+            else
+              echo "⚠️ $url (HTTP $HTTP_CODE)"
+            fi
+          done
+
+  sync-funnel-images:
+    name: Sync Funnel Images to R2
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.funnel_changed == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS files
+        run: |
+          git lfs install
+          git lfs pull
+        env:
+          GIT_LFS_SKIP_SMUDGE: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Sync funnel images to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "📤 Syncing funnel images to R2..."
+
+          SOURCE_DIR="apps/funnel/public"
+          if [ ! -d "$SOURCE_DIR" ]; then
+            echo "⚠️ Source directory not found: $SOURCE_DIR"
+            exit 0
+          fi
+
+          find "$SOURCE_DIR" -type f \( -name "*.webp" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | while read -r file; do
+            REL_PATH="${file#apps/funnel/public/}"
+            R2_KEY="funnel/$REL_PATH"
+            
+            case "${file##*.}" in
+              webp) CONTENT_TYPE="image/webp" ;;
+              png) CONTENT_TYPE="image/png" ;;
+              jpg|jpeg) CONTENT_TYPE="image/jpeg" ;;
+              *) CONTENT_TYPE="application/octet-stream" ;;
+            esac
+            
+            echo "Uploading: $R2_KEY"
+            wrangler r2 object put "$R2_BUCKET/$R2_KEY" \
+              --file="$file" \
+              --content-type="$CONTENT_TYPE" \
+              --remote || echo "❌ Failed: $R2_KEY"
+          done
+
+          echo "✅ Funnel sync complete"
+
+  sync-landing-images:
+    name: Sync Landing Images to R2
+    runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.landing_changed == 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Pull LFS files
+        run: |
+          git lfs install
+          git lfs pull
+        env:
+          GIT_LFS_SKIP_SMUDGE: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install wrangler
+        run: npm install -g wrangler
+
+      - name: Sync landing images to R2
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          echo "📤 Syncing landing images to R2..."
+
+          SOURCE_DIR="apps/landing/public"
+          if [ ! -d "$SOURCE_DIR" ]; then
+            echo "⚠️ Source directory not found: $SOURCE_DIR"
+            exit 0
+          fi
+
+          find "$SOURCE_DIR" -type f \( -name "*.webp" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | while read -r file; do
+            REL_PATH="${file#apps/landing/public/}"
+            R2_KEY="landing/$REL_PATH"
+            
+            case "${file##*.}" in
+              webp) CONTENT_TYPE="image/webp" ;;
+              png) CONTENT_TYPE="image/png" ;;
+              jpg|jpeg) CONTENT_TYPE="image/jpeg" ;;
+              *) CONTENT_TYPE="application/octet-stream" ;;
+            esac
+            
+            echo "Uploading: $R2_KEY"
+            wrangler r2 object put "$R2_BUCKET/$R2_KEY" \
+              --file="$file" \
+              --content-type="$CONTENT_TYPE" \
+              --remote || echo "❌ Failed: $R2_KEY"
+          done
+
+          echo "✅ Landing sync complete"
+
+  summary:
+    name: Sync Summary
+    runs-on: ubuntu-latest
+    needs:
+      [detect-changes, sync-web-images, sync-funnel-images, sync-landing-images]
+    if: always() && needs.detect-changes.outputs.any_changed == 'true'
+    steps:
+      - name: Summary
+        run: |
+          echo "## CDN Sync Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| App | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.detect-changes.outputs.web_changed }}" = "true" ]; then
+            if [ "${{ needs.sync-web-images.result }}" = "success" ]; then
+              echo "| Web | ✅ Synced |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Web | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Web | ⏭️ No changes |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.detect-changes.outputs.funnel_changed }}" = "true" ]; then
+            if [ "${{ needs.sync-funnel-images.result }}" = "success" ]; then
+              echo "| Funnel | ✅ Synced |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Funnel | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Funnel | ⏭️ No changes |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.detect-changes.outputs.landing_changed }}" = "true" ]; then
+            if [ "${{ needs.sync-landing-images.result }}" = "success" ]; then
+              echo "| Landing | ✅ Synced |" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "| Landing | ❌ Failed |" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "| Landing | ⏭️ No changes |" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "CDN URL: https://cdn.ryla.ai" >> $GITHUB_STEP_SUMMARY

@@ -93,6 +93,26 @@ def main():
     sdxl_instantid_parser.add_argument("--output", default="sdxl_instantid_output.jpg", help="Output file")
     sdxl_instantid_parser.add_argument("--modal-workspace", help="Modal workspace (default: current)")
     
+    # SDXL Turbo (1-4 step txt2img, no face)
+    sdxl_turbo_parser = subparsers.add_parser("sdxl-turbo", help="SDXL Turbo txt2img (1-4 steps, fast)")
+    sdxl_turbo_parser.add_argument("--prompt", required=True, help="Text prompt")
+    sdxl_turbo_parser.add_argument("--width", type=int, default=1024, help="Image width")
+    sdxl_turbo_parser.add_argument("--height", type=int, default=1024, help="Image height")
+    sdxl_turbo_parser.add_argument("--steps", type=int, default=4, help="Steps (1-4)")
+    sdxl_turbo_parser.add_argument("--seed", type=int, help="Random seed")
+    sdxl_turbo_parser.add_argument("--output", default="sdxl_turbo_output.jpg", help="Output file")
+    sdxl_turbo_parser.add_argument("--modal-workspace", help="Modal workspace (default: current)")
+    
+    # SDXL Lightning (4-step txt2img, ByteDance)
+    sdxl_lightning_parser = subparsers.add_parser("sdxl-lightning", help="SDXL Lightning 4-step txt2img")
+    sdxl_lightning_parser.add_argument("--prompt", required=True, help="Text prompt")
+    sdxl_lightning_parser.add_argument("--width", type=int, default=1024, help="Image width")
+    sdxl_lightning_parser.add_argument("--height", type=int, default=1024, help="Image height")
+    sdxl_lightning_parser.add_argument("--cfg", type=float, default=1.0, help="CFG scale")
+    sdxl_lightning_parser.add_argument("--seed", type=int, help="Random seed")
+    sdxl_lightning_parser.add_argument("--output", default="sdxl_lightning_output.jpg", help="Output file")
+    sdxl_lightning_parser.add_argument("--modal-workspace", help="Modal workspace (default: current)")
+    
     # Flux IP-Adapter FaceID workflow (Recommended for Flux Dev - fully compatible)
     flux_ipadapter_parser = subparsers.add_parser("flux-ipadapter-faceid", help="Flux Dev + IP-Adapter FaceID (⭐ Recommended for Flux Dev)")
     flux_ipadapter_parser.add_argument("--prompt", required=True, help="Text prompt")
@@ -251,6 +271,8 @@ def main():
         "flux-dev": "ryla-flux",
         "flux-instantid": "ryla-instantid",
         "sdxl-instantid": "ryla-instantid",
+        "sdxl-turbo": "ryla-instantid",
+        "sdxl-lightning": "ryla-instantid",
         "flux-ipadapter-faceid": "ryla-instantid",
         "wan2": "ryla-wan2",
         "seedvr2": "ryla-seedvr2",
@@ -405,6 +427,32 @@ def main():
         print(f"   IP-Adapter Strength: {args.ipadapter_strength}")
         print(f"   Face Provider: {args.face_provider}")
         timeout = 300  # IP-Adapter workflows can take longer, especially on cold start
+    
+    elif args.workflow_type == "sdxl-turbo":
+        payload = {
+            "prompt": args.prompt,
+            "width": args.width,
+            "height": args.height,
+            "steps": args.steps,
+        }
+        if args.seed:
+            payload["seed"] = args.seed
+        timeout = 300
+        print(f"   Prompt: {args.prompt}")
+        print(f"   Size: {args.width}x{args.height}, Steps: {args.steps}")
+    
+    elif args.workflow_type == "sdxl-lightning":
+        payload = {
+            "prompt": args.prompt,
+            "width": args.width,
+            "height": args.height,
+            "cfg": args.cfg,
+        }
+        if args.seed:
+            payload["seed"] = args.seed
+        timeout = 300
+        print(f"   Prompt: {args.prompt}")
+        print(f"   Size: {args.width}x{args.height}, CFG: {args.cfg}")
         
     elif args.workflow_type == "flux-lora":
         payload = {
@@ -628,14 +676,20 @@ def main():
     print(f"   Output: {args.output}")
     print()
 
-    # Make request
+    # Make request (Modal may return 303; follow with GET to get result)
     try:
         print(f"⏳ Sending request (first call may take ~1-3m for cold start)...")
         response = requests.post(
             full_url,
             json=payload,
             timeout=timeout,
+            allow_redirects=False,
         )
+        if response.status_code == 303:
+            location = response.headers.get("Location")
+            if location:
+                print(f"   (following Modal redirect...)")
+                response = requests.get(location, timeout=timeout)
         
         # Check for errors and show detailed messages
         if response.status_code >= 400:
