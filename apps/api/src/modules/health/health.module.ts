@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 
+// Provides health check endpoints including POST /waitlist
 import { RedisModule } from '../redis/redis.module';
 import { HealthController } from './health.controller';
 import { HealthService } from './services/health.service';
