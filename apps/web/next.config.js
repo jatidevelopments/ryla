@@ -30,14 +30,10 @@ const nextConfig = {
   //   rm -rf apps/web/.next
   productionBrowserSourceMaps: false,
   // Images are pulled from Git LFS during deployment (checkout with lfs: true)
-  transpilePackages: [
-    '@ryla/ui',
-    '@ryla/shared',
-    '@ryla/business',
-    '@ryla/trpc',
-    '@ryla/payments',
-    '@ryla/analytics',
-  ],
+  // Note: @ryla/* libs are NOT in transpilePackages - they're pre-compiled CommonJS
+  // Transpiling them causes React Fast Refresh to inject import.meta which breaks CommonJS
+  // The webpack aliases in this config handle proper resolution to dist folder
+  transpilePackages: [],
   // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
   // Optimize package imports to ensure animations work in production
   experimental: {
@@ -77,6 +73,17 @@ const nextConfig = {
     ],
   },
   webpack: (config, { isServer, webpack, dev }) => {
+    // CRITICAL: Exclude pre-compiled libs from Next.js loaders (including React Refresh)
+    // These are already compiled CommonJS and should not be processed again
+    // Without this, React Refresh injects import.meta.webpackHot which breaks CommonJS
+    config.module.rules.unshift({
+      test: /\.js$/,
+      include: [path.resolve(__dirname, '../../dist/libs')],
+      type: 'javascript/auto',
+      // Prevent any further processing - these files are pre-compiled
+      use: [],
+    });
+
     // Disable source maps completely in development to prevent stack overflow in dev overlay
     // This fixes the "Maximum call stack size exceeded" error when Next.js tries to process source maps
     // The error occurs in RegExp.exec when processing malformed or circular source map references
@@ -153,21 +160,9 @@ const nextConfig = {
       '@ryla/email': path.resolve(__dirname, '../../dist/libs/email/src'),
     };
 
-    // Configure webpack to treat ES modules in dist folder as modules
-    config.module.rules.push({
-      test: /\.js$/,
-      include: [
-        path.resolve(__dirname, '../../dist/libs/business'),
-        path.resolve(__dirname, '../../dist/libs/shared'),
-        path.resolve(__dirname, '../../dist/libs/ui'),
-        path.resolve(__dirname, '../../dist/libs/trpc'),
-        path.resolve(__dirname, '../../dist/libs/payments'),
-        path.resolve(__dirname, '../../dist/libs/analytics'),
-      ],
-      parser: {
-        sourceType: 'module',
-      },
-    });
+    // Note: dist folder contains pre-compiled CommonJS, NOT ES modules
+    // Do NOT set sourceType: 'module' - it breaks Fast Refresh with import.meta errors
+    // The transpilePackages config already handles proper module resolution
 
     // Ensure tw-animate-css is properly resolved for CSS imports
     // The package exports CSS that needs to be resolved correctly
@@ -182,7 +177,7 @@ const nextConfig = {
     // Exclude server-only modules from client bundle and Edge runtime (Cloudflare)
     // For Cloudflare Pages, even server components run on Edge and can't use Node.js modules
     const excludeServerModules = !isServer || isCloudflarePages;
-    
+
     if (excludeServerModules) {
       // Add all Node.js built-ins to fallback
       config.resolve.fallback = {

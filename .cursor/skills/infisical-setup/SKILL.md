@@ -33,13 +33,59 @@ RYLA Project
 
 ## Folder Assignments
 
-| Application | Paths | Command |
-|-------------|-------|---------|
-| `apps/api` | `/apps/api`, `/shared` | `infisical run --path=/apps/api --path=/shared` |
-| `apps/web` | `/apps/web`, `/shared` | `apps/web`, `/shared` |
-| `apps/funnel` | `/apps/funnel`, `/shared` | `infisical run --path=/apps/funnel --path=/shared` |
+| Application    | Paths                      | Command                                             |
+| -------------- | -------------------------- | --------------------------------------------------- |
+| `apps/api`     | `/apps/api`, `/shared`     | `infisical run --path=/apps/api --path=/shared`     |
+| `apps/web`     | `/apps/web`, `/shared`     | `infisical run --path=/apps/web --path=/shared`     |
+| `apps/funnel`  | `/apps/funnel`, `/shared`  | `infisical run --path=/apps/funnel --path=/shared`  |
 | `apps/landing` | `/apps/landing`, `/shared` | `infisical run --path=/apps/landing --path=/shared` |
-| `apps/mcp` | `/mcp` | `infisical run --path=/mcp` |
+| `apps/mcp`     | `/mcp`                     | `infisical run --path=/mcp`                         |
+
+## ⚠️ CRITICAL: Multiple --path Flag Behavior
+
+**When using multiple `--path` flags, Infisical CLI only uses the LAST path, not all paths combined.**
+
+```bash
+# ❌ WRONG: Only /shared secrets are loaded (second path wins)
+infisical run --path=/apps/web --path=/shared --env=dev -- npm start
+# Result: Secrets from /apps/web are IGNORED
+
+# ❌ WRONG: Only /apps/web secrets are loaded
+infisical run --path=/shared --path=/apps/web --env=dev -- npm start
+# Result: Secrets from /shared are IGNORED
+```
+
+**Solution: Put shared secrets in `/shared` path**
+
+Since commands like `dev:web` use `--path=/apps/web --path=/shared`, any secret needed by web MUST be in `/shared` (the last path).
+
+**Secrets that MUST be in `/shared`:**
+
+- `JWT_ACCESS_SECRET` - Used by web, api, and other apps for token verification
+- `JWT_REFRESH_SECRET` - Used for refresh token verification
+- Any secret needed by multiple apps
+
+**When adding new secrets:**
+
+1. If the secret is app-specific AND not needed elsewhere → put in `/apps/{app-name}`
+2. If the secret is needed by multiple apps OR used with multi-path commands → put in `/shared`
+
+**Debugging missing secrets:**
+
+```bash
+# Check what secrets are actually exported with multiple paths
+infisical export --path=/apps/web --path=/shared --env=dev
+
+# If a secret is missing, check which path it's in
+infisical secrets --path=/apps/web --env=dev | grep SECRET_NAME
+infisical secrets --path=/shared --env=dev | grep SECRET_NAME
+
+# Move secret to /shared if needed
+infisical secrets set SECRET_NAME='value' --path=/shared --env=dev
+
+# Verify it works
+infisical run --path=/apps/web --path=/shared --env=dev -- sh -c 'echo $SECRET_NAME'
+```
 
 ## Common Commands
 
@@ -155,7 +201,9 @@ infisical machine-identity get-token --name="github-actions"
         "--path=/mcp",
         "--env=dev",
         "--",
-        "npx", "tsx", "apps/mcp/src/main.ts"
+        "npx",
+        "tsx",
+        "apps/mcp/src/main.ts"
       ]
     }
   }
@@ -187,7 +235,19 @@ infisical secrets set HIGGSFIELD_PASSWORD=xxx --path=/logins --env=dev
 
 ## Best Practices
 
-### 1. Use Narrowest Scope
+### 1. Put Shared Secrets in `/shared`
+
+**Any secret used by multiple apps or in multi-path commands MUST be in `/shared`.**
+
+```bash
+# ✅ Good: JWT secrets in /shared (available to all apps)
+infisical secrets set JWT_ACCESS_SECRET='value' --path=/shared --env=dev
+
+# ❌ Bad: JWT secret only in /apps/web (won't load with multi-path command)
+infisical secrets set JWT_ACCESS_SECRET='value' --path=/apps/web --env=dev
+```
+
+### 2. Use Narrowest Scope
 
 ```bash
 # ✅ Good: Only request paths you need
@@ -235,6 +295,17 @@ git add apps/api/.env
 infisical machine-identity rotate-token --name="github-actions"
 ```
 
+### 6. Test Secret Injection
+
+Always verify secrets load correctly after changes:
+
+```bash
+# Test that secrets are injected
+infisical run --path=/apps/web --path=/shared --env=dev -- sh -c 'echo $JWT_ACCESS_SECRET'
+
+# If empty, the secret is not in the correct path (see Critical section above)
+```
+
 ## Troubleshooting
 
 ### Not Logged In
@@ -262,6 +333,31 @@ infisical machine-identity rotate-token --name="mcp-server"
 1. Check path: `infisical secrets --path=/your/path --env=dev`
 2. Verify login: `infisical whoami`
 3. Check project: `cat .infisical.json`
+
+### Secret Missing with Multiple --path Flags
+
+**Symptom:** App logs show "JWT_ACCESS_SECRET not set" or similar, falling back to default values.
+
+**Cause:** Multiple `--path` flags only use the LAST path. Secrets from earlier paths are ignored.
+
+**Solution:**
+
+```bash
+# 1. Check which path the secret is in
+infisical secrets --path=/apps/web --env=dev | grep JWT_ACCESS_SECRET
+infisical secrets --path=/shared --env=dev | grep JWT_ACCESS_SECRET
+
+# 2. If secret is only in /apps/web but command uses --path=/apps/web --path=/shared,
+#    the secret won't be loaded. Move it to /shared:
+infisical secrets set JWT_ACCESS_SECRET='your-value' --path=/shared --env=dev
+
+# 3. Verify it works
+infisical run --path=/apps/web --path=/shared --env=dev -- sh -c 'echo $JWT_ACCESS_SECRET'
+
+# 4. Restart your dev server
+```
+
+See the "CRITICAL: Multiple --path Flag Behavior" section above for full details.
 
 ## Related Resources
 

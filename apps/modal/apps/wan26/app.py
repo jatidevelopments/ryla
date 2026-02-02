@@ -41,7 +41,7 @@ from image import wan26_image
 
 # Import handlers
 from handlers.wan26 import setup_wan26_endpoints
-from handlers.wan2 import setup_wan2_endpoints
+# Note: wan2 (Wan 2.1) endpoint removed - use wan2.6 instead
 
 # Create Modal app
 app = modal.App(name="ryla-wan26", image=wan26_image)
@@ -151,6 +151,6 @@ class ComfyUI:
             return {"status": "healthy", "app": "ryla-wan26"}
         
         setup_wan26_endpoints(fastapi, self)
-        setup_wan2_endpoints(fastapi, self)  # Include Wan2.1 endpoint for backwards compatibility
+        # Note: /wan2 (Wan 2.1) endpoint removed - model no longer included
         
         return fastapi

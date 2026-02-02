@@ -101,13 +101,14 @@ def build_flux_ipadapter_faceid_workflow(item: dict) -> dict:
                 "image": reference_image,
             },
         },
-        # XLabs-AI Flux IP-Adapter nodes
-        # LoadFluxIPAdapter requires: ipadatper (filename), clip_vision (filename), provider
+        # XLabs-AI Flux IP-Adapter v2 nodes
+        # LoadFluxIPAdapter requires: ipadatper (typo in node!), clip_vision (filename), provider
+        # Models downloaded from: XLabs-AI/flux-ip-adapter-v2 and openai/clip-vit-large-patch14
         "6": {
             "class_type": "LoadFluxIPAdapter",
             "inputs": {
-                "ipadatper": "ip_adapter.safetensors",  # Note: parameter name has typo "ipadatper" in node
-                "clip_vision": "model.safetensors",  # OpenAI VIT CLIP large filename
+                "ipadatper": "ip_adapter.safetensors",  # Note: param name has typo in ComfyUI node
+                "clip_vision": "model.safetensors",  # OpenAI CLIP-ViT-Large
                 "provider": item.get("face_provider", "CPU"),  # CPU or GPU
             },
         },
@@ -144,19 +145,19 @@ def build_flux_ipadapter_faceid_workflow(item: dict) -> dict:
                 "batch_size": 1,
             },
         },
-        # Sampling (using IP-Adapter modified model)
+        # Sampling using XlabsSampler (required for XLabs IP-Adapter, KSampler has attn_mask issues)
         "11": {
-            "class_type": "KSampler",
+            "class_type": "XlabsSampler",
             "inputs": {
-                "seed": item.get("seed", 42),
-                "steps": item.get("steps", 20),
-                "cfg": item.get("cfg", 1.0),
-                "sampler_name": "euler",
-                "scheduler": "simple",
-                "denoise": 1.0,
                 "model": ["7", 0],  # Use IP-Adapter modified model
-                "positive": ["8", 0],
-                "negative": ["9", 0],
+                "conditioning": ["8", 0],  # positive prompt
+                "neg_conditioning": ["9", 0],  # negative prompt
+                "noise_seed": item.get("seed", 42),
+                "steps": item.get("steps", 20),
+                "timestep_to_start_cfg": item.get("timestep_to_start_cfg", 1),  # When to start CFG
+                "true_gs": item.get("guidance_scale", 3.5),  # Guidance scale
+                "image_to_image_strength": 0.0,  # txt2img mode
+                "denoise_strength": 1.0,
                 "latent_image": ["10", 0],
             },
         },

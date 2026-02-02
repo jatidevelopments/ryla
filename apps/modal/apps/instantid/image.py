@@ -258,31 +258,51 @@ def hf_download_sdxl_lightning():
 
 
 def hf_download_flux_ipadapter():
-    """Download Shakker-Labs IP-Adapter Flux model (alternative to XLabs)."""
+    """Download XLabs-AI Flux IP-Adapter v2 and CLIP vision model for ComfyUI."""
     from huggingface_hub import hf_hub_download
     import os
+    import shutil
     
     comfy_dir = Path("/root/comfy/ComfyUI")
     token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
     
     try:
-        print("📥 Downloading Shakker-Labs IP-Adapter Flux...")
+        # Download XLabs-AI IP-Adapter v2 model
+        print("📥 Downloading XLabs-AI Flux IP-Adapter v2...")
         ipadapter_model = hf_hub_download(
-            repo_id="Shakker-Labs/FLUX.1-dev-IP-Adapter",
-            filename="ip-adapter.bin",
+            repo_id="XLabs-AI/flux-ip-adapter-v2",
+            filename="ip_adapter.safetensors",
             cache_dir="/cache",
             token=token,
         )
         
-        subprocess.run(
-            f"mkdir -p {comfy_dir}/models/ipadapter-flux && "
-            f"ln -s {ipadapter_model} {comfy_dir}/models/ipadapter-flux/ip-adapter.bin",
-            shell=True,
-            check=True,
+        # Create xlabs ipadapters directory and COPY file (symlinks don't work well with Modal)
+        xlabs_dir = comfy_dir / "models" / "xlabs" / "ipadapters"
+        xlabs_dir.mkdir(parents=True, exist_ok=True)
+        target_path = xlabs_dir / "ip_adapter.safetensors"
+        if not target_path.exists():
+            shutil.copy2(ipadapter_model, target_path)
+        print(f"✅ XLabs-AI IP-Adapter v2 copied to {target_path}")
+        
+        # Download OpenAI CLIP vision model (required for IP-Adapter)
+        print("📥 Downloading OpenAI CLIP-ViT-Large vision model...")
+        clip_vision_model = hf_hub_download(
+            repo_id="openai/clip-vit-large-patch14",
+            filename="model.safetensors",
+            cache_dir="/cache",
+            token=token,
         )
-        print("✅ Shakker-Labs IP-Adapter Flux downloaded successfully")
+        
+        # Copy CLIP vision model
+        clip_dir = comfy_dir / "models" / "clip_vision"
+        clip_dir.mkdir(parents=True, exist_ok=True)
+        clip_target = clip_dir / "model.safetensors"
+        if not clip_target.exists():
+            shutil.copy2(clip_vision_model, clip_target)
+        print(f"✅ OpenAI CLIP vision model copied to {clip_target}")
+        
     except Exception as e:
-        print(f"❌ Failed to download Shakker-Labs IP-Adapter: {e}")
+        print(f"❌ Failed to download XLabs IP-Adapter: {e}")
 
 
 def hf_download_pulid_flux():
@@ -418,6 +438,7 @@ instantid_image = (
     # Copy ORIGINAL handler files (not split copies) - same as original working app
     .add_local_file("apps/modal/handlers/instantid.py", "/root/handlers/instantid.py", copy=True)
     .add_local_file("apps/modal/handlers/pulid_flux.py", "/root/handlers/pulid_flux.py", copy=True)
+    .add_local_file("apps/modal/handlers/ipadapter_faceid.py", "/root/handlers/ipadapter_faceid.py", copy=True)
     .run_function(
         hf_download_flux_dev,
         volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},

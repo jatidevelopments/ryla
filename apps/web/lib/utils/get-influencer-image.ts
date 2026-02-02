@@ -66,7 +66,8 @@ export function getInfluencerImage(
   if (!mapping) return null;
 
   const subfolderPath = mapping.subfolder ? `${mapping.subfolder}/` : '';
-  return `/images/wizard/${mapping.folder}/${normalizedEthnicity}/${subfolderPath}${fileName}-${normalizedEthnicity}.webp`;
+  const path = `/images/wizard/${mapping.folder}/${normalizedEthnicity}/${subfolderPath}${fileName}-${normalizedEthnicity}.webp`;
+  return withCdn(path);
 }
 
 /**
@@ -87,7 +88,8 @@ export function getSkinFeatureImage(
   const fileName = `${featureType}-${value
     .toLowerCase()
     .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/skin/${normalizedEthnicity}/features/${featureType}/${fileName}`;
+  const path = `/images/wizard/skin/${normalizedEthnicity}/features/${featureType}/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -106,7 +108,8 @@ export function getBodyTypeImage(
   }
 
   const fileName = `body-${bodyType}-${gender}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/body/${normalizedEthnicity}/body-types/${fileName}`;
+  const path = `/images/wizard/body/${normalizedEthnicity}/body-types/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -124,7 +127,8 @@ export function getBreastSizeImage(
   }
 
   const fileName = `breast-${size}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/body/${normalizedEthnicity}/breast-sizes/${fileName}`;
+  const path = `/images/wizard/body/${normalizedEthnicity}/breast-sizes/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -142,7 +146,8 @@ export function getAssSizeImage(
   }
 
   const fileName = `ass-${size}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/body/${normalizedEthnicity}/ass-sizes/${fileName}`;
+  const path = `/images/wizard/body/${normalizedEthnicity}/ass-sizes/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -160,7 +165,8 @@ export function getBreastTypeImage(
   }
 
   const fileName = `breast-type-${type}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/body/${normalizedEthnicity}/breast-types/${fileName}`;
+  const path = `/images/wizard/body/${normalizedEthnicity}/breast-types/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -180,7 +186,8 @@ export function getTattooImage(
   const fileName = `${value
     .toLowerCase()
     .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/modifications/${normalizedEthnicity}/tattoos/${fileName}`;
+  const path = `/images/wizard/modifications/${normalizedEthnicity}/tattoos/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -200,7 +207,8 @@ export function getPiercingImage(
   const fileName = `${value
     .toLowerCase()
     .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/modifications/${normalizedEthnicity}/piercings/${fileName}`;
+  const path = `/images/wizard/modifications/${normalizedEthnicity}/piercings/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -220,7 +228,8 @@ export function getSkinColorImage(
   const fileName = `${color
     .toLowerCase()
     .replace(/_/g, '-')}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/skin/${normalizedEthnicity}/colors/${fileName}`;
+  const path = `/images/wizard/skin/${normalizedEthnicity}/colors/${fileName}`;
+  return withCdn(path);
 }
 
 /**
@@ -267,5 +276,6 @@ export function getArchetypeImage(
   }
 
   const fileName = `archetype-${archetypeId}-${normalizedEthnicity}.webp`;
-  return `/images/wizard/personality/${normalizedEthnicity}/archetypes/${fileName}`;
+  const path = `/images/wizard/personality/${normalizedEthnicity}/archetypes/${fileName}`;
+  return withCdn(path);
 }

@@ -113,7 +113,7 @@ def hf_download_wan26():
 # Wan2.6 image extends base image with Wan2.6-specific models
 wan26_image = (
     base_image
-    # Copy handler file
+    # Copy handler files (wan2.py removed - Wan 2.1 no longer supported)
     .add_local_file("apps/modal/handlers/wan26.py", "/root/handlers/wan26.py", copy=True)
     # Download models
     .run_function(

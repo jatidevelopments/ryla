@@ -342,10 +342,11 @@ def build_qwen_image_2512_workflow(
                 "vae": ["3", 0],
             },
         },
-        # Preview/Save Image
+        # Save Image (use SaveImage to properly capture output)
         "11": {
-            "class_type": "PreviewImage",
+            "class_type": "SaveImage",
             "inputs": {
+                "filename_prefix": uuid.uuid4().hex,
                 "images": ["10", 0],
             },
         },
@@ -482,10 +483,11 @@ def build_qwen_image_2512_lora_workflow(
                 "vae": ["3", 0],
             },
         },
-        # Preview/Save Image
+        # Save Image (use SaveImage to properly capture output)
         "11": {
-            "class_type": "PreviewImage",
+            "class_type": "SaveImage",
             "inputs": {
+                "filename_prefix": uuid.uuid4().hex,
                 "images": ["10", 0],
             },
         },
