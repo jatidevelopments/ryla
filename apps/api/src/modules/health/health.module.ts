@@ -1,23 +1,12 @@
 import { Module } from '@nestjs/common';
 
-// import { RedisModule } from '../redis/redis.module';
-// import { HealthService } from './services/health.service';
-
-// Minimal health controller for debugging
-import { Controller, Get } from '@nestjs/common';
-
-@Controller()
-class MinimalHealthController {
-  @Get('health')
-  health(): string {
-    return 'ok';
-  }
-}
+import { RedisModule } from '../redis/redis.module';
+import { HealthController } from './health.controller';
+import { HealthService } from './services/health.service';
 
 @Module({
-  // imports: [RedisModule],
-  controllers: [MinimalHealthController],
-  // providers: [HealthService],
+  imports: [RedisModule],
+  controllers: [HealthController],
+  providers: [HealthService],
 })
 export class HealthModule {}
-
