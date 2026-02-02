@@ -114,14 +114,64 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false # Don't auto-fetch LFS, we'll handle it manually
 
-      - name: Pull LFS files
+      - name: Pull LFS files (graceful failure)
+        id: lfs
+        continue-on-error: true
         run: |
-          git lfs install
-          git lfs pull
+          echo "Attempting to pull LFS files..."
+          git lfs install || true
+
+          # Try to pull LFS files, capture exit code
+          if git lfs pull 2>&1 | tee /tmp/lfs-output.log; then
+            echo "lfs_success=true" >> $GITHUB_OUTPUT
+            echo "✅ LFS pull successful"
+          else
+            echo "lfs_success=false" >> $GITHUB_OUTPUT
+            echo "⚠️ LFS pull failed (likely quota exceeded)"
+            cat /tmp/lfs-output.log
+            
+            # Check if it's a budget issue
+            if grep -q "exceeded its LFS budget" /tmp/lfs-output.log; then
+              echo ""
+              echo "=================================================="
+              echo "⚠️ GitHub LFS BUDGET EXCEEDED"
+              echo "=================================================="
+              echo "The repository has exceeded its Git LFS bandwidth quota."
+              echo "Options:"
+              echo "  1. Increase LFS budget in GitHub billing settings"
+              echo "  2. Wait for quota to reset (monthly)"
+              echo "  3. Use local images already uploaded to R2"
+              echo "=================================================="
+            fi
+          fi
         env:
           GIT_LFS_SKIP_SMUDGE: 0
+
+      - name: Check if images exist
+        id: check-images
+        run: |
+          SOURCE_DIR="apps/web/public/images"
+          if [ -d "$SOURCE_DIR" ]; then
+            # Check if files are actual images or LFS pointers
+            SAMPLE=$(find "$SOURCE_DIR" -name "*.webp" -type f | head -1)
+            if [ -n "$SAMPLE" ]; then
+              if file "$SAMPLE" | grep -q "image\|WebP"; then
+                echo "has_images=true" >> $GITHUB_OUTPUT
+                echo "✅ Found actual image files"
+              else
+                echo "has_images=false" >> $GITHUB_OUTPUT
+                echo "⚠️ Files are LFS pointers, not actual images"
+              fi
+            else
+              echo "has_images=false" >> $GITHUB_OUTPUT
+              echo "⚠️ No image files found"
+            fi
+          else
+            echo "has_images=false" >> $GITHUB_OUTPUT
+            echo "⚠️ Image directory not found"
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -132,6 +182,7 @@ jobs:
         run: npm install -g wrangler
 
       - name: Sync web images to R2
+        if: steps.check-images.outputs.has_images == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -144,6 +195,16 @@ jobs:
             echo "This may be due to LFS quota exceeded"
             exit 0
           fi
+
+      - name: Skip sync (LFS unavailable)
+        if: steps.check-images.outputs.has_images != 'true'
+        run: |
+          echo "⏭️ Skipping R2 sync - images not available (LFS quota exceeded)"
+          echo ""
+          echo "The images already uploaded to R2 will continue to work."
+          echo "To manually sync new images, run the upload script locally:"
+          echo "  bash scripts/setup/upload-wizard-images-to-r2.sh"
+          exit 0
 
           TOTAL=$(find "$SOURCE_DIR" -type f \( -name "*.webp" -o -name "*.png" -o -name "*.jpg" -o -name "*.jpeg" \) | wc -l)
           echo "Found $TOTAL images to sync"
@@ -203,14 +264,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
 
-      - name: Pull LFS files
+      - name: Pull LFS files (graceful failure)
+        id: lfs
+        continue-on-error: true
         run: |
-          git lfs install
-          git lfs pull
-        env:
-          GIT_LFS_SKIP_SMUDGE: 0
+          git lfs install || true
+          git lfs pull 2>&1 || echo "⚠️ LFS pull failed (quota may be exceeded)"
+
+      - name: Check if images exist
+        id: check-images
+        run: |
+          SOURCE_DIR="apps/funnel/public"
+          SAMPLE=$(find "$SOURCE_DIR" -name "*.webp" -type f 2>/dev/null | head -1)
+          if [ -n "$SAMPLE" ] && file "$SAMPLE" | grep -q "image\|WebP"; then
+            echo "has_images=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_images=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -221,6 +293,7 @@ jobs:
         run: npm install -g wrangler
 
       - name: Sync funnel images to R2
+        if: steps.check-images.outputs.has_images == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -253,6 +326,11 @@ jobs:
 
           echo "✅ Funnel sync complete"
 
+      - name: Skip sync (LFS unavailable)
+        if: steps.check-images.outputs.has_images != 'true'
+        run: |
+          echo "⏭️ Skipping R2 sync - images not available (LFS quota exceeded)"
+
   sync-landing-images:
     name: Sync Landing Images to R2
     runs-on: ubuntu-latest
@@ -262,14 +340,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          lfs: true
+          lfs: false
 
-      - name: Pull LFS files
+      - name: Pull LFS files (graceful failure)
+        id: lfs
+        continue-on-error: true
         run: |
-          git lfs install
-          git lfs pull
-        env:
-          GIT_LFS_SKIP_SMUDGE: 0
+          git lfs install || true
+          git lfs pull 2>&1 || echo "⚠️ LFS pull failed (quota may be exceeded)"
+
+      - name: Check if images exist
+        id: check-images
+        run: |
+          SOURCE_DIR="apps/landing/public"
+          SAMPLE=$(find "$SOURCE_DIR" -name "*.webp" -type f 2>/dev/null | head -1)
+          if [ -n "$SAMPLE" ] && file "$SAMPLE" | grep -q "image\|WebP"; then
+            echo "has_images=true" >> $GITHUB_OUTPUT
+          else
+            echo "has_images=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -280,6 +369,7 @@ jobs:
         run: npm install -g wrangler
 
       - name: Sync landing images to R2
+        if: steps.check-images.outputs.has_images == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -311,6 +401,11 @@ jobs:
           done
 
           echo "✅ Landing sync complete"
+
+      - name: Skip sync (LFS unavailable)
+        if: steps.check-images.outputs.has_images != 'true'
+        run: |
+          echo "⏭️ Skipping R2 sync - images not available (LFS quota exceeded)"
 
   summary:
     name: Sync Summary
