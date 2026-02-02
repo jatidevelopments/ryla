@@ -1,37 +1,126 @@
 #!/usr/bin/env sh
 
 # RYLA Pre-Push Hook
-# Validates branch naming convention before pushing
+# 1. Validates branch naming convention
+# 2. Builds affected apps to catch compile errors before CI
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 
-# Skip validation for main, master, develop branches
+# ============================================================================
+# Branch Naming Validation (skip for main/staging branches)
+# ============================================================================
 case "$BRANCH" in
   main|master|develop|staging|production)
-    exit 0
+    # Skip branch naming check for protected branches
+    ;;
+  *)
+    # Branch naming pattern: <type>/<id>-<description>
+    # Types: feat, fix, refactor, docs, test, chore, epic, initiative
+    # ID: EP-XXX, ST-XXX, BUG-XXX, TSK-XXX, IN-XXX (optional for chore)
+    PATTERN="^(feat|fix|refactor|docs|test|chore|epic|initiative|hotfix)/(ep|st|bug|tsk|in)-[0-9]+-[a-z0-9-]+$|^(chore)/[a-z0-9-]+$"
+
+    if ! echo "$BRANCH" | grep -qE "$PATTERN"; then
+      echo "❌ Invalid branch name: $BRANCH"
+      echo ""
+      echo "Branch naming convention:"
+      echo "  <type>/<id>-<description>"
+      echo ""
+      echo "Examples:"
+      echo "  feat/st-010-login-form"
+      echo "  fix/bug-015-null-check"
+      echo "  epic/ep-001-user-auth"
+      echo "  chore/update-deps"
+      echo ""
+      echo "Types: feat, fix, refactor, docs, test, chore, epic, initiative, hotfix"
+      echo "IDs: EP-XXX, ST-XXX, BUG-XXX, TSK-XXX, IN-XXX"
+      exit 1
+    fi
+    echo "✅ Branch name is valid: $BRANCH"
     ;;
 esac
 
-# Branch naming pattern: <type>/<id>-<description>
-# Types: feat, fix, refactor, docs, test, chore, epic, initiative
-# ID: EP-XXX, ST-XXX, BUG-XXX, TSK-XXX, IN-XXX (optional for chore)
-PATTERN="^(feat|fix|refactor|docs|test|chore|epic|initiative|hotfix)/(ep|st|bug|tsk|in)-[0-9]+-[a-z0-9-]+$|^(chore)/[a-z0-9-]+$"
+# ============================================================================
+# Build Affected Apps (catch compile errors before CI)
+# ============================================================================
+echo ""
+echo "🔨 Building affected apps..."
 
-if ! echo "$BRANCH" | grep -qE "$PATTERN"; then
-  echo "❌ Invalid branch name: $BRANCH"
-  echo ""
-  echo "Branch naming convention:"
-  echo "  <type>/<id>-<description>"
-  echo ""
-  echo "Examples:"
-  echo "  feat/st-010-login-form"
-  echo "  fix/bug-015-null-check"
-  echo "  epic/ep-001-user-auth"
-  echo "  chore/update-deps"
-  echo ""
-  echo "Types: feat, fix, refactor, docs, test, chore, epic, initiative, hotfix"
-  echo "IDs: EP-XXX, ST-XXX, BUG-XXX, TSK-XXX, IN-XXX"
-  exit 1
+# Get changed files compared to origin/main (or HEAD~10 if origin/main not available)
+BASE=$(git merge-base HEAD origin/main 2>/dev/null || echo "HEAD~10")
+CHANGED_FILES=$(git diff --name-only "$BASE"..HEAD 2>/dev/null || echo "")
+
+# Determine which apps need building
+BUILD_API=false
+BUILD_WEB=false
+BUILD_FUNNEL=false
+BUILD_LANDING=false
+BUILD_ADMIN=false
+
+if echo "$CHANGED_FILES" | grep -qE "^apps/api/|^libs/"; then
+  BUILD_API=true
+fi
+if echo "$CHANGED_FILES" | grep -qE "^apps/web/|^libs/"; then
+  BUILD_WEB=true
+fi
+if echo "$CHANGED_FILES" | grep -qE "^apps/funnel/|^libs/"; then
+  BUILD_FUNNEL=true
+fi
+if echo "$CHANGED_FILES" | grep -qE "^apps/landing/|^libs/"; then
+  BUILD_LANDING=true
+fi
+if echo "$CHANGED_FILES" | grep -qE "^apps/admin/|^libs/"; then
+  BUILD_ADMIN=true
 fi
 
-echo "✅ Branch name is valid: $BRANCH"
+# Build libs first if any app needs building
+if [ "$BUILD_API" = true ] || [ "$BUILD_WEB" = true ] || [ "$BUILD_FUNNEL" = true ] || [ "$BUILD_LANDING" = true ] || [ "$BUILD_ADMIN" = true ]; then
+  echo "  📦 Building shared libs..."
+  if ! pnpm build:libs 2>&1 | tail -5; then
+    echo "❌ Libs build failed. Fix errors before pushing."
+    exit 1
+  fi
+fi
+
+# Build affected apps
+if [ "$BUILD_API" = true ]; then
+  echo "  🔧 Building API..."
+  if ! pnpm nx build api 2>&1 | tail -10; then
+    echo "❌ API build failed. Fix errors before pushing."
+    exit 1
+  fi
+fi
+
+if [ "$BUILD_WEB" = true ]; then
+  echo "  🌐 Building Web..."
+  if ! pnpm nx build web 2>&1 | tail -10; then
+    echo "❌ Web build failed. Fix errors before pushing."
+    exit 1
+  fi
+fi
+
+if [ "$BUILD_FUNNEL" = true ]; then
+  echo "  🎯 Building Funnel..."
+  if ! pnpm nx build funnel 2>&1 | tail -10; then
+    echo "❌ Funnel build failed. Fix errors before pushing."
+    exit 1
+  fi
+fi
+
+if [ "$BUILD_LANDING" = true ]; then
+  echo "  🚀 Building Landing..."
+  if ! pnpm nx build landing 2>&1 | tail -10; then
+    echo "❌ Landing build failed. Fix errors before pushing."
+    exit 1
+  fi
+fi
+
+if [ "$BUILD_ADMIN" = true ]; then
+  echo "  👤 Building Admin..."
+  if ! pnpm nx build admin 2>&1 | tail -10; then
+    echo "❌ Admin build failed. Fix errors before pushing."
+    exit 1
+  fi
+fi
+
+echo ""
+echo "✅ Pre-push checks passed"
