@@ -32,6 +32,26 @@ export interface GenerateStudioImagesInput {
   modelId?: string;
   isRetry?: boolean; // Indicates this is a retry of a failed image (should not charge credits)
   retryImageId?: string; // ID of the failed image being retried
+  // LoRA settings
+  useLora?: boolean; // Enable LoRA for this generation (if available)
+}
+
+export interface GenerateStudioVideoInput {
+  characterId: string;
+  prompt?: string; // Optional prompt for video
+  duration: 2 | 4 | 6 | 8; // Video duration in seconds
+  fps?: 24 | 30; // Frames per second
+  aspectRatio: AspectRatio;
+  nsfw: boolean;
+  seed?: number;
+  useLora?: boolean; // Enable LoRA for video generation (if available)
+}
+
+export interface FaceSwapInput {
+  characterId: string;
+  sourceImageId?: string; // Source image ID to apply face swap
+  sourceVideoId?: string; // Source video ID to apply face swap
+  nsfw: boolean;
 }
 
 export interface InpaintEditInput {
@@ -96,6 +116,7 @@ export async function generateStudioImages(
       modelId: input.modelId,
       isRetry: input.isRetry,
       retryImageId: input.retryImageId,
+      useLora: input.useLora,
     }),
   });
 
@@ -214,4 +235,68 @@ export async function deleteImage(imageId: string): Promise<void> {
       error.message || error.messages?.[0] || 'Failed to delete image'
     );
   }
+}
+
+/**
+ * Generate a video using the character's appearance
+ * Uses Wan 2.6 text-to-video model via Modal.com
+ */
+export async function generateStudioVideo(
+  input: GenerateStudioVideoInput
+): Promise<{
+  jobId: string;
+  promptId: string;
+}> {
+  const response = await authFetch(`${API_BASE_URL}/video/generate/studio`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      characterId: input.characterId,
+      prompt: input.prompt,
+      duration: input.duration,
+      fps: input.fps ?? 24,
+      aspectRatio: input.aspectRatio,
+      nsfw: input.nsfw,
+      seed: input.seed,
+      useLora: input.useLora,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(
+      error.message || error.messages?.[0] || 'Failed to start video generation'
+    );
+  }
+
+  return response.json();
+}
+
+/**
+ * Apply face swap to an existing image or video
+ * Uses ReActor face swap via Modal.com
+ */
+export async function faceSwap(input: FaceSwapInput): Promise<{
+  jobId: string;
+  promptId: string;
+}> {
+  const response = await authFetch(`${API_BASE_URL}/image/edit/face-swap`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      characterId: input.characterId,
+      sourceImageId: input.sourceImageId,
+      sourceVideoId: input.sourceVideoId,
+      nsfw: input.nsfw,
+    }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json().catch(() => ({}));
+    throw new Error(
+      error.message || error.messages?.[0] || 'Failed to start face swap'
+    );
+  }
+
+  return response.json();
 }

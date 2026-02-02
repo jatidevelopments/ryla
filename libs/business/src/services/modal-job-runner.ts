@@ -180,7 +180,7 @@ export class ModalJobRunner implements RunPodJobRunner {
   /**
    * Submit Qwen face swap job (RECOMMENDED for face consistency)
    * Uses /qwen-faceswap or /qwen-faceswap-fast endpoint
-   * 
+   *
    * Two-step pipeline:
    * 1. Generate with Qwen-Image 2512 (best quality T2I)
    * 2. Swap face using ReActor with GFPGAN restoration
@@ -305,7 +305,7 @@ export class ModalJobRunner implements RunPodJobRunner {
   /**
    * Submit video face swap job
    * Uses /video-faceswap endpoint (ReActor-based frame-by-frame)
-   * 
+   *
    * Processes video frame-by-frame:
    * 1. Load source video frames
    * 2. Apply ReActor face swap to each frame
@@ -329,8 +329,7 @@ export class ModalJobRunner implements RunPodJobRunner {
         const arrayBuffer = await response.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         const base64 = buffer.toString('base64');
-        const contentType =
-          response.headers.get('content-type') || 'video/mp4';
+        const contentType = response.headers.get('content-type') || 'video/mp4';
         sourceVideo = `data:${contentType};base64,${base64}`;
       } else {
         throw new Error('Invalid sourceVideoUrl format');
@@ -675,6 +674,70 @@ export class ModalJobRunner implements RunPodJobRunner {
     }
   }
 
+  /**
+   * Generate image using SDXL + InstantID (best face consistency)
+   */
+  async generateSDXLInstantID(input: ModalInstantIDRequest): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateSDXLInstantID(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate image using Flux + PuLID face consistency
+   */
+  async generateFluxPuLID(input: ModalPuLIDRequest): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateFluxPuLID(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
   // ============================================================
   // Qwen-Image Models (Modal.com - Apache 2.0, supports NSFW)
   // ============================================================
@@ -866,6 +929,88 @@ export class ModalJobRunner implements RunPodJobRunner {
               buffer: response.image,
             },
           ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate video using Wan 2.6 text-to-video
+   */
+  async generateWan26(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    num_frames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateWan26(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: {
+            buffer: response.image, // Video returned as buffer
+          },
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate video using Wan 2.6 + LoRA for character consistency
+   */
+  async generateWan26LoRA(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    num_frames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+    lora_id: string;
+    lora_strength?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateWan26LoRA(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: {
+            buffer: response.image, // Video returned as buffer
+          },
         },
         createdAt: new Date(),
       });

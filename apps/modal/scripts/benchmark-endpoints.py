@@ -69,8 +69,7 @@ SPLIT_APPS = {
     "/z-image-simple": f"https://{WORKSPACE}--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-simple",
     "/z-image-danrisi": f"https://{WORKSPACE}--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-danrisi",
     "/z-image-lora": f"https://{WORKSPACE}--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-lora",
-    # Video
-    "/wan2": f"https://{WORKSPACE}--ryla-wan26-comfyui-fastapi-app.modal.run/wan2",
+    # Video (Wan 2.1 removed - use Wan 2.6)
     "/wan2.6": f"https://{WORKSPACE}--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6",
     "/wan2.6-r2v": f"https://{WORKSPACE}--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6-r2v",
     "/wan2.6-lora": f"https://{WORKSPACE}--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6-lora",
@@ -100,11 +99,11 @@ ENDPOINT_CONFIG = {
     "/z-image-simple": {"category": "Z-Image", "requires": [], "description": "Z-Image basic", "timeout": "default"},
     "/z-image-danrisi": {"category": "Z-Image", "requires": [], "description": "Z-Image Danrisi", "timeout": "short"},
     "/z-image-lora": {"category": "Z-Image", "requires": ["lora"], "description": "Z-Image + LoRA", "timeout": "default"},
-    "/wan2": {"category": "Video", "requires": [], "description": "Wan2.1 text-to-video", "timeout": "long"},
+    # Note: /wan2 (Wan 2.1) removed - use Wan 2.6
     "/wan2.6": {"category": "Video", "requires": [], "description": "Wan2.6 text-to-video", "timeout": "long"},
     "/wan2.6-r2v": {"category": "Video", "requires": ["video"], "description": "Wan2.6 reference-to-video", "timeout": "long"},
     "/wan2.6-lora": {"category": "Video", "requires": ["lora"], "description": "Wan2.6 + LoRA", "timeout": "long"},
-    "/seedvr2": {"category": "Upscaling", "requires": ["video"], "description": "SeedVR2 video upscaling", "timeout": "long"},
+    "/seedvr2": {"category": "Upscaling", "requires": ["image"], "description": "SeedVR2 image upscaling", "timeout": "long"},
 }
 
 def get_timeout(path: str) -> int:
@@ -386,11 +385,11 @@ def build_payload(path: str, resources: dict) -> Optional[dict]:
         "/z-image-simple": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 4, "cfg": 0.0},
         "/z-image-danrisi": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 4, "cfg": 1.0},
         "/z-image-lora": {"prompt": "A beautiful landscape", "width": 512, "height": 512, "steps": 8, "cfg": 4.5, "lora_id": "test-benchmark", "lora_strength": 0.8},
-        "/wan2": {"prompt": "A landscape animation", "width": 512, "height": 512, "length": 17, "fps": 16, "steps": 10, "cfg": 5.0},
+        # Note: /wan2 removed - use Wan 2.6
         "/wan2.6": {"prompt": "A landscape animation", "width": 512, "height": 512, "length": 17, "fps": 16, "steps": 10, "cfg": 5.0},
         "/wan2.6-r2v": {"prompt": "A person animation", "width": 512, "height": 512, "length": 17, "fps": 16, "steps": 10, "cfg": 5.0},
         "/wan2.6-lora": {"prompt": "A landscape animation", "width": 512, "height": 512, "length": 17, "fps": 16, "steps": 10, "cfg": 5.0, "lora_id": "test-benchmark", "lora_strength": 0.8},
-        "/seedvr2": {"scale": 2, "steps": 10, "cfg": 5.0},
+        "/seedvr2": {},  # Requires image input
     }
     
     payload = base_payloads.get(path, {"prompt": "test"})
@@ -409,17 +408,17 @@ def build_payload(path: str, resources: dict) -> Optional[dict]:
         elif path == "/qwen-image-inpaint-2511":
             payload["source_image"] = image_b64
             payload["mask_image"] = image_b64  # Using same as mask for test
+        elif path == "/seedvr2":
+            payload["image"] = image_b64
     
     if "video" in requires:
         if not resources.get("video"):
             return None
         video_b64 = encode_file_to_base64(resources["video"])
         if path == "/video-faceswap":
-            payload["video"] = video_b64
+            payload["source_video"] = video_b64  # video-faceswap requires MP4 format
         elif path == "/wan2.6-r2v":
             payload["reference_videos"] = [video_b64]
-        elif path == "/seedvr2":
-            payload["video"] = video_b64
     
     if "lora" in requires:
         if not resources.get("lora_available"):

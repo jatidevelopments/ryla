@@ -6,6 +6,7 @@ import type {
   StudioMode,
   ContentType,
   Quality,
+  VideoDuration,
 } from '../types';
 import type { StudioImage } from '../../studio-image-card';
 import { usePersistedSettings } from './use-persisted-settings';
@@ -30,7 +31,10 @@ interface UseGenerationSettingsOptions {
 interface UseGenerationSettingsReturn {
   // Settings state
   settings: GenerationSettings;
-  updateSetting: <K extends keyof GenerationSettings>(key: K, value: GenerationSettings[K]) => void;
+  updateSetting: <K extends keyof GenerationSettings>(
+    key: K,
+    value: GenerationSettings[K]
+  ) => void;
 
   // NSFW state (studio-level)
   studioNsfwEnabled: boolean;
@@ -39,7 +43,9 @@ interface UseGenerationSettingsReturn {
 
   // Model selection
   availableModels: ReturnType<typeof import('../types').getAIModelsForMode>;
-  selectedModel: ReturnType<typeof import('../types').getAIModelsForMode>[number] | null;
+  selectedModel:
+    | ReturnType<typeof import('../types').getAIModelsForMode>[number]
+    | null;
 
   // Computed values
   creditsCost: number;
@@ -53,11 +59,19 @@ interface UseGenerationSettingsReturn {
   clearStyles: () => void;
 }
 
-// Quality credits lookup
+// Quality credits lookup (for images)
 const QUALITY_CREDITS: Record<Quality, number> = {
   '1.5k': 20,
   '2k': 50,
   '4k': 80,
+};
+
+// Video duration credits lookup
+const VIDEO_DURATION_CREDITS: Record<VideoDuration, number> = {
+  2: 50,
+  4: 100,
+  6: 150,
+  8: 200,
 };
 
 export function useGenerationSettings({
@@ -149,7 +163,7 @@ export function useGenerationSettings({
     if (mode !== 'editing' && settings.objects.length > 0) {
       setSettings((prev) => ({ ...prev, objects: [] }));
     }
-  }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [mode]);
 
   // Use extracted hook for loading settings from selected image
   const { imageSettings, imageNsfw } = useImageSettingsLoader({
@@ -178,16 +192,12 @@ export function useGenerationSettings({
   }, [imageNsfw]);
 
   // Use extracted hook for model selection
-  const {
-    availableModels,
-    selectedModel,
-    shouldResetModel,
-    defaultModelId,
-  } = useModelSelection({
-    mode,
-    studioNsfwEnabled,
-    currentModelId: settings.modelId,
-  });
+  const { availableModels, selectedModel, shouldResetModel, defaultModelId } =
+    useModelSelection({
+      mode,
+      studioNsfwEnabled,
+      currentModelId: settings.modelId,
+    });
 
   // Reset modelId if current selection is not available
   React.useEffect(() => {
@@ -197,9 +207,19 @@ export function useGenerationSettings({
     }
   }, [shouldResetModel, defaultModelId, updatePersistedSetting]);
 
-  // Calculate credits cost
-  const creditsCost =
-    (QUALITY_CREDITS[settings.quality] || 20) * settings.batchSize;
+  // Calculate credits cost based on content type
+  const creditsCost = React.useMemo(() => {
+    if (contentType === 'video') {
+      const videoDuration = settings.videoDuration ?? 4;
+      return VIDEO_DURATION_CREDITS[videoDuration] || 100;
+    }
+    return (QUALITY_CREDITS[settings.quality] || 20) * settings.batchSize;
+  }, [
+    contentType,
+    settings.videoDuration,
+    settings.quality,
+    settings.batchSize,
+  ]);
 
   // Update setting and persist to localStorage
   const updateSetting = React.useCallback(
@@ -276,4 +296,3 @@ export function useGenerationSettings({
     clearStyles,
   };
 }
-

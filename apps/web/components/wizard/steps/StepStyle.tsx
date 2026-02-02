@@ -2,6 +2,7 @@
 
 import * as React from 'react';
 import { useCharacterWizardStore } from '@ryla/business';
+import { withCdn } from '@ryla/shared';
 import { cn } from '@ryla/ui';
 
 const genderOptions = [
@@ -11,7 +12,7 @@ const genderOptions = [
     gradient: 'from-pink-500 to-rose-500',
     disabled: false,
     comingSoon: false,
-    image: '/images/wizard/base/caucasian/female-portrait.webp',
+    image: withCdn('/images/wizard/base/caucasian/female-portrait.webp'),
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
         <circle cx="12" cy="8" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -30,7 +31,7 @@ const genderOptions = [
     gradient: 'from-blue-500 to-indigo-600',
     disabled: true,
     comingSoon: true,
-    image: '/images/wizard/base/caucasian/male-portrait.webp',
+    image: withCdn('/images/wizard/base/caucasian/male-portrait.webp'),
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="w-8 h-8 text-white">
         <circle cx="10" cy="14" r="5" stroke="currentColor" strokeWidth="1.5" />
@@ -121,7 +122,9 @@ export function StepStyle() {
               return (
                 <button
                   key={option.value}
-                  onClick={() => !isDisabled && setField('gender', option.value)}
+                  onClick={() =>
+                    !isDisabled && setField('gender', option.value)
+                  }
                   disabled={isDisabled}
                   className={cn(
                     'relative aspect-square rounded-xl border-2 transition-all duration-200 overflow-hidden',
@@ -177,7 +180,9 @@ export function StepStyle() {
                       {option.label}
                     </p>
                     {option.comingSoon && (
-                      <span className="text-xs text-white/60 font-medium bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm">Coming Soon</span>
+                      <span className="text-xs text-white/60 font-medium bg-black/40 px-2 py-0.5 rounded backdrop-blur-sm">
+                        Coming Soon
+                      </span>
                     )}
                   </div>
 
@@ -249,7 +254,12 @@ export function StepStyle() {
                       </span>
                     )}
                   </div>
-                  <p className={cn('text-sm', isDisabled ? 'text-white/40' : 'text-white/60')}>
+                  <p
+                    className={cn(
+                      'text-sm',
+                      isDisabled ? 'text-white/40' : 'text-white/60'
+                    )}
+                  >
                     {option.description}
                   </p>
                 </div>

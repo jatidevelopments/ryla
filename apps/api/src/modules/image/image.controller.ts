@@ -10,7 +10,12 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+} from '@nestjs/swagger';
 import { ImageGenerationService } from '@ryla/business';
 import { JwtAccessGuard } from '../auth/guards/jwt-access.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -20,6 +25,8 @@ import { GenerateFaceSwapDto } from './dto/req/generate-face-swap.dto';
 import { GenerateCharacterSheetDto } from './dto/req/generate-character-sheet.dto';
 import { InpaintEditDto } from './dto/req/inpaint-edit.dto';
 import { GenerateStudioImagesDto } from './dto/req/generate-studio-images.dto';
+import { GenerateStudioVideoDto as _GenerateStudioVideoDto } from './dto/req/generate-studio-video.dto';
+import { EditFaceSwapDto as _EditFaceSwapDto } from './dto/req/edit-face-swap.dto';
 import { UpscaleImageDto } from './dto/req/upscale-image.dto';
 import { BaseImageGenerationService } from './services/base-image-generation.service';
 import { ComfyUIJobRunnerAdapter } from './services/comfyui-job-runner.adapter';
@@ -49,7 +56,7 @@ export class ImageController {
     @Inject(ComfyUIResultsService)
     private readonly comfyuiResultsService: ComfyUIResultsService,
     @Inject(CreditManagementService)
-    private readonly creditService: CreditManagementService,
+    private readonly creditService: CreditManagementService
   ) {}
 
   /**
@@ -62,7 +69,7 @@ export class ImageController {
   @ApiResponse({ status: 200, description: 'Job queued successfully' })
   public async generateBaseImages(
     @CurrentUser() user: IJwtPayload,
-    @Body() dto: GenerateBaseImagesDto,
+    @Body() dto: GenerateBaseImagesDto
   ) {
     // Use the new ComfyUI-based service with workflow factory
     const result = await this.baseImageService.generateBaseImages({
@@ -88,7 +95,7 @@ export class ImageController {
   @ApiOperation({ summary: 'Generate face swap image' })
   public async generateFaceSwap(
     @CurrentUser() user: IJwtPayload,
-    @Body() dto: GenerateFaceSwapDto,
+    @Body() dto: GenerateFaceSwapDto
   ) {
     return this.imageGenerationService.startFaceSwap({
       ...dto,
@@ -100,7 +107,7 @@ export class ImageController {
   @ApiOperation({ summary: 'Generate character sheet (multiple angles)' })
   public async generateCharacterSheet(
     @CurrentUser() user: IJwtPayload,
-    @Body() dto: GenerateCharacterSheetDto,
+    @Body() dto: GenerateCharacterSheetDto
   ) {
     return this.imageGenerationService.startCharacterSheet({
       ...dto,
@@ -109,8 +116,13 @@ export class ImageController {
   }
 
   @Post('edit/inpaint')
-  @ApiOperation({ summary: 'Edit an existing image asset via inpainting (Flux Fill)' })
-  public async inpaintEdit(@CurrentUser() user: IJwtPayload, @Body() dto: InpaintEditDto) {
+  @ApiOperation({
+    summary: 'Edit an existing image asset via inpainting (Flux Fill)',
+  })
+  public async inpaintEdit(
+    @CurrentUser() user: IJwtPayload,
+    @Body() dto: InpaintEditDto
+  ) {
     return this.inpaintEditService.startInpaintEdit({
       userId: user.userId,
       characterId: dto.characterId,
@@ -126,7 +138,7 @@ export class ImageController {
   @ApiOperation({ summary: 'Generate Studio image assets (no posts/captions)' })
   public async generateStudioImages(
     @CurrentUser() user: IJwtPayload,
-    @Body() dto: GenerateStudioImagesDto,
+    @Body() dto: GenerateStudioImagesDto
   ) {
     // Calculate image dimensions
     const aspectRatioToSize = (ratio: '1:1' | '9:16' | '2:3') => {
@@ -143,11 +155,15 @@ export class ImageController {
 
     // Calculate total credits needed
     let totalCredits = 0;
-    const provider = dto.nsfw ? 'comfyui' : (dto.modelProvider ?? 'comfyui');
+    const provider = dto.nsfw ? 'comfyui' : dto.modelProvider ?? 'comfyui';
 
     if (provider === 'fal' && dto.modelId) {
       // Fal models: dynamic pricing based on model and image size
-      const creditsPerImage = calculateFalModelCredits(dto.modelId, width, height);
+      const creditsPerImage = calculateFalModelCredits(
+        dto.modelId,
+        width,
+        height
+      );
       totalCredits = creditsPerImage * dto.count;
     } else {
       // ComfyUI: use fixed feature-based pricing
@@ -159,7 +175,12 @@ export class ImageController {
     // Check and deduct credits upfront
     if (provider === 'fal' && dto.modelId) {
       // For Fal models, use raw credit deduction since pricing is dynamic
-      await this.creditService.deductCreditsRaw(user.userId, totalCredits, undefined, `Studio generation: ${dto.modelId} (${dto.count} images)`);
+      await this.creditService.deductCreditsRaw(
+        user.userId,
+        totalCredits,
+        undefined,
+        `Studio generation: ${dto.modelId} (${dto.count} images)`
+      );
     } else {
       // For ComfyUI, use feature-based deduction
       // qualityMode removed (EP-045) - always use studio_fast
@@ -188,11 +209,84 @@ export class ImageController {
     });
   }
 
+  /**
+   * Generate video using character appearance
+   * Uses Wan 2.6 text-to-video via Modal.com
+   */
+  @Post('video/generate/studio')
+  @ApiOperation({ summary: 'Generate Studio video from character' })
+  public async generateStudioVideo(
+    @CurrentUser() user: IJwtPayload,
+    @Body() dto: GenerateStudioVideoDto
+  ) {
+    // Calculate video credits based on duration
+    const VIDEO_DURATION_CREDITS: Record<number, number> = {
+      2: 50,
+      4: 100,
+      6: 150,
+      8: 200,
+    };
+    const creditsNeeded = VIDEO_DURATION_CREDITS[dto.duration] || 100;
+
+    // Deduct credits upfront
+    await this.creditService.deductCreditsRaw(
+      user.userId,
+      creditsNeeded,
+      undefined,
+      `Video generation: ${dto.duration}s video`
+    );
+
+    return this.studioGenerationService.startVideoGeneration({
+      userId: user.userId,
+      characterId: dto.characterId,
+      prompt: dto.prompt,
+      duration: dto.duration,
+      fps: dto.fps ?? 24,
+      aspectRatio: dto.aspectRatio,
+      nsfw: dto.nsfw,
+      seed: dto.seed,
+      useLora: dto.useLora ?? true,
+    });
+  }
+
+  /**
+   * Apply face swap to existing image or video
+   * Uses ReActor face swap via Modal.com
+   */
+  @Post('edit/face-swap')
+  @ApiOperation({ summary: 'Apply face swap to image or video' })
+  public async editFaceSwap(
+    @CurrentUser() user: IJwtPayload,
+    @Body() dto: EditFaceSwapDto
+  ) {
+    // Face swap credits (fixed cost)
+    const creditsNeeded = dto.sourceVideoId ? 80 : 30; // Video costs more
+
+    // Deduct credits upfront
+    await this.creditService.deductCreditsRaw(
+      user.userId,
+      creditsNeeded,
+      undefined,
+      dto.sourceVideoId ? 'Video face swap' : 'Image face swap'
+    );
+
+    return this.studioGenerationService.startFaceSwapEdit({
+      userId: user.userId,
+      characterId: dto.characterId,
+      sourceImageId: dto.sourceImageId,
+      sourceVideoId: dto.sourceVideoId,
+      nsfw: dto.nsfw,
+      restoreFace: dto.restoreFace ?? true,
+    });
+  }
+
   @Post('upscale')
-  @ApiOperation({ summary: 'Upscale an existing image using Fal.ai upscaling models' })
+  @ApiOperation({
+    summary: 'Upscale an existing image using Fal.ai upscaling models',
+  })
   public async upscaleImage(
     @CurrentUser() user: IJwtPayload,
-    @Body() dto: UpscaleImageDto,
+    @Body() dto: UpscaleImageDto
   ) {
     // Calculate credits needed (using default model if not specified)
     const modelId = dto.modelId ?? 'fal-ai/clarity-upscaler';
@@ -205,7 +299,7 @@ export class ImageController {
       user.userId,
       estimatedCredits,
       undefined,
-      `Image upscaling: ${modelId}`,
+      `Image upscaling: ${modelId}`
     );
 
     return this.studioGenerationService.startUpscale({
@@ -221,10 +315,12 @@ export class ImageController {
    * Uses database job tracking for jobs started via ImageGenerationService.
    */
   @Get('jobs/:jobId')
-  @ApiOperation({ summary: 'Get generation job status and results (DB tracked)' })
+  @ApiOperation({
+    summary: 'Get generation job status and results (DB tracked)',
+  })
   public async getJob(
     @CurrentUser() user: IJwtPayload,
-    @Param('jobId', new ParseUUIDPipe()) jobId: string,
+    @Param('jobId', new ParseUUIDPipe()) jobId: string
   ) {
     const job = await this.imageGenerationService.syncJobStatus(jobId);
     if (!job) {
@@ -249,7 +345,7 @@ export class ImageController {
   @ApiResponse({ status: 200, description: 'Job results with image URLs' })
   public async getComfyUIResults(
     @CurrentUser() user: IJwtPayload,
-    @Param('promptId') promptId: string,
+    @Param('promptId') promptId: string
   ) {
     return this.comfyuiResultsService.getResults(promptId, user.userId);
   }
@@ -277,11 +373,12 @@ export class ImageController {
       available: ['z-image-danrisi', 'z-image-simple', 'z-image-pulid'],
       recommended: this.comfyuiAdapter.getRecommendedWorkflow(),
       descriptions: {
-        'z-image-danrisi': 'Optimized workflow with custom samplers (faster, better quality)',
+        'z-image-danrisi':
+          'Optimized workflow with custom samplers (faster, better quality)',
         'z-image-simple': 'Fallback workflow using built-in ComfyUI nodes',
-        'z-image-pulid': 'PuLID workflow for face consistency with reference image',
+        'z-image-pulid':
+          'PuLID workflow for face consistency with reference image',
       },
     };
   }
 }
-

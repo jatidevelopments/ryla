@@ -42,6 +42,9 @@ interface StudioGenerationBarProps {
   onUploadImage?: (file: File) => Promise<StudioImage | null>; // Handler to upload image
   tutorialCurrentStep?: number; // Current tutorial step index
   tutorialIsActive?: boolean; // Whether tutorial is active
+  // LoRA availability
+  loraAvailable?: boolean; // Whether LoRA is trained for selected character
+  loraName?: string | null; // Name of the trained LoRA
   className?: string;
 }
 
@@ -65,6 +68,8 @@ export function StudioGenerationBar({
   onUploadImage,
   tutorialCurrentStep = -1,
   tutorialIsActive = false,
+  loraAvailable = false,
+  loraName = null,
   className,
 }: StudioGenerationBarProps) {
   // Use extracted hook for mode change handling
@@ -247,6 +252,9 @@ export function StudioGenerationBar({
             isGenerating={isGenerating}
             tutorialCurrentStep={tutorialCurrentStep}
             tutorialIsActive={tutorialIsActive}
+            contentType={contentType}
+            loraAvailable={loraAvailable}
+            loraName={loraName}
           />
         </div>
 

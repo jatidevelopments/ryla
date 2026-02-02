@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { cn } from '@ryla/ui';
-import { Tooltip } from '../../../../../ui/tooltip';
 import type { ContentType } from '../../../types';
 
 interface ContentTypeSelectorProps {
@@ -30,24 +29,20 @@ export function ContentTypeSelector({
       >
         Image
       </button>
-      <Tooltip content="Video generation is coming soon!">
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-          }}
-          className={cn(
-            'px-3 md:px-4 min-h-[44px] py-2 md:py-2.5 rounded-2xl text-sm font-medium transition-all relative',
-            'text-white/40 cursor-not-allowed',
-            'hover:text-white/50'
-          )}
-          disabled
-        >
-          Video
-          <span className="absolute -top-0.5 -right-0.5 text-[6px] md:text-[7px] text-orange-400 font-bold bg-orange-400/20 px-0.5 md:px-1 py-0.5 rounded uppercase tracking-wider">
-            Soon
-          </span>
-        </button>
-      </Tooltip>
+      <button
+        onClick={() => onContentTypeChange('video')}
+        className={cn(
+          'px-3 md:px-4 min-h-[44px] py-2 md:py-2.5 rounded-2xl text-sm font-medium transition-all relative',
+          contentType === 'video'
+            ? 'bg-white/10 text-white'
+            : 'text-white/50 hover:text-white hover:bg-white/5'
+        )}
+      >
+        Video
+        <span className="absolute -top-0.5 -right-0.5 text-[6px] md:text-[7px] text-emerald-400 font-bold bg-emerald-400/20 px-0.5 md:px-1 py-0.5 rounded uppercase tracking-wider">
+          New
+        </span>
+      </button>
     </div>
   );
 }

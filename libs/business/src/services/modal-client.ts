@@ -2,13 +2,60 @@
  * Modal.com HTTP Client
  *
  * Client for calling Modal.com FastAPI endpoints for AI generation.
- * Handles all Modal.com endpoints: /flux-dev, /flux, /wan2, /workflow, /flux-lora
+ * Endpoints are split across multiple Modal apps for better scaling.
  *
  * Modal.com endpoints return images/videos directly as binary data with cost tracking headers.
+ *
+ * @see apps/modal/ENDPOINT-APP-MAPPING.md for endpoint-to-app mapping
  */
 
+/**
+ * Endpoint to Modal app mapping.
+ * Each endpoint is served by a specific Modal app.
+ */
+const ENDPOINT_APP_MAP: Record<string, string> = {
+  // Flux (ryla-flux)
+  '/flux': 'ryla-flux',
+  '/flux-dev': 'ryla-flux',
+  '/flux-dev-lora': 'ryla-flux',
+  // Face Consistency (ryla-instantid)
+  '/sdxl-instantid': 'ryla-instantid',
+  '/sdxl-turbo': 'ryla-instantid',
+  '/sdxl-lightning': 'ryla-instantid',
+  '/flux-pulid': 'ryla-instantid',
+  '/flux-ipadapter-faceid': 'ryla-instantid',
+  // Qwen Image (ryla-qwen-image)
+  '/qwen-image-2512': 'ryla-qwen-image',
+  '/qwen-image-2512-fast': 'ryla-qwen-image',
+  '/qwen-image-2512-lora': 'ryla-qwen-image',
+  '/qwen-faceswap': 'ryla-qwen-image',
+  '/qwen-faceswap-fast': 'ryla-qwen-image',
+  '/qwen-character-scene': 'ryla-qwen-image',
+  '/video-faceswap': 'ryla-qwen-image',
+  // Qwen Edit (ryla-qwen-edit)
+  '/qwen-image-edit-2511': 'ryla-qwen-edit',
+  '/qwen-image-inpaint-2511': 'ryla-qwen-edit',
+  // Z-Image (ryla-z-image)
+  '/z-image-simple': 'ryla-z-image',
+  '/z-image-danrisi': 'ryla-z-image',
+  '/z-image-lora': 'ryla-z-image',
+  // Video (ryla-wan26)
+  '/wan2.6': 'ryla-wan26',
+  '/wan2.6-r2v': 'ryla-wan26',
+  '/wan2.6-lora': 'ryla-wan26',
+  // Upscaling (ryla-seedvr2)
+  '/seedvr2': 'ryla-seedvr2',
+  // LoRA (ryla-lora) - legacy, prefer app-specific LoRA endpoints
+  '/flux-lora': 'ryla-lora',
+  // Workflow (legacy - use specific endpoints instead)
+  '/workflow': 'ryla-flux',
+};
+
 export interface ModalClientConfig {
-  endpointUrl: string;
+  /** Base endpoint URL (deprecated - use workspace instead) */
+  endpointUrl?: string;
+  /** Modal workspace name (e.g., 'ryla') - used to construct app URLs */
+  workspace?: string;
   timeout?: number;
 }
 
@@ -114,7 +161,8 @@ export interface ModalQwenFaceSwapRequest extends Record<string, unknown> {
   restore_face?: boolean; // Apply GFPGAN face restoration (default: true)
 }
 
-export interface ModalQwenCharacterSceneRequest extends Record<string, unknown> {
+export interface ModalQwenCharacterSceneRequest
+  extends Record<string, unknown> {
   character_image: string; // base64 data URL of character reference
   scene: string; // Description of target scene
   steps?: number;
@@ -141,12 +189,41 @@ export interface ModalResponse {
 }
 
 export class ModalClient {
-  private endpointUrl: string;
+  private workspace: string;
+  private legacyEndpointUrl: string | null;
   private timeout: number;
 
   constructor(config: ModalClientConfig) {
-    this.endpointUrl = config.endpointUrl.replace(/\/$/, ''); // Remove trailing slash
+    // Support both legacy endpointUrl and new workspace-based routing
+    if (config.workspace) {
+      this.workspace = config.workspace;
+      this.legacyEndpointUrl = null;
+    } else if (config.endpointUrl) {
+      // Extract workspace from legacy URL or use as fallback
+      const match = config.endpointUrl.match(/https:\/\/([^-]+)--/);
+      this.workspace = match ? match[1] : 'ryla';
+      this.legacyEndpointUrl = config.endpointUrl.replace(/\/$/, '');
+    } else {
+      this.workspace = 'ryla';
+      this.legacyEndpointUrl = null;
+    }
     this.timeout = config.timeout || 180000; // 3 minutes default
+  }
+
+  /**
+   * Get the full URL for an endpoint, using app-specific routing
+   */
+  private getEndpointUrl(path: string): string {
+    const appName = ENDPOINT_APP_MAP[path];
+    if (appName) {
+      return `https://${this.workspace}--${appName}-comfyui-fastapi-app.modal.run${path}`;
+    }
+    // Fallback to legacy URL for unknown endpoints
+    if (this.legacyEndpointUrl) {
+      return `${this.legacyEndpointUrl}${path}`;
+    }
+    // Default to flux app for unknown endpoints
+    return `https://${this.workspace}--ryla-flux-comfyui-fastapi-app.modal.run${path}`;
   }
 
   /**
@@ -171,10 +248,11 @@ export class ModalClient {
   }
 
   /**
-   * Generate video using Wan2.1
+   * @deprecated Use generateWan26() instead - Wan 2.1 has been removed
    */
   async generateWan2(input: ModalFluxRequest): Promise<ModalResponse> {
-    return this.callEndpoint('/wan2', input);
+    console.warn('generateWan2 is deprecated - use generateWan26 instead');
+    return this.generateWan26(input as ModalWan26Request);
   }
 
   // ============================================================
@@ -253,11 +331,11 @@ export class ModalClient {
 
   /**
    * Generate image with face swap using Qwen-Image 2512 + ReActor
-   * 
+   *
    * Two-step pipeline:
    * 1. Generate high-quality image with Qwen-Image 2512
    * 2. Swap face using ReActor with GFPGAN restoration
-   * 
+   *
    * @param input.reference_image - Base64 data URL of face to use
    * @param input.restore_face - Apply GFPGAN face restoration (default: true)
    */
@@ -269,7 +347,7 @@ export class ModalClient {
 
   /**
    * Fast face swap using Qwen-Image 2512 (4 steps) + ReActor
-   * 
+   *
    * Same as generateQwenFaceSwap but ~10x faster (Lightning LoRA)
    */
   async generateQwenFaceSwapFast(
@@ -280,10 +358,10 @@ export class ModalClient {
 
   /**
    * Place character in new scene using Qwen-Edit
-   * 
+   *
    * Uses Qwen-Edit's native character consistency to edit
    * a character image into a new scene while preserving identity.
-   * 
+   *
    * @param input.character_image - Base64 data URL of character reference
    * @param input.scene - Description of target scene
    * @param input.denoise - Preservation strength (lower = more preservation)
@@ -296,12 +374,12 @@ export class ModalClient {
 
   /**
    * Apply face swap to video using ReActor
-   * 
+   *
    * Processes video frame-by-frame:
    * 1. Load source video frames
    * 2. Apply ReActor face swap to each frame
    * 3. Reassemble with original audio
-   * 
+   *
    * @param input.source_video - Base64 data URL of source video
    * @param input.reference_image - Base64 data URL of face to swap in
    * @param input.fps - Output FPS (default: 30)
@@ -323,12 +401,52 @@ export class ModalClient {
   }
 
   /**
-   * Generate image using SDXL + InstantID
+   * Generate image using SDXL + InstantID (best face consistency)
    */
   async generateSDXLInstantID(
     input: ModalInstantIDRequest
   ): Promise<ModalResponse> {
     return this.callEndpoint('/sdxl-instantid', input);
+  }
+
+  /**
+   * Generate image using SDXL Turbo (fast, 1-4 steps)
+   */
+  async generateSDXLTurbo(input: ModalFluxRequest): Promise<ModalResponse> {
+    return this.callEndpoint('/sdxl-turbo', input);
+  }
+
+  /**
+   * Generate image using SDXL Lightning (fast, 4 steps)
+   */
+  async generateSDXLLightning(input: ModalFluxRequest): Promise<ModalResponse> {
+    return this.callEndpoint('/sdxl-lightning', input);
+  }
+
+  /**
+   * Generate image using Flux Dev + LoRA
+   */
+  async generateFluxDevLoRA(input: ModalLoRARequest): Promise<ModalResponse> {
+    return this.callEndpoint('/flux-dev-lora', input);
+  }
+
+  /**
+   * Generate video using Wan 2.6 + LoRA
+   */
+  async generateWan26LoRA(
+    input: ModalWan26Request & { lora_id: string; lora_strength?: number }
+  ): Promise<ModalResponse> {
+    return this.callEndpoint('/wan2.6-lora', input);
+  }
+
+  /**
+   * Upscale image using SeedVR2
+   */
+  async upscaleSeedVR2(input: {
+    image: string;
+    scale?: number;
+  }): Promise<ModalResponse> {
+    return this.callEndpoint('/seedvr2', input);
   }
 
   /**
@@ -346,19 +464,39 @@ export class ModalClient {
   }
 
   /**
-   * Generate image using Z-Image-Turbo + InstantID
+   * @deprecated Z-Image + InstantID is not supported (encoder incompatibility)
+   * Use generateSDXLInstantID() for face consistency instead
    */
   async generateZImageInstantID(
-    input: ModalInstantIDRequest
+    _input: ModalInstantIDRequest
   ): Promise<ModalResponse> {
-    return this.callEndpoint('/z-image-instantid', input);
+    throw new Error(
+      'Z-Image + InstantID is not supported due to encoder incompatibility. Use generateSDXLInstantID() instead.'
+    );
   }
 
   /**
-   * Generate image using Z-Image-Turbo + PuLID
+   * @deprecated Z-Image + PuLID is not supported (encoder incompatibility)
+   * Use generateFluxPuLID() for face consistency instead
    */
-  async generateZImagePuLID(input: ModalPuLIDRequest): Promise<ModalResponse> {
-    return this.callEndpoint('/z-image-pulid', input);
+  async generateZImagePuLID(_input: ModalPuLIDRequest): Promise<ModalResponse> {
+    throw new Error(
+      'Z-Image + PuLID is not supported due to encoder incompatibility. Use generateFluxPuLID() instead.'
+    );
+  }
+
+  /**
+   * Generate image using Z-Image-Turbo + LoRA
+   */
+  async generateZImageLoRA(input: ModalLoRARequest): Promise<ModalResponse> {
+    return this.callEndpoint('/z-image-lora', input);
+  }
+
+  /**
+   * Generate image using Flux + PuLID face consistency
+   */
+  async generateFluxPuLID(input: ModalPuLIDRequest): Promise<ModalResponse> {
+    return this.callEndpoint('/flux-pulid', input);
   }
 
   /**
@@ -369,13 +507,13 @@ export class ModalClient {
   }
 
   /**
-   * Generic endpoint caller
+   * Generic endpoint caller with app-specific routing
    */
   private async callEndpoint(
     path: string,
     body: Record<string, unknown>
   ): Promise<ModalResponse> {
-    const url = `${this.endpointUrl}${path}`;
+    const url = this.getEndpointUrl(path);
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);
 
@@ -432,18 +570,22 @@ export class ModalClient {
    */
   async healthCheck(): Promise<boolean> {
     try {
-      // Try a minimal request to /flux-dev endpoint
-      // Modal.com doesn't have a dedicated health endpoint, so we'll just check connectivity
-      await fetch(`${this.endpointUrl}/flux-dev`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: 'test' }),
-        signal: AbortSignal.timeout(5000), // 5 second timeout for health check
+      // Try health endpoint on flux app
+      const healthUrl = `https://${this.workspace}--ryla-flux-comfyui-fastapi-app.modal.run/health`;
+      const response = await fetch(healthUrl, {
+        method: 'GET',
+        signal: AbortSignal.timeout(10000), // 10 second timeout for health check (cold start)
       });
-      // Any response (even error) means endpoint is reachable
-      return true;
+      return response.ok;
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Get the workspace being used
+   */
+  getWorkspace(): string {
+    return this.workspace;
   }
 }

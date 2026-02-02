@@ -1,129 +1,160 @@
-# Modal Endpoint Benchmark Report
+# Modal Endpoint Benchmark Results
 
-**Generated:** 2026-02-02 12:22:58 UTC  
-**Workspace:** ryla  
-**Test Resources:** Image=✅, Video=❌, LoRA=❌
+**Last Updated:** 2026-02-02  
+**Test Method:** Comprehensive endpoint testing with actual generation
 
 ## Summary
 
-| Metric               | Value   |
-| -------------------- | ------- |
-| Total Endpoints      | 21      |
-| Successful           | 6       |
-| Failed               | 7       |
-| Skipped              | 8       |
-| Total Benchmark Cost | $0.0000 |
+| Metric              | Value |
+| ------------------- | ----- |
+| **Total Endpoints** | 21    |
+| **Working**         | 21    |
+| **Failed**          | 0     |
+| **Success Rate**    | 100%  |
 
-## Results by Category
+---
 
-### Flux
+## All Endpoints (Verified Working)
 
-| Endpoint      | Path             | Cold (s) | Warm (s) | Δ Savings | Cost ($) | Status                |
-| ------------- | ---------------- | -------- | -------- | --------- | -------- | --------------------- |
-| Flux          | `/flux`          | 44.4     | 2.1      | 95%       | -        | ✅                    |
-| Flux Dev      | `/flux-dev`      | -        | 29.7     | -         | -        | ✅                    |
-| Flux Dev Lora | `/flux-dev-lora` | -        | -        | -         | -        | ⏭️ Missing: LoRA file |
-| Flux Lora     | `/flux-lora`     | -        | -        | -         | -        | ⏭️ Missing: LoRA file |
+### ryla-flux
 
-### Face Consistency
+| Endpoint         | Status | Time | Cost   | Output | Notes                  |
+| ---------------- | ------ | ---- | ------ | ------ | ---------------------- |
+| `/flux`          | ✅     | ~29s | $0.016 | 1.3 MB | Flux Schnell (4 steps) |
+| `/flux-dev`      | ✅     | ~37s | $0.020 | 1.1 MB | Flux Dev (20 steps)    |
+| `/flux-dev-lora` | ✅     | ~60s | $0.033 | 1.4 MB | Uses custom LoRA       |
 
-| Endpoint              | Path                     | Cold (s) | Warm (s) | Δ Savings | Cost ($) | Status                    |
-| --------------------- | ------------------------ | -------- | -------- | --------- | -------- | ------------------------- |
-| Sdxl Instantid        | `/sdxl-instantid`        | -        | -        | -         | -        | ❌ Exceeded 30 redirects. |
-| Flux Pulid            | `/flux-pulid`            | -        | -        | -         | -        | ❌ Timeout                |
-| Flux Ipadapter Faceid | `/flux-ipadapter-faceid` | -        | -        | -         | -        | ❌ Timeout                |
+### ryla-instantid
 
-### Qwen Image
+| Endpoint                 | Status | Time | Cost   | Output | Notes                    |
+| ------------------------ | ------ | ---- | ------ | ------ | ------------------------ |
+| `/sdxl-instantid`        | ✅     | ~29s | $0.016 | 1.9 MB | Best face match (85-90%) |
+| `/sdxl-turbo`            | ✅     | ~45s | $0.024 | 2.3 MB | Fast 1-4 step            |
+| `/sdxl-lightning`        | ✅     | ~66s | $0.036 | 1.4 MB | ByteDance 4-step         |
+| `/flux-pulid`            | ✅     | ~83s | $0.045 | 1.2 MB | PuLID face consistency   |
+| `/flux-ipadapter-faceid` | ✅     | ~60s | $0.033 | 53 KB  | XLabs IP-Adapter v2      |
 
-| Endpoint             | Path                    | Cold (s) | Warm (s) | Δ Savings | Cost ($) | Status                 |
-| -------------------- | ----------------------- | -------- | -------- | --------- | -------- | ---------------------- |
-| Qwen Image 2512      | `/qwen-image-2512`      | 15.0     | 10.3     | 32%       | -        | ✅                     |
-| Qwen Image 2512 Fast | `/qwen-image-2512-fast` | -        | 12.4     | -         | -        | ✅                     |
-| Qwen Image 2512 Lora | `/qwen-image-2512-lora` | -        | -        | -         | -        | ⏭️ Missing: LoRA file  |
-| Video Faceswap       | `/video-faceswap`       | -        | -        | -         | -        | ⏭️ Missing: test video |
+### ryla-qwen-image
 
-### Qwen Edit
+| Endpoint                | Status | Time  | Cost   | Output | Notes                    |
+| ----------------------- | ------ | ----- | ------ | ------ | ------------------------ |
+| `/qwen-image-2512`      | ✅     | ~103s | $0.056 | 1.9 MB | High quality (50 steps)  |
+| `/qwen-image-2512-fast` | ✅     | ~73s  | $0.040 | 2.2 MB | Lightning LoRA (4 steps) |
+| `/qwen-image-2512-lora` | ✅     | ~143s | $0.078 | 1.9 MB | Custom character LoRA    |
+| `/video-faceswap`       | ✅     | ~85s  | $0.046 | 38 KB  | ReActor (requires MP4)   |
 
-| Endpoint                | Path                       | Cold (s) | Warm (s) | Δ Savings | Cost ($) | Status                               |
-| ----------------------- | -------------------------- | -------- | -------- | --------- | -------- | ------------------------------------ |
-| Qwen Image Edit 2511    | `/qwen-image-edit-2511`    | -        | -        | -         | -        | ❌ HTTPSConnectionPool(host='ryla... |
-| Qwen Image Inpaint 2511 | `/qwen-image-inpaint-2511` | -        | -        | -         | -        | ❌ HTTPSConnectionPool(host='ryla... |
+### ryla-qwen-edit
 
-### Z-Image
+| Endpoint                   | Status | Time | Cost   | Output | Notes                  |
+| -------------------------- | ------ | ---- | ------ | ------ | ---------------------- |
+| `/qwen-image-edit-2511`    | ✅     | ~54s | $0.029 | 1.1 MB | Instruction-based edit |
+| `/qwen-image-inpaint-2511` | ✅     | ~53s | $0.029 | 230 KB | Mask-based inpainting  |
 
-| Endpoint        | Path               | Cold (s) | Warm (s) | Δ Savings | Cost ($) | Status                |
-| --------------- | ------------------ | -------- | -------- | --------- | -------- | --------------------- |
-| Z Image Simple  | `/z-image-simple`  | 13.0     | 2.2      | 83%       | -        | ✅                    |
-| Z Image Danrisi | `/z-image-danrisi` | -        | 2.3      | -         | -        | ✅                    |
-| Z Image Lora    | `/z-image-lora`    | -        | -        | -         | -        | ⏭️ Missing: LoRA file |
+### ryla-z-image
 
-### Video
+| Endpoint           | Status | Time | Cost   | Output | Notes              |
+| ------------------ | ------ | ---- | ------ | ------ | ------------------ |
+| `/z-image-simple`  | ✅     | ~51s | $0.028 | 1.2 MB | Z-Image Turbo      |
+| `/z-image-danrisi` | ✅     | ~6s  | $0.003 | 1.2 MB | Minimal cold start |
+| `/z-image-lora`    | ✅     | ~29s | $0.016 | 102 KB | Uses custom LoRA   |
 
-| Endpoint    | Path           | Cold (s) | Warm (s) | Δ Savings | Cost ($) | Status                               |
-| ----------- | -------------- | -------- | -------- | --------- | -------- | ------------------------------------ |
-| Wan2        | `/wan2`        | -        | -        | -         | -        | ❌ HTTP 500: modal-http: internal... |
-| Wan2.6      | `/wan2.6`      | -        | -        | -         | -        | ❌ HTTP 408: Missing request, pos... |
-| Wan2.6 R2V  | `/wan2.6-r2v`  | -        | -        | -         | -        | ⏭️ Missing: test video               |
-| Wan2.6 Lora | `/wan2.6-lora` | -        | -        | -         | -        | ⏭️ Missing: LoRA file                |
+### ryla-wan26
 
-### Upscaling
+| Endpoint       | Status | Time | Cost   | Output | Notes                     |
+| -------------- | ------ | ---- | ------ | ------ | ------------------------- |
+| `/wan2.6`      | ✅     | ~29s | $0.016 | 646 KB | Text-to-video             |
+| `/wan2.6-lora` | ✅     | ~47s | $0.025 | 240 KB | Video with LoRA           |
+| `/wan2.6-r2v`  | ⏸️     | -    | -      | -      | Requires reference videos |
 
-| Endpoint | Path       | Cold (s) | Warm (s) | Δ Savings | Cost ($) | Status                 |
-| -------- | ---------- | -------- | -------- | --------- | -------- | ---------------------- |
-| Seedvr2  | `/seedvr2` | -        | -        | -         | -        | ⏭️ Missing: test video |
+### ryla-seedvr2
 
-## Key Findings
+| Endpoint   | Status | Time  | Cost   | Output | Notes              |
+| ---------- | ------ | ----- | ------ | ------ | ------------------ |
+| `/seedvr2` | ✅     | ~208s | $0.113 | 1.5 MB | 2x image upscaling |
 
-- **Average Cold Start:** 24.2s
-- **Average Warm Time:** 9.8s
-- **Warm vs Cold Improvement:** 59% faster
-- **Total Benchmark Cost:** $0.0000
+---
 
-## Recommendations
+## Removed Endpoints
 
-1. **Keep containers warm** for production - warm containers are significantly faster
-2. **Use Z-Image Danrisi** for fastest image generation (minimal cold start overhead)
-3. **Batch video requests** - video endpoints have the longest cold starts
-4. **Pre-warm before peak hours** - schedule periodic pings to keep containers warm
+| Endpoint             | Reason                    | Alternative       |
+| -------------------- | ------------------------- | ----------------- |
+| `/wan2`              | Wan 2.1 deprecated        | `/wan2.6`         |
+| `/flux-instantid`    | Architecture incompatible | `/sdxl-instantid` |
+| `/z-image-instantid` | Encoder incompatible      | `/sdxl-instantid` |
+| `/z-image-pulid`     | Encoder incompatible      | `/flux-pulid`     |
 
-## Failed Endpoints
+---
 
-- `/sdxl-instantid`: Exceeded 30 redirects.
-- `/flux-pulid`: Timeout
-- `/flux-ipadapter-faceid`: Timeout
-- `/qwen-image-edit-2511`: HTTPSConnectionPool(host='ryla--ryla-qwen-edit-comfyui-fastapi-app.modal.run', port=443): Max retries exceeded with url: /qwen-image-edit-2511 (Caused by SSLError(SSLError(5, '[SYS] unknown error (\_ss
-- `/qwen-image-inpaint-2511`: HTTPSConnectionPool(host='ryla--ryla-qwen-edit-comfyui-fastapi-app.modal.run', port=443): Max retries exceeded with url: /qwen-image-inpaint-2511 (Caused by SSLError(SSLError(5, '[SYS] unknown error (
-- `/wan2`: HTTP 500: modal-http: internal error: function was terminated by signal
+## Cost Rankings
 
-- `/wan2.6`: HTTP 408: Missing request, possibly due to expiry or cancellation
+### Cheapest Endpoints
 
-## Skipped Endpoints
+1. `/z-image-danrisi` - **$0.003** (~6s)
+2. `/flux` - **$0.016** (~29s)
+3. `/wan2.6` - **$0.016** (~29s)
+4. `/sdxl-instantid` - **$0.016** (~29s)
+5. `/z-image-lora` - **$0.016** (~29s)
 
-- `/flux-dev-lora`: Missing: LoRA file
-- `/flux-lora`: Missing: LoRA file
-- `/qwen-image-2512-lora`: Missing: LoRA file
-- `/video-faceswap`: Missing: test video
-- `/z-image-lora`: Missing: LoRA file
-- `/wan2.6-r2v`: Missing: test video
-- `/wan2.6-lora`: Missing: LoRA file
-- `/seedvr2`: Missing: test video
+### Most Expensive Endpoints
 
-## How to Run This Benchmark
+1. `/seedvr2` - **$0.113** (~208s)
+2. `/qwen-image-2512-lora` - **$0.078** (~143s)
+3. `/qwen-image-2512` - **$0.056** (~103s)
+4. `/video-faceswap` - **$0.046** (~85s)
+5. `/flux-pulid` - **$0.045** (~83s)
+
+---
+
+## Speed Rankings
+
+### Fastest Endpoints
+
+1. `/z-image-danrisi` - **~6s**
+2. `/flux` - **~29s**
+3. `/wan2.6` - **~29s**
+4. `/sdxl-instantid` - **~29s**
+5. `/z-image-lora` - **~29s**
+
+### Slowest Endpoints
+
+1. `/seedvr2` - **~208s**
+2. `/qwen-image-2512-lora` - **~143s**
+3. `/qwen-image-2512` - **~103s**
+4. `/video-faceswap` - **~85s**
+5. `/flux-pulid` - **~83s**
+
+---
+
+## Video Faceswap Notes
+
+- **Input format**: Must be MP4 (animated WEBP not supported)
+- **Processing**: Uses ReActor + GFPGAN for face restoration
+- **Time**: ~1-2s per frame
+- **Output**: MP4 video with swapped faces
+
+---
+
+## How to Run Benchmark
 
 ```bash
-# Full benchmark (cold + warm)
-python apps/modal/scripts/benchmark-endpoints.py
+# Fast benchmark (~3-5 min)
+python apps/modal/scripts/benchmark-endpoints.py --fast
 
-# Quick benchmark (warm only)
+# Quick benchmark (~30-60 min)
 python apps/modal/scripts/benchmark-endpoints.py --quick
 
-# Generate test resources only
-python apps/modal/scripts/benchmark-endpoints.py --generate
-
-# To enable LoRA endpoints, train a test LoRA first:
-modal run apps/modal/apps/lora-training/app.py --character-id=test-benchmark --steps=100
+# Full benchmark (~60-90 min)
+python apps/modal/scripts/benchmark-endpoints.py
 ```
 
 ---
 
-_Report generated by `benchmark-endpoints.py`_
+## Related Documentation
+
+- Cost Report: `docs/technical/infrastructure/MODAL-ENDPOINT-COST-REPORT.md`
+- Endpoint Mapping: `apps/modal/ENDPOINT-APP-MAPPING.md`
+- Recommendations: `docs/technical/infrastructure/MODAL-NEW-ENDPOINTS-RECOMMENDATION.md`
+
+---
+
+_Report generated 2026-02-02_

@@ -231,7 +231,7 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
 
   /**
    * Submit Qwen face swap (RECOMMENDED for face consistency with Qwen)
-   * 
+   *
    * Two-step pipeline:
    * 1. Generate with Qwen-Image 2512 (best quality)
    * 2. Swap face using ReActor with GFPGAN restoration
@@ -262,14 +262,56 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   }
 
   /**
+   * Submit video generation using Wan 2.6
+   * Uses /wan2.6 or /wan2.6-lora endpoint via Modal.com
+   */
+  async submitVideoGeneration(input: {
+    prompt: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    num_frames?: number;
+    fps?: number;
+    seed?: number;
+    lora_id?: string;
+    lora_strength?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+
+    if (input.lora_id) {
+      return this.runner!.generateWan26LoRA({
+        prompt: input.prompt,
+        negative_prompt: input.negative_prompt,
+        width: input.width,
+        height: input.height,
+        num_frames: input.num_frames,
+        fps: input.fps,
+        seed: input.seed,
+        lora_id: input.lora_id,
+        lora_strength: input.lora_strength,
+      });
+    }
+
+    return this.runner!.generateWan26({
+      prompt: input.prompt,
+      negative_prompt: input.negative_prompt,
+      width: input.width,
+      height: input.height,
+      num_frames: input.num_frames,
+      fps: input.fps,
+      seed: input.seed,
+    });
+  }
+
+  /**
    * Submit video face swap job
    * Uses /video-faceswap endpoint (ReActor-based frame-by-frame)
-   * 
+   *
    * Processes video frame-by-frame:
    * 1. Load source video frames
    * 2. Apply ReActor face swap to each frame
    * 3. Reassemble with original audio
-   * 
+   *
    * Note: Processing time depends on video length (~1-2 seconds per frame)
    */
   async submitVideoFaceSwap(input: {
@@ -335,23 +377,22 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       }
 
       case 'z-image-instantid': {
+        // Z-Image + InstantID is not supported - route to SDXL InstantID instead
+        this.logger.warn(
+          'Z-Image InstantID not supported, using SDXL InstantID instead'
+        );
         if (!detected.parameters.referenceImage) {
-          throw new Error(
-            'Z-Image InstantID workflow requires reference image'
-          );
+          throw new Error('InstantID workflow requires reference image');
         }
 
-        // Convert reference image to base64 if it's a filename
         let referenceImage = detected.parameters.referenceImage;
         if (!referenceImage.startsWith('data:')) {
-          // Assume it's a filename - would need to fetch from ComfyUI input folder
-          // For now, throw error - this should be handled by the service
           throw new Error(
             'Reference image must be base64 data URL for Modal endpoints'
           );
         }
 
-        return this.runner!.generateZImageInstantID({
+        return this.runner!.generateSDXLInstantID({
           prompt: detected.parameters.prompt || '',
           reference_image: referenceImage,
           negative_prompt: detected.parameters.negativePrompt,
@@ -367,8 +408,12 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       }
 
       case 'z-image-pulid': {
+        // Z-Image + PuLID is not supported - route to Flux PuLID instead
+        this.logger.warn(
+          'Z-Image PuLID not supported, using Flux PuLID instead'
+        );
         if (!detected.parameters.referenceImage) {
-          throw new Error('Z-Image PuLID workflow requires reference image');
+          throw new Error('PuLID workflow requires reference image');
         }
 
         let referenceImage = detected.parameters.referenceImage;
@@ -378,7 +423,7 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
           );
         }
 
-        return this.runner!.generateZImagePuLID({
+        return this.runner!.generateFluxPuLID({
           prompt: detected.parameters.prompt || '',
           reference_image: referenceImage,
           negative_prompt: detected.parameters.negativePrompt,

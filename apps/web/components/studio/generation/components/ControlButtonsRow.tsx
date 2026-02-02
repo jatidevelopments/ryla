@@ -8,6 +8,9 @@ import {
   SettingsSection,
   CreativeControls,
   NSFWToggle,
+  VideoDurationSelector,
+  LoraToggle,
+  FaceSwapToggle,
 } from './control-buttons';
 import { SelectedImageDisplay } from './SelectedImageDisplay';
 import { GenerateButton } from './GenerateButton';
@@ -17,6 +20,7 @@ import type {
   StudioMode,
   GenerationSettings,
   AIModel,
+  ContentType,
 } from '../types';
 
 interface Influencer {
@@ -96,6 +100,13 @@ interface ControlButtonsRowProps {
   // Tutorial state
   tutorialCurrentStep?: number;
   tutorialIsActive?: boolean;
+
+  // Video settings
+  contentType: ContentType;
+
+  // LoRA settings
+  loraAvailable: boolean;
+  loraName?: string | null;
 }
 
 export function ControlButtonsRow({
@@ -122,9 +133,9 @@ export function ControlButtonsRow({
   onRemoveObject,
   onClearImage,
   mode,
-  influencers,
-  selectedInfluencerId,
-  onShowInfluencerPicker,
+  influencers: _influencers,
+  selectedInfluencerId: _selectedInfluencerId,
+  onShowInfluencerPicker: _onShowInfluencerPicker,
   onPromptSubmit,
   canGenerate,
   creditsCost,
@@ -132,6 +143,9 @@ export function ControlButtonsRow({
   clearStyles,
   tutorialCurrentStep = -1,
   tutorialIsActive = false,
+  contentType,
+  loraAvailable,
+  loraName,
 }: ControlButtonsRowProps) {
   // Auto-expand advanced when tutorial is on generation-settings step (index 4)
   const shouldAutoExpand = tutorialIsActive && tutorialCurrentStep === 4;
@@ -179,6 +193,53 @@ export function ControlButtonsRow({
           buttonRef={modelButtonRef}
         />
       </div>
+
+      {/* Divider - Hidden on mobile */}
+      <div className="hidden md:block h-3 md:h-3.5 w-px bg-white/10" />
+
+      {/* Video Duration Selector - Only show for video content type */}
+      {contentType === 'video' && (
+        <>
+          <div className="hidden md:flex items-center gap-2">
+            <span className="text-xs text-[var(--text-tertiary)]">Length:</span>
+            <VideoDurationSelector
+              duration={settings.videoDuration ?? 4}
+              onDurationChange={(duration) =>
+                updateSetting('videoDuration', duration)
+              }
+            />
+          </div>
+          <div className="hidden md:block h-3 md:h-3.5 w-px bg-white/10" />
+        </>
+      )}
+
+      {/* LoRA Toggle - Show when character has LoRA trained */}
+      <div className="hidden md:block">
+        <LoraToggle
+          isEnabled={settings.useLora ?? true}
+          isAvailable={loraAvailable}
+          loraName={loraName}
+          onToggle={() => updateSetting('useLora', !(settings.useLora ?? true))}
+        />
+      </div>
+
+      {/* Face Swap Toggle - Only show in editing mode with selected image/video */}
+      {mode === 'editing' && selectedImage && (
+        <>
+          <div className="hidden md:block h-3 md:h-3.5 w-px bg-white/10" />
+          <div className="hidden md:block">
+            <FaceSwapToggle
+              isEnabled={settings.enableFaceSwap ?? false}
+              onToggle={() =>
+                updateSetting(
+                  'enableFaceSwap',
+                  !(settings.enableFaceSwap ?? false)
+                )
+              }
+            />
+          </div>
+        </>
+      )}
 
       {/* Divider - Hidden on mobile */}
       <div className="hidden md:block h-3 md:h-3.5 w-px bg-white/10" />
