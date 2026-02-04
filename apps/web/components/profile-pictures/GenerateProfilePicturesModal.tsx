@@ -38,7 +38,7 @@ export function GenerateProfilePicturesModal({
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [showCreditModal, setShowCreditModal] = React.useState(false);
   const { isPro } = useSubscription();
-  const { balance, isLoading: isLoadingCredits, refetch: refetchCredits } = useCredits();
+  const { balance, isLoading: isLoadingCredits, refetch: _refetchCredits } = useCredits();
 
   // Calculate credit cost
   const profileSetCost = selectedSetId ? PROFILE_SET_CREDITS : 0;

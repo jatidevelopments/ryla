@@ -1,0 +1,248 @@
+{
+  "scrapedAt": "2026-02-03T17:54:47.519Z",
+  "count": 22,
+  "items": [
+    {
+      "name": "Model 1598938",
+      "url": "https://civitai.com/models/1598938/smooth-workflow-txt2img",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 160207",
+      "url": "https://civitai.com/models/160207/sdxl-workflow-comfyui-realistic-skin-texture-portrait",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 154165",
+      "url": "https://civitai.com/models/154165/animatediff-workflow-animate-with-starting-and-ending-image",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 155198",
+      "url": "https://civitai.com/models/155198/animatediff-workflow-openpose-keyframing-in-comfyui",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 304986",
+      "url": "https://civitai.com/models/304986/workflow-comfyui-modify-clothes-at-full-resolution",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 138397",
+      "url": "https://civitai.com/models/138397/winstons-workflow-collection",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 420163",
+      "url": "https://civitai.com/models/420163/abominable-workflows",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 617060",
+      "url": "https://civitai.com/models/617060/comfyui-workflow-for-flux-simple-lora",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 333060",
+      "url": "https://civitai.com/models/333060/simplified-workflow-for-ultimate-sd-upscale",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 541709",
+      "url": "https://civitai.com/models/541709/comfyui-workflow-sdxlpony-image-generation-upscale-face-detailer-with-control-net-canny-scribble-tile-depth-openpose-batch-upscaling",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 22651",
+      "url": "https://civitai.com/models/22651/comfyui-workflows",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 1681541",
+      "url": "https://civitai.com/models/1681541/workflows-for-wan21fusionx-loras",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 617562",
+      "url": "https://civitai.com/models/617562/comfyui-workflow-jib-mix-flux-official-workflow",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 1429214",
+      "url": "https://civitai.com/models/1429214/yainworkflowsexample",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 670083",
+      "url": "https://civitai.com/models/670083/workflow-flux-photos-dev",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 118865",
+      "url": "https://civitai.com/models/118865/moonride-workflows-for-sdxl-10-in-comfyui",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 162746",
+      "url": "https://civitai.com/models/162746/ultimatecomfyui-workflows-and-tools-collection-bundle-aio",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 133337",
+      "url": "https://civitai.com/models/133337/workflow-comfyui-i2i-controlnet-ultimate-upscaler-for-sd-15",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 544534",
+      "url": "https://civitai.com/models/544534/unsampling-workflows",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 321316",
+      "url": "https://civitai.com/models/321316/workflow-of-comfyui-face-detailer-fix-face",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 664346",
+      "url": "https://civitai.com/models/664346/simple-workflows-for-flux1",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    },
+    {
+      "name": "Model 287147",
+      "url": "https://civitai.com/models/287147/workflow-consistant-character-maker",
+      "type": "unknown",
+      "rylaLabel": "workflow_comfyui",
+      "typeBadge": "",
+      "stats": "",
+      "creator": "",
+      "scrapedAt": "2026-02-03T17:54:27.354Z",
+      "notes": ""
+    }
+  ]
+}
