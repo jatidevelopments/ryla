@@ -77,10 +77,10 @@ The Metabase MCP is **not** an Nx app; run it via the command above (or the Curs
 
 ## 5. Infisical secrets (summary)
 
-| Secret / env           | Path (example) | Purpose |
-|------------------------|----------------|---------|
-| `METABASE_URL`         | `/mcp` or `/apps/metabase` | Metabase instance URL for MCP |
-| `METABASE_API_KEY`     | `/mcp` or `/apps/metabase` | Metabase API key for MCP |
+| Secret / env                          | Path (example)             | Purpose                                                                                         |
+| ------------------------------------- | -------------------------- | ----------------------------------------------------------------------------------------------- |
+| `METABASE_URL`                        | `/mcp` or `/apps/metabase` | Metabase instance URL for MCP                                                                   |
+| `METABASE_API_KEY`                    | `/mcp` or `/apps/metabase` | Metabase API key for MCP                                                                        |
 | Postgres URL for Metabase data source | `/apps/metabase` or shared | Used only in Metabase UI when adding DB (or in Metabase’s own env if you configure it that way) |
 
 Metabase itself does **not** read Infisical by default; you either paste the Postgres connection into Metabase’s “Add database” form (from Infisical) or run Metabase in a environment where those env vars are set (e.g. Docker env or Infisical-exported env).
@@ -91,11 +91,22 @@ Metabase is deployed to Fly.io as part of the auto-deploy workflow when `apps/me
 
 - **App name**: `ryla-metabase-prod` (production), `ryla-metabase-staging` (staging).
 - **URL**: `https://ryla-metabase-<env>.fly.dev` (e.g. `https://ryla-metabase-prod.fly.dev`).
-- **Persistence**: A 1 GB volume `metabase_data` is mounted at `/metabase-data` for the H2 database. On first deploy you may need to create the volume once:
-  ```bash
-  fly volumes create metabase_data --region fra --size 1 --app ryla-metabase-prod
-  ```
-  The workflow runs this with `continue-on-error` so existing volumes are ignored.
+
+**One-time setup from your terminal** (CI does not create the app; run once per environment):
+
+```bash
+# Production
+flyctl apps create ryla-metabase-prod --yes
+flyctl volumes create metabase_data --region fra --size 1 --app ryla-metabase-prod
+
+# Staging (when needed)
+flyctl apps create ryla-metabase-staging --yes
+flyctl volumes create metabase_data --region fra --size 1 --app ryla-metabase-staging
+```
+
+The volume is mounted at `/metabase-data` for the H2 database. After this, the deploy workflow will deploy and run the dashboard setup.
+
+CI uses the Fly org `my-dream-companion` by default. If your app is in a different org, set the GitHub secret `FLY_ORG` (e.g. `my-dream-companion`) so deploy and app checks use the correct org.
 
 **After first deploy:**
 

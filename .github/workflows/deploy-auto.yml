@@ -1111,35 +1111,38 @@ jobs:
       - name: Setup Fly.io CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
-      - name: Create Fly app if not exists
-        run: |
-          flyctl apps create ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }} --yes || true
+      - name: Ensure Fly app exists (create once from terminal if missing)
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        continue-on-error: true
-
-      - name: Create volume if not exists
+          FLY_ORG: ${{ secrets.FLY_ORG }}
         run: |
-          flyctl volumes create metabase_data \
-            --region fra \
-            --size 1 \
-            --app ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }} \
-            || true
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
-        continue-on-error: true
+          APP_NAME="ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }}"
+          ORG="${FLY_ORG:-my-dream-companion}"
+          if flyctl apps list --org "$ORG" 2>/dev/null | grep -q "$APP_NAME"; then
+            echo "App $APP_NAME exists in org $ORG."
+            exit 0
+          fi
+          echo "App $APP_NAME not found in org $ORG. Create it once from your terminal:"
+          echo ""
+          echo "  flyctl apps create $APP_NAME --yes --org $ORG"
+          echo "  flyctl volumes create metabase_data --region fra --size 1 --app $APP_NAME --org $ORG"
+          echo ""
+          exit 1
 
       - name: Deploy Metabase to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          FLY_ORG: ${{ secrets.FLY_ORG }}
         run: |
           set -e
           APP_NAME="ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }}"
-          echo "Deploying to app: $APP_NAME"
+          ORG="${FLY_ORG:-my-dream-companion}"
+          echo "Deploying to app: $APP_NAME (org: $ORG)"
           flyctl deploy \
             --config apps/metabase/fly.toml \
             --dockerfile apps/metabase/Dockerfile \
             --app "$APP_NAME" \
+            --org "$ORG" \
             --strategy immediate \
             --verbose
 
