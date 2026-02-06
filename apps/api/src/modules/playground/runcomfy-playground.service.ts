@@ -126,7 +126,7 @@ export class RunComfyPlaygroundService implements OnModuleInit {
         result_url,
         startedAt
       );
-      if (completed.error) return completed;
+      if ('error' in completed && completed.error) return completed;
 
       const imageUrl = this.extractFirstImageUrl(completed.outputs);
       if (!imageUrl) {

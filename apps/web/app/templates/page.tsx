@@ -192,7 +192,7 @@ function TemplatesGalleryNew() {
     let items = tabType === 'templates' ? templates : tabType === 'sets' ? sets : [...templates, ...sets];
     
     // Filter by content type if not 'all'
-    const activeTypes = selectedContentTypes.filter(t => t !== 'all');
+    const activeTypes = selectedContentTypes.filter(t => t !== 'all') as string[];
     if (activeTypes.length > 0) {
       items = items.filter(item => activeTypes.includes(item.contentType));
     }
@@ -237,9 +237,9 @@ function TemplatesGalleryNew() {
       utils.templates.list.invalidate();
       utils.templateLikes.getLikeStatuses.invalidate();
       if (result.liked) {
-        analytics.trackTemplateLiked(result.templateId ?? '', result.likesCount);
+        analytics.trackTemplateLiked('', result.likesCount);
       } else {
-        analytics.trackTemplateUnliked(result.templateId ?? '', result.likesCount);
+        analytics.trackTemplateUnliked('', result.likesCount);
       }
     },
   });
@@ -248,9 +248,9 @@ function TemplatesGalleryNew() {
       utils.templateSets.list.invalidate();
       utils.templateLikes.getSetLikeStatuses.invalidate();
       if (result.liked) {
-        analytics.trackSetLiked(result.setId ?? '', result.likesCount);
+        analytics.trackSetLiked('', result.likesCount);
       } else {
-        analytics.trackSetUnliked(result.setId ?? '', result.likesCount);
+        analytics.trackSetUnliked('', result.likesCount);
       }
     },
   });

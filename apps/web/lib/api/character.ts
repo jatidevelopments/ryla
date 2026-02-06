@@ -766,3 +766,16 @@ async function pollProfilePicturesProgressively(
   return completedImages;
 }
 
+/**
+ * Trigger LoRA training for a character
+ * TODO: Implement full LoRA training API integration
+ */
+export async function trainLora(params: {
+  characterId: string;
+  triggerWord: string;
+  imageUrls: string[];
+}): Promise<{ jobId?: string; status: string }> {
+  console.warn('[trainLora] LoRA training not yet implemented', params.characterId);
+  return { status: 'not_implemented' };
+}
+

@@ -28,9 +28,71 @@ function aspectRatioToSize(aspectRatio: '1:1' | '9:16' | '2:3'): { width: number
 }
 
 // qualityMode removed - EP-045
-// Using standard quality params
-function getStandardQualityParams(): { steps: number; cfg: number } {
-  return { steps: 9, cfg: 1.0 };
+// Using community-validated quality params (2026-02-06)
+// 
+// COMMUNITY RESEARCH FINDINGS (Reddit, Civitai, AI influencer guides):
+// - steps: 28-36 for production portraits
+// - cfg: 3.5-4.0 for balanced realism (preserves skin microstructure)
+// - cfg: 2.5-3.5 for maximum natural look (may reduce prompt adherence)
+// - cfg: 4.5-6.0 for portrait work with natural skin texture
+// - LoRA weights ≤0.8 to avoid oversaturation
+// 
+// Key insight: Lower CFG preserves photorealistic skin texture;
+// Higher CFG creates "plastic" look with flattened details.
+// 
+// NSFW UPDATE (2026-02-04):
+// RYLA Core Values research findings:
+// - SFW: CFG 3.5-4.5 for natural skin texture with visible pores
+// - NSFW: CFG 6-8 for body anatomy (stay under 8 for realism)
+// - Hands: Include negative prompts for anatomy
+// 
+// See: docs/research/infrastructure/PROMPT-ENGINEERING-GUIDE.md
+// See: docs/research/infrastructure/AI-INFLUENCER-COMMUNITY-RESEARCH.md
+function getStandardQualityParams(isNsfw?: boolean): { steps: number; cfg: number } {
+  if (isNsfw) {
+    // NSFW: Higher CFG for body anatomy, but stay under 8
+    return { steps: 28, cfg: 6.5 };
+  }
+  // SFW: Lower CFG for natural skin texture
+  return { steps: 28, cfg: 3.5 };
+}
+
+// Negative prompt templates based on RYLA core values research
+// - "Hyper-Realistic Skin" = avoid plastic/airbrushed
+// - "Perfect Hands" = avoid extra fingers/mutated hands
+const NEGATIVE_PROMPTS = {
+  standard: '(worst quality, low quality:1.4), (low resolution, blurry:1.2), jpeg artifacts, (cartoon, anime, illustration:1.3), 3d render, cgi, unrealistic, artificial, plastic skin, airbrushed, extra fingers, mutated hands, bad hands, fused fingers, too many fingers',
+  nsfw: '(worst quality, low quality:1.4), (low resolution, blurry:1.2), jpeg artifacts, cartoon, anime, illustration, extra limbs, mutated hands, extra fingers, bad anatomy, distorted body, unnatural proportions, deformed, plastic skin, airbrushed',
+  hands: 'extra fingers, mutated hands, bad hands, fused fingers, too many fingers, malformed hands, missing fingers, deformed fingers',
+};
+
+function getNegativePrompt(isNsfw?: boolean): string {
+  return isNsfw ? NEGATIVE_PROMPTS.nsfw : NEGATIVE_PROMPTS.standard;
+}
+
+// Optimal seeds per endpoint based on:
+// 1. Academic research: "Good Seed Makes a Good Crop" (WACV 2025)
+//    - Seed 469 = best FID score (21.60) = highest quality
+//    - Seeds to AVOID: 12 (grayscale), 16 (borders), 133/493 (sky), 696 (worst), 857 (text)
+// 2. Internal multi-seed quality testing
+// 3. Community recommendations
+// See: docs/research/infrastructure/PROMPT-ENGINEERING-GUIDE.md
+const OPTIMAL_SEEDS: Record<string, number> = {
+  '/flux': 469,                // Academic "golden seed" - best FID
+  '/flux-dev': 469,            // Same golden seed
+  '/qwen-image-2512': 1374878599,    // Sharpness 550, Quality 100 (internal test)
+  '/qwen-image-2512-fast': 1374878599,
+  '/z-image-simple': 469,
+  '/z-image-danrisi': 469,
+  '/wan2.6': 42,               // Classic seed, stable for video
+  '/wan2.6-i2v': 42,
+  '/wan22-i2v': 42,
+  '_default': 469,             // Default to academic golden seed
+};
+
+function getOptimalSeed(endpoint: string, userSeed?: number): number {
+  if (userSeed !== undefined) return userSeed;
+  return OPTIMAL_SEEDS[endpoint] ?? OPTIMAL_SEEDS['_default'];
 }
 
 function asValidEnumOrNull<T extends readonly string[]>(value: unknown, allowed: T): T[number] | null {
@@ -81,6 +143,14 @@ export class StudioGenerationService {
     seed?: number;
     modelProvider?: 'modal' | 'comfyui' | 'fal';
     modelId?: FalFluxModelId;
+    // LoRA support for character consistency
+    useLora?: boolean;
+    loraId?: string;
+    loraStrength?: number;
+    // Reference image support for face consistency
+    referenceImageUrl?: string;
+    referenceStrength?: number;
+    referenceMethod?: string;
   }) {
     if (input.count < 1 || input.count > 10) {
       throw new BadRequestException('count must be between 1 and 10');
@@ -225,7 +295,11 @@ export class StudioGenerationService {
     const falModel: FalFluxModelId = input.modelId ?? 'fal-ai/flux/schnell';
 
     for (let i = 0; i < input.count; i++) {
-      const seed = typeof input.seed === 'number' ? input.seed + i : undefined;
+      // Use optimal seed if not provided, or user seed + offset for multiple images
+      const baseSeed = typeof input.seed === 'number' 
+        ? input.seed 
+        : getOptimalSeed('_default');  // Use optimal default seed
+      const seed = baseSeed + i;
 
       // Validate enum values for image creation
       const safeScene = asValidEnumOrNull(input.scene, schema.scenePresetEnum.enumValues);
@@ -998,6 +1072,45 @@ export class StudioGenerationService {
         error: message,
       });
     }
+  }
+
+  /**
+   * Start video generation from character
+   * TODO: Implement full video generation pipeline
+   */
+  async startVideoGeneration(input: {
+    userId: string;
+    characterId: string;
+    prompt?: string;
+    duration: number;
+    fps: number;
+    aspectRatio?: string;
+    nsfw?: boolean;
+    seed?: number;
+    useLora?: boolean;
+  }) {
+    return {
+      status: 'not_implemented',
+      message: 'Video generation is not yet available',
+    };
+  }
+
+  /**
+   * Start face swap edit on existing image or video
+   * TODO: Implement face swap pipeline
+   */
+  async startFaceSwapEdit(input: {
+    userId: string;
+    characterId: string;
+    sourceImageId?: string;
+    sourceVideoId?: string;
+    nsfw?: boolean;
+    restoreFace?: boolean;
+  }) {
+    return {
+      status: 'not_implemented',
+      message: 'Face swap editing is not yet available',
+    };
   }
 }
 

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsIn, IsInt, IsNumber, IsOptional, IsString, IsUrl, IsUUID, Max, Min } from 'class-validator';
+import { IsBoolean, IsIn, IsInt, IsNumber, IsOptional, IsString, IsUUID, Max, Min } from 'class-validator';
 import { getAllFalBackendModelIds } from '@ryla/shared';
 import { getAllFalModelIds, type FalFluxModelId } from '../../services/fal-image.service';
 

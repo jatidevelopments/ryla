@@ -73,7 +73,7 @@ export function ContentTypeFilter({ value, onChange, counts, selectedTypes = [],
 
   // Normalize: empty or ['all'] => show "All Types"
   const selectedTypesNorm = selectedTypes.length === 0 ? ['all'] : selectedTypes;
-  const activeTypes = selectedTypesNorm.filter(t => t !== 'all');
+  const activeTypes = selectedTypesNorm.filter((t): t is ContentType => t !== 'all');
   const selectedOption = activeTypes.length === 1 
     ? contentTypes.find((opt) => opt.value === activeTypes[0]) ?? contentTypes[0]
     : contentTypes[0];

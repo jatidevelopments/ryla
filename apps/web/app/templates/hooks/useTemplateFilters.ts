@@ -154,7 +154,7 @@ export function useTemplateFilters() {
   }, [updateURL]);
   
   const setMultipleContentTypes = useCallback((types: ContentType[]) => {
-    const normalized = types.length === 0 || (types.length === 1 && types[0] === 'all') ? ['all'] : types.filter(t => t !== 'all');
+    const normalized: ContentType[] = types.length === 0 || (types.length === 1 && types[0] === 'all') ? ['all'] : types.filter((t): t is ContentType => t !== 'all');
     setSelectedContentTypes(normalized);
     setFilters(prev => ({
       ...prev,

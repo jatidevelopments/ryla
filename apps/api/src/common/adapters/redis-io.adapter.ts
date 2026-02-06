@@ -1,8 +1,10 @@
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { INestApplication } from '@nestjs/common';
 import { createAdapter } from '@socket.io/redis-adapter';
-import { createClient, RedisClientType } from 'redis';
+import { createClient } from 'redis';
 import { ServerOptions } from 'socket.io';
+
+type RedisClient = ReturnType<typeof createClient>;
 
 /**
  * Redis-backed Socket.io adapter for multi-server support
@@ -21,8 +23,8 @@ import { ServerOptions } from 'socket.io';
  */
 export class RedisIoAdapter extends IoAdapter {
   private adapterConstructor: ReturnType<typeof createAdapter> | null = null;
-  private pubClient: RedisClientType | null = null;
-  private subClient: RedisClientType | null = null;
+  private pubClient: RedisClient | null = null;
+  private subClient: RedisClient | null = null;
   private isRedisConnected = false;
 
   constructor(app: INestApplication) {
@@ -43,14 +45,14 @@ export class RedisIoAdapter extends IoAdapter {
 
     try {
       // Create pub/sub clients
-      this.pubClient = createClient({ url: redisUrl }) as RedisClientType;
-      this.subClient = this.pubClient.duplicate() as RedisClientType;
+      this.pubClient = createClient({ url: redisUrl });
+      this.subClient = this.pubClient.duplicate();
 
       // Handle connection errors gracefully
-      this.pubClient.on('error', (err) => {
+      this.pubClient.on('error', (err: Error) => {
         console.error('[RedisIoAdapter] Pub client error:', err.message);
       });
-      this.subClient.on('error', (err) => {
+      this.subClient.on('error', (err: Error) => {
         console.error('[RedisIoAdapter] Sub client error:', err.message);
       });
 
