@@ -1,4 +1,4 @@
-// Deployment trigger - 2026-02-06: redeploy after CI fix
+// Deployment trigger - 2026-02-06v2: redeploy with lockfile fix
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';

@@ -1,5 +1,5 @@
 // import './instrument';
-// Deployment trigger - 2026-02-06: redeploy after CI fix
+// Deployment trigger - 2026-02-06v2: redeploy with lockfile fix
 
 // Load dotenv FIRST before any other imports
 import { config } from 'dotenv';
