@@ -1,6 +1,6 @@
 # Metabase (IN-041)
 
-Nx app that **starts Metabase** via Docker so RYLA has a BI layer over Postgres. Metabase itself is the Docker image; this app is the single command to run it.
+Nx app that **starts Metabase** via Docker so RYLA has a BI layer over Postgres. Production deploy: Fly.io (org `my-dream-companion`). Metabase itself is the Docker image; this app is the single command to run it.
 
 ## Run
 

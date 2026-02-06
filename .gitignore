@@ -49,6 +49,9 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+# MCP server clones (IN-041 MetaMask, etc.)
+.mcp-servers/
+
 # Temporary files
 tmp/
 temp/

@@ -58,8 +58,3 @@ tmp
 .DS_Store
 *.log
 *.tsbuildinfo
-
-# E2E apps (not needed for landing)
-apps/landing-e2e
-apps/web-e2e
-

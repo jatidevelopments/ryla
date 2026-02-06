@@ -4,7 +4,8 @@
 # Runs lint-staged for linting, formatting, and type checking on staged files
 
 # Run lint-staged (handles ESLint, Prettier, TypeScript, Secretlint)
-npx lint-staged
+# --no-stash: do not backup index to stash; avoids failed restore leaving repo in bad state
+npx lint-staged --no-stash
 
 # Check file sizes (prevent large files > 500KB, except allowed types)
 echo "Checking file sizes..."
