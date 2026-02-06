@@ -1,7 +1,7 @@
 # Modal Endpoint Integration Status
 
-**Last Updated**: 2026-01-28  
-**Status**: Implementation In Progress
+**Last Updated**: 2026-02-05  
+**Status**: Production Ready
 
 ---
 
@@ -151,23 +151,32 @@ This document tracks the integration of Modal.com endpoints into RYLA services, 
 
 ## Endpoint Summary
 
-### Total Endpoints: 13
+### Total Endpoints: 18
 
-| # | Endpoint | Status | Use Case |
-|---|----------|--------|----------|
-| 1 | `/flux-dev` | ✅ Working | Base images, studio, character gen |
-| 2 | `/flux` | ✅ Working | Fast generation |
-| 3 | `/flux-ipadapter-faceid` | ✅ Implemented | Profile pics, face consistency (Flux) |
-| 4 | `/sdxl-instantid` | ✅ Tested | Profile pics, face consistency (SDXL) |
-| 5 | `/flux-instantid` | ❌ Incompatible | Not recommended |
-| 6 | `/flux-lora` | ⏳ Pending | Character consistency (requires LoRA) |
-| 7 | `/z-image-simple` | ✅ Implemented | Fast Z-Image generation |
-| 8 | `/z-image-danrisi` | ✅ Implemented | Quality Z-Image generation |
-| 9 | `/z-image-instantid` | ✅ Implemented | Z-Image face consistency |
-| 10 | `/z-image-pulid` | ✅ Implemented | Z-Image face consistency |
-| 11 | `/wan2` | ✅ Working | Text-to-video |
-| 12 | `/seedvr2` | ⏳ Pending | Image upscaling |
-| 13 | `/workflow` | ⏳ Pending | Custom workflows |
+| # | Endpoint | App | Status | Use Case |
+|---|----------|-----|--------|----------|
+| 1 | `/flux-dev` | ryla-flux | ✅ Working | Base images, studio, character gen |
+| 2 | `/flux` | ryla-flux | ✅ Working | Fast generation |
+| 3 | `/flux-ipadapter-faceid` | ryla-flux | ✅ Implemented | Profile pics, face consistency (Flux) |
+| 4 | `/sdxl-instantid` | ryla-sdxl | ✅ Tested | Profile pics, face consistency (SDXL) |
+| 5 | `/flux-instantid` | ryla-flux | ❌ Incompatible | Not recommended |
+| 6 | `/flux-lora` | ryla-flux | ⏳ Pending | Character consistency (requires LoRA) |
+| 7 | `/z-image-simple` | ryla-qwen | ✅ Implemented | Fast Z-Image generation |
+| 8 | `/z-image-danrisi` | ryla-qwen | ✅ Implemented | Quality Z-Image generation |
+| 9 | `/z-image-instantid` | ryla-qwen | ✅ Implemented | Z-Image face consistency |
+| 10 | `/z-image-pulid` | ryla-qwen | ✅ Implemented | Z-Image face consistency |
+| 11 | `/wan2.6` | ryla-wan26 | ✅ Working | Text-to-video (best quality) |
+| 12 | `/wan2.6-i2v` | ryla-wan26 | ✅ Working | Image-to-video (best quality) |
+| 13 | `/wan2.6-i2v-faceswap` | ryla-wan26 | ✅ Working | I2V + face swap |
+| 14 | `/wan22-i2v` | ryla-wan22-i2v | ✅ Working | Image-to-video (14B GGUF) |
+| 15 | `/wan22-i2v-faceswap` | ryla-wan22-i2v | ✅ Working | I2V + face swap |
+| 16 | `/image-faceswap` | ryla-qwen-image | ✅ Working | Single image face swap |
+| 17 | `/batch-video-faceswap` | ryla-qwen-image | ✅ Working | Video face swap (frame by frame) |
+| 18 | `/seedvr2` | ryla-seedvr2 | ⏳ Pending | Image upscaling |
+
+### Video Endpoints (New - 2026-02-05)
+
+See **VIDEO-FACESWAP-ENDPOINTS.md** for comprehensive video endpoint documentation.
 
 ---
 
@@ -238,13 +247,52 @@ This document tracks the integration of Modal.com endpoints into RYLA services, 
 
 ---
 
-## Related Documentation
+## Video Generation & Face Swap ✅ (2026-02-05)
 
-- **Endpoint Reference**: `apps/modal/docs/ENDPOINTS-REFERENCE.md`
-- **Migration Plan**: `apps/modal/docs/MODAL-ENDPOINT-MIGRATION-PLAN.md`
-- **Face Consistency**: `apps/modal/docs/FLUX-FACE-CONSISTENCY-SUMMARY.md`
-- **Z-Image Status**: `apps/modal/docs/status/Z-IMAGE-IMPLEMENTATION-STATUS.md`
+### Status: ✅ Production Ready
+
+All video generation and face swap endpoints are tested and working.
+
+### Architecture
+- Video endpoints (WAN 2.6, WAN 2.2) generate video first
+- Face swap is delegated to Qwen app's `/batch-video-faceswap` endpoint
+- This avoids OOM from loading video models + ReActor in same container
+
+### Endpoints Added
+| Endpoint | App | GPU | Time | Status |
+|----------|-----|-----|------|--------|
+| `/wan2.6` | ryla-wan26 | L40S | ~35s | ✅ Working |
+| `/wan2.6-i2v` | ryla-wan26 | L40S | ~35s | ✅ Working |
+| `/wan2.6-i2v-faceswap` | ryla-wan26 | L40S | ~160s | ✅ Working |
+| `/wan22-i2v` | ryla-wan22-i2v | A100-80GB | ~240s | ✅ Working |
+| `/wan22-i2v-faceswap` | ryla-wan22-i2v | A100-80GB | ~425s | ✅ Working |
+| `/batch-video-faceswap` | ryla-qwen-image | L40S | ~60-120s | ✅ Working |
+
+### Quality Notes
+- **WAN 2.6 I2V** = Best quality (native ComfyUI, full-precision 1.3B model)
+- **WAN 2.2 I2V** = Good quality (14B GGUF, different style, slower)
+- **Recommendation**: Use WAN 2.6 for production
+
+### Cold Start Warning
+- WAN 2.2 cold start: 2-3 minutes (large model)
+- Send health check to warm container before face swap requests
+
+### Documentation
+- **Full Reference**: `apps/modal/docs/VIDEO-FACESWAP-ENDPOINTS.md`
+- **Quality Learnings**: `docs/research/infrastructure/WAN-VIDEO-QUALITY-LEARNINGS.md`
+- **Test Script**: `apps/modal/scripts/test-video-faceswap.py`
 
 ---
 
-**Last Updated**: 2026-01-28
+## Related Documentation
+
+- **Endpoint Reference**: `apps/modal/docs/ENDPOINTS-REFERENCE.md`
+- **Video/FaceSwap Reference**: `apps/modal/docs/VIDEO-FACESWAP-ENDPOINTS.md`
+- **Migration Plan**: `apps/modal/docs/MODAL-ENDPOINT-MIGRATION-PLAN.md`
+- **Face Consistency**: `apps/modal/docs/FLUX-FACE-CONSISTENCY-SUMMARY.md`
+- **Z-Image Status**: `apps/modal/docs/status/Z-IMAGE-IMPLEMENTATION-STATUS.md`
+- **Video Quality Learnings**: `docs/research/infrastructure/WAN-VIDEO-QUALITY-LEARNINGS.md`
+
+---
+
+**Last Updated**: 2026-02-05

@@ -129,9 +129,79 @@ def hf_download_flux_dev():
         raise
 
 
+def hf_download_realism_lora():
+    """Download UltraRealism LoRA for photorealistic generation."""
+    from huggingface_hub import hf_hub_download
+    import os
+    
+    comfy_dir = Path("/root/comfy/ComfyUI")
+    token = os.getenv("HF_TOKEN") or os.getenv("HUGGINGFACE_TOKEN")
+    
+    try:
+        print("📥 Downloading Flux Realism LoRA...")
+        # XLabs-AI Flux Realism LoRA (well-known, available without auth)
+        lora_model = hf_hub_download(
+            repo_id="XLabs-AI/flux-lora-collection",
+            filename="realism_lora.safetensors",
+            cache_dir="/cache",
+            token=token,
+        )
+        
+        subprocess.run(
+            f"mkdir -p {comfy_dir}/models/loras && "
+            f"ln -sf {lora_model} {comfy_dir}/models/loras/flux-realism-lora.safetensors",
+            shell=True,
+            check=True,
+        )
+        print("✅ Flux Realism LoRA downloaded")
+    except Exception as e:
+        print(f"⚠️  Failed to download realism LoRA: {e}")
+
+
+def download_facedetailer_models():
+    """Download models for FaceDetailer (SAM + YOLO face detection)."""
+    import urllib.request
+    import os
+    
+    comfy_dir = Path("/root/comfy/ComfyUI")
+    
+    try:
+        print("📥 Downloading FaceDetailer models...")
+        
+        # Create directories
+        sams_dir = comfy_dir / "models" / "sams"
+        bbox_dir = comfy_dir / "models" / "ultralytics" / "bbox"
+        sams_dir.mkdir(parents=True, exist_ok=True)
+        bbox_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Download SAM model directly (from Facebook's official source)
+        sam_path = sams_dir / "sam_vit_l_0b3195.pth"
+        if not sam_path.exists():
+            print("   Downloading SAM model...")
+            sam_url = "https://dl.fbaipublicfiles.com/segment_anything/sam_vit_l_0b3195.pth"
+            urllib.request.urlretrieve(sam_url, sam_path)
+            print("   ✅ SAM model downloaded")
+        else:
+            print("   ✅ SAM model already exists")
+        
+        # Download YOLO face detection model (from ultralytics hub)
+        yolo_path = bbox_dir / "face_yolov8m.pt"
+        if not yolo_path.exists():
+            print("   Downloading YOLO face detector...")
+            yolo_url = "https://huggingface.co/Bingsu/adetailer/resolve/main/face_yolov8m.pt"
+            urllib.request.urlretrieve(yolo_url, yolo_path)
+            print("   ✅ YOLO face detection model downloaded")
+        else:
+            print("   ✅ YOLO model already exists")
+        
+        print("✅ FaceDetailer models ready")
+    except Exception as e:
+        print(f"⚠️  Failed to download FaceDetailer models: {e}")
+
+
 # Flux image extends base image with Flux-specific models
 # Note: This will be imported in app.py with proper path setup
-# v4 - Moved add_local_file to end for runtime mounting (faster iteration)
+# v5 - Added realism LoRA and FaceDetailer models for quality
 flux_image = (
     base_image
     .run_function(
@@ -140,6 +210,16 @@ flux_image = (
     )
     .run_function(
         hf_download_flux_dev,
+        volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
+        secrets=[modal.Secret.from_name("huggingface")],
+    )
+    .run_function(
+        hf_download_realism_lora,
+        volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
+        secrets=[modal.Secret.from_name("huggingface")],
+    )
+    .run_function(
+        download_facedetailer_models,
         volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
         secrets=[modal.Secret.from_name("huggingface")],
     )

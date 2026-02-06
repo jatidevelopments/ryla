@@ -1,7 +1,8 @@
 """
 Qwen-Image-specific image build.
 
-Extends base image with Qwen-Image 2512 model downloads.
+Extends base image with Qwen-Image 2512 and Qwen-Image Edit 2511 model downloads.
+Consolidated app for all Qwen image generation endpoints.
 """
 
 import modal
@@ -146,6 +147,7 @@ def download_reactor_models():
         print("   ✓ GFPGANv1.4.pth downloaded")
     
     # Download buffalo_l model for InsightFace face detection
+    # Using lithiumice/insightface mirror as the original URLs are broken
     buffalo_dir = Path("/root/.insightface/models/buffalo_l")
     buffalo_dir.mkdir(parents=True, exist_ok=True)
     buffalo_files = [
@@ -156,29 +158,98 @@ def download_reactor_models():
         "w600k_r50.onnx",
     ]
     
+    # Use working HuggingFace mirror URLs
+    base_url = "https://huggingface.co/lithiumice/insightface/resolve/main/models/buffalo_l"
+    
     for fname in buffalo_files:
         fpath = buffalo_dir / fname
         if not fpath.exists():
             print(f"   Downloading buffalo_l/{fname}...")
             try:
                 urllib.request.urlretrieve(
-                    f"https://huggingface.co/datasets/Gourieff/ReActor/resolve/main/models/buffalo_l/{fname}",
+                    f"{base_url}/{fname}",
                     str(fpath)
                 )
+                print(f"   ✓ {fname} downloaded")
             except Exception as e:
-                print(f"   ⚠️ Failed to download {fname}: {e}")
+                # Fallback to immich-app mirror
+                try:
+                    urllib.request.urlretrieve(
+                        f"https://huggingface.co/immich-app/buffalo_l/resolve/main/{fname}",
+                        str(fpath)
+                    )
+                    print(f"   ✓ {fname} downloaded (fallback)")
+                except Exception as e2:
+                    print(f"   ⚠️ Failed to download {fname}: {e2}")
     
     print("✅ ReActor models ready")
 
 
+def hf_download_qwen_edit():
+    """
+    Download Qwen-Image Edit 2511 models from HuggingFace during build.
+    
+    Downloads the diffusion model for edit/inpaint. Text encoder and VAE are shared
+    with Qwen-Image 2512 (already downloaded by hf_download_qwen_image).
+    """
+    from pathlib import Path
+    from huggingface_hub import hf_hub_download
+    import os
+    
+    comfy_dir = Path("/root/comfy/ComfyUI/models")
+    
+    print("📥 Downloading Qwen-Image Edit 2511 model from HuggingFace...")
+    
+    # Only need the Edit-specific diffusion model; text encoder and VAE are shared
+    models = [
+        {
+            "repo": "Comfy-Org/Qwen-Image-Edit_ComfyUI",
+            "file": "split_files/diffusion_models/qwen_image_edit_2511_bf16.safetensors",
+            "dest_dir": comfy_dir / "diffusion_models",
+            "dest_name": "qwen_image_edit_2511_bf16.safetensors",
+        },
+    ]
+    
+    for model in models:
+        try:
+            dest_dir = model["dest_dir"]
+            dest_path = dest_dir / model["dest_name"]
+            
+            dest_dir.mkdir(parents=True, exist_ok=True)
+            
+            if dest_path.exists():
+                print(f"   ✓ {model['dest_name']} already exists")
+                continue
+            
+            print(f"   Downloading {model['dest_name']}...")
+            
+            cached_path = hf_hub_download(
+                repo_id=model["repo"],
+                filename=model["file"],
+                cache_dir="/cache",
+            )
+            
+            os.symlink(cached_path, str(dest_path))
+            print(f"   ✓ {model['dest_name']} downloaded and linked")
+            
+        except Exception as e:
+            print(f"   ❌ Failed to download {model['dest_name']}: {e}")
+            import traceback
+            traceback.print_exc()
+    
+    print("✅ Qwen-Image Edit 2511 model ready")
+
+
 # Qwen-Image image extends base image with Qwen-Image-specific models
-# Cache buster: v7 - Fix video output handling for VHS_VideoCombine
+# Cache buster: v8 - Add Qwen-Edit endpoints (consolidated app)
 qwen_image_image = (
     base_image
     # Install system dependencies for ReActor (libGL, etc.)
     .apt_install(["libgl1-mesa-glx", "libglib2.0-0"])
-    # Copy handler file - includes video face swap endpoint
+    # Copy handler files - includes video face swap and edit/inpaint endpoints
+    # Updated: 2026-02-04T19:30:00Z - Debug WebP batch faceswap detection
     .add_local_file("apps/modal/handlers/qwen_image.py", "/root/handlers/qwen_image.py", copy=True)
+    .add_local_file("apps/modal/handlers/qwen_edit.py", "/root/handlers/qwen_edit.py", copy=True)
     # Install ComfyUI-ReActor for face swap
     .run_commands(
         "cd /root/comfy/ComfyUI/custom_nodes && "
@@ -213,9 +284,18 @@ qwen_image_image = (
     .apt_install(["ffmpeg"])
     # Download ReActor models
     .run_function(download_reactor_models)
-    # Download Qwen-Image models
+    # Download Qwen-Image 2512 models
     .run_function(
         hf_download_qwen_image,
+        volumes={
+            "/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True),
+            "/root/models": modal.Volume.from_name("ryla-models", create_if_missing=True),
+        },
+        secrets=[modal.Secret.from_name("huggingface")],
+    )
+    # Download Qwen-Image Edit 2511 model (text encoder and VAE are shared with 2512)
+    .run_function(
+        hf_download_qwen_edit,
         volumes={
             "/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True),
             "/root/models": modal.Volume.from_name("ryla-models", create_if_missing=True),

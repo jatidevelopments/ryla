@@ -1,0 +1,264 @@
+{
+  "timestamp": "2026-02-06T13:12:21.649863Z",
+  "api_base": "http://localhost:3001",
+  "seed": 557249081,
+  "summary": {
+    "ok": 16,
+    "fail": 7
+  },
+  "results": [
+    {
+      "endpoint": "/flux-ipadapter-faceid",
+      "label": "Flux IP-Adapter FaceID",
+      "category": "Face",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 132.194179,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": true
+    },
+    {
+      "endpoint": "/flux-pulid",
+      "label": "Flux PuLID",
+      "category": "Face",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 71.089056,
+      "cost_usd": 0.006825,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/sdxl-instantid",
+      "label": "SDXL InstantID",
+      "category": "Face",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 95.622337,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/batch-video-faceswap",
+      "label": "Batch Video Face Swap",
+      "category": "Face Swap",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 2.878348,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/image-faceswap",
+      "label": "Image Face Swap",
+      "category": "Face Swap",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 62.458737,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/flux-dev-lora",
+      "label": "Flux Dev LoRA",
+      "category": "LoRA",
+      "ok": false,
+      "error": "Modal.com API error: 400 Bad Request - {\"detail\":\"lora_id or lora_name is required\"}",
+      "elapsed_sec": 0.649582,
+      "cost_usd": null,
+      "skip_reason": "needs_lora",
+      "retried": false
+    },
+    {
+      "endpoint": "/qwen-image-2512-lora",
+      "label": "Qwen Image 2512 LoRA",
+      "category": "LoRA",
+      "ok": false,
+      "error": "Modal.com API error: 400 Bad Request - {\"detail\":\"lora_id or lora_name is required\"}",
+      "elapsed_sec": 0.496474,
+      "cost_usd": null,
+      "skip_reason": "needs_lora",
+      "retried": false
+    },
+    {
+      "endpoint": "/z-image-lora",
+      "label": "Z-Image LoRA",
+      "category": "LoRA",
+      "ok": false,
+      "error": "Modal.com API error: 400 Bad Request - {\"detail\":\"lora_id or lora_name is required\"}",
+      "elapsed_sec": 0.534156,
+      "cost_usd": null,
+      "skip_reason": "needs_lora",
+      "retried": false
+    },
+    {
+      "endpoint": "/flux",
+      "label": "Flux Schnell",
+      "category": "Text-to-image",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 48.994125,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/flux-dev",
+      "label": "Flux Dev",
+      "category": "Text-to-image",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 20.180796,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/qwen-image-2512",
+      "label": "Qwen Image 2512",
+      "category": "Text-to-image",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 117.449708,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": true
+    },
+    {
+      "endpoint": "/qwen-image-2512-fast",
+      "label": "Qwen Image 2512 Fast",
+      "category": "Text-to-image",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 85.548683,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/sdxl-lightning",
+      "label": "SDXL Lightning",
+      "category": "Text-to-image",
+      "ok": false,
+      "error": "Modal.com API error: 404 Not Found - {\"detail\":\"Not Found\"}",
+      "elapsed_sec": 0.533055,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/sdxl-turbo",
+      "label": "SDXL Turbo",
+      "category": "Text-to-image",
+      "ok": false,
+      "error": "Modal.com API error: 404 Not Found - {\"detail\":\"Not Found\"}",
+      "elapsed_sec": 0.560635,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/z-image-danrisi",
+      "label": "Z-Image Danrisi",
+      "category": "Text-to-image",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 65.658761,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/z-image-simple",
+      "label": "Z-Image Simple",
+      "category": "Text-to-image",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 61.145021,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/seedvr2",
+      "label": "SeedVR2 Upscale",
+      "category": "Upscale",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 50.336595,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/wan2.6",
+      "label": "WAN 2.6 T2V",
+      "category": "Video",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 101.199894,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/wan2.6-lora",
+      "label": "WAN 2.6 T2V LoRA",
+      "category": "Video",
+      "ok": false,
+      "error": "Modal.com API error: 400 Bad Request - {\"detail\":\"lora_id or lora_name is required\"}",
+      "elapsed_sec": 62.92485,
+      "cost_usd": null,
+      "skip_reason": "needs_lora",
+      "retried": false
+    },
+    {
+      "endpoint": "/wan2.6-i2v",
+      "label": "WAN 2.6 I2V (Best)",
+      "category": "Video I2V",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 79.041613,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/wan2.6-i2v-faceswap",
+      "label": "WAN 2.6 I2V + FaceSwap",
+      "category": "Video I2V",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 199.326298,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    },
+    {
+      "endpoint": "/wan22-i2v",
+      "label": "WAN 2.2 I2V (14B)",
+      "category": "Video I2V",
+      "ok": false,
+      "error": "Request timeout",
+      "elapsed_sec": 1200.016003,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": true
+    },
+    {
+      "endpoint": "/wan22-i2v-faceswap",
+      "label": "WAN 2.2 I2V + FaceSwap",
+      "category": "Video I2V",
+      "ok": true,
+      "error": null,
+      "elapsed_sec": 369.04704,
+      "cost_usd": null,
+      "skip_reason": null,
+      "retried": false
+    }
+  ]
+}

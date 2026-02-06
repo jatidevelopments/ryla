@@ -14,11 +14,13 @@ import sys
 import base64
 from pathlib import Path
 
+# Allow running as script from repo root or apps/modal
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from tests.endpoint_urls import get_endpoint_url
+
 
 def test_seedvr2_upscaling(workspace: str, input_image: str):
-    endpoint = (
-        f"https://{workspace}--ryla-comfyui-comfyui-fastapi-app.modal.run/seedvr2"
-    )
+    endpoint = get_endpoint_url(workspace, "/seedvr2")
 
     # Load and encode input image
     image_path = Path(input_image)

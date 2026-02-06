@@ -6,12 +6,17 @@ Deploy: modal deploy apps/modal/apps/qwen-image/app.py
 This app handles:
 - /qwen-image-2512 - Qwen Image 2512 text-to-image (50 steps, high quality)
 - /qwen-image-2512-fast - Qwen Image 2512 with Lightning LoRA (4 steps, fast)
+- /qwen-image-2512-lora - Qwen Image 2512 with custom LoRA
+- /video-faceswap - Video face swap
+- /qwen-image-edit-2511 - Qwen Image Edit (image editing)
+- /qwen-image-inpaint-2511 - Qwen Image Inpaint
 
-Model: Qwen-Image 2512 (Apache 2.0 - Free for commercial use)
+Model: Qwen-Image 2512 + Qwen-Image Edit 2511 (Apache 2.0 - Free for commercial use)
 Features:
 - Hyper-realistic AI influencer generation
 - >95% LoRA consistency
 - Support for multiple aspect ratios
+- Image editing and inpainting
 
 Agent Assignment: Qwen-Image Agent (isolated files)
 """
@@ -41,6 +46,7 @@ from image import qwen_image_image
 
 # Import handlers
 from handlers.qwen_image import setup_qwen_image_endpoints
+from handlers.qwen_edit import setup_qwen_edit_endpoints
 
 # Create Modal app
 app = modal.App(name="ryla-qwen-image", image=qwen_image_image)
@@ -149,6 +155,10 @@ class ComfyUI:
         async def health():
             return {"status": "healthy", "app": "ryla-qwen-image"}
         
+        # Register Qwen-Image endpoints (2512, 2512-fast, 2512-lora, video-faceswap)
         setup_qwen_image_endpoints(fastapi, self)
+        
+        # Register Qwen-Edit endpoints (edit, inpaint)
+        setup_qwen_edit_endpoints(fastapi, self)
         
         return fastapi

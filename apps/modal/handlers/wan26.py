@@ -5,12 +5,16 @@ Handles Wan 2.6 text-to-video and R2V generation:
 - wan2.6: Standard text-to-video (upgraded from 2.1)
 - wan2.6-r2v: Reference-to-video for character consistency
 - wan2.6-lora: Text-to-video with custom character LoRA
+- wan2.6-i2v: Image-to-video (simplified T2V with reference)
+- wan2.6-i2v-faceswap: I2V + face swap (delegates to Qwen batch-video-faceswap)
 
 Model: Wan 2.6 (Apache 2.0 - Free for commercial use)
 Features:
 - R2V support (1-3 reference videos for character consistency)
 - LoRA support for trained character consistency
 - Better quality than 2.1
+
+Version: 3 (2026-02-05) - Added wan2.6-i2v-faceswap via Qwen
 """
 
 import json
@@ -20,6 +24,8 @@ import os
 import subprocess
 from pathlib import Path
 from typing import Dict, Optional, List
+
+import requests
 from fastapi import Response, HTTPException
 
 # Import from shared utils
@@ -27,6 +33,43 @@ import sys
 sys.path.insert(0, "/root/utils")
 
 from cost_tracker import CostTracker, get_cost_summary
+
+BATCH_FACESWAP_URL = os.environ.get(
+    "BATCH_VIDEO_FACESWAP_URL",
+    "https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/batch-video-faceswap",
+)
+
+
+def _save_image_to_input(image_data: str) -> str:
+    """
+    Save base64 image data to ComfyUI input folder.
+    
+    Args:
+        image_data: Base64 data URL (e.g., "data:image/jpeg;base64,...")
+    
+    Returns:
+        Filename in ComfyUI input folder
+    """
+    # Parse data URL
+    if image_data.startswith("data:"):
+        header, encoded = image_data.split(",", 1)
+        mime_type = header.split(";")[0].split(":")[1]
+        ext = "png" if "png" in mime_type else "jpg"
+    else:
+        encoded = image_data
+        ext = "jpg"
+    
+    # Decode and save
+    image_bytes = base64.b64decode(encoded)
+    filename = f"{uuid.uuid4().hex}.{ext}"
+    input_dir = "/root/comfy/ComfyUI/input"
+    os.makedirs(input_dir, exist_ok=True)
+    filepath = os.path.join(input_dir, filename)
+    
+    with open(filepath, "wb") as f:
+        f.write(image_bytes)
+    
+    return filename
 
 
 def _save_video_to_input(video_data: str) -> str:
@@ -370,6 +413,154 @@ def build_wan26_r2v_workflow(
     return workflow
 
 
+def build_wan26_i2v_workflow(
+    prompt: str,
+    reference_image: str,
+    width: int = 832,
+    height: int = 480,
+    length: int = 33,
+    steps: int = 30,
+    cfg: float = 6.0,
+    fps: int = 16,
+    seed: Optional[int] = None,
+    negative_prompt: str = "",
+) -> dict:
+    """
+    Build Wan 2.6 I2V (image-to-video) workflow JSON.
+    
+    Uses WanImageToVideo node to properly condition video generation on the
+    source image, creating a latent from the image and modifying the conditioning.
+    
+    Args:
+        prompt: Text prompt for video generation
+        reference_image: Filename of reference image in ComfyUI input folder
+        width: Video width (default: 832)
+        height: Video height (default: 480)
+        length: Number of frames (default: 33)
+        steps: Sampling steps (default: 30)
+        cfg: CFG scale (default: 6.0)
+        fps: Frames per second (default: 16)
+        seed: Random seed (None for random)
+        negative_prompt: Negative prompt (default: "")
+    
+    Returns:
+        ComfyUI workflow dictionary
+    """
+    if seed is None:
+        import random
+        seed = random.randint(0, 2**32 - 1)
+    
+    output_prefix = uuid.uuid4().hex
+    
+    return {
+        # Load reference image
+        "1": {
+            "class_type": "LoadImage",
+            "inputs": {
+                "image": reference_image,
+            },
+        },
+        # KSampler - uses conditioning and latent from WanImageToVideo
+        "3": {
+            "class_type": "KSampler",
+            "inputs": {
+                "seed": seed,
+                "steps": steps,
+                "cfg": cfg,
+                "sampler_name": "uni_pc",
+                "scheduler": "simple",
+                "denoise": 1,
+                "model": ["48", 0],
+                "positive": ["10", 0],  # Conditioned on image
+                "negative": ["10", 1],  # Conditioned on image
+                "latent_image": ["10", 2],  # Latent from image
+            },
+        },
+        # Positive prompt encoding (base)
+        "6": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": prompt,
+                "clip": ["38", 0],
+            },
+        },
+        # Negative prompt encoding (base)
+        "7": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": negative_prompt,
+                "clip": ["38", 0],
+            },
+        },
+        # VAE Decode
+        "8": {
+            "class_type": "VAEDecode",
+            "inputs": {
+                "samples": ["3", 0],
+                "vae": ["39", 0],
+            },
+        },
+        # WanImageToVideo - KEY NODE for proper I2V conditioning
+        "10": {
+            "class_type": "WanImageToVideo",
+            "inputs": {
+                "width": width,
+                "height": height,
+                "length": length,
+                "batch_size": 1,
+                "positive": ["6", 0],
+                "negative": ["7", 0],
+                "vae": ["39", 0],
+                "start_image": ["1", 0],
+            },
+        },
+        # Save as animated WEBP
+        "28": {
+            "class_type": "SaveAnimatedWEBP",
+            "inputs": {
+                "filename_prefix": output_prefix,
+                "fps": fps,
+                "lossless": False,
+                "quality": 90,
+                "method": "default",
+                "images": ["8", 0],
+            },
+        },
+        # UNET Loader (Wan 2.6)
+        "37": {
+            "class_type": "UNETLoader",
+            "inputs": {
+                "unet_name": "wan2.6_t2v_1.3B_fp16.safetensors",
+                "weight_dtype": "default",
+            },
+        },
+        # CLIP Loader
+        "38": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+                "clip_name": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+                "type": "wan",
+                "device": "default",
+            },
+        },
+        # VAE Loader
+        "39": {
+            "class_type": "VAELoader",
+            "inputs": {
+                "vae_name": "wan_2.6_vae.safetensors",
+            },
+        },
+        # Model Sampling patch
+        "48": {
+            "class_type": "ModelSamplingSD3",
+            "inputs": {
+                "model": ["37", 0],
+                "shift": 8,
+            },
+        },
+    }
+
+
 def build_wan26_lora_workflow(
     prompt: str,
     lora_filename: str,
@@ -660,6 +851,138 @@ class Wan26Handler:
         
         return response
     
+    def _wan26_i2v_impl(self, item: dict) -> Response:
+        """
+        Generate video from reference image using Wan 2.6 I2V.
+        
+        Args:
+            item: Request payload with prompt, reference_image, etc.
+        
+        Returns:
+            Response with generated video
+        """
+        # Validate required parameters
+        if "prompt" not in item:
+            raise HTTPException(status_code=400, detail="prompt is required")
+        if "reference_image" not in item:
+            raise HTTPException(status_code=400, detail="reference_image is required (base64 data URL)")
+        
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        
+        # Save reference image
+        reference_filename = _save_image_to_input(item["reference_image"])
+        
+        # Parse parameters
+        prompt = item["prompt"]
+        width = item.get("width", 832)
+        height = item.get("height", 480)
+        length = item.get("length", 33)
+        steps = item.get("steps", 30)
+        cfg = item.get("cfg", 6.0)
+        fps = item.get("fps", 16)
+        seed = item.get("seed")
+        negative_prompt = item.get("negative_prompt", "")
+        
+        # Build workflow
+        print(f"🎥 WAN2.6 I2V: Building workflow (v3 - EmptyHunyuanLatentVideo)...")
+        workflow = build_wan26_i2v_workflow(
+            prompt=prompt,
+            reference_image=reference_filename,
+            width=width,
+            height=height,
+            length=length,
+            steps=steps,
+            cfg=cfg,
+            fps=fps,
+            seed=seed,
+            negative_prompt=negative_prompt,
+        )
+        
+        # Log workflow node types for debugging
+        node_types = [workflow[k].get("class_type", "?") for k in workflow.keys()]
+        print(f"   Workflow nodes: {node_types}")
+        
+        # Execute workflow
+        client_id = uuid.uuid4().hex
+        workflow_file = f"/tmp/{client_id}.json"
+        json.dump(workflow, Path(workflow_file).open("w"))
+        
+        output_bytes = self.comfyui.infer.local(workflow_file)
+        
+        # Cleanup reference image
+        try:
+            ref_path = f"/root/comfy/ComfyUI/input/{reference_filename}"
+            if os.path.exists(ref_path):
+                os.remove(ref_path)
+        except Exception:
+            pass
+        
+        # Calculate cost
+        execution_time = tracker.stop()
+        cost_metrics = tracker.calculate_cost("wan2.6-i2v", execution_time)
+        
+        # Build response (animated WebP format, same as T2V)
+        response = Response(output_bytes, media_type="image/webp")
+        response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+        response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+        response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+        response.headers["X-Model"] = "wan2.6-i2v"
+        response.headers["X-Frames"] = str(length)
+        
+        return response
+    
+    def _wan26_i2v_faceswap_impl(self, item: dict) -> Response:
+        """
+        Generate video from reference image + swap face in all frames.
+        Phase 1: WAN 2.6 I2V (this app). Phase 2: Qwen batch-video-faceswap.
+        """
+        if "face_image" not in item and "reference_face" not in item:
+            raise HTTPException(
+                status_code=400,
+                detail="face_image or reference_face is required (base64 data URL of face to swap in)",
+            )
+        face_image_data = item.get("face_image") or item.get("reference_face")
+        
+        # Run I2V (same as wan2.6-i2v; reference_image = source for video)
+        i2v_result = self._wan26_i2v_impl(item)
+        output_bytes = i2v_result.body
+        length = int(i2v_result.headers.get("X-Frames", "33"))
+        fps = item.get("fps", 16)
+        
+        video_b64 = base64.b64encode(output_bytes).decode("utf-8")
+        source_video_data_url = f"data:image/webp;base64,{video_b64}"
+        
+        payload = {
+            "source_video": source_video_data_url,
+            "reference_image": face_image_data,
+            "fps": fps,
+            "restore_face": item.get("restore_face", True),
+        }
+        try:
+            r = requests.post(BATCH_FACESWAP_URL, json=payload, timeout=1200)
+            r.raise_for_status()
+            final_video_bytes = r.content
+        except requests.exceptions.RequestException as e:
+            if getattr(e, "response", None) is not None:
+                err_body = (e.response.text or "")[:500]
+                raise HTTPException(
+                    status_code=502,
+                    detail=f"Face swap service failed: {err_body or str(e)}",
+                ) from e
+            raise HTTPException(status_code=502, detail=f"Face swap service failed: {e}") from e
+        
+        response = Response(final_video_bytes, media_type="video/mp4")
+        response.headers["X-Model"] = "wan2.6-i2v-faceswap"
+        response.headers["X-Frames"] = str(length)
+        if "X-Cost-USD" in i2v_result.headers:
+            response.headers["X-Cost-USD"] = i2v_result.headers["X-Cost-USD"]
+        if "X-Execution-Time-Sec" in i2v_result.headers:
+            response.headers["X-Execution-Time-Sec"] = i2v_result.headers["X-Execution-Time-Sec"]
+        if "X-GPU-Type" in i2v_result.headers:
+            response.headers["X-GPU-Type"] = i2v_result.headers["X-GPU-Type"]
+        return response
+    
     def _wan26_lora_impl(self, item: dict) -> Response:
         """
         Generate video using Wan 2.6 with custom character LoRA.
@@ -854,6 +1177,63 @@ def setup_wan26_endpoints(fastapi, comfyui_instance):
         item = await request.json()
         result = handler._wan26_r2v_impl(item)
         
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        return response
+    
+    @fastapi.post("/wan2.6-i2v")
+    async def wan26_i2v_route(request: Request):
+        """
+        Generate video from reference image using Wan 2.6 I2V.
+        
+        Uses a reference image to maintain visual consistency in the generated video.
+        Great for generating videos with consistent characters or scenes.
+        
+        Request body:
+        - prompt: str - Text prompt describing the video action (required)
+        - reference_image: str - Base64 data URL of reference image (required)
+        - width: int - Video width (default: 832)
+        - height: int - Video height (default: 480)
+        - length: int - Number of frames (default: 33)
+        - steps: int - Sampling steps (default: 30)
+        - cfg: float - CFG scale (default: 6.0)
+        - fps: int - Frames per second (default: 16)
+        - seed: int - Random seed (optional)
+        - negative_prompt: str - Negative prompt (optional)
+        
+        Returns:
+        - video/mp4 with cost headers
+        
+        Use cases:
+        - Generate video with consistent character from image
+        - Animate a portrait or scene
+        - Create video variants with same subject
+        """
+        item = await request.json()
+        result = handler._wan26_i2v_impl(item)
+        
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        return response
+    
+    @fastapi.post("/wan2.6-i2v-faceswap")
+    async def wan26_i2v_faceswap_route(request: Request):
+        """
+        Generate video from reference image + swap face in all frames.
+        Same as wan2.6-i2v plus face_image/reference_face; returns MP4.
+        """
+        item = await request.json()
+        result = handler._wan26_i2v_faceswap_impl(item)
         response = FastAPIResponse(
             content=result.body,
             media_type=result.media_type,

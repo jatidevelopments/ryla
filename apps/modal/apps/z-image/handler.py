@@ -64,9 +64,9 @@ def _save_reference_image(reference_image: str) -> str:
 
 def build_z_image_simple_workflow(item: dict) -> dict:
     """
-    Build Z-Image Simple workflow JSON.
+    Build Z-Image Simple workflow JSON using ZImageLoader/ZImageSampler nodes.
     
-    Basic workflow using only built-in ComfyUI nodes (no custom nodes required).
+    Uses ComfyUI-Z-Image-Turbo custom nodes that load the diffusers pipeline.
     
     Args:
         item: Request payload with prompt, dimensions, etc.
@@ -75,81 +75,40 @@ def build_z_image_simple_workflow(item: dict) -> dict:
         ComfyUI workflow dictionary
     """
     return {
-        # Model Loaders
+        # Z-Image Pipeline Loader (uses diffusers pipeline)
         "1": {
-            "class_type": "UNETLoader",
+            "class_type": "ZImageLoader",
             "inputs": {
-                "unet_name": "z_image_turbo_bf16.safetensors",
-                "weight_dtype": "default",
+                "model_id": "Tongyi-MAI/Z-Image-Turbo",
+                "precision": "bf16",
+                "compile_model": False,
+                "attention_backend": "default",
             },
         },
+        # Z-Image Sampler
         "2": {
-            "class_type": "CLIPLoader",
+            "class_type": "ZImageSampler",
             "inputs": {
-                "clip_name": "qwen_3_4b.safetensors",
-                "type": "sd3",  # Simple workflow uses sd3
-                "device": "default",
-            },
-        },
-        "3": {
-            "class_type": "VAELoader",
-            "inputs": {
-                "vae_name": "z-image-turbo-vae.safetensors",
-            },
-        },
-        # Prompt Encoding
-        "4": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {
-                "text": item["prompt"],
-                "clip": ["2", 0],
-            },
-        },
-        "5": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {
-                "text": item.get("negative_prompt", ""),
-                "clip": ["2", 0],
-            },
-        },
-        # Latent Image
-        "6": {
-            "class_type": "EmptySD3LatentImage",
-            "inputs": {
+                "pipe": ["1", 0],
+                "prompt": item["prompt"],
                 "width": item.get("width", 1024),
                 "height": item.get("height", 1024),
-                "batch_size": 1,
-            },
-        },
-        # Standard Sampling
-        "7": {
-            "class_type": "KSampler",
-            "inputs": {
-                "model": ["1", 0],
-                "positive": ["4", 0],
-                "negative": ["5", 0],
-                "latent_image": ["6", 0],
+                "steps": item.get("steps", 4),  # Turbo model uses fewer steps
+                "guidance_scale": item.get("cfg", 0.0),  # Turbo often uses 0
                 "seed": item.get("seed", 42),
-                "steps": item.get("steps", 9),
-                "cfg": item.get("cfg", 1.0),
-                "sampler_name": "euler",
-                "scheduler": "simple",
-                "denoise": 1.0,
+                "negative_prompt": item.get("negative_prompt", ""),
+                "batch_size": 1,
+                "max_sequence_length": 512,
+                "cfg_normalization": False,
+                "cfg_truncation": 1.0,
             },
         },
-        # Decode and Save
-        "8": {
-            "class_type": "VAEDecode",
-            "inputs": {
-                "samples": ["7", 0],
-                "vae": ["3", 0],
-            },
-        },
-        "9": {
+        # Save Image
+        "3": {
             "class_type": "SaveImage",
             "inputs": {
                 "filename_prefix": uuid.uuid4().hex,
-                "images": ["8", 0],
+                "images": ["2", 0],
             },
         },
     }
@@ -157,12 +116,9 @@ def build_z_image_simple_workflow(item: dict) -> dict:
 
 def build_z_image_danrisi_workflow(item: dict) -> dict:
     """
-    Build Z-Image Danrisi workflow JSON.
+    Build Z-Image Danrisi workflow JSON using ZImageLoader/ZImageSampler.
     
-    Optimized workflow using RES4LYF custom nodes:
-    - ClownsharKSampler_Beta
-    - BetaSamplingScheduler
-    - Sigmas Rescale
+    Optimized for Turbo model with flash attention (if available).
     
     Args:
         item: Request payload with prompt, dimensions, etc.
@@ -171,109 +127,40 @@ def build_z_image_danrisi_workflow(item: dict) -> dict:
         ComfyUI workflow dictionary
     """
     return {
-        # Model Loaders
+        # Z-Image Pipeline Loader with flash attention
         "1": {
-            "class_type": "UNETLoader",
+            "class_type": "ZImageLoader",
             "inputs": {
-                "unet_name": "z_image_turbo_bf16.safetensors",
-                "weight_dtype": "default",
+                "model_id": "Tongyi-MAI/Z-Image-Turbo",
+                "precision": "bf16",
+                "compile_model": False,
+                "attention_backend": "flash",  # Danrisi uses flash attention
             },
         },
+        # Z-Image Sampler with higher quality settings
         "2": {
-            "class_type": "CLIPLoader",
+            "class_type": "ZImageSampler",
             "inputs": {
-                "clip_name": "qwen_3_4b.safetensors",
-                "type": "lumina2",  # Danrisi uses lumina2, not sd3
-                "device": "default",
-            },
-        },
-        "3": {
-            "class_type": "VAELoader",
-            "inputs": {
-                "vae_name": "z-image-turbo-vae.safetensors",
-            },
-        },
-        # Prompt Encoding
-        "4": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {
-                "text": item["prompt"],
-                "clip": ["2", 0],
-            },
-        },
-        "5": {
-            "class_type": "CLIPTextEncode",
-            "inputs": {
-                "text": item.get("negative_prompt", ""),
-                "clip": ["2", 0],
-            },
-        },
-        "6": {
-            "class_type": "ConditioningZeroOut",
-            "inputs": {
-                "conditioning": ["5", 0],
-            },
-        },
-        # Latent Image
-        "7": {
-            "class_type": "EmptySD3LatentImage",
-            "inputs": {
+                "pipe": ["1", 0],
+                "prompt": item["prompt"],
                 "width": item.get("width", 1024),
                 "height": item.get("height", 1024),
-                "batch_size": 1,
-            },
-        },
-        # Sampling (Danrisi optimized)
-        "8": {
-            "class_type": "BetaSamplingScheduler",
-            "inputs": {
-                "model": ["1", 0],
-                "steps": item.get("steps", 20),
-                "alpha": 0.4,
-                "beta": 0.4,
-            },
-        },
-        "9": {
-            "class_type": "Sigmas Rescale",
-            "inputs": {
-                "sigmas": ["8", 0],
-                "start": 0.996,
-                "end": 0,
-            },
-        },
-        "10": {
-            "class_type": "ClownsharKSampler_Beta",
-            "inputs": {
-                "eta": 0.5,
-                "sampler_name": "linear/ralston_2s",
-                "scheduler": "beta",
-                "steps": item.get("steps", 20),
-                "steps_to_run": -1,
-                "denoise": 1.0,
-                "cfg": item.get("cfg", 1.0),
+                "steps": item.get("steps", 8),  # Slightly more steps for quality
+                "guidance_scale": item.get("cfg", 0.0),
                 "seed": item.get("seed", 42),
-                "sampler_mode": "standard",
-                "bongmath": True,
-                "model": ["1", 0],
-                "positive": ["4", 0],
-                "negative": ["6", 0],
-                "latent_image": ["7", 0],
-                "sigmas": ["9", 0],
+                "negative_prompt": item.get("negative_prompt", ""),
+                "batch_size": 1,
+                "max_sequence_length": 512,
+                "cfg_normalization": True,  # Enable for better quality
+                "cfg_truncation": 1.0,
             },
         },
-        # Decode and Save
-        "11": {
-            "class_type": "VAEDecode",
-            "inputs": {
-                "samples": ["10", 0],
-                "vae": ["3", 0],
-            },
-        },
-        "12": {
+        # Save Image
+        "3": {
             "class_type": "SaveImage",
             "inputs": {
                 "filename_prefix": uuid.uuid4().hex,
-                "images": ["11", 0],
+                "images": ["2", 0],
             },
         },
     }
@@ -738,6 +625,190 @@ def build_z_image_lora_workflow(
     }
 
 
+def build_z_image_pulid_lora_workflow(item: dict, lora_filename: str) -> dict:
+    """
+    Build Z-Image PuLID + LoRA workflow JSON.
+    
+    Combines face consistency (PuLID) with character LoRA for maximum quality.
+    
+    Args:
+        item: Request payload with prompt, reference_image, etc.
+        lora_filename: LoRA filename to apply
+    
+    Returns:
+        ComfyUI workflow dictionary
+    """
+    # Handle reference image
+    reference_image = _save_reference_image(item["reference_image"])
+    
+    # Prepend trigger word if provided
+    prompt = item["prompt"]
+    if item.get("trigger_word"):
+        prompt = f"{item['trigger_word']} {prompt}"
+    
+    return {
+        # Model Loaders
+        "1": {
+            "class_type": "UNETLoader",
+            "inputs": {
+                "unet_name": "z_image_turbo_bf16.safetensors",
+                "weight_dtype": "default",
+            },
+        },
+        # LoRA Loader (applied to model)
+        "50": {
+            "class_type": "LoraLoaderModelOnly",
+            "inputs": {
+                "model": ["1", 0],
+                "lora_name": lora_filename,
+                "strength_model": item.get("lora_strength", 0.8),
+            },
+        },
+        "2": {
+            "class_type": "CLIPLoader",
+            "inputs": {
+                "clip_name": "qwen_3_4b.safetensors",
+                "type": "lumina2",
+                "device": "default",
+            },
+        },
+        "3": {
+            "class_type": "VAELoader",
+            "inputs": {
+                "vae_name": "z-image-turbo-vae.safetensors",
+            },
+        },
+        # PuLID Setup
+        "20": {
+            "class_type": "PulidFluxModelLoader",
+            "inputs": {
+                "pulid_file": "pulid_flux_v0.9.1.safetensors",
+            },
+        },
+        "21": {
+            "class_type": "PulidFluxInsightFaceLoader",
+            "inputs": {
+                "provider": item.get("face_provider", "CPU"),
+            },
+        },
+        "22": {
+            "class_type": "PulidFluxEvaClipLoader",
+            "inputs": {},
+        },
+        # Reference Image
+        "23": {
+            "class_type": "LoadImage",
+            "inputs": {
+                "image": reference_image,
+            },
+        },
+        # Apply PuLID to LoRA-modified model
+        "24": {
+            "class_type": "ApplyPulidFlux",
+            "inputs": {
+                "model": ["50", 0],  # LoRA-modified model
+                "pulid_flux": ["20", 0],
+                "eva_clip": ["22", 0],
+                "face_analysis": ["21", 0],
+                "image": ["23", 0],
+                "weight": item.get("pulid_strength", 0.8),
+                "start_at": item.get("pulid_start", 0.0),
+                "end_at": item.get("pulid_end", 1.0),
+            },
+        },
+        # PuLID Compatibility Patch
+        "28": {
+            "class_type": "FixPulidFluxPatch",
+            "inputs": {
+                "model": ["24", 0],
+            },
+        },
+        # Prompt Encoding
+        "4": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": prompt,
+                "clip": ["2", 0],
+            },
+        },
+        "5": {
+            "class_type": "CLIPTextEncode",
+            "inputs": {
+                "text": item.get("negative_prompt", ""),
+                "clip": ["2", 0],
+            },
+        },
+        "6": {
+            "class_type": "ConditioningZeroOut",
+            "inputs": {
+                "conditioning": ["5", 0],
+            },
+        },
+        # Latent Image
+        "7": {
+            "class_type": "EmptySD3LatentImage",
+            "inputs": {
+                "width": item.get("width", 1024),
+                "height": item.get("height", 1024),
+                "batch_size": 1,
+            },
+        },
+        # Sampling (Danrisi style with PuLID+LoRA model)
+        "8": {
+            "class_type": "BetaSamplingScheduler",
+            "inputs": {
+                "model": ["28", 0],
+                "steps": item.get("steps", 20),
+                "alpha": 0.4,
+                "beta": 0.4,
+            },
+        },
+        "9": {
+            "class_type": "Sigmas Rescale",
+            "inputs": {
+                "sigmas": ["8", 0],
+                "start": 0.996,
+                "end": 0,
+            },
+        },
+        "10": {
+            "class_type": "ClownsharKSampler_Beta",
+            "inputs": {
+                "eta": 0.5,
+                "sampler_name": "linear/ralston_2s",
+                "scheduler": "beta",
+                "steps": item.get("steps", 20),
+                "steps_to_run": -1,
+                "denoise": 1.0,
+                "cfg": item.get("cfg", 1.0),
+                "seed": item.get("seed", 42),
+                "sampler_mode": "standard",
+                "bongmath": True,
+                "model": ["28", 0],
+                "positive": ["4", 0],
+                "negative": ["6", 0],
+                "latent_image": ["7", 0],
+                "sigmas": ["9", 0],
+            },
+        },
+        # Decode and Save
+        "11": {
+            "class_type": "VAEDecode",
+            "inputs": {
+                "samples": ["10", 0],
+                "vae": ["3", 0],
+            },
+        },
+        "12": {
+            "class_type": "SaveImage",
+            "inputs": {
+                "filename_prefix": uuid.uuid4().hex,
+                "images": ["11", 0],
+            },
+        },
+    }
+
+
 class ZImageHandler:
     """Handler for Z-Image workflows."""
     
@@ -846,6 +917,64 @@ class ZImageHandler:
         response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
         response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
         response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+        return response
+    
+    def _z_image_pulid_lora_impl(self, item: dict) -> Response:
+        """Z-Image PuLID + LoRA implementation."""
+        if "reference_image" not in item:
+            raise HTTPException(status_code=400, detail="reference_image is required for PuLID+LoRA workflow")
+        
+        # Validate LoRA parameter
+        if "lora_id" not in item and "lora_name" not in item:
+            raise HTTPException(status_code=400, detail="lora_id or lora_name is required")
+        
+        # Support both lora_id (auto-prefixed) and lora_name (direct filename)
+        if "lora_name" in item:
+            lora_filename = item["lora_name"]
+            if not lora_filename.endswith(".safetensors"):
+                lora_filename += ".safetensors"
+        else:
+            lora_id = item["lora_id"]
+            lora_filename = f"character-{lora_id}.safetensors"
+        
+        # Check LoRA in ComfyUI loras directory
+        comfy_lora_path = Path(f"/root/comfy/ComfyUI/models/loras/{lora_filename}")
+        volume_lora_path = Path(f"/root/models/loras/{lora_filename}")
+        
+        # If LoRA exists in volume but not in ComfyUI directory, symlink it
+        if volume_lora_path.exists() and not comfy_lora_path.exists():
+            comfy_lora_path.parent.mkdir(parents=True, exist_ok=True)
+            subprocess.run(f"ln -s {volume_lora_path} {comfy_lora_path}", shell=True, check=False)
+        
+        # Check if LoRA exists
+        if not comfy_lora_path.exists() and not volume_lora_path.exists():
+            raise HTTPException(status_code=404, detail=f"LoRA not found: {lora_filename}")
+        
+        if "prompt" not in item:
+            raise HTTPException(status_code=400, detail="prompt is required")
+        
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        
+        workflow = build_z_image_pulid_lora_workflow(item, lora_filename)
+        
+        client_id = uuid.uuid4().hex
+        workflow_file = f"/tmp/{client_id}.json"
+        json.dump(workflow, Path(workflow_file).open("w"))
+        
+        image_bytes = self.comfyui.infer.local(workflow_file)
+        
+        execution_time = tracker.stop()
+        cost_metrics = tracker.calculate_cost("z-image-pulid-lora", execution_time)
+        
+        print(f"💰 {get_cost_summary(cost_metrics)}")
+        
+        response = Response(image_bytes, media_type="image/jpeg")
+        response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+        response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+        response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+        response.headers["X-LoRA"] = lora_filename
+        response.headers["X-PuLID-Weight"] = str(item.get("pulid_strength", 0.8))
         return response
     
     def _z_image_lora_impl(self, item: dict) -> Response:
@@ -1003,13 +1132,28 @@ def setup_z_image_endpoints(fastapi, comfyui_instance):
         - cfg: float - CFG scale (default: 1.0)
         - seed: int - Random seed (optional)
         - negative_prompt: str - Negative prompt (default: "")
+        - nsfw: bool - Enable NSFW mode (default: false)
         
         Returns:
         - image/jpeg with cost headers
         
         Note: LoRA must be uploaded to /root/models/loras/ on the Modal volume.
+        
+        Pre-installed CivitAI LoRAs:
+        - realistic-snapshot-zit.safetensors - Enhanced realism
+        - instagramification.safetensors - Instagram style
+        - cinematic-kodak-zit.safetensors - Cinematic film look
+        - candid-instax-zit.safetensors - Polaroid style
+        - nsfw-master-zit.safetensors - NSFW enhancement [NSFW only]
+        - zimage-turbo-nsfw.safetensors - NSFW enhancement [NSFW only]
         """
         item = await request.json()
+        
+        # Handle NSFW flag
+        nsfw_mode = item.get("nsfw", False)
+        if nsfw_mode:
+            print(f"🔞 NSFW mode enabled for Z-Image LoRA request")
+        
         result = handler._z_image_lora_impl(item)
         response = FastAPIResponse(
             content=result.body,
@@ -1018,4 +1162,117 @@ def setup_z_image_endpoints(fastapi, comfyui_instance):
         for key, value in result.headers.items():
             if key.startswith("X-"):
                 response.headers[key] = value
+        response.headers["X-NSFW-Mode"] = str(nsfw_mode).lower()
         return response
+    
+    @fastapi.post("/z-image-realism")
+    async def z_image_realism_route(request: Request):
+        """
+        Z-Image Turbo with enhanced realism prompts.
+        
+        Uses prompt engineering for realistic styles (instagram, cinematic, candid).
+        Z-Image's diffusers pipeline produces photorealistic results natively.
+        
+        Request body:
+        - prompt: str - Text prompt (required)
+        - style: str - Style: 'instagram', 'cinematic', 'candid', 'snapshot' (default: 'snapshot')
+        - width, height, steps, cfg, seed: Standard params
+        
+        Returns:
+        - image/jpeg with cost headers
+        """
+        item = await request.json()
+        
+        style = item.get("style", "snapshot").lower()
+        
+        # Style-specific prompt prefixes for Z-Image
+        style_prefixes = {
+            "instagram": "instagram style photo, social media aesthetic, vibrant colors, perfect lighting",
+            "cinematic": "cinematic film still, kodak portra 400, anamorphic lens, dramatic lighting",
+            "candid": "candid instax polaroid photo, natural moment, soft colors, authentic",
+            "snapshot": "realistic snapshot, RAW photo, professional photography, photorealistic",
+        }
+        
+        prefix = style_prefixes.get(style, style_prefixes["snapshot"])
+        original_prompt = item.get("prompt", "")
+        item["prompt"] = f"{prefix}, {original_prompt}"
+        
+        # Add quality negative prompt
+        if not item.get("negative_prompt"):
+            item["negative_prompt"] = "ugly, deformed, cartoon, anime, blurry, low quality, artificial, CGI"
+        
+        print(f"📸 Z-Image Realism - Style: {style}")
+        
+        result = handler._z_image_simple_impl(item)
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        response.headers["X-Style"] = style
+        return response
+    
+    @fastapi.post("/z-image-nsfw")
+    async def z_image_nsfw_route(request: Request):
+        """
+        Z-Image Turbo NSFW endpoint for adult content generation.
+        
+        Uses Z-Image's native capabilities with NSFW-appropriate prompting.
+        
+        Request body:
+        - prompt: str - Text prompt (required)
+        - width, height, steps, cfg, seed: Standard params
+        
+        Returns:
+        - image/jpeg with cost headers and X-NSFW-Mode: true
+        """
+        item = await request.json()
+        
+        # For NSFW, use minimal negative prompt (don't filter content)
+        if not item.get("negative_prompt"):
+            item["negative_prompt"] = "ugly, deformed, blurry, low quality"
+        
+        print(f"🔞 Z-Image NSFW endpoint called")
+        
+        result = handler._z_image_simple_impl(item)
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        response.headers["X-NSFW-Mode"] = "true"
+        return response
+    
+    @fastapi.post("/z-image-pulid-lora")
+    async def z_image_pulid_lora_route(request: Request):
+        """
+        [DEPRECATED] Z-Image uses a diffusers pipeline that doesn't support ComfyUI LoRAs.
+        
+        For face consistency with LoRA support, use:
+        - /pulid-flux-lora (Flux with PuLID + LoRA)
+        - /sdxl-instantid (SDXL with InstantID face consistency)
+        
+        For basic Z-Image generation, use:
+        - /z-image-simple (basic text-to-image)
+        - /z-image-realism (with style presets)
+        
+        Returns:
+        - 501 Not Implemented with guidance
+        """
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=501,
+            detail={
+                "error": "Z-Image uses diffusers pipeline - ComfyUI LoRAs not supported",
+                "alternatives": [
+                    {"endpoint": "/pulid-flux-lora", "description": "Flux with PuLID face + LoRA"},
+                    {"endpoint": "/sdxl-instantid", "description": "SDXL with InstantID face consistency"},
+                    {"endpoint": "/z-image-simple", "description": "Basic Z-Image text-to-image"},
+                    {"endpoint": "/z-image-realism", "description": "Z-Image with style presets"},
+                ],
+            }
+        )

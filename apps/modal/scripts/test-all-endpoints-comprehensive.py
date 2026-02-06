@@ -20,11 +20,12 @@ import requests
 OUTPUT_DIR = Path(__file__).parent.parent / "test_outputs"
 OUTPUT_DIR.mkdir(exist_ok=True)
 
-# Base URLs
+# Base URLs (must match apps/modal/ENDPOINT-APP-MAPPING.md)
 APPS = {
     "instantid": "https://ryla--ryla-instantid-comfyui-fastapi-app.modal.run",
     "flux": "https://ryla--ryla-flux-comfyui-fastapi-app.modal.run",
     "qwen-image": "https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run",
+    "qwen-edit": "https://ryla--ryla-qwen-edit-comfyui-fastapi-app.modal.run",
     "wan26": "https://ryla--ryla-wan26-comfyui-fastapi-app.modal.run",
     "z-image": "https://ryla--ryla-z-image-comfyui-fastapi-app.modal.run",
     "seedvr2": "https://ryla--ryla-seedvr2-comfyui-fastapi-app.modal.run",

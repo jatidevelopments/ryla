@@ -2,6 +2,8 @@
 Wan2.6-specific image build.
 
 Extends base image with Wan 2.6 model downloads.
+
+Updated: 2026-02-04T20:45:00Z - Fixed EmptyHunyuanLatentVideo for I2V
 """
 
 import modal
@@ -113,6 +115,8 @@ def hf_download_wan26():
 # Wan2.6 image extends base image with Wan2.6-specific models
 wan26_image = (
     base_image
+    # Force rebuild marker (change to trigger new image build)
+    .run_commands("echo 'Handler v4: 2026-02-04T21:00' > /tmp/handler_version")
     # Copy handler files (wan2.py removed - Wan 2.1 no longer supported)
     .add_local_file("apps/modal/handlers/wan26.py", "/root/handlers/wan26.py", copy=True)
     # Download models

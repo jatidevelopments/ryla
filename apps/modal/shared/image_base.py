@@ -124,6 +124,17 @@ base_image = (
         "(pip install -r requirements.txt || true) && "
         "echo '✅ Shakker-Labs IP-Adapter Flux installed'"
     )
+    # Install ComfyUI-Impact-Pack (for FaceDetailer - quality post-processing)
+    .run_commands(
+        "cd /root/comfy/ComfyUI/custom_nodes && "
+        "git clone https://github.com/ltdrdata/ComfyUI-Impact-Pack.git ComfyUI-Impact-Pack || true"
+    )
+    .run_commands(
+        "cd /root/comfy/ComfyUI/custom_nodes/ComfyUI-Impact-Pack && "
+        "pip install -r requirements.txt && "
+        "python install.py && "
+        "echo '✅ ComfyUI-Impact-Pack (FaceDetailer) installed'"
+    )
     # Install HuggingFace Hub
     .uv_pip_install("huggingface-hub>=0.20.0")
     .env({"HF_XET_HIGH_PERFORMANCE": "1"})

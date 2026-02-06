@@ -14,6 +14,9 @@ from fastapi import Response, HTTPException
 from utils.cost_tracker import CostTracker, get_cost_summary
 from utils.image_utils import save_base64_to_file
 
+# Default negative prompt for quality (use if none provided)
+DEFAULT_NEGATIVE_PROMPT = "ugly, deformed, disfigured, bad anatomy, poorly drawn hands, poorly drawn face, blurry, low quality, cartoon, anime, 3d render, illustration"
+
 
 def _save_reference_image(reference_image: str) -> str:
     """
@@ -132,7 +135,7 @@ def build_pulid_flux_workflow(item: dict) -> dict:
                 "eva_clip": ["7", 0],
                 "face_analysis": ["6", 0],
                 "image": ["4", 0],
-                "weight": item.get("pulid_weight", 0.8),
+                "weight": item.get("pulid_weight", 0.9),  # 0.9 for better face consistency (fidelity mode)
                 "start_at": item.get("start_at", 0.0),
                 "end_at": item.get("end_at", 1.0),
             },

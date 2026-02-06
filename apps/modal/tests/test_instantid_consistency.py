@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 """
-Test InstantID face consistency
+Test face consistency (SDXL + InstantID endpoint).
+
+Uses /sdxl-instantid on ryla-instantid app. /flux-instantid was removed.
 
 Usage:
-    python apps/modal/test_instantid_consistency.py [workspace] [reference_image]
+    python apps/modal/tests/test_instantid_consistency.py [workspace] [reference_image]
 """
 
 import requests
@@ -11,11 +13,13 @@ import sys
 import base64
 from pathlib import Path
 
+# Allow running as script from repo root or apps/modal
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from tests.endpoint_urls import get_endpoint_url
+
 
 def test_instantid_consistency(workspace: str, reference_image: str):
-    endpoint = (
-        f"https://{workspace}--ryla-comfyui-comfyui-fastapi-app.modal.run/flux-instantid"
-    )
+    endpoint = get_endpoint_url(workspace, "/sdxl-instantid")
 
     # Load and encode reference image
     ref_path = Path(reference_image)
@@ -38,7 +42,7 @@ def test_instantid_consistency(workspace: str, reference_image: str):
         "A person smiling",
     ]
 
-    print(f"Testing InstantID with reference: {reference_image}")
+    print(f"Testing SDXL+InstantID with reference: {reference_image}")
     print(f"Generating {len(prompts)} variations...\n")
 
     for i, prompt in enumerate(prompts, 1):

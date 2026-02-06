@@ -1,9 +1,9 @@
 # Modal.com Endpoints Reference
 
-**Last Updated**: 2026-02-02  
+**Last Updated**: 2026-02-05  
 **Provider**: Modal.com  
-**GPU**: L40S ($0.000542/sec, ~$1.95/hr)  
-**Total Endpoints**: 21
+**GPU**: L40S ($0.000542/sec), A100-80GB ($0.00167/sec)  
+**Total Endpoints**: 27
 
 ---
 
@@ -17,7 +17,9 @@
 | **Qwen Image** | `/qwen-image-2512`, `/qwen-image-2512-fast`, `/qwen-image-2512-lora` | ryla-qwen-image             |
 | **Qwen Edit**  | `/qwen-image-edit-2511`, `/qwen-image-inpaint-2511`                  | ryla-qwen-edit              |
 | **Z-Image**    | `/z-image-simple`, `/z-image-danrisi`, `/z-image-lora`               | ryla-z-image                |
-| **Video**      | `/wan2.6`, `/wan2.6-r2v`, `/wan2.6-lora`, `/video-faceswap`          | ryla-wan26, ryla-qwen-image |
+| **Video T2V**  | `/wan2.6`, `/wan2.6-lora`, `/wan2.6-r2v`                             | ryla-wan26                  |
+| **Video I2V**  | `/wan2.6-i2v`, `/wan2.6-i2v-faceswap`, `/wan22-i2v`, `/wan22-i2v-faceswap` | ryla-wan26, ryla-wan22-i2v |
+| **Face Swap**  | `/image-faceswap`, `/batch-video-faceswap`, `/video-faceswap`        | ryla-qwen-image             |
 | **Upscaling**  | `/seedvr2`                                                           | ryla-seedvr2                |
 
 ---
@@ -292,40 +294,183 @@
 ### `/wan2.6` - Wan 2.6 Text-to-Video
 
 **Status**: ✅ Working  
-**Time**: ~29s | **Cost**: $0.016
+**Time**: ~35s | **Cost**: $0.019  
+**App**: ryla-wan26 | **GPU**: L40S
 
 ```json
 {
   "prompt": "string (required)",
-  "width": 480,
+  "negative_prompt": "string (optional)",
+  "width": 832,
   "height": 480,
-  "length": 17,
+  "length": 33,
   "fps": 16,
-  "steps": 20,
-  "cfg": 5.0,
+  "steps": 30,
+  "cfg": 6.0,
   "seed": "integer (optional)"
 }
 ```
 
+### `/wan2.6-i2v` - Wan 2.6 Image-to-Video
+
+**Status**: ✅ Working  
+**Time**: ~35s | **Cost**: $0.019  
+**App**: ryla-wan26 | **GPU**: L40S  
+**Quality**: ⭐⭐⭐⭐⭐ Best video quality
+
+```json
+{
+  "prompt": "string (required)",
+  "reference_image": "string (required, base64 data URL)",
+  "negative_prompt": "string (optional)",
+  "width": 832,
+  "height": 480,
+  "length": 33,
+  "fps": 16,
+  "steps": 30,
+  "cfg": 6.0,
+  "seed": "integer (optional)"
+}
+```
+
+**Note**: Uses native WanImageToVideo node with full-precision 1.3B model. Best quality video endpoint.
+
+### `/wan2.6-i2v-faceswap` - Wan 2.6 I2V + Face Swap
+
+**Status**: ✅ Working  
+**Time**: ~160s | **Cost**: $0.087  
+**App**: ryla-wan26 → ryla-qwen-image | **GPU**: L40S
+
+```json
+{
+  "prompt": "string (required)",
+  "reference_image": "string (required, base64 data URL - source image to animate)",
+  "face_image": "string (required, base64 data URL - face to swap in)",
+  "negative_prompt": "string (optional)",
+  "width": 832,
+  "height": 480,
+  "length": 33,
+  "fps": 16,
+  "steps": 30,
+  "cfg": 6.0,
+  "restore_face": true,
+  "seed": "integer (optional)"
+}
+```
+
+**Response**: MP4 video with face swapped
+
+**Note**: Two-phase process - generates video with WAN 2.6 I2V, then delegates face swap to Qwen app's `/batch-video-faceswap`.
+
 ### `/wan2.6-lora` - Wan 2.6 + LoRA
 
 **Status**: ✅ Working  
-**Time**: ~47s | **Cost**: $0.025
+**Time**: ~47s | **Cost**: $0.025  
+**App**: ryla-wan26 | **GPU**: L40S
 
 ```json
 {
   "prompt": "string (required)",
   "lora_id": "string (required)",
   "lora_strength": 0.8,
-  "width": 480,
+  "width": 832,
   "height": 480,
-  "length": 17,
+  "length": 33,
+  "fps": 16,
+  "steps": 30,
+  "cfg": 6.0,
+  "seed": "integer (optional)"
+}
+```
+
+### `/wan22-i2v` - WAN 2.2 Image-to-Video (GGUF)
+
+**Status**: ✅ Working  
+**Time**: ~240s | **Cost**: $0.130  
+**App**: ryla-wan22-i2v | **GPU**: A100-80GB
+
+```json
+{
+  "prompt": "string (required)",
+  "source_image": "string (required, base64 data URL)",
+  "negative_prompt": "string (optional)",
+  "width": 832,
+  "height": 480,
+  "num_frames": 33,
   "fps": 16,
   "steps": 30,
   "cfg": 5.0,
   "seed": "integer (optional)"
 }
 ```
+
+**Response**: WebP animated image
+
+**Note**: Uses 14B GGUF model. Slower but different visual style. Cold start takes 2-3 minutes.
+
+### `/wan22-i2v-faceswap` - WAN 2.2 I2V + Face Swap
+
+**Status**: ✅ Working  
+**Time**: ~425s | **Cost**: $0.230  
+**App**: ryla-wan22-i2v → ryla-qwen-image | **GPU**: A100-80GB
+
+```json
+{
+  "prompt": "string (required)",
+  "source_image": "string (required, base64 data URL - image to animate)",
+  "face_image": "string (required, base64 data URL - face to swap in)",
+  "negative_prompt": "string (optional)",
+  "width": 832,
+  "height": 480,
+  "num_frames": 33,
+  "fps": 16,
+  "steps": 30,
+  "cfg": 5.0,
+  "restore_face": true,
+  "seed": "integer (optional)"
+}
+```
+
+**Response**: MP4 video with face swapped
+
+**Note**: Two-phase process. Requires warm container - cold start may timeout.
+
+### `/image-faceswap` - Single Image Face Swap
+
+**Status**: ✅ Working  
+**Time**: ~10s | **Cost**: $0.005  
+**App**: ryla-qwen-image | **GPU**: L40S
+
+```json
+{
+  "source_image": "string (required, base64 data URL - image to modify)",
+  "reference_image": "string (required, base64 data URL - face to swap in)",
+  "restore_face": true,
+  "face_restore_visibility": 1.0
+}
+```
+
+**Response**: PNG image with face swapped
+
+### `/batch-video-faceswap` - Batch Video Face Swap
+
+**Status**: ✅ Working  
+**Time**: ~60-120s | **Cost**: $0.033-0.065  
+**App**: ryla-qwen-image | **GPU**: L40S
+
+```json
+{
+  "source_video": "string (required, base64 data URL - MP4 or WebP)",
+  "reference_image": "string (required, base64 data URL - face to swap in)",
+  "fps": 16,
+  "restore_face": true,
+  "face_restore_visibility": 1.0
+}
+```
+
+**Response**: MP4 video with face swapped in all frames
+
+**Note**: Processes video frame-by-frame. Supports both MP4 and animated WebP input.
 
 ### `/wan2.6-r2v` - Wan 2.6 Reference-to-Video
 

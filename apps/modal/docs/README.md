@@ -1,30 +1,33 @@
-# Modal Documentation Index
+# Modal docs
 
-## Deployment
+Documentation for `apps/modal/`.
 
-- [Deployment Guide](./deployment.md) - How to deploy the Modal app
-- [Quick Start](./quick-start.md) - Quick start guide
+## Living docs (keep updated)
 
-## Models
+| Doc | Purpose |
+|-----|--------|
+| [ENDPOINTS-REFERENCE.md](./ENDPOINTS-REFERENCE.md) | Request/response for each endpoint |
+| [APP-ORGANIZATION-STRATEGY.md](./APP-ORGANIZATION-STRATEGY.md) | Why split apps and how they’re organized |
+| [TESTING-GUIDE.md](./status/TESTING-GUIDE.md) | How to test split apps |
 
-- [Model Documentation](./models.md) - Model information and requirements
-- [GPU Requirements](../../../specs/modal/GPU-REQUIREMENTS.md) - GPU allocation per model
+Root **[../README.md](../README.md)** and **[../STRUCTURE.md](../STRUCTURE.md)** describe deploy and folder layout.
 
-## Workflows
+## Ops / deployment
 
-- [Workflow Documentation](./workflows.md) - Workflow descriptions and examples
+Deployment and audit live under the repo ops docs:
 
-## Development
+- [docs/ops/deployment/modal/](../../../docs/ops/deployment/modal/README.md) – Quick start, production deploy, timeouts
+- [MODAL-AUDIT.md](../../../docs/ops/deployment/modal/MODAL-AUDIT.md) – Endpoints, scripts, tests audit
 
-- [Best Practices](../BEST-PRACTICES.md) - Development guidelines
-- [Cost Tracking](./cost-tracking.md) - Cost tracking implementation
+## status/
 
-## Troubleshooting
+`status/` holds:
 
-- [Troubleshooting Guide](./troubleshooting.md) - Common issues and solutions
-- [Known Issues](./known-issues.md) - Known issues and status
+- **Benchmark and test results**: e.g. `BENCHMARK-RESULTS.md`, `BENCHMARK-RESULTS.json`, test result JSON/MD.
+- **Historical status**: Many one-off migration/deployment/status reports. Use for reference; prefer updating `ENDPOINT-APP-MAPPING.md` and the living docs above for current state.
 
 ## Other
 
-- [Test Results](./test-results.md) - Test execution results
-- [Reorganization Plan](./reorganization-plan.md) - Code reorganization plan
+- [DEPLOYMENT.md](./DEPLOYMENT.md), [QUICK-START.md](./QUICK-START.md) – Legacy deployment/quick start
+- [BEST-PRACTICES.md](./BEST-PRACTICES.md) – Referenced from ops docs; may live in `docs/ops/deployment/modal/` as well
+- Model/GPU: [specs/modal/GPU-REQUIREMENTS.md](../../../docs/specs/modal/GPU-REQUIREMENTS.md) if present

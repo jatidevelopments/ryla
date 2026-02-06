@@ -11,6 +11,10 @@ import sys
 import time
 from pathlib import Path
 
+# Allow running as script from repo root or apps/modal
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from tests.endpoint_urls import get_endpoint_url
+
 PROMPTS = [
     "A beautiful landscape with mountains",
     "A portrait of a person",
@@ -26,7 +30,7 @@ PROMPTS = [
 
 
 def test_flux_dev_success_rate(workspace: str):
-    endpoint = f"https://{workspace}--ryla-comfyui-comfyui-fastapi-app.modal.run/flux-dev"
+    endpoint = get_endpoint_url(workspace, "/flux-dev")
 
     results = []
     for i, prompt in enumerate(PROMPTS, 1):

@@ -15,6 +15,9 @@ from fastapi import Response, HTTPException
 from utils.cost_tracker import CostTracker, get_cost_summary
 from utils.image_utils import save_base64_to_file
 
+# Default negative prompt for quality (use if none provided)
+DEFAULT_NEGATIVE_PROMPT = "ugly, deformed, disfigured, bad anatomy, poorly drawn hands, poorly drawn face, blurry, low quality, cartoon, anime, 3d render, illustration"
+
 
 def _save_reference_image(reference_image: str) -> str:
     """
@@ -132,7 +135,7 @@ def build_flux_ipadapter_faceid_workflow(item: dict) -> dict:
         "9": {
             "class_type": "CLIPTextEncode",
             "inputs": {
-                "text": item.get("negative_prompt", ""),
+                "text": item.get("negative_prompt") or DEFAULT_NEGATIVE_PROMPT,
                 "clip": ["2", 0],  # DualCLIP output
             },
         },

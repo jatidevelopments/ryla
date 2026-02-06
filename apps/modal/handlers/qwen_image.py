@@ -57,11 +57,11 @@ def _save_video_to_input(video_data: str) -> str:
     Returns:
         Filename in ComfyUI input folder
     """
-    # Parse data URL
+    # Parse data URL (supports mp4, webm, webp for animated WebP from WAN I2V)
     if video_data.startswith("data:"):
         header, encoded = video_data.split(",", 1)
         mime_type = header.split(";")[0].split(":")[1]
-        ext = "mp4" if "mp4" in mime_type else "webm" if "webm" in mime_type else "mp4"
+        ext = "mp4" if "mp4" in mime_type else "webm" if "webm" in mime_type else "webp" if "webp" in mime_type else "mp4"
     else:
         encoded = video_data
         ext = "mp4"
@@ -197,6 +197,81 @@ def build_video_faceswap_workflow(
                 "crf": 19,
                 "save_metadata": False,
                 "audio": ["1", 2],  # Audio from original video
+            },
+        },
+    }
+    
+    return workflow
+
+
+def build_image_faceswap_workflow(
+    source_image_filename: str,
+    face_image_filename: str,
+    restore_face: bool = True,
+    face_restore_visibility: float = 1.0,
+    codeformer_weight: float = 0.5,
+) -> dict:
+    """
+    Build image face swap workflow using ReActor.
+    
+    Pipeline:
+    1. LoadImage - Load source image (to swap face INTO)
+    2. LoadImage - Load reference face image (face to use)
+    3. ReActorFaceSwap - Swap face
+    4. SaveImage - Save result
+    
+    Args:
+        source_image_filename: Source image filename in ComfyUI input folder
+        face_image_filename: Face image filename in ComfyUI input folder
+        restore_face: Apply GFPGAN face restoration (default: True)
+        face_restore_visibility: Face restore blend (default: 1.0)
+        codeformer_weight: CodeFormer weight for restoration (default: 0.5)
+    
+    Returns:
+        ComfyUI workflow dictionary
+    """
+    output_prefix = uuid.uuid4().hex
+    
+    workflow = {
+        # Load source image (the image to swap face INTO)
+        "1": {
+            "class_type": "LoadImage",
+            "inputs": {
+                "image": source_image_filename,
+            },
+        },
+        # Load reference face image (the face to USE)
+        "2": {
+            "class_type": "LoadImage",
+            "inputs": {
+                "image": face_image_filename,
+            },
+        },
+        # ReActor face swap
+        "3": {
+            "class_type": "ReActorFaceSwap",
+            "inputs": {
+                "enabled": True,
+                "input_image": ["1", 0],  # Source image
+                "source_image": ["2", 0],  # Face reference
+                "swap_model": "inswapper_128.onnx",
+                "facedetection": "retinaface_resnet50",
+                "face_restore_model": "GFPGANv1.4.pth" if restore_face else "none",
+                "face_restore_visibility": face_restore_visibility,
+                "codeformer_weight": codeformer_weight,
+                "detect_gender_input": "no",
+                "detect_gender_source": "no",
+                "input_faces_index": "0",
+                "source_faces_index": "0",
+                "console_log_level": 1,
+            },
+        },
+        # Save result
+        "4": {
+            "class_type": "SaveImage",
+            "inputs": {
+                "images": ["3", 0],
+                "filename_prefix": output_prefix,
             },
         },
     }
@@ -847,6 +922,305 @@ class QwenImageHandler:
                     os.remove(face_path)
             except Exception as e:
                 print(f"Warning: Failed to cleanup input files: {e}")
+    
+    def _image_faceswap_impl(self, item: dict) -> Response:
+        """
+        Apply face swap to a single image using ReActor.
+        
+        Pipeline:
+        1. Load source image (image to swap face INTO)
+        2. Load reference face image (face to USE)
+        3. Apply ReActor face swap
+        4. Return swapped image
+        
+        Args:
+            item: Request payload with source_image, reference_image, etc.
+        
+        Returns:
+            Response with face-swapped image (JPEG)
+        """
+        import glob
+        
+        # Validate required parameters
+        if "source_image" not in item:
+            raise HTTPException(status_code=400, detail="source_image is required (base64 data URL)")
+        if "reference_image" not in item:
+            raise HTTPException(status_code=400, detail="reference_image is required (base64 data URL)")
+        
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        
+        # Save inputs to ComfyUI input folder
+        source_filename = _save_image_to_input(item["source_image"])
+        face_filename = _save_image_to_input(item["reference_image"])
+        
+        # Parse options
+        restore_face = item.get("restore_face", True)
+        face_restore_visibility = item.get("face_restore_visibility", 1.0)
+        codeformer_weight = item.get("codeformer_weight", 0.5)
+        
+        # Generate unique output prefix
+        output_prefix = uuid.uuid4().hex
+        
+        try:
+            # Build workflow
+            workflow = build_image_faceswap_workflow(
+                source_image_filename=source_filename,
+                face_image_filename=face_filename,
+                restore_face=restore_face,
+                face_restore_visibility=face_restore_visibility,
+                codeformer_weight=codeformer_weight,
+            )
+            
+            # Override the output prefix
+            workflow["4"]["inputs"]["filename_prefix"] = output_prefix
+            
+            # Save workflow and execute
+            client_id = uuid.uuid4().hex
+            workflow_file = f"/tmp/{client_id}.json"
+            json.dump(workflow, Path(workflow_file).open("w"))
+            
+            # Execute via ComfyUI
+            image_bytes = self.comfyui.infer.local(workflow_file)
+            
+            # Calculate cost
+            execution_time = tracker.stop()
+            cost_metrics = tracker.calculate_cost("image-faceswap", execution_time)
+            
+            print(f"💰 Image faceswap: {cost_metrics.total_cost:.6f} USD in {execution_time:.1f}s")
+            
+            # Build response
+            response = Response(image_bytes, media_type="image/jpeg")
+            response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+            response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+            response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+            response.headers["X-Model"] = "reactor-image-faceswap"
+            
+            return response
+            
+        finally:
+            # Cleanup input files
+            try:
+                source_path = f"/root/comfy/ComfyUI/input/{source_filename}"
+                face_path = f"/root/comfy/ComfyUI/input/{face_filename}"
+                if os.path.exists(source_path):
+                    os.remove(source_path)
+                if os.path.exists(face_path):
+                    os.remove(face_path)
+            except Exception as e:
+                print(f"Warning: Failed to cleanup input files: {e}")
+    
+    def _batch_video_faceswap_impl(self, item: dict) -> Response:
+        """
+        Apply face swap to video using batch frame processing.
+        
+        More reliable than VHS workflow approach:
+        1. Extract frames using ffmpeg
+        2. Process each frame with ReActor image faceswap
+        3. Recombine frames to video with ffmpeg
+        
+        Args:
+            item: Request payload with source_video, reference_image, etc.
+        
+        Returns:
+            Response with face-swapped video (MP4)
+        """
+        print("🎥 BATCH VIDEO FACESWAP v2 - Starting...")  # Version marker
+        import glob
+        import shutil
+        import tempfile
+        
+        # Validate required parameters
+        if "source_video" not in item:
+            raise HTTPException(status_code=400, detail="source_video is required (base64 data URL)")
+        if "reference_image" not in item:
+            raise HTTPException(status_code=400, detail="reference_image is required (base64 data URL)")
+        
+        tracker = CostTracker(gpu_type="L40S")
+        tracker.start()
+        
+        # Create temp directory for frames
+        temp_dir = tempfile.mkdtemp(prefix="faceswap_")
+        frames_dir = os.path.join(temp_dir, "frames")
+        output_dir = os.path.join(temp_dir, "output")
+        os.makedirs(frames_dir, exist_ok=True)
+        os.makedirs(output_dir, exist_ok=True)
+        
+        try:
+            # Save video and face image
+            video_filename = _save_video_to_input(item["source_video"])
+            face_filename = _save_image_to_input(item["reference_image"])
+            
+            video_path = f"/root/comfy/ComfyUI/input/{video_filename}"
+            face_path = f"/root/comfy/ComfyUI/input/{face_filename}"
+            
+            # Verify video was saved correctly
+            if not os.path.exists(video_path):
+                raise Exception(f"Video file not saved: {video_path}")
+            video_size = os.path.getsize(video_path)
+            print(f"📁 Video saved: {video_path} ({video_size / 1024:.1f} KB)")
+            
+            if not os.path.exists(face_path):
+                raise Exception(f"Face image not saved: {face_path}")
+            
+            # Get video info
+            fps = item.get("fps", 24)
+            
+            # Extract frames using ffmpeg
+            print(f"📹 Extracting frames from video at {fps} fps...")
+            
+            # Check if ffmpeg is available
+            ffmpeg_check = subprocess.run("which ffmpeg", shell=True, capture_output=True, text=True)
+            if ffmpeg_check.returncode != 0:
+                raise Exception("ffmpeg not found in container. Contact support.")
+            
+            # Detect file type by reading magic bytes
+            print(f"   DEBUG: Opening {video_path} for magic detection")
+            with open(video_path, 'rb') as vf:
+                magic = vf.read(16)
+            
+            print(f"   DEBUG: Magic bytes: {magic[:12].hex()}")
+            is_riff = magic[:4] == b'RIFF'
+            is_webp_marker = magic[8:12] == b'WEBP'
+            is_webp = is_riff and is_webp_marker
+            print(f"   DEBUG: is_riff={is_riff}, is_webp_marker={is_webp_marker}, is_webp={is_webp}")
+            
+            if is_webp:
+                # Animated WebP - use convert or imagemagick
+                print(f"   Using ImageMagick for WebP extraction...")
+                # First try with PIL/Pillow
+                try:
+                    from PIL import Image
+                    img = Image.open(video_path)
+                    frame_idx = 0
+                    while True:
+                        img.seek(frame_idx)
+                        frame_path = f"{frames_dir}/frame_{frame_idx:04d}.png"
+                        img.save(frame_path, 'PNG')
+                        frame_idx += 1
+                except EOFError:
+                    print(f"   Extracted {frame_idx} frames from WebP")
+                except Exception as webp_err:
+                    raise Exception(f"Failed to extract WebP frames: {webp_err}")
+            else:
+                # Standard video - use ffmpeg
+                extract_cmd = f'ffmpeg -y -i "{video_path}" -vf "fps={fps}" "{frames_dir}/frame_%04d.png"'
+                print(f"   Command: {extract_cmd}")
+                result = subprocess.run(extract_cmd, shell=True, capture_output=True, text=True, timeout=300)
+                print(f"   Return code: {result.returncode}")
+                
+                if result.returncode != 0:
+                    print(f"   First attempt failed.")
+                    print(f"   stdout: {result.stdout[:300] if result.stdout else 'N/A'}")
+                    print(f"   stderr: {result.stderr[:300] if result.stderr else 'N/A'}")
+                    
+                    # Try simpler extraction without fps filter
+                    print(f"   Retrying without fps filter...")
+                    extract_cmd2 = f'ffmpeg -y -i "{video_path}" "{frames_dir}/frame_%04d.png"'
+                    result = subprocess.run(extract_cmd2, shell=True, capture_output=True, text=True, timeout=300)
+                    print(f"   Retry return code: {result.returncode}")
+                    
+                    if result.returncode != 0:
+                        err_msg = result.stderr if result.stderr else result.stdout
+                        raise Exception(f"Failed to extract frames. RC: {result.returncode}. Err: {err_msg[-400:]}")
+            
+            # Get frame list
+            frame_files = sorted(glob.glob(f"{frames_dir}/frame_*.png"))
+            total_frames = len(frame_files)
+            print(f"   Extracted {total_frames} frames")
+            
+            if total_frames == 0:
+                raise Exception("No frames extracted from video")
+            
+            # Parse options
+            restore_face = item.get("restore_face", True)
+            face_restore_visibility = item.get("face_restore_visibility", 1.0)
+            codeformer_weight = item.get("codeformer_weight", 0.5)
+            
+            # Process each frame with ReActor
+            print(f"🔄 Processing {total_frames} frames with ReActor...")
+            for i, frame_path in enumerate(frame_files):
+                # Build workflow for this frame
+                frame_filename = os.path.basename(frame_path)
+                
+                # Copy frame to ComfyUI input
+                comfy_frame_path = f"/root/comfy/ComfyUI/input/{frame_filename}"
+                shutil.copy(frame_path, comfy_frame_path)
+                
+                output_prefix = f"faceswap_{i:04d}"
+                
+                workflow = build_image_faceswap_workflow(
+                    source_image_filename=frame_filename,
+                    face_image_filename=face_filename,
+                    restore_face=restore_face,
+                    face_restore_visibility=face_restore_visibility,
+                    codeformer_weight=codeformer_weight,
+                )
+                workflow["4"]["inputs"]["filename_prefix"] = output_prefix
+                
+                # Execute workflow
+                client_id = uuid.uuid4().hex
+                workflow_file = f"/tmp/{client_id}.json"
+                json.dump(workflow, Path(workflow_file).open("w"))
+                
+                try:
+                    image_bytes = self.comfyui.infer.local(workflow_file)
+                    
+                    # Save output frame
+                    output_frame = f"{output_dir}/frame_{i:04d}.png"
+                    with open(output_frame, "wb") as f:
+                        f.write(image_bytes)
+                    
+                    if (i + 1) % 10 == 0:
+                        print(f"   Processed {i + 1}/{total_frames} frames")
+                finally:
+                    # Cleanup
+                    if os.path.exists(comfy_frame_path):
+                        os.remove(comfy_frame_path)
+            
+            print(f"✅ All frames processed")
+            
+            # Recombine frames to video using ffmpeg
+            print(f"🎬 Combining frames to video...")
+            output_video = f"{temp_dir}/output.mp4"
+            combine_cmd = f"ffmpeg -framerate {fps} -i {output_dir}/frame_%04d.png -c:v libx264 -pix_fmt yuv420p -crf 18 {output_video} -y"
+            result = subprocess.run(combine_cmd, shell=True, capture_output=True, text=True)
+            if result.returncode != 0:
+                raise Exception(f"Failed to combine frames: {result.stderr}")
+            
+            # Read output video
+            with open(output_video, "rb") as f:
+                output_bytes = f.read()
+            
+            # Calculate cost
+            execution_time = tracker.stop()
+            cost_metrics = tracker.calculate_cost("batch-video-faceswap", execution_time)
+            
+            print(f"💰 Batch video faceswap: {cost_metrics.total_cost:.6f} USD in {execution_time:.1f}s ({total_frames} frames)")
+            
+            # Build response
+            response = Response(output_bytes, media_type="video/mp4")
+            response.headers["X-Cost-USD"] = f"{cost_metrics.total_cost:.6f}"
+            response.headers["X-Execution-Time-Sec"] = f"{execution_time:.3f}"
+            response.headers["X-GPU-Type"] = cost_metrics.gpu_type
+            response.headers["X-Model"] = "reactor-batch-faceswap"
+            response.headers["X-FPS"] = str(fps)
+            response.headers["X-Frame-Count"] = str(total_frames)
+            
+            return response
+            
+        finally:
+            # Cleanup temp directory
+            try:
+                shutil.rmtree(temp_dir)
+                video_path = f"/root/comfy/ComfyUI/input/{video_filename}"
+                face_path = f"/root/comfy/ComfyUI/input/{face_filename}"
+                if os.path.exists(video_path):
+                    os.remove(video_path)
+                if os.path.exists(face_path):
+                    os.remove(face_path)
+            except Exception as e:
+                print(f"Warning: Failed to cleanup: {e}")
 
 
 def setup_qwen_image_endpoints(fastapi, comfyui_instance):
@@ -972,6 +1346,77 @@ def setup_qwen_image_endpoints(fastapi, comfyui_instance):
         """
         item = await request.json()
         result = handler._video_faceswap_impl(item)
+        
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        return response
+    
+    @fastapi.post("/image-faceswap")
+    async def image_faceswap_route(request: Request):
+        """
+        Apply face swap to a single image using ReActor.
+        
+        Swaps the face in a source image with a reference face image.
+        Fast single-image processing with optional face restoration.
+        
+        Request body:
+        - source_image: str - Base64 data URL of source image (required)
+        - reference_image: str - Base64 data URL of face to swap in (required)
+        - restore_face: bool - Apply GFPGAN face restoration (default: true)
+        - face_restore_visibility: float - Face restore blend 0-1 (default: 1.0)
+        - codeformer_weight: float - CodeFormer weight for restoration (default: 0.5)
+        
+        Returns:
+        - image/jpeg with cost headers
+        
+        Use cases:
+        - Swap face in AI-generated images
+        - Apply influencer face to stock photos
+        - Character consistency across images
+        """
+        item = await request.json()
+        result = handler._image_faceswap_impl(item)
+        
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        return response
+    
+    @fastapi.post("/batch-video-faceswap")
+    async def batch_video_faceswap_route(request: Request):
+        """
+        Apply face swap to video using reliable batch processing.
+        
+        Extracts frames, processes each with ReActor, then recombines.
+        More reliable than the streaming VHS workflow approach.
+        
+        Request body:
+        - source_video: str - Base64 data URL of source video (required)
+        - reference_image: str - Base64 data URL of face to swap in (required)
+        - fps: int - Processing FPS (default: 24, lower = faster)
+        - restore_face: bool - Apply GFPGAN face restoration (default: true)
+        - face_restore_visibility: float - Face restore blend 0-1 (default: 1.0)
+        - codeformer_weight: float - CodeFormer weight for restoration (default: 0.5)
+        
+        Returns:
+        - video/mp4 with cost headers
+        
+        Performance:
+        - ~2-3 seconds per frame
+        - 24 fps video = ~48-72 seconds per second of video
+        - Recommended: Use 12-16 fps for faster processing
+        """
+        item = await request.json()
+        result = handler._batch_video_faceswap_impl(item)
         
         response = FastAPIResponse(
             content=result.body,

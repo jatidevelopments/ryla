@@ -7,6 +7,11 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APPS_DIR="$SCRIPT_DIR/apps"
 
+# Modal add_local_dir/file paths in image_base.py are relative to repo root.
+# Ensure we run from repo root so paths like "apps/modal/utils" resolve correctly.
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+cd "$REPO_ROOT"
+
 echo "🚀 RYLA Modal Apps Deployment"
 echo "=============================="
 echo ""

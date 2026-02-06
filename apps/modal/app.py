@@ -36,6 +36,8 @@ app = modal.App(name="ryla-comfyui", image=image)
 
 @app.cls(
     scaledown_window=300,  # 5 minute container keep alive
+    # Note: min_containers=1 removed - the monolithic image is too heavy
+    # Use split apps (ryla-flux, ryla-instantid) or modal-playground for testing
     gpu=GPU_TYPE,
     volumes={"/cache": hf_cache_vol, "/root/models": volume},
     secrets=[huggingface_secret],

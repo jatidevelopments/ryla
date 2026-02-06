@@ -1,21 +1,25 @@
 # Endpoint to App Mapping
 
-**Last Updated**: 2026-02-02  
+**Last Updated**: 2026-02-04  
 **Purpose**: Map all Modal endpoints to their corresponding apps
 
 ---
 
-## Deployed Apps (7 Total)
+## Deployed Apps (8 Total)
 
-| App Name          | Description                                     | GPU  | Status  |
-| ----------------- | ----------------------------------------------- | ---- | ------- |
-| `ryla-flux`       | Flux Schnell/Dev + LoRA                         | L40S | ✅ Live |
-| `ryla-instantid`  | Face Consistency (InstantID, PuLID, IP-Adapter) | L40S | ✅ Live |
-| `ryla-qwen-image` | Qwen-Image 2512 + Video Faceswap                | L40S | ✅ Live |
-| `ryla-qwen-edit`  | Qwen-Image Edit/Inpaint                         | L40S | ✅ Live |
-| `ryla-z-image`    | Z-Image-Turbo T2I                               | L40S | ✅ Live |
-| `ryla-wan26`      | Wan 2.6 Video                                   | L40S | ✅ Live |
-| `ryla-seedvr2`    | Image Upscaling                                 | L40S | ✅ Live |
+| App Name            | Description                                        | GPU           | Status  |
+| ------------------- | -------------------------------------------------- | ------------- | ------- |
+| `ryla-flux`         | Flux Schnell/Dev + LoRA                            | L40S          | ✅ Live |
+| `ryla-instantid`    | Face Consistency (InstantID, PuLID, IP-Adapter)    | L40S          | ✅ Live |
+| `ryla-qwen-image`   | Qwen-Image 2512 + Edit/Inpaint + Video Faceswap    | L40S          | ✅ Live |
+| `ryla-z-image`      | Z-Image-Turbo T2I                                  | L40S          | ✅ Live |
+| `ryla-wan26`        | Wan 2.6 Video                                      | L40S          | ✅ Live |
+| `ryla-seedvr2`      | Image Upscaling                                    | L40S          | ✅ Live |
+| `ryla-comfyui`      | Monolithic ComfyUI (all workflows)                 | L40S          | ✅ Live |
+| `ryla-lora-training`| Combined LoRA Training (Flux, Qwen, Wan)           | A100-80GB/L40S| ✅ Live |
+
+> **Note**: `ryla-qwen-edit` was merged into `ryla-qwen-image` to stay within endpoint limits.
+> **Note**: LoRA training apps (Flux, Qwen, Wan) were combined into `ryla-lora-training` to save app slots.
 
 ---
 
@@ -39,21 +43,16 @@
 | `/flux-pulid`            | `https://ryla--ryla-instantid-comfyui-fastapi-app.modal.run/flux-pulid`            | Flux + PuLID face consistency      |
 | `/flux-ipadapter-faceid` | `https://ryla--ryla-instantid-comfyui-fastapi-app.modal.run/flux-ipadapter-faceid` | Flux + XLabs IP-Adapter v2         |
 
-### Qwen Image (`ryla-qwen-image`)
+### Qwen Image + Edit (`ryla-qwen-image`)
 
-| Endpoint                | Full URL                                                                           | Purpose                                |
-| ----------------------- | ---------------------------------------------------------------------------------- | -------------------------------------- |
-| `/qwen-image-2512`      | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512`      | High-quality T2I (50 steps)            |
-| `/qwen-image-2512-fast` | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-fast` | Fast T2I with Lightning LoRA (4 steps) |
-| `/qwen-image-2512-lora` | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-lora` | T2I with custom character LoRA         |
-| `/video-faceswap`       | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/video-faceswap`       | Video face swap (ReActor)              |
-
-### Image Editing (`ryla-qwen-edit`)
-
-| Endpoint                   | Full URL                                                                             | Purpose                   |
-| -------------------------- | ------------------------------------------------------------------------------------ | ------------------------- |
-| `/qwen-image-edit-2511`    | `https://ryla--ryla-qwen-edit-comfyui-fastapi-app.modal.run/qwen-image-edit-2511`    | Instruction-based editing |
-| `/qwen-image-inpaint-2511` | `https://ryla--ryla-qwen-edit-comfyui-fastapi-app.modal.run/qwen-image-inpaint-2511` | Mask-based inpainting     |
+| Endpoint                   | Full URL                                                                              | Purpose                                |
+| -------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------- |
+| `/qwen-image-2512`         | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512`         | High-quality T2I (50 steps)            |
+| `/qwen-image-2512-fast`    | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-fast`    | Fast T2I with Lightning LoRA (4 steps) |
+| `/qwen-image-2512-lora`    | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-lora`    | T2I with custom character LoRA         |
+| `/video-faceswap`          | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/video-faceswap`          | Video face swap (ReActor)              |
+| `/qwen-image-edit-2511`    | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-edit-2511`    | Instruction-based editing              |
+| `/qwen-image-inpaint-2511` | `https://ryla--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-inpaint-2511` | Mask-based inpainting                  |
 
 ### Z-Image Turbo (`ryla-z-image`)
 
@@ -76,6 +75,36 @@
 | Endpoint   | Full URL                                                           | Purpose                 |
 | ---------- | ------------------------------------------------------------------ | ----------------------- |
 | `/seedvr2` | `https://ryla--ryla-seedvr2-comfyui-fastapi-app.modal.run/seedvr2` | SeedVR2 image upscaling |
+
+### LoRA Training (`ryla-lora-training`)
+
+These are function-only endpoints (no web API). Invoke via Modal SDK:
+
+| Function              | GPU       | Timeout | Purpose                                   |
+| --------------------- | --------- | ------- | ----------------------------------------- |
+| `train_flux_lora`     | A100-80GB | 2h      | Train Flux character LoRA from images     |
+| `train_qwen_lora`     | A100-80GB | 2h      | Train Qwen-Image character LoRA           |
+| `train_wan_lora`      | L40S      | 4h      | Train Wan 2.6 video LoRA (1.3B model)     |
+| `train_wan_lora_14b`  | A100-80GB | 8h      | Train Wan 2.6 video LoRA (14B model)      |
+
+**Usage Example (Python):**
+
+```python
+import modal
+
+# Get the training app
+training_app = modal.App.from_name("ryla-lora-training")
+train_flux = training_app.functions["train_flux_lora"]
+
+# Trigger training
+result = train_flux.remote(
+    job_id="job-123",
+    image_urls=["https://example.com/img1.jpg", "https://example.com/img2.jpg"],
+    trigger_word="mychar",
+    character_id="char-456",
+    config={"max_train_steps": 500}
+)
+```
 
 ---
 
@@ -106,14 +135,13 @@ ENDPOINT_APP_MAP = {
     "/sdxl-lightning": "ryla-instantid",
     "/flux-pulid": "ryla-instantid",
     "/flux-ipadapter-faceid": "ryla-instantid",
-    # Qwen Image
+    # Qwen Image + Edit (consolidated)
     "/qwen-image-2512": "ryla-qwen-image",
     "/qwen-image-2512-fast": "ryla-qwen-image",
     "/qwen-image-2512-lora": "ryla-qwen-image",
     "/video-faceswap": "ryla-qwen-image",
-    # Qwen Edit
-    "/qwen-image-edit-2511": "ryla-qwen-edit",
-    "/qwen-image-inpaint-2511": "ryla-qwen-edit",
+    "/qwen-image-edit-2511": "ryla-qwen-image",
+    "/qwen-image-inpaint-2511": "ryla-qwen-image",
     # Z-Image
     "/z-image-simple": "ryla-z-image",
     "/z-image-danrisi": "ryla-z-image",
@@ -147,14 +175,13 @@ const ENDPOINT_APP_MAP: Record<string, string> = {
   '/sdxl-lightning': 'ryla-instantid',
   '/flux-pulid': 'ryla-instantid',
   '/flux-ipadapter-faceid': 'ryla-instantid',
-  // Qwen Image
+  // Qwen Image + Edit (consolidated)
   '/qwen-image-2512': 'ryla-qwen-image',
   '/qwen-image-2512-fast': 'ryla-qwen-image',
   '/qwen-image-2512-lora': 'ryla-qwen-image',
   '/video-faceswap': 'ryla-qwen-image',
-  // Qwen Edit
-  '/qwen-image-edit-2511': 'ryla-qwen-edit',
-  '/qwen-image-inpaint-2511': 'ryla-qwen-edit',
+  '/qwen-image-edit-2511': 'ryla-qwen-image',
+  '/qwen-image-inpaint-2511': 'ryla-qwen-image',
   // Z-Image
   '/z-image-simple': 'ryla-z-image',
   '/z-image-danrisi': 'ryla-z-image',

@@ -1,0 +1,5 @@
+{
+  "quality_positive": "masterpiece, best quality, ultra quality, 8k, high quality, photorealistic, hyper realistic, realistic skin texture, detailed skin, sharp focus, DSLR, depth of field, intricate natural lighting, professional photography",
+  "quality_negative": "ugly, deformed, disfigured, poor anatomy, bad anatomy, poorly drawn hands, poorly drawn feet, poorly drawn face, extra limbs, mutated hands, fused fingers, too many fingers, blurry, low quality, jpeg artifacts, low contrast, watermark, signature, out of frame, cut off, painting, cartoon, anime, 3d render, illustration, CGI, low resolution, amateur, bad lighting",
+  "notes": "Compare OLD (basic) vs NEW (quality enhanced) versions"
+}

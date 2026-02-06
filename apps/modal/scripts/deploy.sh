@@ -1,9 +1,12 @@
 #!/bin/bash
-# Modal Deployment Script
-# Usage: ./scripts/deploy.sh
+# LEGACY: Deploys the single monolithic app (app.py) as "ryla-comfyui".
+# For production, use the split-app deploy from repo root:
+#   cd apps/modal && ../deploy.sh   OR   cd apps/modal && ./deploy.sh
+# Usage: from apps/modal: ./scripts/deploy.sh
 
 set -e
 
+echo "⚠️  Deploying legacy single app (ryla-comfyui). For production use: ./deploy.sh"
 echo "🚀 RYLA Modal App Deployment"
 echo "=============================="
 echo ""

@@ -13,6 +13,9 @@ from fastapi import Response, HTTPException
 
 from utils.cost_tracker import CostTracker, get_cost_summary
 
+# Default negative prompt for quality (use if none provided)
+DEFAULT_NEGATIVE_PROMPT = "ugly, deformed, disfigured, bad anatomy, poorly drawn hands, poorly drawn face, blurry, low quality, cartoon, anime, 3d render, illustration"
+
 
 def ensure_lora_symlink(lora_filename: str) -> bool:
     """
@@ -97,7 +100,7 @@ def build_flux_workflow(item: dict) -> dict:
         "7": {
             "class_type": "CLIPTextEncode",
             "inputs": {
-                "text": item.get("negative_prompt", ""),
+                "text": item.get("negative_prompt") or DEFAULT_NEGATIVE_PROMPT,
                 "clip": ["4", 1],
             },
         },
@@ -157,7 +160,7 @@ def build_flux_dev_workflow(item: dict) -> dict:
         "5": {
             "class_type": "CLIPTextEncode",
             "inputs": {
-                "text": item.get("negative_prompt", ""),
+                "text": item.get("negative_prompt") or DEFAULT_NEGATIVE_PROMPT,
                 "clip": ["2", 0],
             },
         },
@@ -267,7 +270,7 @@ def build_flux_dev_lora_workflow(item: dict, lora_filename: str) -> dict:
         "5": {
             "class_type": "CLIPTextEncode",
             "inputs": {
-                "text": item.get("negative_prompt", ""),
+                "text": item.get("negative_prompt") or DEFAULT_NEGATIVE_PROMPT,
                 "clip": ["10", 1],
             },
         },
@@ -499,4 +502,45 @@ def setup_flux_endpoints(fastapi, comfyui_instance):
         for key, value in result.headers.items():
             if key.startswith("X-"):
                 response.headers[key] = value
+        return response
+    
+    @fastapi.post("/flux-dev-realism")
+    async def flux_dev_realism_route(request: Request):
+        """
+        Flux Dev + UltraRealism LoRA for photorealistic generation.
+        
+        Uses the pre-installed flux-realism-lora for improved realism.
+        Add 'Ultra realistic' to your prompt for best results.
+        
+        Request body:
+        - prompt: Text prompt (add 'Ultra realistic' keyword)
+        - realism_strength: LoRA strength (default 0.85, range 0.5-1.0)
+        - nsfw: Boolean flag for adult content mode (default: false)
+        - width, height, steps, cfg, seed: Standard generation params
+        """
+        item = await request.json()
+        
+        # Handle NSFW flag
+        nsfw_mode = item.get("nsfw", False)
+        if nsfw_mode:
+            print(f"🔞 NSFW mode enabled for request")
+        
+        # Use realism LoRA by default
+        item["lora_name"] = "flux-realism-lora"
+        item["lora_strength"] = item.get("realism_strength", 0.85)
+        
+        # Add realism trigger word if not present
+        prompt = item.get("prompt", "")
+        if "ultra realistic" not in prompt.lower():
+            item["prompt"] = f"Ultra realistic, {prompt}"
+        
+        result = handler._flux_dev_lora_impl(item)
+        response = FastAPIResponse(
+            content=result.body,
+            media_type=result.media_type,
+        )
+        for key, value in result.headers.items():
+            if key.startswith("X-"):
+                response.headers[key] = value
+        response.headers["X-NSFW-Mode"] = str(nsfw_mode).lower()
         return response

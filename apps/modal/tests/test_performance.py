@@ -10,6 +10,11 @@ import requests
 import time
 import statistics
 import sys
+from pathlib import Path
+
+# Allow running as script from repo root or apps/modal
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from tests.endpoint_urls import get_endpoint_url
 
 
 def benchmark_endpoint(
@@ -61,14 +66,12 @@ def benchmark_endpoint(
 
 
 def main(workspace: str):
-    base_url = f"https://{workspace}--ryla-comfyui-comfyui-fastapi-app.modal.run"
-
     results = []
 
-    # Flux Schnell (test endpoint - no token required)
+    # Flux Schnell (split-app: ryla-flux)
     results.append(
         benchmark_endpoint(
-            f"{base_url}/flux",
+            get_endpoint_url(workspace, "/flux"),
             {"prompt": "A beautiful landscape", "width": 1024, "height": 1024},
             "Flux Schnell",
         )
@@ -77,7 +80,7 @@ def main(workspace: str):
     # Flux Dev (requires HF token - will fail if not configured)
     # results.append(
     #     benchmark_endpoint(
-    #         f"{base_url}/flux-dev",
+    #         get_endpoint_url(workspace, "/flux-dev"),
     #         {"prompt": "A beautiful landscape", "width": 1024, "height": 1024},
     #         "Flux Dev",
     #     )

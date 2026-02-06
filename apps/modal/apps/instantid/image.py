@@ -195,6 +195,55 @@ def hf_download_rundiffusion_photo():
         print(f"❌ Failed to download RunDiffusion Photo: {e}")
 
 
+def download_intorealism_checkpoints():
+    """Download IntoRealism Ultra and XL checkpoints from CivitAI for maximum photorealism."""
+    import urllib.request
+    import os
+    
+    comfy_dir = Path("/root/comfy/ComfyUI")
+    checkpoints_dir = comfy_dir / "models" / "checkpoints"
+    checkpoints_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Get CivitAI API key if available
+    civitai_key = os.getenv("CIVITAI_API_KEY")
+    
+    models = [
+        # IntoRealism XL - high quality photorealistic SDXL
+        {
+            "name": "IntoRealism XL",
+            "filename": "intorealism-xl.safetensors",
+            # CivitAI model 1609320, version ID from URL
+            "url": "https://civitai.com/api/download/models/1809188",
+        },
+    ]
+    
+    for model in models:
+        target_path = checkpoints_dir / model["filename"]
+        if target_path.exists():
+            print(f"   ✅ {model['name']} already exists")
+            continue
+        
+        try:
+            print(f"   📥 Downloading {model['name']}...")
+            url = model["url"]
+            if civitai_key:
+                url = f"{url}?token={civitai_key}"
+            
+            request = urllib.request.Request(url)
+            request.add_header('User-Agent', 'RYLA-Modal/1.0')
+            
+            with urllib.request.urlopen(request, timeout=600) as response:
+                with open(target_path, 'wb') as f:
+                    f.write(response.read())
+            
+            size_mb = target_path.stat().st_size / 1024 / 1024
+            print(f"   ✅ {model['name']} downloaded ({size_mb:.1f} MB)")
+        except Exception as e:
+            print(f"   ⚠️  Failed to download {model['name']}: {e}")
+            if target_path.exists():
+                target_path.unlink()
+
+
 def hf_download_sdxl_turbo():
     """Download SDXL Turbo (1–4 step txt2img, /sdxl-turbo endpoint)."""
     from huggingface_hub import hf_hub_download
@@ -458,6 +507,10 @@ instantid_image = (
         hf_download_rundiffusion_photo,
         volumes={"/cache": modal.Volume.from_name("hf-hub-cache", create_if_missing=True)},
         secrets=[modal.Secret.from_name("huggingface")],
+    )
+    .run_function(
+        download_intorealism_checkpoints,
+        secrets=[modal.Secret.from_name("civitai")],
     )
     .run_function(
         hf_download_sdxl_turbo,

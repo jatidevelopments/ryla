@@ -16,8 +16,39 @@ from typing import Dict, List, Tuple
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-BASE_URL = "https://ryla--ryla-comfyui-comfyui-fastapi-app.modal.run"
+WORKSPACE = "ryla"
 TIMEOUT = 300  # 5 minutes for cold starts
+
+# Split-app URL mapping (must match apps/modal/ENDPOINT-APP-MAPPING.md)
+SPLIT_APPS = {
+    "/flux": f"https://{WORKSPACE}--ryla-flux-comfyui-fastapi-app.modal.run/flux",
+    "/flux-dev": f"https://{WORKSPACE}--ryla-flux-comfyui-fastapi-app.modal.run/flux-dev",
+    "/flux-dev-lora": f"https://{WORKSPACE}--ryla-flux-comfyui-fastapi-app.modal.run/flux-dev-lora",
+    "/sdxl-instantid": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/sdxl-instantid",
+    "/sdxl-turbo": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/sdxl-turbo",
+    "/sdxl-lightning": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/sdxl-lightning",
+    "/flux-pulid": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/flux-pulid",
+    "/flux-ipadapter-faceid": f"https://{WORKSPACE}--ryla-instantid-comfyui-fastapi-app.modal.run/flux-ipadapter-faceid",
+    "/qwen-image-2512": f"https://{WORKSPACE}--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512",
+    "/qwen-image-2512-fast": f"https://{WORKSPACE}--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-fast",
+    "/qwen-image-2512-lora": f"https://{WORKSPACE}--ryla-qwen-image-comfyui-fastapi-app.modal.run/qwen-image-2512-lora",
+    "/video-faceswap": f"https://{WORKSPACE}--ryla-qwen-image-comfyui-fastapi-app.modal.run/video-faceswap",
+    "/qwen-image-edit-2511": f"https://{WORKSPACE}--ryla-qwen-edit-comfyui-fastapi-app.modal.run/qwen-image-edit-2511",
+    "/qwen-image-inpaint-2511": f"https://{WORKSPACE}--ryla-qwen-edit-comfyui-fastapi-app.modal.run/qwen-image-inpaint-2511",
+    "/z-image-simple": f"https://{WORKSPACE}--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-simple",
+    "/z-image-danrisi": f"https://{WORKSPACE}--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-danrisi",
+    "/z-image-lora": f"https://{WORKSPACE}--ryla-z-image-comfyui-fastapi-app.modal.run/z-image-lora",
+    "/wan2.6": f"https://{WORKSPACE}--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6",
+    "/wan2.6-r2v": f"https://{WORKSPACE}--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6-r2v",
+    "/wan2.6-lora": f"https://{WORKSPACE}--ryla-wan26-comfyui-fastapi-app.modal.run/wan2.6-lora",
+    "/seedvr2": f"https://{WORKSPACE}--ryla-seedvr2-comfyui-fastapi-app.modal.run/seedvr2",
+}
+
+
+def get_url(path: str) -> str:
+    """Return full URL for an endpoint path (split-app aware)."""
+    path = path if path.startswith("/") else f"/{path}"
+    return SPLIT_APPS.get(path, f"https://{WORKSPACE}--ryla-comfyui-comfyui-fastapi-app.modal.run{path}")
 
 class Colors:
     GREEN = '\033[92m'
@@ -111,7 +142,7 @@ def test_endpoint(name: str, url: str, payload: dict, requires_file: bool = Fals
 
 def main():
     print_header("RYLA Modal Endpoints - Comprehensive Test")
-    print(f"Base URL: {BASE_URL}")
+    print("Using split-app URLs (see apps/modal/ENDPOINT-APP-MAPPING.md)")
     print(f"Test started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
     
     results = {}
@@ -128,10 +159,10 @@ def main():
             "steps": 4,
             "cfg": 1.0
         }
-        success, msg, data = test_endpoint("Flux (for test image)", f"{BASE_URL}/flux", flux_payload)
+        success, msg, data = test_endpoint("Flux (for test image)", get_url("/flux"), flux_payload)
         if success and "size_kb" in data:
             # Save the image
-            response = requests.post(f"{BASE_URL}/flux", json=flux_payload, timeout=TIMEOUT)
+            response = requests.post(get_url("/flux"), json=flux_payload, timeout=TIMEOUT)
             if response.status_code == 200:
                 test_image.parent.mkdir(exist_ok=True)
                 with open(test_image, "wb") as f:
@@ -145,7 +176,7 @@ def main():
         # 1. Basic text-to-image
         {
             "name": "/flux",
-            "url": f"{BASE_URL}/flux",
+            "url": get_url("/flux"),
             "payload": {
                 "prompt": "A beautiful landscape with mountains and a lake, photorealistic, high quality",
                 "width": 1024,
@@ -156,7 +187,7 @@ def main():
         },
         {
             "name": "/flux-dev",
-            "url": f"{BASE_URL}/flux-dev",
+            "url": get_url("/flux-dev"),
             "payload": {
                 "prompt": "A detailed portrait of a person, professional photography, high quality",
                 "width": 1024,
@@ -168,7 +199,7 @@ def main():
         # 2. Face consistency (need reference image)
         {
             "name": "/flux-ipadapter-faceid",
-            "url": f"{BASE_URL}/flux-ipadapter-faceid",
+            "url": get_url("/flux-ipadapter-faceid"),
             "payload": {
                 "prompt": "A professional AI influencer portrait, high quality, detailed face, studio lighting",
                 "reference_image": encode_image(reference_image) if reference_image else None,
@@ -182,7 +213,7 @@ def main():
         },
         {
             "name": "/sdxl-instantid",
-            "url": f"{BASE_URL}/sdxl-instantid",
+            "url": get_url("/sdxl-instantid"),
             "payload": {
                 "prompt": "A professional AI influencer portrait, high quality, detailed face, studio lighting",
                 "reference_image": encode_image(reference_image) if reference_image else None,
@@ -196,7 +227,7 @@ def main():
         },
         {
             "name": "/flux-instantid",
-            "url": f"{BASE_URL}/flux-instantid",
+            "url": get_url("/flux-instantid"),
             "payload": {
                 "prompt": "A professional AI influencer portrait, high quality, detailed face, studio lighting",
                 "reference_image": encode_image(reference_image) if reference_image else None,
@@ -212,7 +243,7 @@ def main():
         # 3. Video
         {
             "name": "/wan2",
-            "url": f"{BASE_URL}/wan2",
+            "url": get_url("/wan2.6"),
             "payload": {
                 "prompt": "A beautiful landscape animation, cinematic, high quality",
                 "width": 512,
@@ -226,7 +257,7 @@ def main():
         # 4. Upscaling
         {
             "name": "/seedvr2",
-            "url": f"{BASE_URL}/seedvr2",
+            "url": get_url("/seedvr2"),
             "payload": {
                 "image": encode_image(reference_image) if reference_image else None,
                 "resolution": 1080
@@ -236,7 +267,7 @@ def main():
         # 5. Z-Image workflows
         {
             "name": "/z-image-simple",
-            "url": f"{BASE_URL}/z-image-simple",
+            "url": get_url("/z-image-simple"),
             "payload": {
                 "prompt": "A beautiful landscape with mountains and a lake, photorealistic, high quality",
                 "width": 1024,
@@ -247,7 +278,7 @@ def main():
         },
         {
             "name": "/z-image-danrisi",
-            "url": f"{BASE_URL}/z-image-danrisi",
+            "url": get_url("/z-image-danrisi"),
             "payload": {
                 "prompt": "A beautiful landscape with mountains and a lake, photorealistic, high quality",
                 "width": 1024,
@@ -258,7 +289,7 @@ def main():
         },
         {
             "name": "/z-image-instantid",
-            "url": f"{BASE_URL}/z-image-instantid",
+            "url": get_url("/sdxl-instantid"),
             "payload": {
                 "prompt": "A professional AI influencer portrait, high quality, detailed face, studio lighting",
                 "reference_image": encode_image(reference_image) if reference_image else None,
@@ -274,7 +305,7 @@ def main():
         },
         {
             "name": "/z-image-pulid",
-            "url": f"{BASE_URL}/z-image-pulid",
+            "url": get_url("/flux-pulid"),
             "payload": {
                 "prompt": "A professional AI influencer portrait, high quality, detailed face, studio lighting",
                 "reference_image": encode_image(reference_image) if reference_image else None,
@@ -290,7 +321,7 @@ def main():
         # 6. LoRA (skip - requires LoRA file in volume)
         {
             "name": "/flux-lora",
-            "url": f"{BASE_URL}/flux-lora",
+            "url": get_url("/flux-dev-lora"),
             "payload": {
                 "prompt": "A character in a scene, high quality",
                 "lora_id": "test_lora",  # May not exist
@@ -305,7 +336,7 @@ def main():
         # 7. Custom workflow (skip - requires workflow JSON)
         {
             "name": "/workflow",
-            "url": f"{BASE_URL}/workflow",
+            "url": get_url("/flux"),
             "payload": {
                 "workflow": {}  # Empty - will likely fail
             },
@@ -398,7 +429,7 @@ def main():
     with open(results_file, "w") as f:
         json.dump({
             "test_date": datetime.now().isoformat(),
-            "base_url": BASE_URL,
+            "split_apps": True,
             "results": results,
             "summary": {
                 "total": total,

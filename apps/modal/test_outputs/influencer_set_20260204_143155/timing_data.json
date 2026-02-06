@@ -1,0 +1,55 @@
+{
+  "timestamp": "20260204_143155",
+  "warm_endpoints": true,
+  "total_time_seconds": 674.9073848724365,
+  "results": [
+    {
+      "step": "1_base_portrait",
+      "endpoint": "/flux",
+      "duration": 68.47899293899536,
+      "success": true
+    },
+    {
+      "step": "02_coffee_shop",
+      "endpoint": "/sdxl-instantid",
+      "duration": 64.0775260925293,
+      "success": true
+    },
+    {
+      "step": "03_beach_sunset",
+      "endpoint": "/flux-pulid",
+      "duration": 44.36149883270264,
+      "success": true
+    },
+    {
+      "step": "04_gym_fitness",
+      "endpoint": "/sdxl-instantid",
+      "duration": 44.722813844680786,
+      "success": true
+    },
+    {
+      "step": "05_night_out",
+      "endpoint": "/flux-pulid",
+      "duration": 63.92272996902466,
+      "success": true
+    },
+    {
+      "step": "06_home_lifestyle",
+      "endpoint": "/sdxl-instantid",
+      "duration": 27.55627989768982,
+      "success": true
+    },
+    {
+      "step": "07_edited_tropical",
+      "endpoint": "/qwen-image-edit-2511",
+      "duration": 183.06059527397156,
+      "success": true
+    },
+    {
+      "step": "08_hero_upscaled",
+      "endpoint": "/seedvr2",
+      "duration": 178.7269480228424,
+      "success": true
+    }
+  ]
+}
