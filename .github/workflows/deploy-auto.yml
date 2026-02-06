@@ -1130,14 +1130,18 @@ jobs:
         continue-on-error: true
 
       - name: Deploy Metabase to Fly.io
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
+          set -e
+          APP_NAME="ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }}"
+          echo "Deploying to app: $APP_NAME"
           flyctl deploy \
             --config apps/metabase/fly.toml \
             --dockerfile apps/metabase/Dockerfile \
-            --app ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }} \
-            --strategy immediate
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+            --app "$APP_NAME" \
+            --strategy immediate \
+            --verbose
 
       - name: Wait for Metabase to be ready
         run: |

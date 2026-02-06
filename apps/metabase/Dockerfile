@@ -1,6 +1,7 @@
 # Metabase on Fly.io (IN-041)
 # Uses official image; persistence via volume at /metabase-data (see fly.toml).
-FROM metabase/metabase:latest
+# Explicit platform for Fly.io remote builders (linux/amd64).
+FROM --platform=linux/amd64 metabase/metabase:latest
 
 # Metabase listens on 3000; Jetty host must be 0.0.0.0 for Fly
 ENV MB_JETTY_HOST=0.0.0.0
