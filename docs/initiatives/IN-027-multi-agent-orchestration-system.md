@@ -375,13 +375,15 @@ Based on the Open Code pattern, we'll use multiple specialized agents managed by
 
 | Tool | Multi-Agent | IDE Integration | Rules System | MCP Support | Full Capabilities | Recommendation |
 |------|-------------|-----------------|--------------|-------------|-------------------|----------------|
-| **Cursor 2.0** | ✅ Native | ✅ Full IDE | ✅ Advanced | ✅ Native | ✅ All | ⭐ **Best Fit** |
+| **Cursor 2.0** | ✅ Native | ✅ Full IDE | ✅ Advanced | ✅ Native | ✅ All | ⭐ **Best for IDE work** |
+| **Agno-AGI** | ✅ Native | ❌ Separate | ❌ Custom | ✅ Tools | ✅ Runtime | ⭐ **Best for roles/memory** |
+| **OpenHands** | ⚠️ Single | ❌ Web UI | ❌ N/A | ⚠️ Custom | ✅ Full Linux | ⭐ **Best for full OS** |
+| **VoltAgent** | ✅ Native | ❌ Framework | ❌ Custom | ✅ MCP | ⚠️ Custom | ⚠️ Framework (not IDE) |
 | **Claude Code** | ⚠️ Unknown | ✅ IDE | ⚠️ Basic | ⚠️ Unknown | ✅ Likely | ⚠️ Evaluate if Cursor fails |
 | **Anti-Gravity + Open Code** | ✅ Hybrid | ⚠️ IDE (separate) | ❌ Custom | ❌ No | ⚠️ Partial | ⚠️ Free alternative |
-| **VoltAgent** | ✅ Native | ❌ Framework | ❌ Custom | ✅ MCP | ⚠️ Custom | ⚠️ Framework (not IDE) |
+| **CrewAI** | ✅ Framework | ❌ CLI/API | ❌ Custom | ⚠️ Custom | ⚠️ Custom | ⚠️ Enterprise option |
 | **LangGraph** | ✅ Framework | ❌ CLI/API | ❌ Custom | ⚠️ Custom | ⚠️ Custom | ⚠️ Too low-level |
 | **AutoGen** | ✅ Framework | ❌ CLI/API | ❌ Custom | ⚠️ Custom | ⚠️ Custom | ⚠️ Too low-level |
-| **CrewAI** | ✅ Framework | ❌ CLI/API | ❌ Custom | ⚠️ Custom | ⚠️ Custom | ⚠️ Too low-level |
 | **Windsurf** | ⚠️ Limited | ✅ IDE | ⚠️ Basic | ✅ Native | ✅ All | ⚠️ Less mature |
 | **Roo Code** | ⚠️ Limited | ✅ VS Code | ⚠️ Basic | ✅ Native | ✅ All | ⚠️ Less rules support |
 
@@ -472,7 +474,125 @@ Based on the Open Code pattern, we'll use multiple specialized agents managed by
 
 **Reference**: [YouTube: Combining Anti-Gravity + Open Code](https://www.youtube.com/watch?v=dzDVt3-MTRk)
 
-#### 4. VoltAgent (voltagent.dev)
+#### 4. Agno-AGI (agno.dev) ⭐ **NEW - HIGH PRIORITY EVALUATION**
+
+**Status**: ✅ **Real Tool - Recommended for Evaluation**
+
+**What Agno Is:**
+- ✅ **Full framework + runtime + control plane** (not just a framework)
+- ✅ **Agent Teams with Roles** - Pre-built agent roles (planner, researcher, writer, reviewer, QA, coordinator)
+- ✅ **Persistent Memory** - Agents remember user history across sessions
+- ✅ **Shared Knowledge Base** - Agents share context and learn from each other
+- ✅ **Production-Ready** - Built for scale, performance, and reliability
+- ✅ **AgentOS Runtime** - Full agent operating system with tool integrations
+- ✅ **Control Plane/UI** - Monitoring and management dashboard
+- ✅ **Guardrails & Human-in-the-Loop** - Safety controls built-in
+
+**Key Differentiators from Other Frameworks:**
+- **Memory + Knowledge**: Agents accumulate knowledge across interactions and share it
+- **Production Focus**: Not just prototypes - designed for real workflows
+- **Runtime Included**: AgentOS provides the execution environment
+- **Control Plane**: Built-in observability and management
+
+**Architecture Pattern:**
+```
+[User/Orchestrator]
+    ↓
+[Agno Control Plane]
+    ├─→ Planner Agent (role: planning, breaking down tasks)
+    ├─→ Researcher Agent (role: gathering information)
+    ├─→ Developer Agent (role: code implementation)
+    ├─→ QA Agent (role: testing, validation)
+    └─→ Coordinator Agent (role: orchestration)
+    ↓
+[Shared Knowledge Base] ← All agents contribute and access
+    ↓
+[Persistent Memory] ← User context preserved
+```
+
+**Comparison with Cursor-Supervised Approach:**
+
+| Aspect | Cursor-Supervised | Agno-AGI |
+|--------|-------------------|----------|
+| **Orchestrator** | Cursor (IDE) | Agno Control Plane |
+| **Agent Roles** | Custom rules | Pre-built + customizable |
+| **Memory** | State files | Built-in persistent memory |
+| **Knowledge Sharing** | Manual via files | Automatic shared knowledge |
+| **IDE Integration** | ✅ Native | ❌ Separate system |
+| **Production Runtime** | ⚠️ Cursor-dependent | ✅ AgentOS (standalone) |
+| **Observability** | ⚠️ Limited | ✅ Control plane dashboard |
+| **MCP Support** | ✅ Native | ✅ Tool integrations |
+| **Cursor Rules** | ✅ Preserved | ❌ Would need migration |
+
+**Potential Hybrid Approach (Agno + Cursor):**
+- Use **Agno for orchestration** (role-based agents, knowledge, memory)
+- Use **Cursor for IDE execution** (file access, browser, terminal via MCP)
+- **Integration via MCP** - Agno agents call Cursor tools
+
+**Recommendation**: **Evaluate as alternative to pure Cursor approach** - Agno's pre-built roles, persistent memory, and shared knowledge could significantly reduce implementation time for IN-027.
+
+**Reference**: [Agno Platform](https://agno.dev/) | [Agno GitHub](https://github.com/agno-agi/agno)
+
+---
+
+#### 5. OpenHands (formerly OpenDevin) ⭐ **NEW - LINUX WORKSPACE AGENTS**
+
+**Status**: ✅ **Real Tool - Full Linux Workspace**
+
+**What OpenHands Is:**
+- ✅ **Spins up real Linux containers** for each agent
+- ✅ **Full environment**: bash shell, filesystem, git, package managers
+- ✅ **Optional browser** via Playwright
+- ✅ **Agent plans → executes → debugs → commits**
+- ✅ **Open source** and actively developed
+- ✅ **Closest to "AI with its own computer"**
+
+**Agent Capabilities:**
+```bash
+# What OpenHands agent gets:
+- /workspace    # Agent's working directory
+- bash          # Full shell access
+- git           # Version control
+- npm/pip/etc   # Package managers
+- network       # Web access
+- browser       # Optional Playwright
+```
+
+**Use Cases for RYLA:**
+- **Dev Agent**: Clone repo, fix tests, implement features, commit
+- **Infra Agent**: Deploy, configure, test endpoints
+- **Research Agent**: Browse docs, scrape data, analyze
+
+**Comparison:**
+
+| Aspect | OpenHands | Cursor | Agno |
+|--------|-----------|--------|------|
+| **Full Linux OS** | ✅ Container | ❌ IDE only | ❌ Framework |
+| **Bash/Terminal** | ✅ Full shell | ✅ Terminal tool | ⚠️ Custom |
+| **Browser** | ✅ Playwright | ✅ MCP browser | ⚠️ Custom |
+| **Git Integration** | ✅ Native | ✅ Native | ⚠️ Custom |
+| **IDE Features** | ❌ No IDE | ✅ Full IDE | ❌ No IDE |
+| **Cursor Rules** | ❌ N/A | ✅ Native | ❌ N/A |
+| **Isolation** | ✅ Containers | ⚠️ Worktrees | ✅ Agent isolation |
+
+**How to Run OpenHands:**
+```bash
+# Clone and start
+git clone https://github.com/All-Hands-AI/OpenHands.git
+cd OpenHands
+export OPENAI_API_KEY=sk-...
+docker compose up
+
+# Web UI opens at http://localhost:3000
+```
+
+**Recommendation**: **Evaluate for IN-031** (Agentic Workflow Deployment) where agents need full Linux environment. Less suitable for IN-027 which benefits from IDE integration.
+
+**Reference**: [OpenHands GitHub](https://github.com/All-Hands-AI/OpenHands)
+
+---
+
+#### 6. VoltAgent (voltagent.dev)
 
 **Status**: ✅ **Real Tool - Needs Evaluation**
 
@@ -620,17 +740,389 @@ Based on the Open Code pattern, we'll use multiple specialized agents managed by
 - ✅ **Workflow Chain API**: More advanced workflow orchestration
 - ✅ **Production deployment**: Built-in deployment capabilities
 
-**Recommendation:**
-- **Start with Cursor-Supervised approach** (your preferred pattern)
-- **Evaluate VoltAgent** if you need more sophisticated orchestration or enterprise features
-- **Consider hybrid** (VoltAgent orchestration + Cursor IDE) only if VoltAgent's orchestration significantly exceeds Cursor's capabilities
+**Recommendation (Updated 2026-02-04):**
+
+**Tiered Approach:**
+1. **Start with Cursor-Supervised** for IDE-based development work
+2. **Add Agno-AGI** for role-based agents with persistent memory and shared knowledge
+3. **Use OpenHands** for agents that need full Linux workspace (deployment, infra, complex builds)
+
+**Hybrid Architecture (Best of All Worlds):**
+```
+[Cursor] ←→ [Agno-AGI] ←→ [OpenHands]
+   │            │             │
+   └──IDE work──┘──Roles/──────┘──Full OS──
+                   Memory
+```
+
+- **Cursor**: IDE-based agents for code editing, browser testing, file operations
+- **Agno**: Orchestration, role definitions, persistent memory, knowledge sharing
+- **OpenHands**: Full Linux containers for deployment, complex builds, system operations
+
+**When to Use What:**
+| Task Type | Recommended Tool |
+|-----------|-----------------|
+| Code editing in IDE | Cursor agents |
+| Role-based coordination | Agno-AGI |
+| Complex deployments | OpenHands |
+| Knowledge accumulation | Agno-AGI |
+| Browser testing | Cursor + MCP browser |
+| Full system access | OpenHands |
 
 **Research Tasks:**
 1. **Cursor-Supervised Pattern**: Implement multiple specialized agents managed by Cursor
 2. **Agent Briefing System**: Design system for briefing agents with descriptions
+3. **Agno-AGI Evaluation**: Test pre-built roles, memory system, knowledge sharing
+4. **OpenHands Integration**: Set up for deployment agents needing full Linux access
 3. **VoltAgent Comparison**: Evaluate if VoltAgent's orchestration exceeds Cursor's capabilities
 4. **Anti-Gravity + Open Code**: Evaluate as free alternative (if budget is concern)
 5. **Claude Code**: Evaluate only if Cursor 2.0 has limitations
+
+---
+
+## Comprehensive Tool Comparison Matrix
+
+### Full Comparison: All Multi-Agent Platforms
+
+| Feature | Cursor 2.0 | Agno-AGI | OpenHands | VoltAgent | CrewAI | AutoGen |
+|---------|-----------|----------|-----------|-----------|--------|---------|
+| **Multi-Agent Orchestration** | ✅ Native | ✅ Native | ⚠️ Single agent | ✅ Supervisor | ✅ Crew pattern | ✅ Multi-agent |
+| **Pre-built Agent Roles** | ❌ Custom | ✅ Built-in | ❌ Custom | ⚠️ Templates | ✅ Role templates | ❌ Custom |
+| **Persistent Memory** | ❌ State files | ✅ Built-in | ⚠️ Session | ⚠️ Custom | ⚠️ Custom | ⚠️ Custom |
+| **Shared Knowledge Base** | ❌ Manual | ✅ Automatic | ❌ N/A | ⚠️ Custom | ⚠️ Custom | ⚠️ Custom |
+| **Full Linux Workspace** | ❌ IDE only | ❌ Framework | ✅ Containers | ❌ Framework | ❌ Framework | ❌ Framework |
+| **IDE Integration** | ✅ Native | ❌ Separate | ❌ Web UI | ❌ Framework | ❌ CLI | ❌ CLI |
+| **Cursor Rules Support** | ✅ Native | ❌ Migrate | ❌ N/A | ❌ Custom | ❌ Custom | ❌ Custom |
+| **MCP Support** | ✅ Native | ✅ Tools | ⚠️ Custom | ✅ MCP | ⚠️ Custom | ⚠️ Custom |
+| **Browser Automation** | ✅ MCP browser | ⚠️ Custom | ✅ Playwright | ⚠️ Custom | ⚠️ Custom | ⚠️ Custom |
+| **Terminal Access** | ✅ Native | ⚠️ Custom | ✅ Full bash | ⚠️ Custom | ⚠️ Custom | ⚠️ Custom |
+| **Observability/Dashboard** | ⚠️ Limited | ✅ Control plane | ⚠️ Logs | ✅ VoltOps | ⚠️ Custom | ⚠️ Custom |
+| **Production Deployment** | ⚠️ IDE-bound | ✅ AgentOS | ✅ Docker | ✅ VoltOps | ⚠️ Custom | ⚠️ Custom |
+| **Cost Tracking** | ❌ Manual | ⚠️ Custom | ❌ Manual | ✅ Built-in | ⚠️ Custom | ⚠️ Custom |
+| **Enterprise Ready** | ⚠️ Pro tier | ✅ Yes | ⚠️ Self-host | ✅ Yes | ✅ AMP | ⚠️ Custom |
+| **Open Source** | ❌ Proprietary | ✅ Yes | ✅ Yes | ✅ Yes | ⚠️ Partial | ✅ Yes |
+| **TypeScript Native** | ✅ Yes | ⚠️ Python | ⚠️ Python | ✅ Yes | ❌ Python | ❌ Python |
+
+### Recommendation by Use Case
+
+| Use Case | Best Tool | Reason |
+|----------|-----------|--------|
+| **RYLA Development (IN-027)** | Cursor 2.0 + Agno hybrid | Preserve Cursor rules + Agno's role system |
+| **Workflow Deployment (IN-031)** | OpenHands + VoltAgent | Full Linux for deployment + orchestration |
+| **Enterprise Multi-Agent** | CrewAI AMP or Agno | Production-ready, enterprise features |
+| **Research/Experimentation** | OpenHands or AutoGen | Full control, open source |
+| **Quick Prototyping** | CrewAI or Agno | Pre-built roles, fast setup |
+
+---
+
+## RYLA AI Company Setup
+
+### Vision: AI-Powered RYLA Development Team
+
+A multi-agent system where specialized AI agents handle different aspects of RYLA development, coordinated by a central orchestrator.
+
+### Agent Roles for RYLA
+
+| Agent Role | Primary Responsibilities | Tools Needed | Coordination |
+|-----------|-------------------------|--------------|--------------|
+| **Product Agent (PM)** | PRDs, requirements, user feedback synthesis, prioritization | Docs, analytics, Notion | Receives requests, delegates to other agents |
+| **Architecture Agent** | System design, API contracts, data models, technical decisions | Codebase access, docs | Reviews Dev Agent output |
+| **Frontend Agent** | React/Next.js, TailwindCSS, UI components, state management | Cursor, apps/web | Implements PM requirements |
+| **Backend Agent** | NestJS, APIs, business logic, database operations | Cursor, apps/api | Implements PM requirements |
+| **Dev Agent (Full-Stack)** | Complete feature implementation across stack | OpenHands Linux workspace | Complex cross-cutting features |
+| **Testing Agent** | Unit tests, integration tests, E2E tests | Cursor, Playwright, Vitest | Validates all agent output |
+| **DevOps Agent** | Deployment, infrastructure, Modal/Fly.io | OpenHands, Modal CLI | Deploys approved changes |
+| **Research Agent** | AI models, workflows, competitor analysis | Browser, docs | Feeds Product Agent |
+| **Support Agent (Tier 1-2)** | Issue triage, bug summaries, user feedback | CRM, logs (read-only) | Escalates to PM/Dev |
+
+### Architecture: RYLA AI Company
+
+```
+                    ┌─────────────────────────────────────┐
+                    │        ORCHESTRATOR (Cursor)         │
+                    │   - Receives user requests           │
+                    │   - Assigns tasks to agents          │
+                    │   - Monitors progress                │
+                    │   - Validates success criteria       │
+                    └──────────────┬──────────────────────┘
+                                   │
+         ┌─────────────────────────┼─────────────────────────┐
+         │                         │                         │
+         ▼                         ▼                         ▼
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Product Agent  │    │  Dev Agents     │    │  Ops Agents     │
+│  ─────────────  │    │  ───────────    │    │  ──────────     │
+│  • PRD creation │    │  • Frontend     │    │  • DevOps       │
+│  • Requirements │    │  • Backend      │    │  • Testing      │
+│  • Prioritize   │    │  • Architecture │    │  • Support      │
+│                 │    │  • Full-Stack   │    │                 │
+└────────┬────────┘    └────────┬────────┘    └────────┬────────┘
+         │                      │                      │
+         └──────────────────────┼──────────────────────┘
+                                │
+                    ┌───────────▼───────────┐
+                    │   SHARED RESOURCES    │
+                    │   ─────────────────   │
+                    │   • Knowledge Base    │
+                    │   • State Files       │
+                    │   • Git Repository    │
+                    │   • MCP Servers       │
+                    └───────────────────────┘
+```
+
+### Agent Definitions
+
+#### 1. Product Agent (PM)
+
+```yaml
+name: product-agent
+role: Product Manager
+brief: |
+  You are RYLA's AI Product Manager. You:
+  - Analyze user feedback and feature requests
+  - Write PRDs with clear acceptance criteria
+  - Prioritize tasks based on business metrics (A-E)
+  - Delegate implementation to Dev Agents
+  - Review completed work against requirements
+
+tools:
+  - docs_access (read/write)
+  - analytics_access (PostHog, read-only)
+  - notification_access (Slack)
+  
+code_paths:
+  - docs/requirements/**
+  - docs/initiatives/**
+  
+success_criteria:
+  - PRD has clear acceptance criteria
+  - Tasks assigned to correct agents
+  - Business metric impact identified
+```
+
+#### 2. Frontend Agent
+
+```yaml
+name: frontend-agent
+role: Frontend Developer
+brief: |
+  You are RYLA's Frontend Developer. You:
+  - Implement React/Next.js components
+  - Follow Cursor rules (react-patterns.mdc, styling.mdc)
+  - Use TailwindCSS and Radix UI
+  - Write Vitest unit tests for components
+  - Follow file organization patterns
+
+tools:
+  - cursor (file access, terminal)
+  - browser_mcp (testing)
+  
+code_paths:
+  - apps/web/**
+  - libs/ui/**
+  
+success_criteria:
+  - TypeScript: no errors
+  - Linter: no errors
+  - Tests: passing
+  - Follows react-patterns.mdc
+```
+
+#### 3. Backend Agent
+
+```yaml
+name: backend-agent
+role: Backend Developer
+brief: |
+  You are RYLA's Backend Developer. You:
+  - Implement NestJS services and controllers
+  - Follow layered architecture (presentation → business → data)
+  - Write tRPC endpoints following api-design.mdc
+  - Use Drizzle ORM for database operations
+  - Write integration tests
+
+tools:
+  - cursor (file access, terminal)
+  - database_mcp (optional)
+  
+code_paths:
+  - apps/api/**
+  - libs/business/**
+  - libs/data/**
+  
+success_criteria:
+  - TypeScript: no errors
+  - Tests: passing
+  - API contracts match spec
+  - Follows architecture.mdc
+```
+
+#### 4. Dev Agent (Full-Stack, OpenHands)
+
+```yaml
+name: dev-agent-fullstack
+role: Full-Stack Developer
+brief: |
+  You are RYLA's Full-Stack Developer with full Linux access. You:
+  - Implement complex features across frontend and backend
+  - Have full shell access for any command
+  - Can install packages, run builds, execute tests
+  - Fix issues iteratively until tests pass
+  - Create commits and PRs
+
+environment: openhands
+tools:
+  - bash (full shell)
+  - git
+  - npm/pnpm
+  - browser (playwright)
+  
+code_paths:
+  - all (within repo)
+  
+success_criteria:
+  - Feature complete per acceptance criteria
+  - All tests passing
+  - PR created with description
+```
+
+#### 5. Testing Agent
+
+```yaml
+name: testing-agent
+role: QA Engineer
+brief: |
+  You are RYLA's QA Engineer. You:
+  - Write and run unit tests (Vitest)
+  - Write and run E2E tests (Playwright)
+  - Verify acceptance criteria
+  - Report test failures with context
+  - Suggest fixes for failing tests
+
+tools:
+  - cursor (file access, terminal)
+  - browser_mcp (E2E testing)
+  
+code_paths:
+  - **/*.test.ts
+  - **/*.spec.ts
+  - apps/*/tests/**
+  
+success_criteria:
+  - All tests passing
+  - Coverage maintained/improved
+  - Edge cases covered
+```
+
+#### 6. DevOps Agent
+
+```yaml
+name: devops-agent
+role: DevOps Engineer
+brief: |
+  You are RYLA's DevOps Engineer. You:
+  - Deploy to Modal.com, Fly.io, Vercel
+  - Configure CI/CD pipelines (GitHub Actions)
+  - Manage secrets (Infisical)
+  - Monitor deployments and costs
+  - Handle infrastructure issues
+
+environment: openhands  # Needs full Linux for deployment
+tools:
+  - bash
+  - modal_cli
+  - fly_cli
+  - gh_cli
+  - infisical_cli
+  
+code_paths:
+  - apps/modal/**
+  - .github/workflows/**
+  - fly.toml
+  
+success_criteria:
+  - Deployment successful
+  - Health checks passing
+  - No cost overruns
+```
+
+### Execution Flow Example
+
+**Scenario**: "Add dark mode to the web app"
+
+```
+1. User Request → Orchestrator
+   "Add dark mode toggle to settings page"
+
+2. Orchestrator → Product Agent
+   "Create requirements for dark mode feature"
+
+3. Product Agent outputs:
+   - PRD with acceptance criteria
+   - Assigns Frontend Agent + Testing Agent
+
+4. Orchestrator → Frontend Agent
+   "Implement dark mode per PRD"
+
+5. Frontend Agent:
+   - Implements ThemeProvider
+   - Creates DarkModeToggle component
+   - Updates TailwindCSS config
+   - Writes unit tests
+
+6. Orchestrator → Testing Agent
+   "Verify dark mode implementation"
+
+7. Testing Agent:
+   - Runs unit tests
+   - Runs E2E tests
+   - Reports: "All tests passing ✅"
+
+8. Orchestrator → Human
+   "Dark mode complete. PR ready for review."
+   
+9. [ACCEPTANCE CRITERIA STATUS]
+   1. Toggle switches theme: ✅
+   2. Preference persists: ✅
+   3. All components support dark: ✅
+   4. Tests passing: ✅
+```
+
+### Implementation Phases
+
+| Phase | Focus | Duration | Deliverable |
+|-------|-------|----------|-------------|
+| **Phase 1** | Cursor orchestrator + 2 agents (Frontend, Backend) | 2 weeks | Basic multi-agent working |
+| **Phase 2** | Add Testing Agent + success validation | 1 week | Automated validation |
+| **Phase 3** | Add DevOps Agent (OpenHands) | 2 weeks | Deployment automation |
+| **Phase 4** | Add Product Agent + knowledge base | 2 weeks | Full planning capability |
+| **Phase 5** | Integrate Agno for memory/knowledge | 2 weeks | Persistent learning |
+| **Phase 6** | Full RYLA AI Company | 1 week | Documentation + training |
+
+**Total**: 10 weeks
+
+### What Stays Human
+
+Even with AI agents, humans remain essential for:
+
+| Area | Why Human |
+|------|-----------|
+| **Strategy** | Business direction, product vision |
+| **Architecture Decisions** | Major technical choices, tradeoffs |
+| **Security Review** | Critical for auth, payments, data |
+| **Production Deployment Approval** | Final sign-off on releases |
+| **Customer Trust** | High-stakes customer interactions |
+| **Financial Decisions** | Budget, spending, contracts |
+
+### Success Metrics
+
+| Metric | Target | Measurement |
+|--------|--------|-------------|
+| **Dev Time Reduction** | 30-50% | Time to implement features |
+| **Code Quality** | +20% | Test coverage, fewer bugs |
+| **Deployment Frequency** | 2x | Deployments per week |
+| **Agent Task Completion** | 80%+ | Tasks completed without human intervention |
+| **Knowledge Reuse** | 50%+ | Patterns applied from previous work |
 
 ---
 
@@ -643,14 +1135,17 @@ Based on the Open Code pattern, we'll use multiple specialized agents managed by
 
 ### Recent Updates
 
+- **2026-02-04**: Added Agno-AGI and OpenHands evaluation, comprehensive comparison matrix, RYLA AI Company setup
 - **2026-01-27**: Initiative created, requirements defined
 
 ### Next Steps
 
-1. ⏳ Create EP-XXX (Multi-Agent Orchestrator Implementation)
-2. ⏳ Create EP-YYY (Agent Templates & Configurations)
-3. ⏳ Create EP-ZZZ (Success Criteria Framework)
-4. ⏳ Begin Phase 1: Orchestrator foundation
+1. ⏳ **Evaluate Agno-AGI** - Test pre-built roles, memory, knowledge sharing
+2. ⏳ **Evaluate OpenHands** - Set up for deployment agents
+3. ⏳ Create EP-XXX (Multi-Agent Orchestrator Implementation)
+4. ⏳ Create EP-YYY (Agent Templates & Configurations)
+5. ⏳ Create EP-ZZZ (Success Criteria Framework)
+6. ⏳ Begin Phase 1: Orchestrator foundation with Cursor + Agno hybrid
 
 ---
 
@@ -677,17 +1172,26 @@ Based on the Open Code pattern, we'll use multiple specialized agents managed by
 
 ## References
 
-- Cursor 2.0 Multi-Agent Features: https://docs.cursor.com/
-- Cursor Background Agents API: https://docs.cursor.com/background-agent
+### Multi-Agent Platforms
+- **Agno-AGI**: https://agno.dev/ | https://github.com/agno-agi/agno
+- **OpenHands**: https://github.com/All-Hands-AI/OpenHands
+- **Cursor 2.0**: https://docs.cursor.com/
+- **Cursor Background Agents API**: https://docs.cursor.com/background-agent
+- **VoltAgent**: https://voltagent.dev/
+- **CrewAI**: https://www.crewai.com/
+- **OpenWork (different-ai)**: https://github.com/different-ai/openwork
+
+### Tutorials & Guides
 - Building Multi-Agent Systems with Cursor 2.0: https://medium.com/@abhishek97.edu/building-autonomous-multi-agent-systems-with-cursor-2-0-from-manual-to-fully-automated-04397c1831af
 - Multi-Agents for Full-Stack Projects: https://skywork.ai/blog/vibecoding/multi-agents-full-stack-projects/
-- VoltAgent Platform: https://voltagent.dev/
-- VoltAgent Documentation: https://voltagent.dev/docs
 - Anti-Gravity + Open Code Tutorial: https://www.youtube.com/watch?v=dzDVt3-MTRk
+
+### RYLA Documentation
 - Agent Instructions: `AGENTS.md`
 - Cursor Rules: `.cursor/rules/`
 - 10-Phase Pipeline: `docs/process/10-PHASE-PIPELINE.md`
 - Testing Standards: `.cursor/rules/testing-standards.mdc`
+- IN-031 Agentic Deployment: `docs/initiatives/IN-031-agentic-workflow-deployment.md`
 
 ---
 

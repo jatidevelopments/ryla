@@ -2,7 +2,7 @@
 
 **Status**: Proposed  
 **Created**: 2026-01-29  
-**Last Updated**: 2026-01-29  
+**Last Updated**: 2026-02-04  
 **Owner**: Engineering Team  
 **Stakeholders**: Infrastructure Team, Product Team
 
@@ -239,6 +239,7 @@ const telemetry = {
 ### Dependencies
 
 - Socket.io or native WebSocket implementation
+- **Redis adapter for Socket.io** (`@socket.io/redis-adapter`) - Required for multi-server support
 - BullMQ for job orchestration (already in use)
 - OpenTelemetry for observability (optional enhancement)
 
@@ -248,6 +249,7 @@ const telemetry = {
 - No breaking changes to existing APIs
 - Incremental rollout with feature flags
 - Must work with current Vercel/Fly.io infrastructure
+- **Multi-server requirement**: WebSocket events must broadcast across all API server instances via Redis pub/sub
 
 ---
 
@@ -370,11 +372,13 @@ const telemetry = {
 
 ### Epics
 
-| Epic | Name | Status | Link |
-|------|------|--------|------|
-| EP-XXX | WebSocket Status Streaming | Proposed | TBD |
-| EP-XXX | Job Supervision Patterns | Proposed | TBD |
-| EP-XXX | Error Boundary Implementation | Proposed | TBD |
+| Epic | Name | Phase | Status | Link |
+|------|------|-------|--------|------|
+| EP-080 | WebSocket Status Streaming to Frontend | 1 | Proposed | [EP-080](../requirements/epics/ops/EP-080-websocket-status-streaming.md) |
+| EP-081 | Job Supervision Patterns | 2 | Proposed | [EP-081](../requirements/epics/ops/EP-081-job-supervision-patterns.md) |
+| EP-082 | Error Boundary Implementation | 3 | Proposed | [EP-082](../requirements/epics/ops/EP-082-error-boundary-implementation.md) |
+| EP-083 | Backpressure Queue Implementation | 4 | Proposed | [EP-083](../requirements/epics/ops/EP-083-backpressure-queue.md) |
+| EP-084 | Structured Telemetry Implementation | 5 | Proposed | [EP-084](../requirements/epics/ops/EP-084-structured-telemetry.md) |
 
 ### Dependencies
 
@@ -405,18 +409,26 @@ const telemetry = {
 
 ### Current Phase
 
-**Phase**: Not Started  
-**Status**: Proposed
+**Phase**: P7 (Testing)  
+**Status**: In Review
 
 ### Recent Updates
 
+- **2026-02-04**: All 5 epics implemented and tested (143 tests passing)
+  - EP-080: WebSocket Status Streaming (Redis adapter, frontend hooks, backend events)
+  - EP-081: Job Supervision Patterns (JobSupervisor, CircuitBreaker, Result<T> type)
+  - EP-082: Error Boundary Implementation (AIProviderBoundary, typed errors)
+  - EP-083: Backpressure Queue (priority queue, flow control)
+  - EP-084: Structured Telemetry (spans, metrics, JSON export)
+- **2026-02-04**: Created epics EP-080 through EP-084 for all 5 phases
+- **2026-02-04**: Added Redis adapter requirement for multi-server WebSocket support
 - **2026-01-29**: Initiative created based on Phoenix/BEAM pattern analysis
 
 ### Next Steps
 
-1. Prioritize which patterns to adopt first (recommendation: WebSocket status)
-2. Create detailed epic for Phase 1
-3. Spike on WebSocket implementation options (Socket.io vs native)
+1. **P8 Integration**: Integrate patterns with existing generation services
+2. **P9 Deployment**: Deploy to staging environment
+3. **P10 Validation**: Measure polling reduction, error recovery rate
 
 ---
 

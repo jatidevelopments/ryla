@@ -1,0 +1,730 @@
+{
+  "_meta": {
+    "description": "Curated Civitai models for RYLA Modal deployment. Single source of truth for model selection.",
+    "source": "Civitai (civitai.com)",
+    "maintainedAt": "docs/research/infrastructure/civitai-model-library.json",
+    "doc": "docs/research/infrastructure/CIVITAI-MODEL-LIBRARY.md",
+    "initiative": "IN-037",
+    "schemaVersion": "1.0",
+    "lastUpdated": "2026-02-04",
+    "count": 50
+  },
+  "models": [
+    {
+      "id": "civitai-wan22-i2v-14b",
+      "civitaiModelId": 1981116,
+      "civitaiVersionId": 2555640,
+      "name": "DaSiWa WAN 2.2 I2V 14B",
+      "slug": "dasiva-wan-2-2-i2v-14b",
+      "type": "Checkpoint",
+      "baseModel": "WAN 2.2",
+      "useCase": "video_i2v",
+      "civitaiUrl": "https://civitai.com/models/1981116?modelVersionId=2555640",
+      "usage": {
+        "notes": "Image-to-video 14B. Lightspeed / Safetensors."
+      },
+      "deployment": {
+        "modalEnabled": false,
+        "notes": "Video checkpoint; enable when WAN 2.2 pipeline is on Modal."
+      }
+    },
+    {
+      "id": "civitai-nsfw-master-flux",
+      "civitaiModelId": 667086,
+      "civitaiVersionId": null,
+      "name": "NSFW MASTER FLUX - Z-Image Turbo V1",
+      "slug": "nsfw-master-flux",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/667086/nsfw-master-flux",
+      "usage": {
+        "recommendedStrength": 1,
+        "strengthRange": [0.8, 1.0],
+        "notes": "Same dataset as Flux version. Weight 0.8 recommended."
+      },
+      "deployment": {
+        "modalEnabled": false,
+        "notes": "ZImageTurbo LoRA; enable with ZImage/Flux endpoints."
+      }
+    },
+    {
+      "id": "civitai-feet-zit-v21",
+      "civitaiModelId": 200251,
+      "civitaiVersionId": null,
+      "name": "Feet XL + SD 1.5 + F1D + Pony + Illustrious + zit (Feet zit v2.1)",
+      "slug": "feet-xl-sd-15-f1d-pony-illustrious-zit",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/200251/feet-xl-sd-15-f1d-pony-illustrious-zit",
+      "usage": {
+        "triggerWords": ["cinematic", "realistic style", "detailed", "feet", "foot"],
+        "notes": "Lower or raise weight as needed. Multiple base variants (F1D, Pony, Illu, SD1.5)."
+      },
+      "deployment": {
+        "modalEnabled": false,
+        "notes": "ZImageTurbo LoRA; specialty feet/photography."
+      }
+    },
+    {
+      "id": "civitai-consistence-edit-lora",
+      "civitaiModelId": 1939453,
+      "civitaiVersionId": null,
+      "name": "Consistence Edit Lora",
+      "slug": "consistence-edit-lora",
+      "type": "LoRA",
+      "baseModel": "Flux.2 Klein 9B-base",
+      "useCase": "image_edit_consistency",
+      "civitaiUrl": "https://civitai.com/models/1939453/consistence-edit-lora",
+      "usage": {
+        "recommendedStrength": 0.5,
+        "strengthRange": [0.2, 1.5],
+        "notes": "Preserve consistency across multiple images. Higher strength = more consistency, less edit ability."
+      },
+      "deployment": {
+        "modalEnabled": false,
+        "notes": "Flux2 Klein 9B; use with QwenEdit/consistency workflows."
+      }
+    },
+    {
+      "id": "civitai-expressions-zit-v21",
+      "civitaiModelId": 541620,
+      "civitaiVersionId": null,
+      "name": "Facial Expressions (Realistic + Anime) style XL - Expressions zit v2.1",
+      "slug": "facial-expressions-realistic-anime-detailed-emotions-style-xl-sd15-f1d-illu-pony-zit",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/541620/facial-expressions-realistic-anime-detailed-emotions-style-xl-sd15-f1d-illu-pony-zit",
+      "usage": {
+        "triggerWords": ["cinematic style", "worried", "surprised", "Smile", "Pleading", "happy", "fear", "crying", "sad", "Creep sinister"],
+        "notes": "Add desired expression in prompt. Multiple base variants."
+      },
+      "deployment": {
+        "modalEnabled": false,
+        "notes": "ZImageTurbo LoRA; expression control."
+      }
+    },
+    {
+      "id": "civitai-realistic-snapshot-zit",
+      "civitaiModelId": 2268008,
+      "civitaiVersionId": null,
+      "name": "Realistic Snapshot (Z-Image-Turbo) v5",
+      "slug": "realistic-snapshot-z-image-turbo",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_photorealism",
+      "civitaiUrl": "https://civitai.com/models/2268008/realistic-snapshot-z-image-turbo",
+      "usage": {
+        "recommendedStrength": 0.65,
+        "strengthRange": [0.6, 0.7],
+        "triggerWords": ["amateur digital snapshot", "candid", "smartphone capture", "visible pores", "subsurface scattering", "depth of field"],
+        "notes": "Reduces plastic AI look; organic texture, lifelike lighting. v5 best quality."
+      },
+      "deployment": {
+        "modalEnabled": false,
+        "notes": "High-value LoRA for photorealism; strong candidate for default stack."
+      }
+    },
+    {
+      "id": "civitai-gonzalomo-zpop",
+      "civitaiModelId": 2192562,
+      "civitaiVersionId": null,
+      "name": "GonzaLomo ZPop v3.0 AIO",
+      "slug": "gonzalomo-zpop",
+      "type": "Checkpoint Merge",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_base",
+      "civitaiUrl": "https://civitai.com/models/2192562/gonzalomo-zpop",
+      "usage": {
+        "notes": "AIO = All-In-One (checkpoint + text encoder + UltraFlux_V1 VAE). Better color, contrast, detail. Drag showcase image into ComfyUI for workflow."
+      },
+      "deployment": {
+        "modalEnabled": false,
+        "notes": "Full checkpoint (~15.73 GB pruned fp8); use as base instead of vanilla ZImageTurbo when deployed."
+      }
+    },
+    {
+      "id": "civitai-cinematic-kodak-film-still-zit",
+      "civitaiModelId": 235495,
+      "civitaiVersionId": null,
+      "name": "Cinematic Kodak Motion Picture Film Still style XL (F1D + Illu + Pony + zit)",
+      "slug": "cinematic-kodak-motion-picture-film-still-style-xl-f1d-illu-pony-zit",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/235495/cinematic-kodak-motion-picture-film-still-style-xl-f1d-illu-pony-zit",
+      "usage": { "notes": "Cinematic film still look. Multiple base variants (F1D, Illu, Pony, zit)." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA; cinematic/film style." }
+    },
+    {
+      "id": "civitai-rembrandt-low-key-lighting-zit",
+      "civitaiModelId": 280454,
+      "civitaiVersionId": null,
+      "name": "Rembrandt Low Key Lighting style XL (SD15 + F1D + Illu + Pony + zit)",
+      "slug": "rembrandt-low-key-lighting-style-xl-sd15-f1d-illu-pony-zit",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/280454/rembrandt-low-key-lighting-style-xl-sd15-f1d-illu-pony-zit",
+      "usage": { "notes": "Low-key lighting, Rembrandt style. Multiple base variants." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA; lighting style." }
+    },
+    {
+      "id": "civitai-dark-beast-z-dbz-zit",
+      "civitaiModelId": 2242173,
+      "civitaiVersionId": null,
+      "name": "Dark Beast Z / DBZ (DBZiturbofinal IV)",
+      "slug": "dark-beast-z-or-dbz-or-updated-jan-26-26or-latest-dbziturbofinal-iv",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2242173/dark-beast-z-or-dbz-or-updated-jan-26-26or-latest-dbziturbofinal-iv",
+      "usage": { "notes": "ZImageTurbo style LoRA; check Civitai for trigger words and strength." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA." }
+    },
+    {
+      "id": "civitai-midjourney-artful-nsfw",
+      "civitaiModelId": 837884,
+      "civitaiVersionId": null,
+      "name": "Midjourney Artful NSFW",
+      "slug": "midjourney-artful-nsfw",
+      "type": "LoRA",
+      "baseModel": "SD XL",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/837884/midjourney-artful-nsfw",
+      "usage": { "notes": "Midjourney-like artful style. Check Civitai for base and strength." },
+      "deployment": { "modalEnabled": false, "notes": "Style LoRA; confirm base model on Civitai." }
+    },
+    {
+      "id": "civitai-bondage-go-bdsm-lora",
+      "civitaiModelId": 136849,
+      "civitaiVersionId": null,
+      "name": "Bondage Go BDSM LoRA (Zib, F1, XL)",
+      "slug": "bondage-go-bdsm-lora-for-zib-f1-and-xl",
+      "type": "LoRA",
+      "baseModel": "Zib / F1 / XL",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/136849/bondage-go-bdsm-lora-for-zib-f1-and-xl",
+      "usage": { "notes": "Multi-base: Zib, F1, XL. Check Civitai for version and strength." },
+      "deployment": { "modalEnabled": false, "notes": "Multi-base LoRA." }
+    },
+    {
+      "id": "civitai-moody-porn-mix",
+      "civitaiModelId": 620406,
+      "civitaiVersionId": null,
+      "name": "Moody Porn Mix",
+      "slug": "moody-porn-mix",
+      "type": "LoRA",
+      "baseModel": "Unknown",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/620406/moody-porn-mix",
+      "usage": { "notes": "Moody aesthetic. Confirm base model and strength on Civitai." },
+      "deployment": { "modalEnabled": false, "notes": "Style LoRA." }
+    },
+    {
+      "id": "civitai-beyond-reality",
+      "civitaiModelId": 1090420,
+      "civitaiVersionId": null,
+      "name": "Beyond Reality",
+      "slug": "beyond-reality",
+      "type": "LoRA",
+      "baseModel": "Unknown",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/1090420/beyond-reality",
+      "usage": { "notes": "Confirm type, base model, and usage on Civitai." },
+      "deployment": { "modalEnabled": false, "notes": "" }
+    },
+    {
+      "id": "civitai-zit-mystic-xxx",
+      "civitaiModelId": 2206377,
+      "civitaiVersionId": null,
+      "name": "Zit Mystic XXX",
+      "slug": "zit-mystic-xxx",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2206377/zit-mystic-xxx",
+      "usage": { "notes": "ZImageTurbo LoRA. Check Civitai for strength and triggers." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA." }
+    },
+    {
+      "id": "civitai-snofs-sex-nudes-other-fun-stuff",
+      "civitaiModelId": 1972981,
+      "civitaiVersionId": null,
+      "name": "Sex Nudes Other Fun Stuff (SNOFS)",
+      "slug": "sex-nudes-other-fun-stuff-snofs",
+      "type": "LoRA",
+      "baseModel": "Unknown",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/1972981/sex-nudes-other-fun-stuff-snofs",
+      "usage": { "notes": "Confirm base model and usage on Civitai." },
+      "deployment": { "modalEnabled": false, "notes": "" }
+    },
+    {
+      "id": "civitai-zimage-turbo-nsfw-stable-yogi",
+      "civitaiModelId": 2221503,
+      "civitaiVersionId": null,
+      "name": "ZImage Turbo NSFW by Stable Yogi",
+      "slug": "zimage-turbo-nsfw-by-stable-yogi",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2221503/zimage-turbo-nsfw-by-stable-yogi",
+      "usage": { "notes": "ZImageTurbo NSFW LoRA. Check Civitai for strength." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA." }
+    },
+    {
+      "id": "civitai-intorealism-ultra",
+      "civitaiModelId": 1950841,
+      "civitaiVersionId": null,
+      "name": "IntoRealism Ultra",
+      "slug": "intorealism-ultra",
+      "type": "Checkpoint Merge",
+      "baseModel": "SDXL",
+      "useCase": "t2i_photorealism",
+      "civitaiUrl": "https://civitai.com/models/1950841/intorealism-ultra",
+      "usage": { "notes": "Companion to IntoRealism XL; high-fidelity realism. Check Civitai for sampling/upscaler tips." },
+      "deployment": { "modalEnabled": false, "notes": "SDXL checkpoint; use with IntoRealism XL workflow." }
+    },
+    {
+      "id": "civitai-qwen-4-play-aio-nsfw",
+      "civitaiModelId": 2004155,
+      "civitaiVersionId": null,
+      "name": "QWEN 4 PLAY - AIO NSFW Qwen LoRA by DR34MSC4PE",
+      "slug": "qwen-4-play-aio-nsfw-qwen-lora-by-dr34msc4pe",
+      "type": "LoRA",
+      "baseModel": "Qwen",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2004155/qwen-4-play-aio-nsfw-qwen-lora-by-dr34msc4pe",
+      "usage": { "notes": "Qwen4Play2512.v1; Qwen LoRA. AIO NSFW. Check Civitai for version and strength." },
+      "deployment": { "modalEnabled": false, "notes": "Qwen LoRA; enable with Qwen endpoints." }
+    },
+    {
+      "id": "civitai-intorealism-xl",
+      "civitaiModelId": 1609320,
+      "civitaiVersionId": null,
+      "name": "IntoRealism XL",
+      "slug": "intorealism-xl",
+      "type": "Checkpoint Merge",
+      "baseModel": "SDXL 1.0",
+      "useCase": "t2i_photorealism",
+      "civitaiUrl": "https://civitai.com/models/1609320/intorealism-xl",
+      "usage": {
+        "notes": "SDXL photorealistic checkpoint. DMD2: LCM/Exponential, 8–12 steps, 896x1152, CFG 1. SDXL: DPM++ 2M SDE Karras, >25 steps. 4x-UltraSharp or NMKD upscaler; Adetailer face_yolov9c.pt."
+      },
+      "deployment": { "modalEnabled": false, "notes": "SDXL checkpoint (~6.46 GB); some versions Early Access." }
+    },
+    {
+      "id": "civitai-wan-22-i2v-enhanced-lightning-svi",
+      "civitaiModelId": 2079192,
+      "civitaiVersionId": null,
+      "name": "WAN 2.2 I2V native Enhanced (Lightning Edition) SVI long video multi prompt FP8-GGUF",
+      "slug": "wan-22-i2v-native-enhanced-lightning-edition-svi-long-video-multi-prompt-fp8-gguf",
+      "type": "Workflow",
+      "baseModel": "WAN 2.2",
+      "useCase": "video_i2v",
+      "civitaiUrl": "https://civitai.com/models/2079192/wan-22-i2v-native-enhanced-lightning-edition-svi-long-video-multi-prompt-fp8-gguf",
+      "usage": { "notes": "SVI triple ksampler; long video, multi-prompt. FP8/GGUF. Wan Video Workflows." },
+      "deployment": { "modalEnabled": false, "notes": "WAN 2.2 workflow; enable when WAN pipeline on Modal." }
+    },
+    {
+      "id": "civitai-instagramification",
+      "civitaiModelId": 1379962,
+      "civitaiVersionId": null,
+      "name": "Instagramification (Z-turbo pruned)",
+      "slug": "instagramification",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/1379962/instagramification",
+      "usage": { "notes": "Z-turbo pruned; Instagram-style look. Check Civitai for strength." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA." }
+    },
+    {
+      "id": "civitai-turbo-pussy-z",
+      "civitaiModelId": 2178383,
+      "civitaiVersionId": null,
+      "name": "Turbo Pussy Z v2.0",
+      "slug": "turbo-pussy-z",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2178383/turbo-pussy-z",
+      "usage": { "notes": "ZImageTurbo LoRA v2.0. Check Civitai for strength and triggers." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA." }
+    },
+    {
+      "id": "civitai-diving-z-image-turbo-real-asian",
+      "civitaiModelId": 2276359,
+      "civitaiVersionId": null,
+      "name": "Diving Z-Image Turbo Real Asian",
+      "slug": "diving-z-image-turbo-real-asian",
+      "type": "Checkpoint",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_photorealism",
+      "civitaiUrl": "https://civitai.com/models/2276359/diving-z-image-turbo-real-asian",
+      "usage": { "notes": "v4.0 fp16. ZImageTurbo checkpoint; real Asian aesthetic. Check Civitai for resolution/settings." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo checkpoint." }
+    },
+    {
+      "id": "civitai-famegrid-2nd-gen-z-image-qwen",
+      "civitaiModelId": 2088956,
+      "civitaiVersionId": null,
+      "name": "Famegrid 2nd Gen (Z-Image / Qwen) - Z-Image Spicy Edition v1",
+      "slug": "famegrid-2nd-gen-z-image-qwen",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2088956/famegrid-2nd-gen-z-image-qwen",
+      "usage": {
+        "recommendedStrength": 0.7,
+        "strengthRange": [0.7, 0.9],
+        "triggerWords": ["IGMODEL", "rlskn"],
+        "notes": "Influencer/social-media style. 0.7 = more natural, 0.9 = more stylized. Long prompts (800+ chars) ideal. Qwen: CFG 1–3, LoRA 1.0–2.0."
+      },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo / Qwen LoRA; Instagram-style realism." }
+    },
+    {
+      "id": "civitai-bursting-out-wan",
+      "civitaiModelId": 1786139,
+      "civitaiVersionId": null,
+      "name": "Bursting Out - Wan (High Noise v3.0)",
+      "slug": "bursting-out-wan",
+      "type": "LoRA",
+      "baseModel": "WAN",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/1786139/bursting-out-wan",
+      "usage": { "notes": "Wan Video LoRA. High Noise v3.0. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "WAN video LoRA; enable with WAN pipeline." }
+    },
+    {
+      "id": "civitai-nipple-piercing-illustrious-pony",
+      "civitaiModelId": 1096396,
+      "civitaiVersionId": null,
+      "name": "Nipple piercing - Illustrious / PONY",
+      "slug": "nipple-piercing-illustrious",
+      "type": "LoRA",
+      "baseModel": "Stable Diffusion XL",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/1096396/nipple-piercing-illustrious",
+      "usage": { "notes": "SD XL LoRA; Illustrious and PONY variants. Check Civitai for trigger words and strength." },
+      "deployment": { "modalEnabled": false, "notes": "SD XL LoRA." }
+    },
+    {
+      "id": "civitai-amateur-nudes-flux-wan-22-zit-zib",
+      "civitaiModelId": 764517,
+      "civitaiVersionId": null,
+      "name": "Amateur nudes - FLUX, Wan 2.2, ZIT, ZIB (v1.0 Z-Image Base)",
+      "slug": "amateur-nudes-flux-wan-22-zit-zib",
+      "type": "LoRA",
+      "baseModel": "ZImageBase",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/764517/amateur-nudes-flux-wan-22-zit-zib",
+      "usage": { "notes": "ZImageBase LoRA v1.0. Multi-base: FLUX, Wan 2.2, ZIT, ZIB. Check Civitai for version and strength." },
+      "deployment": { "modalEnabled": false, "notes": "Multi-base LoRA (ZImageTurbo, Wan, Flux, ZIB)." }
+    },
+    {
+      "id": "civitai-wan-22-i2v-loop-workflow",
+      "civitaiModelId": 1772470,
+      "civitaiVersionId": null,
+      "name": "WAN 2.2 i2v loop workflow",
+      "slug": "wan-22-i2v-loop-workflow",
+      "type": "Workflow",
+      "baseModel": "WAN 2.2",
+      "useCase": "video_i2v",
+      "civitaiUrl": "https://civitai.com/models/1772470/wan-22-i2v-loop-workflow",
+      "usage": { "notes": "WAN 2.2 v2. Wan Video Workflows; loop-friendly i2v. Check Civitai for workflow details." },
+      "deployment": { "modalEnabled": false, "notes": "WAN 2.2 workflow; enable when WAN pipeline on Modal." }
+    },
+    {
+      "id": "civitai-ultrareal-breast-nipple-detailer",
+      "civitaiModelId": 1259365,
+      "civitaiVersionId": null,
+      "name": "ULtraReal Breast & Nipple Detailer (PONY_V2)",
+      "slug": "ultrareal-breast-and-nipple-detailer",
+      "type": "LoRA",
+      "baseModel": "Stable Diffusion XL",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/1259365/ultrareal-breast-and-nipple-detailer",
+      "usage": { "notes": "SD XL LoRA; PONY_V2. Check Civitai for strength and triggers." },
+      "deployment": { "modalEnabled": false, "notes": "SD XL LoRA." }
+    },
+    {
+      "id": "civitai-wan-multiscene-photoshoot-softcore",
+      "civitaiModelId": 2316517,
+      "civitaiVersionId": null,
+      "name": "Wan Multiscene Photoshoot: Softcore Edition",
+      "slug": "wan-multiscene-photoshoot-softcore-edition",
+      "type": "LoRA",
+      "baseModel": "WAN 2.2",
+      "useCase": "video_i2v",
+      "civitaiUrl": "https://civitai.com/models/2316517/wan-multiscene-photoshoot-softcore-edition",
+      "usage": { "notes": "Wan 2.2 i2v Low Noise. Wan Video LoRA. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "WAN 2.2 video LoRA." }
+    },
+    {
+      "id": "civitai-mop-mix-omnia",
+      "civitaiModelId": 2128936,
+      "civitaiVersionId": null,
+      "name": "MoP Mix - Omnia",
+      "slug": "mop-mix",
+      "type": "Checkpoint Merge",
+      "baseModel": "SDXL 1.0",
+      "useCase": "t2i_photorealism",
+      "civitaiUrl": "https://civitai.com/models/2128936/mop-mix",
+      "usage": {
+        "notes": "DMD-enabled. Sampler: LCM. Scheduler: karras, exponential or beta. Steps: 8–14. CFG: 0.8–1.2. Pruned fp16 6.46 GB. Use MoP Mix workflows or embedded workflow from showcase images."
+      },
+      "deployment": { "modalEnabled": false, "notes": "SDXL checkpoint; DMD LoRA for non-DMD mode (-0.85)." }
+    },
+    {
+      "id": "civitai-candid-instax-photo",
+      "civitaiModelId": 1683324,
+      "civitaiVersionId": null,
+      "name": "Candid Instax Photo",
+      "slug": "candid-instax-photo",
+      "type": "LoRA",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/1683324/candid-instax-photo",
+      "usage": {
+        "recommendedStrength": 0.8,
+        "triggerWords": ["Candid Instax Photo"],
+        "notes": "Fujifilm Instax Mini aesthetic. Res 1264×944 or 944×1264; 1152×896 / 896×1152 also work. Soft focus, flash-heavy, gentle color shifts. Mini version: 1376×864, 1024×600 for portrait format."
+      },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo LoRA; instant-film style." }
+    },
+    {
+      "id": "civitai-orgasm-ltx2",
+      "civitaiModelId": 2176039,
+      "civitaiVersionId": null,
+      "name": "Orgasm (LTX-2 v1)",
+      "slug": "orgasm",
+      "type": "LoRA",
+      "baseModel": "LTX-2",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/2176039/orgasm",
+      "usage": { "notes": "LTXV2 LoRA. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "LTX-2 video LoRA." }
+    },
+    {
+      "id": "civitai-panty-styles-z-image",
+      "civitaiModelId": 2141634,
+      "civitaiVersionId": null,
+      "name": "Panty Styles - Z-Image Tiny Panties",
+      "slug": "panty-styles",
+      "type": "LoRA",
+      "baseModel": "ZImageBase",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2141634/panty-styles",
+      "usage": { "notes": "ZImageBase LoRA. Check Civitai for strength and triggers." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageBase LoRA." }
+    },
+    {
+      "id": "civitai-innie-vagina-ltx2",
+      "civitaiModelId": 2145075,
+      "civitaiVersionId": null,
+      "name": "Innie Vagina (LTX-2 v1.01)",
+      "slug": "innie-vagina",
+      "type": "LoRA",
+      "baseModel": "LTX-2",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/2145075/innie-vagina",
+      "usage": { "notes": "LTXV2 LoRA. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "LTX-2 LoRA." }
+    },
+    {
+      "id": "civitai-pov-riding-wan",
+      "civitaiModelId": 2215920,
+      "civitaiVersionId": null,
+      "name": "POV Riding (v2.0 High Noise)",
+      "slug": "pov-riding",
+      "type": "LoRA",
+      "baseModel": "WAN",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/2215920/pov-riding",
+      "usage": { "notes": "Wan Video LoRA v2.0 High Noise. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "WAN video LoRA." }
+    },
+    {
+      "id": "civitai-female-masturbation-ltx2",
+      "civitaiModelId": 2223599,
+      "civitaiVersionId": null,
+      "name": "Female Masturbation / Rubs Her Pussy (LTX-2 v1)",
+      "slug": "female-masturbation-rubs-her-pussy",
+      "type": "LoRA",
+      "baseModel": "LTX-2",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/2223599/female-masturbation-rubs-her-pussy",
+      "usage": { "notes": "LTXV2 LoRA. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "LTX-2 LoRA." }
+    },
+    {
+      "id": "civitai-nsfw-flux-klein-no-face-change",
+      "civitaiModelId": 2319552,
+      "civitaiVersionId": null,
+      "name": "NSFW Flux Klein (no face change) - Solo girls v1.0",
+      "slug": "nsfw-flux-klein-no-face-change",
+      "type": "LoRA",
+      "baseModel": "Flux2 Klein 9B",
+      "useCase": "t2i_style",
+      "civitaiUrl": "https://civitai.com/models/2319552/nsfw-flux-klein-no-face-change",
+      "usage": { "notes": "Flux2Klein_9B LoRA; preserves face. Check Civitai for strength." },
+      "deployment": { "modalEnabled": false, "notes": "Flux Klein LoRA; enable with Flux Klein endpoints." }
+    },
+    {
+      "id": "civitai-jib-mix-zit",
+      "civitaiModelId": 2231351,
+      "civitaiVersionId": null,
+      "name": "Jib Mix ZIT v2.0",
+      "slug": "jib-mix-zit",
+      "type": "Checkpoint Merge",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_photorealism",
+      "civitaiUrl": "https://civitai.com/models/2231351/jib-mix-zit",
+      "usage": {
+        "notes": "Full fp16 11.46 GB. Better fine details, more variation, less ZIT mottled skin. ClownSharkSampler + Linear/ralston_2s. Optional: 80% UltraFlux VAE + 20% Zit/Flux VAE merge; Jib Mix Realistic Z-Image LoRA ~0.15. FP8 model available."
+      },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo checkpoint merge; use with Jib workflows." }
+    },
+    {
+      "id": "civitai-real-twerk-ltx",
+      "civitaiModelId": 1637024,
+      "civitaiVersionId": null,
+      "name": "Real Twerk (LTX-2 Real Twerk V2)",
+      "slug": "real-twerk",
+      "type": "LoRA",
+      "baseModel": "LTX",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/1637024/real-twerk",
+      "usage": { "notes": "LTXV LoRA. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "LTX video LoRA." }
+    },
+    {
+      "id": "civitai-cat-walk-wan",
+      "civitaiModelId": 1720099,
+      "civitaiVersionId": null,
+      "name": "Cat Walk (Wan2.2 T2V High v1.0)",
+      "slug": "cat-walk",
+      "type": "LoRA",
+      "baseModel": "Wan Video 2.2 T2V-A14B",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/1720099/cat-walk",
+      "usage": {
+        "recommendedStrength": 0.9,
+        "strengthRange": [0.8, 1.0],
+        "triggerWords": ["catwalk", "walking into the <direction>", "moving camera", "static camera", "bouncing breasts"],
+        "notes": "Wan Video LoRA. Weight 0.8–1.0 for best results."
+      },
+      "deployment": { "modalEnabled": false, "notes": "WAN 2.2 T2V LoRA; fashion/catwalk motion." }
+    },
+    {
+      "id": "civitai-reverse-deepthroat-wan",
+      "civitaiModelId": 2168001,
+      "civitaiVersionId": null,
+      "name": "Reverse deepthroat (WAN22 v2 HIGH)",
+      "slug": "reverse-deepthroat",
+      "type": "LoRA",
+      "baseModel": "WAN 2.2",
+      "useCase": "video_style",
+      "civitaiUrl": "https://civitai.com/models/2168001/reverse-deepthroat",
+      "usage": { "notes": "Wan Video LoRA; WAN22_v2_HIGH. Check Civitai for strength and workflow." },
+      "deployment": { "modalEnabled": false, "notes": "WAN 2.2 video LoRA." }
+    },
+    {
+      "id": "civitai-scene-composer-workflow",
+      "civitaiModelId": 579396,
+      "civitaiVersionId": null,
+      "name": "Scene Composer Workflow v1.2",
+      "slug": "scene-composer-workflow",
+      "type": "Workflow",
+      "baseModel": "Illustrious",
+      "useCase": "workflow_scene",
+      "civitaiUrl": "https://civitai.com/models/579396/scene-composer-workflow",
+      "usage": { "notes": "Illustrious Workflows. Check Civitai for workflow details." },
+      "deployment": { "modalEnabled": false, "notes": "Illustrious workflow." }
+    },
+    {
+      "id": "civitai-workflow-comfyui-modify-clothes-full-res",
+      "civitaiModelId": 304986,
+      "civitaiVersionId": null,
+      "name": "Workflow ComfyUi - Modify clothes at full resolution v1.0",
+      "slug": "workflow-comfyui-modify-clothes-at-full-resolution",
+      "type": "Workflow",
+      "baseModel": "Other",
+      "useCase": "image_edit_inpaint",
+      "civitaiUrl": "https://civitai.com/models/304986/workflow-comfyui-modify-clothes-at-full-resolution",
+      "usage": { "notes": "ComfyUI. Inpaint at full resolution; MaskEditor input. Text2img+Lora+Hires+ADx2+Upscale+Style filter. Clothing on man/woman." },
+      "deployment": { "modalEnabled": false, "notes": "ComfyUI clothing edit workflow." }
+    },
+    {
+      "id": "civitai-workflow-oral-insertion",
+      "civitaiModelId": 2005392,
+      "civitaiVersionId": null,
+      "name": "WORKFLOW ORAL INSERTION v1.0",
+      "slug": "workflow-oral-insertion",
+      "type": "Workflow",
+      "baseModel": "WAN 2.2",
+      "useCase": "video_workflow",
+      "civitaiUrl": "https://civitai.com/models/2005392/workflow-oral-insertion",
+      "usage": { "notes": "Wan Video Workflows. Check Civitai for workflow details." },
+      "deployment": { "modalEnabled": false, "notes": "WAN video workflow." }
+    },
+    {
+      "id": "civitai-consistent-character-poses-workflow",
+      "civitaiModelId": 1796490,
+      "civitaiVersionId": null,
+      "name": "Consistent character poses workflow v1.0",
+      "slug": "consistent-character-poses-workflow",
+      "type": "Workflow",
+      "baseModel": "Wan Video 14B t2v",
+      "useCase": "video_character_pose",
+      "civitaiUrl": "https://civitai.com/models/1796490/consistent-character-poses-workflow",
+      "usage": {
+        "notes": "Input character + poses; output consistent pose images. Uses Wan 2.1 VACE (4 steps, 1 cfg with linked LightX2V model). ~40–50s for 3 images on A4000 16GB. OpenPose collection compatible. One reference image → LoRA or direct use."
+      },
+      "deployment": { "modalEnabled": false, "notes": "WAN 2.1 workflow; character pose consistency." }
+    },
+    {
+      "id": "civitai-workflow-refcontrol-flux-kontext-pose-lora",
+      "civitaiModelId": 1894175,
+      "civitaiVersionId": null,
+      "name": "Workflow RefControl Flux Kontext – Reference Pose LoRA v1.0",
+      "slug": "workflow-refcontrol-flux-kontext-reference-pose-lora",
+      "type": "Workflow",
+      "baseModel": "SD 1.5",
+      "useCase": "workflow_pose_lora",
+      "civitaiUrl": "https://civitai.com/models/1894175/workflow-refcontrol-flux-kontext-reference-pose-lora",
+      "usage": { "notes": "Stable Diffusion Workflows. For model 1894154. RefControl Flux Kontext reference pose LoRA generation." },
+      "deployment": { "modalEnabled": false, "notes": "SD 1.5 / Flux Kontext workflow." }
+    },
+    {
+      "id": "civitai-workflow-z-image-real-turbo-samay",
+      "civitaiModelId": 2190946,
+      "civitaiVersionId": null,
+      "name": "Workflow for Z-Image_REAL_Turbo_SaMay_bf16 v1.0",
+      "slug": "workflow-for-z-imagerealturbosamaybf16",
+      "type": "Workflow",
+      "baseModel": "ZImageTurbo",
+      "useCase": "t2i_workflow",
+      "civitaiUrl": "https://civitai.com/models/2190946/workflow-for-z-imagerealturbosamaybf16",
+      "usage": { "notes": "ZImageTurbo Workflows. For model 2188147 (Z-Image_REAL_Turbo_SaMay_bf16). Place model in Models/Unet folder." },
+      "deployment": { "modalEnabled": false, "notes": "ZImageTurbo workflow; requires SaMay bf16 checkpoint." }
+    },
+    {
+      "id": "civitai-flux-workflow-character-from-reference-style",
+      "civitaiModelId": 1749675,
+      "civitaiVersionId": null,
+      "name": "Flux Workflow - Character image from reference style v1.0",
+      "slug": "flux-workflow-character-image-from-referece-style",
+      "type": "Workflow",
+      "baseModel": "Flux.1 D",
+      "useCase": "t2i_character_style",
+      "civitaiUrl": "https://civitai.com/models/1749675/flux-workflow-character-image-from-referece-style",
+      "usage": { "notes": "Flux Workflows. Upload character image or prompt; upload reference style image. PULID + Redux Flux; zero prompt (Florence). Character transfer style; useful for LoRA dataset prep." },
+      "deployment": { "modalEnabled": false, "notes": "Flux.1 D workflow; PULID/Redux character style transfer." }
+    }
+  ]
+}

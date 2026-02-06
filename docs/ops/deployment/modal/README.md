@@ -1,113 +1,88 @@
-# Modal.com Deployment Documentation
+# Modal.com Deployment
 
-> **Last Updated**: 2026-01-27
+> **Last Updated**: 2026-02-04
 
 ---
 
 ## Overview
 
-RYLA uses Modal.com for serverless ComfyUI deployments. This directory contains all Modal-related documentation and guides.
+RYLA runs serverless ComfyUI on Modal.com. **Production uses split apps** (one Modal app per workflow group). This directory holds deployment and ops docs.
 
 ---
 
-## Documentation Index
+## Production deployment (split apps)
 
-### Guides
-
-- **[Best Practices](./BEST-PRACTICES.md)** - Comprehensive guide to Modal.com best practices
-- **[Troubleshooting](./TROUBLESHOOTING.md)** - Common issues and solutions
-
-### Cursor Rules
-
-- **[Modal Cursor Rule](../../../../.cursor/rules/mcp-modal.mdc)** - AI agent guidelines for Modal.com
-
-### Utilities
-
-- **[Modal Utils](../../../../scripts/workflow-deployer/modal-utils.ts)** - TypeScript utilities for Modal CLI
-
----
-
-## Quick Start
-
-### Deploy a Workflow
+Deploy from repo root or from `apps/modal`:
 
 ```bash
-# 1. Generate deployment code
-pnpm workflow:deploy generate workflow.json --platform=modal --name="my-workflow"
-
-# 2. Deploy
-modal deploy scripts/generated/workflows/my_workflow_modal.py
-
-# 3. Check status
-pnpm workflow:deploy status ryla-my-workflow
-
-# 4. View logs (with timeout)
-pnpm workflow:deploy logs ryla-my-workflow --timeout=30
+cd apps/modal
+./deploy.sh              # Deploy all split apps
+./deploy.sh flux         # Deploy one app (flux | instantid | qwen-image | qwen-edit | z-image | wan26 | seedvr2 | lora | ...)
 ```
 
-### Common Commands
+**App list**: 7 main apps — `ryla-flux`, `ryla-instantid`, `ryla-qwen-image`, `ryla-qwen-edit`, `ryla-z-image`, `ryla-wan26`, `ryla-seedvr2`.  
+**Endpoint → app mapping**: [apps/modal/ENDPOINT-APP-MAPPING.md](../../../apps/modal/ENDPOINT-APP-MAPPING.md).
+
+Do **not** use `modal deploy apps/modal/app.py` for production; that is the legacy single app.
+
+---
+
+## Documentation index
+
+| Doc | Purpose |
+|-----|--------|
+| [MODAL-AUDIT.md](./MODAL-AUDIT.md) | Audit of endpoints, scripts, tests, and repo consistency |
+| [BEST-PRACTICES.md](./BEST-PRACTICES.md) | Modal.com best practices |
+| [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) | Common issues and fixes |
+
+### Other
+
+- **Cursor rule**: [.cursor/rules/mcp-modal.mdc](../../../.cursor/rules/mcp-modal.mdc)
+- **Modal utils**: [scripts/workflow-deployer/modal-utils.ts](../../../scripts/workflow-deployer/modal-utils.ts)
+- **App README**: [apps/modal/README.md](../../../apps/modal/README.md)
+
+---
+
+## Common commands
 
 ```bash
-# Deploy
-modal deploy apps/modal/app.py
+# Deploy (use deploy.sh; see above)
+cd apps/modal && ./deploy.sh
 
-# View logs (ALWAYS use timeout)
-timeout 30 modal app logs <app-name> || echo "Timeout"
+# View logs (always use a timeout)
+timeout 30 modal app logs ryla-flux || true
+pnpm workflow:deploy logs ryla-flux --timeout=30
 
-# Or use utility
-pnpm workflow:deploy logs <app-name> --timeout=30
-
-# Check status
-pnpm workflow:deploy status <app-name>
-
-# List apps
+# Status / list
+pnpm workflow:deploy status ryla-flux
 modal app list
 ```
 
 ---
 
-## Key Points
+## Important
 
-### ⚠️ Always Use Timeouts
+### Timeouts
 
-Modal CLI commands (especially `modal app logs`) can hang indefinitely. Always use timeouts:
+`modal app logs` can hang. Always use a timeout:
 
 ```bash
-# ❌ Bad
-modal app logs my-app
-
-# ✅ Good
-timeout 30 modal app logs my-app || echo "Timeout"
-
-# ✅ Best (uses utility)
-pnpm workflow:deploy logs my-app --timeout=30
+timeout 30 modal app logs <app-name> || echo "Timeout"
 ```
 
-### Cold Starts
+### Cold starts
 
-First request to a Modal function can take 2-5 minutes:
-- Container startup: ~30s
-- ComfyUI installation: ~1-2 min
-- Model loading: ~1-2 min
-- Server startup: ~30s
+First request per app can take 2–5 minutes (container + ComfyUI + models). Plan for this in clients.
 
-Plan for this delay in your client code.
+### Image builds
 
-### Image Building
-
-- Build incrementally (cache layers)
-- Copy files explicitly (`.copy_local_file()`)
-- Handle missing files gracefully
+- Build incrementally (cache layers).
+- Copy files explicitly (e.g. `.copy_local_file()`).
 
 ---
 
-## Related Documentation
+## Related
 
 - [Modal Best Practices](./BEST-PRACTICES.md)
-- [Troubleshooting Guide](./TROUBLESHOOTING.md)
-- [Cursor Rule](../../../../.cursor/rules/mcp-modal.mdc)
-- [Workflow Deployment Tool](../../../../scripts/workflow-deployer/README.md)
-
----
-
-**Last Updated**: 2026-01-27
+- [Troubleshooting](./TROUBLESHOOTING.md)
+- [Workflow deployer](../../../scripts/workflow-deployer/README.md)

@@ -977,7 +977,7 @@ describe('AuthPage', () => {
 ### E2E Tests (Playwright)
 
 ```typescript
-// apps/web-e2e/tests/auth.spec.ts
+// e2e/tests/auth.spec.ts (when e2e project exists)
 describe('Unified Auth Page', () => {
   it('should detect existing email and show login form', async () => {});
   it('should detect new email and show registration form', async () => {});
