@@ -124,8 +124,8 @@ export function useCharacterCreation(options?: UseCharacterCreationOptions) {
             // Store selected profile picture set ID (null = skip)
             profilePictureSetId: form.selectedProfilePictureSetId || undefined,
           },
-          // LoRA training enabled setting
-          loraEnabled: form.loraTrainingEnabled,
+          // Note: LoRA training setting (form.loraTrainingEnabled) stored in wizard state,
+          // not persisted to character record. Training triggered separately if enabled.
         });
 
         // Deduct credits atomically for all wizard costs (base images + profile set + NSFW + LoRA)

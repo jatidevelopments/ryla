@@ -16,9 +16,9 @@ interface TypeTabsProps {
 }
 
 const tabs: { value: TabType; label: string }[] = [
+  { value: 'all', label: 'All' },
   { value: 'templates', label: 'Templates' },
   { value: 'sets', label: 'Sets' },
-  { value: 'all', label: 'All' },
 ];
 
 /**
@@ -45,7 +45,7 @@ export function TypeTabs({ value, onChange, counts }: TypeTabsProps) {
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-500)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]',
                   'flex-shrink-0',
                   isActive
-                    ? 'text-white bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] shadow-lg shadow-purple-500/25'
+                    ? 'text-white bg-[var(--purple-500)] shadow-lg shadow-purple-500/25'
                     : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
                 )}
               >
@@ -84,7 +84,7 @@ export function TypeTabs({ value, onChange, counts }: TypeTabsProps) {
                 'relative px-5 py-2.5 text-sm font-medium rounded-lg transition-all duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-500)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--bg-primary)]',
                 isActive
-                  ? 'text-white bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] shadow-lg shadow-purple-500/25'
+                  ? 'text-white bg-[var(--purple-500)] shadow-lg shadow-purple-500/25'
                   : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-elevated)]'
               )}
             >

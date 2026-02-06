@@ -89,7 +89,7 @@ export function ModelPicker({
 
               {/* Info */}
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-sm font-medium truncate">
                     {model.name}
                   </span>
@@ -106,9 +106,51 @@ export function ModelPicker({
                     </span>
                   )}
                 </div>
+                {/* Capability badges */}
+                <div className="flex items-center gap-1 mt-0.5">
+                  {model.capabilities?.supportsLoRA && (
+                    <span
+                      className={cn(
+                        'px-1 py-0.5 rounded text-[8px] font-medium',
+                        selectedModelId === model.id
+                          ? 'bg-white/20 text-white'
+                          : 'bg-emerald-500/20 text-emerald-400'
+                      )}
+                      title="Supports LoRA for character consistency"
+                    >
+                      LoRA
+                    </span>
+                  )}
+                  {model.capabilities?.supportsReferenceImage && (
+                    <span
+                      className={cn(
+                        'px-1 py-0.5 rounded text-[8px] font-medium',
+                        selectedModelId === model.id
+                          ? 'bg-white/20 text-white'
+                          : 'bg-blue-500/20 text-blue-400'
+                      )}
+                      title="Supports reference image for face consistency"
+                    >
+                      Face
+                    </span>
+                  )}
+                  {model.capabilities?.supportsNSFW && (
+                    <span
+                      className={cn(
+                        'px-1 py-0.5 rounded text-[8px] font-medium',
+                        selectedModelId === model.id
+                          ? 'bg-white/20 text-white'
+                          : 'bg-rose-500/20 text-rose-400'
+                      )}
+                      title="Supports adult content"
+                    >
+                      18+
+                    </span>
+                  )}
+                </div>
                 <div
                   className={cn(
-                    'text-[11px] md:text-xs truncate',
+                    'text-[11px] md:text-xs truncate mt-0.5',
                     selectedModelId === model.id
                       ? 'text-white/80'
                       : 'text-white/40'

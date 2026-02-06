@@ -7,6 +7,7 @@ export { useStudioUrlSync } from './useStudioUrlSync';
 export { useUploadConsent } from './useUploadConsent';
 export { useInfluencersForHook } from './useInfluencersForHook';
 export { useGenerationPolling } from './useGenerationPolling';
+export { useGenerationStatus } from './useGenerationStatus';
 export { useStudioState } from './useStudioState';
 // Extracted action hooks
 export { useImageActions } from './useImageActions';

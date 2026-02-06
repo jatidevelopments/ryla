@@ -41,9 +41,9 @@ export function InfluencerTabs({
   };
 
   return (
-    <Tabs defaultValue="gallery" className="mt-8">
+    <Tabs defaultValue="gallery" className="mt-4">
       {/* Tab Navigation */}
-      <div className="mb-8">
+      <div className="mb-6">
         <TabsList className="inline-flex h-auto bg-[var(--bg-subtle)] border border-[var(--border-default)] rounded-xl p-1 gap-1">
           {/* Gallery Tab */}
           <TabsTrigger

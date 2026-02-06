@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { ZoomIn } from 'lucide-react';
 import { useIsMobile } from '@ryla/ui';
 import { BaseImageLightbox } from '../components/base-image-lightbox';
+import { getNextImageSrc } from '@/lib/utils/get-next-image-src';
 
 interface BaseImagePreviewProps {
   imageUrl: string;
@@ -29,7 +30,7 @@ export function BaseImagePreview({ imageUrl }: BaseImagePreviewProps) {
           <p className="text-white/70 text-sm mb-3">Selected Base Image</p>
           <div className="relative aspect-square max-w-xs mx-auto rounded-xl overflow-hidden">
             <Image
-              src={imageUrl}
+              src={getNextImageSrc(imageUrl)}
               alt="Selected base image"
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -69,8 +70,8 @@ export function BaseImagePreview({ imageUrl }: BaseImagePreviewProps) {
           imageUrl
             ? {
                 id: 'preview',
-                url: imageUrl,
-                thumbnailUrl: imageUrl,
+                url: getNextImageSrc(imageUrl),
+                thumbnailUrl: getNextImageSrc(imageUrl),
               }
             : null
         }

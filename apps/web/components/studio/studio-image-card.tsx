@@ -7,6 +7,99 @@ import { Tooltip } from '../ui/tooltip';
 import { MoreHorizontal } from 'lucide-react';
 import { AspectRatio } from '@ryla/shared';
 
+// Matrix-like background effect for generating state
+function MatrixBackground() {
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  
+  React.useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Set canvas size
+    const resizeCanvas = () => {
+      const parent = canvas.parentElement;
+      if (parent) {
+        canvas.width = parent.clientWidth;
+        canvas.height = parent.clientHeight;
+      }
+    };
+    resizeCanvas();
+    
+    // Characters for matrix effect
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
+    const fontSize = 10;
+    const columns = Math.floor(canvas.width / fontSize);
+    
+    // Array to track y position of each column
+    const drops: number[] = [];
+    for (let i = 0; i < columns; i++) {
+      drops[i] = Math.random() * -100;
+    }
+    
+    // Colors for the effect - purple gradient
+    const colors = [
+      'rgba(168, 85, 247, 0.9)',   // purple-500
+      'rgba(147, 51, 234, 0.8)',   // purple-600
+      'rgba(192, 132, 252, 0.7)',  // purple-400
+      'rgba(139, 92, 246, 0.6)',   // violet-500
+    ];
+    
+    let animationId: number;
+    
+    const draw = () => {
+      // Fade effect
+      ctx.fillStyle = 'rgba(10, 10, 15, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.font = `${fontSize}px monospace`;
+      
+      for (let i = 0; i < drops.length; i++) {
+        // Random character
+        const char = chars[Math.floor(Math.random() * chars.length)];
+        
+        // Random color from palette
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        ctx.fillStyle = color;
+        
+        // Draw character
+        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+        
+        // Reset drop to top when it reaches bottom
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+        
+        drops[i] += 0.5;
+      }
+      
+      animationId = requestAnimationFrame(draw);
+    };
+    
+    draw();
+    
+    // Handle resize
+    const handleResize = () => {
+      resizeCanvas();
+    };
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+  
+  return (
+    <canvas
+      ref={canvasRef}
+      className="absolute inset-0 opacity-60"
+    />
+  );
+}
+
 export interface StudioImage {
   id: string;
   imageUrl: string;
@@ -54,6 +147,28 @@ export function StudioImageCard({
   className,
 }: StudioImageCardProps) {
   const isMobile = useIsMobile();
+  const [elapsedTime, setElapsedTime] = React.useState(0);
+  const startTimeRef = React.useRef<number | null>(null);
+
+  // Timer for generating state
+  React.useEffect(() => {
+    if (image.status === 'generating') {
+      if (!startTimeRef.current) {
+        startTimeRef.current = Date.now();
+      }
+      
+      const interval = setInterval(() => {
+        if (startTimeRef.current) {
+          setElapsedTime((Date.now() - startTimeRef.current) / 1000);
+        }
+      }, 100);
+
+      return () => clearInterval(interval);
+    } else {
+      startTimeRef.current = null;
+      setElapsedTime(0);
+    }
+  }, [image.status]);
 
   const handleSelect = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -107,14 +222,23 @@ export function StudioImageCard({
         className={cn('relative w-full bg-[var(--bg-elevated)]', aspectClass)}
       >
         {image.status === 'generating' ? (
-          // Generating state - animated gradient with progress
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/20 via-transparent to-[var(--pink-500)]/20 animate-pulse" />
+          // Generating state - Matrix effect with timer
+          <div className="absolute inset-0 overflow-hidden bg-[#0a0a0f]">
+            {/* Matrix-like text effect */}
+            <MatrixBackground />
+            
+            {/* Gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-br from-[var(--purple-500)]/10 via-transparent to-[var(--pink-500)]/10" />
+            
+            {/* Dark radial vignette for center focus */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.7)_0%,transparent_70%)]" />
+            
+            {/* Center content */}
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               {/* Circular progress indicator */}
-              <div className="relative mb-3">
+              <div className="relative mb-4">
                 {/* Background circle */}
-                <svg className="h-16 w-16 -rotate-90" viewBox="0 0 64 64">
+                <svg className="h-20 w-20 -rotate-90" viewBox="0 0 64 64">
                   <defs>
                     <linearGradient
                       id={`progressGradient-${image.id}`}
@@ -133,7 +257,7 @@ export function StudioImageCard({
                     r="28"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="4"
+                    strokeWidth="3"
                     className="text-white/10"
                   />
                   {/* Progress arc */}
@@ -143,7 +267,7 @@ export function StudioImageCard({
                     r="28"
                     fill="none"
                     stroke={`url(#progressGradient-${image.id})`}
-                    strokeWidth="4"
+                    strokeWidth="3"
                     strokeLinecap="round"
                     strokeDasharray={`${2 * Math.PI * 28}`}
                     strokeDashoffset={`${
@@ -154,24 +278,13 @@ export function StudioImageCard({
                 </svg>
                 {/* Spinning indicator when starting */}
                 {(image.progress === undefined || image.progress === 0) && (
-                  <div className="absolute inset-0 h-16 w-16 animate-spin rounded-full border-2 border-transparent border-t-[var(--purple-500)]" />
+                  <div className="absolute inset-0 h-20 w-20 animate-spin rounded-full border-2 border-transparent border-t-[var(--purple-500)]" />
                 )}
-                {/* Center icon/percentage */}
+                {/* Center timer/percentage */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                  {image.progress && image.progress > 0 ? (
-                    <span className="text-sm font-bold text-white/80">
-                      {Math.round(image.progress)}%
-                    </span>
-                  ) : (
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="currentColor"
-                      className="h-6 w-6 text-[var(--purple-400)]"
-                    >
-                      <path d="M9 4.5a.75.75 0 01.721.544l.813 2.846a3.75 3.75 0 002.576 2.576l2.846.813a.75.75 0 010 1.442l-2.846.813a3.75 3.75 0 00-2.576 2.576l-.813 2.846a.75.75 0 01-1.442 0l-.813-2.846a3.75 3.75 0 00-2.576-2.576l-2.846-.813a.75.75 0 010-1.442l2.846-.813A3.75 3.75 0 007.466 7.89l.813-2.846A.75.75 0 019 4.5z" />
-                    </svg>
-                  )}
+                  <span className="text-lg font-bold text-white tabular-nums">
+                    {elapsedTime.toFixed(1)}s
+                  </span>
                 </div>
               </div>
               <span className="text-sm font-medium text-white/60">

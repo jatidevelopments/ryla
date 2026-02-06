@@ -152,7 +152,8 @@ export function useWizardGeneration({
           handle,
           nsfwEnabled: form.nsfwEnabled,
         },
-        loraEnabled: form.loraTrainingEnabled,
+        // Note: LoRA training setting (form.loraTrainingEnabled) stored in wizard state,
+        // not persisted to character record. Training triggered separately if enabled.
       });
 
       const newInfluencer: AIInfluencer = {

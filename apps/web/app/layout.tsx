@@ -7,6 +7,7 @@ import { StructuredData } from '../components/seo/StructuredData';
 import { ConsoleLogBufferInit } from '../components/bug-report/ConsoleLogBufferInit';
 import { TRPCProvider } from '../lib/trpc';
 import { AuthProvider } from '../lib/auth-context';
+import { SocketProvider } from '../lib/socket-context';
 
 // DM Sans - Clean, modern, geometric sans-serif (unified with landing)
 const dmSans = DM_Sans({
@@ -134,7 +135,9 @@ export default function RootLayout({
         <ConsoleLogBufferInit />
         <TRPCProvider>
           <AuthProvider>
-            <AppShell>{children}</AppShell>
+            <SocketProvider>
+              <AppShell>{children}</AppShell>
+            </SocketProvider>
           </AuthProvider>
         </TRPCProvider>
       </body>

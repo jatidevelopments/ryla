@@ -55,13 +55,29 @@ export function TemplateDetailModal({
     { enabled: isOpen && !!templateId && !isSet }
   );
 
-  const { data: setData, isLoading: isSetLoading } = trpc.templateSets.getById.useQuery(
+  const { data: setData, isLoading: isSetLoading } = trpc.templateSets.getByIdWithMembers.useQuery(
     { id: templateId! },
     { enabled: isOpen && !!templateId && isSet }
   );
 
   const data = isSet ? setData?.set : templateData?.template;
   const loading = isSet ? isSetLoading : isLoading;
+
+  // Member thumbnails for sets (how the templates in the set combine visually)
+  const memberThumbnails = React.useMemo(() => {
+    if (!isSet || !setData?.set || !('members' in setData.set)) return [];
+    const members = (setData.set as { members?: Array<{ template?: { thumbnailUrl?: string; previewImageUrl?: string } }> }).members ?? [];
+    return members
+      .map((m) => m.template?.thumbnailUrl || m.template?.previewImageUrl)
+      .filter(Boolean) as string[];
+  }, [isSet, setData?.set]);
+
+  // Full list of member templates for the "Templates in this set" grid
+  type SetMember = { template?: { id: string; name: string; thumbnailUrl?: string; previewImageUrl?: string } };
+  const setMembers = React.useMemo((): SetMember[] => {
+    if (!isSet || !setData?.set || !('members' in setData.set)) return [];
+    return (setData.set as { members?: SetMember[] }).members ?? [];
+  }, [isSet, setData?.set]);
 
   // Like mutations
   const likeMutation = trpc.templateLikes.like.useMutation();
@@ -147,14 +163,30 @@ export function TemplateDetailModal({
           </div>
         ) : data ? (
           <>
-            {/* Preview Image */}
+            {/* Preview: for sets show member thumbnails grid, else single image */}
             <div className="relative aspect-video w-full overflow-hidden bg-[var(--bg-subtle)]">
-              <Image
-                src={data.previewImageUrl || data.thumbnailUrl || '/placeholder.png'}
-                alt={data.name}
-                fill
-                className="object-cover"
-              />
+              {isSet && memberThumbnails.length > 0 ? (
+                <div className="absolute inset-0 grid grid-cols-2 grid-rows-2 gap-0.5 p-1">
+                  {memberThumbnails.slice(0, 4).map((thumb, idx) => (
+                    <div key={idx} className="relative min-h-0 overflow-hidden bg-[var(--bg-subtle)]">
+                      <Image
+                        src={thumb}
+                        alt={`${data.name} template ${idx + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 50vw, 25vw"
+                      />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <Image
+                  src={data.previewImageUrl || data.thumbnailUrl || '/placeholder.png'}
+                  alt={data.name}
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
 
             {/* Content */}
@@ -228,6 +260,47 @@ export function TemplateDetailModal({
                   </div>
                 )}
               </div>
+
+              {/* Templates in this set - grid of all member templates */}
+              {isSet && setMembers.length > 0 && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-semibold text-[var(--text-primary)]">
+                    Templates in this set
+                  </h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {setMembers.map((member, idx) => {
+                      const t = member.template;
+                      if (!t) return null;
+                      const thumb = t.thumbnailUrl || t.previewImageUrl;
+                      return (
+                        <div
+                          key={t.id}
+                          className="rounded-lg overflow-hidden bg-[var(--bg-subtle)] border border-[var(--border-default)]"
+                        >
+                          <div className="relative aspect-square">
+                            {thumb ? (
+                              <Image
+                                src={thumb}
+                                alt={t.name}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 640px) 50vw, 25vw"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <ImageIcon className="h-8 w-8 text-[var(--text-tertiary)]" />
+                              </div>
+                            )}
+                          </div>
+                          <p className="p-2 text-xs font-medium text-[var(--text-secondary)] line-clamp-2">
+                            {t.name}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Apply button */}
               <button

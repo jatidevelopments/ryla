@@ -6,7 +6,7 @@ import type { GenerationSettings } from '../../../components/studio/generation';
 import type { OutfitComposition } from '@ryla/shared';
 import { generateStudioImages } from '../../../lib/api/studio';
 import { DEFAULT_ASPECT_RATIO, SUPPORTED_ASPECT_RATIOS } from '../constants';
-import { useGenerationPolling } from './useGenerationPolling';
+import { useGenerationStatus } from './useGenerationStatus';
 import { createPlaceholderImages } from '../utils/placeholder-images';
 
 interface Influencer {
@@ -44,12 +44,18 @@ export function useGenerationActions({
   utils,
   refetchCredits,
 }: UseGenerationActionsOptions) {
-  const { pollGenerationResults } = useGenerationPolling({
+  // Use hybrid WebSocket + polling for generation status
+  const { pollGenerationResults, isUsingWebSocket } = useGenerationStatus({
     setActiveGenerations,
     updateImage,
     replaceImage,
     utils,
   });
+  
+  // Log connection mode for debugging
+  React.useEffect(() => {
+    console.log(`[Studio] Generation status mode: ${isUsingWebSocket ? 'WebSocket' : 'Polling'}`);
+  }, [isUsingWebSocket]);
 
   // Handle generate - non-blocking with optimistic updates
   const handleGenerate = React.useCallback(

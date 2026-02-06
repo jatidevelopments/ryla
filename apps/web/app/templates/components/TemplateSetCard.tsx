@@ -237,12 +237,12 @@ export function TemplateSetCard({
             className={cn(
               'flex items-center gap-1 px-1.5 py-1 text-[10px] font-medium rounded-md transition-all flex-shrink-0',
               isLiked
-                ? 'text-pink-400 bg-pink-500/10'
+                ? 'text-pink-500 bg-pink-500/15'
                 : 'text-[var(--text-tertiary)] hover:text-pink-400 hover:bg-pink-500/10'
             )}
           >
             <Heart
-              className={cn('h-3 w-3', isLiked && 'fill-current')}
+              className={cn('h-3 w-3', isLiked && 'fill-pink-500 text-pink-500')}
             />
             <span className="hidden sm:inline">{likesCount}</span>
           </button>

@@ -48,8 +48,8 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
   const tickingRef = React.useRef(false);
 
   // Calculate left offset for main content based on sidebar state (desktop only)
-  // Matches Tailwind: w-64 = 256px, w-20 = 80px
-  const sidebarWidth = isMobile ? 0 : open ? 256 : 80;
+  // Matches sidebar width + margins (left: 12px, sidebar: 256px/80px, gap: 12px)
+  const sidebarWidth = isMobile ? 0 : open ? 256 + 24 : 80 + 24; // width + (left margin + right gap)
 
   // Scroll detection for mobile header hide/show
   React.useEffect(() => {
@@ -100,13 +100,10 @@ function AppShellContent({ children }: { children: React.ReactNode }) {
           width: isMobile ? '100%' : `calc(100% - ${sidebarWidth}px)`,
         }}
       >
-        {/* Desktop Header */}
-        <header className="sticky top-0 z-30 hidden md:flex h-16 items-center justify-between border-b border-white/5 bg-[#121214]/90 backdrop-blur-md px-6">
-          {/* Breadcrumb or page title could go here */}
-          <div />
-
-          {/* Right side - Credits & Actions */}
-          <div className="flex items-center gap-4">
+        {/* Desktop Header with glassmorphism - floating with rounded corners */}
+        <header className="sticky top-0 z-30 hidden md:flex h-16 items-center justify-end px-3 pt-3 pr-3">
+          {/* Header content with rounded corners and natural width, aligned right */}
+          <div className="flex items-center gap-4 rounded-2xl border border-white/[0.08] bg-[#121214]/70 backdrop-blur-2xl backdrop-saturate-150 px-4 py-2 shadow-[0_4px_16px_-2px_rgba(0,0,0,0.2)]">
             {/* Credits Badge - Real balance from API */}
             <CreditsBadge size="md" />
 

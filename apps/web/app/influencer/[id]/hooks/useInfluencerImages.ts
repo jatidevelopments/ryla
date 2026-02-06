@@ -59,18 +59,21 @@ export function useInfluencerImages({
       setIsLoadingImages(true);
       const rows = await getCharacterImages(currentInfluencerId);
       // Convert ApiImageRow[] to Post[]
-      const converted: Post[] = rows.map((row) => ({
-        id: row.id,
-        influencerId: row.characterId || currentInfluencerId,
-        imageUrl: row.s3Url || '',
-        caption: row.prompt || '',
-        isLiked: Boolean(row.liked),
-        scene: row.scene || undefined,
-        environment: row.environment || undefined,
-        outfit: row.outfit || undefined,
-        aspectRatio: (row.aspectRatio || '9:16') as '1:1' | '9:16' | '2:3',
-        createdAt: row.createdAt || new Date().toISOString(),
-      }));
+      // Filter out failed images before converting
+      const converted: Post[] = rows
+        .filter((row) => row.status !== 'failed')
+        .map((row) => ({
+          id: row.id,
+          influencerId: row.characterId || currentInfluencerId,
+          imageUrl: row.s3Url || '',
+          caption: row.prompt || '',
+          isLiked: Boolean(row.liked),
+          scene: row.scene || undefined,
+          environment: row.environment || undefined,
+          outfit: row.outfit || undefined,
+          aspectRatio: (row.aspectRatio || '9:16') as '1:1' | '9:16' | '2:3',
+          createdAt: row.createdAt || new Date().toISOString(),
+        }));
       
       // Only update if still loading for the same influencer
       if (influencerIdRef.current === currentInfluencerId) {

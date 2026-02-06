@@ -29,13 +29,24 @@ export interface AIModel {
   isUnlimited?: boolean;
   isNew?: boolean;
   isPro?: boolean;
+  /** Model capability flags for UI display */
+  capabilities?: {
+    /** Supports LoRA-based character consistency */
+    supportsLoRA: boolean;
+    /** Supports reference image for face consistency */
+    supportsReferenceImage: boolean;
+    /** Supports NSFW content generation */
+    supportsNSFW: boolean;
+  };
 }
 
 // Import model registry helpers
 import {
   getAllModels,
   getModelsForStudioMode,
+  getModelCapabilities,
   type ModelDefinition,
+  type StudioModelFilterOptions,
 } from '@ryla/shared';
 
 export interface VisualStyle {
@@ -271,6 +282,7 @@ export const QUALITY_OPTIONS: QualityOption[] = [
  * Convert ModelDefinition to AIModel for UI compatibility
  */
 function modelDefinitionToAIModel(model: ModelDefinition): AIModel {
+  const capabilities = getModelCapabilities(model.uiId);
   return {
     id: model.uiId,
     name: model.name,
@@ -278,6 +290,11 @@ function modelDefinitionToAIModel(model: ModelDefinition): AIModel {
     icon: model.icon as AIModel['icon'],
     isUnlimited: model.isUnlimited,
     isPro: model.isPro,
+    capabilities: {
+      supportsLoRA: capabilities.supportsLoRA,
+      supportsReferenceImage: capabilities.supportsReferenceImage,
+      supportsNSFW: capabilities.supportsNSFW,
+    },
   };
 }
 
@@ -289,16 +306,47 @@ export function getAllAIModels(): AIModel[] {
 }
 
 /**
+ * Model filtering options for Studio UI
+ */
+export interface StudioModelOptions {
+  /** Filter by NSFW support */
+  nsfwEnabled?: boolean;
+  /** Only show MVP models (default: true) */
+  mvpOnly?: boolean;
+  /** Only show models that support LoRA */
+  requiresLoRA?: boolean;
+  /** Only show models that support reference images */
+  requiresReferenceImage?: boolean;
+}
+
+/**
  * Get models filtered by Studio mode
  */
 export function getAIModelsForMode(
   mode: StudioMode,
-  options?: { nsfwEnabled?: boolean; mvpOnly?: boolean }
+  options?: StudioModelOptions
 ): AIModel[] {
-  return getModelsForStudioMode(mode, {
+  const filterOptions: StudioModelFilterOptions = {
     nsfwEnabled: options?.nsfwEnabled,
     mvpOnly: options?.mvpOnly ?? true, // Default to MVP only for minimal selection
-  }).map(modelDefinitionToAIModel);
+    requiresLoRA: options?.requiresLoRA,
+    requiresReferenceImage: options?.requiresReferenceImage,
+  };
+  return getModelsForStudioMode(mode, filterOptions).map(modelDefinitionToAIModel);
+}
+
+/**
+ * Get models that support LoRA for character consistency
+ */
+export function getLoRAEnabledModels(mode: StudioMode): AIModel[] {
+  return getAIModelsForMode(mode, { requiresLoRA: true, mvpOnly: false });
+}
+
+/**
+ * Get models that support reference images for face consistency
+ */
+export function getReferenceImageModels(mode: StudioMode): AIModel[] {
+  return getAIModelsForMode(mode, { requiresReferenceImage: true, mvpOnly: false });
 }
 
 /**

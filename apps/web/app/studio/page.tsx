@@ -55,7 +55,7 @@ function StudioContent() {
     <div className="flex flex-col h-[calc(100vh-56px)] md:h-[calc(100vh-64px)] overflow-hidden bg-[var(--bg-base)] relative">
       <StudioBackground />
 
-      {/* Studio Header - Influencer Tabs (Full Width) */}
+      {/* Studio Header - Influencer Tabs + Filters (Full Width) */}
       <FadeInUp>
         <StudioHeader
           influencers={state.influencerTabs}
@@ -65,12 +65,6 @@ function StudioContent() {
           onSearchChange={state.setSearchQuery}
           totalCount={state.totalImageCount}
           mode={state.mode}
-        />
-      </FadeInUp>
-
-      {/* Toolbar - Filters and View Options (Full Width) */}
-      <FadeInUp delay={50}>
-        <StudioToolbar
           viewMode={state.viewMode}
           onViewModeChange={state.setViewMode}
           aspectRatios={state.aspectRatios}
@@ -83,9 +77,29 @@ function StudioContent() {
           onAdultChange={state.setAdult}
           sortBy={state.sortBy}
           onSortByChange={state.setSortBy}
-          selectedCount={state.selectedImage ? 1 : 0}
-          onClearSelection={() => state.setSelectedImage(null)}
         />
+      </FadeInUp>
+
+      {/* Toolbar - Mobile Only (Filters and View Options) */}
+      <FadeInUp delay={50}>
+        <div className="md:hidden">
+          <StudioToolbar
+            viewMode={state.viewMode}
+            onViewModeChange={state.setViewMode}
+            aspectRatios={state.aspectRatios}
+            onAspectRatioChange={state.setAspectRatios}
+            status={state.status}
+            onStatusChange={state.setStatus}
+            liked={state.liked}
+            onLikedChange={state.setLiked}
+            adult={state.adult}
+            onAdultChange={state.setAdult}
+            sortBy={state.sortBy}
+            onSortByChange={state.setSortBy}
+            selectedCount={state.selectedImage ? 1 : 0}
+            onClearSelection={() => state.setSelectedImage(null)}
+          />
+        </div>
       </FadeInUp>
 
       {/* Main Integrated Layout - Flex Row (Everything here is pushed by side panel) */}

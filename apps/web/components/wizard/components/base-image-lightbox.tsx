@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { X } from 'lucide-react';
 import { cn, useIsMobile } from '@ryla/ui';
 import type { GeneratedImage } from '@ryla/business';
+import { getNextImageSrc } from '@/lib/utils/get-next-image-src';
 
 interface BaseImageLightboxProps {
   image: GeneratedImage | null;
@@ -49,7 +50,7 @@ export function BaseImageLightbox({
       >
         <div className="relative w-full h-full">
           <Image
-            src={image.url}
+            src={getNextImageSrc(image.url)}
             alt={`Base image ${image.model ? `- ${image.model}` : ''}`}
             fill
             className="object-contain animate-in zoom-in-95 duration-300"

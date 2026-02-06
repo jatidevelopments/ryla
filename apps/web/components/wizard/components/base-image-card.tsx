@@ -3,6 +3,7 @@
 import * as React from 'react';
 import Image from 'next/image';
 import { ZoomIn, RefreshCw, AlertCircle } from 'lucide-react';
+import { getNextImageSrc } from '@/lib/utils/get-next-image-src';
 import { cn, useIsMobile } from '@ryla/ui';
 import type { GeneratedImage } from '@ryla/business';
 
@@ -122,13 +123,21 @@ export function BaseImageCard({
           </div>
         ) : (
           <>
-            {image.url && (image.url.startsWith('http') || image.url.startsWith('data:')) ? (
+            {image.url &&
+            image.url !== 'loading' &&
+            image.url !== 'skeleton' &&
+            image.url !== 'failed' &&
+            image.url !== 'error' ? (
               <Image
-                src={image.url}
+                src={getNextImageSrc(image.url)}
                 alt={`Base image ${index + 1}`}
                 fill
                 className="object-cover transition-transform duration-300 group-hover:scale-105"
               />
+            ) : image.url === 'failed' || image.url === 'error' ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-white/5">
+                <p className="text-white/40 text-xs">Failed to load</p>
+              </div>
             ) : (
               <div className="absolute inset-0 flex items-center justify-center bg-white/5">
                 <p className="text-white/40 text-xs">Invalid image URL</p>

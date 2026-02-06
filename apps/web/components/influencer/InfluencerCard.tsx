@@ -3,7 +3,7 @@
 import * as React from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { cn } from '@ryla/ui';
+import { cn, CometCard } from '@ryla/ui';
 import type { AIInfluencer } from '@ryla/shared';
 import { Heart, Sparkles, LayoutGrid, Images } from 'lucide-react';
 
@@ -26,11 +26,12 @@ export function InfluencerCard({ influencer, className }: InfluencerCardProps) {
   const hasValidImage = influencer.avatar && !imageError;
 
   return (
-    <Link
-      href={`/influencer/${influencer.id}`}
-      className={cn('group block focus-visible:outline-none', className)}
-    >
-      <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-default)] transition-all duration-300 ease-out group-hover:border-[var(--purple-500)]/40 group-hover:shadow-[0_0_40px_rgba(168,85,247,0.15)] group-hover:scale-[1.02] group-active:scale-[0.98] group-focus-visible:ring-2 group-focus-visible:ring-[var(--purple-500)] group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-[var(--bg-primary)]">
+    <CometCard className={className}>
+      <Link
+        href={`/influencer/${influencer.id}`}
+        className="group block focus-visible:outline-none"
+      >
+        <div className="relative overflow-hidden rounded-2xl bg-[var(--bg-elevated)] border border-[var(--border-default)] transition-all duration-300 ease-out group-hover:border-[var(--purple-500)]/40 group-hover:shadow-[0_0_40px_rgba(168,85,247,0.15)] group-hover:scale-[1.02] group-active:scale-[0.98] group-focus-visible:ring-2 group-focus-visible:ring-[var(--purple-500)] group-focus-visible:ring-offset-2 group-focus-visible:ring-offset-[var(--bg-primary)]">
         {/* Image Container */}
         <div className="relative aspect-[4/5] overflow-hidden">
           {hasValidImage ? (
@@ -134,6 +135,7 @@ export function InfluencerCard({ influencer, className }: InfluencerCardProps) {
           <div className="absolute -inset-px rounded-2xl bg-gradient-to-r from-[var(--purple-500)]/20 via-transparent to-[var(--pink-500)]/20" />
         </div>
       </div>
-    </Link>
+      </Link>
+    </CometCard>
   );
 }

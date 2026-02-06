@@ -23,3 +23,6 @@ export {
   useMyLoras,
   useStartLoraTraining,
 } from './use-lora-training';
+
+// Socket hooks
+export { useGenerationSocket, useSingleGenerationSocket } from './use-generation-socket';

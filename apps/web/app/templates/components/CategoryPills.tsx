@@ -65,7 +65,7 @@ export function CategoryPills({
               'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-500)]',
               'flex-shrink-0 whitespace-nowrap',
               selectedSlug === null
-                ? 'text-white bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] shadow-lg shadow-purple-500/25'
+                ? 'text-white bg-[var(--purple-500)] shadow-lg shadow-purple-500/25'
                 : 'text-[var(--text-secondary)] bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]'
             )}
           >
@@ -85,7 +85,7 @@ export function CategoryPills({
                   'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-500)]',
                   'flex-shrink-0 whitespace-nowrap',
                   isActive
-                    ? 'text-white bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] shadow-lg shadow-purple-500/25'
+                    ? 'text-white bg-[var(--purple-500)] shadow-lg shadow-purple-500/25'
                     : 'text-[var(--text-secondary)] bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]'
                 )}
               >
@@ -136,8 +136,8 @@ export function CategoryPills({
         </div>
       </div>
 
-      {/* Desktop: Clean wrapped layout */}
-      <div className="hidden md:flex items-center gap-2 flex-wrap">
+      {/* Desktop: Clean wrapped layout - no container (parent wraps) */}
+      <div className="flex items-center gap-2 flex-wrap">
         {/* All pill */}
         <button
           onClick={() => handleCategoryClick(null)}
@@ -145,8 +145,8 @@ export function CategoryPills({
             'flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-500)]',
             selectedSlug === null
-              ? 'text-white bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] shadow-lg shadow-purple-500/25'
-              : 'text-[var(--text-secondary)] bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]'
+              ? 'text-white bg-[var(--purple-500)] shadow-lg shadow-purple-500/25'
+              : 'text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]'
           )}
         >
           All
@@ -164,8 +164,8 @@ export function CategoryPills({
                 'flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-xl transition-all duration-200',
                 'focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--purple-500)]',
                 isActive
-                  ? 'text-white bg-gradient-to-r from-[var(--purple-500)] to-[var(--pink-500)] shadow-lg shadow-purple-500/25'
-                  : 'text-[var(--text-secondary)] bg-[var(--bg-subtle)] border border-[var(--border-default)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]'
+                  ? 'text-white bg-[var(--purple-500)] shadow-lg shadow-purple-500/25'
+                  : 'text-[var(--text-secondary)] hover:bg-[var(--bg-elevated)] hover:text-[var(--text-primary)]'
               )}
             >
               {category.icon && <span className="text-base">{category.icon}</span>}

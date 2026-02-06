@@ -4,6 +4,7 @@ import * as React from 'react';
 import Image from 'next/image';
 import { cn } from '@ryla/ui';
 import type { ProfilePictureImage } from '@ryla/business';
+import { getNextImageSrc } from '@/lib/utils/get-next-image-src';
 
 interface ProfilePictureCardProps {
   image: ProfilePictureImage;
@@ -69,7 +70,7 @@ export function ProfilePictureCard({
         ) : (
           <>
             <Image
-              src={image.url}
+              src={getNextImageSrc(image.url)}
               alt={image.positionName}
               fill
               className="object-cover transition-transform duration-300 group-hover:scale-105"

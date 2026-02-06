@@ -15,10 +15,11 @@ export function useAuthFlow() {
   const { checkEmail, isChecking, error: emailCheckError, clearError } = useEmailCheck();
   const utils = trpc.useUtils();
 
-  // Get initial mode from URL or default to 'email'
-  const initialMode = (searchParams.get('mode') as AuthMode) || 'email';
-  const [mode, setMode] = useState<AuthMode>(
-    initialMode === 'login' || initialMode === 'register' ? initialMode : 'email'
+  // Flow: always show email first → check if account exists → then password (login) or registration.
+  // Same behaviour on /auth, /auth?mode=login and dashboard auth modal.
+  const urlMode = searchParams.get('mode') as AuthMode | null;
+  const [mode, setMode] = useState<AuthMode>(() =>
+    urlMode === 'forgot-password' ? 'forgot-password' : 'email'
   );
   const [email, setEmail] = useState('');
   const [emailExists, setEmailExists] = useState<boolean | null>(null);
@@ -52,17 +53,8 @@ export function useAuthFlow() {
     }
   }, [authLoading, isAuthenticatedContext, router, searchParams]);
 
-  // Handle URL mode parameter
-  useEffect(() => {
-    const urlMode = searchParams.get('mode');
-    if (urlMode === 'login' && email) {
-      setMode('login');
-      setEmailExists(true);
-    } else if (urlMode === 'register' && email) {
-      setMode('register');
-      setEmailExists(false);
-    }
-  }, [searchParams, email]);
+  // Mode is only set after user clicks Continue (handleEmailCheck). Do not sync from URL
+  // when email changes, or typing one character (e.g. "e") would jump to password step.
 
   // Validate email format
   const isValidEmail = useCallback((email: string): boolean => {

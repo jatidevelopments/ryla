@@ -36,7 +36,7 @@ export function StudioMainContent({
   return (
     <div className="relative flex flex-1 h-full overflow-hidden">
       {/* Gallery */}
-      <div className="flex-1 overflow-y-auto p-3 lg:p-4 transition-all duration-300 ease-in-out">
+      <div className="flex-1 overflow-y-auto px-3 py-3 transition-all duration-300 ease-in-out">
         <FadeInUp delay={100}>
           <StudioGallery
             images={filteredImages}

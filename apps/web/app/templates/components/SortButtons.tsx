@@ -30,8 +30,8 @@ export function SortButtons({ value, onChange }: SortButtonsProps) {
 
   return (
     <>
-      {/* Desktop: Horizontal buttons */}
-      <div className="hidden md:flex items-center gap-1 p-1 bg-[var(--bg-subtle)] border border-[var(--border-default)] rounded-xl">
+      {/* Desktop: Horizontal buttons - no background wrapper */}
+      <div className="hidden md:flex items-center gap-1">
         {sortOptions.map((option) => {
           const isActive = value === option.value;
 

@@ -58,6 +58,19 @@ export function useTemplateFilters() {
   const [searchQuery, setSearchQuery] = useState(searchParams.get('q') || '');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [sortBy, setSortBy] = useState<SortBy>('newest'); // Legacy
+  const [likedOnly, setLikedOnly] = useState(searchParams.get('liked') === 'true');
+  const [selectedContentTypes, setSelectedContentTypes] = useState<ContentType[]>(() => {
+    const typesParam = searchParams.get('types');
+    if (typesParam) {
+      const parsed = typesParam.split(',').filter(Boolean) as ContentType[];
+      return parsed.length > 0 ? parsed : ['all'];
+    }
+    const contentTypeParam = searchParams.get('contentType') as ContentType | null;
+    if (contentTypeParam && contentTypeParam !== 'all') {
+      return [contentTypeParam];
+    }
+    return ['all'];
+  });
 
   // Sync URL with filter state
   const updateURL = useCallback((newFilters: Partial<TemplateFilters>, newSearch?: string) => {
@@ -108,6 +121,20 @@ export function useTemplateFilters() {
     const queryString = params.toString();
     router.replace(`${pathname}${queryString ? `?${queryString}` : ''}`, { scroll: false });
   }, [router, pathname, searchParams]);
+  
+  // Toggle liked filter
+  const toggleLikedOnly = useCallback(() => {
+    const newValue = !likedOnly;
+    setLikedOnly(newValue);
+    const params = new URLSearchParams(searchParams.toString());
+    if (newValue) {
+      params.set('liked', 'true');
+    } else {
+      params.delete('liked');
+    }
+    const queryString = params.toString();
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  }, [likedOnly, router, pathname, searchParams]);
 
   // EP-047: New filter setters
   const setTabType = useCallback((value: TabType) => {
@@ -122,8 +149,32 @@ export function useTemplateFilters() {
 
   const setContentType = useCallback((value: ContentType) => {
     setFilters(prev => ({ ...prev, contentType: value }));
+    setSelectedContentTypes([value]);
     updateURL({ contentType: value });
   }, [updateURL]);
+  
+  const setMultipleContentTypes = useCallback((types: ContentType[]) => {
+    const normalized = types.length === 0 || (types.length === 1 && types[0] === 'all') ? ['all'] : types.filter(t => t !== 'all');
+    setSelectedContentTypes(normalized);
+    setFilters(prev => ({
+      ...prev,
+      contentType: normalized.length === 1 ? normalized[0] : 'all',
+    }));
+    const params = new URLSearchParams(searchParams.toString());
+    if (normalized.length === 0 || (normalized.length === 1 && normalized[0] === 'all')) {
+      params.delete('types');
+      params.delete('contentType');
+    } else {
+      params.set('types', normalized.join(','));
+      if (normalized.length === 1) {
+        params.set('contentType', normalized[0]);
+      } else {
+        params.delete('contentType');
+      }
+    }
+    const queryString = params.toString();
+    router.replace(`${pathname}${queryString ? `?${queryString}` : ''}`, { scroll: false });
+  }, [router, pathname, searchParams]);
 
   const setCategorySlug = useCallback((value: string | null) => {
     setFilters(prev => ({ ...prev, categorySlug: value }));
@@ -154,6 +205,8 @@ export function useTemplateFilters() {
       aspectRatio: undefined,
       nsfw: undefined,
     });
+    setSelectedContentTypes(['all']);
+    setLikedOnly(false);
     setSearchQuery('');
     router.replace(pathname, { scroll: false });
   }, [router, pathname]);
@@ -172,10 +225,14 @@ export function useTemplateFilters() {
     sortOption: filters.sortOption,
     contentType: filters.contentType,
     categorySlug: filters.categorySlug,
+    likedOnly,
+    selectedContentTypes,
     setTabType,
     setSortOption,
     setContentType,
+    setMultipleContentTypes,
     setCategorySlug,
+    toggleLikedOnly,
     
     // Legacy exports for backwards compatibility
     searchQuery,
