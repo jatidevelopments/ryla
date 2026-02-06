@@ -23,6 +23,7 @@ import { OutfitPresetsModule } from './outfit-presets/outfit-presets.module';
 import { VoiceTranscriptionModule } from './voice-transcription/voice-transcription.module';
 import { PaymentsModule } from './payments/payments.module';
 import { FunnelModule } from './funnel/funnel.module';
+import { PlaygroundModule } from './playground/playground.module';
 
 @Module({
   imports: [
@@ -55,6 +56,7 @@ import { FunnelModule } from './funnel/funnel.module';
     VoiceTranscriptionModule,
     PaymentsModule,
     FunnelModule,
+    PlaygroundModule,
     ThrottlerConfigModule,
   ],
   providers: [

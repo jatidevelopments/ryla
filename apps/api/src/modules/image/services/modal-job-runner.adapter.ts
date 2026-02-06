@@ -324,6 +324,186 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
     return this.runner!.submitVideoFaceSwap(input);
   }
 
+  // ============================================================
+  // Video I2V Endpoints (WAN 2.6 and WAN 2.2)
+  // ============================================================
+
+  /**
+   * Generate video from image using WAN 2.6 I2V (best quality)
+   * Uses native WanImageToVideo node with full-precision 1.3B model
+   */
+  async submitWan26I2V(input: {
+    prompt: string;
+    referenceImageUrl: string;
+    negativePrompt?: string;
+    width?: number;
+    height?: number;
+    length?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateWan26I2V({
+      prompt: input.prompt,
+      reference_image: input.referenceImageUrl,
+      negative_prompt: input.negativePrompt,
+      width: input.width ?? 832,
+      height: input.height ?? 480,
+      length: input.length ?? 33,
+      fps: input.fps ?? 16,
+      steps: input.steps ?? 30,
+      cfg: input.cfg ?? 6.0,
+      seed: input.seed,
+    });
+  }
+
+  /**
+   * Generate video from image + face swap using WAN 2.6
+   * Two-phase: I2V → delegate face swap to Qwen app
+   */
+  async submitWan26I2VFaceSwap(input: {
+    prompt: string;
+    referenceImageUrl: string;
+    faceImageUrl: string;
+    negativePrompt?: string;
+    width?: number;
+    height?: number;
+    length?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    restoreFace?: boolean;
+    seed?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateWan26I2VFaceSwap({
+      prompt: input.prompt,
+      reference_image: input.referenceImageUrl,
+      face_image: input.faceImageUrl,
+      negative_prompt: input.negativePrompt,
+      width: input.width ?? 832,
+      height: input.height ?? 480,
+      length: input.length ?? 33,
+      fps: input.fps ?? 16,
+      steps: input.steps ?? 30,
+      cfg: input.cfg ?? 6.0,
+      restore_face: input.restoreFace ?? true,
+      seed: input.seed,
+    });
+  }
+
+  /**
+   * Generate video from image using WAN 2.2 I2V (14B GGUF model)
+   * Slower but different visual style. Cold start takes 2-3 minutes.
+   */
+  async submitWan22I2V(input: {
+    prompt: string;
+    sourceImageUrl: string;
+    negativePrompt?: string;
+    width?: number;
+    height?: number;
+    numFrames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateWan22I2V({
+      prompt: input.prompt,
+      source_image: input.sourceImageUrl,
+      negative_prompt: input.negativePrompt,
+      width: input.width ?? 832,
+      height: input.height ?? 480,
+      num_frames: input.numFrames ?? 33,
+      fps: input.fps ?? 16,
+      steps: input.steps ?? 30,
+      cfg: input.cfg ?? 5.0,
+      seed: input.seed,
+    });
+  }
+
+  /**
+   * Generate video from image + face swap using WAN 2.2
+   * Two-phase: I2V → delegate face swap to Qwen app
+   * Requires warm container - cold start may timeout
+   */
+  async submitWan22I2VFaceSwap(input: {
+    prompt: string;
+    sourceImageUrl: string;
+    faceImageUrl: string;
+    negativePrompt?: string;
+    width?: number;
+    height?: number;
+    numFrames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    restoreFace?: boolean;
+    seed?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateWan22I2VFaceSwap({
+      prompt: input.prompt,
+      source_image: input.sourceImageUrl,
+      face_image: input.faceImageUrl,
+      negative_prompt: input.negativePrompt,
+      width: input.width ?? 832,
+      height: input.height ?? 480,
+      num_frames: input.numFrames ?? 33,
+      fps: input.fps ?? 16,
+      steps: input.steps ?? 30,
+      cfg: input.cfg ?? 5.0,
+      restore_face: input.restoreFace ?? true,
+      seed: input.seed,
+    });
+  }
+
+  // ============================================================
+  // Face Swap Endpoints
+  // ============================================================
+
+  /**
+   * Single image face swap using ReActor
+   */
+  async submitImageFaceSwap(input: {
+    sourceImageUrl: string;
+    referenceImageUrl: string;
+    restoreFace?: boolean;
+    faceRestoreVisibility?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateImageFaceSwap({
+      source_image: input.sourceImageUrl,
+      reference_image: input.referenceImageUrl,
+      restore_face: input.restoreFace ?? true,
+      face_restore_visibility: input.faceRestoreVisibility ?? 1.0,
+    });
+  }
+
+  /**
+   * Batch video face swap (frame by frame)
+   * Supports MP4 and animated WebP input
+   */
+  async submitBatchVideoFaceSwap(input: {
+    sourceVideoUrl: string;
+    referenceImageUrl: string;
+    fps?: number;
+    restoreFace?: boolean;
+    faceRestoreVisibility?: number;
+  }): Promise<string> {
+    this.ensureInitialized();
+    return this.runner!.generateBatchVideoFaceSwap({
+      source_video: input.sourceVideoUrl,
+      reference_image: input.referenceImageUrl,
+      fps: input.fps ?? 16,
+      restore_face: input.restoreFace ?? true,
+      face_restore_visibility: input.faceRestoreVisibility ?? 1.0,
+    });
+  }
+
   /**
    * Health check - verify endpoint is available
    */

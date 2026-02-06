@@ -52,17 +52,16 @@ import chalk from 'chalk';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { IoAdapter } from '@nestjs/platform-socket.io';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as bodyParser from 'body-parser';
 
 const cookieParser = require('cookie-parser');
 
 const basicAuth = require('express-basic-auth');
-// import * as socketIo from 'socket.io';
 
 import { SwaggerHelper } from './common/helpers/swagger.helper';
 import { LoggingInterceptor } from './common/interceptors/logger.interceptor';
+import { RedisIoAdapter } from './common/adapters/redis-io.adapter';
 import { AppModule } from './modules/app.module';
 import { runMigrations } from './database/run-migrations';
 import { RedisService } from './modules/redis/services/redis.service';
@@ -114,9 +113,10 @@ async function bootstrap() {
       );
     }
 
-    // Configure Socket.IO adapter with CORS
-    const ioAdapter = new IoAdapter(app);
-    app.useWebSocketAdapter(ioAdapter);
+    // Configure Socket.IO adapter with Redis for multi-server support
+    const redisIoAdapter = new RedisIoAdapter(app);
+    await redisIoAdapter.connectToRedis();
+    app.useWebSocketAdapter(redisIoAdapter);
 
     const configService = app.get(ConfigService);
     const appConfig = configService.get('app');

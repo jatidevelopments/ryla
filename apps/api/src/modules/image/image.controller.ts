@@ -25,8 +25,8 @@ import { GenerateFaceSwapDto } from './dto/req/generate-face-swap.dto';
 import { GenerateCharacterSheetDto } from './dto/req/generate-character-sheet.dto';
 import { InpaintEditDto } from './dto/req/inpaint-edit.dto';
 import { GenerateStudioImagesDto } from './dto/req/generate-studio-images.dto';
-import { GenerateStudioVideoDto as _GenerateStudioVideoDto } from './dto/req/generate-studio-video.dto';
-import { EditFaceSwapDto as _EditFaceSwapDto } from './dto/req/edit-face-swap.dto';
+import { GenerateStudioVideoDto } from './dto/req/generate-studio-video.dto';
+import { EditFaceSwapDto } from './dto/req/edit-face-swap.dto';
 import { UpscaleImageDto } from './dto/req/upscale-image.dto';
 import { BaseImageGenerationService } from './services/base-image-generation.service';
 import { ComfyUIJobRunnerAdapter } from './services/comfyui-job-runner.adapter';
@@ -155,7 +155,10 @@ export class ImageController {
 
     // Calculate total credits needed
     let totalCredits = 0;
-    const provider = dto.nsfw ? 'comfyui' : dto.modelProvider ?? 'comfyui';
+    // Provider selection: LoRA/reference require Modal, NSFW prefers Modal
+    const hasLora = dto.useLora;
+    const hasReference = !!dto.referenceImageUrl;
+    const provider = hasLora || hasReference ? 'modal' : (dto.nsfw ? 'modal' : dto.modelProvider ?? 'modal');
 
     if (provider === 'fal' && dto.modelId) {
       // Fal models: dynamic pricing based on model and image size
@@ -206,6 +209,14 @@ export class ImageController {
       seed: dto.seed,
       modelProvider: dto.modelProvider,
       modelId: dto.modelId,
+      // LoRA support for character consistency
+      useLora: dto.useLora,
+      loraId: dto.loraId,
+      loraStrength: dto.loraStrength,
+      // Reference image support for face consistency
+      referenceImageUrl: dto.referenceImageUrl,
+      referenceStrength: dto.referenceStrength,
+      referenceMethod: dto.referenceMethod,
     });
   }
 

@@ -79,7 +79,10 @@ export type FalFluxModelId =
   | 'fal-ai/aura-sr'
   | 'clarityai/crystal-upscaler'
   | 'fal-ai/seedvr/upscale/image'
-  | 'fal-ai/topaz/upscale/image';
+  | 'fal-ai/topaz/upscale/image'
+  // Reference Image Models (Face Consistency)
+  | 'fal-ai/flux-pulid'
+  | 'fal-ai/pulid';
 
 export interface FalRunInput {
   prompt: string;
@@ -93,6 +96,18 @@ export interface FalRunInput {
 export interface FalUpscaleInput {
   imageUrl: string;
   scale?: number; // Optional scale factor (2x, 4x, etc.)
+}
+
+export interface FalReferenceImageInput {
+  prompt: string;
+  negativePrompt?: string;
+  referenceImageUrl: string; // Face/reference image URL
+  width: number;
+  height: number;
+  seed?: number;
+  numImages: number;
+  /** Reference image strength (0.0-1.0), default 0.8 */
+  idWeight?: number;
 }
 
 export interface FalRunOutput {
@@ -467,6 +482,17 @@ export const FAL_MODEL_PRICING: Record<FalFluxModelId, FalModelPricing> = {
     name: 'Topaz',
     description: 'Powerful and accurate image enhancer',
   },
+  // Reference Image Models (Face Consistency)
+  'fal-ai/flux-pulid': {
+    costPerMegapixel: 0.0333,
+    name: 'FLUX PuLID',
+    description: 'Face-consistent generation with FLUX',
+  },
+  'fal-ai/pulid': {
+    costPerMegapixel: 0.025, // Estimated
+    name: 'PuLID Standard',
+    description: 'Tuning-free ID customization',
+  },
 };
 
 /**
@@ -695,6 +721,105 @@ export class FalImageService {
       throw new Error(`Fal returned no images (${modelId})`);
     }
 
+    return { requestId, imageUrls };
+  }
+
+  /**
+   * Run a reference image generation using Fal.ai PuLID endpoints.
+   * Supports face-consistent generation with a reference image.
+   * 
+   * @param modelId - PuLID model ID (fal-ai/flux-pulid or fal-ai/pulid)
+   * @param input - Reference image input parameters
+   */
+  async runReferenceImage(
+    modelId: 'fal-ai/flux-pulid' | 'fal-ai/pulid',
+    input: FalReferenceImageInput
+  ): Promise<FalRunOutput> {
+    const falKey = this.getFalKey();
+    if (!falKey) {
+      throw new Error('FAL_KEY is not configured');
+    }
+
+    const url = `https://fal.run/${modelId}`;
+    const requestId = randomUUID();
+
+    // PuLID input format:
+    // - prompt: text prompt
+    // - reference_images: array of { url: string } for fal-ai/pulid
+    // - reference_image_url: string for fal-ai/flux-pulid
+    // - id_weight: reference strength (0.0-1.0)
+    // - image_size: { width, height }
+    const body: Record<string, unknown> = {
+      prompt: input.prompt,
+      negative_prompt: input.negativePrompt,
+      image_size: { width: input.width, height: input.height },
+      num_images: input.numImages,
+      seed: input.seed,
+      id_weight: input.idWeight ?? 0.8,
+    };
+
+    // Different input format for different PuLID endpoints
+    if (modelId === 'fal-ai/flux-pulid') {
+      body.reference_image_url = input.referenceImageUrl;
+    } else {
+      // fal-ai/pulid accepts array of reference images
+      body.reference_images = [{ url: input.referenceImageUrl }];
+    }
+
+    // Add timeout to prevent hanging (60 seconds for reference image models)
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 60000);
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Key ${falKey}`,
+          'Content-Type': 'application/json',
+          'X-Request-Id': requestId,
+        },
+        body: JSON.stringify(body),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err instanceof Error && err.name === 'AbortError') {
+        throw new Error(`Fal reference image request timeout (${modelId})`);
+      }
+      throw err;
+    }
+
+    const text = await res.text();
+    if (!res.ok) {
+      this.logger.warn(`Fal reference image failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`);
+      throw new Error(`Fal reference image failed (${modelId}) status=${res.status}`);
+    }
+
+    let json: unknown;
+    try {
+      json = JSON.parse(text);
+    } catch {
+      throw new Error(`Fal returned non-JSON response for (${modelId})`);
+    }
+
+    // Check for async queue response
+    const queueResponse = json as { request_id?: string; status?: string };
+    const hasImages = this.extractImageUrls(json).length > 0;
+
+    if (queueResponse.request_id && !hasImages) {
+      this.logger.log(`Fal reference model ${modelId} returned async request_id=${queueResponse.request_id}, polling...`);
+      return await this.pollFalQueue(queueResponse.request_id, modelId as FalFluxModelId);
+    }
+
+    const imageUrls = this.extractImageUrls(json);
+    if (imageUrls.length === 0) {
+      this.logger.warn(`Fal returned 0 image URLs (${modelId}) body=${text.slice(0, 500)}`);
+      throw new Error(`Fal returned no images (${modelId})`);
+    }
+
+    this.logger.log(`Fal reference model ${modelId} returned ${imageUrls.length} image(s)`);
     return { requestId, imageUrls };
   }
 

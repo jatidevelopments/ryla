@@ -7,6 +7,7 @@ import { RunPodModule } from '../runpod/runpod.module';
 import { DrizzleModule } from '../drizzle/drizzle.module';
 import { ImageGalleryModule } from '../image-gallery/image-gallery.module';
 import { CreditsModule } from '../credits/credits.module';
+import { NotificationModule } from '../notification/notification.module';
 import { ImageController } from './image.controller';
 import { StorageTestController } from './storage-test.controller';
 import { ImageService } from './services/image.service';
@@ -41,6 +42,7 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
     DrizzleModule,
     forwardRef(() => ImageGalleryModule),
     CreditsModule,
+    NotificationModule,
   ],
   controllers: [ImageController, StorageTestController],
   providers: [

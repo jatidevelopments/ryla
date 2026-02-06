@@ -1,4 +1,4 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable, Inject, Optional } from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 
 import * as schema from '@ryla/data/schema';
@@ -7,6 +7,7 @@ import { GenerationJobsRepository, ImagesRepository, NotificationsRepository } f
 import { BaseImageGenerationService } from './base-image-generation.service';
 import { ComfyUIJobRunnerAdapter } from './comfyui-job-runner.adapter';
 import { ImageStorageService } from './image-storage.service';
+import { GenerationEventsService } from '../../notification/services/generation-events.service';
 
 function asValidEnumOrNull(value: unknown, allowed: readonly string[]): string | null {
   if (typeof value !== 'string') return null;
@@ -34,6 +35,8 @@ export class ComfyUIResultsService {
     private readonly imageStorage: ImageStorageService,
     @Inject(BaseImageGenerationService)
     private readonly baseImageService: BaseImageGenerationService,
+    @Optional()
+    private readonly generationEvents?: GenerationEventsService,
   ) {
     this.generationJobsRepo = new GenerationJobsRepository(this.db);
     this.imagesRepo = new ImagesRepository(this.db);
@@ -137,7 +140,23 @@ export class ComfyUIResultsService {
               characterId: trackedJob.characterId,
             },
           });
+
+          // Emit WebSocket error event
+          this.generationEvents?.emitError(userId, promptId, status.error ?? 'Generation failed', {
+            jobId: trackedJob.id,
+            retryable: true,
+          });
         }
+      }
+
+      // Emit WebSocket progress event for non-completed states
+      if (mapped === 'processing') {
+        this.generationEvents?.emitProgress(userId, promptId, 'processing', 50, {
+          jobId: trackedJob.id,
+          message: 'Processing image...',
+        });
+      } else if (mapped === 'queued') {
+        this.generationEvents?.emitQueued(userId, promptId);
       }
 
       return {
@@ -348,6 +367,19 @@ export class ComfyUIResultsService {
           // qualityMode removed - EP-045
         },
       });
+
+      // Emit WebSocket complete event
+      this.generationEvents?.emitComplete(
+        userId,
+        promptId,
+        trackedJob.characterId ?? '',
+        created.map((r) => ({
+          id: r.id,
+          url: storedImages.find(s => s.key === r.s3Key)?.url ?? '',
+          thumbnailUrl: storedImages.find(s => s.key === r.s3Key)?.thumbnailUrl,
+        })),
+        { jobId: trackedJob.id }
+      );
     }
 
     return {
