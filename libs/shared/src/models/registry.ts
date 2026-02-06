@@ -140,7 +140,10 @@ export type UIModelId =
   | 'wan-pro-i2v'
   // Image-to-Image Models
   | 'flux-dev-i2i'
-  | 'z-image-i2i';
+  | 'z-image-i2i'
+  // Reference Image Models (Face Consistency)
+  | 'flux-pulid'
+  | 'pulid-standard';
 
 /**
  * Model definition with pricing and metadata
@@ -1187,6 +1190,41 @@ export const MODEL_REGISTRY: Record<UIModelId, ModelDefinition> = {
       costPerMegapixel: 0.005,
     },
   },
+
+  // Reference Image Models (Fal.ai - Face Consistency)
+  'flux-pulid': {
+    uiId: 'flux-pulid' as UIModelId,
+    name: 'FLUX PuLID',
+    description: 'Face-consistent generation with reference image',
+    icon: 'flux',
+    provider: 'fal',
+    backendId: 'fal-ai/flux-pulid',
+    capabilities: ['text-to-image', 'face-swap'],
+    inputType: 'text+image',
+    outputType: 'image',
+    supportsNSFW: false, // Fal.ai content policy
+    isMVP: true, // MVP model for SFW face consistency via Fal.ai
+    estimatedCredits1MP: 3.3,
+    pricingInfo: {
+      costPerMegapixel: 0.0333,
+    },
+  },
+  'pulid-standard': {
+    uiId: 'pulid-standard' as UIModelId,
+    name: 'PuLID Standard',
+    description: 'Tuning-free ID customization',
+    icon: 'face-swap',
+    provider: 'fal',
+    backendId: 'fal-ai/pulid',
+    capabilities: ['text-to-image', 'face-swap'],
+    inputType: 'text+image',
+    outputType: 'image',
+    supportsNSFW: false, // Fal.ai content policy
+    estimatedCredits1MP: 2.5,
+    pricingInfo: {
+      costPerMegapixel: 0.025,
+    },
+  },
 } as const;
 
 /**
@@ -1318,14 +1356,25 @@ export function getCapabilitiesForStudioMode(
 }
 
 /**
+ * Model filtering options for Studio
+ */
+export interface StudioModelFilterOptions {
+  /** Filter by NSFW support */
+  nsfwEnabled?: boolean;
+  /** Only show MVP models (default: true) */
+  mvpOnly?: boolean;
+  /** Only show models that support LoRA */
+  requiresLoRA?: boolean;
+  /** Only show models that support reference images */
+  requiresReferenceImage?: boolean;
+}
+
+/**
  * Get models that support a Studio mode
  */
 export function getModelsForStudioMode(
   mode: 'creating' | 'editing' | 'upscaling' | 'variations',
-  options?: {
-    nsfwEnabled?: boolean;
-    mvpOnly?: boolean;
-  }
+  options?: StudioModelFilterOptions
 ): ModelDefinition[] {
   const capabilities = getCapabilitiesForStudioMode(mode);
   return Object.values(MODEL_REGISTRY).filter((m) => {
@@ -1342,15 +1391,67 @@ export function getModelsForStudioMode(
     if (options?.nsfwEnabled !== undefined) {
       if (options.nsfwEnabled) {
         // NSFW enabled: only show models that support NSFW
-        return m.supportsNSFW === true;
-      } else {
-        // NSFW disabled: show all models (both NSFW and non-NSFW)
-        return true;
+        if (m.supportsNSFW !== true) return false;
       }
+      // NSFW disabled: show all models (both NSFW and non-NSFW)
+    }
+
+    // Filter by LoRA support
+    if (options?.requiresLoRA) {
+      if (m.supportsLoRA !== true) return false;
+    }
+
+    // Filter by reference image support (text+image input type)
+    if (options?.requiresReferenceImage) {
+      const supportsReferenceImage =
+        m.inputType === 'text+image' ||
+        m.inputType === 'text+image+mask' ||
+        m.capabilities.includes('face-swap');
+      if (!supportsReferenceImage) return false;
     }
 
     return true;
   });
+}
+
+/**
+ * Check if a model supports LoRA
+ */
+export function modelSupportsLoRA(modelId: UIModelId): boolean {
+  const model = MODEL_REGISTRY[modelId];
+  return model?.supportsLoRA === true;
+}
+
+/**
+ * Check if a model supports reference images
+ */
+export function modelSupportsReferenceImage(modelId: UIModelId): boolean {
+  const model = MODEL_REGISTRY[modelId];
+  if (!model) return false;
+  return (
+    model.inputType === 'text+image' ||
+    model.inputType === 'text+image+mask' ||
+    model.capabilities.includes('face-swap')
+  );
+}
+
+/**
+ * Get model capabilities for display in UI
+ */
+export function getModelCapabilities(modelId: UIModelId): {
+  supportsLoRA: boolean;
+  supportsReferenceImage: boolean;
+  supportsNSFW: boolean;
+} {
+  const model = MODEL_REGISTRY[modelId];
+  if (!model) {
+    return { supportsLoRA: false, supportsReferenceImage: false, supportsNSFW: false };
+  }
+  return {
+    supportsLoRA: model.supportsLoRA === true,
+    supportsReferenceImage: modelSupportsReferenceImage(modelId),
+    supportsNSFW: model.supportsNSFW === true,
+  };
 }
 
 /**

@@ -55,6 +55,7 @@ export * from './meteors';
 export * from './animated-beam';
 export * from './animated-list';
 export * from './bento-grid';
+export * from './comet-card';
 
 // RYLA branded components
 export * from './ryla-button';

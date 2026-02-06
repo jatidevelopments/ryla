@@ -1026,6 +1026,255 @@ export class ModalJobRunner implements RunPodJobRunner {
     }
   }
 
+  // ============================================================
+  // Video I2V Endpoints (WAN 2.6 and WAN 2.2)
+  // ============================================================
+
+  /**
+   * Generate video from image using WAN 2.6 I2V (best quality)
+   */
+  async generateWan26I2V(input: {
+    prompt: string;
+    reference_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    length?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateWan26I2V(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: {
+            buffer: response.image,
+          },
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate video from image + face swap using WAN 2.6
+   */
+  async generateWan26I2VFaceSwap(input: {
+    prompt: string;
+    reference_image: string;
+    face_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    length?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    restore_face?: boolean;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateWan26I2VFaceSwap(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: {
+            buffer: response.image,
+          },
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate video from image using WAN 2.2 I2V (14B GGUF model)
+   */
+  async generateWan22I2V(input: {
+    prompt: string;
+    source_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    num_frames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateWan22I2V(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: {
+            buffer: response.image,
+          },
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Generate video from image + face swap using WAN 2.2
+   */
+  async generateWan22I2VFaceSwap(input: {
+    prompt: string;
+    source_image: string;
+    face_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    num_frames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    restore_face?: boolean;
+    seed?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateWan22I2VFaceSwap(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: {
+            buffer: response.image,
+          },
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  // ============================================================
+  // Face Swap Endpoints
+  // ============================================================
+
+  /**
+   * Single image face swap using ReActor
+   */
+  async generateImageFaceSwap(input: {
+    source_image: string;
+    reference_image: string;
+    restore_face?: boolean;
+    face_restore_visibility?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateImageFaceSwap(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          images: [
+            {
+              buffer: response.image,
+            },
+          ],
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
+  /**
+   * Batch video face swap (frame by frame)
+   */
+  async generateBatchVideoFaceSwap(input: {
+    source_video: string;
+    reference_image: string;
+    fps?: number;
+    restore_face?: boolean;
+    face_restore_visibility?: number;
+  }): Promise<string> {
+    const jobId = `modal_${randomUUID()}`;
+
+    try {
+      const response = await this.client.generateBatchVideoFaceSwap(input);
+
+      this.jobs.set(jobId, {
+        status: 'COMPLETED',
+        output: {
+          video: {
+            buffer: response.image,
+          },
+        },
+        createdAt: new Date(),
+      });
+
+      return jobId;
+    } catch (error) {
+      this.jobs.set(jobId, {
+        status: 'FAILED',
+        error: error instanceof Error ? error.message : 'Unknown error',
+        createdAt: new Date(),
+      });
+      throw error;
+    }
+  }
+
   /**
    * Health check
    */

@@ -28,7 +28,7 @@ const PageContainer = React.forwardRef<HTMLDivElement, PageContainerProps>(
       <div
         ref={ref}
         className={cn(
-          "mx-auto w-full px-4 py-6",
+          "mx-auto w-full px-3 py-6",
           maxWidthClasses[maxWidth],
           hasBottomNav && "pb-24 md:pb-6",
           className

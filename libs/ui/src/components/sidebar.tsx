@@ -100,7 +100,7 @@ interface SidebarProps extends React.HTMLAttributes<HTMLElement> {
 export function Sidebar({ children, className, ...props }: SidebarProps) {
   const { open, openMobile, isMobile, setOpenMobile } = useSidebar();
 
-  // Mobile: Sheet/drawer overlay
+  // Mobile: Sheet/drawer overlay with glassmorphism
   if (isMobile) {
     return (
       <>
@@ -111,14 +111,18 @@ export function Sidebar({ children, className, ...props }: SidebarProps) {
             onClick={() => setOpenMobile(false)}
           />
         )}
-        {/* Mobile drawer */}
+        {/* Mobile drawer with glassmorphism */}
         <aside
           className={cn(
-            'fixed left-0 top-0 z-50 w-64 transform transition-transform duration-300 ease-out border-r border-white/10',
+            'fixed left-0 top-0 z-50 w-64 transform transition-transform duration-300 ease-out',
+            // Glassmorphism styling
+            'bg-[#121214]/80 backdrop-blur-2xl backdrop-saturate-150',
+            'border-r border-white/[0.08]',
+            'shadow-[4px_0_24px_-2px_rgba(0,0,0,0.12)]',
             openMobile ? 'translate-x-0' : '-translate-x-full',
             className
           )}
-          style={{ backgroundColor: '#121214', height: '100dvh' }}
+          style={{ height: '100dvh' }}
           {...props}
         >
           {children}
@@ -127,15 +131,22 @@ export function Sidebar({ children, className, ...props }: SidebarProps) {
     );
   }
 
-  // Desktop: Fixed sidebar that doesn't scroll with page
+  // Desktop: Fixed sidebar with glassmorphism effect and rounded corners with margins
   return (
     <aside
       className={cn(
-        'hidden md:flex flex-col fixed left-0 top-0 overflow-hidden transition-all duration-200 bg-[#121214] z-40 border-r border-white/10',
+        'hidden md:flex flex-col fixed overflow-hidden transition-all duration-200 z-40',
+        // Positioning with margins
+        'left-3 top-3 bottom-3',
+        // Glassmorphism styling with rounded corners
+        'bg-[#121214]/70 backdrop-blur-2xl backdrop-saturate-150',
+        'rounded-2xl',
+        'border border-white/[0.08]',
+        // Shadow for depth and floating effect
+        'shadow-[0_8px_32px_-4px_rgba(0,0,0,0.3),0_4px_16px_-2px_rgba(0,0,0,0.2)]',
         open ? 'w-64' : 'w-20',
         className
       )}
-      style={{ height: '100dvh' }}
       {...props}
     >
       {children}
@@ -151,7 +162,7 @@ export function SidebarHeader({
   return (
     <div
       className={cn(
-        'shrink-0 p-4 border-b border-white/10',
+        'shrink-0 p-4 border-b border-white/[0.08]',
         className
       )}
       {...props}
@@ -183,7 +194,7 @@ export function SidebarFooter({
 }: React.HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={cn('p-4 border-t border-white/10 mt-auto', className)}
+      className={cn('p-4 border-t border-white/[0.08] mt-auto', className)}
       {...props}
     >
       {children}

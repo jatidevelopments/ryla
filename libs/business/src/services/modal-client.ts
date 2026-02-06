@@ -32,9 +32,9 @@ const ENDPOINT_APP_MAP: Record<string, string> = {
   '/qwen-faceswap-fast': 'ryla-qwen-image',
   '/qwen-character-scene': 'ryla-qwen-image',
   '/video-faceswap': 'ryla-qwen-image',
-  // Qwen Edit (ryla-qwen-edit)
-  '/qwen-image-edit-2511': 'ryla-qwen-edit',
-  '/qwen-image-inpaint-2511': 'ryla-qwen-edit',
+  // Qwen Edit (now in ryla-qwen-image - consolidated)
+  '/qwen-image-edit-2511': 'ryla-qwen-image',
+  '/qwen-image-inpaint-2511': 'ryla-qwen-image',
   // Z-Image (ryla-z-image)
   '/z-image-simple': 'ryla-z-image',
   '/z-image-danrisi': 'ryla-z-image',
@@ -43,12 +43,46 @@ const ENDPOINT_APP_MAP: Record<string, string> = {
   '/wan2.6': 'ryla-wan26',
   '/wan2.6-r2v': 'ryla-wan26',
   '/wan2.6-lora': 'ryla-wan26',
+  '/wan2.6-i2v': 'ryla-wan26',
+  '/wan2.6-i2v-faceswap': 'ryla-wan26',
+  // Video (ryla-wan22-i2v)
+  '/wan22-i2v': 'ryla-wan22-i2v',
+  '/wan22-i2v-faceswap': 'ryla-wan22-i2v',
+  // Face swap (ryla-qwen-image)
+  '/image-faceswap': 'ryla-qwen-image',
+  '/batch-video-faceswap': 'ryla-qwen-image',
   // Upscaling (ryla-seedvr2)
   '/seedvr2': 'ryla-seedvr2',
   // LoRA (ryla-lora) - legacy, prefer app-specific LoRA endpoints
   '/flux-lora': 'ryla-lora',
   // Workflow (legacy - use specific endpoints instead)
   '/workflow': 'ryla-flux',
+};
+
+/** Per-endpoint timeout overrides (ms). Slow/cold-start endpoints need longer than default. */
+const ENDPOINT_TIMEOUT_MS: Record<string, number> = {
+  '/z-image-simple': 600000,   // 10 min (cold start + diffusers load)
+  '/z-image-danrisi': 600000,  // 10 min
+  '/z-image-lora': 600000,     // 10 min
+  '/qwen-image-2512-fast': 600000, // 10 min (can 408 on cold start)
+  '/qwen-image-2512': 600000,  // 10 min (50 steps)
+  '/qwen-image-2512-lora': 600000,
+  '/seedvr2': 600000,          // 10 min (upscaling)
+  '/video-faceswap': 600000,   // 10 min (video)
+  '/image-faceswap': 120000,   // 2 min (single image face swap)
+  '/wan2.6': 600000,           // 10 min (video T2V)
+  '/wan2.6-r2v': 600000,
+  '/wan2.6-lora': 600000,
+  '/wan2.6-i2v': 120000,       // 2 min (I2V - fast, best quality)
+  '/wan2.6-i2v-faceswap': 300000,  // 5 min (I2V + face swap)
+  '/wan22-i2v': 600000,        // 10 min (14B model)
+  '/wan22-i2v-faceswap': 900000,   // 15 min (14B + face swap)
+  '/batch-video-faceswap': 300000,  // 5 min (video processing)
+  '/sdxl-instantid': 420000,   // 7 min (face consistency)
+  '/flux-pulid': 420000,
+  '/flux-ipadapter-faceid': 420000,
+  '/qwen-image-edit-2511': 420000,
+  '/qwen-image-inpaint-2511': 420000,
 };
 
 export interface ModalClientConfig {
@@ -507,6 +541,23 @@ export class ModalClient {
   }
 
   /**
+   * Generic endpoint caller (used by playground and tests).
+   * Forwards to internal callEndpoint with app-specific routing.
+   */
+  async call(path: string, body: Record<string, unknown>): Promise<ModalResponse> {
+    return this.callEndpoint(path, body);
+  }
+
+  /**
+   * Get timeout in ms for an endpoint (per-endpoint override or default).
+   */
+  private getTimeoutForPath(path: string): number {
+    const override = ENDPOINT_TIMEOUT_MS[path];
+    if (override != null) return override;
+    return this.timeout;
+  }
+
+  /**
    * Generic endpoint caller with app-specific routing
    */
   private async callEndpoint(
@@ -514,8 +565,9 @@ export class ModalClient {
     body: Record<string, unknown>
   ): Promise<ModalResponse> {
     const url = this.getEndpointUrl(path);
+    const timeoutMs = this.getTimeoutForPath(path);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
     try {
       const response = await fetch(url, {
@@ -531,6 +583,11 @@ export class ModalClient {
 
       if (!response.ok) {
         const errorText = await response.text().catch(() => 'Unknown error');
+        if (response.status === 408) {
+          throw new Error(
+            `Modal.com 408 Request Timeout (server/proxy expired) - ${path}. ${errorText}`
+          );
+        }
         throw new Error(
           `Modal.com API error: ${response.status} ${response.statusText} - ${errorText}`
         );
@@ -559,10 +616,125 @@ export class ModalClient {
     } catch (error) {
       clearTimeout(timeoutId);
       if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error(`Modal.com request timeout (${path})`);
+        throw new Error(
+          `Modal.com client timeout (${path}) - request exceeded ${timeoutMs}ms`
+        );
       }
       throw error;
     }
+  }
+
+  // ============================================================
+  // Video I2V Endpoints (WAN 2.6 and WAN 2.2)
+  // ============================================================
+
+  /**
+   * Generate video from image using WAN 2.6 I2V (best quality)
+   */
+  async generateWan26I2V(input: {
+    prompt: string;
+    reference_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    length?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<ModalResponse> {
+    return this.callEndpoint('/wan2.6-i2v', input);
+  }
+
+  /**
+   * Generate video from image + face swap using WAN 2.6
+   */
+  async generateWan26I2VFaceSwap(input: {
+    prompt: string;
+    reference_image: string;
+    face_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    length?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    restore_face?: boolean;
+    seed?: number;
+  }): Promise<ModalResponse> {
+    // Longer timeout for I2V + face swap (video gen + face swap delegation)
+    return this.callEndpoint('/wan2.6-i2v-faceswap', input);
+  }
+
+  /**
+   * Generate video from image using WAN 2.2 I2V (14B GGUF model)
+   */
+  async generateWan22I2V(input: {
+    prompt: string;
+    source_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    num_frames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    seed?: number;
+  }): Promise<ModalResponse> {
+    // Longer timeout for 14B model
+    return this.callEndpoint('/wan22-i2v', input);
+  }
+
+  /**
+   * Generate video from image + face swap using WAN 2.2
+   */
+  async generateWan22I2VFaceSwap(input: {
+    prompt: string;
+    source_image: string;
+    face_image: string;
+    negative_prompt?: string;
+    width?: number;
+    height?: number;
+    num_frames?: number;
+    fps?: number;
+    steps?: number;
+    cfg?: number;
+    restore_face?: boolean;
+    seed?: number;
+  }): Promise<ModalResponse> {
+    // Very long timeout for 14B model + face swap
+    return this.callEndpoint('/wan22-i2v-faceswap', input);
+  }
+
+  // ============================================================
+  // Face Swap Endpoints
+  // ============================================================
+
+  /**
+   * Single image face swap using ReActor
+   */
+  async generateImageFaceSwap(input: {
+    source_image: string;
+    reference_image: string;
+    restore_face?: boolean;
+    face_restore_visibility?: number;
+  }): Promise<ModalResponse> {
+    return this.callEndpoint('/image-faceswap', input);
+  }
+
+  /**
+   * Batch video face swap (frame by frame)
+   */
+  async generateBatchVideoFaceSwap(input: {
+    source_video: string;
+    reference_image: string;
+    fps?: number;
+    restore_face?: boolean;
+    face_restore_visibility?: number;
+  }): Promise<ModalResponse> {
+    // Long timeout for video processing
+    return this.callEndpoint('/batch-video-faceswap', input);
   }
 
   /**

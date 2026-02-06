@@ -16,4 +16,5 @@ export * from './payment.repository';
 export * from './character.repository';
 export * from './funnel-sessions.repository';
 export * from './funnel-options.repository';
+export * from './lora-models.repository';
 

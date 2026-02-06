@@ -10,4 +10,8 @@ export * from './store/index';
 export * from './workflows/index';
 export * from './prompts/index';
 export * from './wizard/index';
+export * from './supervision/index';
+export * from './boundaries/index';
+export * from './queues/index';
+export * from './telemetry/index';
 
