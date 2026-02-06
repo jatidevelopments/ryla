@@ -1,0 +1,723 @@
+{
+  "id": "4d670fa5-e222-4474-b3e5-6c3f211659a8",
+  "extra": {
+    "ds": {
+      "scale": 0.9646149645000008,
+      "offset": [281.9951755491393, 77.68710061590457]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.18.9",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [1, 1, 0, 2, 0, "BAGEL_MODEL"],
+    [3, 2, 1, 4, 0, "STRING"],
+    [4, 5, 0, 7, 0, "BAGEL_MODEL"],
+    [5, 6, 0, 7, 1, "IMAGE"],
+    [6, 7, 0, 8, 0, "STRING"],
+    [8, 11, 0, 12, 0, "BAGEL_MODEL"],
+    [9, 9, 0, 12, 1, "IMAGE"],
+    [10, 12, 1, 13, 0, "STRING"],
+    [11, 2, 0, 14, 0, "IMAGE"],
+    [12, 12, 0, 15, 0, "IMAGE"]
+  ],
+  "nodes": [
+    {
+      "id": 1,
+      "pos": [72.63002014160156, 263.0303649902344],
+      "mode": 0,
+      "size": [315, 106],
+      "type": "BagelModelLoader",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "BAGEL_MODEL",
+          "label": "model",
+          "links": [1],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4bb49e5232604e4838463f130b3ba7026e428c1d",
+        "aux_id": "neverbiasu/ComfyUI-Bagel",
+        "cnr_id": "comfyui-bagel",
+        "Node name for S&R": "BagelModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["models/BAGEL-7B-MoT"]
+    },
+    {
+      "id": 8,
+      "pos": [2510, 270],
+      "mode": 4,
+      "size": [323.519775390625, 280.4591064453125],
+      "type": "ShowText|pysssss",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 6,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": "STRING",
+          "links": null,
+          "shape": 6,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.2.5",
+        "cnr_id": "comfyui-custom-scripts",
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 13,
+      "pos": [4004.667236328125, 518.5553588867188],
+      "mode": 4,
+      "size": [359.40728759765625, 224.0010986328125],
+      "type": "ShowText|pysssss",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 10,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": "STRING",
+          "links": null,
+          "shape": 6,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.2.5",
+        "cnr_id": "comfyui-custom-scripts",
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 9,
+      "pos": [3164.60107421875, 444.466796875],
+      "mode": 4,
+      "size": [315, 314.0001220703125],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [9],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Runcomfy_Example_1229.jpeg", "image"]
+    },
+    {
+      "id": 11,
+      "pos": [3159.2255859375, 257.69366455078125],
+      "mode": 4,
+      "size": [315, 106],
+      "type": "BagelModelLoader",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "BAGEL_MODEL",
+          "label": "model",
+          "links": [8],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4bb49e5232604e4838463f130b3ba7026e428c1d",
+        "aux_id": "neverbiasu/ComfyUI-Bagel",
+        "cnr_id": "comfyui-bagel",
+        "Node name for S&R": "BagelModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["models/BAGEL-7B-MoT"]
+    },
+    {
+      "id": 5,
+      "pos": [1553.680419921875, 257.1813049316406],
+      "mode": 4,
+      "size": [315, 58],
+      "type": "BagelModelLoader",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "BAGEL_MODEL",
+          "label": "model",
+          "links": [4],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4bb49e5232604e4838463f130b3ba7026e428c1d",
+        "aux_id": "neverbiasu/ComfyUI-Bagel",
+        "cnr_id": "comfyui-bagel",
+        "Node name for S&R": "BagelModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["models/BAGEL-7B-MoT"]
+    },
+    {
+      "id": 6,
+      "pos": [1563.2945556640625, 417.2709655761719],
+      "mode": 4,
+      "size": [315, 314],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [5],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Runcomfy_Example_1229.jpeg", "image"]
+    },
+    {
+      "id": 7,
+      "pos": [2010, 270],
+      "mode": 4,
+      "size": [400, 204],
+      "type": "BagelImageUnderstanding",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 4,
+          "name": "model",
+          "type": "BAGEL_MODEL",
+          "label": "model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 5,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "links": [6],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4bb49e5232604e4838463f130b3ba7026e428c1d",
+        "aux_id": "neverbiasu/ComfyUI-Bagel",
+        "cnr_id": "comfyui-bagel",
+        "Node name for S&R": "BagelImageUnderstanding"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "What do you see in this image?",
+        false,
+        false,
+        0.3,
+        512
+      ]
+    },
+    {
+      "id": 15,
+      "pos": [4025.066650390625, 249.97573852539062],
+      "mode": 4,
+      "size": [270, 58],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 12,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.33",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["BAGEL_I2I"]
+    },
+    {
+      "id": 4,
+      "pos": [912.7175903320312, 568.50390625],
+      "mode": 0,
+      "size": [295.9617614746094, 404.6077880859375],
+      "type": "ShowText|pysssss",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 3,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": "STRING",
+          "links": null,
+          "shape": 6,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.2.5",
+        "cnr_id": "comfyui-custom-scripts",
+        "Node name for S&R": "ShowText|pysssss"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "pos": [935.0335693359375, 210.0048065185547],
+      "mode": 0,
+      "size": [270, 58],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 11,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.33",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["BAGEL_T2I"]
+    },
+    {
+      "id": 2,
+      "pos": [437.6300048828125, 263.0303649902344],
+      "mode": 0,
+      "size": [400, 372],
+      "type": "BagelTextToImage",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 1,
+          "name": "model",
+          "type": "BAGEL_MODEL",
+          "label": "model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "links": [11],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "thinking",
+          "type": "STRING",
+          "label": "thinking",
+          "links": [3],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4bb49e5232604e4838463f130b3ba7026e428c1d",
+        "aux_id": "neverbiasu/ComfyUI-Bagel",
+        "cnr_id": "comfyui-bagel",
+        "Node name for S&R": "BagelTextToImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "A lone detective walking through a rain-soaked neon-lit alley at night, long trench coat fluttering, reflections shimmering on wet pavement, dynamic wide-angle tracking shot, cinematic lighting, Blade Runner mood, shallow depth of field, dramatic fog and light beams\"",
+        697313,
+        "fixed",
+        "1:1",
+        4,
+        50,
+        true,
+        0.4,
+        3,
+        1,
+        "global",
+        0.3
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [3564.1572265625, 288.411376953125],
+      "mode": 4,
+      "size": [400, 372],
+      "type": "BagelImageEdit",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 8,
+          "name": "model",
+          "type": "BAGEL_MODEL",
+          "label": "model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 9,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "links": [12],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "thinking",
+          "type": "STRING",
+          "label": "thinking",
+          "links": [10],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4bb49e5232604e4838463f130b3ba7026e428c1d",
+        "aux_id": "neverbiasu/ComfyUI-Bagel",
+        "cnr_id": "comfyui-bagel",
+        "Node name for S&R": "BagelImageEdit"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "close the mouth of the dog",
+        414307,
+        "fixed",
+        4,
+        2,
+        50,
+        true,
+        0,
+        3,
+        1,
+        "text_channel",
+        0.3
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "1) Text-to-Image Generation",
+      "bounding": [
+        -22.71868896484375, 123.11493682861328, 1432.11279296875,
+        908.9517211914062
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#a1309b",
+      "flags": {},
+      "title": "2) Image Understanding",
+      "bounding": [
+        1469.789306640625, 127.92511749267578, 1437.888427734375, 725.6357421875
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 3,
+      "color": "#b58b2a",
+      "flags": {},
+      "title": "3) Image Editing",
+      "bounding": [
+        2986.736083984375, 129.76609802246094, 1436.207763671875,
+        728.1038818359375
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 12,
+  "last_node_id": 15,
+  "floatingLinks": null
+}

@@ -1,0 +1,2520 @@
+{
+  "id": "faf2e9ef-84cc-4d98-bf14-3e1aec0a5ab4",
+  "extra": {
+    "ds": {
+      "scale": 0.6115909044841464,
+      "offset": [
+        109.62731925241167,
+        749.895685376049
+      ]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.20.7",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      187,
+      81,
+      0,
+      82,
+      0,
+      "MASK"
+    ],
+    [
+      192,
+      83,
+      0,
+      81,
+      0,
+      "MASK"
+    ],
+    [
+      302,
+      133,
+      0,
+      8,
+      2,
+      "INT"
+    ],
+    [
+      324,
+      133,
+      0,
+      146,
+      2,
+      "INT"
+    ],
+    [
+      433,
+      146,
+      0,
+      165,
+      0,
+      "IMAGE"
+    ],
+    [
+      434,
+      165,
+      0,
+      78,
+      0,
+      "IMAGE"
+    ],
+    [
+      436,
+      8,
+      0,
+      182,
+      0,
+      "IMAGE"
+    ],
+    [
+      445,
+      78,
+      0,
+      189,
+      2,
+      "IMAGE"
+    ],
+    [
+      446,
+      1,
+      0,
+      189,
+      0,
+      "LIVEPORTRAITPIPE"
+    ],
+    [
+      448,
+      1,
+      0,
+      190,
+      0,
+      "LIVEPORTRAITPIPE"
+    ],
+    [
+      449,
+      189,
+      1,
+      190,
+      1,
+      "CROPINFO"
+    ],
+    [
+      451,
+      182,
+      0,
+      190,
+      3,
+      "IMAGE"
+    ],
+    [
+      452,
+      190,
+      1,
+      191,
+      2,
+      "LP_OUT"
+    ],
+    [
+      454,
+      190,
+      0,
+      191,
+      1,
+      "IMAGE"
+    ],
+    [
+      455,
+      78,
+      0,
+      192,
+      0,
+      "*"
+    ],
+    [
+      456,
+      192,
+      0,
+      190,
+      2,
+      "IMAGE"
+    ],
+    [
+      457,
+      192,
+      0,
+      191,
+      0,
+      "IMAGE"
+    ],
+    [
+      458,
+      191,
+      0,
+      181,
+      0,
+      "IMAGE"
+    ],
+    [
+      459,
+      146,
+      3,
+      193,
+      0,
+      "VHS_VIDEOINFO"
+    ],
+    [
+      460,
+      193,
+      0,
+      168,
+      4,
+      "FLOAT"
+    ],
+    [
+      465,
+      182,
+      0,
+      195,
+      2,
+      "IMAGE"
+    ],
+    [
+      466,
+      1,
+      0,
+      195,
+      0,
+      "LIVEPORTRAITPIPE"
+    ],
+    [
+      467,
+      195,
+      1,
+      180,
+      0,
+      "CROPINFO"
+    ],
+    [
+      469,
+      181,
+      0,
+      168,
+      0,
+      "IMAGE"
+    ],
+    [
+      470,
+      195,
+      0,
+      134,
+      0,
+      "IMAGE"
+    ],
+    [
+      471,
+      81,
+      0,
+      191,
+      3,
+      "MASK"
+    ],
+    [
+      475,
+      196,
+      0,
+      197,
+      0,
+      "*"
+    ],
+    [
+      476,
+      197,
+      0,
+      195,
+      1,
+      "LPCROPPER"
+    ],
+    [
+      477,
+      197,
+      0,
+      189,
+      1,
+      "LPCROPPER"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 165,
+      "pos": [
+        -873,
+        -573
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        242
+      ],
+      "type": "ImageResizeKJ",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 433,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "get_image_size",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            434
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "ImageResizeKJ"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1024,
+        1024,
+        "bilinear",
+        true,
+        2,
+        0
+      ]
+    },
+    {
+      "id": 82,
+      "pos": [
+        1410,
+        -810
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        246
+      ],
+      "type": "MaskPreview+",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 187,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "1.1.0",
+        "cnr_id": "comfyui_essentials",
+        "Node name for S&R": "MaskPreview+"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 83,
+      "pos": [
+        690,
+        -800
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        270
+      ],
+      "type": "CreateShapeMask",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            192
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask_inverted",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "CreateShapeMask"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "circle",
+        1,
+        256,
+        256,
+        0,
+        512,
+        512,
+        472,
+        472
+      ]
+    },
+    {
+      "id": 133,
+      "pos": [
+        -1576,
+        -82
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        106
+      ],
+      "type": "PrimitiveNode",
+      "flags": {},
+      "order": 1,
+      "title": "frame_load_cap",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "INT",
+          "type": "INT",
+          "label": null,
+          "links": [
+            302,
+            324
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "frame_load_cap"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0,
+        "fixed"
+      ]
+    },
+    {
+      "id": 182,
+      "pos": [
+        -831,
+        37
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        86
+      ],
+      "type": "GetImageSizeAndCount",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 436,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            451,
+            465
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": "480 width",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": "480 height",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": "1008 count",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 78,
+      "pos": [
+        -522,
+        -572
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        86
+      ],
+      "type": "GetImageSizeAndCount",
+      "flags": {},
+      "order": 17,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 434,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            445,
+            455
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": "1024 width",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": "576 height",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": "206 count",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 192,
+      "pos": [
+        423,
+        -466
+      ],
+      "mode": 0,
+      "size": [
+        82,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 455,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            456,
+            457
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": true
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 193,
+      "pos": [
+        -1064,
+        -48
+      ],
+      "mode": 0,
+      "size": [
+        393,
+        206
+      ],
+      "type": "VHS_VideoInfo",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 15,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 459,
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_fps🟨",
+          "type": "FLOAT",
+          "label": null,
+          "links": [
+            460
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_frame_count🟨",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_duration🟨",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_width🟨",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_height🟨",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_fps🟦",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_frame_count🟦",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_duration🟦",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_width🟦",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_height🟦",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.6.1",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_VideoInfo"
+      },
+      "showAdvanced": null,
+      "widgets_values": {}
+    },
+    {
+      "id": 187,
+      "pos": [
+        118,
+        -243
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        88
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Connect this if you want to use the eye/lip retargeting mode"
+      ]
+    },
+    {
+      "id": 190,
+      "pos": [
+        551,
+        -383
+      ],
+      "mode": 0,
+      "size": [
+        430.8000183105469,
+        330
+      ],
+      "type": "LivePortraitProcess",
+      "flags": {},
+      "order": 22,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 448,
+          "name": "pipeline",
+          "type": "LIVEPORTRAITPIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 449,
+          "name": "crop_info",
+          "type": "CROPINFO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 456,
+          "name": "source_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 451,
+          "name": "driving_images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "opt_retargeting_info",
+          "type": "RETARGETINGINFO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "cropped_image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            454
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "output",
+          "type": "LP_OUT",
+          "label": null,
+          "links": [
+            452
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "LivePortraitProcess"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        false,
+        0.03,
+        true,
+        1,
+        "constant",
+        "source_video_smoothed",
+        0.000003,
+        false,
+        1
+      ]
+    },
+    {
+      "id": 191,
+      "pos": [
+        1013,
+        -440
+      ],
+      "mode": 0,
+      "size": [
+        355.20001220703125,
+        86
+      ],
+      "type": "LivePortraitComposite",
+      "flags": {},
+      "order": 23,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 457,
+          "name": "source_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 454,
+          "name": "cropped_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 452,
+          "name": "liveportrait_out",
+          "type": "LP_OUT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 471,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "full_images",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            458
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "LivePortraitComposite"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 181,
+      "pos": [
+        1400,
+        -432
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        86
+      ],
+      "type": "GetImageSizeAndCount",
+      "flags": {},
+      "order": 24,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 458,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            469
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 195,
+      "pos": [
+        -636,
+        187
+      ],
+      "mode": 0,
+      "size": [
+        330,
+        242
+      ],
+      "type": "LivePortraitCropper",
+      "flags": {},
+      "order": 16,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 466,
+          "name": "pipeline",
+          "type": "LIVEPORTRAITPIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 476,
+          "name": "cropper",
+          "type": "LPCROPPER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 465,
+          "name": "source_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "cropped_image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            470
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "crop_info",
+          "type": "CROPINFO",
+          "label": null,
+          "links": [
+            467
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "LivePortraitCropper"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        512,
+        2.3,
+        0,
+        -0.125,
+        0,
+        "large-small",
+        true
+      ]
+    },
+    {
+      "id": 180,
+      "pos": [
+        -265,
+        3
+      ],
+      "mode": 0,
+      "size": [
+        430.8000183105469,
+        130
+      ],
+      "type": "LivePortraitRetargeting",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 467,
+          "name": "driving_crop_info",
+          "type": "CROPINFO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "retargeting_info",
+          "type": "RETARGETINGINFO",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "LivePortraitRetargeting"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        true,
+        1,
+        true,
+        1
+      ]
+    },
+    {
+      "id": 134,
+      "pos": [
+        -241,
+        247
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        86
+      ],
+      "type": "GetImageSizeAndCount",
+      "flags": {},
+      "order": 18,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 470,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 188,
+      "pos": [
+        13,
+        222
+      ],
+      "mode": 0,
+      "size": [
+        229.1644287109375,
+        95.92726135253906
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "If you want to crop your driving video, use this as driving_images instead"
+      ]
+    },
+    {
+      "id": 81,
+      "pos": [
+        1050,
+        -800
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        246
+      ],
+      "type": "GrowMaskWithBlur",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 192,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            187,
+            471
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask_inverted",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GrowMaskWithBlur"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0,
+        0,
+        true,
+        false,
+        13.9,
+        1,
+        1,
+        false
+      ]
+    },
+    {
+      "id": 189,
+      "pos": [
+        -3,
+        -755
+      ],
+      "mode": 0,
+      "size": [
+        330,
+        242
+      ],
+      "type": "LivePortraitCropper",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 446,
+          "name": "pipeline",
+          "type": "LIVEPORTRAITPIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 477,
+          "name": "cropper",
+          "type": "LPCROPPER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 445,
+          "name": "source_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "cropped_image",
+          "type": "IMAGE",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "crop_info",
+          "type": "CROPINFO",
+          "label": null,
+          "links": [
+            449
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "LivePortraitCropper"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        512,
+        2.3,
+        0,
+        -0.125,
+        0,
+        "large-small",
+        true
+      ]
+    },
+    {
+      "id": 129,
+      "pos": [
+        -1253,
+        -757
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "LivePortraitLoadCropper",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "cropper",
+          "type": "LPCROPPER",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "LivePortraitLoadCropper"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "CPU",
+        true,
+        0.5
+      ]
+    },
+    {
+      "id": 196,
+      "pos": [
+        -1253,
+        -896
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        82
+      ],
+      "type": "LivePortraitLoadMediaPipeCropper",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "cropper",
+          "type": "LPCROPPER",
+          "label": null,
+          "links": [
+            475
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "LivePortraitLoadMediaPipeCropper"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "CPU",
+        true
+      ]
+    },
+    {
+      "id": 197,
+      "pos": [
+        -776,
+        -854
+      ],
+      "mode": 0,
+      "size": [
+        115.5999984741211,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 475,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LPCROPPER",
+          "type": "LPCROPPER",
+          "label": null,
+          "links": [
+            476,
+            477
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": true
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 198,
+      "pos": [
+        -1537,
+        -865
+      ],
+      "mode": 0,
+      "size": [
+        265.68304443359375,
+        168.53929138183594
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Choose your face detector here, MediaPipe doesn't run on GPU and isn't as good at detecting, but is faster on CPU and has Apache 2.0 license.\n\nInsightface can be run on GPU and is better at detecting, but it's model license is NON-COMMERCIAL"
+      ]
+    },
+    {
+      "id": 168,
+      "pos": [
+        1012,
+        -244
+      ],
+      "mode": 0,
+      "size": [
+        678.6611938476562,
+        334
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 25,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 469,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 460,
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "frame_rate"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.6.1",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 16,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "RunComfy_examples_1108.mp4",
+            "subfolder": "RunComfy_examples",
+            "frame_rate": 25
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "filename_prefix": "1108"
+      }
+    },
+    {
+      "id": 146,
+      "pos": [
+        -1271,
+        -572
+      ],
+      "mode": 0,
+      "size": [
+        340.1555480957031,
+        504.0874938964844
+      ],
+      "type": "VHS_LoadVideo",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 324,
+          "name": "frame_load_cap",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "frame_load_cap"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            433
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "frame_count",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "label": null,
+          "links": [
+            459
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "ver": "1.6.1",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "video": "RunComfy_examples_1108_1.mp4",
+        "format": "AnimateDiff",
+        "force_rate": 0,
+        "custom_width": 0,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "RunComfy_examples_1108_1.mp4",
+            "force_rate": 0,
+            "frame_load_cap": 0,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    },
+    {
+      "id": 8,
+      "pos": [
+        -1253,
+        28
+      ],
+      "mode": 0,
+      "size": [
+        340.1555480957031,
+        644.155517578125
+      ],
+      "type": "VHS_LoadVideo",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 302,
+          "name": "frame_load_cap",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "frame_load_cap"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            436
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "frame_count",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.6.1",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "video": "RunComfy_examples_1108_2.mp4",
+        "format": "AnimateDiff",
+        "force_rate": 0,
+        "custom_width": 0,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "RunComfy_examples_1108_2.mp4",
+            "force_rate": 0,
+            "frame_load_cap": 0,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 0,
+        "frame_load_cap": 0,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    },
+    {
+      "id": 1,
+      "pos": [
+        -1248,
+        -1012
+      ],
+      "mode": 0,
+      "size": [
+        302.43463134765625,
+        82
+      ],
+      "type": "DownloadAndLoadLivePortraitModels",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "live_portrait_pipe",
+          "type": "LIVEPORTRAITPIPE",
+          "label": null,
+          "links": [
+            446,
+            448,
+            466
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "4d9dc6205b793ffd0fb319816136d9b8c0dbfdff",
+        "aux_id": "kijai/ComfyUI-LivePortraitKJ",
+        "cnr_id": "comfyui-liveportraitkj",
+        "Node name for S&R": "DownloadAndLoadLivePortraitModels"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "fp16",
+        "human"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 477,
+  "last_node_id": 198,
+  "floatingLinks": null
+}

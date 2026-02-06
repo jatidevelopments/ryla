@@ -1,12 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  Post,
-  Body,
-  HttpCode,
-  HttpStatus,
-} from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiOperation, ApiParam, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SkipAuth } from '../auth/decorators/skip-auth.decorator';
 
@@ -23,18 +15,17 @@ export class HealthController {
   @ApiOperation({ summary: 'Submit waitlist signup' })
   @ApiResponse({ status: 200, description: 'Waitlist signup successful' })
   async submitWaitlist(
-    @Body()
-    body: {
+    @Body() body: {
       email: string;
       referralSource: string;
       referralSourceOther?: string;
       aiInfluencerExperience: string;
       customMessage?: string;
-    }
+    },
   ) {
     // Get Slack webhook URL from environment
     const slackWebhookUrl = process.env.SLACK_WEBHOOK_WAITLIST;
-
+    
     if (!slackWebhookUrl) {
       console.error('SLACK_WEBHOOK_WAITLIST environment variable not set');
       return { success: true, message: 'Successfully joined waitlist' };
@@ -56,12 +47,9 @@ export class HealthController {
       many: 'Very Experienced',
     };
 
-    const referralDisplay =
-      body.referralSource === 'other' && body.referralSourceOther
-        ? `${
-            referralSourceLabels[body.referralSource] || body.referralSource
-          } (${body.referralSourceOther})`
-        : referralSourceLabels[body.referralSource] || body.referralSource;
+    const referralDisplay = body.referralSource === 'other' && body.referralSourceOther
+      ? `${referralSourceLabels[body.referralSource] || body.referralSource} (${body.referralSourceOther})`
+      : referralSourceLabels[body.referralSource] || body.referralSource;
 
     // Format Slack message
     const slackMessage = {
@@ -88,10 +76,7 @@ export class HealthController {
             },
             {
               type: 'mrkdwn',
-              text: `*Experience:*\n${
-                experienceLabels[body.aiInfluencerExperience] ||
-                body.aiInfluencerExperience
-              }`,
+              text: `*Experience:*\n${experienceLabels[body.aiInfluencerExperience] || body.aiInfluencerExperience}`,
             },
             {
               type: 'mrkdwn',
@@ -124,10 +109,7 @@ export class HealthController {
       });
 
       if (!slackResponse.ok) {
-        console.error(
-          'Failed to send Slack notification:',
-          await slackResponse.text()
-        );
+        console.error('Failed to send Slack notification:', await slackResponse.text());
       }
     } catch (slackError) {
       console.error('Error sending Slack notification:', slackError);
@@ -166,7 +148,7 @@ export class HealthController {
   async getRedisDataDefault(): Promise<Record<string, unknown>> {
     return await this.healthService.getRedisData(100);
   }
-
+  
   @Get('redis-keys/:maxItems')
   @ApiParam({
     name: 'maxItems',
@@ -174,8 +156,9 @@ export class HealthController {
     type: Number,
   })
   async getRedisDataWithLimit(
-    @Param('maxItems') maxItems: number
+    @Param('maxItems') maxItems: number,
   ): Promise<Record<string, unknown>> {
     return await this.healthService.getRedisData(maxItems || 100);
   }
 }
+

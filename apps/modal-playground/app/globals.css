@@ -1,0 +1,48 @@
+@import 'tailwindcss';
+
+/* RYLA Studio–style dark theme (self-contained) */
+:root {
+  --bg-base: #121214;
+  --bg-card: #111113;
+  --border-default: rgba(255, 255, 255, 0.08);
+  --border-muted: rgba(255, 255, 255, 0.05);
+  --primary: #a855f7;
+  --primary-pink: #ec4899;
+  --accent: #9333ea;
+  --foreground: #ffffff;
+  --muted: rgba(255, 255, 255, 0.5);
+  --muted-subtle: rgba(255, 255, 255, 0.35);
+  --input-bg: rgba(255, 255, 255, 0.06);
+  --radius: 0.625rem;
+  --radius-lg: 0.75rem;
+  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-base);
+  color: var(--foreground);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus ring for inputs/buttons */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--bg-base), 0 0 0 4px var(--primary);
+}
+
+/* Scrollbar (studio-style) */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-base);
+}

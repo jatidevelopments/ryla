@@ -1,0 +1,748 @@
+{
+  "id": "01d66ae9-78be-4a8d-b737-24eee5e1d447",
+  "extra": {
+    "ds": {
+      "scale": 0.6303940863128639,
+      "offset": [
+        82.83657097962441,
+        450.90364611670634
+      ]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.20.7",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      21,
+      16,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      51,
+      8,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      100,
+      53,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      107,
+      55,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      111,
+      54,
+      0,
+      16,
+      0,
+      "CLIP"
+    ],
+    [
+      112,
+      54,
+      0,
+      40,
+      0,
+      "CLIP"
+    ],
+    [
+      114,
+      40,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      160,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      162,
+      69,
+      0,
+      70,
+      0,
+      "MODEL"
+    ],
+    [
+      163,
+      70,
+      0,
+      3,
+      0,
+      "MODEL"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 8,
+      "pos": [
+        1340,
+        -20
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        46
+      ],
+      "type": "VAEDecode",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 160,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 107,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            51
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 9,
+      "pos": [
+        1570,
+        -20
+      ],
+      "mode": 0,
+      "size": [
+        966.615966796875,
+        1025.3206787109375
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 51,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 72,
+      "pos": [
+        1010,
+        430
+      ],
+      "mode": 0,
+      "size": [
+        300,
+        450
+      ],
+      "type": "MarkdownNote",
+      "color": "#432",
+      "flags": {},
+      "order": 0,
+      "title": "Sampling Settings",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "## Official sampling settings\n\nProvided for reference, my workflows may have slightly different settings.\n\n### HiDream Full\n\n* hidream_i1_full_fp16.safetensors\n* shift: 3.0\n* steps: 50\n* sampler: uni_pc\n* scheduler: simple\n* cfg: 5.0\n\n### HiDream Dev\n\n* hidream_i1_dev_bf16.safetensors\n* shift: 6.0\n* steps: 28\n* sampler: lcm\n* scheduler: normal\n* cfg: 1.0 (no negative prompt)\n\n### HiDream Fast\n\n* hidream_i1_fast_bf16.safetensors\n* shift: 3.0\n* steps: 16\n* sampler: lcm\n* scheduler: normal\n* cfg: 1.0 (no negative prompt)\n"
+      ]
+    },
+    {
+      "id": 70,
+      "pos": [
+        750,
+        -90
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "ModelSamplingSD3",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 162,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            163
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ModelSamplingSD3"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        3.0000000000000004
+      ]
+    },
+    {
+      "id": 53,
+      "pos": [
+        640,
+        500
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "EmptySD3LatentImage",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            100
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "EmptySD3LatentImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 55,
+      "pos": [
+        1010,
+        290
+      ],
+      "mode": 0,
+      "size": [
+        310,
+        60
+      ],
+      "type": "VAELoader",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            107
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux/ae.safetensors"
+      ]
+    },
+    {
+      "id": 54,
+      "pos": [
+        80,
+        50
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        130
+      ],
+      "type": "QuadrupleCLIPLoader",
+      "color": "#223",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            111,
+            112
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.29",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "QuadrupleCLIPLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "clip_l_hidream.safetensors",
+        "clip_g_hidream.safetensors",
+        "t5xxl_fp8_e4m3fn_scaled.safetensors",
+        "llama_3.1_8b_instruct_fp8_scaled.safetensors"
+      ]
+    },
+    {
+      "id": 73,
+      "pos": [
+        223.4796905517578,
+        -227.59173583984375
+      ],
+      "mode": 0,
+      "size": [
+        250,
+        88
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "You can try changing the weight_dtype to fp8 if you are running out of memory."
+      ]
+    },
+    {
+      "id": 69,
+      "pos": [
+        80,
+        -90
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        82
+      ],
+      "type": "UNETLoader",
+      "color": "#223",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            162
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "UNETLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hidream_i1_full_fp16.safetensors",
+        "fp8_e4m3fn"
+      ]
+    },
+    {
+      "id": 40,
+      "pos": [
+        530,
+        260
+      ],
+      "mode": 0,
+      "size": [
+        432,
+        192
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#322",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 7,
+      "title": "Negative Prompt",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 112,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            114
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        530,
+        20
+      ],
+      "mode": 0,
+      "size": [
+        432,
+        192
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 6,
+      "title": "Positive Prompt",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 111,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            21
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "graffiti mural on a brick wall, highly detailed and vibrant street art in urban alley style, bold colorful spray-painted text saying \"HiDream\" in 3D block letters with sharp highlights and shadows, surrounded by layered graffiti tags, splashes, and abstract doodles in neon colors, photorealistic texture, gritty street wall with chipped paint and brick texture, ultra-detailed urban art, cinematic angle, HDR lighting\n"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        1010,
+        -20
+      ],
+      "mode": 0,
+      "size": [
+        310,
+        262
+      ],
+      "type": "KSampler",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 163,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 21,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 114,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 100,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            160
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        641196417873966,
+        "fixed",
+        35,
+        5,
+        "euler",
+        "simple",
+        1
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 163,
+  "last_node_id": 74,
+  "floatingLinks": null
+}

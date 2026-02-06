@@ -1,0 +1,3701 @@
+{
+  "id": "a89ffbbd-9921-4fbf-81b7-e0db9cd4f8b4",
+  "extra": {
+    "ds": {
+      "scale": 0.6032603569414171,
+      "offset": [
+        -2793.9455697602384,
+        -407.05386368834627
+      ]
+    },
+    "reroutes": null,
+    "node_versions": {
+      "comfy-core": "0.3.40",
+      "comfyui_essentials": "1.1.0",
+      "ComfyUI_Hunyuan3DWrapper": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0"
+    },
+    "frontendVersion": "1.21.7",
+    "VHS_latentpreview": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      30,
+      28,
+      0,
+      35,
+      0,
+      "DELIGHTMODEL"
+    ],
+    [
+      57,
+      35,
+      0,
+      45,
+      0,
+      "IMAGE"
+    ],
+    [
+      69,
+      13,
+      0,
+      52,
+      0,
+      "IMAGE"
+    ],
+    [
+      74,
+      55,
+      0,
+      56,
+      0,
+      "REMBG_SESSION"
+    ],
+    [
+      86,
+      59,
+      0,
+      17,
+      0,
+      "HY3DMESH"
+    ],
+    [
+      99,
+      64,
+      0,
+      35,
+      1,
+      "IMAGE"
+    ],
+    [
+      133,
+      59,
+      0,
+      83,
+      0,
+      "HY3DMESH"
+    ],
+    [
+      134,
+      83,
+      0,
+      79,
+      0,
+      "HY3DMESH"
+    ],
+    [
+      139,
+      85,
+      0,
+      88,
+      0,
+      "HY3DPAINTMODEL"
+    ],
+    [
+      142,
+      79,
+      1,
+      88,
+      3,
+      "IMAGE"
+    ],
+    [
+      148,
+      79,
+      0,
+      90,
+      0,
+      "IMAGE"
+    ],
+    [
+      151,
+      79,
+      2,
+      92,
+      1,
+      "MESHRENDER"
+    ],
+    [
+      163,
+      98,
+      0,
+      99,
+      0,
+      "HY3DMESH"
+    ],
+    [
+      185,
+      104,
+      0,
+      98,
+      0,
+      "IMAGE"
+    ],
+    [
+      192,
+      88,
+      0,
+      111,
+      0,
+      "IMAGE"
+    ],
+    [
+      193,
+      79,
+      0,
+      88,
+      2,
+      "IMAGE"
+    ],
+    [
+      196,
+      35,
+      0,
+      88,
+      1,
+      "IMAGE"
+    ],
+    [
+      199,
+      79,
+      1,
+      116,
+      0,
+      "IMAGE"
+    ],
+    [
+      202,
+      88,
+      0,
+      117,
+      0,
+      "IMAGE"
+    ],
+    [
+      203,
+      117,
+      0,
+      92,
+      0,
+      "IMAGE"
+    ],
+    [
+      204,
+      119,
+      0,
+      118,
+      0,
+      "UPSCALE_MODEL"
+    ],
+    [
+      205,
+      88,
+      0,
+      118,
+      1,
+      "IMAGE"
+    ],
+    [
+      207,
+      92,
+      0,
+      125,
+      0,
+      "IMAGE"
+    ],
+    [
+      209,
+      104,
+      0,
+      127,
+      0,
+      "IMAGE"
+    ],
+    [
+      217,
+      92,
+      0,
+      129,
+      0,
+      "IMAGE"
+    ],
+    [
+      218,
+      92,
+      1,
+      129,
+      1,
+      "MASK"
+    ],
+    [
+      219,
+      92,
+      2,
+      129,
+      2,
+      "MESHRENDER"
+    ],
+    [
+      220,
+      129,
+      0,
+      104,
+      0,
+      "IMAGE"
+    ],
+    [
+      221,
+      129,
+      0,
+      126,
+      0,
+      "IMAGE"
+    ],
+    [
+      222,
+      129,
+      1,
+      104,
+      1,
+      "MASK"
+    ],
+    [
+      223,
+      129,
+      2,
+      98,
+      1,
+      "MESHRENDER"
+    ],
+    [
+      226,
+      132,
+      0,
+      133,
+      0,
+      "MASK"
+    ],
+    [
+      227,
+      133,
+      0,
+      64,
+      0,
+      "IMAGE"
+    ],
+    [
+      231,
+      135,
+      0,
+      64,
+      2,
+      "MASK"
+    ],
+    [
+      240,
+      52,
+      0,
+      136,
+      0,
+      "*"
+    ],
+    [
+      241,
+      136,
+      0,
+      64,
+      1,
+      "IMAGE"
+    ],
+    [
+      244,
+      56,
+      1,
+      138,
+      0,
+      "MASK"
+    ],
+    [
+      250,
+      10,
+      1,
+      140,
+      0,
+      "HY3DVAE"
+    ],
+    [
+      251,
+      140,
+      0,
+      59,
+      0,
+      "HY3DMESH"
+    ],
+    [
+      252,
+      10,
+      0,
+      141,
+      0,
+      "HY3DMODEL"
+    ],
+    [
+      255,
+      141,
+      0,
+      140,
+      1,
+      "HY3DLATENT"
+    ],
+    [
+      256,
+      52,
+      0,
+      142,
+      0,
+      "*"
+    ],
+    [
+      257,
+      142,
+      0,
+      56,
+      1,
+      "IMAGE"
+    ],
+    [
+      258,
+      142,
+      0,
+      141,
+      1,
+      "IMAGE"
+    ],
+    [
+      259,
+      56,
+      1,
+      143,
+      0,
+      "*"
+    ],
+    [
+      260,
+      143,
+      0,
+      141,
+      2,
+      "MASK"
+    ],
+    [
+      261,
+      143,
+      0,
+      135,
+      0,
+      "*"
+    ],
+    [
+      262,
+      144,
+      0,
+      35,
+      3,
+      "INT"
+    ],
+    [
+      263,
+      144,
+      0,
+      35,
+      4,
+      "INT"
+    ],
+    [
+      264,
+      144,
+      0,
+      88,
+      7,
+      "INT"
+    ],
+    [
+      265,
+      148,
+      0,
+      35,
+      2,
+      "NOISESCHEDULER"
+    ],
+    [
+      266,
+      28,
+      0,
+      148,
+      0,
+      "HY3DDIFFUSERSPIPE"
+    ],
+    [
+      267,
+      149,
+      0,
+      88,
+      5,
+      "NOISESCHEDULER"
+    ],
+    [
+      268,
+      85,
+      0,
+      149,
+      0,
+      "HY3DDIFFUSERSPIPE"
+    ],
+    [
+      269,
+      17,
+      0,
+      150,
+      1,
+      "STRING"
+    ],
+    [
+      270,
+      99,
+      0,
+      151,
+      1,
+      "STRING"
+    ],
+    [
+      272,
+      61,
+      0,
+      79,
+      1,
+      "HY3DCAMERA"
+    ],
+    [
+      273,
+      61,
+      0,
+      88,
+      4,
+      "HY3DCAMERA"
+    ],
+    [
+      274,
+      61,
+      0,
+      92,
+      2,
+      "HY3DCAMERA"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 64,
+      "pos": [
+        -940,
+        1040
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        146
+      ],
+      "type": "ImageCompositeMasked",
+      "flags": {},
+      "order": 26,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 227,
+          "name": "destination",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 241,
+          "name": "source",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 231,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            99
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageCompositeMasked"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0,
+        0,
+        false
+      ]
+    },
+    {
+      "id": 119,
+      "pos": [
+        2335.203857421875,
+        728.801025390625
+      ],
+      "mode": 2,
+      "size": [
+        315,
+        58
+      ],
+      "type": "UpscaleModelLoader",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "UPSCALE_MODEL",
+          "type": "UPSCALE_MODEL",
+          "label": null,
+          "links": [
+            204
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "UpscaleModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "4x_foolhardy_Remacri.pth"
+      ]
+    },
+    {
+      "id": 120,
+      "pos": [
+        2725.203857421875,
+        738.801025390625
+      ],
+      "mode": 0,
+      "size": [
+        354.4071044921875,
+        125.7635726928711
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "You can upscale the multiviews at this point for more texture details"
+      ]
+    },
+    {
+      "id": 118,
+      "pos": [
+        2315.634033203125,
+        851.9907836914062
+      ],
+      "mode": 2,
+      "size": [
+        340.20001220703125,
+        46
+      ],
+      "type": "ImageUpscaleWithModel",
+      "flags": {},
+      "order": 39,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 204,
+          "name": "upscale_model",
+          "type": "UPSCALE_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 205,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageUpscaleWithModel"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 133,
+      "pos": [
+        -910,
+        1270
+      ],
+      "mode": 0,
+      "size": [
+        264.5999755859375,
+        26
+      ],
+      "type": "MaskToImage",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 14,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 226,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            227
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "MaskToImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 136,
+      "pos": [
+        -1060,
+        1060
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 18,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 240,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            241
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 135,
+      "pos": [
+        -1050,
+        1100
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 24,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 261,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            231
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 138,
+      "pos": [
+        -1252.15869140625,
+        -759.48779296875
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        246
+      ],
+      "type": "MaskPreview+",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 244,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "1.1.0",
+        "cnr_id": "comfyui_essentials",
+        "Node name for S&R": "MaskPreview+"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 59,
+      "pos": [
+        -1088.587158203125,
+        -261.9732971191406
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        174
+      ],
+      "type": "Hy3DPostprocessMesh",
+      "flags": {},
+      "order": 27,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 251,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "links": [
+            86,
+            133
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DPostprocessMesh"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        true,
+        true,
+        true,
+        50000,
+        false
+      ]
+    },
+    {
+      "id": 141,
+      "pos": [
+        -1820.3675537109375,
+        -131.7991180419922
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        218
+      ],
+      "type": "Hy3DGenerateMesh",
+      "flags": {},
+      "order": 23,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 252,
+          "name": "pipeline",
+          "type": "HY3DMODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 258,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 260,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "latents",
+          "type": "HY3DLATENT",
+          "label": null,
+          "links": [
+            255
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DGenerateMesh"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        5.5,
+        50,
+        123,
+        "fixed",
+        "FlowMatchEulerDiscreteScheduler",
+        true
+      ]
+    },
+    {
+      "id": 142,
+      "pos": [
+        -2040.167724609375,
+        -538.4284057617188
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 256,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            257,
+            258
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 143,
+      "pos": [
+        -2089.715087890625,
+        -160.06300354003906
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 22,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 259,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            260,
+            261
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 52,
+      "pos": [
+        -2494.432861328125,
+        -538.8303833007812
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        218
+      ],
+      "type": "ImageResize+",
+      "flags": {},
+      "order": 16,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 69,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            240,
+            256
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.0",
+        "cnr_id": "comfyui_essentials",
+        "Node name for S&R": "ImageResize+"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        518,
+        518,
+        "lanczos",
+        "pad",
+        "always",
+        2
+      ]
+    },
+    {
+      "id": 132,
+      "pos": [
+        -590,
+        1310
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "SolidMask",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            226
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SolidMask"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0.8,
+        512,
+        512
+      ]
+    },
+    {
+      "id": 85,
+      "pos": [
+        1909.106689453125,
+        766.966796875
+      ],
+      "mode": 0,
+      "size": [
+        327.5999755859375,
+        58
+      ],
+      "type": "DownloadAndLoadHy3DPaintModel",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "compile_args",
+          "type": "HY3DCOMPILEARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "multiview_pipe",
+          "type": "HY3DDIFFUSERSPIPE",
+          "label": null,
+          "links": [
+            139,
+            268
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "DownloadAndLoadHy3DPaintModel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan3d-paint-v2-0"
+      ]
+    },
+    {
+      "id": 144,
+      "pos": [
+        1624.705810546875,
+        745.9616088867188
+      ],
+      "mode": 0,
+      "size": [
+        260.3999938964844,
+        84.1800765991211
+      ],
+      "type": "PrimitiveNode",
+      "flags": {},
+      "order": 4,
+      "title": "Primitive: reference image size",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "INT",
+          "type": "INT",
+          "label": null,
+          "links": [
+            262,
+            263,
+            264
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "width"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        512,
+        "fixed"
+      ]
+    },
+    {
+      "id": 73,
+      "pos": [
+        -540,
+        1140
+      ],
+      "mode": 0,
+      "size": [
+        259.3616943359375,
+        99.84209442138672
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "The level of the background affects the delighting a lot, fully black generally doesn't work, too dark makes the image red, fully white can be overbright, adjust the background level to your liking with the mask value level"
+      ]
+    },
+    {
+      "id": 137,
+      "pos": [
+        -1840.3675537109375,
+        -437.75531005859375
+      ],
+      "mode": 0,
+      "size": [
+        312.0663146972656,
+        88
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "https://huggingface.co/Kijai/Hunyuan3D-2_safetensors/blob/main/hunyuan3d-dit-v2-0-fp16.safetensors"
+      ]
+    },
+    {
+      "id": 146,
+      "pos": [
+        -2487.70263671875,
+        -277.1795349121094
+      ],
+      "mode": 0,
+      "size": [
+        312.0663146972656,
+        88
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "The image encoder used works at 518x518, every input is resized to that automatically, but better to do it here first in controlled fashion"
+      ]
+    },
+    {
+      "id": 88,
+      "pos": [
+        1917.5408935546875,
+        897.4906005859375
+      ],
+      "mode": 0,
+      "size": [
+        311.7241516113281,
+        274
+      ],
+      "type": "Hy3DSampleMultiView",
+      "flags": {},
+      "order": 35,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 139,
+          "name": "pipeline",
+          "type": "HY3DDIFFUSERSPIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 196,
+          "name": "ref_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 193,
+          "name": "normal_maps",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 142,
+          "name": "position_maps",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 273,
+          "name": "camera_config",
+          "type": "HY3DCAMERA",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 267,
+          "name": "scheduler",
+          "type": "NOISESCHEDULER",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 264,
+          "name": "view_size",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "view_size"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            192,
+            202,
+            205
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DSampleMultiView"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        512,
+        25,
+        1024,
+        "fixed",
+        1
+      ]
+    },
+    {
+      "id": 35,
+      "pos": [
+        -560,
+        870
+      ],
+      "mode": 0,
+      "size": [
+        278.7183837890625,
+        222
+      ],
+      "type": "Hy3DDelightImage",
+      "flags": {},
+      "order": 28,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 30,
+          "name": "delight_pipe",
+          "type": "HY3DDIFFUSERSPIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 99,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 265,
+          "name": "scheduler",
+          "type": "NOISESCHEDULER",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 262,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "width"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 263,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "height"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            57,
+            196
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DDelightImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        50,
+        512,
+        512,
+        1,
+        0,
+        "fixed"
+      ]
+    },
+    {
+      "id": 148,
+      "pos": [
+        -567.3681640625,
+        726.651611328125
+      ],
+      "mode": 0,
+      "size": [
+        288.13494873046875,
+        82
+      ],
+      "type": "Hy3DDiffusersSchedulerConfig",
+      "flags": {},
+      "order": 17,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 266,
+          "name": "pipeline",
+          "type": "HY3DDIFFUSERSPIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "diffusers_scheduler",
+          "type": "NOISESCHEDULER",
+          "label": null,
+          "links": [
+            265
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DDiffusersSchedulerConfig"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Euler A",
+        "default"
+      ]
+    },
+    {
+      "id": 140,
+      "pos": [
+        -1426.1195068359375,
+        -265.49169921875
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        222
+      ],
+      "type": "Hy3DVAEDecode",
+      "flags": {},
+      "order": 25,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 250,
+          "name": "vae",
+          "type": "HY3DVAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 255,
+          "name": "latents",
+          "type": "HY3DLATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "links": [
+            251
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DVAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1.01,
+        384,
+        32000,
+        0,
+        "mc",
+        true,
+        true
+      ]
+    },
+    {
+      "id": 149,
+      "pos": [
+        1929.843994140625,
+        1232.3370361328125
+      ],
+      "mode": 0,
+      "size": [
+        288.13494873046875,
+        82
+      ],
+      "type": "Hy3DDiffusersSchedulerConfig",
+      "flags": {},
+      "order": 15,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 268,
+          "name": "pipeline",
+          "type": "HY3DDIFFUSERSPIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "diffusers_scheduler",
+          "type": "NOISESCHEDULER",
+          "label": null,
+          "links": [
+            267
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DDiffusersSchedulerConfig"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Euler A",
+        "default"
+      ]
+    },
+    {
+      "id": 117,
+      "pos": [
+        2288.609130859375,
+        958.801025390625
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        218
+      ],
+      "type": "ImageResize+",
+      "flags": {},
+      "order": 38,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 202,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            203
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.0",
+        "cnr_id": "comfyui_essentials",
+        "Node name for S&R": "ImageResize+"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        2048,
+        2048,
+        "lanczos",
+        "stretch",
+        "always",
+        0
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [
+        -1850.3675537109375,
+        -287.75531005859375
+      ],
+      "mode": 0,
+      "size": [
+        372.8913269042969,
+        126
+      ],
+      "type": "Hy3DModelLoader",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "compile_args",
+          "type": "HY3DCOMPILEARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "pipeline",
+          "type": "HY3DMODEL",
+          "label": null,
+          "links": [
+            252
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "vae",
+          "type": "HY3DVAE",
+          "label": null,
+          "links": [
+            250
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan3d-dit-v2-0-fp16.safetensors",
+        "sdpa",
+        false
+      ]
+    },
+    {
+      "id": 13,
+      "pos": [
+        -2507.89306640625,
+        -919.1929931640625
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314.0000305175781
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 9,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            69
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_examples_workflow_1193_1 .png",
+        "image"
+      ]
+    },
+    {
+      "id": 17,
+      "pos": [
+        -1081.68212890625,
+        -396.9957275390625
+      ],
+      "mode": 0,
+      "size": [
+        315.6768493652344,
+        106
+      ],
+      "type": "Hy3DExportMesh",
+      "flags": {},
+      "order": 29,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 86,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "glb_path",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            269
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DExportMesh"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1193",
+        "glb",
+        true
+      ]
+    },
+    {
+      "id": 45,
+      "pos": [
+        -225.17770385742188,
+        1078.052978515625
+      ],
+      "mode": 0,
+      "size": [
+        370.2379455566406,
+        396.4273376464844
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 31,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 57,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 55,
+      "pos": [
+        -1727.6158447265625,
+        -860.3095092773438
+      ],
+      "mode": 0,
+      "size": [
+        340.20001220703125,
+        82
+      ],
+      "type": "TransparentBGSession+",
+      "flags": {},
+      "order": 10,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "REMBG_SESSION",
+          "type": "REMBG_SESSION",
+          "label": null,
+          "links": [
+            74
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.0",
+        "cnr_id": "comfyui_essentials",
+        "Node name for S&R": "TransparentBGSession+"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "base",
+        true
+      ]
+    },
+    {
+      "id": 56,
+      "pos": [
+        -1749.5977783203125,
+        -659.8313598632812
+      ],
+      "mode": 0,
+      "size": [
+        327.5999755859375,
+        46
+      ],
+      "type": "ImageRemoveBackground+",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 74,
+          "name": "rembg_session",
+          "type": "REMBG_SESSION",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 257,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            244,
+            259
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.1.0",
+        "cnr_id": "comfyui_essentials",
+        "Node name for S&R": "ImageRemoveBackground+"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 79,
+      "pos": [
+        626.2247924804688,
+        737.3746948242188
+      ],
+      "mode": 0,
+      "size": [
+        342.5999755859375,
+        170
+      ],
+      "type": "Hy3DRenderMultiView",
+      "flags": {},
+      "order": 33,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 134,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 272,
+          "name": "camera_config",
+          "type": "HY3DCAMERA",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "normal_maps",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            148,
+            193
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "position_maps",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            142,
+            199
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "renderer",
+          "type": "MESHRENDER",
+          "label": null,
+          "links": [
+            151
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "masks",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DRenderMultiView"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1024,
+        2048,
+        "world"
+      ]
+    },
+    {
+      "id": 83,
+      "pos": [
+        351.2363586425781,
+        750.3749389648438
+      ],
+      "mode": 0,
+      "size": [
+        214.20001220703125,
+        26
+      ],
+      "type": "Hy3DMeshUVWrap",
+      "flags": {},
+      "order": 30,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 133,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "links": [
+            134
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DMeshUVWrap"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 115,
+      "pos": [
+        331.8727722167969,
+        909.4987182617188
+      ],
+      "mode": 0,
+      "size": [
+        244.82861328125,
+        119.78506469726562
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 11,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "These are the default camera views used, customizing is fully experimental. To customize."
+      ]
+    },
+    {
+      "id": 61,
+      "pos": [
+        613.3214721679688,
+        987.05029296875
+      ],
+      "mode": 0,
+      "size": [
+        342.9443054199219,
+        154
+      ],
+      "type": "Hy3DCameraConfig",
+      "flags": {},
+      "order": 12,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "camera_config",
+          "type": "HY3DCAMERA",
+          "label": null,
+          "links": [
+            272,
+            273,
+            274
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DCameraConfig"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "0, 90, 180, 270, 0, 180",
+        "0, 0, 0, 0, 90, -90",
+        "1, 0.1, 0.5, 0.1, 0.05, 0.05",
+        1.45,
+        1.2
+      ]
+    },
+    {
+      "id": 90,
+      "pos": [
+        361.0416564941406,
+        1204.07763671875
+      ],
+      "mode": 0,
+      "size": [
+        534.0819091796875,
+        375.8153991699219
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 34,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 148,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 116,
+      "pos": [
+        931.763671875,
+        1222.689453125
+      ],
+      "mode": 0,
+      "size": [
+        534.0819091796875,
+        375.8153991699219
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 36,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 199,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 111,
+      "pos": [
+        1619.5228271484375,
+        1351.522216796875
+      ],
+      "mode": 0,
+      "size": [
+        658.9693603515625,
+        404.7159423828125
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 37,
+      "title": "Preview Image: Multiview results",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 192,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 125,
+      "pos": [
+        2314.993408203125,
+        1359.35107421875
+      ],
+      "mode": 0,
+      "size": [
+        405.9750061035156,
+        369.4262390136719
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 41,
+      "title": "Preview Image: Initial baked texture",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 207,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 126,
+      "pos": [
+        2754.503662109375,
+        1369.076171875
+      ],
+      "mode": 0,
+      "size": [
+        412.6239013671875,
+        361.88128662109375
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 43,
+      "title": "Preview Image: vertex inpainted texture",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 221,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 127,
+      "pos": [
+        3191.58203125,
+        1377.99072265625
+      ],
+      "mode": 0,
+      "size": [
+        372.7425231933594,
+        352.1278381347656
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 46,
+      "title": "Preview Image: fully inpainted texture",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 209,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 92,
+      "pos": [
+        2321.00341796875,
+        1220.6968994140625
+      ],
+      "mode": 0,
+      "size": [
+        302.4000244140625,
+        66
+      ],
+      "type": "Hy3DBakeFromMultiview",
+      "flags": {},
+      "order": 40,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 203,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 151,
+          "name": "renderer",
+          "type": "MESHRENDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 274,
+          "name": "camera_config",
+          "type": "HY3DCAMERA",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "texture",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            207,
+            217
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            218
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "renderer",
+          "type": "MESHRENDER",
+          "label": null,
+          "links": [
+            219
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DBakeFromMultiview"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 129,
+      "pos": [
+        2691.862548828125,
+        1232.46435546875
+      ],
+      "mode": 0,
+      "size": [
+        277.20001220703125,
+        66
+      ],
+      "type": "Hy3DMeshVerticeInpaintTexture",
+      "flags": {},
+      "order": 42,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 217,
+          "name": "texture",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 218,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 219,
+          "name": "renderer",
+          "type": "MESHRENDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "texture",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            220,
+            221
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": [
+            222
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "renderer",
+          "type": "MESHRENDER",
+          "label": null,
+          "links": [
+            223
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DMeshVerticeInpaintTexture"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 104,
+      "pos": [
+        3071.21826171875,
+        1215.2099609375
+      ],
+      "mode": 0,
+      "size": [
+        239.40000915527344,
+        102
+      ],
+      "type": "CV2InpaintTexture",
+      "flags": {},
+      "order": 44,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 220,
+          "name": "texture",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 222,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "texture",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            185,
+            209
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "CV2InpaintTexture"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        3,
+        "ns"
+      ]
+    },
+    {
+      "id": 98,
+      "pos": [
+        3399.336669921875,
+        1245.5592041015625
+      ],
+      "mode": 0,
+      "size": [
+        226.79998779296875,
+        46
+      ],
+      "type": "Hy3DApplyTexture",
+      "flags": {},
+      "order": 45,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 185,
+          "name": "texture",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 223,
+          "name": "renderer",
+          "type": "MESHRENDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "links": [
+            163
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DApplyTexture"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 99,
+      "pos": [
+        3230.99658203125,
+        961.453857421875
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "Hy3DExportMesh",
+      "flags": {},
+      "order": 47,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 163,
+          "name": "trimesh",
+          "type": "TRIMESH",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "glb_path",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            270
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "Hy3DExportMesh"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1193",
+        "glb",
+        true
+      ]
+    },
+    {
+      "id": 150,
+      "pos": [
+        -666.3436279296875,
+        -700.9423217773438
+      ],
+      "mode": 0,
+      "size": [
+        760.9715576171875,
+        739.2823486328125
+      ],
+      "type": "Preview3D",
+      "flags": {},
+      "order": 32,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 269,
+          "name": "model_file",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "model_file"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Show Grid": true,
+        "Camera Info": {
+          "zoom": 1,
+          "target": {
+            "x": 0,
+            "y": 1.8246333989965202,
+            "z": 0
+          },
+          "position": {
+            "x": -6.064269236240094,
+            "y": 0.4393504181451049,
+            "z": 13.8300113181428
+          },
+          "cameraType": "orthographic"
+        },
+        "Camera Type": "orthographic",
+        "Node name for S&R": "Preview3D",
+        "Last Time Model File": "1193_00015_.glb"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1193_00015_.glb",
+        ""
+      ]
+    },
+    {
+      "id": 151,
+      "pos": [
+        4481.7509765625,
+        645.4639892578125
+      ],
+      "mode": 0,
+      "size": [
+        1035.845458984375,
+        891.4530029296875
+      ],
+      "type": "Preview3D",
+      "flags": {},
+      "order": 48,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 270,
+          "name": "model_file",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "model_file"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Show Grid": true,
+        "Camera Info": {
+          "zoom": 1,
+          "target": {
+            "x": 0,
+            "y": 1.8246333989965202,
+            "z": 0
+          },
+          "position": {
+            "x": -2.4137521246157854,
+            "y": 7.496668231319459,
+            "z": 13.85515806147411
+          },
+          "cameraType": "perspective"
+        },
+        "Camera Type": "perspective",
+        "Background Color": "#f4e8ce",
+        "Node name for S&R": "Preview3D",
+        "Last Time Model File": "1193_00016_.glb"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1193_00016_.glb",
+        ""
+      ]
+    },
+    {
+      "id": 28,
+      "pos": [
+        -940,
+        870
+      ],
+      "mode": 0,
+      "size": [
+        307.71990966796875,
+        58
+      ],
+      "type": "DownloadAndLoadHy3DDelightModel",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "compile_args",
+          "type": "HY3DCOMPILEARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "delight_pipe",
+          "type": "HY3DDIFFUSERSPIPE",
+          "label": null,
+          "links": [
+            30,
+            266
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "c1f95d9a6e15ab5cf0bf301725c7849d4a6ee5f0",
+        "cnr_id": "comfyui-hunyan3dwrapper",
+        "Node name for S&R": "DownloadAndLoadHy3DDelightModel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan3d-delight-v2-0"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Group",
+      "bounding": [
+        -2559.171630859375,
+        -1014.3466796875,
+        2881.048095703125,
+        1256.416015625
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#b58b2a",
+      "flags": {},
+      "title": "Delight",
+      "bounding": [
+        -1166.68408203125,
+        627.7207641601562,
+        1369.6767578125,
+        888.11328125
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 3,
+      "color": "#b06634",
+      "flags": {},
+      "title": "RenderTextures",
+      "bounding": [
+        238.60580444335938,
+        637.6136474609375,
+        1327.30810546875,
+        1491.8914794921875
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 4,
+      "color": "#a1309b",
+      "flags": {},
+      "title": "TextureSampling",
+      "bounding": [
+        1591.5169677734375,
+        633.6101684570312,
+        2813.541015625,
+        1487.335205078125
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 274,
+  "last_node_id": 152,
+  "floatingLinks": null
+}

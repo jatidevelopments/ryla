@@ -1,0 +1,514 @@
+{
+  "id": "88ac5dad-efd7-40bb-84fe-fbaefdee1fa9",
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [-207.9998779296875, 220.7999267578125]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.18.10"
+  },
+  "links": [
+    [23, 17, 0, 3, 3, "LATENT"],
+    [26, 18, 0, 19, 0, "AUDIO"],
+    [80, 40, 1, 14, 0, "CLIP"],
+    [83, 40, 2, 18, 1, "VAE"],
+    [101, 3, 0, 18, 0, "LATENT"],
+    [108, 14, 0, 44, 0, "CONDITIONING"],
+    [109, 44, 0, 3, 2, "CONDITIONING"],
+    [110, 14, 0, 3, 1, "CONDITIONING"],
+    [111, 40, 0, 45, 0, "MODEL"],
+    [112, 45, 0, 3, 0, "MODEL"]
+  ],
+  "nodes": [
+    {
+      "id": 18,
+      "pos": [1370, 100],
+      "mode": 0,
+      "size": [150.93612670898438, 46],
+      "type": "VAEDecodeAudio",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 101,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 83,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "label": null,
+          "links": [26],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecodeAudio"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 45,
+      "pos": [715.2496948242188, -31.243383407592773],
+      "mode": 0,
+      "size": [270, 58],
+      "type": "ModelSamplingSD3",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 111,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [112],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ModelSamplingSD3"
+      },
+      "showAdvanced": null,
+      "widgets_values": [4.000000000000001]
+    },
+    {
+      "id": 17,
+      "pos": [712.6301879882812, 566.0068969726562],
+      "mode": 0,
+      "size": [270, 82],
+      "type": "EmptyAceStepLatentAudio",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [23],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "EmptyAceStepLatentAudio"
+      },
+      "showAdvanced": null,
+      "widgets_values": [30, 1]
+    },
+    {
+      "id": 40,
+      "pos": [179.5068359375, 87.76739501953125],
+      "mode": 0,
+      "size": [375, 98],
+      "type": "CheckpointLoaderSimple",
+      "color": "#322",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [111],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [80],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [83],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/ACE-Step_ComfyUI_repackaged/resolve/main/all_in_one/ace_step_v1_3.5b.safetensors?download=true",
+            "name": "ace_step_v1_3.5b.safetensors",
+            "directory": "checkpoints"
+          }
+        ],
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["ace_step_v1_3.5b.safetensors"]
+    },
+    {
+      "id": 48,
+      "pos": [-360.0564270019531, 45.08247375488281],
+      "mode": 0,
+      "size": [483.296875, 133.74545288085938],
+      "type": "MarkdownNote",
+      "color": "#432",
+      "flags": {},
+      "order": 2,
+      "title": "Ace Step - Prompting",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "For help on prompts, please see: https://ace-step.github.io/\n"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [1040, 90],
+      "mode": 0,
+      "size": [315, 262],
+      "type": "KSampler",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 112,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 110,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 109,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 23,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [101],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        820397155440560,
+        "randomize",
+        50,
+        4,
+        "res_multistep",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 14,
+      "pos": [581.5770874023438, 82.79544830322266],
+      "mode": 0,
+      "size": [410.2587890625, 336.3212890625],
+      "type": "TextEncodeAceStepAudio",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 80,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [108, 110],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "TextEncodeAceStepAudio"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "country rock, folk rock, southern rock, bluegrass, pop, no auto-tune",
+        "[verse]\nWoke up to the sunrise glow\nTook my heart and hit the road\nWheels hummin' the only tune I know\nStraight to where the wildflowers grow\n\n[verse]\nGot that old map all wrinkled and torn\nDestination unknown but I'm reborn\nWith a smile that the wind has worn\nChasin' dreams that can't be sworn\n\n[chorus]\nRidin' on a highway to sunshine\nGot my shades and my radio on fine\nLeave the shadows in the rearview rhyme\nHeart's racing as we chase the time\n\n[verse]\nMet a girl with a heart of gold\nTold stories that never get old\nHer laugh like a tale that's been told\nA melody so bold yet uncontrolled\n\n[bridge]\nClouds roll by like silent ghosts\nAs we drive along the coast\nWe toast to the days we love the most\nFreedom's song is what we post\n\n[chorus]\nRidin' on a highway to sunshine\nGot my shades and my radio on fine\nLeave the shadows in the rearview rhyme\nHeart's racing as we chase the time",
+        1.0000000000000002
+      ]
+    },
+    {
+      "id": 44,
+      "pos": [779.4833984375, 479.8263244628906],
+      "mode": 0,
+      "size": [197.712890625, 26],
+      "type": "ConditioningZeroOut",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 5,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 108,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [109],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 19,
+      "pos": [1539, 100],
+      "mode": 0,
+      "size": [375.57366943359375, 112],
+      "type": "SaveAudio",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 26,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.32",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["1224"]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Load model here",
+      "bounding": [169.5068359375, 14.167394638061523, 395, 181.60000610351562],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 112,
+  "last_node_id": 48,
+  "floatingLinks": null
+}

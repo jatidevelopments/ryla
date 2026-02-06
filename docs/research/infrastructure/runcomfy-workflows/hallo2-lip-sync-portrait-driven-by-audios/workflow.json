@@ -1,0 +1,685 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.6830134553650705,
+      "offset": [
+        -221.02373058971065,
+        1096.9065527413272
+      ]
+    }
+  },
+  "links": [
+    [
+      8,
+      9,
+      0,
+      1,
+      1,
+      "AUDIO"
+    ],
+    [
+      9,
+      7,
+      0,
+      1,
+      0,
+      "IMAGE"
+    ],
+    [
+      23,
+      2,
+      0,
+      21,
+      0,
+      "MODEL_HALLO"
+    ],
+    [
+      24,
+      1,
+      0,
+      21,
+      1,
+      "EMB_A_HALLO"
+    ],
+    [
+      25,
+      1,
+      1,
+      21,
+      2,
+      "EMB_I_HALLO"
+    ],
+    [
+      43,
+      21,
+      0,
+      26,
+      0,
+      "IMAGE"
+    ],
+    [
+      44,
+      21,
+      1,
+      26,
+      4,
+      "FLOAT"
+    ],
+    [
+      51,
+      9,
+      0,
+      25,
+      1,
+      "AUDIO"
+    ],
+    [
+      53,
+      21,
+      0,
+      31,
+      1,
+      "IMAGE"
+    ],
+    [
+      54,
+      30,
+      0,
+      31,
+      0,
+      "HALLO_U_MODEL"
+    ],
+    [
+      55,
+      31,
+      0,
+      25,
+      0,
+      "IMAGE"
+    ],
+    [
+      56,
+      31,
+      2,
+      25,
+      4,
+      "FLOAT"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 21,
+      "pos": [
+        673.442138671875,
+        -1021.79736328125
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        290
+      ],
+      "type": "HallosSampler",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 23,
+          "name": "model",
+          "type": "MODEL_HALLO",
+          "label": "model"
+        },
+        {
+          "link": 24,
+          "name": "audio_emb",
+          "type": "EMB_A_HALLO",
+          "label": "audio_emb"
+        },
+        {
+          "link": 25,
+          "name": "image_emb",
+          "type": "EMB_I_HALLO",
+          "label": "image_emb"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "links": [
+            43,
+            53
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": "frame_rate",
+          "links": [
+            44
+          ],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "path",
+          "type": "STRING",
+          "label": "path",
+          "links": [],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HallosSampler"
+      },
+      "widgets_values": [
+        42,
+        "fixed",
+        0.5,
+        0.5,
+        0.5,
+        3.5,
+        20,
+        true,
+        false
+      ]
+    },
+    {
+      "id": 30,
+      "pos": [
+        1066.4420166015625,
+        -1020.79736328125
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        202
+      ],
+      "type": "HallosUpscaleloader",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "HALLO_U_MODEL",
+          "label": "model",
+          "links": [
+            54
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HallosUpscaleloader"
+      },
+      "widgets_values": [
+        "RealESRGAN_x2plus.pth",
+        "facelib/detection_Resnet50_Final.pth",
+        "realesrgan",
+        false,
+        false,
+        400,
+        2
+      ]
+    },
+    {
+      "id": 2,
+      "pos": [
+        290.442138671875,
+        -1009.79736328125
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        154
+      ],
+      "type": "HalloLoader",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL_HALLO",
+          "label": "model",
+          "links": [
+            23
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HalloLoader"
+      },
+      "widgets_values": [
+        "SD1.5/v1-5-pruned-emaonly.ckpt",
+        "sd1/vae-ft-mse-840000-ema-pruned.safetensors",
+        "motion_module/mm_sd_v15_v2.ckpt",
+        "fp16",
+        false
+      ]
+    },
+    {
+      "id": 25,
+      "pos": [
+        1779,
+        -1022
+      ],
+      "mode": 0,
+      "size": [
+        387.0881042480469,
+        330
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 55,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images"
+        },
+        {
+          "link": 51,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": "audio",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": "meta_batch",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": "vae",
+          "shape": 7
+        },
+        {
+          "link": 56,
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": "frame_rate",
+          "widget": {
+            "name": "frame_rate"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "label": "Filenames",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "1164_00004-audio.mp4",
+            "subfolder": "",
+            "frame_rate": 25
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1164"
+      }
+    },
+    {
+      "id": 31,
+      "pos": [
+        1430,
+        -1019
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        242
+      ],
+      "type": "HallosVideoUpscale",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 54,
+          "name": "model",
+          "type": "HALLO_U_MODEL",
+          "label": "model"
+        },
+        {
+          "link": 53,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": "audio",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": "frame_rate",
+          "widget": {
+            "name": "frame_rate"
+          }
+        },
+        {
+          "link": null,
+          "name": "path",
+          "type": "STRING",
+          "label": "path",
+          "widget": {
+            "name": "path"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "links": [
+            55
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "label": "audio",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": "frame_rate",
+          "links": [
+            56
+          ],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HallosVideoUpscale"
+      },
+      "widgets_values": [
+        "none",
+        0.5,
+        false,
+        false,
+        false,
+        0.5,
+        ""
+      ]
+    },
+    {
+      "id": 1,
+      "pos": [
+        668,
+        -660
+      ],
+      "mode": 0,
+      "size": [
+        325.8182678222656,
+        206.60879516601562
+      ],
+      "type": "HalloPreImgAndAudio",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 9,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image"
+        },
+        {
+          "link": 8,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": "audio"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "audio_emb",
+          "type": "EMB_A_HALLO",
+          "label": "audio_emb",
+          "links": [
+            24
+          ],
+          "shape": 3
+        },
+        {
+          "name": "image_emb",
+          "type": "EMB_I_HALLO",
+          "label": "image_emb",
+          "links": [
+            25
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HalloPreImgAndAudio"
+      },
+      "widgets_values": [
+        "audio_separator/Kim_Vocal_2.onnx",
+        1.2,
+        512,
+        512,
+        25,
+        true
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [
+        282,
+        -794
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            9
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1164_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 26,
+      "pos": [
+        1074,
+        -740
+      ],
+      "mode": 0,
+      "size": [
+        315.5489501953125,
+        330
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 43,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": "audio",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": "meta_batch",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": "vae",
+          "shape": 7
+        },
+        {
+          "link": 44,
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": "frame_rate",
+          "widget": {
+            "name": "frame_rate"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "label": "Filenames",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "AnimateDiff_00019.mp4",
+            "subfolder": "",
+            "frame_rate": 25
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "AnimateDiff"
+      }
+    },
+    {
+      "id": 9,
+      "pos": [
+        282,
+        -422
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        124.00000762939453
+      ],
+      "type": "LoadAudio",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "label": "AUDIO",
+          "links": [
+            8,
+            51
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadAudio"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1164_2.wav",
+        null,
+        ""
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 56,
+  "last_node_id": 31
+}

@@ -1,0 +1,276 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.6588450000000036,
+      "offset": [
+        149.6658964939669,
+        -32.4014448101824
+      ]
+    },
+    "workspace_info": {
+      "id": "GJaE_AJ7OGxFMyGQJ1WNw"
+    }
+  },
+  "links": [
+    [
+      24,
+      15,
+      0,
+      14,
+      0,
+      "IMAGE"
+    ],
+    [
+      25,
+      16,
+      0,
+      14,
+      1,
+      "IMAGE"
+    ],
+    [
+      26,
+      14,
+      0,
+      17,
+      0,
+      "IMAGE"
+    ],
+    [
+      27,
+      14,
+      0,
+      18,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 14,
+      "pos": [
+        469,
+        181
+      ],
+      "mode": 0,
+      "size": [
+        516.270751953125,
+        288
+      ],
+      "type": "ToonCrafterNode",
+      "flags": {},
+      "order": 2,
+      "inputs": [
+        {
+          "link": 24,
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "link": 25,
+          "name": "image2",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            26,
+            27
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ToonCrafterNode"
+      },
+      "widgets_values": [
+        "tooncrafter_512_interp_v1/tooncrafter_512_interp-fp16.safetensors",
+        "",
+        913239564017932,
+        "randomize",
+        1,
+        7.5,
+        50,
+        10,
+        8
+      ]
+    },
+    {
+      "id": 17,
+      "pos": [
+        1032,
+        80
+      ],
+      "mode": 0,
+      "size": [
+        469.7403564453125,
+        339.6043701171875
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "link": 26,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "1099"
+      ]
+    },
+    {
+      "id": 15,
+      "pos": [
+        100,
+        127
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            24
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1099_3.png",
+        "image"
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        101,
+        497
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            25
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1099_4.png",
+        "image"
+      ]
+    },
+    {
+      "id": 18,
+      "pos": [
+        1027,
+        489
+      ],
+      "mode": 0,
+      "size": [
+        479.8551025390625,
+        218
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 27,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "VHS_AUDIO"
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "format": "image/gif",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "image/gif",
+            "filename": "AnimateDiff_00002.gif",
+            "subfolder": ""
+          },
+          "paused": false
+        },
+        "filename_prefix": "1099"
+      }
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 27,
+  "last_node_id": 19
+}

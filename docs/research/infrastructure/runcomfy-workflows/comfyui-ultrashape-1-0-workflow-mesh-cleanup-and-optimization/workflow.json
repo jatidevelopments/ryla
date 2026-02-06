@@ -1,0 +1,697 @@
+{
+  "id": "25224420-e87c-471a-a3fb-0b76d9646dea",
+  "extra": {
+    "ds": {
+      "scale": 1.3072321428571596,
+      "offset": [
+        5371.6894024442745,
+        3141.65007184304
+      ]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.35.9",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0,
+    "workflowRendererVersion": "LG"
+  },
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "ULTRASHAPE_MODEL"
+    ],
+    [
+      2,
+      3,
+      0,
+      2,
+      1,
+      "ULTRASHAPE_MESH"
+    ],
+    [
+      3,
+      1,
+      0,
+      3,
+      0,
+      "ULTRASHAPE_MODEL"
+    ],
+    [
+      4,
+      2,
+      0,
+      4,
+      0,
+      "ULTRASHAPE_OUTPUT"
+    ],
+    [
+      6,
+      4,
+      0,
+      6,
+      2,
+      "STRING"
+    ],
+    [
+      7,
+      7,
+      0,
+      2,
+      2,
+      "IMAGE"
+    ],
+    [
+      8,
+      8,
+      2,
+      3,
+      1,
+      "STRING"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 3,
+      "pos": [
+        -4353.044669770675,
+        -2608.5267118940765
+      ],
+      "mode": 0,
+      "size": [
+        302.093359375,
+        154
+      ],
+      "type": "UltraShapeLoadCoarseMesh",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 3,
+          "name": "model",
+          "type": "ULTRASHAPE_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 8,
+          "name": "mesh_path",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "mesh_path"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "coarse_mesh",
+          "type": "ULTRASHAPE_MESH",
+          "label": null,
+          "links": [
+            2
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "8f6a2000b1377557da0488c35234389cb4965530",
+        "aux_id": "jtydhr88/ComfyUI-UltraShape1",
+        "cnr_id": "Comfyui-UltraShape1",
+        "Node name for S&R": "UltraShapeLoadCoarseMesh"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "",
+        0.99,
+        204800,
+        204800,
+        0
+      ]
+    },
+    {
+      "id": 4,
+      "pos": [
+        -3768.66369797471,
+        -2469.423493056097
+      ],
+      "mode": 0,
+      "size": [
+        274.175390625,
+        106
+      ],
+      "type": "UltraShapeSaveGLB",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 4,
+          "name": "refined_mesh",
+          "type": "ULTRASHAPE_OUTPUT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "file_path",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            6
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "8f6a2000b1377557da0488c35234389cb4965530",
+        "aux_id": "jtydhr88/ComfyUI-UltraShape1",
+        "cnr_id": "Comfyui-UltraShape1",
+        "Node name for S&R": "UltraShapeSaveGLB"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ultrashape",
+        "Refined_Mesh",
+        "glb"
+      ]
+    },
+    {
+      "id": 2,
+      "pos": [
+        -3787.1047226789797,
+        -2824.639462819297
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        290
+      ],
+      "type": "UltraShapeRefine",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 1,
+          "name": "model",
+          "type": "ULTRASHAPE_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 2,
+          "name": "coarse_mesh",
+          "type": "ULTRASHAPE_MESH",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 7,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "refined_mesh",
+          "type": "ULTRASHAPE_OUTPUT",
+          "label": null,
+          "links": [
+            4
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "8f6a2000b1377557da0488c35234389cb4965530",
+        "aux_id": "jtydhr88/ComfyUI-UltraShape1",
+        "cnr_id": "Comfyui-UltraShape1",
+        "Node name for S&R": "UltraShapeRefine"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        10,
+        5,
+        1024,
+        8000,
+        0,
+        1,
+        235211372,
+        "fixed",
+        false
+      ]
+    },
+    {
+      "id": 1,
+      "pos": [
+        -4344.587204665093,
+        -2834.8951768931715
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        130
+      ],
+      "type": "UltraShapeLoadModel",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "ULTRASHAPE_MODEL",
+          "label": null,
+          "links": [
+            1,
+            3
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "8f6a2000b1377557da0488c35234389cb4965530",
+        "aux_id": "jtydhr88/ComfyUI-UltraShape1",
+        "cnr_id": "Comfyui-UltraShape1",
+        "Node name for S&R": "UltraShapeLoadModel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ultrashape_v1.pt",
+        "infer_dit_refine.yaml",
+        "bfloat16",
+        false
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [
+        -5234.371309069006,
+        -3011.9754662438777
+      ],
+      "mode": 0,
+      "size": [
+        499.25137212499976,
+        591.124847999999
+      ],
+      "type": "LoadImage",
+      "color": "#233",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#355",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            7
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.7.0",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_1332.png",
+        "image"
+      ]
+    },
+    {
+      "id": 6,
+      "pos": [
+        -4469.469511492757,
+        -2225.9311983482803
+      ],
+      "mode": 0,
+      "size": [
+        976.9337840751932,
+        785.3053234218746
+      ],
+      "type": "Preview3D",
+      "color": "#223",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "bg_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 6,
+          "name": "model_file",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "model_file"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {
+        "ver": "0.7.0",
+        "cnr_id": "comfy-core",
+        "Light Config": {
+          "intensity": 3
+        },
+        "Scene Config": {
+          "showGrid": true,
+          "backgroundColor": "#282828",
+          "backgroundImage": "",
+          "backgroundRenderMode": "tiled"
+        },
+        "Camera Config": {
+          "fov": 35,
+          "state": {
+            "zoom": 1,
+            "target": {
+              "x": 0.03688957828785406,
+              "y": 2.6294978152367787,
+              "z": 0.13584416282719786
+            },
+            "position": {
+              "x": -2.9872607600054892,
+              "y": 3.1221522673349007,
+              "z": 0.385887421984174
+            },
+            "cameraType": "perspective"
+          },
+          "cameraType": "perspective"
+        },
+        "Node name for S&R": "Preview3D",
+        "Last Time Model File": "ultrashape/Refined_Mesh_20260111_110223163_fd9e3d72.glb"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ultrashape/Refined_Mesh_20260111_110223163_fd9e3d72.glb",
+        ""
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        -5492.904860061247,
+        -2375.0202484927263
+      ],
+      "mode": 0,
+      "size": [
+        999.7809806640616,
+        984.3320532324205
+      ],
+      "type": "Load3D",
+      "color": "#2a363b",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mesh_path",
+          "type": "STRING",
+          "label": null,
+          "links": [
+            8
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "normal",
+          "type": "IMAGE",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "camera_info",
+          "type": "LOAD3D_CAMERA",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "recording_video",
+          "type": "VIDEO",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.7.0",
+        "cnr_id": "comfy-core",
+        "Light Config": {
+          "intensity": 3
+        },
+        "Model Config": {
+          "upDirection": "original",
+          "materialMode": "original"
+        },
+        "Scene Config": {
+          "showGrid": true,
+          "backgroundColor": "#282828",
+          "backgroundImage": "",
+          "backgroundRenderMode": "tiled"
+        },
+        "Camera Config": {
+          "fov": 35,
+          "state": {
+            "zoom": 1,
+            "target": {
+              "x": 4.122482240211696e-76,
+              "y": 2.5,
+              "z": 2.6845285121936465e-76
+            },
+            "position": {
+              "x": -3.395212686951296,
+              "y": 3.2256559657967037,
+              "z": 0.5031456317774201
+            },
+            "cameraType": "perspective"
+          },
+          "cameraType": "perspective"
+        },
+        "Resource Folder": "",
+        "Node name for S&R": "Load3D"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "3d/Runcomfy_Inputs_1332.glb",
+        "upload3dmodel",
+        "uploadExtraResources",
+        "clear",
+        "",
+        1024,
+        1024
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "revision": 0,
+  "definitions": null,
+  "last_link_id": 8,
+  "last_node_id": 8,
+  "floatingLinks": null
+}

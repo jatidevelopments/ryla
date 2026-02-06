@@ -15,6 +15,7 @@
     "dev:funnel": "infisical run --path=/apps/funnel --env=dev -- pnpm nx serve funnel",
     "dev:landing": "infisical run --path=/apps/landing --env=dev -- pnpm nx serve landing",
     "dev:admin": "infisical run --path=/admin --env=dev -- pnpm nx serve admin",
+    "dev:playground": "pnpm build:libs && pnpm dev:api",
     "dev:libs": "npx nodemon --watch libs --ext ts,tsx,js,jsx,json --ignore '**/*.spec.ts' --ignore '**/*.test.ts' --ignore '**/__tests__/**' --ignore '**/__mocks__/**' --ignore '**/node_modules/**' --ignore '**/dist/**' --ignore '**/.nx/**' --ignore '**/*.d.ts' --delay 1000ms --exec 'pnpm build:libs:atomic'",
     "build:libs": "pnpm nx run-many --target=build --projects=shared,data,business,trpc,payments,analytics,ui,email --nx-bail",
     "build:libs:atomic": "tsx scripts/build-libs-atomic.ts",

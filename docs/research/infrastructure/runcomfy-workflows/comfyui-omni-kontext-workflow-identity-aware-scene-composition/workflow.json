@@ -1,0 +1,3070 @@
+{
+  "id": "7cbcec68-7fa6-47bb-a38a-da689949a001",
+  "extra": {
+    "ds": {
+      "scale": 0.2673486306413821,
+      "offset": [
+        1355.5860406386796,
+        1490.7210169496732
+      ]
+    },
+    "reroutes": null,
+    "groupNodes": {},
+    "frontendVersion": "1.23.4",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      52,
+      31,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      57,
+      35,
+      0,
+      31,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      61,
+      39,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      223,
+      39,
+      0,
+      124,
+      1,
+      "VAE"
+    ],
+    [
+      237,
+      6,
+      0,
+      135,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      238,
+      135,
+      0,
+      31,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      240,
+      8,
+      0,
+      136,
+      0,
+      "IMAGE"
+    ],
+    [
+      291,
+      124,
+      0,
+      31,
+      3,
+      "LATENT"
+    ],
+    [
+      293,
+      124,
+      0,
+      177,
+      1,
+      "LATENT"
+    ],
+    [
+      294,
+      6,
+      0,
+      177,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      295,
+      39,
+      0,
+      191,
+      1,
+      "VAE"
+    ],
+    [
+      296,
+      192,
+      0,
+      191,
+      0,
+      "IMAGE"
+    ],
+    [
+      297,
+      191,
+      0,
+      193,
+      1,
+      "LATENT"
+    ],
+    [
+      298,
+      177,
+      0,
+      193,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      303,
+      37,
+      0,
+      194,
+      0,
+      "MODEL"
+    ],
+    [
+      306,
+      193,
+      0,
+      35,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      316,
+      196,
+      0,
+      124,
+      0,
+      "IMAGE"
+    ],
+    [
+      326,
+      38,
+      0,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      327,
+      194,
+      0,
+      199,
+      0,
+      "MODEL"
+    ],
+    [
+      329,
+      194,
+      0,
+      201,
+      0,
+      "MODEL"
+    ],
+    [
+      330,
+      194,
+      0,
+      200,
+      0,
+      "MODEL"
+    ],
+    [
+      332,
+      210,
+      0,
+      202,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      333,
+      211,
+      0,
+      203,
+      0,
+      "IMAGE"
+    ],
+    [
+      334,
+      204,
+      0,
+      203,
+      1,
+      "VAE"
+    ],
+    [
+      335,
+      210,
+      0,
+      205,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      336,
+      203,
+      0,
+      205,
+      1,
+      "LATENT"
+    ],
+    [
+      337,
+      215,
+      0,
+      207,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      338,
+      213,
+      0,
+      208,
+      0,
+      "LATENT"
+    ],
+    [
+      339,
+      204,
+      0,
+      208,
+      1,
+      "VAE"
+    ],
+    [
+      340,
+      208,
+      0,
+      209,
+      0,
+      "IMAGE"
+    ],
+    [
+      341,
+      206,
+      0,
+      210,
+      0,
+      "CLIP"
+    ],
+    [
+      342,
+      207,
+      0,
+      213,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      343,
+      202,
+      0,
+      213,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      344,
+      203,
+      0,
+      213,
+      3,
+      "LATENT"
+    ],
+    [
+      345,
+      212,
+      0,
+      214,
+      0,
+      "IMAGE"
+    ],
+    [
+      346,
+      204,
+      0,
+      214,
+      1,
+      "VAE"
+    ],
+    [
+      347,
+      205,
+      0,
+      215,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      348,
+      214,
+      0,
+      215,
+      1,
+      "LATENT"
+    ],
+    [
+      349,
+      217,
+      0,
+      216,
+      0,
+      "MODEL"
+    ],
+    [
+      350,
+      216,
+      0,
+      219,
+      0,
+      "MODEL"
+    ],
+    [
+      351,
+      216,
+      0,
+      220,
+      0,
+      "MODEL"
+    ],
+    [
+      352,
+      216,
+      0,
+      221,
+      0,
+      "MODEL"
+    ],
+    [
+      353,
+      219,
+      0,
+      213,
+      0,
+      "MODEL"
+    ],
+    [
+      355,
+      223,
+      0,
+      31,
+      0,
+      "MODEL"
+    ],
+    [
+      356,
+      201,
+      0,
+      223,
+      0,
+      "*"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 39,
+      "pos": [
+        -430,
+        410
+      ],
+      "mode": 0,
+      "size": [
+        337.76861572265625,
+        58
+      ],
+      "type": "VAELoader",
+      "color": "#322",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            61,
+            223,
+            295
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/Lumina_Image_2.0_Repackaged/resolve/main/split_files/vae/ae.safetensors",
+            "name": "ae.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "Node name for S&R": "VAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": 38,
+      "pos": [
+        -430,
+        230
+      ],
+      "mode": 0,
+      "size": [
+        337.76861572265625,
+        130
+      ],
+      "type": "DualCLIPLoader",
+      "color": "#322",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            326
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors",
+            "name": "clip_l.safetensors",
+            "directory": "text_encoders"
+          },
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn_scaled.safetensors",
+            "name": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "clip_l.safetensors",
+        "t5xxl_fp8_e4m3fn_scaled.safetensors",
+        "flux",
+        "default"
+      ]
+    },
+    {
+      "id": 202,
+      "pos": [
+        1520,
+        1880
+      ],
+      "mode": 2,
+      "size": [
+        240,
+        26
+      ],
+      "type": "ConditioningZeroOut",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 23,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 332,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            343
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 205,
+      "pos": [
+        1280,
+        1820
+      ],
+      "mode": 2,
+      "size": [
+        197.712890625,
+        46
+      ],
+      "type": "ReferenceLatent",
+      "flags": {},
+      "order": 24,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 335,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 336,
+          "name": "latent",
+          "type": "LATENT",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            347
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.41",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ReferenceLatent"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 207,
+      "pos": [
+        1520,
+        1780
+      ],
+      "mode": 2,
+      "size": [
+        240,
+        58
+      ],
+      "type": "FluxGuidance",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 32,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 337,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            342
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        2.5
+      ]
+    },
+    {
+      "id": 203,
+      "pos": [
+        530,
+        1690
+      ],
+      "mode": 2,
+      "size": [
+        240,
+        50
+      ],
+      "type": "VAEEncode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 13,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 333,
+          "name": "pixels",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 334,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            336,
+            344
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 208,
+      "pos": [
+        2400,
+        1470
+      ],
+      "mode": 2,
+      "size": [
+        190,
+        46
+      ],
+      "type": "VAEDecode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 36,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 338,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 339,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            340
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 210,
+      "pos": [
+        390,
+        1050
+      ],
+      "mode": 2,
+      "size": [
+        400,
+        220
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 15,
+      "title": "CLIP Text Encode (Positive Prompt)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 341,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            332,
+            335
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "add the character to the image. "
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        2410,
+        -140
+      ],
+      "mode": 0,
+      "size": [
+        190,
+        46
+      ],
+      "type": "VAEDecode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 37,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 52,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 61,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            240
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 199,
+      "pos": [
+        1400,
+        -470
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        82
+      ],
+      "type": "LoraLoaderModelOnly",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 327,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "spatial-character-test.safetensors",
+        0.6000000000000001
+      ]
+    },
+    {
+      "id": 200,
+      "pos": [
+        1020,
+        -400
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        82
+      ],
+      "type": "LoraLoaderModelOnly",
+      "flags": {},
+      "order": 22,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 330,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "character_3000.safetensors",
+        0.7000000000000002
+      ]
+    },
+    {
+      "id": 223,
+      "pos": [
+        1730,
+        -300
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 29,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 356,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            355
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 124,
+      "pos": [
+        390,
+        88
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        50
+      ],
+      "type": "VAEEncode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 18,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 316,
+          "name": "pixels",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 223,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            291,
+            293
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 177,
+      "pos": [
+        970,
+        130
+      ],
+      "mode": 0,
+      "size": [
+        197.712890625,
+        46
+      ],
+      "type": "ReferenceLatent",
+      "flags": {},
+      "order": 28,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 294,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 293,
+          "name": "latent",
+          "type": "LATENT",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            298
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.41",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ReferenceLatent"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 135,
+      "pos": [
+        1500,
+        200
+      ],
+      "mode": 0,
+      "size": [
+        200,
+        30
+      ],
+      "type": "ConditioningZeroOut",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 19,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 237,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            238
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ConditioningZeroOut"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 35,
+      "pos": [
+        1500,
+        100
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        60
+      ],
+      "type": "FluxGuidance",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 33,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 306,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            57
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        2.6
+      ]
+    },
+    {
+      "id": 191,
+      "pos": [
+        390,
+        200
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        50
+      ],
+      "type": "VAEEncode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 17,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 296,
+          "name": "pixels",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 295,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            297
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 37,
+      "pos": [
+        -430,
+        100
+      ],
+      "mode": 0,
+      "size": [
+        337.76861572265625,
+        82
+      ],
+      "type": "UNETLoader",
+      "color": "#322",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            303
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI/resolve/main/split_files/diffusion_models/flux1-dev-kontext_fp8_scaled.safetensors",
+            "name": "flux1-dev-kontext_fp8_scaled.safetensors",
+            "directory": "diffusion_models"
+          }
+        ],
+        "Node name for S&R": "UNETLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux1-dev-kontext_fp8_scaled.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 214,
+      "pos": [
+        530,
+        1565
+      ],
+      "mode": 2,
+      "size": [
+        240,
+        50
+      ],
+      "type": "VAEEncode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 14,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 345,
+          "name": "pixels",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 346,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            348
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 211,
+      "pos": [
+        -550,
+        1040
+      ],
+      "mode": 2,
+      "size": [
+        274.080078125,
+        314.0001220703125
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            333
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "scene_01.png",
+        "image"
+      ]
+    },
+    {
+      "id": 220,
+      "pos": [
+        1398.8331298828125,
+        1217.1005859375
+      ],
+      "mode": 2,
+      "size": [
+        289.0093688964844,
+        82
+      ],
+      "type": "NunchakuFluxLoraLoader",
+      "flags": {},
+      "order": 26,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 351,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.4",
+        "cnr_id": "comfyui-nunchaku",
+        "Node name for S&R": "NunchakuFluxLoraLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "product_2000.safetensors",
+        0.7000000000000002
+      ]
+    },
+    {
+      "id": 212,
+      "pos": [
+        -230,
+        1040
+      ],
+      "mode": 2,
+      "size": [
+        274.080078125,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            345
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "reference_boy_01.webp",
+        "image"
+      ]
+    },
+    {
+      "id": 204,
+      "pos": [
+        -420,
+        2140
+      ],
+      "mode": 2,
+      "size": [
+        337.76861572265625,
+        58
+      ],
+      "type": "VAELoader",
+      "color": "#322",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            334,
+            339,
+            346
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/Lumina_Image_2.0_Repackaged/resolve/main/split_files/vae/ae.safetensors",
+            "name": "ae.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "Node name for S&R": "VAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": 206,
+      "pos": [
+        -420,
+        1940
+      ],
+      "mode": 2,
+      "size": [
+        337.76861572265625,
+        130
+      ],
+      "type": "DualCLIPLoader",
+      "color": "#322",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            341
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors",
+            "name": "clip_l.safetensors",
+            "directory": "text_encoders"
+          },
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn_scaled.safetensors",
+            "name": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "clip_l.safetensors",
+        "t5xxl_fp8_e4m3fn_scaled.safetensors",
+        "flux",
+        "default"
+      ]
+    },
+    {
+      "id": 222,
+      "pos": [
+        -630,
+        -1020
+      ],
+      "mode": 0,
+      "size": [
+        448.99859619140625,
+        170.80711364746094
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Select a lora, connect its output to ksamper, and modify the prompt words appropriately\nFor example:add the product to the image. The girl is holding he jar"
+      ]
+    },
+    {
+      "id": 213,
+      "pos": [
+        2000,
+        1470
+      ],
+      "mode": 2,
+      "size": [
+        320,
+        262
+      ],
+      "type": "KSampler",
+      "flags": {},
+      "order": 34,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 353,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 342,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 343,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 344,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            338
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        310868074994989,
+        "fixed",
+        20,
+        1.5,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 209,
+      "pos": [
+        2770,
+        1180
+      ],
+      "mode": 2,
+      "size": [
+        730,
+        730
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 38,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 340,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SaveImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 217,
+      "pos": [
+        -387.2174072265625,
+        1641.1944580078125
+      ],
+      "mode": 2,
+      "size": [
+        275.7613220214844,
+        202
+      ],
+      "type": "NunchakuFluxDiTLoader",
+      "color": "#322",
+      "flags": {},
+      "order": 8,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            349
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "583ccd032a08ee84f3bea458c1b870fc59ef8f77",
+        "cnr_id": "ComfyUI-nunchaku",
+        "Node name for S&R": "NunchakuFluxDiTLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "svdq-int4_r32-flux.1-kontext-dev.safetensors",
+        0,
+        "nunchaku-fp16",
+        "auto",
+        0,
+        "bfloat16",
+        "enabled"
+      ]
+    },
+    {
+      "id": 215,
+      "pos": [
+        1388.367431640625,
+        1979.9454345703125
+      ],
+      "mode": 2,
+      "size": [
+        270,
+        126
+      ],
+      "type": "OminiKontextConditioning",
+      "flags": {},
+      "order": 30,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 347,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 348,
+          "name": "latent",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            337
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "f3b9bc643d716d6a97457ba3759b5c72309f2bc1",
+        "aux_id": "Saquib764/omini-kontext",
+        "Node name for S&R": "OminiKontextConditioning"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0,
+        0,
+        96
+      ]
+    },
+    {
+      "id": 216,
+      "pos": [
+        530.2735595703125,
+        1490.8150634765625
+      ],
+      "mode": 2,
+      "size": [
+        234.44393920898438,
+        26
+      ],
+      "type": "NunchakuOminiKontextPatch",
+      "flags": {},
+      "order": 16,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 349,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            350,
+            351,
+            352
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "f47aa0a2cc252badb45490ce746a947b17c26910",
+        "aux_id": "Saquib764/omini-kontext",
+        "Node name for S&R": "NunchakuOminiKontextPatch"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 219,
+      "pos": [
+        1400.76220703125,
+        1081.869140625
+      ],
+      "mode": 2,
+      "size": [
+        289.0093688964844,
+        82
+      ],
+      "type": "NunchakuFluxLoraLoader",
+      "flags": {},
+      "order": 25,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 350,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            353
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.4",
+        "cnr_id": "comfyui-nunchaku",
+        "Node name for S&R": "NunchakuFluxLoraLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "character_3000.safetensors",
+        0.7000000000000002
+      ]
+    },
+    {
+      "id": 221,
+      "pos": [
+        1397.75,
+        1345.827392578125
+      ],
+      "mode": 2,
+      "size": [
+        289.0093688964844,
+        82
+      ],
+      "type": "NunchakuFluxLoraLoader",
+      "flags": {},
+      "order": 27,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 352,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.4",
+        "cnr_id": "comfyui-nunchaku",
+        "Node name for S&R": "NunchakuFluxLoraLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "spatial-character-test.safetensors",
+        0.6000000000000001
+      ]
+    },
+    {
+      "id": 193,
+      "pos": [
+        1193.4935302734375,
+        209.6553955078125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        126
+      ],
+      "type": "OminiKontextConditioning",
+      "flags": {},
+      "order": 31,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 298,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 297,
+          "name": "latent",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            306
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "f3b9bc643d716d6a97457ba3759b5c72309f2bc1",
+        "aux_id": "Saquib764/omini-kontext",
+        "Node name for S&R": "OminiKontextConditioning"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0,
+        0,
+        96
+      ]
+    },
+    {
+      "id": 194,
+      "pos": [
+        405.503173828125,
+        -0.09716130048036575
+      ],
+      "mode": 0,
+      "size": [
+        209.53378295898438,
+        26
+      ],
+      "type": "OminiKontextModelPatch",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 303,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            327,
+            329,
+            330
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "30cbb3ba40516da31f280c2c411be052906bb818",
+        "aux_id": "Saquib764/omini-kontext",
+        "Node name for S&R": "OminiKontextModelPatch"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 31,
+      "pos": [
+        1996.1131591796875,
+        -177.00177001953125
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        474
+      ],
+      "type": "KSampler",
+      "flags": {},
+      "order": 35,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 355,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 57,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 238,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 291,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            52
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        310868074994988,
+        "fixed",
+        28,
+        1.5,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 201,
+      "pos": [
+        1020,
+        -570
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        82
+      ],
+      "type": "LoraLoaderModelOnly",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 329,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            356
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "product_2000.safetensors",
+        0.7000000000000002
+      ]
+    },
+    {
+      "id": 192,
+      "pos": [
+        -240,
+        -550
+      ],
+      "mode": 0,
+      "size": [
+        274.080078125,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 9,
+      "title": "Character or Subject",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            296
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_example_1274_2.png",
+        "image"
+      ]
+    },
+    {
+      "id": 6,
+      "pos": [
+        290,
+        -580
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        220
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 11,
+      "title": "CLIP Text Encode (Positive Prompt)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 326,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            237,
+            294
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "she is wearing this jacket"
+      ]
+    },
+    {
+      "id": 136,
+      "pos": [
+        2800,
+        -380
+      ],
+      "mode": 0,
+      "size": [
+        650,
+        660
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 39,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 240,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SaveImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Omini"
+      ]
+    },
+    {
+      "id": 196,
+      "pos": [
+        -540,
+        -550
+      ],
+      "mode": 0,
+      "size": [
+        274.080078125,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 10,
+      "title": "Scene",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            316
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.49",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_example_1274_1.png",
+        "image"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 8,
+      "color": "#3c3c83",
+      "flags": {},
+      "title": "Kontext",
+      "bounding": [
+        -630,
+        -790,
+        4540,
+        1390
+      ],
+      "font_size": 44
+    },
+    {
+      "id": 1,
+      "color": "#6362DFFF",
+      "flags": {},
+      "title": "Step 1- Load models",
+      "bounding": [
+        -560,
+        0,
+        650,
+        520
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 5,
+      "color": "#79461d",
+      "flags": {},
+      "title": "Step 3 - Prompt",
+      "bounding": [
+        270,
+        -660,
+        430,
+        330
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 6,
+      "color": "#6e6e1d",
+      "flags": {},
+      "title": "Conditioning",
+      "bounding": [
+        930,
+        -20,
+        870,
+        490
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 7,
+      "color": "#248382",
+      "flags": {},
+      "title": "Choose Loras according to subject",
+      "bounding": [
+        910,
+        -650,
+        919.5135498046875,
+        400.51629638671875
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 13,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Nunchaku",
+      "bounding": [
+        -630,
+        810,
+        4550,
+        1530
+      ],
+      "font_size": 44
+    },
+    {
+      "id": 9,
+      "color": "#9687FEFF",
+      "flags": {},
+      "title": "Step 1- Load models",
+      "bounding": [
+        -480,
+        1520,
+        490.968017578125,
+        709.905517578125
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 10,
+      "color": "#79461d",
+      "flags": {},
+      "title": "Step 3 - Prompt",
+      "bounding": [
+        370,
+        980,
+        430,
+        330
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 11,
+      "color": "#6e6e1d",
+      "flags": {},
+      "title": "Conditioning",
+      "bounding": [
+        1230,
+        1690,
+        613.8367919921875,
+        465.9726257324219
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 14,
+      "color": "#248382",
+      "flags": {},
+      "title": "Choose Loras according to subject",
+      "bounding": [
+        1180,
+        940,
+        690,
+        650
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 15,
+      "color": "#2b652b",
+      "flags": {},
+      "title": "Inputs",
+      "bounding": [
+        -570,
+        -660,
+        650,
+        490
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 16,
+      "color": "#2b652b",
+      "flags": {},
+      "title": "Inputs",
+      "bounding": [
+        -590,
+        950,
+        670,
+        460
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 356,
+  "last_node_id": 223,
+  "floatingLinks": null
+}

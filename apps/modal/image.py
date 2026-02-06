@@ -311,11 +311,7 @@ def hf_download_instantid():
         print("   ⚠️  ControlNet will need to be downloaded manually")
     
     # Download InsightFace models (antelopev2) - required for InstantIDFaceAnalysis
-    # NOTE: InsightFace FaceAnalysis looks for models at: {root}/models/{name}/
-    # ComfyUI_InstantID sets root = folder_paths.models_dir/insightface
-    # So FaceAnalysis(name="antelopev2", root=...) looks for: models_dir/insightface/models/antelopev2/
-    # v2: Fixed path structure to include /models/ subdirectory
-    print("📥 Downloading InsightFace models (antelopev2) to correct path...")
+    print("📥 Downloading InsightFace models (antelopev2)...")
     insightface_dir = comfy_dir / "models" / "insightface" / "models"
     insightface_dir.mkdir(parents=True, exist_ok=True)
     antelopev2_dir = insightface_dir / "antelopev2"
@@ -574,14 +570,14 @@ image = (
     .apt_install(["git", "wget", "curl", "libgl1", "libglib2.0-0"])  # libGL for OpenCV/cv2
     .uv_pip_install(f"fastapi[standard]=={FASTAPI_VERSION}")
     .uv_pip_install(f"comfy-cli=={COMFY_CLI_VERSION}")
-    .add_local_file("utils/cost_tracker.py", "/root/utils/cost_tracker.py", copy=True)
-    .add_local_file("utils/comfyui.py", "/root/utils/comfyui.py", copy=True)
-    .add_local_file("utils/image_utils.py", "/root/utils/image_utils.py", copy=True)
-    # Add workflow files (from modal app root)
-    .add_local_file("../../workflows/seedvr2.json", "/root/workflows/seedvr2.json", copy=True)
-    .add_local_file("../../workflows/seedvr2_api.json", "/root/workflows/seedvr2_api.json", copy=True)
+    .add_local_file("apps/modal/utils/cost_tracker.py", "/root/utils/cost_tracker.py", copy=True)
+    .add_local_file("apps/modal/utils/comfyui.py", "/root/utils/comfyui.py", copy=True)
+    .add_local_file("apps/modal/utils/image_utils.py", "/root/utils/image_utils.py", copy=True)
+    # Add workflow files (from project root workflows directory)
+    .add_local_file("workflows/seedvr2.json", "/root/workflows/seedvr2.json", copy=True)
+    .add_local_file("workflows/seedvr2_api.json", "/root/workflows/seedvr2_api.json", copy=True)
     # Add handlers directory
-    .add_local_dir("handlers", "/root/handlers", copy=True)
+    .add_local_dir("apps/modal/handlers", "/root/handlers", copy=True)
     .run_commands(
         f"comfy --skip-prompt install --fast-deps --nvidia --version {COMFYUI_VERSION}"
     )
@@ -658,7 +654,7 @@ image = (
     )
     .uv_pip_install("huggingface-hub>=0.20.0")  # Updated to support is_offline_mode
     .env({"HF_XET_HIGH_PERFORMANCE": "1"})
-    .add_local_file("config.py", "/root/config.py", copy=True)  # Add config for run_function imports
+    .add_local_file("apps/modal/config.py", "/root/config.py", copy=True)  # Add config for run_function imports
     .run_function(
         hf_download_flux,
         volumes={"/cache": hf_cache_vol} if hf_cache_vol else {},

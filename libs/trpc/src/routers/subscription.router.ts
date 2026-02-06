@@ -15,11 +15,13 @@ import {
   creditTransactions,
   NotificationsRepository,
 } from '@ryla/data';
+import type { DrizzleDb } from '@ryla/data';
 import * as schema from '@ryla/data/schema';
 
 import {
   PLAN_CREDITS as SHARED_PLAN_CREDITS,
   CREDIT_PACKAGES as SHARED_CREDIT_PACKAGES,
+  getPackageCredits,
 } from '@ryla/shared';
 
 // Simple helper to add months to a date
@@ -87,101 +89,91 @@ export const subscriptionRouter = router({
       });
 
       // Start transaction
-      return await ctx.db.transaction(
-        async (tx: NodePgDatabase<typeof schema>) => {
-          // Upsert subscription
-          if (existingSubscription) {
-            await tx
-              .update(subscriptions)
-              .set({
-                tier: planId,
-                status: 'active',
-                currentPeriodStart: now,
-                currentPeriodEnd: periodEnd,
-                cancelAtPeriodEnd: false,
-                updatedAt: now,
-              })
-              .where(eq(subscriptions.id, existingSubscription.id));
-          } else {
-            await tx.insert(subscriptions).values({
-              userId: ctx.user.id,
+      return await ctx.db.transaction(async (tx: NodePgDatabase<typeof schema>) => {
+        // Upsert subscription
+        if (existingSubscription) {
+          await tx
+            .update(subscriptions)
+            .set({
               tier: planId,
               status: 'active',
               currentPeriodStart: now,
               currentPeriodEnd: periodEnd,
-            });
-          }
-
-          // Get or create user credits
-          let credits = await tx.query.userCredits.findFirst({
-            where: eq(userCredits.userId, ctx.user.id),
-          });
-
-          if (!credits) {
-            const [newCredits] = await tx
-              .insert(userCredits)
-              .values({
-                userId: ctx.user.id,
-                balance: 0,
-                totalEarned: 0,
-                totalSpent: 0,
-              })
-              .returning();
-            credits = newCredits;
-          }
-
-          // Grant subscription credits
-          const newBalance = (credits?.balance ?? 0) + creditsToGrant;
-          const newTotalEarned = (credits?.totalEarned ?? 0) + creditsToGrant;
-
-          await tx
-            .update(userCredits)
-            .set({
-              balance: newBalance,
-              totalEarned: newTotalEarned,
-              lowBalanceWarningShown: null, // Reset warning
+              cancelAtPeriodEnd: false,
               updatedAt: now,
             })
-            .where(eq(userCredits.userId, ctx.user.id));
-
-          // Record transaction
-          await tx.insert(creditTransactions).values({
+            .where(eq(subscriptions.id, existingSubscription.id));
+        } else {
+          await tx.insert(subscriptions).values({
             userId: ctx.user.id,
-            type: 'subscription_grant',
-            amount: creditsToGrant,
-            balanceAfter: newBalance,
-            referenceType: 'subscription',
-            description: `${
-              planId.charAt(0).toUpperCase() + planId.slice(1)
-            } plan subscription (${isYearly ? 'yearly' : 'monthly'})`,
+            tier: planId,
+            status: 'active',
+            currentPeriodStart: now,
+            currentPeriodEnd: periodEnd,
           });
-
-          // Create notification (after transaction commits)
-          const notificationsRepo = new NotificationsRepository(ctx.db);
-          await notificationsRepo.create({
-            userId: ctx.user.id,
-            type: 'subscription.created',
-            title: 'Subscription activated',
-            body: `Welcome to ${
-              planId.charAt(0).toUpperCase() + planId.slice(1)
-            }! Your monthly credits will refresh automatically.`,
-            href: '/settings',
-            metadata: {
-              tier: planId,
-              creditsGranted: creditsToGrant,
-              isYearly,
-            },
-          });
-
-          return {
-            success: true,
-            plan: planId,
-            creditsGranted: creditsToGrant,
-            newBalance,
-            periodEnd: periodEnd.toISOString(),
-          };
         }
-      );
+
+        // Get or create user credits
+        let credits = await tx.query.userCredits.findFirst({
+          where: eq(userCredits.userId, ctx.user.id),
+        });
+
+        if (!credits) {
+          const [newCredits] = await tx
+            .insert(userCredits)
+            .values({
+              userId: ctx.user.id,
+              balance: 0,
+              totalEarned: 0,
+              totalSpent: 0,
+            })
+            .returning();
+          credits = newCredits;
+        }
+
+        // Grant subscription credits
+        const newBalance = (credits?.balance ?? 0) + creditsToGrant;
+        const newTotalEarned = (credits?.totalEarned ?? 0) + creditsToGrant;
+
+        await tx
+          .update(userCredits)
+          .set({
+            balance: newBalance,
+            totalEarned: newTotalEarned,
+            lowBalanceWarningShown: null, // Reset warning
+            updatedAt: now,
+          })
+          .where(eq(userCredits.userId, ctx.user.id));
+
+        // Record transaction
+        await tx.insert(creditTransactions).values({
+          userId: ctx.user.id,
+          type: 'subscription_grant',
+          amount: creditsToGrant,
+          balanceAfter: newBalance,
+          referenceType: 'subscription',
+          description: `${planId.charAt(0).toUpperCase() + planId.slice(1)} plan subscription (${isYearly ? 'yearly' : 'monthly'})`,
+        });
+
+        // Create notification (after transaction commits)
+        const notificationsRepo = new NotificationsRepository(ctx.db);
+        await notificationsRepo.create({
+          userId: ctx.user.id,
+          type: 'subscription.created',
+          title: 'Subscription activated',
+          body: `Welcome to ${planId.charAt(0).toUpperCase() + planId.slice(1)}! Your monthly credits will refresh automatically.`,
+          href: '/settings',
+          metadata: { tier: planId, creditsGranted: creditsToGrant, isYearly },
+        });
+
+        return {
+          success: true,
+          plan: planId,
+          creditsGranted: creditsToGrant,
+          newBalance,
+          periodEnd: periodEnd.toISOString(),
+        };
+      });
     }),
 
   /**
@@ -203,73 +195,68 @@ export const subscriptionRouter = router({
 
       const now = new Date();
 
-      return await ctx.db.transaction(
-        async (tx: NodePgDatabase<typeof schema>) => {
-          // Get or create user credits
-          let credits = await tx.query.userCredits.findFirst({
-            where: eq(userCredits.userId, ctx.user.id),
-          });
+      return await ctx.db.transaction(async (tx: NodePgDatabase<typeof schema>) => {
+        // Get or create user credits
+        let credits = await tx.query.userCredits.findFirst({
+          where: eq(userCredits.userId, ctx.user.id),
+        });
 
-          if (!credits) {
-            const [newCredits] = await tx
-              .insert(userCredits)
-              .values({
-                userId: ctx.user.id,
-                balance: 0,
-                totalEarned: 0,
-                totalSpent: 0,
-              })
-              .returning();
-            credits = newCredits;
-          }
-
-          const newBalance = (credits?.balance ?? 0) + creditsToAdd;
-          const newTotalEarned = (credits?.totalEarned ?? 0) + creditsToAdd;
-
-          // Update balance
-          await tx
-            .update(userCredits)
-            .set({
-              balance: newBalance,
-              totalEarned: newTotalEarned,
-              lowBalanceWarningShown: null, // Reset warning
-              updatedAt: now,
+        if (!credits) {
+          const [newCredits] = await tx
+            .insert(userCredits)
+            .values({
+              userId: ctx.user.id,
+              balance: 0,
+              totalEarned: 0,
+              totalSpent: 0,
             })
-            .where(eq(userCredits.userId, ctx.user.id));
-
-          // Record transaction
-          await tx.insert(creditTransactions).values({
-            userId: ctx.user.id,
-            type: 'purchase',
-            amount: creditsToAdd,
-            balanceAfter: newBalance,
-            referenceType: 'credit_purchase',
-            referenceId: undefined,
-            description: `Purchased ${creditsToAdd} credits`,
-          });
-
-          // Create notification (after transaction commits)
-          const notificationsRepo = new NotificationsRepository(ctx.db);
-          await notificationsRepo.create({
-            userId: ctx.user.id,
-            type: 'credits.purchased',
-            title: 'Credits purchased',
-            body: `You purchased ${creditsToAdd} credits`,
-            href: '/activity',
-            metadata: {
-              packageId: input.packageId,
-              creditsPurchased: creditsToAdd,
-            },
-          });
-
-          return {
-            success: true,
-            packageId: input.packageId,
-            creditsPurchased: creditsToAdd,
-            newBalance,
-          };
+            .returning();
+          credits = newCredits;
         }
-      );
+
+        const newBalance = (credits?.balance ?? 0) + creditsToAdd;
+        const newTotalEarned = (credits?.totalEarned ?? 0) + creditsToAdd;
+
+        // Update balance
+        await tx
+          .update(userCredits)
+          .set({
+            balance: newBalance,
+            totalEarned: newTotalEarned,
+            lowBalanceWarningShown: null, // Reset warning
+            updatedAt: now,
+          })
+          .where(eq(userCredits.userId, ctx.user.id));
+
+        // Record transaction
+        await tx.insert(creditTransactions).values({
+          userId: ctx.user.id,
+          type: 'purchase',
+          amount: creditsToAdd,
+          balanceAfter: newBalance,
+          referenceType: 'credit_purchase',
+          referenceId: undefined,
+          description: `Purchased ${creditsToAdd} credits`,
+        });
+
+        // Create notification (after transaction commits)
+        const notificationsRepo = new NotificationsRepository(ctx.db);
+        await notificationsRepo.create({
+          userId: ctx.user.id,
+          type: 'credits.purchased',
+          title: 'Credits purchased',
+          body: `You purchased ${creditsToAdd} credits`,
+          href: '/activity',
+          metadata: { packageId: input.packageId, creditsPurchased: creditsToAdd },
+        });
+
+        return {
+          success: true,
+          packageId: input.packageId,
+          creditsPurchased: creditsToAdd,
+          newBalance,
+        };
+      });
     }),
 
   /**
@@ -295,15 +282,12 @@ export const subscriptionRouter = router({
 
     // Create notification
     const notificationsRepo = new NotificationsRepository(ctx.db);
-    const endDate =
-      subscription.currentPeriodEnd?.toISOString() || new Date().toISOString();
+    const endDate = subscription.currentPeriodEnd?.toISOString() || new Date().toISOString();
     await notificationsRepo.create({
       userId: ctx.user.id,
       type: 'subscription.cancelled',
       title: 'Subscription cancelled',
-      body: `Your subscription will end on ${new Date(
-        endDate
-      ).toLocaleDateString()}. You'll keep access until then.`,
+      body: `Your subscription will end on ${new Date(endDate).toLocaleDateString()}. You'll keep access until then.`,
       href: '/settings',
       metadata: { subscriptionId: subscription.id, endDate },
     });
@@ -314,3 +298,4 @@ export const subscriptionRouter = router({
     };
   }),
 });
+

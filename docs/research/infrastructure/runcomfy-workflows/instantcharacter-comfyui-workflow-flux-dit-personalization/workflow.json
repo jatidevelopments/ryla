@@ -1,0 +1,283 @@
+{
+  "id": "895d842a-8b76-4258-a17b-9047cbbc6de3",
+  "extra": {
+    "ds": {
+      "scale": 0.9229599817706429,
+      "offset": [
+        -47.07896508084419,
+        133.01418694691634
+      ]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.23.4"
+  },
+  "links": [
+    [
+      2,
+      5,
+      0,
+      2,
+      1,
+      "IMAGE"
+    ],
+    [
+      3,
+      2,
+      0,
+      6,
+      0,
+      "IMAGE"
+    ],
+    [
+      4,
+      7,
+      0,
+      2,
+      0,
+      "INSTANTCHAR_PIPE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 7,
+      "pos": [
+        552.82568359375,
+        -100.19820404052734
+      ],
+      "mode": 0,
+      "size": [
+        416.5036926269531,
+        189.1515350341797
+      ],
+      "type": "InstantCharacterLoadModelFromLocal",
+      "color": "#223",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "INSTANTCHAR_PIPE",
+          "type": "INSTANTCHAR_PIPE",
+          "label": null,
+          "links": [
+            4
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a4494ed563b3291394616c08d6027b8e896cf7a5",
+        "aux_id": "jax-explorer/ComfyUI-InstantCharacter",
+        "Node name for S&R": "InstantCharacterLoadModel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "models/instantcharacter/FLUX.1-dev",
+        "models/instantcharacter/siglip-so400m-patch14-384",
+        "models/instantcharacter/dinov2-giant",
+        "models/instantcharacter/ipadapter/instantcharacter_ip-adapter.bin",
+        false
+      ]
+    },
+    {
+      "id": 6,
+      "pos": [
+        1165.3297119140625,
+        225.77748107910156
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        270
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 3,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 5,
+      "pos": [
+        91.76032257080078,
+        246.53652954101562
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314.0000305175781
+      ],
+      "type": "LoadImage",
+      "color": "#232",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            2
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_Example_1252.png",
+        "image"
+      ]
+    },
+    {
+      "id": 2,
+      "pos": [
+        534.7383422851562,
+        225.9440155029297
+      ],
+      "mode": 0,
+      "size": [
+        446.0605773925781,
+        472.9697265625
+      ],
+      "type": "InstantCharacterGenerate",
+      "color": "#323",
+      "flags": {},
+      "order": 2,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 4,
+          "name": "pipe",
+          "type": "INSTANTCHAR_PIPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 2,
+          "name": "subject_image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            3
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0a0b09f7ff699237a081aa80a553292ab2106325",
+        "aux_id": "jax-explorer/ComfyUI-InstantCharacter",
+        "Node name for S&R": "InstantCharacterGenerate"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RAW editorial photo, professional head and shoulders portrait of beautiful 24-year-old woman \n\n\nportrait of the girl, standing in a foggy forest at sunrise, cinematic lighting, photorealistic, front view\n\n subsurface scattering, subtle skin textures, the image is bordered by floating dreamy pastel flowers, shallow depth of field \n",
+        1088,
+        1216,
+        3.5,
+        28,
+        504681439595470,
+        "fixed",
+        0.9
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 4,
+  "last_node_id": 13,
+  "floatingLinks": null
+}

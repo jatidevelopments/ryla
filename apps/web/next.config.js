@@ -2,26 +2,19 @@
 
 const path = require('path');
 
-// Cloudflare Pages with Edge SSR uses @cloudflare/next-on-pages
-// For Cloudflare: Don't set output (next-on-pages handles it)
-// For Fly.io: Use 'standalone' output
-const isCloudflarePages = process.env.CLOUDFLARE_PAGES === 'true';
-
-// Service Worker (PWA) - disable for Cloudflare Pages as Workers handle caching
 const withSerwist = require('@serwist/next').default({
   swSrc: 'app/sw.ts',
   swDest: 'public/sw.js',
-  disable: process.env.NODE_ENV === 'development' || isCloudflarePages,
+  disable: process.env.NODE_ENV === 'development',
 });
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Output mode:
-  // - Fly.io: 'standalone' for Docker deployment
-  // - Cloudflare Pages: undefined (next-on-pages handles build output)
-  ...(isCloudflarePages ? {} : { output: 'standalone' }),
-  // Fix standalone output path structure for monorepo (only needed for standalone/Fly.io)
-  ...(!isCloudflarePages && {
+  // Output mode: 'standalone' for Fly.io, 'export' for Cloudflare Pages
+  // Set CLOUDFLARE_PAGES=true when building for Cloudflare Pages
+  output: process.env.CLOUDFLARE_PAGES === 'true' ? 'export' : 'standalone',
+  // Fix standalone output path structure for monorepo (only needed for standalone)
+  ...(process.env.CLOUDFLARE_PAGES !== 'true' && {
     outputFileTracingRoot: path.join(__dirname, '../../'),
   }),
   // Disable production source maps in development to prevent stack overflow
@@ -30,10 +23,14 @@ const nextConfig = {
   //   rm -rf apps/web/.next
   productionBrowserSourceMaps: false,
   // Images are pulled from Git LFS during deployment (checkout with lfs: true)
-  // Note: @ryla/* libs are NOT in transpilePackages - they're pre-compiled CommonJS
-  // Transpiling them causes React Fast Refresh to inject import.meta which breaks CommonJS
-  // The webpack aliases in this config handle proper resolution to dist folder
-  transpilePackages: [],
+  transpilePackages: [
+    '@ryla/ui',
+    '@ryla/shared',
+    '@ryla/business',
+    '@ryla/trpc',
+    '@ryla/payments',
+    '@ryla/analytics',
+  ],
   // Note: @ryla/data is NOT transpiled - it's server-only and should never be in client bundles
   // Optimize package imports to ensure animations work in production
   experimental: {
@@ -46,8 +43,6 @@ const nextConfig = {
     // No additional config needed - browserslist is automatically detected
   },
   images: {
-    // For Cloudflare Pages, use unoptimized images (Cloudflare handles optimization)
-    ...(isCloudflarePages && { unoptimized: true }),
     remotePatterns: [
       {
         protocol: 'http',
@@ -65,25 +60,9 @@ const nextConfig = {
         hostname: '*.s3.*.amazonaws.com',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: 'cdn.ryla.ai',
-        pathname: '/**',
-      },
     ],
   },
   webpack: (config, { isServer, webpack, dev }) => {
-    // CRITICAL: Exclude pre-compiled libs from Next.js loaders (including React Refresh)
-    // These are already compiled CommonJS and should not be processed again
-    // Without this, React Refresh injects import.meta.webpackHot which breaks CommonJS
-    config.module.rules.unshift({
-      test: /\.js$/,
-      include: [path.resolve(__dirname, '../../dist/libs')],
-      type: 'javascript/auto',
-      // Prevent any further processing - these files are pre-compiled
-      use: [],
-    });
-
     // Disable source maps completely in development to prevent stack overflow in dev overlay
     // This fixes the "Maximum call stack size exceeded" error when Next.js tries to process source maps
     // The error occurs in RegExp.exec when processing malformed or circular source map references
@@ -160,9 +139,21 @@ const nextConfig = {
       '@ryla/email': path.resolve(__dirname, '../../dist/libs/email/src'),
     };
 
-    // Note: dist folder contains pre-compiled CommonJS, NOT ES modules
-    // Do NOT set sourceType: 'module' - it breaks Fast Refresh with import.meta errors
-    // The transpilePackages config already handles proper module resolution
+    // Configure webpack to treat ES modules in dist folder as modules
+    config.module.rules.push({
+      test: /\.js$/,
+      include: [
+        path.resolve(__dirname, '../../dist/libs/business'),
+        path.resolve(__dirname, '../../dist/libs/shared'),
+        path.resolve(__dirname, '../../dist/libs/ui'),
+        path.resolve(__dirname, '../../dist/libs/trpc'),
+        path.resolve(__dirname, '../../dist/libs/payments'),
+        path.resolve(__dirname, '../../dist/libs/analytics'),
+      ],
+      parser: {
+        sourceType: 'module',
+      },
+    });
 
     // Ensure tw-animate-css is properly resolved for CSS imports
     // The package exports CSS that needs to be resolved correctly
@@ -174,11 +165,8 @@ const nextConfig = {
       );
     }
 
-    // Exclude server-only modules from client bundle and Edge runtime (Cloudflare)
-    // For Cloudflare Pages, even server components run on Edge and can't use Node.js modules
-    const excludeServerModules = !isServer || isCloudflarePages;
-
-    if (excludeServerModules) {
+    // Exclude server-only modules from client bundle
+    if (!isServer) {
       // Add all Node.js built-ins to fallback
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -223,10 +211,6 @@ const nextConfig = {
             }
             // Ignore pg and related packages
             if (resource === 'pg' || resource === 'pg-native') {
-              return true;
-            }
-            // Ignore ioredis (Redis client - Node.js only)
-            if (resource === 'ioredis' || resource.includes('ioredis')) {
               return true;
             }
             // Also ignore pg when imported from drizzle-orm
@@ -317,14 +301,6 @@ const nextConfig = {
         )
       );
 
-      // Replace ioredis with empty module (Node.js-only Redis client)
-      config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(
-          /^ioredis$/,
-          require.resolve('./lib/trpc/empty-module.js')
-        )
-      );
-
       // Replace @ryla/data and @ryla/email with empty module on client side (server-only)
       config.plugins.push(
         new webpack.NormalModuleReplacementPlugin(
@@ -387,13 +363,6 @@ const nextConfig = {
       },
       {
         message: /Cannot find module.*pg-core/,
-      },
-      // Suppress ioredis related warnings (Node.js-only Redis client)
-      {
-        module: /ioredis/,
-      },
-      {
-        message: /Can't resolve.*ioredis/,
       },
       {
         message: /Cannot find module.*drizzle-orm/,

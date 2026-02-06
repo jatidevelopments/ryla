@@ -1,0 +1,975 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.5644739300537773,
+      "offset": [
+        -290.8115672538915,
+        -143.24568169266436
+      ]
+    },
+    "workspace_info": {
+      "id": "kZ4q7BpZY-s3NIJ0k8OPz"
+    }
+  },
+  "links": [
+    [
+      4,
+      3,
+      0,
+      5,
+      1,
+      "LATENT"
+    ],
+    [
+      6,
+      7,
+      0,
+      5,
+      0,
+      "VAE"
+    ],
+    [
+      42,
+      5,
+      0,
+      34,
+      0,
+      "IMAGE"
+    ],
+    [
+      86,
+      71,
+      0,
+      75,
+      0,
+      "HYVIDTEXTENCODER"
+    ],
+    [
+      87,
+      65,
+      0,
+      75,
+      3,
+      "IMAGE"
+    ],
+    [
+      88,
+      75,
+      0,
+      3,
+      1,
+      "HYVIDEMBEDS"
+    ],
+    [
+      89,
+      77,
+      0,
+      3,
+      0,
+      "HYVIDEOMODEL"
+    ],
+    [
+      91,
+      81,
+      0,
+      3,
+      6,
+      "FETAARGS"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 77,
+      "pos": [
+        1720,
+        800
+      ],
+      "mode": 0,
+      "size": [
+        316.02227783203125,
+        244.66665649414062
+      ],
+      "type": "HyVideoModelLoader",
+      "color": "#223",
+      "flags": {},
+      "order": 0,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "compile_args",
+          "type": "COMPILEARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "block_swap_args",
+          "type": "BLOCKSWAPARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "lora",
+          "type": "HYVIDLORA",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "HYVIDEOMODEL",
+          "label": null,
+          "links": [
+            89
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan_video_FastVideo_720_fp8_e4m3fn.safetensors",
+        "bf16",
+        "fp8_e4m3fn",
+        "offload_device",
+        "sdpa",
+        false,
+        true
+      ]
+    },
+    {
+      "id": 71,
+      "pos": [
+        1180,
+        820
+      ],
+      "mode": 0,
+      "size": [
+        444.9111633300781,
+        255.77780151367188
+      ],
+      "type": "DownloadAndLoadHyVideoTextEncoder",
+      "color": "#223",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "hyvid_text_encoder",
+          "type": "HYVIDTEXTENCODER",
+          "label": null,
+          "links": [
+            86
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DownloadAndLoadHyVideoTextEncoder"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "xtuner/llava-llama-3-8b-v1_1-transformers",
+        "openai/clip-vit-large-patch14",
+        "bf16",
+        false,
+        2,
+        "disabled",
+        "offload_device"
+      ]
+    },
+    {
+      "id": 65,
+      "pos": [
+        520,
+        820
+      ],
+      "mode": 0,
+      "size": [
+        562.8319091796875,
+        709.5111083984375
+      ],
+      "type": "LoadImage",
+      "color": "#232",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            87
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_Example_1196_4.png",
+        "image"
+      ]
+    },
+    {
+      "id": 79,
+      "pos": [
+        1645.8416748046875,
+        362.7303161621094
+      ],
+      "mode": 0,
+      "size": [
+        357.6925048828125,
+        58
+      ],
+      "type": "Note",
+      "color": "#233",
+      "flags": {},
+      "order": 3,
+      "title": "Original Repo ",
+      "inputs": [],
+      "bgcolor": "#355",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "https://github.com/kijai/ComfyUI-HunyuanVideoWrapper"
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [
+        2143.4208984375,
+        810.2296752929688
+      ],
+      "mode": 0,
+      "size": [
+        332.23345947265625,
+        83.95555114746094
+      ],
+      "type": "HyVideoVAELoader",
+      "color": "#322",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "compile_args",
+          "type": "COMPILEARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            6
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoVAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan/hunyuan_video_vae_bf16.safetensors",
+        "bf16"
+      ]
+    },
+    {
+      "id": 5,
+      "pos": [
+        2141.211669921875,
+        940.363525390625
+      ],
+      "mode": 0,
+      "size": [
+        338.14312744140625,
+        153.03558349609375
+      ],
+      "type": "HyVideoDecode",
+      "color": "#322",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 6,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 4,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            42
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        true,
+        64,
+        256,
+        true
+      ]
+    },
+    {
+      "id": 34,
+      "pos": [
+        2551.50537109375,
+        802.9403686523438
+      ],
+      "mode": 0,
+      "size": [
+        593.7067260742188,
+        310
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 42,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "crf": 20,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 24,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "HunyuanVideo_00001.mp4",
+            "subfolder": "",
+            "frame_rate": 24
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "HunyuanVideo"
+      }
+    },
+    {
+      "id": 82,
+      "pos": [
+        2073.263916015625,
+        1258.1541748046875
+      ],
+      "mode": 0,
+      "size": [
+        253.7693328857422,
+        65.16255187988281
+      ],
+      "type": "Note",
+      "color": "#323",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "bgcolor": "#535",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "1280 x 720     40-55 frames    48 GB\n720 x 480    120-150 frames    48 GB\n"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        1720,
+        1100
+      ],
+      "mode": 0,
+      "size": [
+        328.7374572753906,
+        438
+      ],
+      "type": "HyVideoSampler",
+      "color": "#323",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 89,
+          "name": "model",
+          "type": "HYVIDEOMODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 88,
+          "name": "hyvid_embeds",
+          "type": "HYVIDEMBEDS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "image_cond_latents",
+          "type": "LATENT",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "stg_args",
+          "type": "STGARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "context_options",
+          "type": "HYVIDCONTEXT",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 91,
+          "name": "feta_args",
+          "type": "FETAARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "teacache_args",
+          "type": "TEACACHEARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            4
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1280,
+        720,
+        53,
+        25,
+        7.5,
+        7.5,
+        932,
+        "fixed",
+        true,
+        1,
+        "FlowMatchDiscreteScheduler"
+      ]
+    },
+    {
+      "id": 75,
+      "pos": [
+        1180,
+        1140
+      ],
+      "mode": 0,
+      "size": [
+        443.4000244140625,
+        389.9111633300781
+      ],
+      "type": "HyVideoTextImageEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 86,
+          "name": "text_encoders",
+          "type": "HYVIDTEXTENCODER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "custom_prompt_template",
+          "type": "PROMPT_TEMPLATE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "clip_l",
+          "type": "CLIP",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 87,
+          "name": "image1",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "image2",
+          "type": "IMAGE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "hyvid_cfg",
+          "type": "HYVID_CFG",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "hyvid_embeds",
+          "type": "HYVIDEMBEDS",
+          "label": null,
+          "links": [
+            88
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoTextImageEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "A Portrait of a girl, water fall in the background <image> , ",
+        "::3",
+        true,
+        "video",
+        ""
+      ]
+    },
+    {
+      "id": 81,
+      "pos": [
+        1707.3544921875,
+        1603.874267578125
+      ],
+      "mode": 0,
+      "size": [
+        352.79998779296875,
+        154
+      ],
+      "type": "HyVideoEnhanceAVideo",
+      "color": "#323",
+      "flags": {},
+      "order": 6,
+      "title": "HunyuanVideo Enhance A Video [Optional]",
+      "inputs": [],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "feta_args",
+          "type": "FETAARGS",
+          "label": null,
+          "links": [
+            91
+          ],
+          "shape": null,
+          "locked": null,
+          "widget": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoEnhanceAVideo"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        2,
+        true,
+        true,
+        0,
+        1
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 91,
+  "last_node_id": 83
+}

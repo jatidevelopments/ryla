@@ -76,6 +76,8 @@ jobs:
       funnel: ${{ steps.affected.outputs.funnel }}
       landing: ${{ steps.affected.outputs.landing }}
       admin: ${{ steps.affected.outputs.admin }}
+      nellab: ${{ steps.affected.outputs.nellab }}
+      metabase: ${{ steps.affected.outputs.metabase }}
       has-changes: ${{ steps.affected.outputs.has-changes }}
     steps:
       - uses: actions/checkout@v4
@@ -152,6 +154,18 @@ jobs:
             echo "✓ Admin app has changes"
           fi
 
+          NELLAB_CHANGED=false
+          if echo "$CHANGED_FILES" | grep -qE "^apps/nellab/"; then
+            NELLAB_CHANGED=true
+            echo "✓ Nellab app has changes"
+          fi
+
+          METABASE_CHANGED=false
+          if echo "$CHANGED_FILES" | grep -qE "^apps/metabase/|^scripts/setup/(metabase|setup-metabase)"; then
+            METABASE_CHANGED=true
+            echo "✓ Metabase app or dashboard script has changes"
+          fi
+
           # workflow_dispatch: allow forcing landing deploy without file changes
           if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force_deploy_landing }}" = "true" ]; then
             LANDING_CHANGED=true
@@ -169,8 +183,10 @@ jobs:
           echo "funnel=$FUNNEL_CHANGED" >> $GITHUB_OUTPUT
           echo "landing=$LANDING_CHANGED" >> $GITHUB_OUTPUT
           echo "admin=$ADMIN_CHANGED" >> $GITHUB_OUTPUT
+          echo "nellab=$NELLAB_CHANGED" >> $GITHUB_OUTPUT
+          echo "metabase=$METABASE_CHANGED" >> $GITHUB_OUTPUT
 
-          if [ "$WEB_CHANGED" = "true" ] || [ "$API_CHANGED" = "true" ] || [ "$FUNNEL_CHANGED" = "true" ] || [ "$LANDING_CHANGED" = "true" ] || [ "$ADMIN_CHANGED" = "true" ]; then
+          if [ "$WEB_CHANGED" = "true" ] || [ "$API_CHANGED" = "true" ] || [ "$FUNNEL_CHANGED" = "true" ] || [ "$LANDING_CHANGED" = "true" ] || [ "$ADMIN_CHANGED" = "true" ] || [ "$NELLAB_CHANGED" = "true" ] || [ "$METABASE_CHANGED" = "true" ]; then
             echo "has-changes=true" >> $GITHUB_OUTPUT
             echo "App changes detected"
           else
@@ -749,6 +765,75 @@ jobs:
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
         continue-on-error: true
 
+  deploy-nellab:
+    name: Deploy Nellab App (Cloudflare Pages)
+    needs: [detect-environment, detect-changes]
+    if: needs.detect-changes.outputs.nellab == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.detect-environment.outputs.github_env }}
+    concurrency:
+      group: deploy-nellab-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (for pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Nellab App
+        run: pnpm nx build nellab --configuration=production
+        env:
+          CLOUDFLARE_PAGES: 'true'
+
+      - name: Find and verify static export output
+        id: find-output
+        run: |
+          echo "Looking for static export output..."
+          if [ -d "dist/apps/nellab/out" ]; then
+            echo "Found dist/apps/nellab/out"
+            echo "directory=dist/apps/nellab/out" >> $GITHUB_OUTPUT
+          elif [ -f "dist/apps/nellab/.next/index.html" ]; then
+            echo "Found dist/apps/nellab/.next (Nx static export)"
+            echo "directory=dist/apps/nellab/.next" >> $GITHUB_OUTPUT
+          elif [ -d "dist/apps/nellab" ]; then
+            echo "Found dist/apps/nellab"
+            echo "directory=dist/apps/nellab" >> $GITHUB_OUTPUT
+          else
+            echo "❌ No static export output found!"
+            ls -la apps/nellab/ 2>/dev/null | head -10
+            ls -la dist/ 2>/dev/null | head -10 || echo "dist/ doesn't exist"
+            exit 1
+          fi
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/pages-action@v1
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          projectName: ryla-nellab
+          directory: ${{ steps.find-output.outputs.directory }}
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - nellab app success (Cloudflare Pages)"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
+
   deploy-admin:
     name: Deploy Admin App
     needs: [detect-environment, detect-changes]
@@ -1006,5 +1091,103 @@ jobs:
         run: |
           curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - admin app success"}' \
+            ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
+        continue-on-error: true
+
+  deploy-metabase:
+    name: Deploy Metabase (Fly.io)
+    needs: [detect-environment, detect-changes]
+    if: needs.detect-changes.outputs.metabase == 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.detect-environment.outputs.github_env }}
+    concurrency:
+      group: deploy-metabase-${{ github.ref }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+
+      - name: Setup Fly.io CLI
+        uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Create Fly app if not exists
+        run: |
+          flyctl apps create ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }} --yes || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Create volume if not exists
+        run: |
+          flyctl volumes create metabase_data \
+            --region fra \
+            --size 1 \
+            --app ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }} \
+            || true
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+        continue-on-error: true
+
+      - name: Deploy Metabase to Fly.io
+        run: |
+          flyctl deploy \
+            --config apps/metabase/fly.toml \
+            --dockerfile apps/metabase/Dockerfile \
+            --app ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }} \
+            --strategy immediate
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+
+      - name: Wait for Metabase to be ready
+        run: |
+          METABASE_URL="https://ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }}.fly.dev"
+          echo "Waiting for Metabase at $METABASE_URL ..."
+          for i in $(seq 1 30); do
+            if curl -sf "$METABASE_URL/api/health" > /dev/null 2>&1; then
+              echo "Metabase is up."
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "Metabase did not become ready in time (setup step may still run if API is available later)."
+        continue-on-error: true
+
+      - name: Install Infisical CLI
+        run: |
+          curl -1sLf 'https://dl.cloudsmith.io/public/infisical/infisical-cli/setup.deb.sh' | sudo -E bash
+          sudo apt-get install -y infisical
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (pnpm)
+        run: corepack enable pnpm && corepack prepare pnpm@10.26.1 --activate
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+        continue-on-error: true
+
+      - name: Setup RYLA dashboards in Metabase
+        env:
+          INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
+          # Override METABASE_URL so dashboard script targets the deployed instance
+          METABASE_URL: 'https://ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }}.fly.dev'
+        run: |
+          echo "Running dashboard setup against $METABASE_URL ..."
+          # Infisical injects METABASE_API_KEY from /mcp; METABASE_URL is set above for this env
+          infisical run \
+            --domain=https://eu.infisical.com/api \
+            --path=/mcp \
+            --env=${{ needs.detect-environment.outputs.infisical_env }} \
+            -- pnpm tsx scripts/setup/metabase-setup-dashboards.ts
+        continue-on-error: true
+
+      - name: Notify Slack
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"DEPLOY: ${{ needs.detect-environment.outputs.github_env }} ${{ github.ref_name }} - Metabase success (Fly.io)"}' \
             ${{ secrets.SLACK_WEBHOOK_DEPLOYS || 'https://hooks.slack.com/services/PLACEHOLDER' }}
         continue-on-error: true

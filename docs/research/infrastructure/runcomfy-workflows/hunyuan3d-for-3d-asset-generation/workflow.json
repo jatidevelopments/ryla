@@ -1,0 +1,730 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.5131581182307068,
+      "offset": [
+        -32.27295754930895,
+        35.680819680678816
+      ]
+    }
+  },
+  "links": [
+    [
+      1,
+      7,
+      0,
+      8,
+      0,
+      "DIFFUSERS_PIPE"
+    ],
+    [
+      2,
+      9,
+      0,
+      8,
+      1,
+      "IMAGE"
+    ],
+    [
+      4,
+      9,
+      1,
+      10,
+      0,
+      "MASK"
+    ],
+    [
+      5,
+      10,
+      0,
+      8,
+      2,
+      "MASK"
+    ],
+    [
+      6,
+      8,
+      0,
+      11,
+      0,
+      "IMAGE"
+    ],
+    [
+      7,
+      12,
+      0,
+      13,
+      0,
+      "HUNYUAN3D_V1_RECONSTRUCTION_MODEL"
+    ],
+    [
+      8,
+      8,
+      0,
+      13,
+      1,
+      "IMAGE"
+    ],
+    [
+      9,
+      8,
+      1,
+      13,
+      2,
+      "IMAGE"
+    ],
+    [
+      11,
+      15,
+      0,
+      14,
+      0,
+      "STRING"
+    ],
+    [
+      13,
+      16,
+      0,
+      17,
+      0,
+      "MESH"
+    ],
+    [
+      14,
+      17,
+      0,
+      18,
+      0,
+      "STRING"
+    ],
+    [
+      15,
+      19,
+      0,
+      15,
+      0,
+      "MESH"
+    ],
+    [
+      16,
+      19,
+      0,
+      16,
+      0,
+      "MESH"
+    ],
+    [
+      17,
+      13,
+      0,
+      19,
+      0,
+      "MESH"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 21,
+      "pos": [
+        130.07913208007812,
+        154.24696350097656
+      ],
+      "mode": 4,
+      "size": [
+        315,
+        154
+      ],
+      "type": "[Comfy3D] Load Diffusers Pipeline",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "pipe",
+          "type": "DIFFUSERS_PIPE",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Load Diffusers Pipeline"
+      },
+      "widgets_values": [
+        "Hunyuan3DMVDLitePipeline",
+        "tencent/Hunyuan3D-1",
+        "",
+        false,
+        "mvd_std"
+      ]
+    },
+    {
+      "id": 22,
+      "pos": [
+        477.0789489746094,
+        189.24696350097656
+      ],
+      "mode": 4,
+      "size": [
+        478.8000183105469,
+        82
+      ],
+      "type": "[Comfy3D] Load Hunyuan3D V1 Reconstruction Model",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "hunyuan3d_v1_reconstruction_model",
+          "type": "HUNYUAN3D_V1_RECONSTRUCTION_MODEL",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Load Hunyuan3D V1 Reconstruction Model"
+      },
+      "widgets_values": [
+        false,
+        true
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        2400,
+        440
+      ],
+      "mode": 0,
+      "size": [
+        282.4291076660156,
+        82
+      ],
+      "type": "[Comfy3D] Convert Vertex Color To Texture",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 16,
+          "name": "mesh",
+          "type": "MESH"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mesh",
+          "type": "MESH",
+          "links": [
+            13
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Convert Vertex Color To Texture"
+      },
+      "widgets_values": [
+        1024,
+        128
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [
+        54,
+        431
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        154
+      ],
+      "type": "[Comfy3D] Load Diffusers Pipeline",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "pipe",
+          "type": "DIFFUSERS_PIPE",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Load Diffusers Pipeline"
+      },
+      "widgets_values": [
+        "Hunyuan3DMVDLitePipeline",
+        "tencent/Hunyuan3D-1",
+        "",
+        false,
+        "mvd_lite"
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [
+        529.0380859375,
+        446.7762756347656
+      ],
+      "mode": 0,
+      "size": [
+        478.8000183105469,
+        82
+      ],
+      "type": "[Comfy3D] Load Hunyuan3D V1 Reconstruction Model",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "hunyuan3d_v1_reconstruction_model",
+          "type": "HUNYUAN3D_V1_RECONSTRUCTION_MODEL",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Load Hunyuan3D V1 Reconstruction Model"
+      },
+      "widgets_values": [
+        false,
+        true
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [
+        539.0380859375,
+        876.7760620117188
+      ],
+      "mode": 0,
+      "size": [
+        140,
+        26
+      ],
+      "type": "InvertMask",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 4,
+          "name": "mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "InvertMask"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 8,
+      "pos": [
+        536,
+        619
+      ],
+      "mode": 0,
+      "size": [
+        418.1999816894531,
+        170
+      ],
+      "type": "[Comfy3D] Hunyuan3D V1 MVDiffusion Model",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 1,
+          "name": "mvdiffusion_pipe",
+          "type": "DIFFUSERS_PIPE"
+        },
+        {
+          "link": 2,
+          "name": "reference_image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 5,
+          "name": "reference_mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "multiview_image_grid",
+          "type": "IMAGE",
+          "links": [
+            6,
+            8
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "condition_image",
+          "type": "IMAGE",
+          "links": [
+            9
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Hunyuan3D V1 MVDiffusion Model"
+      },
+      "widgets_values": [
+        0,
+        "fixed",
+        2,
+        50
+      ]
+    },
+    {
+      "id": 13,
+      "pos": [
+        1062,
+        452
+      ],
+      "mode": 0,
+      "size": [
+        481.1999816894531,
+        146
+      ],
+      "type": "[Comfy3D] Hunyuan3D V1 Reconstruction Model",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 7,
+          "name": "hunyuan3d_v1_reconstruction_model",
+          "type": "HUNYUAN3D_V1_RECONSTRUCTION_MODEL"
+        },
+        {
+          "link": 8,
+          "name": "multiview_image_grid",
+          "type": "IMAGE"
+        },
+        {
+          "link": 9,
+          "name": "condition_image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mesh",
+          "type": "MESH",
+          "links": [
+            17
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Hunyuan3D V1 Reconstruction Model"
+      },
+      "widgets_values": [
+        0,
+        "fixed"
+      ]
+    },
+    {
+      "id": 11,
+      "pos": [
+        1059,
+        664
+      ],
+      "mode": 0,
+      "size": [
+        541.83837890625,
+        577.2449951171875
+      ],
+      "type": "PreviewImage",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 7,
+      "inputs": [
+        {
+          "link": 6,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 19,
+      "pos": [
+        1647,
+        447
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        154
+      ],
+      "type": "[Comfy3D] Switch Mesh Axis",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 17,
+          "name": "mesh",
+          "type": "MESH"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "switched_mesh",
+          "type": "MESH",
+          "links": [
+            15,
+            16
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Switch Mesh Axis"
+      },
+      "widgets_values": [
+        "+y",
+        "+z",
+        "+x",
+        false,
+        1
+      ]
+    },
+    {
+      "id": 15,
+      "pos": [
+        2006,
+        447
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        58
+      ],
+      "type": "[Comfy3D] Save 3D Mesh",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 15,
+          "name": "mesh",
+          "type": "MESH"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "save_path",
+          "type": "STRING",
+          "links": [
+            11
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Save 3D Mesh"
+      },
+      "widgets_values": [
+        "1165_Hunyuan3D\\mesh_1.obj"
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [
+        60,
+        660
+      ],
+      "mode": 0,
+      "size": [
+        424.7453308105469,
+        431.22418212890625
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            4
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1165.png",
+        "image"
+      ]
+    },
+    {
+      "id": 14,
+      "pos": [
+        1670,
+        670
+      ],
+      "mode": 0,
+      "size": [
+        600,
+        500
+      ],
+      "type": "[Comfy3D] Preview 3DMesh",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 11,
+          "name": "mesh_file_path",
+          "type": "STRING",
+          "widget": {
+            "name": "mesh_file_path"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Preview 3DMesh"
+      },
+      "widgets_values": [
+        "",
+        null
+      ]
+    },
+    {
+      "id": 17,
+      "pos": [
+        2720,
+        440
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        58
+      ],
+      "type": "[Comfy3D] Save 3D Mesh",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 13,
+          "name": "mesh",
+          "type": "MESH"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "save_path",
+          "type": "STRING",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Save 3D Mesh"
+      },
+      "widgets_values": [
+        "1165_Hunyuan3D_V1\\mesh_t_1.obj"
+      ]
+    },
+    {
+      "id": 18,
+      "pos": [
+        2423,
+        674
+      ],
+      "mode": 0,
+      "size": [
+        600,
+        500
+      ],
+      "type": "[Comfy3D] Preview 3DMesh",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 14,
+          "name": "mesh_file_path",
+          "type": "STRING",
+          "widget": {
+            "name": "mesh_file_path"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "[Comfy3D] Preview 3DMesh"
+      },
+      "widgets_values": [
+        "",
+        null
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#3f789e",
+      "flags": {},
+      "title": "[Experimental] Bake Vertex Color onto UV Texture (Could take up to 1+ minute)",
+      "bounding": [
+        2370,
+        350,
+        726,
+        916
+      ],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Use Std-pipeline  (22 GB vram) instead of Lite-pipeline (16 GB vram)",
+      "bounding": [
+        62,
+        35,
+        978,
+        326
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 17,
+  "last_node_id": 22
+}

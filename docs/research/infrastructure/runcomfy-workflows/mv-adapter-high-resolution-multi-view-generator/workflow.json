@@ -1,0 +1,549 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.8264462809917354,
+      "offset": [
+        -845.5613811961999,
+        225.8295788211676
+      ]
+    }
+  },
+  "links": [
+    [
+      1,
+      1,
+      0,
+      2,
+      0,
+      "PIPELINE"
+    ],
+    [
+      2,
+      1,
+      0,
+      4,
+      0,
+      "PIPELINE"
+    ],
+    [
+      3,
+      2,
+      0,
+      4,
+      1,
+      "SCHEDULER"
+    ],
+    [
+      4,
+      3,
+      0,
+      4,
+      2,
+      "AUTOENCODER"
+    ],
+    [
+      6,
+      9,
+      0,
+      8,
+      0,
+      "FUNCTION"
+    ],
+    [
+      7,
+      7,
+      0,
+      8,
+      1,
+      "IMAGE"
+    ],
+    [
+      8,
+      8,
+      0,
+      10,
+      0,
+      "IMAGE"
+    ],
+    [
+      9,
+      8,
+      0,
+      6,
+      1,
+      "IMAGE"
+    ],
+    [
+      11,
+      4,
+      0,
+      12,
+      0,
+      "PIPELINE"
+    ],
+    [
+      12,
+      12,
+      0,
+      6,
+      0,
+      "PIPELINE"
+    ],
+    [
+      13,
+      6,
+      0,
+      14,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 8,
+      "pos": [
+        879.4166870117188,
+        160.73989868164062
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        102
+      ],
+      "type": "ImagePreprocessor",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 6,
+          "name": "remove_bg_fn",
+          "type": "FUNCTION"
+        },
+        {
+          "link": 7,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            8,
+            9
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImagePreprocessor"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        768,
+        768
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [
+        461.276123046875,
+        -98.90441131591797
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        58
+      ],
+      "type": "BiRefNet",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "FUNCTION",
+          "type": "FUNCTION",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BiRefNet"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ZhengPeng7/BiRefNet"
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [
+        873.844482421875,
+        -214.40762329101562
+      ],
+      "mode": 0,
+      "size": [
+        316.98516845703125,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_examples_1177_1.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 1,
+      "pos": [
+        411.2488098144531,
+        8.50776195526123
+      ],
+      "mode": 0,
+      "size": [
+        391.9084777832031,
+        129.04002380371094
+      ],
+      "type": "LdmPipelineLoader",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "PIPELINE",
+          "type": "PIPELINE",
+          "links": [
+            1,
+            2
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "AUTOENCODER",
+          "type": "AUTOENCODER",
+          "links": null
+        },
+        {
+          "name": "SCHEDULER",
+          "type": "SCHEDULER",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LdmPipelineLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "sdxl/sd_xl_base_1.0.safetensors",
+        "MVAdapterI2MVSDXLPipeline"
+      ]
+    },
+    {
+      "id": 2,
+      "pos": [
+        460.591064453125,
+        200.7130584716797
+      ],
+      "mode": 0,
+      "size": [
+        327.5999755859375,
+        130
+      ],
+      "type": "DiffusersSchedulerLoader",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 1,
+          "name": "pipeline",
+          "type": "PIPELINE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SCHEDULER",
+          "type": "SCHEDULER",
+          "links": [
+            3
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DiffusersSchedulerLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "DDPM",
+        true,
+        "interpolated",
+        8
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        460.49664306640625,
+        386.5780944824219
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        82
+      ],
+      "type": "LdmVaeLoader",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUTOENCODER",
+          "type": "AUTOENCODER",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LdmVaeLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "sdxl.vae.safetensors",
+        false
+      ]
+    },
+    {
+      "id": 4,
+      "pos": [
+        879.9572143554688,
+        322.7622985839844
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        194
+      ],
+      "type": "DiffusersModelMakeup",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 2,
+          "name": "pipeline",
+          "type": "PIPELINE"
+        },
+        {
+          "link": 3,
+          "name": "scheduler",
+          "type": "SCHEDULER"
+        },
+        {
+          "link": 4,
+          "name": "autoencoder",
+          "type": "AUTOENCODER"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "PIPELINE",
+          "type": "PIPELINE",
+          "links": [
+            11
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DiffusersModelMakeup"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        true,
+        "huanngzh/mv-adapter",
+        "mvadapter_i2mv_sdxl.safetensors",
+        6,
+        true
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [
+        1248.8834228515625,
+        137.73414611816406
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        82
+      ],
+      "type": "LoraModelLoader",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 11,
+          "name": "pipeline",
+          "type": "PIPELINE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "PIPELINE",
+          "type": "PIPELINE",
+          "links": [
+            12
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoraModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "sdxl/3DRedmond-3DRenderStyle-3DRenderAF.safetensors",
+        1
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [
+        1251.699462890625,
+        -206.77622985839844
+      ],
+      "mode": 0,
+      "size": [
+        267.6073303222656,
+        276.0325927734375
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 8,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 6,
+      "pos": [
+        1246.6656494140625,
+        291.2841491699219
+      ],
+      "mode": 0,
+      "size": [
+        398.4827880859375,
+        355.830078125
+      ],
+      "type": "DiffusersMVSampler",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 12,
+          "name": "pipeline",
+          "type": "PIPELINE"
+        },
+        {
+          "link": 9,
+          "name": "reference_image",
+          "type": "IMAGE",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            13
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DiffusersMVSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        6,
+        "3d style, A decorative figurine of a young anime-style boy",
+        "watermark, ugly, deformed, noisy, blurry, low contrast",
+        768,
+        768,
+        70,
+        3,
+        21,
+        "fixed"
+      ]
+    },
+    {
+      "id": 14,
+      "pos": [
+        1679.178955078125,
+        -205.9351806640625
+      ],
+      "mode": 0,
+      "size": [
+        631.0465087890625,
+        719.1466064453125
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 13,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "1177"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 13,
+  "last_node_id": 14
+}

@@ -1,0 +1,2292 @@
+{
+  "id": "71cc9f94-e15d-4e3b-ba57-3b60c1cb8e53",
+  "extra": {
+    "ds": {
+      "scale": 0.6830134553650705,
+      "offset": [
+        525.3458348321201,
+        85.55329509901794
+      ]
+    },
+    "reroutes": [
+      {
+        "id": 12,
+        "pos": [
+          1759.315185546875,
+          1528.4813232421875
+        ],
+        "linkIds": [
+          143
+        ],
+        "floating": null,
+        "parentId": null
+      }
+    ],
+    "groupNodes": {},
+    "linkExtensions": [
+      {
+        "id": 143,
+        "parentId": 12
+      }
+    ],
+    "frontendVersion": "1.21.7"
+  },
+  "links": [
+    [
+      9,
+      8,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      10,
+      11,
+      0,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      12,
+      10,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      19,
+      16,
+      0,
+      13,
+      2,
+      "SAMPLER"
+    ],
+    [
+      20,
+      17,
+      0,
+      13,
+      3,
+      "SIGMAS"
+    ],
+    [
+      30,
+      22,
+      0,
+      13,
+      1,
+      "GUIDER"
+    ],
+    [
+      37,
+      25,
+      0,
+      13,
+      0,
+      "NOISE"
+    ],
+    [
+      41,
+      6,
+      0,
+      26,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      54,
+      30,
+      0,
+      22,
+      0,
+      "MODEL"
+    ],
+    [
+      55,
+      30,
+      0,
+      17,
+      0,
+      "MODEL"
+    ],
+    [
+      116,
+      27,
+      0,
+      13,
+      4,
+      "LATENT"
+    ],
+    [
+      119,
+      42,
+      0,
+      41,
+      1,
+      "STYLE_MODEL"
+    ],
+    [
+      120,
+      39,
+      0,
+      41,
+      2,
+      "CLIP_VISION_OUTPUT"
+    ],
+    [
+      125,
+      38,
+      0,
+      39,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      131,
+      49,
+      1,
+      30,
+      1,
+      "INT"
+    ],
+    [
+      132,
+      49,
+      2,
+      30,
+      2,
+      "INT"
+    ],
+    [
+      133,
+      49,
+      1,
+      27,
+      0,
+      "INT"
+    ],
+    [
+      134,
+      49,
+      2,
+      27,
+      1,
+      "INT"
+    ],
+    [
+      135,
+      40,
+      0,
+      50,
+      0,
+      "IMAGE"
+    ],
+    [
+      136,
+      50,
+      0,
+      49,
+      0,
+      "IMAGE"
+    ],
+    [
+      143,
+      13,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      145,
+      57,
+      0,
+      30,
+      0,
+      "MODEL"
+    ],
+    [
+      148,
+      60,
+      0,
+      61,
+      2,
+      "CLIP_VISION_OUTPUT"
+    ],
+    [
+      151,
+      38,
+      0,
+      60,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      152,
+      42,
+      0,
+      61,
+      1,
+      "STYLE_MODEL"
+    ],
+    [
+      158,
+      45,
+      0,
+      57,
+      0,
+      "MODEL"
+    ],
+    [
+      170,
+      49,
+      0,
+      39,
+      1,
+      "IMAGE"
+    ],
+    [
+      182,
+      69,
+      0,
+      22,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      185,
+      41,
+      0,
+      69,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      190,
+      61,
+      0,
+      69,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      191,
+      26,
+      0,
+      71,
+      0,
+      "*"
+    ],
+    [
+      192,
+      71,
+      0,
+      41,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      197,
+      71,
+      0,
+      61,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      199,
+      62,
+      0,
+      60,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 43,
+      "pos": [
+        1130,
+        -330
+      ],
+      "mode": 0,
+      "size": [
+        345.9017028808594,
+        182.3145294189453
+      ],
+      "type": "Note",
+      "color": "#0b5c44",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "bgcolor": "#1f7058",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "The redux model lets you prompt with images. It can be used with any Flux1 dev or schnell model workflow.\n\nYou can chain multiple \"Apply Style Model\" nodes if you want to mix multiple images together."
+      ]
+    },
+    {
+      "id": 50,
+      "pos": [
+        -397.9649963378906,
+        504.2720642089844
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        82
+      ],
+      "type": "ImageScaleBy",
+      "color": "#232",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 135,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            136
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageScaleBy"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "bicubic",
+        1
+      ]
+    },
+    {
+      "id": 38,
+      "pos": [
+        483.97552490234375,
+        168.98423767089844
+      ],
+      "mode": 0,
+      "size": [
+        370,
+        60
+      ],
+      "type": "CLIPVisionLoader",
+      "color": "#2a363b",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "label": null,
+          "links": [
+            125,
+            151
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPVisionLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "sigclip_vision_patch14_384.safetensors"
+      ]
+    },
+    {
+      "id": 61,
+      "pos": [
+        1283.9755859375,
+        278.9842834472656
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        122
+      ],
+      "type": "StyleModelApply",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 22,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 197,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 152,
+          "name": "style_model",
+          "type": "STYLE_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 148,
+          "name": "clip_vision_output",
+          "type": "CLIP_VISION_OUTPUT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            190
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "StyleModelApply"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1,
+        "multiply"
+      ]
+    },
+    {
+      "id": 41,
+      "pos": [
+        1283.9755859375,
+        168.98423767089844
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        122
+      ],
+      "type": "StyleModelApply",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 21,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 192,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 119,
+          "name": "style_model",
+          "type": "STYLE_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 120,
+          "name": "clip_vision_output",
+          "type": "CLIP_VISION_OUTPUT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            185
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "StyleModelApply"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1,
+        "multiply"
+      ]
+    },
+    {
+      "id": 69,
+      "pos": [
+        1688,
+        202
+      ],
+      "mode": 0,
+      "size": [
+        218.39999389648438,
+        126
+      ],
+      "type": "ConditioningMultiCombine",
+      "color": "#332922",
+      "flags": {},
+      "order": 23,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 185,
+          "name": "conditioning_1",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 190,
+          "name": "conditioning_2",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "combined",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            182
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "inputcount",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        2,
+        "concat",
+        null
+      ]
+    },
+    {
+      "id": 57,
+      "pos": [
+        19.46887969970703,
+        1142.1849365234375
+      ],
+      "mode": 4,
+      "size": [
+        315,
+        82
+      ],
+      "type": "LoraLoaderModelOnly",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 158,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            145
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoraLoaderModelOnly"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux/mjv6_lora.safetensors",
+        0.5
+      ]
+    },
+    {
+      "id": 45,
+      "pos": [
+        -384,
+        1135
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        100
+      ],
+      "type": "CheckpointLoaderSimple",
+      "color": "#451b6f",
+      "flags": {},
+      "order": 2,
+      "title": "Load Flux Checkpoint",
+      "inputs": [],
+      "bgcolor": "#592f83",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            158
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux/flux1-dev-fp8.safetensors"
+      ]
+    },
+    {
+      "id": 13,
+      "pos": [
+        1140,
+        750
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        120
+      ],
+      "type": "SamplerCustomAdvanced",
+      "color": "#323",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 25,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 37,
+          "name": "noise",
+          "type": "NOISE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 30,
+          "name": "guider",
+          "type": "GUIDER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 19,
+          "name": "sampler",
+          "type": "SAMPLER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 20,
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 116,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "output",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            143
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "denoised_output",
+          "type": "LATENT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 22,
+      "pos": [
+        1170,
+        650
+      ],
+      "mode": 0,
+      "size": [
+        220,
+        50
+      ],
+      "type": "BasicGuider",
+      "color": "#323",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 24,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 54,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 182,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "label": null,
+          "links": [
+            30
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "BasicGuider"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 71,
+      "pos": [
+        524,
+        304
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 191,
+          "name": "",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            192,
+            197
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 60,
+      "pos": [
+        1073,
+        371
+      ],
+      "mode": 0,
+      "size": [
+        290,
+        54
+      ],
+      "type": "CLIPVisionEncode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 12,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 151,
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 199,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP_VISION_OUTPUT",
+          "type": "CLIP_VISION_OUTPUT",
+          "label": null,
+          "links": [
+            148
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPVisionEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "center"
+      ]
+    },
+    {
+      "id": 39,
+      "pos": [
+        1088,
+        124
+      ],
+      "mode": 0,
+      "size": [
+        290,
+        54
+      ],
+      "type": "CLIPVisionEncode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 16,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 125,
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 170,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP_VISION_OUTPUT",
+          "type": "CLIP_VISION_OUTPUT",
+          "label": null,
+          "links": [
+            120
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPVisionEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "center"
+      ]
+    },
+    {
+      "id": 27,
+      "pos": [
+        807,
+        1051
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        110
+      ],
+      "type": "EmptySD3LatentImage",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 18,
+      "inputs": [
+        {
+          "dir": null,
+          "link": 133,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "width"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 134,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "height"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            116
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "EmptySD3LatentImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1024,
+        1200,
+        1
+      ]
+    },
+    {
+      "id": 30,
+      "pos": [
+        815,
+        1000
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        130
+      ],
+      "type": "ModelSamplingFlux",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 17,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 145,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 131,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "width"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 132,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "height"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            54,
+            55
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ModelSamplingFlux"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1.15,
+        0.5,
+        1024,
+        1200
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [
+        666,
+        1158
+      ],
+      "mode": 0,
+      "size": [
+        310,
+        60
+      ],
+      "type": "VAELoader",
+      "color": "#322",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            12
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux/ae.safetensors"
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        1228,
+        1093
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        50
+      ],
+      "type": "VAEDecode",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 26,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 143,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 12,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            9
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 49,
+      "pos": [
+        5,
+        500
+      ],
+      "mode": 0,
+      "size": [
+        280,
+        90
+      ],
+      "type": "GetImageSizeAndCount",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 14,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 136,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            170
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": "768 width",
+          "links": [
+            131,
+            133
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": "768 height",
+          "links": [
+            132,
+            134
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": "1 count",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 40,
+      "pos": [
+        -398,
+        664
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#013c7a",
+      "flags": {},
+      "order": 4,
+      "title": "Main Image",
+      "inputs": [],
+      "bgcolor": "#15508e",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            135
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_example_1170_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 62,
+      "pos": [
+        -24,
+        662
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#013c7a",
+      "flags": {},
+      "order": 5,
+      "title": "Style Image",
+      "inputs": [],
+      "bgcolor": "#15508e",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            199
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_example_1170_2.jpeg",
+        "image"
+      ]
+    },
+    {
+      "id": 26,
+      "pos": [
+        106,
+        345
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        60
+      ],
+      "type": "FluxGuidance",
+      "color": "#233",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 15,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 41,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#355",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            191
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        3.5
+      ]
+    },
+    {
+      "id": 11,
+      "pos": [
+        -297,
+        346
+      ],
+      "mode": 0,
+      "size": [
+        260,
+        110
+      ],
+      "type": "DualCLIPLoader",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 6,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            10
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "t5/google_t5-v1_1-xxl_encoderonly-fp8_e4m3fn.safetensors",
+        "sd3m/clip_l.safetensors",
+        "flux",
+        "default"
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        664,
+        692
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        60
+      ],
+      "type": "KSamplerSelect",
+      "color": "#323",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "label": null,
+          "links": [
+            19
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "deis"
+      ]
+    },
+    {
+      "id": 17,
+      "pos": [
+        1110,
+        920
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        110
+      ],
+      "type": "BasicScheduler",
+      "color": "#323",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 20,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 55,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "label": null,
+          "links": [
+            20
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "BasicScheduler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "simple",
+        20,
+        1
+      ]
+    },
+    {
+      "id": 6,
+      "pos": [
+        -305,
+        78
+      ],
+      "mode": 0,
+      "size": [
+        547.5416259765625,
+        223.87014770507812
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 13,
+      "title": "CLIP Text Encode (Positive Prompt)",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 10,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            41
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "bailing_fire,\nA girl **** entirely of flames stands, her body engulfed in fire. Her form flickers and sways, semi-transparent and composed entirely of fire elements. The flames seem to rise naturally from her, as though she is both part of the fire and its source. The surroundings are blurred, keeping the focus entirely on her fiery presence. perfect breasts, fully naked, long flaming hair. dynamic pose, The flames ripple and pulse, wrapping around her form, creating an intense yet surreal atmosphere.freckles,masterpiece,best quality,light particle,depth of field,fantasy,blunt bangs,a cute girl,Porta 160 color,shot on ARRI ALEXA 65,bokeh,sharp focus on subject,highest details,photorealistic,high background details,high face details,8k"
+      ]
+    },
+    {
+      "id": 25,
+      "pos": [
+        667,
+        800
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        82
+      ],
+      "type": "RandomNoise",
+      "color": "#323",
+      "flags": {},
+      "order": 8,
+      "inputs": [],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "NOISE",
+          "type": "NOISE",
+          "label": null,
+          "links": [
+            37
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "RandomNoise"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        860220586844142,
+        "fixed"
+      ]
+    },
+    {
+      "id": 42,
+      "pos": [
+        493.97552490234375,
+        58.984249114990234
+      ],
+      "mode": 0,
+      "size": [
+        340,
+        60
+      ],
+      "type": "StyleModelLoader",
+      "color": "#2a363b",
+      "flags": {},
+      "order": 9,
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STYLE_MODEL",
+          "type": "STYLE_MODEL",
+          "label": null,
+          "links": [
+            119,
+            152
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "StyleModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux/flux1-redux-dev.safetensors"
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [
+        1503,
+        563
+      ],
+      "mode": 0,
+      "size": [
+        606.0393676757812,
+        642.46435546875
+      ],
+      "type": "SaveImage",
+      "color": "#223",
+      "flags": {},
+      "order": 27,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 9,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SaveImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Redux"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#2769b0",
+      "flags": {},
+      "title": "Load Image Group",
+      "bounding": [
+        -447.9649963378906,
+        410.6717834472656,
+        868.9674682617188,
+        603.1246337890625
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#1e9f5d",
+      "flags": {},
+      "title": "Additional Prompts",
+      "bounding": [
+        -446.5098876953125,
+        -22.914051055908203,
+        867.13818359375,
+        414.10711669921875
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 3,
+      "color": "#7137c9",
+      "flags": {},
+      "title": "3) Flux Model",
+      "bounding": [
+        -447.5849304199219,
+        1030.4906005859375,
+        867.0623168945312,
+        256.2333984375
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 4,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Redux Injection",
+      "bounding": [
+        450.7344970703125,
+        -21.044254302978516,
+        1723.1412353515625,
+        461.80499267578125
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 5,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Ksampler Group",
+      "bounding": [
+        450.1150817871094,
+        470.2206115722656,
+        1727.6318359375,
+        812.5841674804688
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 199,
+  "last_node_id": 73,
+  "floatingLinks": null
+}

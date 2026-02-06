@@ -1,0 +1,709 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.41772481694157354,
+      "offset": [
+        1833.3784549667548,
+        438.25214553129325
+      ]
+    }
+  },
+  "links": [
+    [
+      17,
+      14,
+      0,
+      29,
+      2,
+      "IMAGE"
+    ],
+    [
+      18,
+      28,
+      0,
+      29,
+      1,
+      "GROUNDING_DINO_MODEL"
+    ],
+    [
+      19,
+      27,
+      0,
+      29,
+      0,
+      "SAM_MODEL"
+    ],
+    [
+      24,
+      31,
+      0,
+      32,
+      0,
+      "IMAGE"
+    ],
+    [
+      25,
+      14,
+      0,
+      33,
+      0,
+      "IMAGE"
+    ],
+    [
+      26,
+      33,
+      0,
+      34,
+      0,
+      "IMAGE"
+    ],
+    [
+      28,
+      12,
+      0,
+      35,
+      0,
+      "PIPELINE"
+    ],
+    [
+      30,
+      33,
+      0,
+      35,
+      2,
+      "IMAGE"
+    ],
+    [
+      31,
+      15,
+      0,
+      35,
+      4,
+      "IMAGE"
+    ],
+    [
+      32,
+      14,
+      0,
+      35,
+      1,
+      "IMAGE"
+    ],
+    [
+      33,
+      31,
+      0,
+      35,
+      3,
+      "IMAGE"
+    ],
+    [
+      35,
+      35,
+      0,
+      21,
+      0,
+      "IMAGE"
+    ],
+    [
+      36,
+      36,
+      1,
+      31,
+      0,
+      "MASK"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 34,
+      "pos": [
+        -173,
+        -184
+      ],
+      "mode": 0,
+      "size": [
+        212.20834350585938,
+        270.6414489746094
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 26,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 28,
+      "pos": [
+        -1042.8419189453125,
+        809.932373046875
+      ],
+      "mode": 0,
+      "size": [
+        361.20001220703125,
+        58
+      ],
+      "type": "GroundingDinoModelLoader (segment anything)",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "GROUNDING_DINO_MODEL",
+          "type": "GROUNDING_DINO_MODEL",
+          "links": [
+            18
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GroundingDinoModelLoader (segment anything)"
+      },
+      "widgets_values": [
+        "GroundingDINO_SwinB (938MB)"
+      ]
+    },
+    {
+      "id": 27,
+      "pos": [
+        -1048.659423828125,
+        680.5391845703125
+      ],
+      "mode": 0,
+      "size": [
+        373.3892517089844,
+        60.62077331542969
+      ],
+      "type": "SAMModelLoader (segment anything)",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAM_MODEL",
+          "type": "SAM_MODEL",
+          "links": [
+            19
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SAMModelLoader (segment anything)"
+      },
+      "widgets_values": [
+        "sam_hq_vit_h (2.57GB)"
+      ]
+    },
+    {
+      "id": 31,
+      "pos": [
+        -156,
+        192
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        26
+      ],
+      "type": "MaskToImage",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 36,
+          "name": "mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            24,
+            33
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MaskToImage"
+      }
+    },
+    {
+      "id": 32,
+      "pos": [
+        -156,
+        284
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        246
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 24,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 33,
+      "pos": [
+        -531,
+        -185
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "DensePosePreprocessor",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 25,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            26,
+            30
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DensePosePreprocessor"
+      },
+      "widgets_values": [
+        "densepose_r50_fpn_dl.torchscript",
+        "Parula (CivitAI)",
+        1024
+      ]
+    },
+    {
+      "id": 29,
+      "pos": [
+        -610,
+        701
+      ],
+      "mode": 0,
+      "size": [
+        352.79998779296875,
+        122
+      ],
+      "type": "GroundingDinoSAMSegment (segment anything)",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 19,
+          "name": "sam_model",
+          "type": "SAM_MODEL"
+        },
+        {
+          "link": 18,
+          "name": "grounding_dino_model",
+          "type": "GROUNDING_DINO_MODEL"
+        },
+        {
+          "link": 17,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GroundingDinoSAMSegment (segment anything)"
+      },
+      "widgets_values": [
+        "t-shirt",
+        0.3
+      ]
+    },
+    {
+      "id": 36,
+      "pos": [
+        -1028,
+        225
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 2,
+      "title": "Load Human Image",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [
+            36
+          ],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1135_2.png",
+        "image"
+      ]
+    },
+    {
+      "id": 37,
+      "pos": [
+        -606,
+        869
+      ],
+      "mode": 0,
+      "size": [
+        354.02142333984375,
+        185.6645050048828
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 3,
+      "title": "Tips",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "1. To use an auto mask, connect the \"mask\" output from the \"GroundingDinoSAMSegment\" node to the \"mask\" input of the \"Convert Mask to Image\" node. This will replace the manual masking process with an automatic mask.\n\n2. When using the auto mask, ensure that the clothing in the \"Human Image\" matches the garment in the \"Garment Image\". For example, if the \"Garment Image\" shows a t-shirt, the \"Human Image\" should feature a model wearing a t-shirt for best results."
+      ]
+    },
+    {
+      "id": 38,
+      "pos": [
+        -606,
+        325
+      ],
+      "mode": 0,
+      "size": [
+        354.02142333984375,
+        185.6645050048828
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 4,
+      "title": "Tips",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "How to mask your image?\n\nTo mask your image, first upload the original image. Then, right-click on it and select \"Open in Mask Editor\" from the menu."
+      ]
+    },
+    {
+      "id": 15,
+      "pos": [
+        -996,
+        1145
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 5,
+      "title": "Load Garment Image",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            31
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1135_3.png",
+        "image"
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [
+        -171,
+        -318
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "PipelineLoader",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "PIPELINE",
+          "type": "PIPELINE",
+          "links": [
+            28
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PipelineLoader"
+      },
+      "widgets_values": [
+        "float16"
+      ]
+    },
+    {
+      "id": 14,
+      "pos": [
+        -1025,
+        -324
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 7,
+      "title": "Load Human Image",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            17,
+            25,
+            32
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1135_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 35,
+      "pos": [
+        227,
+        -12
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        374
+      ],
+      "type": "IDM-VTON",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 28,
+          "name": "pipeline",
+          "type": "PIPELINE"
+        },
+        {
+          "link": 32,
+          "name": "human_img",
+          "type": "IMAGE"
+        },
+        {
+          "link": 30,
+          "name": "pose_img",
+          "type": "IMAGE"
+        },
+        {
+          "link": 33,
+          "name": "mask_img",
+          "type": "IMAGE"
+        },
+        {
+          "link": 31,
+          "name": "garment_img",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            35
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "IDM-VTON"
+      },
+      "widgets_values": [
+        "a shirt",
+        "monochrome, lowres, bad anatomy, worst quality, low quality",
+        1024,
+        1024,
+        30,
+        2,
+        1,
+        900955531864006,
+        "randomize"
+      ]
+    },
+    {
+      "id": 21,
+      "pos": [
+        727,
+        -13
+      ],
+      "mode": 0,
+      "size": [
+        330,
+        410
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 35,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "1135"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Manual Mask",
+      "bounding": [
+        -1100,
+        138,
+        893,
+        439
+      ],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Auto Mask (Optional)",
+      "bounding": [
+        -1093,
+        601,
+        889,
+        475
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 36,
+  "last_node_id": 38
+}

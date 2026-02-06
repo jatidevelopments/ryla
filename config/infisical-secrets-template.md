@@ -23,20 +23,20 @@ RYLA Project
 
 Secrets used by MCP servers in Cursor IDE.
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `RYLA_API_URL` | RYLA API base URL | `http://localhost:3001` |
-| `RYLA_DEV_TOKEN` | Long-lived dev token for RYLA API | `eyJhbGciOiJIUzI1N...` |
-| `GITHUB_TOKEN` | GitHub Personal Access Token | `ghp_xxxxxxxxxxxx` |
-| `GITHUB_PERSONAL_ACCESS_TOKEN` | Alias for GitHub MCP server | `ghp_xxxxxxxxxxxx` |
-| `SLACK_BOT_TOKEN` | Slack Bot OAuth Token | `xoxb-xxxxxxxxxxxx` |
-| `SLACK_TEAM_ID` | Slack Team/Workspace ID | `T0123456789` |
-| `RUNPOD_API_KEY` | RunPod API Key | `rp_xxxxxxxxxxxx` |
-| `CLOUDFLARE_API_TOKEN` | Cloudflare API Token | `xxxxxxxxxxxx` |
-| `SNYK_API_KEY` | Snyk API Key | `xxxxxxxxxxxx` |
-| `SNYK_ORG_ID` | Snyk Organization ID | `xxxxxxxxxxxx` |
-| `POSTHOG_AUTH_HEADER` | PostHog Bearer token | `Bearer phx_xxxx` |
-| `PLAYWRIGHT_BASE_URL` | Base URL for Playwright tests | `http://localhost:4200` |
+| Secret Name                    | Description                       | Example                 |
+| ------------------------------ | --------------------------------- | ----------------------- |
+| `RYLA_API_URL`                 | RYLA API base URL                 | `http://localhost:3001` |
+| `RYLA_DEV_TOKEN`               | Long-lived dev token for RYLA API | `eyJhbGciOiJIUzI1N...`  |
+| `GITHUB_TOKEN`                 | GitHub Personal Access Token      | `ghp_xxxxxxxxxxxx`      |
+| `GITHUB_PERSONAL_ACCESS_TOKEN` | Alias for GitHub MCP server       | `ghp_xxxxxxxxxxxx`      |
+| `SLACK_BOT_TOKEN`              | Slack Bot OAuth Token             | `xoxb-xxxxxxxxxxxx`     |
+| `SLACK_TEAM_ID`                | Slack Team/Workspace ID           | `T0123456789`           |
+| `RUNPOD_API_KEY`               | RunPod API Key                    | `rp_xxxxxxxxxxxx`       |
+| `CLOUDFLARE_API_TOKEN`         | Cloudflare API Token              | `xxxxxxxxxxxx`          |
+| `SNYK_API_KEY`                 | Snyk API Key                      | `xxxxxxxxxxxx`          |
+| `SNYK_ORG_ID`                  | Snyk Organization ID              | `xxxxxxxxxxxx`          |
+| `POSTHOG_AUTH_HEADER`          | PostHog Bearer token              | `Bearer phx_xxxx`       |
+| `PLAYWRIGHT_BASE_URL`          | Base URL for Playwright tests     | `http://localhost:4200` |
 
 ---
 
@@ -46,86 +46,86 @@ Secrets for the NestJS backend API (`apps/api`).
 
 ### Application
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `APP_PORT` | API server port | `3001` |
-| `APP_HOST` | API server host | `localhost` |
+| Secret Name       | Description      | Example                          |
+| ----------------- | ---------------- | -------------------------------- |
+| `APP_PORT`        | API server port  | `3001`                           |
+| `APP_HOST`        | API server host  | `localhost`                      |
 | `APP_ENVIRONMENT` | Environment name | `local`, `staging`, `production` |
 
 ### Database (PostgreSQL)
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `POSTGRES_HOST` | Database host | `localhost` |
-| `POSTGRES_PORT` | Database port | `5432` |
-| `POSTGRES_USER` | Database user | `postgres` |
-| `POSTGRES_PASSWORD` | Database password | `secret` |
-| `POSTGRES_DB` | Database name | `ryla` |
-| `POSTGRES_ENVIRONMENT` | DB environment | `local` |
+| Secret Name            | Description       | Example     |
+| ---------------------- | ----------------- | ----------- |
+| `POSTGRES_HOST`        | Database host     | `localhost` |
+| `POSTGRES_PORT`        | Database port     | `5432`      |
+| `POSTGRES_USER`        | Database user     | `postgres`  |
+| `POSTGRES_PASSWORD`    | Database password | `secret`    |
+| `POSTGRES_DB`          | Database name     | `ryla`      |
+| `POSTGRES_ENVIRONMENT` | DB environment    | `local`     |
 
 ### Redis
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `REDIS_URL` | Full Redis URL (preferred) | `redis://user:pass@host:6379` |
-| `REDIS_HOST` | Redis host (fallback) | `localhost` |
-| `REDIS_PORT` | Redis port (fallback) | `6379` |
-| `REDIS_PASSWORD` | Redis password (fallback) | `secret` |
+| Secret Name      | Description                | Example                       |
+| ---------------- | -------------------------- | ----------------------------- |
+| `REDIS_URL`      | Full Redis URL (preferred) | `redis://user:pass@host:6379` |
+| `REDIS_HOST`     | Redis host (fallback)      | `localhost`                   |
+| `REDIS_PORT`     | Redis port (fallback)      | `6379`                        |
+| `REDIS_PASSWORD` | Redis password (fallback)  | `secret`                      |
 
 ### JWT Authentication
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `JWT_ACCESS_SECRET` | Access token secret (32+ chars) | `your-super-secret-key` |
-| `JWT_REFRESH_SECRET` | Refresh token secret (32+ chars) | `your-refresh-secret` |
-| `JWT_ACCESS_EXPIRES_IN` | Access token TTL (seconds) | `3600` |
-| `JWT_REFRESH_EXPIRES_IN` | Refresh token TTL (seconds) | `86400` |
-| `JWT_ACTION_FORGOT_PASSWORD_SECRET` | Password reset secret | `forgot-password-secret` |
-| `JWT_ACTION_FORGOT_PASSWORD_EXPIRES_IN` | Password reset TTL | `3600` |
+| Secret Name                             | Description                      | Example                  |
+| --------------------------------------- | -------------------------------- | ------------------------ |
+| `JWT_ACCESS_SECRET`                     | Access token secret (32+ chars)  | `your-super-secret-key`  |
+| `JWT_REFRESH_SECRET`                    | Refresh token secret (32+ chars) | `your-refresh-secret`    |
+| `JWT_ACCESS_EXPIRES_IN`                 | Access token TTL (seconds)       | `3600`                   |
+| `JWT_REFRESH_EXPIRES_IN`                | Refresh token TTL (seconds)      | `86400`                  |
+| `JWT_ACTION_FORGOT_PASSWORD_SECRET`     | Password reset secret            | `forgot-password-secret` |
+| `JWT_ACTION_FORGOT_PASSWORD_EXPIRES_IN` | Password reset TTL               | `3600`                   |
 
 ### S3 Storage
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `AWS_S3_REGION` | S3 region | `us-east-1` |
-| `AWS_S3_ACCESS_KEY` | S3 access key | `AKIA...` |
-| `AWS_S3_SECRET_KEY` | S3 secret key | `xxxx` |
-| `AWS_S3_BUCKET_NAME` | S3 bucket name | `ryla-images` |
-| `AWS_S3_URL_TTL` | Presigned URL TTL (seconds) | `86400` |
-| `AWS_S3_ENDPOINT` | Custom endpoint (MinIO/R2) | `http://localhost:9000` |
-| `AWS_S3_FORCE_PATH_STYLE` | Path style access | `false` |
+| Secret Name               | Description                 | Example                 |
+| ------------------------- | --------------------------- | ----------------------- |
+| `AWS_S3_REGION`           | S3 region                   | `us-east-1`             |
+| `AWS_S3_ACCESS_KEY`       | S3 access key               | `AKIA...`               |
+| `AWS_S3_SECRET_KEY`       | S3 secret key               | `xxxx`                  |
+| `AWS_S3_BUCKET_NAME`      | S3 bucket name              | `ryla-images`           |
+| `AWS_S3_URL_TTL`          | Presigned URL TTL (seconds) | `86400`                 |
+| `AWS_S3_ENDPOINT`         | Custom endpoint (MinIO/R2)  | `http://localhost:9000` |
+| `AWS_S3_FORCE_PATH_STYLE` | Path style access           | `false`                 |
 
 ### AI/LLM
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `RUNPOD_API_KEY` | RunPod API key | `rp_xxx` |
-| `RUNPOD_ENDPOINT_FLUX_DEV` | Flux dev endpoint ID | `abc123` |
-| `RUNPOD_ENDPOINT_Z_IMAGE_TURBO` | Z-Image Turbo endpoint ID | `xyz789` |
-| `OPENROUTER_API_KEY` | OpenRouter API key | `sk-or-xxx` |
-| `OPENROUTER_DEFAULT_MODEL` | Default LLM model | `openai/gpt-4o-mini` |
-| `GEMINI_API_KEY` | Gemini API key (fallback) | `xxx` |
-| `OPENAI_API_KEY` | OpenAI API key (fallback) | `sk-xxx` |
+| Secret Name                     | Description               | Example              |
+| ------------------------------- | ------------------------- | -------------------- |
+| `RUNPOD_API_KEY`                | RunPod API key            | `rp_xxx`             |
+| `RUNPOD_ENDPOINT_FLUX_DEV`      | Flux dev endpoint ID      | `abc123`             |
+| `RUNPOD_ENDPOINT_Z_IMAGE_TURBO` | Z-Image Turbo endpoint ID | `xyz789`             |
+| `OPENROUTER_API_KEY`            | OpenRouter API key        | `sk-or-xxx`          |
+| `OPENROUTER_DEFAULT_MODEL`      | Default LLM model         | `openai/gpt-4o-mini` |
+| `GEMINI_API_KEY`                | Gemini API key (fallback) | `xxx`                |
+| `OPENAI_API_KEY`                | OpenAI API key (fallback) | `sk-xxx`             |
 
 ### Payments (Finby)
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `FINBY_PROJECT_ID` | Finby project ID | `xxx` |
-| `FINBY_SECRET_KEY` | Finby secret key | `xxx` |
-| `FINBY_API_VERSION` | Finby API version | `v1` |
-| `FINBY_API_KEY` | Finby API key (v1) | `xxx` |
-| `FINBY_MERCHANT_ID` | Finby merchant ID | `xxx` |
+| Secret Name          | Description        | Example |
+| -------------------- | ------------------ | ------- |
+| `FINBY_PROJECT_ID`   | Finby project ID   | `xxx`   |
+| `FINBY_SECRET_KEY`   | Finby secret key   | `xxx`   |
+| `FINBY_API_VERSION`  | Finby API version  | `v1`    |
+| `FINBY_API_KEY`      | Finby API key (v1) | `xxx`   |
+| `FINBY_MERCHANT_ID`  | Finby merchant ID  | `xxx`   |
 | `PAYMENT_DEV_BYPASS` | Dev payment bypass | `false` |
 
 ### Other
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `BREVO_API_KEY` | Brevo email API key | `xxx` |
-| `BREVO_API_URL` | Brevo API URL | `https://api.brevo.com/v3` |
-| `SWAGGER_PASSWORD` | Swagger docs password | `admin` |
-| `CRON_SECRET` | Cron job auth token | `xxx` |
+| Secret Name        | Description           | Example                    |
+| ------------------ | --------------------- | -------------------------- |
+| `BREVO_API_KEY`    | Brevo email API key   | `xxx`                      |
+| `BREVO_API_URL`    | Brevo API URL         | `https://api.brevo.com/v3` |
+| `SWAGGER_PASSWORD` | Swagger docs password | `admin`                    |
+| `CRON_SECRET`      | Cron job auth token   | `xxx`                      |
 
 ---
 
@@ -133,12 +133,32 @@ Secrets for the NestJS backend API (`apps/api`).
 
 Secrets for the main web application (`apps/web`).
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_API_URL` | Backend API URL | `http://localhost:3001` |
-| `NEXT_PUBLIC_API_BASE_URL` | Alias for API URL | `http://localhost:3001` |
-| `NEXT_PUBLIC_CDN_URL` | CDN URL for images | `https://cdn.ryla.ai` |
-| `NEXT_PUBLIC_SITE_URL` | Web app URL | `http://localhost:4200` |
+### Public Variables (Build-time)
+
+| Secret Name                | Description        | Example                 |
+| -------------------------- | ------------------ | ----------------------- |
+| `NEXT_PUBLIC_API_URL`      | Backend API URL    | `http://localhost:3001` |
+| `NEXT_PUBLIC_API_BASE_URL` | Alias for API URL  | `http://localhost:3001` |
+| `NEXT_PUBLIC_CDN_URL`      | CDN URL for images | `https://cdn.ryla.ai`   |
+| `NEXT_PUBLIC_SITE_URL`     | Web app URL        | `http://localhost:4200` |
+
+### Server-side Secrets (Runtime)
+
+| Secret Name            | Description                                      | Example                 |
+| ---------------------- | ------------------------------------------------ | ----------------------- |
+| `JWT_ACCESS_SECRET`    | JWT access token secret (MUST match `/apps/api`) | `your-super-secret-key` |
+| `POSTGRES_HOST`        | Database host                                    | `localhost`             |
+| `POSTGRES_PORT`        | Database port                                    | `5432`                  |
+| `POSTGRES_USER`        | Database user                                    | `postgres`              |
+| `POSTGRES_PASSWORD`    | Database password                                | `secret`                |
+| `POSTGRES_DB`          | Database name                                    | `ryla`                  |
+| `POSTGRES_ENVIRONMENT` | DB environment                                   | `local`                 |
+| `FINBY_API_KEY`        | Finby API key (v1 subscriptions)                 | `xxx`                   |
+| `FINBY_MERCHANT_ID`    | Finby merchant ID                                | `xxx`                   |
+| `FINBY_WEBHOOK_SECRET` | Finby webhook secret                             | `xxx`                   |
+| `FINBY_PROJECT_ID`     | Finby project ID (v3 payments)                   | `xxx`                   |
+| `FINBY_SECRET_KEY`     | Finby secret key (v3 payments)                   | `xxx`                   |
+| `FINBY_TEST_MODE`      | Test mode flag                                   | `false`                 |
 
 ---
 
@@ -146,31 +166,31 @@ Secrets for the main web application (`apps/web`).
 
 Secrets for the payment funnel (`apps/funnel`).
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Funnel URL | `https://goviral.ryla.ai` |
-| `NEXT_PUBLIC_API_BASE_URL` | Backend API URL | `https://end.ryla.ai` |
-| `NEXT_PUBLIC_CDN_URL` | CDN URL for assets | `https://rylaai.b-cdn.net` |
-| `NEXT_PUBLIC_DEBUG_CDN` | Debug CDN flag | `false` |
-| `NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT` | Payment redirect path | `/` |
-| `FINBY_API_KEY` | Finby API key | `xxx` |
-| `FINBY_MERCHANT_ID` | Finby merchant ID | `xxx` |
-| `FINBY_WEBHOOK_SECRET` | Finby webhook secret | `xxx` |
-| `FINBY_PROJECT_ID` | Finby project ID | `xxx` |
-| `FINBY_SECRET_KEY` | Finby secret key | `xxx` |
-| `FINBY_TEST_MODE` | Test mode flag | `false` |
+| Secret Name                          | Description           | Example                    |
+| ------------------------------------ | --------------------- | -------------------------- |
+| `NEXT_PUBLIC_SITE_URL`               | Funnel URL            | `https://goviral.ryla.ai`  |
+| `NEXT_PUBLIC_API_BASE_URL`           | Backend API URL       | `https://end.ryla.ai`      |
+| `NEXT_PUBLIC_CDN_URL`                | CDN URL for assets    | `https://rylaai.b-cdn.net` |
+| `NEXT_PUBLIC_DEBUG_CDN`              | Debug CDN flag        | `false`                    |
+| `NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT` | Payment redirect path | `/`                        |
+| `FINBY_API_KEY`                      | Finby API key         | `xxx`                      |
+| `FINBY_MERCHANT_ID`                  | Finby merchant ID     | `xxx`                      |
+| `FINBY_WEBHOOK_SECRET`               | Finby webhook secret  | `xxx`                      |
+| `FINBY_PROJECT_ID`                   | Finby project ID      | `xxx`                      |
+| `FINBY_SECRET_KEY`                   | Finby secret key      | `xxx`                      |
+| `FINBY_TEST_MODE`                    | Test mode flag        | `false`                    |
 
 ### Social Media Pixel Tracking
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` | Facebook Pixel ID | `2633023407061165` |
-| `NEXT_PUBLIC_TIKTOK_PIXEL_ID` | TikTok Pixel ID | `D56GRRRC77UAQNS9K9O0` |
-| `NEXT_PUBLIC_TWITTER_PIXEL_ID` | Twitter/X Pixel ID (base config) | `qwgn6` |
-| `NEXT_PUBLIC_TWITTER_PURCHASE_EVENT_ID` | Twitter/X Purchase event ID | `tw-qwgn6-qwgn7` |
-| `NEXT_PUBLIC_TWITTER_LEAD_EVENT_ID` | Twitter/X Lead event ID | `tw-qwgn6-qwgn8` |
-| `NEXT_PUBLIC_ENABLE_DEV_ANALYTICS` | Enable tracking in development | `true` or `false` |
-| `NEXT_PUBLIC_DEBUG_TWITTER_PIXEL` | Debug Twitter Pixel logging | `true` or `false` |
+| Secret Name                             | Description                      | Example                |
+| --------------------------------------- | -------------------------------- | ---------------------- |
+| `NEXT_PUBLIC_FACEBOOK_PIXEL_ID`         | Facebook Pixel ID                | `2633023407061165`     |
+| `NEXT_PUBLIC_TIKTOK_PIXEL_ID`           | TikTok Pixel ID                  | `D56GRRRC77UAQNS9K9O0` |
+| `NEXT_PUBLIC_TWITTER_PIXEL_ID`          | Twitter/X Pixel ID (base config) | `qwgn6`                |
+| `NEXT_PUBLIC_TWITTER_PURCHASE_EVENT_ID` | Twitter/X Purchase event ID      | `tw-qwgn6-qwgn7`       |
+| `NEXT_PUBLIC_TWITTER_LEAD_EVENT_ID`     | Twitter/X Lead event ID          | `tw-qwgn6-qwgn8`       |
+| `NEXT_PUBLIC_ENABLE_DEV_ANALYTICS`      | Enable tracking in development   | `true` or `false`      |
+| `NEXT_PUBLIC_DEBUG_TWITTER_PIXEL`       | Debug Twitter Pixel logging      | `true` or `false`      |
 
 ---
 
@@ -178,25 +198,25 @@ Secrets for the payment funnel (`apps/funnel`).
 
 Secrets for the admin dashboard (`apps/admin`).
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_SITE_URL` | Admin dashboard URL | `https://admin.ryla.ai` |
-| `NEXT_PUBLIC_API_URL` | Backend API URL | `https://end.ryla.ai` |
-| `NEXT_PUBLIC_API_BASE_URL` | Alias for API URL | `https://end.ryla.ai` |
+| Secret Name                | Description         | Example                 |
+| -------------------------- | ------------------- | ----------------------- |
+| `NEXT_PUBLIC_SITE_URL`     | Admin dashboard URL | `https://admin.ryla.ai` |
+| `NEXT_PUBLIC_API_URL`      | Backend API URL     | `https://end.ryla.ai`   |
+| `NEXT_PUBLIC_API_BASE_URL` | Alias for API URL   | `https://end.ryla.ai`   |
 
 ### Analytics (PostHog)
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key | `phc_xxx` |
-| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host | `https://us.i.posthog.com` |
+| Secret Name                | Description         | Example                    |
+| -------------------------- | ------------------- | -------------------------- |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | PostHog project key | `phc_xxx`                  |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host        | `https://us.i.posthog.com` |
 
 ### Supabase
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | `https://xxx.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | `eyJhbG...` |
+| Secret Name                     | Description          | Example                   |
+| ------------------------------- | -------------------- | ------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL | `https://xxx.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key    | `eyJhbG...`               |
 
 ---
 
@@ -204,28 +224,28 @@ Secrets for the admin dashboard (`apps/admin`).
 
 Secrets for the landing page (`apps/landing`).
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
+| Secret Name            | Description | Example           |
+| ---------------------- | ----------- | ----------------- |
 | `NEXT_PUBLIC_SITE_URL` | Landing URL | `https://ryla.ai` |
 
 ### Social Media Pixel Tracking
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_FACEBOOK_PIXEL_ID` | Facebook Pixel ID | `2633023407061165` |
-| `NEXT_PUBLIC_TIKTOK_PIXEL_ID` | TikTok Pixel ID | `D56GRRRC77UAQNS9K9O0` |
-| `NEXT_PUBLIC_TWITTER_PIXEL_ID` | Twitter/X Pixel ID (base config) | `qwgn6` |
-| `NEXT_PUBLIC_TWITTER_PURCHASE_EVENT_ID` | Twitter/X Purchase event ID | `tw-qwgn6-qwgn7` |
-| `NEXT_PUBLIC_TWITTER_LEAD_EVENT_ID` | Twitter/X Lead event ID | `tw-qwgn6-qwgn8` |
-| `NEXT_PUBLIC_ENABLE_DEV_ANALYTICS` | Enable tracking in development | `true` or `false` |
-| `NEXT_PUBLIC_DEBUG_TWITTER_PIXEL` | Debug Twitter Pixel logging | `true` or `false` |
+| Secret Name                             | Description                      | Example                |
+| --------------------------------------- | -------------------------------- | ---------------------- |
+| `NEXT_PUBLIC_FACEBOOK_PIXEL_ID`         | Facebook Pixel ID                | `2633023407061165`     |
+| `NEXT_PUBLIC_TIKTOK_PIXEL_ID`           | TikTok Pixel ID                  | `D56GRRRC77UAQNS9K9O0` |
+| `NEXT_PUBLIC_TWITTER_PIXEL_ID`          | Twitter/X Pixel ID (base config) | `qwgn6`                |
+| `NEXT_PUBLIC_TWITTER_PURCHASE_EVENT_ID` | Twitter/X Purchase event ID      | `tw-qwgn6-qwgn7`       |
+| `NEXT_PUBLIC_TWITTER_LEAD_EVENT_ID`     | Twitter/X Lead event ID          | `tw-qwgn6-qwgn8`       |
+| `NEXT_PUBLIC_ENABLE_DEV_ANALYTICS`      | Enable tracking in development   | `true` or `false`      |
+| `NEXT_PUBLIC_DEBUG_TWITTER_PIXEL`       | Debug Twitter Pixel logging      | `true` or `false`      |
 
 ### Analytics (PostHog)
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key | `phc_xxx` |
-| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host | `https://us.i.posthog.com` |
+| Secret Name                | Description         | Example                    |
+| -------------------------- | ------------------- | -------------------------- |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | PostHog project key | `phc_xxx`                  |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host        | `https://us.i.posthog.com` |
 
 ---
 
@@ -235,26 +255,26 @@ Secrets shared across multiple applications.
 
 ### Supabase
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | `https://xxx.supabase.co` |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key | `eyJhbG...` |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role key | `eyJhbG...` |
+| Secret Name                     | Description               | Example                   |
+| ------------------------------- | ------------------------- | ------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL      | `https://xxx.supabase.co` |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anon key         | `eyJhbG...`               |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role key | `eyJhbG...`               |
 
 ### Analytics (PostHog)
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `NEXT_PUBLIC_POSTHOG_KEY` | PostHog project key | `phc_xxx` |
-| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host | `https://us.i.posthog.com` |
+| Secret Name                | Description         | Example                    |
+| -------------------------- | ------------------- | -------------------------- |
+| `NEXT_PUBLIC_POSTHOG_KEY`  | PostHog project key | `phc_xxx`                  |
+| `NEXT_PUBLIC_POSTHOG_HOST` | PostHog host        | `https://us.i.posthog.com` |
 
 ### Email
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `RESEND_API_KEY` | Resend API key | `re_xxx` |
-| `EMAIL_FROM` | Default from address | `noreply@ryla.ai` |
-| `BUG_REPORT_NOTIFICATION_EMAIL` | Bug report recipient | `team@ryla.ai` |
+| Secret Name                     | Description          | Example           |
+| ------------------------------- | -------------------- | ----------------- |
+| `RESEND_API_KEY`                | Resend API key       | `re_xxx`          |
+| `EMAIL_FROM`                    | Default from address | `noreply@ryla.ai` |
+| `BUG_REPORT_NOTIFICATION_EMAIL` | Bug report recipient | `team@ryla.ai`    |
 
 ---
 
@@ -262,12 +282,12 @@ Secrets shared across multiple applications.
 
 Test accounts and credentials for development/testing.
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `TEST_USER_EMAIL` | Test user email | `mcptest99@ryla.dev` |
-| `TEST_USER_PASSWORD` | Test user password | `TestPass123!` |
-| `TEST_USER_ID` | Test user UUID | `e57e0a15-cb59-4343-9c40-e31f3331086d` |
-| `TEST_USER_PUBLIC_NAME` | Test user public name | `mcptester99` |
+| Secret Name             | Description           | Example                                |
+| ----------------------- | --------------------- | -------------------------------------- |
+| `TEST_USER_EMAIL`       | Test user email       | `mcptest99@ryla.dev`                   |
+| `TEST_USER_PASSWORD`    | Test user password    | `TestPass123!`                         |
+| `TEST_USER_ID`          | Test user UUID        | `e57e0a15-cb59-4343-9c40-e31f3331086d` |
+| `TEST_USER_PUBLIC_NAME` | Test user public name | `mcptester99`                          |
 
 ---
 
@@ -275,15 +295,18 @@ Test accounts and credentials for development/testing.
 
 Credentials for external SaaS tools and services.
 
-| Secret Name | Description | Example |
-|-------------|-------------|---------|
-| `HUGGINGFACE_TOKEN` | HuggingFace API token | `hf_xxxxxxxxxxxx` |
-| `RUNPOD_EMAIL` | RunPod account email | `user@example.com` |
-| `RUNPOD_API_KEY` | RunPod API key | `rp_xxxxxxxxxxxx` |
-| `MODAL_EMAIL` | Modal account email | `user@example.com` |
-| `REPLICATE_EMAIL` | Replicate account email | `user@example.com` |
-| `HIGGSFIELD_EMAIL` | Higgsfield account email | `user@example.com` |
-| `HIGGSFIELD_PASSWORD` | Higgsfield account password | `xxxxxxxxxxxx` |
+| Secret Name           | Description                 | Example                           |
+| --------------------- | --------------------------- | --------------------------------- |
+| `HUGGINGFACE_TOKEN`   | HuggingFace API token       | `hf_xxxxxxxxxxxx`                 |
+| `RUNPOD_EMAIL`        | RunPod account email        | `user@example.com`                |
+| `RUNPOD_API_KEY`      | RunPod API key              | `rp_xxxxxxxxxxxx`                 |
+| `MODAL_EMAIL`         | Modal account email         | `user@example.com`                |
+| `REPLICATE_EMAIL`     | Replicate account email     | `user@example.com`                |
+| `HIGGSFIELD_EMAIL`    | Higgsfield account email    | `user@example.com`                |
+| `HIGGSFIELD_PASSWORD` | Higgsfield account password | `xxxxxxxxxxxx`                    |
+| `POSTDOC_API_KEY`     | PostDoc API key             | `xxxxxxxxxxxx`                    |
+| `POSTDOC_REGION`      | PostDoc region              | `us-east-1`                       |
+| `POSTDOC_URL`         | PostDoc API URL             | `https://api.postdoc.example.com` |
 
 ---
 
@@ -341,11 +364,11 @@ infisical run --path=/apps/api --path=/shared --env=dev -- echo "Secrets loaded 
 
 ## Environment Reference
 
-| Environment | Description | Who Can Access |
-|-------------|-------------|----------------|
-| `dev` | Local development | All developers |
-| `staging` | Staging/preview | Developers, CI/CD |
-| `prod` | Production | Admin, CI/CD only |
+| Environment | Description       | Who Can Access    |
+| ----------- | ----------------- | ----------------- |
+| `dev`       | Local development | All developers    |
+| `staging`   | Staging/preview   | Developers, CI/CD |
+| `prod`      | Production        | Admin, CI/CD only |
 
 ---
 

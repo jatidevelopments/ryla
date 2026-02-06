@@ -33,7 +33,7 @@ const handler = async (req: Request) => {
         // Silently handle auth errors - they're expected behavior
         return;
       }
-
+      
       // Log actual errors
       console.error(`[tRPC Error] ${type} ${path}:`, error.message);
     },

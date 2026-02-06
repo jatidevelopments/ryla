@@ -1,0 +1,1736 @@
+{
+  "id": "605c8e58-85ce-480e-ae26-54cf0f1d8ce7",
+  "extra": {
+    "ds": {
+      "scale": 1.0152559799477132,
+      "offset": [-1905.0510427523432, 295.04054426306317]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.28.8",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [1, 3, 0, 1, 0, "GROUNDING_MODEL"],
+    [8, 9, 0, 1, 1, "IMAGE"],
+    [10, 12, 0, 11, 0, "SAM2MODEL"],
+    [11, 9, 0, 11, 1, "IMAGE"],
+    [12, 1, 0, 11, 4, "BBOX"],
+    [13, 9, 0, 14, 0, "IMAGE"],
+    [16, 11, 0, 15, 0, "MASK"],
+    [17, 15, 0, 14, 1, "MASK"],
+    [19, 14, 0, 17, 0, "IMAGE"],
+    [20, 22, 2, 19, 0, "*"],
+    [21, 22, 1, 20, 0, "IMAGE"],
+    [22, 21, 0, 22, 0, "MASK_MODEL"],
+    [23, 18, 0, 22, 1, "IMAGE"],
+    [24, 23, 0, 25, 0, "GROUNDING_MODEL"],
+    [25, 24, 0, 25, 1, "IMAGE"],
+    [26, 25, 1, 26, 0, "IMAGE"],
+    [27, 30, 0, 28, 0, "GROUNDING_MODEL"],
+    [34, 32, 0, 28, 1, "IMAGE"],
+    [35, 32, 3, 40, 0, "VHS_VIDEOINFO"],
+    [36, 40, 5, 39, 4, "FLOAT"],
+    [37, 32, 2, 39, 1, "AUDIO"],
+    [38, 28, 1, 39, 0, "IMAGE"]
+  ],
+  "nodes": [
+    {
+      "id": 3,
+      "pos": [-272.7193377357082, 62.403774692480184],
+      "mode": 4,
+      "size": [270, 58],
+      "type": "GroundingModelLoader",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "GROUNDING_MODEL",
+          "label": null,
+          "links": [1],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Florence-2: Large (0.77B params)"]
+    },
+    {
+      "id": 14,
+      "pos": [858.732775452811, 113.47547132254624],
+      "mode": 4,
+      "size": [176.86484375, 46],
+      "type": "JoinImageWithAlpha",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 13,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 17,
+          "name": "alpha",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [19],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "JoinImageWithAlpha"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 11,
+      "pos": [559.7202852573471, 100.98593333858571],
+      "mode": 4,
+      "size": [272.087890625, 254],
+      "type": "Sam2Segment",
+      "flags": {},
+      "order": 17,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 10,
+          "name": "sam2_model",
+          "type": "SAM2MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 11,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "coordinates_positive",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "coordinates_negative",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 12,
+          "name": "bboxes",
+          "type": "BBOX",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": [16],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "Sam2Segment"
+      },
+      "showAdvanced": null,
+      "widgets_values": [false, false, 0, 0, 0]
+    },
+    {
+      "id": 1,
+      "pos": [120.98456493861588, 104.20883342732202],
+      "mode": 4,
+      "size": [400, 436],
+      "type": "GroundingDetector",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 1,
+          "name": "model",
+          "type": "GROUNDING_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 8,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "bboxes",
+          "type": "BBOX",
+          "label": null,
+          "links": [12],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "annotated_image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "labels",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "masks",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingDetector"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "main object",
+        0.3,
+        false,
+        true,
+        "list_only",
+        0,
+        1024,
+        1024,
+        3,
+        3,
+        0.45,
+        false,
+        300
+      ]
+    },
+    {
+      "id": 15,
+      "pos": [686.6852632244204, 34.92385323298066],
+      "mode": 4,
+      "size": [140, 26],
+      "type": "InvertMask",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 16,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": [17],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "InvertMask"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 17,
+      "pos": [1053.9419237702953, 121.72019546949204],
+      "mode": 4,
+      "size": [330.90445054815405, 258],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 19,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 18,
+      "pos": [4275.0216608294195, 84.07968004438469],
+      "mode": 4,
+      "size": [274.080078125, 314],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [23],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["brekkie.jpg", "image"]
+    },
+    {
+      "id": 20,
+      "pos": [5142.667621383632, -67.29256260394796],
+      "mode": 4,
+      "size": [279.1381383513526, 299.2129823737602],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 15,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 21,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 22,
+      "pos": [4685.286483321639, -23.010591486770082],
+      "mode": 4,
+      "size": [400, 296],
+      "type": "GroundingMaskDetector",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 22,
+          "name": "model",
+          "type": "MASK_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 23,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "masks",
+          "type": "MASK",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "overlaid_mask",
+          "type": "IMAGE",
+          "label": null,
+          "links": [21],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "text",
+          "type": "STRING",
+          "label": null,
+          "links": [20],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingMaskDetector"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Segment the food with the most vitamin C",
+        0.3,
+        2048,
+        1,
+        3006103371,
+        "randomize",
+        42,
+        "randomize"
+      ]
+    },
+    {
+      "id": 24,
+      "pos": [2110.1301505472447, 101.61101374132215],
+      "mode": 0,
+      "size": [274.080078125, 314],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [25],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Runcomfy_example_1310.png", "image"]
+    },
+    {
+      "id": 25,
+      "pos": [2540.344110722528, 26.75650077570299],
+      "mode": 0,
+      "size": [400, 436],
+      "type": "GroundingDetector",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 24,
+          "name": "model",
+          "type": "GROUNDING_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 25,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "bboxes",
+          "type": "BBOX",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "annotated_image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [26],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "labels",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "masks",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingDetector"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "plant. watering can",
+        0.3,
+        false,
+        true,
+        "list_only",
+        1024,
+        3,
+        1024,
+        3,
+        3,
+        0.45,
+        false,
+        300
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [186.40118090248086, -86.17937952643935],
+      "mode": 4,
+      "size": [270, 130],
+      "type": "DownLoadSAM2Model",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "sam2_model",
+          "type": "SAM2MODEL",
+          "label": null,
+          "links": [10],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "DownLoadSAM2Model"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "sam2.1_hiera_large.safetensors",
+        "single_image",
+        "cuda",
+        "fp16"
+      ]
+    },
+    {
+      "id": 23,
+      "pos": [2109.6639894783953, -21.423832965296416],
+      "mode": 0,
+      "size": [270, 58],
+      "type": "GroundingModelLoader",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "GROUNDING_MODEL",
+          "label": null,
+          "links": [24],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Florence-2: Large (0.77B params)"]
+    },
+    {
+      "id": 21,
+      "pos": [4278.507676708849, -49.416841109902634],
+      "mode": 4,
+      "size": [274.9126953125, 82],
+      "type": "GroundingMaskModelLoader",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "MASK_MODEL",
+          "label": null,
+          "links": [22],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingMaskModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["SA2VA: 4B", "bf16"]
+    },
+    {
+      "id": 9,
+      "pos": [-273.5406846279222, 224.0757140021015],
+      "mode": 4,
+      "size": [290.5201171875, 262],
+      "type": "LoadImagesFromFolderKJ",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [8, 11, 13],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "mask",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image_path",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.9",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "LoadImagesFromFolderKJ"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["input/tobatch", 1024, 1024, "pad", 0, 0, false]
+    },
+    {
+      "id": 19,
+      "pos": [5158.397908202808, 282.58961123413536],
+      "mode": 4,
+      "size": [210, 88],
+      "type": "PreviewAny",
+      "flags": {},
+      "order": 16,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 20,
+          "name": "source",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewAny"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 40,
+      "pos": [2238.771562605269, 1404.0104744095854],
+      "mode": 4,
+      "size": [225.59765625, 206],
+      "type": "VHS_VideoInfo",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 13,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 35,
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_fps🟨",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_frame_count🟨",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_duration🟨",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_width🟨",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "source_height🟨",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_fps🟦",
+          "type": "FLOAT",
+          "label": null,
+          "links": [36],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_frame_count🟦",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_duration🟦",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_width🟦",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loaded_height🟦",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.7.7",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_VideoInfo"
+      },
+      "showAdvanced": null,
+      "widgets_values": {}
+    },
+    {
+      "id": 30,
+      "pos": [1912.777298722081, 958.8786021519898],
+      "mode": 4,
+      "size": [270, 58],
+      "type": "GroundingModelLoader",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "GROUNDING_MODEL",
+          "label": null,
+          "links": [27],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Florence-2: Large (0.77B params)"]
+    },
+    {
+      "id": 26,
+      "pos": [3106.471892149672, -38.509914636889036],
+      "mode": 0,
+      "size": [339.1799683347449, 401.7374663149234],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 26,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.67",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 39,
+      "pos": [3130.9690100660323, 976.3691576913363],
+      "mode": 4,
+      "size": [555.9915015115494, 334],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 18,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 38,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 37,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 36,
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "frame_rate"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.7.7",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 24,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "Tracked_00001.mp4",
+            "fullpath": "/workspace/ComfyUI/output/Tracked_00001.mp4",
+            "workflow": "Tracked_00001.png",
+            "subfolder": "",
+            "frame_rate": 24
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "filename_prefix": "Tracked"
+      }
+    },
+    {
+      "id": 28,
+      "pos": [2507.7850324792494, 960.9698154324752],
+      "mode": 4,
+      "size": [400, 436],
+      "type": "GroundingDetector",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 27,
+          "name": "model",
+          "type": "GROUNDING_MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 34,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "bboxes",
+          "type": "BBOX",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "annotated_image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [38],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "labels",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "masks",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a947f4961c39cc150a98738fa83a0494e52f3de0",
+        "aux_id": "PozzettiAndrea/ComfyUI-Grounding",
+        "cnr_id": "comfyui-grounding",
+        "Node name for S&R": "GroundingDetector"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "faces",
+        0.3,
+        false,
+        false,
+        "list_only",
+        1024,
+        3,
+        1024,
+        3,
+        3,
+        0.45,
+        false,
+        300
+      ]
+    },
+    {
+      "id": 32,
+      "pos": [1916.1222084725591, 1129.2680415669477],
+      "mode": 4,
+      "size": [247.455078125, 451.9747252747253],
+      "type": "VHS_LoadVideo",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [34],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "frame_count",
+          "type": "INT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "links": [37],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "label": null,
+          "links": [35],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.7.7",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "video": "Runcomfy_example_1310.mp4",
+        "format": "AnimateDiff",
+        "force_rate": 24,
+        "custom_width": 0,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "Runcomfy_example_1310.mp4",
+            "force_rate": 24,
+            "custom_width": 0,
+            "custom_height": 0,
+            "frame_load_cap": 222,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 0,
+        "frame_load_cap": 222,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Batch - Normal",
+      "bounding": [
+        -334.99609375, -226.0815917189195, 1759.1684616911202, 821.2234162852786
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Segment - Mask",
+      "bounding": [
+        4122.216936514945, -199.54454984929194, 1424.3428102785638,
+        721.10296058548
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 3,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Normal - Image",
+      "bounding": [
+        1949.675113735422, -163.8761201401555, 1632.5711150780583,
+        691.2989119245143
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 4,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Normal - Video",
+      "bounding": [
+        1857.6866348193162, 793.5358713507583, 1874.099210925739,
+        915.9343667603183
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "definitions": null,
+  "last_link_id": 38,
+  "last_node_id": 40,
+  "floatingLinks": null
+}

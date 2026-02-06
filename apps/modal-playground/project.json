@@ -1,0 +1,45 @@
+{
+  "name": "modal-playground",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/modal-playground",
+  "tags": ["type:app", "scope:playground"],
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/modal-playground"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/modal-playground"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "modal-playground:build",
+        "dev": true,
+        "port": 3005
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "modal-playground:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "modal-playground:build:production",
+          "dev": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

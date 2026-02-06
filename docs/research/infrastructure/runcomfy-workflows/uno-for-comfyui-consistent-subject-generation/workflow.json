@@ -1,0 +1,863 @@
+{
+  "id": "acfef0cf-7a62-40f1-950f-1c78379354d5",
+  "extra": {
+    "ds": {
+      "scale": 1.2100000000000006,
+      "offset": [
+        -1500.217121332088,
+        -274.7396979012114
+      ]
+    },
+    "reroutes": null,
+    "ue_links": [],
+    "0246.VERSION": [
+      0,
+      0,
+      4
+    ],
+    "frontendVersion": "1.21.7"
+  },
+  "links": [
+    [
+      1,
+      3,
+      0,
+      4,
+      0,
+      "UNO_MODEL"
+    ],
+    [
+      2,
+      3,
+      1,
+      4,
+      1,
+      "UNO_CLIP"
+    ],
+    [
+      3,
+      3,
+      2,
+      4,
+      2,
+      "UNO_VAE"
+    ],
+    [
+      13,
+      10,
+      0,
+      5,
+      0,
+      "UNO_MODEL"
+    ],
+    [
+      14,
+      10,
+      1,
+      5,
+      1,
+      "UNO_CLIP"
+    ],
+    [
+      15,
+      10,
+      2,
+      5,
+      2,
+      "UNO_VAE"
+    ],
+    [
+      16,
+      16,
+      0,
+      15,
+      1,
+      "IMAGE"
+    ],
+    [
+      17,
+      14,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      18,
+      15,
+      0,
+      4,
+      3,
+      "IMAGE"
+    ],
+    [
+      19,
+      17,
+      0,
+      5,
+      3,
+      "IMAGE"
+    ],
+    [
+      20,
+      4,
+      0,
+      19,
+      0,
+      "IMAGE"
+    ],
+    [
+      21,
+      5,
+      0,
+      20,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 15,
+      "pos": [
+        1909.249267578125,
+        767.68359375
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        46
+      ],
+      "type": "ImageBatch",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 17,
+          "name": "image1",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 16,
+          "name": "image2",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            18
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageBatch"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 20,
+      "pos": [
+        2154.14306640625,
+        1242.8583984375
+      ],
+      "mode": 2,
+      "size": [
+        357.1487731933594,
+        381.9669494628906
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 21,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1218"
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [
+        1374.9661865234375,
+        1213.1219482421875
+      ],
+      "mode": 2,
+      "size": [
+        315,
+        98
+      ],
+      "type": "RunningHub_UNO_Loadmodel",
+      "flags": {},
+      "order": 0,
+      "title": "UNO Loadmodel",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "uno_model",
+          "type": "UNO_MODEL",
+          "label": "uno_model",
+          "links": [
+            13
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "uno_clip",
+          "type": "UNO_CLIP",
+          "label": "uno_clip",
+          "links": [
+            14
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "uno_vae",
+          "type": "UNO_VAE",
+          "label": "uno_vae",
+          "links": [
+            15
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "330f43dd9061435e94551da76dee177cdb7ba62f",
+        "aux_id": "HM-RunningHub/ComfyUI_RH_UNO",
+        "Node name for S&R": "RunningHub_UNO_Loadmodel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux-schnell"
+      ]
+    },
+    {
+      "id": 19,
+      "pos": [
+        2591.524169921875,
+        340.14849853515625
+      ],
+      "mode": 0,
+      "size": [
+        509.000732421875,
+        660.2921142578125
+      ],
+      "type": "SaveImage",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 9,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 20,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1218"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        1845.9674072265625,
+        440.0858154296875
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        98
+      ],
+      "type": "RunningHub_UNO_Loadmodel",
+      "flags": {},
+      "order": 1,
+      "title": "UNO Loadmodel",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "uno_model",
+          "type": "UNO_MODEL",
+          "label": "uno_model",
+          "links": [
+            1
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "uno_clip",
+          "type": "UNO_CLIP",
+          "label": "uno_clip",
+          "links": [
+            2
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "uno_vae",
+          "type": "UNO_VAE",
+          "label": "uno_vae",
+          "links": [
+            3
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "330f43dd9061435e94551da76dee177cdb7ba62f",
+        "aux_id": "HM-RunningHub/ComfyUI_RH_UNO",
+        "Node name for S&R": "RunningHub_UNO_Loadmodel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux-dev"
+      ]
+    },
+    {
+      "id": 14,
+      "pos": [
+        1415.570068359375,
+        365.9639892578125
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            17
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_examples_1218_1.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        1411.939697265625,
+        730.1737670898438
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            16
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_examples_1218_2.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 17,
+      "pos": [
+        1392.6048583984375,
+        1386.09619140625
+      ],
+      "mode": 2,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            19
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_examples_1218_3.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 5,
+      "pos": [
+        1761.5660400390625,
+        1231.1219482421875
+      ],
+      "mode": 2,
+      "size": [
+        277.20001220703125,
+        316
+      ],
+      "type": "RunningHub_UNO_Sampler",
+      "flags": {},
+      "order": 6,
+      "title": "UNO Sampler",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 13,
+          "name": "uno_model",
+          "type": "UNO_MODEL",
+          "label": "uno_model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 14,
+          "name": "uno_clip",
+          "type": "UNO_CLIP",
+          "label": "uno_clip",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 15,
+          "name": "uno_vae",
+          "type": "UNO_VAE",
+          "label": "uno_vae",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 19,
+          "name": "ref_images",
+          "type": "IMAGE",
+          "label": "ref_images",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image_out",
+          "type": "IMAGE",
+          "label": "image_out",
+          "links": [
+            21
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "330f43dd9061435e94551da76dee177cdb7ba62f",
+        "aux_id": "HM-RunningHub/ComfyUI_RH_UNO",
+        "Node name for S&R": "RunningHub_UNO_Sampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "A yellow alarm clock hiding under a red umbrella",
+        1024,
+        1024,
+        4,
+        6,
+        1308,
+        "randomize",
+        "d"
+      ]
+    },
+    {
+      "id": 4,
+      "pos": [
+        2232.423583984375,
+        534.2081298828125
+      ],
+      "mode": 0,
+      "size": [
+        277.20001220703125,
+        316
+      ],
+      "type": "RunningHub_UNO_Sampler",
+      "flags": {},
+      "order": 7,
+      "title": "UNO Sampler",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 1,
+          "name": "uno_model",
+          "type": "UNO_MODEL",
+          "label": "uno_model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 2,
+          "name": "uno_clip",
+          "type": "UNO_CLIP",
+          "label": "uno_clip",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 3,
+          "name": "uno_vae",
+          "type": "UNO_VAE",
+          "label": "uno_vae",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 18,
+          "name": "ref_images",
+          "type": "IMAGE",
+          "label": "ref_images",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image_out",
+          "type": "IMAGE",
+          "label": "image_out",
+          "links": [
+            20
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "330f43dd9061435e94551da76dee177cdb7ba62f",
+        "aux_id": "HM-RunningHub/ComfyUI_RH_UNO",
+        "Node name for S&R": "RunningHub_UNO_Sampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Photorealistic portrait of battle-worn soldier holding red roses",
+        768,
+        1024,
+        3.5,
+        20,
+        1130,
+        "randomize",
+        "d"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Group",
+      "bounding": [
+        1348.3951416015625,
+        1093.2501220703125,
+        1397.9375,
+        640.2400512695312
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Group",
+      "bounding": [
+        1340.8282470703125,
+        243.8838348388672,
+        1815.8499755859375,
+        832.6199951171875
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 21,
+  "last_node_id": 20,
+  "floatingLinks": null
+}

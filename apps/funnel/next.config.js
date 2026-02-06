@@ -77,7 +77,7 @@ const nextConfig = {
     ];
   },
 
-  webpack(config, { dev }) {
+  webpack(config) {
     // Ensure node_modules resolution includes root for monorepo
     config.resolve.modules = [
       ...(config.resolve.modules || []),

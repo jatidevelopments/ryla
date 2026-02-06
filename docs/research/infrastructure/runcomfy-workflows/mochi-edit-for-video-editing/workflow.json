@@ -1,0 +1,1427 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.35049389948139253,
+      "offset": [
+        698.9095771225011,
+        139.05862017303707
+      ]
+    }
+  },
+  "links": [
+    [
+      1,
+      2,
+      0,
+      1,
+      0,
+      "CLIP"
+    ],
+    [
+      24,
+      15,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      32,
+      23,
+      0,
+      24,
+      0,
+      "IMAGE"
+    ],
+    [
+      33,
+      24,
+      0,
+      22,
+      1,
+      "IMAGE"
+    ],
+    [
+      36,
+      27,
+      0,
+      22,
+      0,
+      "MOCHIVAE"
+    ],
+    [
+      72,
+      4,
+      0,
+      46,
+      0,
+      "MOCHIMODEL"
+    ],
+    [
+      78,
+      22,
+      0,
+      47,
+      0,
+      "LATENT"
+    ],
+    [
+      79,
+      47,
+      0,
+      46,
+      5,
+      "SAMPLER"
+    ],
+    [
+      81,
+      4,
+      0,
+      48,
+      0,
+      "MOCHIMODEL"
+    ],
+    [
+      82,
+      8,
+      0,
+      48,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      83,
+      8,
+      0,
+      48,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      84,
+      22,
+      0,
+      48,
+      4,
+      "LATENT"
+    ],
+    [
+      85,
+      30,
+      0,
+      48,
+      3,
+      "SIGMAS"
+    ],
+    [
+      86,
+      48,
+      0,
+      46,
+      4,
+      "LATENT"
+    ],
+    [
+      87,
+      49,
+      0,
+      48,
+      5,
+      "SAMPLER"
+    ],
+    [
+      90,
+      21,
+      0,
+      50,
+      0,
+      "SIGMAS"
+    ],
+    [
+      91,
+      50,
+      0,
+      30,
+      0,
+      "SIGMAS"
+    ],
+    [
+      92,
+      33,
+      0,
+      51,
+      0,
+      "SIGMAS"
+    ],
+    [
+      93,
+      51,
+      0,
+      46,
+      3,
+      "SIGMAS"
+    ],
+    [
+      94,
+      46,
+      0,
+      15,
+      1,
+      "LATENT"
+    ],
+    [
+      104,
+      2,
+      0,
+      65,
+      0,
+      "*"
+    ],
+    [
+      105,
+      65,
+      0,
+      8,
+      0,
+      "CLIP"
+    ],
+    [
+      106,
+      1,
+      0,
+      68,
+      0,
+      "*"
+    ],
+    [
+      107,
+      68,
+      0,
+      46,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      110,
+      69,
+      0,
+      70,
+      0,
+      "*"
+    ],
+    [
+      111,
+      70,
+      0,
+      46,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      112,
+      8,
+      0,
+      69,
+      0,
+      "*"
+    ],
+    [
+      113,
+      4,
+      1,
+      71,
+      0,
+      "*"
+    ],
+    [
+      114,
+      71,
+      0,
+      15,
+      0,
+      "MOCHIVAE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 51,
+      "pos": [
+        1696.2794189453125,
+        769.7529296875
+      ],
+      "mode": 0,
+      "size": [
+        195.5120391845703,
+        26
+      ],
+      "type": "MochiPrepareSigmas",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 92,
+          "name": "sigmas",
+          "type": "SIGMAS"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            93
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiPrepareSigmas"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 30,
+      "pos": [
+        1238.0462646484375,
+        758.7559814453125
+      ],
+      "mode": 0,
+      "size": [
+        145.175537109375,
+        26
+      ],
+      "type": "FlipSigmas",
+      "flags": {},
+      "order": 17,
+      "inputs": [
+        {
+          "link": 91,
+          "name": "sigmas",
+          "type": "SIGMAS"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            85
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "FlipSigmas"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 50,
+      "pos": [
+        1218.0462646484375,
+        838.7559814453125
+      ],
+      "mode": 0,
+      "size": [
+        172.05398559570312,
+        26
+      ],
+      "type": "MochiPrepareSigmas",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 90,
+          "name": "sigmas",
+          "type": "SIGMAS"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            91
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiPrepareSigmas"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 47,
+      "pos": [
+        1676.2794189453125,
+        1019.7528076171875
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        130
+      ],
+      "type": "MochiResampler",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "link": 78,
+          "name": "latents",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            79
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiResampler"
+      },
+      "widgets_values": [
+        0.8,
+        5,
+        20,
+        "linear_decrease"
+      ]
+    },
+    {
+      "id": 48,
+      "pos": [
+        1188.0462646484375,
+        478.7557678222656
+      ],
+      "mode": 0,
+      "size": [
+        243.60000610351562,
+        230
+      ],
+      "type": "MochiWrapperSamplerCustom",
+      "color": "#323",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "link": 81,
+          "name": "model",
+          "type": "MOCHIMODEL"
+        },
+        {
+          "link": 82,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 83,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 85,
+          "name": "sigmas",
+          "type": "SIGMAS"
+        },
+        {
+          "link": 84,
+          "name": "latents",
+          "type": "LATENT"
+        },
+        {
+          "link": 87,
+          "name": "sampler",
+          "type": "SAMPLER"
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            86
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiWrapperSamplerCustom"
+      },
+      "widgets_values": [
+        1,
+        1,
+        "fixed",
+        false
+      ]
+    },
+    {
+      "id": 22,
+      "pos": [
+        780,
+        750
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        198
+      ],
+      "type": "MochiImageEncode",
+      "flags": {},
+      "order": 18,
+      "inputs": [
+        {
+          "link": 36,
+          "name": "encoder",
+          "type": "MOCHIVAE"
+        },
+        {
+          "link": 33,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            78,
+            84
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiImageEncode"
+      },
+      "widgets_values": [
+        false,
+        4,
+        4,
+        16,
+        1,
+        true
+      ]
+    },
+    {
+      "id": 65,
+      "pos": [
+        410,
+        510
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 104,
+          "name": "",
+          "type": "*"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "CLIP",
+          "links": [
+            105
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      }
+    },
+    {
+      "id": 2,
+      "pos": [
+        20,
+        320
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        82
+      ],
+      "type": "CLIPLoader",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            1,
+            104
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": [
+        "t5/google_t5-v1_1-xxl_encoderonly-fp8_e4m3fn.safetensors",
+        "sd3"
+      ]
+    },
+    {
+      "id": 27,
+      "pos": [
+        770,
+        610
+      ],
+      "mode": 0,
+      "size": [
+        236.8000030517578,
+        82
+      ],
+      "type": "MochiVAEEncoderLoader",
+      "flags": {},
+      "order": 1,
+      "inputs": [
+        {
+          "link": null,
+          "name": "torch_compile_args",
+          "type": "MOCHICOMPILEARGS",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "mochi_vae",
+          "type": "MOCHIVAE",
+          "links": [
+            36
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiVAEEncoderLoader"
+      },
+      "widgets_values": [
+        "mochi_preview_vae_encoder_fp32.safetensors",
+        "bf16"
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        801,
+        540
+      ],
+      "mode": 0,
+      "size": [
+        379.5408020019531,
+        144
+      ],
+      "type": "MochiTextEncode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 16,
+      "inputs": [
+        {
+          "link": 105,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            82,
+            83,
+            112
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiTextEncode"
+      },
+      "widgets_values": [
+        "",
+        1,
+        true
+      ]
+    },
+    {
+      "id": 69,
+      "pos": [
+        1142,
+        299
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "link": 112,
+          "name": "",
+          "type": "*"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "CONDITIONING",
+          "links": [
+            110
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      }
+    },
+    {
+      "id": 68,
+      "pos": [
+        1380,
+        250
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 15,
+      "inputs": [
+        {
+          "link": 106,
+          "name": "",
+          "type": "*"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "CONDITIONING",
+          "links": [
+            107
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      }
+    },
+    {
+      "id": 70,
+      "pos": [
+        1380,
+        300
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 22,
+      "inputs": [
+        {
+          "link": 110,
+          "name": "",
+          "type": "*"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "CONDITIONING",
+          "links": [
+            111
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      }
+    },
+    {
+      "id": 71,
+      "pos": [
+        1861,
+        292
+      ],
+      "mode": 0,
+      "size": [
+        75,
+        26
+      ],
+      "type": "Reroute",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 113,
+          "name": "",
+          "type": "*"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "",
+          "type": "MOCHIVAE",
+          "links": [
+            114
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      }
+    },
+    {
+      "id": 49,
+      "pos": [
+        1201,
+        1094
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        106
+      ],
+      "type": "MochiUnsampler",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            87
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiUnsampler"
+      },
+      "widgets_values": [
+        0,
+        "fixed",
+        0
+      ]
+    },
+    {
+      "id": 15,
+      "pos": [
+        1990,
+        460
+      ],
+      "mode": 0,
+      "size": [
+        260.3999938964844,
+        222
+      ],
+      "type": "MochiDecodeSpatialTiling",
+      "flags": {},
+      "order": 24,
+      "inputs": [
+        {
+          "link": 114,
+          "name": "vae",
+          "type": "MOCHIVAE"
+        },
+        {
+          "link": 94,
+          "name": "samples",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            24
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiDecodeSpatialTiling"
+      },
+      "widgets_values": [
+        true,
+        4,
+        4,
+        16,
+        1,
+        6,
+        true
+      ]
+    },
+    {
+      "id": 46,
+      "pos": [
+        1656.2794189453125,
+        499.7540283203125
+      ],
+      "mode": 0,
+      "size": [
+        252.70352172851562,
+        230
+      ],
+      "type": "MochiWrapperSamplerCustom",
+      "color": "#323",
+      "flags": {},
+      "order": 23,
+      "inputs": [
+        {
+          "link": 72,
+          "name": "model",
+          "type": "MOCHIMODEL"
+        },
+        {
+          "link": 107,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 111,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 93,
+          "name": "sigmas",
+          "type": "SIGMAS"
+        },
+        {
+          "link": 86,
+          "name": "latents",
+          "type": "LATENT"
+        },
+        {
+          "link": 79,
+          "name": "sampler",
+          "type": "SAMPLER"
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            94
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiWrapperSamplerCustom"
+      },
+      "widgets_values": [
+        4.5,
+        1039112220077640,
+        "randomize",
+        false
+      ]
+    },
+    {
+      "id": 33,
+      "pos": [
+        1685,
+        846.5
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        130
+      ],
+      "type": "MochiSigmaSchedule",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "links": [
+            92
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiSigmaSchedule"
+      },
+      "widgets_values": [
+        50,
+        0.025,
+        15,
+        1
+      ]
+    },
+    {
+      "id": 21,
+      "pos": [
+        1198.0462646484375,
+        918.7559814453125
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        130
+      ],
+      "type": "MochiSigmaSchedule",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "sigmas",
+          "type": "SIGMAS",
+          "links": [
+            90
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiSigmaSchedule"
+      },
+      "widgets_values": [
+        50,
+        0.025,
+        15,
+        1
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [
+        2311,
+        465
+      ],
+      "mode": 0,
+      "size": [
+        604.597900390625,
+        310
+      ],
+      "type": "VHS_VideoCombine",
+      "color": "#2a363b",
+      "flags": {},
+      "order": 25,
+      "inputs": [
+        {
+          "link": 24,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7
+        }
+      ],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 16,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "1159_00001.mp4",
+            "subfolder": "",
+            "frame_rate": 16
+          },
+          "paused": false
+        },
+        "save_metadata": false,
+        "filename_prefix": "1159"
+      }
+    },
+    {
+      "id": 1,
+      "pos": [
+        401,
+        255
+      ],
+      "mode": 0,
+      "size": [
+        380.0573425292969,
+        184.70144653320312
+      ],
+      "type": "MochiTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 1,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [
+            106
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": [],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MochiTextEncode"
+      },
+      "widgets_values": [
+        "a siberian husky moving his head",
+        1,
+        true
+      ]
+    },
+    {
+      "id": 4,
+      "pos": [
+        1117,
+        34
+      ],
+      "mode": 0,
+      "size": [
+        364.4028015136719,
+        198
+      ],
+      "type": "DownloadAndLoadMochiModel",
+      "color": "#223",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 5,
+      "inputs": [
+        {
+          "link": null,
+          "name": "trigger",
+          "type": "CONDITIONING",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "compile_args",
+          "type": "MOCHICOMPILEARGS",
+          "shape": 7
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "name": "mochi_model",
+          "type": "MOCHIMODEL",
+          "links": [
+            72,
+            81
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "mochi_vae",
+          "type": "MOCHIVAE",
+          "links": [
+            113
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DownloadAndLoadMochiModel"
+      },
+      "widgets_values": [
+        "mochi_preview_dit_bf16.safetensors",
+        "mochi_preview_vae_decoder_bf16.safetensors",
+        "fp8_e4m3fn",
+        "sdpa",
+        false,
+        "default"
+      ]
+    },
+    {
+      "id": 24,
+      "pos": [
+        328,
+        773
+      ],
+      "mode": 0,
+      "size": [
+        296.60321044921875,
+        130
+      ],
+      "type": "ImageScale",
+      "color": "#232",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 32,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            33
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageScale"
+      },
+      "widgets_values": [
+        "bicubic",
+        848,
+        480,
+        "disabled"
+      ]
+    },
+    {
+      "id": 72,
+      "pos": [
+        30,
+        565
+      ],
+      "mode": 0,
+      "size": [
+        284.7298583984375,
+        140.99659729003906
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "- longer video produces jumping artrifact, use under 3 seconds in the frame_load_cap\n\n- Use Square Format or Horizontal 848*480 dimension. Others are giving error.\n\n"
+      ]
+    },
+    {
+      "id": 64,
+      "pos": [
+        15,
+        -113
+      ],
+      "mode": 0,
+      "size": [
+        346.0599670410156,
+        58
+      ],
+      "type": "Note",
+      "color": "#223",
+      "flags": {},
+      "order": 7,
+      "title": "Original Repo",
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "https://github.com/logtd/ComfyUI-MochiEdit"
+      ]
+    },
+    {
+      "id": 23,
+      "pos": [
+        48,
+        773
+      ],
+      "mode": 0,
+      "size": [
+        267.7746276855469,
+        262
+      ],
+      "type": "VHS_LoadVideo",
+      "color": "#232",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            32
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "widgets_values": {
+        "video": "RunComfy_example_1159.mp4",
+        "force_rate": 0,
+        "force_size": "Disabled",
+        "custom_width": 512,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "RunComfy_example_1159.mp4",
+            "force_rate": 0,
+            "frame_load_cap": 32,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 512,
+        "frame_load_cap": 32,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Sampling",
+      "bounding": [
+        1627,
+        397,
+        297,
+        831
+      ],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Unsampling",
+      "bounding": [
+        1148,
+        393,
+        315,
+        831
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 114,
+  "last_node_id": 72
+}

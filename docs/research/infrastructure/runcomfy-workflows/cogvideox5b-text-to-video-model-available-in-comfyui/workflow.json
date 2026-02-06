@@ -1,0 +1,309 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.6209213230591554,
+      "offset": {
+        "0": 175.6692318447283,
+        "1": 162.12646247719067
+      }
+    }
+  },
+  "links": [
+    [54, 20, 0, 30, 0, "CLIP"],
+    [56, 20, 0, 31, 0, "CLIP"],
+    [59, 11, 0, 33, 0, "IMAGE"],
+    [60, 1, 0, 34, 0, "COGVIDEOPIPE"],
+    [61, 30, 0, 34, 1, "CONDITIONING"],
+    [62, 31, 0, 34, 2, "CONDITIONING"],
+    [63, 34, 0, 11, 0, "COGVIDEOPIPE"],
+    [64, 34, 1, 11, 1, "LATENT"]
+  ],
+  "nodes": [
+    {
+      "id": 31,
+      "pos": [496, 583],
+      "mode": 0,
+      "size": [463.01251220703125, 98.10446166992188],
+      "type": "CogVideoTextEncode",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 56,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [62],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoTextEncode"
+      },
+      "widgets_values": [""]
+    },
+    {
+      "id": 34,
+      "pos": [1037, 330],
+      "mode": 0,
+      "size": [315.8404846191406, 358],
+      "type": "CogVideoSampler",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 60,
+          "name": "pipeline",
+          "type": "COGVIDEOPIPE"
+        },
+        {
+          "link": 61,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 62,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": null,
+          "name": "samples",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "cogvideo_pipe",
+          "type": "COGVIDEOPIPE",
+          "links": [63],
+          "shape": 3
+        },
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [64],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoSampler"
+      },
+      "widgets_values": [
+        480,
+        720,
+        49,
+        50,
+        6,
+        806286757407563,
+        "fixed",
+        "DPM",
+        49,
+        8,
+        1
+      ]
+    },
+    {
+      "id": 20,
+      "pos": [86, 479],
+      "mode": 0,
+      "size": [346.13214111328125, 82],
+      "type": "CLIPLoader",
+      "flags": {},
+      "order": 0,
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [54, 56],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "widgets_values": ["sd3m/t5xxl_fp8_e4m3fn.safetensors", "sd3"]
+    },
+    {
+      "id": 1,
+      "pos": [642, 135],
+      "mode": 0,
+      "size": [315, 154],
+      "type": "DownloadAndLoadCogVideoModel",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "cogvideo_pipe",
+          "type": "COGVIDEOPIPE",
+          "links": [60],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DownloadAndLoadCogVideoModel"
+      },
+      "widgets_values": ["THUDM/CogVideoX-5b", "bf16", false, false, false]
+    },
+    {
+      "id": 35,
+      "pos": [89, 323],
+      "mode": 0,
+      "size": [333.1571044921875, 76.18490600585938],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 2,
+      "bgcolor": "#653",
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "Please use RunComfy Large size or a higher VRAM machine, or it will result in an out-of-memory error."
+      ]
+    },
+    {
+      "id": 11,
+      "pos": [1137, 747],
+      "mode": 0,
+      "size": [210, 198],
+      "type": "CogVideoDecode",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 63,
+          "name": "pipeline",
+          "type": "COGVIDEOPIPE"
+        },
+        {
+          "link": 64,
+          "name": "samples",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [59],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoDecode"
+      },
+      "widgets_values": [false, 96, 96, 0.083, 0.083, true]
+    },
+    {
+      "id": 33,
+      "pos": [1428, 112],
+      "mode": 0,
+      "size": [483.15618896484375, 310],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 59,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO"
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager"
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/nvenc_h264-mp4",
+            "filename": "RunComfy_examples_1125.mp4",
+            "subfolder": "RunComfy_examples",
+            "frame_rate": 8
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1125"
+      }
+    },
+    {
+      "id": 30,
+      "pos": [494, 362],
+      "mode": 0,
+      "size": [471.90142822265625, 168.08047485351562],
+      "type": "CogVideoTextEncode",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "link": 54,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [61],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoTextEncode"
+      },
+      "widgets_values": [
+        "A vintage steam locomotive, painted a deep forest green with gold accents, chugs determinedly through a mystical, fog-shrouded forest. The thick, swirling mist wraps around the train, parting only where the engine's glowing headlamp pierces through, casting an ethereal beam that reveals glimpses of ancient, twisted trees on either side of the tracks. As the train progresses, fireflies, glowing in soft amber hues, emerge from the fog and swirl around the locomotive, their gentle light creating a magical contrast to the dark, looming woods. The scene is viewed from a low, close perspective, as if the viewer is standing on the tracks, watching this enchanted train approach, its whistle echoing hauntingly through the stillness of the night."
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 65,
+  "last_node_id": 36
+}

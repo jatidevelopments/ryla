@@ -1,0 +1,360 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.9090909090909091,
+      "offset": [
+        -16.128478872837263,
+        7.012021757949078
+      ]
+    },
+    "ue_links": [],
+    "node_versions": {
+      "comfy-core": "0.3.10",
+      "ComfyUI-IF_Trellis": "93a98c5778cab7fa256e3b262de48757dd722246"
+    },
+    "VHS_latentpreview": false,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      156,
+      67,
+      0,
+      84,
+      1,
+      "IMAGE"
+    ],
+    [
+      157,
+      84,
+      0,
+      75,
+      0,
+      "STRING"
+    ],
+    [
+      159,
+      86,
+      0,
+      84,
+      0,
+      "TRELLIS_MODEL"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 87,
+      "pos": [
+        413.0782775878906,
+        -6.3719377517700195
+      ],
+      "mode": 0,
+      "size": [
+        432.3556213378906,
+        71.73333740234375
+      ],
+      "type": "Note",
+      "color": "#223",
+      "flags": {},
+      "order": 0,
+      "title": "Original Repo Link",
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "https://github.com/if-ai/ComfyUI-IF_Trellis"
+      ]
+    },
+    {
+      "id": 84,
+      "pos": [
+        469.032958984375,
+        513.3964233398438
+      ],
+      "mode": 0,
+      "size": [
+        340.20001220703125,
+        506
+      ],
+      "type": "IF_TrellisImageTo3D",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 159,
+          "name": "model",
+          "type": "TRELLIS_MODEL"
+        },
+        {
+          "link": 156,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "masks",
+          "type": "MASK",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model_file",
+          "type": "STRING",
+          "links": [
+            157
+          ]
+        },
+        {
+          "name": "video_path",
+          "type": "STRING",
+          "links": []
+        },
+        {
+          "name": "texture_image",
+          "type": "IMAGE",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "IF_TrellisImageTo3D"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "single",
+        7777,
+        "fixed",
+        7.5,
+        12,
+        3,
+        12,
+        0.95,
+        1024,
+        "fast",
+        15,
+        "stochastic",
+        "Output_3D_Trellis",
+        true,
+        true,
+        true,
+        true,
+        true
+      ]
+    },
+    {
+      "id": 86,
+      "pos": [
+        482.06573486328125,
+        223.42752075195312
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        202
+      ],
+      "type": "IF_TrellisCheckpointLoader",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "TRELLIS_MODEL",
+          "links": [
+            159
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "IF_TrellisCheckpointLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "TRELLIS-image-large",
+        "dinov2_vitl14_reg",
+        false,
+        "sage",
+        true,
+        "implicit_gemm",
+        "cuda"
+      ]
+    },
+    {
+      "id": 85,
+      "pos": [
+        2009.6590576171875,
+        312.2312316894531
+      ],
+      "mode": 2,
+      "size": [
+        315,
+        600
+      ],
+      "type": "Load3D",
+      "flags": {},
+      "order": 2,
+      "title": "Preview 3D Model",
+      "inputs": [
+        {
+          "link": null,
+          "name": "model_file",
+          "type": "COMBO",
+          "widget": {
+            "name": "model_file"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": null
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": null
+        },
+        {
+          "name": "mesh_path",
+          "type": "STRING",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Camera Info": "{\"position\":{\"x\":10,\"y\":10,\"z\":10.000000000000002},\"target\":{\"x\":0,\"y\":0,\"z\":0},\"zoom\":1,\"cameraType\":\"perspective\"}",
+        "Node name for S&R": "Load3D"
+      },
+      "widgets_values": [
+        "3d/locksmith_dwarf.glb",
+        "upload3dmodel",
+        "clear",
+        null,
+        1024,
+        1024,
+        true,
+        "perspective",
+        "front",
+        "original",
+        "#000000",
+        10,
+        "original",
+        75
+      ]
+    },
+    {
+      "id": 67,
+      "pos": [
+        31.448881149291992,
+        171.81101989746094
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            156
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_Example_1183.png",
+        "image"
+      ]
+    },
+    {
+      "id": 75,
+      "pos": [
+        870.1046142578125,
+        198.15554809570312
+      ],
+      "mode": 0,
+      "size": [
+        936.6710815429688,
+        918.9155883789062
+      ],
+      "type": "Preview3D",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 157,
+          "name": "model_file",
+          "type": "STRING",
+          "widget": {
+            "name": "model_file"
+          }
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "Preview3D"
+      },
+      "widgets_values": [
+        "Output_3D_Trellis/Output_3D_Trellis.glb",
+        true,
+        "perspective",
+        "front",
+        "original",
+        "#5a5a5a",
+        10,
+        "original",
+        75,
+        null
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Trellis",
+      "bounding": [
+        415.3531188964844,
+        91.95551300048828,
+        1472.480712890625,
+        1078.6494140625
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Input Image",
+      "bounding": [
+        9.425505638122559,
+        93.63290405273438,
+        355.32086181640625,
+        402.4888610839844
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 159,
+  "last_node_id": 87
+}

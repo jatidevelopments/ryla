@@ -1,0 +1,835 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 1,
+      "offset": [
+        0,
+        0
+      ]
+    }
+  },
+  "links": [
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      8,
+      4,
+      2,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      34,
+      23,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      35,
+      22,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      81,
+      19,
+      0,
+      33,
+      2,
+      "EVA_CLIP"
+    ],
+    [
+      82,
+      17,
+      0,
+      33,
+      3,
+      "FACEANALYSIS"
+    ],
+    [
+      93,
+      4,
+      1,
+      22,
+      0,
+      "CLIP"
+    ],
+    [
+      94,
+      4,
+      1,
+      23,
+      0,
+      "CLIP"
+    ],
+    [
+      114,
+      12,
+      0,
+      33,
+      4,
+      "IMAGE"
+    ],
+    [
+      117,
+      16,
+      0,
+      33,
+      1,
+      "PULID"
+    ],
+    [
+      133,
+      4,
+      0,
+      33,
+      0,
+      "MODEL"
+    ],
+    [
+      135,
+      47,
+      1,
+      46,
+      1,
+      "IPADAPTER"
+    ],
+    [
+      136,
+      33,
+      0,
+      47,
+      0,
+      "MODEL"
+    ],
+    [
+      137,
+      47,
+      0,
+      46,
+      0,
+      "MODEL"
+    ],
+    [
+      138,
+      46,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      139,
+      48,
+      0,
+      46,
+      2,
+      "IMAGE"
+    ],
+    [
+      140,
+      12,
+      0,
+      49,
+      0,
+      "IMAGE"
+    ],
+    [
+      141,
+      49,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      142,
+      4,
+      2,
+      49,
+      1,
+      "VAE"
+    ],
+    [
+      143,
+      8,
+      0,
+      50,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 17,
+      "pos": [
+        60,
+        190
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "PulidInsightFaceLoader",
+      "flags": {},
+      "order": 0,
+      "outputs": [
+        {
+          "name": "FACEANALYSIS",
+          "type": "FACEANALYSIS",
+          "links": [
+            82
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PulidInsightFaceLoader"
+      },
+      "widgets_values": [
+        "CPU"
+      ]
+    },
+    {
+      "id": 23,
+      "pos": [
+        330,
+        -260
+      ],
+      "mode": 0,
+      "size": [
+        334.8077697753906,
+        189.35675048828125
+      ],
+      "type": "CLIPTextEncode",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 94,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            34
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "blurry, malformed, low quality, worst quality, artifacts, noise, text, watermark, glitch, deformed, ugly, horror, ill"
+      ]
+    },
+    {
+      "id": 47,
+      "pos": [
+        720,
+        -10
+      ],
+      "mode": 0,
+      "size": [
+        245.09423828125,
+        78
+      ],
+      "type": "IPAdapterUnifiedLoader",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 136,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": null,
+          "name": "ipadapter",
+          "type": "IPADAPTER"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            137
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "ipadapter",
+          "type": "IPADAPTER",
+          "links": [
+            135
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "IPAdapterUnifiedLoader"
+      },
+      "widgets_values": [
+        "PLUS (high strength)"
+      ]
+    },
+    {
+      "id": 19,
+      "pos": [
+        65,
+        96
+      ],
+      "mode": 0,
+      "size": [
+        197.2367706298828,
+        33.32365798950195
+      ],
+      "type": "PulidEvaClipLoader",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "EVA_CLIP",
+          "type": "EVA_CLIP",
+          "links": [
+            81
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PulidEvaClipLoader"
+      }
+    },
+    {
+      "id": 46,
+      "pos": [
+        1087,
+        -25
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        278
+      ],
+      "type": "IPAdapterAdvanced",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 137,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 135,
+          "name": "ipadapter",
+          "type": "IPADAPTER",
+          "slot_index": 1
+        },
+        {
+          "link": 139,
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 2
+        },
+        {
+          "link": null,
+          "name": "image_negative",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "attn_mask",
+          "type": "MASK",
+          "slot_index": 4
+        },
+        {
+          "link": null,
+          "name": "clip_vision",
+          "type": "CLIP_VISION"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            138
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "IPAdapterAdvanced"
+      },
+      "widgets_values": [
+        1,
+        "style transfer",
+        "concat",
+        0,
+        1,
+        "V only"
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        -104,
+        -30
+      ],
+      "mode": 0,
+      "size": [
+        371.143798828125,
+        58
+      ],
+      "type": "PulidModelLoader",
+      "flags": {},
+      "order": 2,
+      "outputs": [
+        {
+          "name": "PULID",
+          "type": "PULID",
+          "links": [
+            117
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PulidModelLoader"
+      },
+      "widgets_values": [
+        "ip-adapter_pulid_sdxl_fp16.safetensors"
+      ]
+    },
+    {
+      "id": 49,
+      "pos": [
+        417.9578628784176,
+        454.1013935058588
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        46
+      ],
+      "type": "VAEEncode",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 140,
+          "name": "pixels",
+          "type": "IMAGE"
+        },
+        {
+          "link": 142,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            141
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEEncode"
+      }
+    },
+    {
+      "id": 4,
+      "pos": [
+        -205,
+        -273
+      ],
+      "mode": 0,
+      "size": [
+        452.5042419433594,
+        115.7566909790039
+      ],
+      "type": "CheckpointLoaderSimple",
+      "flags": {},
+      "order": 3,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            133
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            93,
+            94
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            8,
+            142
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sdxl/dreamshaperXL_v21TurboDPMSDE.safetensors"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        1446,
+        -21
+      ],
+      "mode": 0,
+      "size": [
+        341.2750244140625,
+        474
+      ],
+      "type": "KSampler",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 138,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 35,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 34,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 141,
+          "name": "latent_image",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        52,
+        "fixed",
+        30,
+        6,
+        "dpmpp_2m",
+        "sgm_uniform",
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        1831,
+        16
+      ],
+      "mode": 0,
+      "size": [
+        140,
+        46
+      ],
+      "type": "VAEDecode",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 7,
+          "name": "samples",
+          "type": "LATENT"
+        },
+        {
+          "link": 8,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            143
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 50,
+      "pos": [
+        1843,
+        133
+      ],
+      "mode": 0,
+      "size": [
+        642.8853149414062,
+        643.3381958007812
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 143,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {},
+      "widgets_values": [
+        "1095"
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [
+        -130,
+        306
+      ],
+      "mode": 0,
+      "size": [
+        404.07366943359375,
+        496.2817077636719
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 4,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            114,
+            140
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1095_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 48,
+      "pos": [
+        706,
+        308
+      ],
+      "mode": 0,
+      "size": [
+        360.88824462890625,
+        512.1559448242188
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 5,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            139
+          ],
+          "shape": 3
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1095_2.png",
+        "image"
+      ]
+    },
+    {
+      "id": 22,
+      "pos": [
+        338,
+        -476
+      ],
+      "mode": 0,
+      "size": [
+        315.63751220703125,
+        161.09469604492188
+      ],
+      "type": "CLIPTextEncode",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 93,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            35
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "Upper body of a fashionable woman, adorned in a trendy and stylish designer dress, exceptionally detailed, photorealistic, 4k, ultra-high resolution, exuding elegance, sophistication, and chic allure, premium quality, innovative fashion design, sharp focus, soft, flattering lighting, artistic and creative composition."
+      ]
+    },
+    {
+      "id": 33,
+      "pos": [
+        350,
+        -10
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        230
+      ],
+      "type": "ApplyPulid",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 133,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 117,
+          "name": "pulid",
+          "type": "PULID"
+        },
+        {
+          "link": 81,
+          "name": "eva_clip",
+          "type": "EVA_CLIP"
+        },
+        {
+          "link": 82,
+          "name": "face_analysis",
+          "type": "FACEANALYSIS"
+        },
+        {
+          "link": 114,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "attn_mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            136
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyPulid"
+      },
+      "widgets_values": [
+        "fidelity",
+        0.9,
+        0,
+        1
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 143,
+  "last_node_id": 50
+}

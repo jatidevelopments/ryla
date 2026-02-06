@@ -1,0 +1,5670 @@
+{
+  "id": "7cbcec68-7fa6-47bb-a38a-da689949a001",
+  "extra": {
+    "ds": {
+      "scale": 0.13310000000000063,
+      "offset": [
+        3557.071915083202,
+        -507.00162037647607
+      ]
+    },
+    "reroutes": null,
+    "ue_links": [],
+    "groupNodes": {},
+    "0246.VERSION": [
+      0,
+      0,
+      4
+    ],
+    "frontendVersion": "1.23.4",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "links_added_by_ue": [],
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      308,
+      207,
+      0,
+      198,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      309,
+      202,
+      0,
+      199,
+      0,
+      "IMAGE"
+    ],
+    [
+      310,
+      202,
+      0,
+      201,
+      0,
+      "IMAGE"
+    ],
+    [
+      311,
+      197,
+      0,
+      201,
+      1,
+      "VAE"
+    ],
+    [
+      312,
+      206,
+      0,
+      202,
+      0,
+      "IMAGE"
+    ],
+    [
+      313,
+      205,
+      0,
+      204,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      314,
+      207,
+      0,
+      205,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      315,
+      201,
+      0,
+      205,
+      1,
+      "LATENT"
+    ],
+    [
+      316,
+      215,
+      0,
+      206,
+      0,
+      "IMAGE"
+    ],
+    [
+      317,
+      200,
+      0,
+      206,
+      1,
+      "IMAGE"
+    ],
+    [
+      318,
+      216,
+      0,
+      207,
+      0,
+      "CLIP"
+    ],
+    [
+      319,
+      208,
+      0,
+      207,
+      1,
+      "STRING"
+    ],
+    [
+      322,
+      204,
+      0,
+      211,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      323,
+      198,
+      0,
+      211,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      324,
+      201,
+      0,
+      211,
+      3,
+      "LATENT"
+    ],
+    [
+      325,
+      211,
+      0,
+      212,
+      0,
+      "LATENT"
+    ],
+    [
+      326,
+      197,
+      0,
+      212,
+      1,
+      "VAE"
+    ],
+    [
+      327,
+      212,
+      0,
+      213,
+      0,
+      "IMAGE"
+    ],
+    [
+      328,
+      215,
+      0,
+      214,
+      0,
+      "IMAGE"
+    ],
+    [
+      329,
+      212,
+      0,
+      214,
+      1,
+      "IMAGE"
+    ],
+    [
+      331,
+      214,
+      0,
+      219,
+      0,
+      "IMAGE"
+    ],
+    [
+      332,
+      218,
+      0,
+      223,
+      0,
+      "STRING"
+    ],
+    [
+      334,
+      223,
+      0,
+      208,
+      0,
+      "STRING"
+    ],
+    [
+      337,
+      225,
+      0,
+      223,
+      1,
+      "STRING"
+    ],
+    [
+      370,
+      "222",
+      0,
+      225,
+      0,
+      "STRING"
+    ],
+    [
+      371,
+      "226",
+      0,
+      225,
+      2,
+      "STRING"
+    ],
+    [
+      372,
+      "228",
+      0,
+      225,
+      3,
+      "STRING"
+    ],
+    [
+      374,
+      269,
+      0,
+      225,
+      1,
+      "INT"
+    ],
+    [
+      375,
+      "231",
+      0,
+      225,
+      4,
+      "STRING"
+    ],
+    [
+      376,
+      "233",
+      0,
+      225,
+      5,
+      "STRING"
+    ],
+    [
+      377,
+      "234",
+      0,
+      225,
+      6,
+      "STRING"
+    ],
+    [
+      378,
+      "236",
+      0,
+      225,
+      7,
+      "STRING"
+    ],
+    [
+      379,
+      "239",
+      0,
+      225,
+      8,
+      "STRING"
+    ],
+    [
+      380,
+      "240",
+      0,
+      225,
+      9,
+      "STRING"
+    ],
+    [
+      381,
+      "242",
+      0,
+      225,
+      10,
+      "STRING"
+    ],
+    [
+      382,
+      "243",
+      0,
+      225,
+      11,
+      "STRING"
+    ],
+    [
+      383,
+      "244",
+      0,
+      225,
+      12,
+      "STRING"
+    ],
+    [
+      384,
+      "245",
+      0,
+      225,
+      13,
+      "STRING"
+    ],
+    [
+      385,
+      "246",
+      0,
+      225,
+      14,
+      "STRING"
+    ],
+    [
+      386,
+      273,
+      0,
+      225,
+      15,
+      "STRING"
+    ],
+    [
+      387,
+      274,
+      0,
+      225,
+      16,
+      "STRING"
+    ],
+    [
+      388,
+      275,
+      0,
+      225,
+      17,
+      "STRING"
+    ],
+    [
+      389,
+      276,
+      0,
+      225,
+      18,
+      "STRING"
+    ],
+    [
+      390,
+      277,
+      0,
+      225,
+      19,
+      "STRING"
+    ],
+    [
+      391,
+      278,
+      0,
+      225,
+      20,
+      "STRING"
+    ],
+    [
+      392,
+      279,
+      0,
+      225,
+      21,
+      "STRING"
+    ],
+    [
+      393,
+      280,
+      0,
+      225,
+      22,
+      "STRING"
+    ],
+    [
+      395,
+      209,
+      0,
+      281,
+      0,
+      "MODEL"
+    ],
+    [
+      396,
+      281,
+      0,
+      211,
+      0,
+      "MODEL"
+    ],
+    [
+      399,
+      223,
+      0,
+      285,
+      0,
+      "STRING"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 197,
+      "pos": [
+        -49.28434753417969,
+        1474.591552734375
+      ],
+      "mode": 0,
+      "size": [
+        337.76861572265625,
+        58
+      ],
+      "type": "VAELoader",
+      "color": "#322",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": "VAE",
+          "links": [
+            311,
+            326
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/Comfy-Org/Lumina_Image_2.0_Repackaged/resolve/main/split_files/vae/ae.safetensors",
+            "name": "ae.safetensors",
+            "directory": "vae"
+          }
+        ],
+        "Node name for S&R": "VAELoader",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ae.safetensors"
+      ]
+    },
+    {
+      "id": 199,
+      "pos": [
+        668.2290649414062,
+        1950.77294921875
+      ],
+      "mode": 0,
+      "size": [
+        420,
+        310
+      ],
+      "type": "PreviewImage",
+      "color": "#223",
+      "flags": {},
+      "order": 60,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 309,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "PreviewImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 200,
+      "pos": [
+        298.22906494140625,
+        1860.77294921875
+      ],
+      "mode": 4,
+      "size": [
+        320,
+        374
+      ],
+      "type": "LoadImageOutput",
+      "color": "#322",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            317
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImageOutput",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI_00267_.png [output]",
+        false,
+        "refresh",
+        "image"
+      ]
+    },
+    {
+      "id": 201,
+      "pos": [
+        328.22906494140625,
+        1490.77294921875
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        50
+      ],
+      "type": "VAEEncode",
+      "color": "#223",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 61,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 310,
+          "name": "pixels",
+          "type": "IMAGE",
+          "label": "pixels",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 311,
+          "name": "vae",
+          "type": "VAE",
+          "label": "vae",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": "LATENT",
+          "links": [
+            315,
+            324
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "VAEEncode",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 202,
+      "pos": [
+        298.22906494140625,
+        1660.77294921875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        30
+      ],
+      "type": "FluxKontextImageScale",
+      "color": "#223",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 58,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 312,
+          "name": "image",
+          "type": "IMAGE",
+          "label": "image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            309,
+            310
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "FluxKontextImageScale",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 206,
+      "pos": [
+        -41.77095031738281,
+        1660.77294921875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        150
+      ],
+      "type": "ImageStitch",
+      "color": "#223",
+      "flags": {},
+      "order": 56,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 316,
+          "name": "image1",
+          "type": "IMAGE",
+          "label": "image1",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 317,
+          "name": "image2",
+          "type": "IMAGE",
+          "label": "image2",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            312
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.40",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "ImageStitch",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "right",
+        true,
+        0,
+        "white"
+      ]
+    },
+    {
+      "id": 207,
+      "pos": [
+        678.2290649414062,
+        1650.77294921875
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        220
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 64,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 318,
+          "name": "clip",
+          "type": "CLIP",
+          "label": "clip",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 319,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": "CONDITIONING",
+          "links": [
+            308,
+            314
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Make Pikachu hold a sign that says 'Nunchaku is awesome', yarn art style, detailed, vibrant colors",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 208,
+      "pos": [
+        -519.1188354492188,
+        1761.736328125
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "GoogleTranslateTextNode",
+      "color": "#223",
+      "flags": {},
+      "order": 62,
+      "inputs": [
+        {
+          "dir": null,
+          "link": 334,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "text",
+          "type": "STRING",
+          "label": "text",
+          "links": [
+            319
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "a77f4034d9a038efd80d17eedcfcba50248a13a8",
+        "cnr_id": "comfyui_custom_nodes_alekpet",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "GoogleTranslateTextNode",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "auto",
+        "en",
+        false,
+        "Manual Trasnlate",
+        "",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 210,
+      "pos": [
+        563.987060546875,
+        831.9812622070312
+      ],
+      "mode": 4,
+      "size": [
+        310,
+        106
+      ],
+      "type": "EmptySD3LatentImage",
+      "color": "#223",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": "LATENT",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.41",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "EmptySD3LatentImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 212,
+      "pos": [
+        805.666748046875,
+        1453.64697265625
+      ],
+      "mode": 0,
+      "size": [
+        190,
+        46
+      ],
+      "type": "VAEDecode",
+      "color": "#223",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 69,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 325,
+          "name": "samples",
+          "type": "LATENT",
+          "label": "samples",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 326,
+          "name": "vae",
+          "type": "VAE",
+          "label": "vae",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            327,
+            329
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "VAEDecode",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 213,
+      "pos": [
+        1604.3157958984375,
+        1188.346435546875
+      ],
+      "mode": 0,
+      "size": [
+        650,
+        660
+      ],
+      "type": "SaveImage",
+      "color": "#223",
+      "flags": {},
+      "order": 70,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 327,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "SaveImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 214,
+      "pos": [
+        1327.155517578125,
+        2101.902587890625
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        102
+      ],
+      "type": "ImageConcanate",
+      "color": "#223",
+      "flags": {},
+      "order": 71,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 328,
+          "name": "image1",
+          "type": "IMAGE",
+          "label": "image1",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 329,
+          "name": "image2",
+          "type": "IMAGE",
+          "label": "image2",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            331
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.1.2",
+        "cnr_id": "comfyui-kjnodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "ImageConcanate"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "right",
+        true
+      ]
+    },
+    {
+      "id": 216,
+      "pos": [
+        -72.75105285644531,
+        1286.1094970703125
+      ],
+      "mode": 0,
+      "size": [
+        337.76861572265625,
+        130
+      ],
+      "type": "DualCLIPLoader",
+      "color": "#322",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": "CLIP",
+          "links": [
+            318
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "models": [
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors",
+            "name": "clip_l.safetensors",
+            "directory": "text_encoders"
+          },
+          {
+            "url": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn_scaled.safetensors",
+            "name": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+            "directory": "text_encoders"
+          }
+        ],
+        "Node name for S&R": "DualCLIPLoader",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "clip_l.safetensors",
+        "t5xxl_fp8_e4m3fn.safetensors",
+        "flux",
+        "default"
+      ]
+    },
+    {
+      "id": 219,
+      "pos": [
+        1761.7606201171875,
+        1936.141845703125
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        270
+      ],
+      "type": "SaveImage",
+      "color": "#223",
+      "flags": {},
+      "order": 72,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 331,
+          "name": "images",
+          "type": "IMAGE",
+          "label": "images",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "SaveImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 198,
+      "pos": [
+        508.9395446777344,
+        1277.0201416015625
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        26
+      ],
+      "type": "ConditioningZeroOut",
+      "color": "#223",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 65,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 308,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": "conditioning",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": "CONDITIONING",
+          "links": [
+            323
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "ConditioningZeroOut",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 204,
+      "pos": [
+        545.67041015625,
+        1167.0201416015625
+      ],
+      "mode": 0,
+      "size": [
+        240,
+        58
+      ],
+      "type": "FluxGuidance",
+      "color": "#223",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 67,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 313,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": "conditioning",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": "CONDITIONING",
+          "links": [
+            322
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "FluxGuidance",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        2.5
+      ]
+    },
+    {
+      "id": 205,
+      "pos": [
+        327.708984375,
+        1191.3082275390625
+      ],
+      "mode": 0,
+      "size": [
+        211.60000610351562,
+        46
+      ],
+      "type": "ReferenceLatent",
+      "color": "#223",
+      "flags": {},
+      "order": 66,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 314,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": "conditioning",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 315,
+          "name": "latent",
+          "type": "LATENT",
+          "label": "latent",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": "CONDITIONING",
+          "links": [
+            313
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.41",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "ReferenceLatent",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 218,
+      "pos": [
+        -1396.0843505859375,
+        1628.1553955078125
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            332
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "comfyroll",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "convert the picture to ",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "222",
+      "pos": [
+        -2165.25048828125,
+        2093.758056640625
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            370
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "3D Chibi Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "226",
+      "pos": [
+        -2154.125244140625,
+        2473.784423828125
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            371
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "American Cartoon Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "228",
+      "pos": [
+        -2161.188720703125,
+        2820.781005859375
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            372
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Chinese Ink Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "231",
+      "pos": [
+        -2168.732177734375,
+        3177.009033203125
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 8,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            375
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Clay Toy Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "233",
+      "pos": [
+        -2157.625244140625,
+        3580.2587890625
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 9,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            376
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Fabric Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "234",
+      "pos": [
+        -2122.447265625,
+        3957.05810546875
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 10,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            377
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Ghibli Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "236",
+      "pos": [
+        -2134.947265625,
+        4420.67333984375
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 11,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            378
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Irasutoya Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "240",
+      "pos": [
+        -2143.759033203125,
+        5267.171875
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 12,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            380
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "LEGO Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "244",
+      "pos": [
+        -2131.796142578125,
+        6407.66650390625
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 13,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            383
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Oil Painting Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": "245",
+      "pos": [
+        -2153.10546875,
+        6791.95849609375
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 14,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            384
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Paper Cutting Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 273,
+      "pos": [
+        -2188.518310546875,
+        7551.21142578125
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 15,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            386
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Pixel Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 275,
+      "pos": [
+        -2186.843017578125,
+        8256.98828125
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 16,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            388
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Pop Art Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 276,
+      "pos": [
+        -2160.41015625,
+        8611.6884765625
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 17,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            389
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Rick Morty Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 277,
+      "pos": [
+        -2180.226806640625,
+        9014.8935546875
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 18,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            390
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Snoopy Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 278,
+      "pos": [
+        -2188.763671875,
+        9386.513671875
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 19,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            391
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Vector Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 225,
+      "pos": [
+        -1278.8763427734375,
+        1952.0147705078125
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        534
+      ],
+      "type": "ImpactSwitch",
+      "color": "#223",
+      "flags": {},
+      "order": 57,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 370,
+          "name": "input1",
+          "type": "*",
+          "label": "input1",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 374,
+          "name": "select",
+          "type": "INT",
+          "label": "select",
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "select"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 371,
+          "name": "input2",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 372,
+          "name": "input3",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 375,
+          "name": "input4",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 376,
+          "name": "input5",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 377,
+          "name": "input6",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 378,
+          "name": "input7",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 379,
+          "name": "input8",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 380,
+          "name": "input9",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 381,
+          "name": "input10",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 382,
+          "name": "input11",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 383,
+          "name": "input12",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 384,
+          "name": "input13",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 385,
+          "name": "input14",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 386,
+          "name": "input15",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 387,
+          "name": "input16",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 388,
+          "name": "input17",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 389,
+          "name": "input18",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 390,
+          "name": "input19",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 391,
+          "name": "input20",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 392,
+          "name": "input21",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 393,
+          "name": "input22",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "input23",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "selected_value",
+          "type": "*",
+          "label": "STRING",
+          "links": [
+            337
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "selected_label",
+          "type": "STRING",
+          "label": "selected_label",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "selected_index",
+          "type": "INT",
+          "label": "selected_index",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "8.19.1",
+        "cnr_id": "comfyui-impact-pack",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "ImpactSwitch"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1,
+        false
+      ]
+    },
+    {
+      "id": "239",
+      "pos": [
+        -2129.006591796875,
+        4870.73291015625
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 20,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            379
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Jojo Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 209,
+      "pos": [
+        -702.1766967773438,
+        787.31103515625
+      ],
+      "mode": 0,
+      "size": [
+        548.8583374023438,
+        317.1365966796875
+      ],
+      "type": "NunchakuFluxDiTLoader",
+      "color": "#223",
+      "flags": {},
+      "order": 21,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": "MODEL",
+          "links": [
+            395
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "3b2c771cf2f4e62f97c284bfd8f594482c5f8bc0",
+        "cnr_id": "ComfyUI-nunchaku",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "NunchakuFluxDiTLoader",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "svdq-int4_r32-flux.1-kontext-dev.safetensors",
+        0.10000000000000002,
+        "nunchaku-fp16",
+        "auto",
+        0,
+        "bfloat16",
+        "enabled"
+      ]
+    },
+    {
+      "id": 223,
+      "pos": [
+        -905.6058959960938,
+        1847.12255859375
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "easy promptConcat",
+      "color": "#233",
+      "flags": {},
+      "order": 59,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 332,
+          "name": "prompt1",
+          "type": "STRING",
+          "label": "prompt1",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 337,
+          "name": "prompt2",
+          "type": "STRING",
+          "label": "prompt2",
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#355",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            334,
+            399
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.3.1",
+        "cnr_id": "comfyui-easy-use",
+        "Node name for S&R": "easy promptConcat"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 203,
+      "pos": [
+        298.22906494140625,
+        1730.77294921875
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        88
+      ],
+      "type": "MarkdownNote",
+      "color": "#432",
+      "flags": {},
+      "order": 22,
+      "title": "About Flux Kontext Edit",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "[English] Use Ctrl + B to enable multipule image input.\n\n"
+      ]
+    },
+    {
+      "id": 211,
+      "pos": [
+        1136.872802734375,
+        980.18896484375
+      ],
+      "mode": 0,
+      "size": [
+        320,
+        474
+      ],
+      "type": "KSampler",
+      "color": "#223",
+      "flags": {},
+      "order": 68,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 396,
+          "name": "model",
+          "type": "MODEL",
+          "label": "model",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 322,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": "positive",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 323,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": "negative",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 324,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": "latent_image",
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": "LATENT",
+          "links": [
+            325
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.38",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "KSampler",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        97893929133886,
+        "fixed",
+        20,
+        1,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 285,
+      "pos": [
+        -533.615234375,
+        2131.90869140625
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        93
+      ],
+      "type": "PreviewTextNode",
+      "color": "#223",
+      "flags": {},
+      "order": 63,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 399,
+          "name": "text",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.73",
+        "cnr_id": "comfyui_custom_nodes_alekpet",
+        "Node name for S&R": "PreviewTextNode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 281,
+      "pos": [
+        101.73126983642578,
+        981.8358764648438
+      ],
+      "mode": 0,
+      "size": [
+        300.6851501464844,
+        82
+      ],
+      "type": "NunchakuFluxLoraLoader",
+      "color": "#223",
+      "flags": {},
+      "order": 55,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 395,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            396
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.3",
+        "cnr_id": "comfyui-nunchaku",
+        "Node name for S&R": "NunchakuFluxLoraLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux_kontext_lora.safetensors",
+        1
+      ]
+    },
+    {
+      "id": 270,
+      "pos": [
+        -2801.00244140625,
+        1883.5703125
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        88
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 23,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Style selection"
+      ]
+    },
+    {
+      "id": 215,
+      "pos": [
+        -25.340927124023438,
+        1892.230224609375
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 24,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [
+            316,
+            328
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_examples_1243_1.jpg",
+        "image"
+      ]
+    },
+    {
+      "id": 227,
+      "pos": [
+        -2517.6279296875,
+        2418
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 25,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "American_Cartoon_Style .png",
+        "image"
+      ]
+    },
+    {
+      "id": 229,
+      "pos": [
+        -2512.626708984375,
+        2794.1728515625
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 26,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Chinese_Ink_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 230,
+      "pos": [
+        -2506.247314453125,
+        3202.08203125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 27,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Clay_Toy_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 235,
+      "pos": [
+        -2501.516845703125,
+        3954.965087890625
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 28,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Ghibli_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 237,
+      "pos": [
+        -2488.927490234375,
+        4384.95068359375
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 29,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Irasutoya_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 238,
+      "pos": [
+        -2492.40966796875,
+        4804.62451171875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 30,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Jojo_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 241,
+      "pos": [
+        -2507.97216796875,
+        5251.71484375
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 31,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "LEGO_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": "242",
+      "pos": [
+        -2140.8837890625,
+        5667.2724609375
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 32,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            381
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Line Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 255,
+      "pos": [
+        -2510.954833984375,
+        5651.2763671875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 33,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Line_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": "243",
+      "pos": [
+        -2123.33984375,
+        6007.193359375
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 34,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            382
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Macaron Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 256,
+      "pos": [
+        -2518.43115234375,
+        6008.90673828125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 35,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Macaron_Style  .png",
+        "image"
+      ]
+    },
+    {
+      "id": 257,
+      "pos": [
+        -2518.5859375,
+        6372.57861328125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 36,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Oil_Painting_Style .png",
+        "image"
+      ]
+    },
+    {
+      "id": 258,
+      "pos": [
+        -2519.90380859375,
+        6730.21923828125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 37,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Paper_Cutting_Style .png",
+        "image"
+      ]
+    },
+    {
+      "id": "246",
+      "pos": [
+        -2155.051513671875,
+        7152.85595703125
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 38,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            385
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Picasso Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 274,
+      "pos": [
+        -2153.489013671875,
+        7904.5478515625
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 39,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            387
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Poly Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 221,
+      "pos": [
+        -2396.73779296875,
+        1577.1707763671875
+      ],
+      "mode": 0,
+      "size": [
+        641.4697875976562,
+        237.4734344482422
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 40,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "1、3D Chibi Style  \n2、American Cartoon Style \n3、Chinese Ink Style \n4、Clay Toy Style  \n5、Fabric Style \n6、Ghibli Style \n7、Irasutoya Style\n8、Jojo Style \n9、LEGO Style \n10、Line Style\n11、Macaron Style  \n12、Oil Painting Style \n13、Paper Cutting Style \n14、Picasso Style \n15、Pixel Style \n16、Poly Style  \n17、Pop Art Style \n18、Rick Morty Style \n19、Snoopy Style \n20、Vector Style \n21、Van Gogh Style \n22、Origami Style "
+      ]
+    },
+    {
+      "id": 265,
+      "pos": [
+        -2523.61181640625,
+        9383.49609375
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 41,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Vector_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 264,
+      "pos": [
+        -2522.54052734375,
+        8983.8701171875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 42,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Snoopy_Style .png",
+        "image"
+      ]
+    },
+    {
+      "id": 263,
+      "pos": [
+        -2518.43359375,
+        8613.08203125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 43,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Rick_Morty_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 262,
+      "pos": [
+        -2517.3623046875,
+        8245.32421875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 44,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Pop_Art_Style .png",
+        "image"
+      ]
+    },
+    {
+      "id": 261,
+      "pos": [
+        -2507.18408203125,
+        7868.4619140625
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 45,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Poly_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 260,
+      "pos": [
+        -2517.8857421875,
+        7498.55126953125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 46,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Pixel_Style .png",
+        "image"
+      ]
+    },
+    {
+      "id": 259,
+      "pos": [
+        -2518.324462890625,
+        7130.919921875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 47,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Picasso_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 286,
+      "pos": [
+        -2519.053955078125,
+        2024.9815673828125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 48,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.44",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "3D_Chibi_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 232,
+      "pos": [
+        -2504.705810546875,
+        3574.602783203125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 49,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Fabric_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 279,
+      "pos": [
+        -2153.961669921875,
+        9729.8974609375
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 50,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            392
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Van Gogh Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 266,
+      "pos": [
+        -2526.200927734375,
+        9748.212890625
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 51,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Vector_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 280,
+      "pos": [
+        -2189.982177734375,
+        10135.8740234375
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CR Prompt Text",
+      "color": "#223",
+      "flags": {},
+      "order": 52,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "prompt",
+          "type": "STRING",
+          "label": "prompt",
+          "links": [
+            393
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "show_help",
+          "type": "STRING",
+          "label": "show_help",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "d78b780ae43fcf8c6b7c6505e6ffb4584281ceca",
+        "cnr_id": "ComfyUI_Comfyroll_CustomNodes",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "CR Prompt Text"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Origami Style",
+        [
+          false,
+          true
+        ]
+      ]
+    },
+    {
+      "id": 267,
+      "pos": [
+        -2534.862060546875,
+        10138.73828125
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 53,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": "IMAGE",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": "MASK",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.43",
+        "cnr_id": "comfy-core",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "LoadImage",
+        "widget_ue_connectable": {}
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Origami_Style.png",
+        "image"
+      ]
+    },
+    {
+      "id": 269,
+      "pos": [
+        -2515.35791015625,
+        1899.988525390625
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        58
+      ],
+      "type": "JWInteger",
+      "color": "#223",
+      "flags": {},
+      "order": 54,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "INT",
+          "type": "INT",
+          "label": "INT",
+          "links": [
+            374
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "5bd85aaf7616878471469c4ec7e11bbd0cef3bf2",
+        "cnr_id": "comfyui-various",
+        "ttNbgOverride": {
+          "color": "#223",
+          "bgcolor": "#335",
+          "groupcolor": "#88A"
+        },
+        "Node name for S&R": "JWInteger"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        8
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 8,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Step 2 - Upload images",
+      "bounding": [
+        -61.77095031738281,
+        1570.77294921875,
+        700,
+        680
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 9,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Step 3 - Prompt",
+      "bounding": [
+        658.2290649414062,
+        1570.77294921875,
+        430,
+        330
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 10,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Conditioning",
+      "bounding": [
+        318.22906494140625,
+        1100.77294921875,
+        540,
+        250
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 399,
+  "last_node_id": 286,
+  "floatingLinks": null
+}

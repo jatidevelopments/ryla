@@ -1,0 +1,748 @@
+{
+  "id": "242a6140-7341-49ca-876b-c01366b39b84",
+  "extra": {
+    "ds": {
+      "scale": 0.7899531832078023,
+      "offset": [
+        120.62275772298742,
+        -35.12942107391284
+      ]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.25.11"
+  },
+  "links": [
+    [
+      4,
+      6,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      6,
+      7,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      46,
+      8,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      55,
+      29,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      60,
+      37,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      61,
+      33,
+      0,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      62,
+      33,
+      0,
+      7,
+      0,
+      "CLIP"
+    ],
+    [
+      63,
+      34,
+      0,
+      8,
+      1,
+      "VAE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 7,
+      "pos": [
+        372.181640625,
+        621.199462890625
+      ],
+      "mode": 0,
+      "size": [
+        343.4429626464844,
+        92.3638916015625
+      ],
+      "type": "CLIPTextEncode",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 62,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            6
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "low quality, bad anatomy, extra digits, missing digits, extra limbs, missing limbs"
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [
+        779.025634765625,
+        98.50196838378906
+      ],
+      "mode": 0,
+      "size": [
+        742.2000122070312,
+        786.9199829101562
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 46,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 29,
+      "pos": [
+        516.20263671875,
+        773.3234252929688
+      ],
+      "mode": 0,
+      "size": [
+        235.3793487548828,
+        107.26902770996094
+      ],
+      "type": "EmptyHunyuanImageLatent",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            55
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "EmptyHunyuanImageLatent"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        2048,
+        2048,
+        1
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        396.16278076171875,
+        96.53926086425781
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        262
+      ],
+      "type": "KSampler",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 60,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 4,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 6,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 55,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            7
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        55792988701635,
+        "randomize",
+        20,
+        2.5,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 38,
+      "pos": [
+        -540,
+        370
+      ],
+      "mode": 4,
+      "size": [
+        371.73358154296875,
+        130
+      ],
+      "type": "DualClipLoaderGGUF",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "2.6.2",
+        "cnr_id": "gguf",
+        "Node name for S&R": "DualClipLoaderGGUF"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "qwen2.5-vl-7b-test-q4_0.gguf",
+        "byt5_small_glyphxl_fp32-f16.gguf",
+        "hunyuan_image",
+        "default"
+      ]
+    },
+    {
+      "id": 30,
+      "pos": [
+        -540,
+        250
+      ],
+      "mode": 4,
+      "size": [
+        361.2455749511719,
+        64.29280090332031
+      ],
+      "type": "LoaderGGUF",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "2.6.2",
+        "cnr_id": "gguf",
+        "Node name for S&R": "LoaderGGUF"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuanimage2.1-q8_0.gguf"
+      ]
+    },
+    {
+      "id": 32,
+      "pos": [
+        -530,
+        550
+      ],
+      "mode": 4,
+      "size": [
+        359.1479797363281,
+        63.24391555786133
+      ],
+      "type": "VaeGGUF",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "2.6.2",
+        "cnr_id": "gguf",
+        "Node name for S&R": "VaeGGUF"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "pig_hunyuan_image_vae_fp32-f16.gguf"
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        358.6191711425781,
+        761.7706909179688
+      ],
+      "mode": 0,
+      "size": [
+        140,
+        47.90687942504883
+      ],
+      "type": "VAEDecode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 10,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 7,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 63,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            46
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 34,
+      "pos": [
+        15.657746315002441,
+        737.2015991210938
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        58
+      ],
+      "type": "VAELoader",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            63
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan_image_2.1_vae_fp16.safetensors"
+      ]
+    },
+    {
+      "id": 37,
+      "pos": [
+        9.85137939453125,
+        95.0588607788086
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        82
+      ],
+      "type": "UNETLoader",
+      "flags": {},
+      "order": 5,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            60
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "UNETLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuanimage2.1_fp8_e4m3fn.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 33,
+      "pos": [
+        20.739681243896484,
+        393.65985107421875
+      ],
+      "mode": 0,
+      "size": [
+        270,
+        130
+      ],
+      "type": "DualCLIPLoader",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            61,
+            62
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "qwen_2.5_vl_7b.safetensors",
+        "byt5_small_glyphxl_fp16.safetensors",
+        "hunyuan_image",
+        "default"
+      ]
+    },
+    {
+      "id": 6,
+      "pos": [
+        367.258544921875,
+        400.73114013671875
+      ],
+      "mode": 0,
+      "size": [
+        355.1498107910156,
+        169.080322265625
+      ],
+      "type": "CLIPTextEncode",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 61,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            4
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.59",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "A scientist in a futuristic lab tossing glowing holographic screens into the air, over-the-shoulder shot on a 28mm wide lens, ISO 640, f/2.0, shutter 1/200. The floating displays contain sharp luminous text, equations, and diagrams scattered mid-air. Cold top-lighting from LEDs mixes with orange glows of reactive machinery. Wires, glass tubes, and suspended particles add depth, with holograms casting faint glows on the scientist’s face.\n"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "revision": 0,
+  "definitions": null,
+  "last_link_id": 63,
+  "last_node_id": 38,
+  "floatingLinks": null
+}

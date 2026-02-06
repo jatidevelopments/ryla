@@ -85,12 +85,8 @@ export const promptsRouter = router({
       });
 
       // Separate favorites and others
-      const favorites = allPrompts.filter((p: { id: string }) =>
-        favoriteIds.includes(p.id)
-      );
-      const others = allPrompts.filter(
-        (p: { id: string }) => !favoriteIds.includes(p.id)
-      );
+      const favorites = allPrompts.filter((p: { id: string }) => favoriteIds.includes(p.id));
+      const others = allPrompts.filter((p: { id: string }) => !favoriteIds.includes(p.id));
 
       // Sort favorites by user's sortOrder
       favorites.sort((a, b) => {
@@ -125,7 +121,10 @@ export const promptsRouter = router({
     .input(z.object({ id: z.string().uuid() }))
     .query(async ({ ctx, input }) => {
       const prompt = await ctx.db.query.prompts.findFirst({
-        where: and(eq(prompts.id, input.id), eq(prompts.isActive, true)),
+        where: and(
+          eq(prompts.id, input.id),
+          eq(prompts.isActive, true)
+        ),
       });
 
       if (!prompt) {
@@ -150,9 +149,7 @@ export const promptsRouter = router({
       orderBy: [promptFavorites.sortOrder, desc(promptFavorites.createdAt)],
     });
 
-    return favorites
-      .map((f: PromptFavorite & { prompt: Prompt | null }) => f.prompt)
-      .filter(Boolean) as Prompt[];
+    return favorites.map((f: PromptFavorite & { prompt: Prompt | null }) => f.prompt).filter(Boolean) as Prompt[];
   }),
 
   /**
@@ -282,9 +279,7 @@ export const promptsRouter = router({
           totalUsage: sql<number>`count(*)`,
           successCount: sql<number>`sum(case when ${promptUsage.success} then 1 else 0 end)`,
           failureCount: sql<number>`sum(case when not ${promptUsage.success} then 1 else 0 end)`,
-          avgGenerationTimeMs: sql<
-            number | null
-          >`avg(${promptUsage.generationTimeMs})`,
+          avgGenerationTimeMs: sql<number | null>`avg(${promptUsage.generationTimeMs})`,
           lastUsedAt: sql<Date | null>`max(${promptUsage.createdAt})`,
         })
         .from(promptUsage)
@@ -331,3 +326,4 @@ export const promptsRouter = router({
       return topPrompts;
     }),
 });
+

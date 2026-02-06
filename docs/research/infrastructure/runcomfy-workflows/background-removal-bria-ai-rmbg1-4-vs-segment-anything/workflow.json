@@ -1,0 +1,532 @@
+{
+  "extra": {
+    "groupNodes": {}
+  },
+  "links": [
+    [1, 2, 0, 1, 0, "RMBGMODEL"],
+    [2, 3, 0, 1, 1, "IMAGE"],
+    [3, 1, 0, 4, 0, "IMAGE"],
+    [6, 5, 0, 7, 0, "SAM_MODEL"],
+    [7, 8, 0, 7, 1, "GROUNDING_DINO_MODEL"],
+    [8, 3, 0, 7, 2, "IMAGE"],
+    [9, 7, 0, 9, 0, "IMAGE"],
+    [12, 3, 0, 13, 0, "IMAGE"],
+    [15, 13, 0, 12, 0, "INT"],
+    [16, 13, 1, 12, 1, "INT"],
+    [36, 22, 0, 27, 0, "IMAGE"],
+    [42, 29, 0, 30, 0, "IMAGE"],
+    [49, 34, 0, 7, 3, "STRING"],
+    [53, 12, 0, 22, 0, "IMAGE"],
+    [54, 3, 0, 22, 1, "IMAGE"],
+    [59, 3, 0, 29, 1, "IMAGE"],
+    [60, 12, 0, 29, 0, "IMAGE"],
+    [61, 7, 1, 29, 2, "MASK"],
+    [62, 1, 1, 22, 2, "MASK"],
+    [63, 40, 0, 12, 2, "STRING"]
+  ],
+  "nodes": [
+    {
+      "id": 7,
+      "pos": [1613.4172868992312, 264.73274067377594],
+      "mode": 0,
+      "size": [352.79998779296875, 122],
+      "type": "GroundingDinoSAMSegment (segment anything)",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 6,
+          "name": "sam_model",
+          "type": "SAM_MODEL"
+        },
+        {
+          "link": 7,
+          "name": "grounding_dino_model",
+          "type": "GROUNDING_DINO_MODEL",
+          "slot_index": 1
+        },
+        {
+          "link": 8,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 49,
+          "name": "prompt",
+          "type": "STRING",
+          "widget": {
+            "name": "prompt"
+          },
+          "slot_index": 3
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [9],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": [61],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GroundingDinoSAMSegment (segment anything)"
+      },
+      "widgets_values": ["car,people", 0.3]
+    },
+    {
+      "id": 9,
+      "pos": [2025.4172868992307, 192.7327406737761],
+      "mode": 0,
+      "size": [231.28248596191406, 309.8704833984375],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 11,
+      "title": "SAM+prompt",
+      "inputs": [
+        {
+          "link": 9,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 30,
+      "pos": [2026.2425400519592, 571.2670029780306],
+      "mode": 0,
+      "size": [229.52537536621094, 281.34716796875],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 15,
+      "title": "SAM+prompt",
+      "inputs": [
+        {
+          "link": 42,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 29,
+      "pos": [1637.2425400519592, 583.2670029780306],
+      "mode": 0,
+      "size": [306.5569763183594, 146],
+      "type": "ImageCompositeMasked",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 60,
+          "name": "destination",
+          "type": "IMAGE"
+        },
+        {
+          "link": 59,
+          "name": "source",
+          "type": "IMAGE"
+        },
+        {
+          "link": 61,
+          "name": "mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [42],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageCompositeMasked"
+      },
+      "widgets_values": [0, 0, false]
+    },
+    {
+      "id": 4,
+      "pos": [786.7982943779475, 193.6321536190846],
+      "mode": 0,
+      "size": [246.6959991455078, 308.9652404785156],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 9,
+      "title": "BRIA.ai",
+      "inputs": [
+        {
+          "link": 3,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 22,
+      "pos": [472.79829437794757, 596.6321536190844],
+      "mode": 0,
+      "size": [254.4605712890625, 146],
+      "type": "ImageCompositeMasked",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 53,
+          "name": "destination",
+          "type": "IMAGE"
+        },
+        {
+          "link": 54,
+          "name": "source",
+          "type": "IMAGE"
+        },
+        {
+          "link": 62,
+          "name": "mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [36],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageCompositeMasked"
+      },
+      "widgets_values": [0, 0, false]
+    },
+    {
+      "id": 2,
+      "pos": [481.79829437794757, 270.6321536190845],
+      "mode": 0,
+      "size": [259.7783203125, 31.780479431152344],
+      "type": "BRIA_RMBG_ModelLoader_Zho",
+      "flags": {},
+      "order": 0,
+      "outputs": [
+        {
+          "name": "rmbgmodel",
+          "type": "RMBGMODEL",
+          "links": [1],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BRIA_RMBG_ModelLoader_Zho"
+      }
+    },
+    {
+      "id": 1,
+      "pos": [478.79829437794757, 360.63215361908453],
+      "mode": 0,
+      "size": [258.24359130859375, 49.09109878540039],
+      "type": "BRIA_RMBG_Zho",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 1,
+          "name": "rmbgmodel",
+          "type": "RMBGMODEL",
+          "slot_index": 0
+        },
+        {
+          "link": 2,
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [3],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "mask",
+          "type": "MASK",
+          "links": [62],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BRIA_RMBG_Zho"
+      }
+    },
+    {
+      "id": 27,
+      "pos": [784, 592],
+      "mode": 0,
+      "size": [246.81808471679688, 283.31256103515625],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 14,
+      "title": "BRIA.ai",
+      "inputs": [
+        {
+          "link": 36,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 13,
+      "pos": [-170, 610],
+      "mode": 0,
+      "size": [241.79998779296875, 66],
+      "type": "LayerUtility: GetImageSize",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 12,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "width",
+          "type": "INT",
+          "links": [15],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": [16],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "original_size",
+          "type": "BOX",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: GetImageSize"
+      }
+    },
+    {
+      "id": 12,
+      "pos": [118, 648],
+      "mode": 0,
+      "size": [213.09609985351562, 74],
+      "type": "LayerUtility: ColorImage",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 15,
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          }
+        },
+        {
+          "link": 16,
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          }
+        },
+        {
+          "link": 63,
+          "name": "color",
+          "type": "STRING",
+          "widget": {
+            "name": "color"
+          },
+          "slot_index": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [53, 60],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LayerUtility: ColorImage"
+      },
+      "widgets_values": [512, 512, "#E8FF00"]
+    },
+    {
+      "id": 40,
+      "pos": [-164, 732],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "PrimitiveNode",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [63],
+          "widget": {
+            "name": "color"
+          }
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": ["#E8FF00"]
+    },
+    {
+      "id": 34,
+      "pos": [1178.417286899231, 407.73274067377605],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "PrimitiveNode",
+      "flags": {},
+      "order": 2,
+      "title": "Prompt for SAM",
+      "outputs": [
+        {
+          "name": "STRING",
+          "type": "STRING",
+          "links": [49],
+          "widget": {
+            "name": "prompt"
+          }
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": ["car,people"]
+    },
+    {
+      "id": 3,
+      "pos": [-162, 165],
+      "mode": 0,
+      "size": [222.9701690673828, 374.64324951171875],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 3,
+      "title": "Source Image",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [2, 8, 12, 54, 59],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": ["RunComfy_examples_1037.webp", "image"]
+    },
+    {
+      "id": 8,
+      "pos": [1178.417286899231, 179.73274067377622],
+      "mode": 0,
+      "size": [361.20001220703125, 58],
+      "type": "GroundingDinoModelLoader (segment anything)",
+      "flags": {},
+      "order": 4,
+      "outputs": [
+        {
+          "name": "GROUNDING_DINO_MODEL",
+          "type": "GROUNDING_DINO_MODEL",
+          "links": [7],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GroundingDinoModelLoader (segment anything)"
+      },
+      "widgets_values": ["GroundingDINO_SwinB (938MB)"]
+    },
+    {
+      "id": 5,
+      "pos": [1178.417286899231, 289.73274067377605],
+      "mode": 0,
+      "size": [368.1216735839844, 58],
+      "type": "SAMModelLoader (segment anything)",
+      "flags": {},
+      "order": 5,
+      "outputs": [
+        {
+          "name": "SAM_MODEL",
+          "type": "SAM_MODEL",
+          "links": [6],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SAMModelLoader (segment anything)"
+      },
+      "widgets_values": ["sam_vit_h (2.56GB)"]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#3f789e",
+      "title": "Segment Anything",
+      "bounding": [1146, 92, 1169, 821],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "title": "BRIA",
+      "bounding": [444, 91, 637, 819],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 67,
+  "last_node_id": 41
+}

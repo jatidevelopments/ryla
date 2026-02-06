@@ -5,7 +5,8 @@
 
 import { authFetch } from '../auth';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 // ============================================================================
 // Types
@@ -89,12 +90,7 @@ export interface RegenerateProfilePictureInput {
   height?: number;
 }
 
-export type JobStatus =
-  | 'queued'
-  | 'in_progress'
-  | 'completed'
-  | 'failed'
-  | 'partial';
+export type JobStatus = 'queued' | 'in_progress' | 'completed' | 'failed' | 'partial';
 
 export interface GeneratedImage {
   id: string;
@@ -186,9 +182,7 @@ export async function generateBaseImages(
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(
-        extractErrorMessage(error, 'Failed to start image generation')
-      );
+      throw new Error(extractErrorMessage(error, 'Failed to start image generation'));
     }
 
     return response.json();
@@ -196,7 +190,7 @@ export async function generateBaseImages(
     // Wrap connection errors with a more descriptive message
     const error = err instanceof Error ? err : new Error(String(err));
     const errorMessage = error.message || String(err);
-
+    
     if (
       errorMessage.includes('Failed to fetch') ||
       errorMessage.includes('NetworkError') ||
@@ -204,11 +198,9 @@ export async function generateBaseImages(
       errorMessage.includes('ERR_NETWORK') ||
       error.name === 'TypeError'
     ) {
-      throw new Error(
-        `ERR_CONNECTION_REFUSED: Unable to connect to server at ${API_BASE_URL}`
-      );
+      throw new Error(`ERR_CONNECTION_REFUSED: Unable to connect to server at ${API_BASE_URL}`);
     }
-
+    
     throw error;
   }
 }
@@ -222,12 +214,9 @@ export async function getBaseImageResults(
   allJobIds?: string[]
 ): Promise<JobResult> {
   // If we have all job IDs, use batch endpoint
-  const url =
-    allJobIds && allJobIds.length > 1
-      ? `${API_BASE_URL}/characters/base-images/${jobId}?allJobIds=${allJobIds.join(
-          ','
-        )}`
-      : `${API_BASE_URL}/characters/base-images/${jobId}`;
+  const url = allJobIds && allJobIds.length > 1
+    ? `${API_BASE_URL}/characters/base-images/${jobId}?allJobIds=${allJobIds.join(',')}`
+    : `${API_BASE_URL}/characters/base-images/${jobId}`;
 
   const response = await authFetch(url);
 
@@ -258,9 +247,7 @@ export async function generateCharacterSheet(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      extractErrorMessage(error, 'Failed to start character sheet generation')
-    );
+    throw new Error(extractErrorMessage(error, 'Failed to start character sheet generation'));
   }
 
   return response.json();
@@ -278,9 +265,7 @@ export async function getCharacterSheetResults(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      extractErrorMessage(error, 'Failed to get character sheet results')
-    );
+    throw new Error(extractErrorMessage(error, 'Failed to get character sheet results'));
   }
 
   return response.json();
@@ -325,13 +310,10 @@ export async function pollForJobCompletion(
           return result;
         }
       }
-
+      
       // If partial status with no images, continue polling (but log for debugging)
       // This handles edge case where job reports partial but hasn't generated images yet
-      if (
-        result.status === 'partial' &&
-        (!result.images || result.images.length === 0)
-      ) {
+      if (result.status === 'partial' && (!result.images || result.images.length === 0)) {
         // Continue polling - job might still be processing
         // Will timeout after MAX_POLL_TIME if no progress
       }
@@ -351,7 +333,9 @@ export async function pollForJobCompletion(
 /**
  * Get results for a single base image job (for progressive loading)
  */
-export async function getBaseImageJobResult(jobId: string): Promise<JobResult> {
+export async function getBaseImageJobResult(
+  jobId: string
+): Promise<JobResult> {
   try {
     const response = await authFetch(
       `${API_BASE_URL}/characters/base-images/${jobId}`
@@ -359,9 +343,7 @@ export async function getBaseImageJobResult(jobId: string): Promise<JobResult> {
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({}));
-      throw new Error(
-        extractErrorMessage(error, 'Failed to get base image job result')
-      );
+      throw new Error(extractErrorMessage(error, 'Failed to get base image job result'));
     }
 
     return response.json();
@@ -369,7 +351,7 @@ export async function getBaseImageJobResult(jobId: string): Promise<JobResult> {
     // Wrap connection errors with a more descriptive message
     const error = err instanceof Error ? err : new Error(String(err));
     const errorMessage = error.message || String(err);
-
+    
     if (
       errorMessage.includes('Failed to fetch') ||
       errorMessage.includes('NetworkError') ||
@@ -377,11 +359,9 @@ export async function getBaseImageJobResult(jobId: string): Promise<JobResult> {
       errorMessage.includes('ERR_NETWORK') ||
       error.name === 'TypeError'
     ) {
-      throw new Error(
-        `ERR_CONNECTION_REFUSED: Unable to connect to server at ${API_BASE_URL}`
-      );
+      throw new Error(`ERR_CONNECTION_REFUSED: Unable to connect to server at ${API_BASE_URL}`);
     }
-
+    
     throw error;
   }
 }
@@ -400,7 +380,11 @@ export async function generateBaseImagesAndWait(
 
   // If we have all job IDs, poll individually for progressive loading
   if (allJobIds && allJobIds.length > 1) {
-    return pollBaseImagesProgressively(allJobIds, onProgress, onImageComplete);
+    return pollBaseImagesProgressively(
+      allJobIds,
+      onProgress,
+      onImageComplete
+    );
   }
 
   // Fallback to batch polling
@@ -450,11 +434,7 @@ async function pollBaseImagesProgressively(
       const { jobId, result } = results[i];
       if (!result) continue;
 
-      if (
-        result.status === 'completed' &&
-        result.images &&
-        result.images.length > 0
-      ) {
+      if (result.status === 'completed' && result.images && result.images.length > 0) {
         // Job completed - add images and remove from pending
         const imageIndex = jobIds.indexOf(jobId);
         result.images.forEach((img) => {
@@ -480,10 +460,7 @@ async function pollBaseImagesProgressively(
           onImageComplete(failedImage, imageIndex);
         }
         pendingJobs.delete(jobId);
-      } else if (
-        result.status === 'in_progress' ||
-        result.status === 'queued'
-      ) {
+      } else if (result.status === 'in_progress' || result.status === 'queued') {
         // Still in progress, keep polling
         continue;
       }
@@ -502,9 +479,7 @@ async function pollBaseImagesProgressively(
   }
 
   if (pendingJobs.size > 0) {
-    console.warn(
-      `Some base image jobs timed out: ${Array.from(pendingJobs).join(', ')}`
-    );
+    console.warn(`Some base image jobs timed out: ${Array.from(pendingJobs).join(', ')}`);
   }
 
   return completedImages;
@@ -552,12 +527,7 @@ export async function generateProfilePictureSet(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      extractErrorMessage(
-        error,
-        'Failed to start profile picture set generation'
-      )
-    );
+    throw new Error(extractErrorMessage(error, 'Failed to start profile picture set generation'));
   }
 
   return response.json();
@@ -572,20 +542,15 @@ export async function getProfilePictureSetResults(
   allJobIds?: string[]
 ): Promise<JobResult> {
   // If we have all job IDs, use batch endpoint
-  const url =
-    allJobIds && allJobIds.length > 1
-      ? `${API_BASE_URL}/characters/profile-picture-set/${jobId}?allJobIds=${allJobIds.join(
-          ','
-        )}`
-      : `${API_BASE_URL}/characters/profile-picture-set/${jobId}`;
+  const url = allJobIds && allJobIds.length > 1
+    ? `${API_BASE_URL}/characters/profile-picture-set/${jobId}?allJobIds=${allJobIds.join(',')}`
+    : `${API_BASE_URL}/characters/profile-picture-set/${jobId}`;
 
   const response = await authFetch(url);
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      extractErrorMessage(error, 'Failed to get profile picture set results')
-    );
+    throw new Error(extractErrorMessage(error, 'Failed to get profile picture set results'));
   }
 
   return response.json();
@@ -603,9 +568,7 @@ export async function getProfilePictureJobResult(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      extractErrorMessage(error, 'Failed to get profile picture job result')
-    );
+    throw new Error(extractErrorMessage(error, 'Failed to get profile picture job result'));
   }
 
   return response.json();
@@ -630,9 +593,7 @@ export async function regenerateProfilePicture(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({}));
-    throw new Error(
-      extractErrorMessage(error, 'Failed to regenerate profile picture')
-    );
+    throw new Error(extractErrorMessage(error, 'Failed to regenerate profile picture'));
   }
 
   return response.json();
@@ -670,23 +631,12 @@ export async function regenerateProfilePictureAndWait(
 export async function generateProfilePictureSetAndWait(
   input: GenerateProfilePictureSetInput,
   onProgress?: (status: JobStatus, error?: string) => void,
-  onImageComplete?: (
-    image: GeneratedImage,
-    positionId: string,
-    positionName: string
-  ) => void
+  onImageComplete?: (image: GeneratedImage, positionId: string, positionName: string) => void
 ): Promise<{ jobIds: string[]; jobPositions: any[] }> {
-  const { jobId, allJobIds, jobPositions } = await generateProfilePictureSet(
-    input
-  );
+  const { jobId, allJobIds, jobPositions } = await generateProfilePictureSet(input);
 
   // If we have job positions, start polling in background (non-blocking)
-  if (
-    jobPositions &&
-    jobPositions.length > 0 &&
-    allJobIds &&
-    allJobIds.length > 0
-  ) {
+  if (jobPositions && jobPositions.length > 0 && allJobIds && allJobIds.length > 0) {
     // Start polling in background - don't wait for completion
     pollProfilePicturesProgressively(
       allJobIds,
@@ -696,10 +646,7 @@ export async function generateProfilePictureSetAndWait(
     ).catch((error) => {
       console.error('Background polling error:', error);
       if (onProgress) {
-        onProgress(
-          'failed',
-          error instanceof Error ? error.message : 'Background polling failed'
-        );
+        onProgress('failed', error instanceof Error ? error.message : 'Background polling failed');
       }
     });
 
@@ -712,23 +659,18 @@ export async function generateProfilePictureSetAndWait(
     jobId,
     (id: string) => getProfilePictureSetResults(id, allJobIds),
     onProgress
-  )
-    .then((result) => {
-      if (result.images && result.images.length > 0 && onImageComplete) {
-        result.images.forEach((img) => {
-          onImageComplete(img, img.positionId || '', img.positionName || '');
-        });
-      }
-    })
-    .catch((error) => {
-      console.error('Background polling error:', error);
-      if (onProgress) {
-        onProgress(
-          'failed',
-          error instanceof Error ? error.message : 'Background polling failed'
-        );
-      }
-    });
+  ).then((result) => {
+    if (result.images && result.images.length > 0 && onImageComplete) {
+      result.images.forEach((img) => {
+        onImageComplete(img, img.positionId || '', img.positionName || '');
+      });
+    }
+  }).catch((error) => {
+    console.error('Background polling error:', error);
+    if (onProgress) {
+      onProgress('failed', error instanceof Error ? error.message : 'Background polling failed');
+    }
+  });
 
   return { jobIds: allJobIds || [jobId], jobPositions: [] };
 }
@@ -747,11 +689,7 @@ async function pollProfilePicturesProgressively(
     isNSFW: boolean;
   }>,
   onProgress?: (status: JobStatus, error?: string) => void,
-  onImageComplete?: (
-    image: GeneratedImage,
-    positionId: string,
-    positionName: string
-  ) => void
+  onImageComplete?: (image: GeneratedImage, positionId: string, positionName: string) => void
 ): Promise<GeneratedImage[]> {
   const completedImages: GeneratedImage[] = [];
   const pendingJobs = new Set(jobIds);
@@ -776,11 +714,7 @@ async function pollProfilePicturesProgressively(
     for (const { jobId, result } of results) {
       if (!result) continue;
 
-      if (
-        result.status === 'completed' &&
-        result.images &&
-        result.images.length > 0
-      ) {
+      if (result.status === 'completed' && result.images && result.images.length > 0) {
         // Job completed - add images and remove from pending
         const position = jobPositions.find((jp) => jp.jobId === jobId);
         if (position) {
@@ -796,19 +730,14 @@ async function pollProfilePicturesProgressively(
 
             // Notify that an image is complete
             if (onImageComplete) {
-              onImageComplete(
-                imageWithPosition,
-                position.positionId,
-                position.positionName
-              );
+              onImageComplete(imageWithPosition, position.positionId, position.positionName);
             }
           });
         }
         pendingJobs.delete(jobId);
       } else if (
         result.status === 'failed' ||
-        (result.status === 'completed' &&
-          (!result.images || result.images.length === 0))
+        (result.status === 'completed' && (!result.images || result.images.length === 0))
       ) {
         // Job failed - remove from pending
         pendingJobs.delete(jobId);
@@ -831,176 +760,9 @@ async function pollProfilePicturesProgressively(
   }
 
   if (pendingJobs.size > 0) {
-    console.warn(
-      `Some profile picture jobs timed out: ${Array.from(pendingJobs).join(
-        ', '
-      )}`
-    );
+    console.warn(`Some profile picture jobs timed out: ${Array.from(pendingJobs).join(', ')}`);
   }
 
   return completedImages;
 }
 
-// ============================================================================
-// LoRA Training API
-// ============================================================================
-
-export interface TrainLoraInput {
-  characterId: string;
-  triggerWord: string;
-  imageUrls: string[];
-  maxTrainSteps?: number;
-  rank?: number;
-  resolution?: number;
-}
-
-export interface TrainLoraResponse {
-  jobId: string;
-  loraModelId: string;
-  callId: string;
-  characterId: string;
-  characterName: string;
-  status: string;
-  message: string;
-  imageCount: number;
-  estimatedMinutes: number;
-  creditsDeducted: number;
-  creditBalance: number;
-}
-
-export interface LoraStatusResponse {
-  jobId: string;
-  loraModelId?: string;
-  status: 'started' | 'training' | 'completed' | 'error';
-  result?: {
-    loraPath: string;
-    loraFilename: string;
-    trainingTimeSeconds: number;
-    trainingSteps: number;
-  };
-  error?: string;
-  message?: string;
-}
-
-export interface LoraTrainingCostResponse {
-  imageCount: number;
-  model: string;
-  baseCost: number;
-  perImageCost: number;
-  totalCredits: number;
-  estimatedMinutes: number;
-}
-
-/**
- * Start LoRA training for a character
- *
- * @param input - Training configuration
- * @returns Training job details
- */
-export async function trainLora(
-  input: TrainLoraInput
-): Promise<TrainLoraResponse> {
-  const response = await authFetch(`${API_BASE_URL}/characters/train-lora`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(input),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      errorData.message || `Failed to start LoRA training: ${response.status}`
-    );
-  }
-
-  return response.json();
-}
-
-/**
- * Get LoRA training status
- *
- * @param jobId - Job ID or Call ID from trainLora response
- * @returns Training status
- */
-export async function getLoraTrainingStatus(
-  jobId: string
-): Promise<LoraStatusResponse> {
-  const response = await authFetch(
-    `${API_BASE_URL}/characters/lora-status/${encodeURIComponent(jobId)}`
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      errorData.message || `Failed to get LoRA status: ${response.status}`
-    );
-  }
-
-  return response.json();
-}
-
-/**
- * Get LoRA training cost estimate
- *
- * @param imageCount - Number of training images
- * @returns Cost breakdown
- */
-export async function getLoraTrainingCost(
-  imageCount: number
-): Promise<LoraTrainingCostResponse> {
-  const response = await authFetch(
-    `${API_BASE_URL}/characters/lora-training-cost?imageCount=${imageCount}`
-  );
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(
-      errorData.message || `Failed to get LoRA cost: ${response.status}`
-    );
-  }
-
-  return response.json();
-}
-
-/**
- * Start LoRA training and poll for completion
- *
- * @param input - Training configuration
- * @param onProgress - Progress callback
- * @param pollInterval - Polling interval in ms (default: 10000 = 10s)
- * @param maxWaitTime - Maximum wait time in ms (default: 900000 = 15 minutes)
- * @returns Final training result
- */
-export async function trainLoraAndWait(
-  input: TrainLoraInput,
-  onProgress?: (status: LoraStatusResponse) => void,
-  pollInterval = 10000,
-  maxWaitTime = 900000
-): Promise<LoraStatusResponse> {
-  // Start training
-  const startResponse = await trainLora(input);
-
-  if (!startResponse.jobId) {
-    throw new Error('No job ID returned from training start');
-  }
-
-  const jobId = startResponse.jobId;
-  const startTime = Date.now();
-
-  // Poll for completion
-  while (Date.now() - startTime < maxWaitTime) {
-    await new Promise((resolve) => setTimeout(resolve, pollInterval));
-
-    const status = await getLoraTrainingStatus(jobId);
-
-    if (onProgress) {
-      onProgress(status);
-    }
-
-    if (status.status === 'completed' || status.status === 'error') {
-      return status;
-    }
-  }
-
-  throw new Error('LoRA training timed out');
-}

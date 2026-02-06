@@ -1,0 +1,36 @@
+# fly.toml - RYLA Metabase (IN-041)
+# Deployed to Fly.io; override app in CI with --app ryla-metabase-<env>
+
+app = "ryla-metabase-prod"
+primary_region = "fra"
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  NODE_ENV = "production"
+
+# Persist Metabase H2 DB (create volume: fly volumes create metabase_data -r fra -s 1 --app ryla-metabase-prod)
+[mounts]
+  source = "metabase_data"
+  destination = "/metabase-data"
+
+[http_service]
+  internal_port = 3000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "60s"
+    interval = "30s"
+    method = "GET"
+    timeout = "10s"
+    path = "/api/health"
+
+[[vm]]
+  memory = "1gb"
+  cpu_kind = "shared"
+  cpus = 1

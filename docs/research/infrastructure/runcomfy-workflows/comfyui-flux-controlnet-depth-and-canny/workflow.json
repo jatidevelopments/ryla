@@ -1,0 +1,861 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.43056764313424634,
+      "offset": [1109.4091246532084, 572.8651709473022]
+    }
+  },
+  "links": [
+    [2, 4, 0, 5, 0, "CLIP"],
+    [5, 6, 0, 3, 3, "LATENT"],
+    [6, 3, 0, 7, 0, "LATENT"],
+    [7, 8, 0, 7, 1, "VAE"],
+    [18, 5, 0, 3, 1, "CONDITIONING"],
+    [19, 13, 0, 14, 0, "FluxControlNet"],
+    [26, 19, 0, 3, 2, "CONDITIONING"],
+    [27, 4, 0, 19, 0, "CLIP"],
+    [28, 14, 0, 3, 4, "ControlNetCondition"],
+    [31, 7, 0, 21, 0, "IMAGE"],
+    [35, 10, 0, 3, 0, "MODEL"],
+    [37, 16, 0, 23, 0, "IMAGE"],
+    [38, 23, 0, 17, 0, "IMAGE"],
+    [40, 23, 0, 14, 1, "IMAGE"],
+    [41, 30, 0, 24, 0, "MODEL"],
+    [42, 26, 0, 24, 1, "CONDITIONING"],
+    [43, 36, 0, 24, 2, "CONDITIONING"],
+    [44, 27, 0, 24, 3, "LATENT"],
+    [45, 32, 0, 24, 4, "ControlNetCondition"],
+    [46, 25, 0, 26, 0, "CLIP"],
+    [47, 24, 0, 28, 0, "LATENT"],
+    [48, 29, 0, 28, 1, "VAE"],
+    [49, 31, 0, 32, 0, "FluxControlNet"],
+    [50, 33, 0, 32, 1, "IMAGE"],
+    [51, 34, 0, 33, 0, "IMAGE"],
+    [52, 33, 0, 35, 0, "IMAGE"],
+    [53, 25, 0, 36, 0, "CLIP"],
+    [54, 28, 0, 37, 0, "IMAGE"]
+  ],
+  "nodes": [
+    {
+      "id": 3,
+      "pos": [1007, 170],
+      "mode": 0,
+      "size": [342.5999755859375, 258],
+      "type": "XlabsSampler",
+      "flags": {},
+      "order": 24,
+      "inputs": [
+        {
+          "link": 35,
+          "name": "model",
+          "type": "MODEL",
+          "slot_index": 0
+        },
+        {
+          "link": 18,
+          "name": "conditioning",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 26,
+          "name": "neg_conditioning",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 5,
+          "name": "latent_image",
+          "type": "LATENT"
+        },
+        {
+          "link": 28,
+          "name": "controlnet_condition",
+          "type": "ControlNetCondition"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [6],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "XlabsSampler"
+      },
+      "widgets_values": [257762932021983, "fixed", 25, 1, 3.5, 0]
+    },
+    {
+      "id": 23,
+      "pos": [-27, -50],
+      "mode": 0,
+      "size": [315, 106],
+      "type": "MiDaS-DepthMapPreprocessor",
+      "flags": {},
+      "order": 18,
+      "inputs": [
+        {
+          "link": 37,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [38, 40],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MiDaS-DepthMapPreprocessor"
+      },
+      "widgets_values": [6.283185307179586, 0.1, 768]
+    },
+    {
+      "id": 7,
+      "pos": [1501, 4],
+      "mode": 0,
+      "size": [210, 46],
+      "type": "VAEDecode",
+      "flags": {},
+      "order": 26,
+      "inputs": [
+        {
+          "link": 6,
+          "name": "samples",
+          "type": "LATENT",
+          "slot_index": 0
+        },
+        {
+          "link": 7,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [31],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 4,
+      "pos": [-157, 198],
+      "mode": 0,
+      "size": [315, 106],
+      "type": "DualCLIPLoader",
+      "flags": {},
+      "order": 0,
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [2, 27],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "widgets_values": [
+        "sd3m/clip_l.safetensors",
+        "sd3m/t5xxl_fp16.safetensors",
+        "flux"
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [1130, 0],
+      "mode": 0,
+      "size": [315, 58],
+      "type": "VAELoader",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [7],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": ["flux/ae.sft"]
+    },
+    {
+      "id": 6,
+      "pos": [624, 330],
+      "mode": 0,
+      "size": [315, 106],
+      "type": "EmptyLatentImage",
+      "flags": {},
+      "order": 2,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [5],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [768, 768, 1]
+    },
+    {
+      "id": 19,
+      "pos": [191, 319],
+      "mode": 0,
+      "size": [400, 200],
+      "type": "CLIPTextEncodeFlux",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 27,
+          "name": "clip",
+          "type": "CLIP",
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [26],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncodeFlux"
+      },
+      "widgets_values": ["", "", 4]
+    },
+    {
+      "id": 10,
+      "pos": [250, 589],
+      "mode": 0,
+      "size": [315, 82],
+      "type": "UNETLoader",
+      "flags": {},
+      "order": 3,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [35],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": ["flux/flux1-dev.sft", "fp8_e4m3fn"]
+    },
+    {
+      "id": 13,
+      "pos": [-26.291017831356434, -222.8087005935322],
+      "mode": 0,
+      "size": [382.6551818847656, 82],
+      "type": "LoadFluxControlNet",
+      "flags": {},
+      "order": 4,
+      "outputs": [
+        {
+          "name": "ControlNet",
+          "type": "FluxControlNet",
+          "links": [19],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadFluxControlNet"
+      },
+      "widgets_values": ["flux-dev", "flux-depth-controlnet.safetensors"]
+    },
+    {
+      "id": 24,
+      "pos": [1034.617402417478, 1211.5918083993554],
+      "mode": 4,
+      "size": [342.5999755859375, 258],
+      "type": "XlabsSampler",
+      "flags": {},
+      "order": 23,
+      "inputs": [
+        {
+          "link": 41,
+          "name": "model",
+          "type": "MODEL",
+          "slot_index": 0
+        },
+        {
+          "link": 42,
+          "name": "conditioning",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 43,
+          "name": "neg_conditioning",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 44,
+          "name": "latent_image",
+          "type": "LATENT"
+        },
+        {
+          "link": 45,
+          "name": "controlnet_condition",
+          "type": "ControlNetCondition"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [47],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "XlabsSampler"
+      },
+      "widgets_values": [257762932021983, "fixed", 25, 1, 3.5, 0]
+    },
+    {
+      "id": 32,
+      "pos": [566.1467029849762, 814.4807299031231],
+      "mode": 4,
+      "size": [393, 78],
+      "type": "ApplyFluxControlNet",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "link": 49,
+          "name": "controlnet",
+          "type": "FluxControlNet"
+        },
+        {
+          "link": 50,
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "controlnet_condition",
+          "type": "ControlNetCondition",
+          "links": [45],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyFluxControlNet"
+      },
+      "widgets_values": [0.8]
+    },
+    {
+      "id": 33,
+      "pos": [-5.382597582522107, 971.5918083993557],
+      "mode": 4,
+      "size": [315, 106],
+      "type": "CannyEdgePreprocessor",
+      "flags": {},
+      "order": 17,
+      "inputs": [
+        {
+          "link": 51,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [50, 52],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CannyEdgePreprocessor"
+      },
+      "widgets_values": [100, 200, 832]
+    },
+    {
+      "id": 35,
+      "pos": [324.6174024174778, 1051.5918083993554],
+      "mode": 4,
+      "size": [210, 246],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "link": 52,
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 36,
+      "pos": [214.6174024174779, 1371.5918083993554],
+      "mode": 4,
+      "size": [400, 200],
+      "type": "CLIPTextEncodeFlux",
+      "flags": {},
+      "order": 16,
+      "inputs": [
+        {
+          "link": 53,
+          "name": "clip",
+          "type": "CLIP",
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [43],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncodeFlux"
+      },
+      "widgets_values": ["", "", 4]
+    },
+    {
+      "id": 27,
+      "pos": [644.6174024174782, 1361.5918083993554],
+      "mode": 4,
+      "size": [315, 106],
+      "type": "EmptyLatentImage",
+      "flags": {},
+      "order": 5,
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [44],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [768, 768, 1]
+    },
+    {
+      "id": 28,
+      "pos": [1554.617402417478, 1011.5918083993554],
+      "mode": 4,
+      "size": [210, 46],
+      "type": "VAEDecode",
+      "flags": {},
+      "order": 25,
+      "inputs": [
+        {
+          "link": 47,
+          "name": "samples",
+          "type": "LATENT",
+          "slot_index": 0
+        },
+        {
+          "link": 48,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [54],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 25,
+      "pos": [-135.3825975825221, 1241.5918083993554],
+      "mode": 4,
+      "size": [315, 106],
+      "type": "DualCLIPLoader",
+      "flags": {},
+      "order": 6,
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [46, 53],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "widgets_values": [
+        "sd3m/clip_l.safetensors",
+        "sd3m/t5xxl_fp16.safetensors",
+        "flux"
+      ]
+    },
+    {
+      "id": 30,
+      "pos": [294.6174024174778, 1631.5918083993554],
+      "mode": 4,
+      "size": [315, 82],
+      "type": "UNETLoader",
+      "flags": {},
+      "order": 7,
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [41],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UNETLoader"
+      },
+      "widgets_values": ["flux/flux1-dev.sft", "fp8_e4m3fn"]
+    },
+    {
+      "id": 29,
+      "pos": [1124.617402417478, 1091.5918083993554],
+      "mode": 4,
+      "size": [315, 58],
+      "type": "VAELoader",
+      "flags": {},
+      "order": 8,
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [48],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": ["flux/ae.sft"]
+    },
+    {
+      "id": 17,
+      "pos": [306, 12],
+      "mode": 0,
+      "size": [210, 246],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "link": 38,
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 31,
+      "pos": [4.617402417477893, 821.5918083993557],
+      "mode": 4,
+      "size": [315, 82],
+      "type": "LoadFluxControlNet",
+      "flags": {},
+      "order": 9,
+      "outputs": [
+        {
+          "name": "ControlNet",
+          "type": "FluxControlNet",
+          "links": [49],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadFluxControlNet"
+      },
+      "widgets_values": ["flux-dev", "flux-canny-controlnet.safetensors"]
+    },
+    {
+      "id": 37,
+      "pos": [1554.617402417478, 1113.5918083993554],
+      "mode": 4,
+      "size": [382.9927978515625, 429.280029296875],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 27,
+      "inputs": [
+        {
+          "link": 54,
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 21,
+      "pos": [1500, 130],
+      "mode": 0,
+      "size": [420, 450],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 28,
+      "inputs": [
+        {
+          "link": 31,
+          "name": "images",
+          "type": "IMAGE",
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      }
+    },
+    {
+      "id": 14,
+      "pos": [547, -242],
+      "mode": 0,
+      "size": [393, 78],
+      "type": "ApplyFluxControlNet",
+      "flags": {},
+      "order": 22,
+      "inputs": [
+        {
+          "link": 19,
+          "name": "controlnet",
+          "type": "FluxControlNet"
+        },
+        {
+          "link": 40,
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "controlnet_condition",
+          "type": "ControlNetCondition",
+          "links": [28],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyFluxControlNet"
+      },
+      "widgets_values": [0.86]
+    },
+    {
+      "id": 38,
+      "pos": [-705, -284],
+      "mode": 0,
+      "size": [251.44314575195312, 79.30850219726562],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 10,
+      "bgcolor": "#653",
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "We recommend using RunComfy Large or larger machines to run this workflow, or it may cause an out of memory error."
+      ]
+    },
+    {
+      "id": 34,
+      "pos": [-355.3825975825222, 801.5918083993557],
+      "mode": 4,
+      "size": [315, 314],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 11,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [51],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": ["RunComfy_examples_1115_2.jpg", "image"]
+    },
+    {
+      "id": 16,
+      "pos": [-379.29101783135644, -238.8087005935322],
+      "mode": 0,
+      "size": [315, 314],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 12,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [37],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": ["RunComfy_examples_1115_1.jpg", "image"]
+    },
+    {
+      "id": 5,
+      "pos": [539, -58],
+      "mode": 0,
+      "size": [400, 200],
+      "type": "CLIPTextEncodeFlux",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 2,
+          "name": "clip",
+          "type": "CLIP",
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [18],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncodeFlux"
+      },
+      "widgets_values": [
+        "A character in a black Nike soccer jersey stands on a park training ground, viewed from the side. He has a short, faded hairstyle and appears to be around 30. The scene is depicted with a soft focus and shallow depth of field, giving it an anime-style cinematic effect. The natural sunlight illuminates the character, enhancing the vibrant atmosphere.",
+        "A character in a black Nike soccer jersey stands on a park training ground, viewed from the side. He has a short, faded hairstyle and appears to be around 30. The scene is depicted with a soft focus and shallow depth of field, giving it an anime-style cinematic effect. The natural sunlight illuminates the character, enhancing the vibrant atmosphere.",
+        4
+      ]
+    },
+    {
+      "id": 26,
+      "pos": [544.6174024174782, 981.5918083993556],
+      "mode": 4,
+      "size": [400, 200],
+      "type": "CLIPTextEncodeFlux",
+      "flags": {},
+      "order": 15,
+      "inputs": [
+        {
+          "link": 46,
+          "name": "clip",
+          "type": "CLIP",
+          "slot_index": 0
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [42],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncodeFlux"
+      },
+      "widgets_values": [
+        "A dining area showcasing sleek, minimalist furnishings and expansive windows. At the heart of the scene is a lengthy table. The design embraces minimalism with a palette of neutral shades, complemented by light-hued walls and tiles. An open kitchen graces one side, adorned with three hanging lights. Beyond the windows stretches a desert vista. Sunlight pours through the glass doors, illuminating the white flooring.",
+        "A dining area showcasing sleek, minimalist furnishings and expansive windows. At the heart of the scene is a lengthy table. The design embraces minimalism with a palette of neutral shades, complemented by light-hued walls and tiles. An open kitchen graces one side, adorned with three hanging lights. Beyond the windows stretches a desert vista. Sunlight pours through the glass doors, illuminating the white flooring.",
+        4
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#3f789e",
+      "title": "FLUX + ControlNet Depth",
+      "bounding": [-421, -322, 2443, 1012],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "title": "FLUX + ControlNet Canny",
+      "bounding": [-424, 714, 2452, 1022],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 54,
+  "last_node_id": 38
+}

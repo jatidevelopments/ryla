@@ -1,0 +1,810 @@
+{
+  "extra": {},
+  "links": [
+    [6, 5, 0, 7, 4, "INT"],
+    [9, 7, 0, 10, 0, "LATENT"],
+    [10, 2, 0, 10, 1, "VAE"],
+    [130, 10, 0, 12, 0, "IMAGE"],
+    [202, 1, 1, 6, 0, "CLIP"],
+    [205, 93, 0, 7, 0, "MODEL"],
+    [206, 94, 0, 93, 1, "CONTEXT_OPTIONS"],
+    [215, 6, 0, 7, 2, "CONDITIONING"],
+    [217, 100, 0, 7, 1, "CONDITIONING"],
+    [218, 98, 0, 101, 0, "INT"],
+    [219, 99, 0, 101, 1, "INT"],
+    [220, 97, 0, 101, 2, "INT"],
+    [221, 101, 0, 7, 3, "LATENT"],
+    [222, 1, 1, 100, 0, "CLIP"],
+    [223, 5, 0, 103, 4, "INT"],
+    [224, 6, 0, 103, 2, "CONDITIONING"],
+    [225, 100, 0, 103, 1, "CONDITIONING"],
+    [227, 103, 0, 104, 0, "LATENT"],
+    [228, 2, 0, 104, 1, "VAE"],
+    [236, 1, 0, 93, 0, "MODEL"],
+    [237, 93, 0, 103, 0, "MODEL"],
+    [238, 102, 0, 103, 3, "LATENT"],
+    [239, 7, 0, 102, 0, "LATENT"],
+    [240, 10, 0, 106, 0, "IMAGE"],
+    [241, 104, 0, 107, 0, "IMAGE"]
+  ],
+  "nodes": [
+    {
+      "id": 93,
+      "pos": [719.2264930049622, -552.7688248517424],
+      "mode": 0,
+      "size": [315, 230],
+      "type": "ADE_AnimateDiffLoaderWithContext",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 236,
+          "name": "model",
+          "type": "MODEL",
+          "slot_index": 0
+        },
+        {
+          "link": 206,
+          "name": "context_options",
+          "type": "CONTEXT_OPTIONS",
+          "slot_index": 1
+        },
+        {
+          "link": null,
+          "name": "motion_lora",
+          "type": "MOTION_LORA"
+        },
+        {
+          "link": null,
+          "name": "ad_settings",
+          "type": "AD_SETTINGS"
+        },
+        {
+          "link": null,
+          "name": "sample_settings",
+          "type": "SAMPLE_SETTINGS"
+        },
+        {
+          "link": null,
+          "name": "ad_keyframes",
+          "type": "AD_KEYFRAMES"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [205, 237],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ADE_AnimateDiffLoaderWithContext"
+      },
+      "widgets_values": [
+        "sd1/mm_sd_v15_v2.ckpt",
+        "sqrt_linear (AnimateDiff)",
+        1,
+        true
+      ]
+    },
+    {
+      "id": 94,
+      "pos": [340.22649300496244, -559.7688248517424],
+      "mode": 0,
+      "size": [315, 270],
+      "type": "ADE_AnimateDiffUniformContextOptions",
+      "flags": {},
+      "order": 0,
+      "inputs": [
+        {
+          "link": null,
+          "name": "prev_context",
+          "type": "CONTEXT_OPTIONS"
+        },
+        {
+          "link": null,
+          "name": "view_opts",
+          "type": "VIEW_OPTS"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONTEXT_OPTIONS",
+          "type": "CONTEXT_OPTIONS",
+          "links": [206],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ADE_AnimateDiffUniformContextOptions"
+      },
+      "widgets_values": [16, 1, 4, "uniform", false, "flat", false, 0, 1]
+    },
+    {
+      "id": 99,
+      "pos": [441.44036626329256, 20.732149487579804],
+      "mode": 0,
+      "size": [210, 82],
+      "type": "PrimitiveNode",
+      "color": "#332922",
+      "flags": {},
+      "order": 1,
+      "title": "Height",
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [219],
+          "widget": {
+            "name": "height"
+          },
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [768, "fixed"]
+    },
+    {
+      "id": 97,
+      "pos": [435.44036626329256, 172.73214948757973],
+      "mode": 0,
+      "size": [210, 82],
+      "type": "PrimitiveNode",
+      "color": "#332922",
+      "flags": {},
+      "order": 2,
+      "title": "Number of Frames",
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [220],
+          "widget": {
+            "name": "batch_size"
+          },
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [300, "fixed"]
+    },
+    {
+      "id": 101,
+      "pos": [745.4403662632927, -22.267850512420175],
+      "mode": 0,
+      "size": [315, 106],
+      "type": "ADE_EmptyLatentImageLarge",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 218,
+          "name": "width",
+          "type": "INT",
+          "widget": {
+            "name": "width"
+          },
+          "slot_index": 0
+        },
+        {
+          "link": 219,
+          "name": "height",
+          "type": "INT",
+          "widget": {
+            "name": "height"
+          },
+          "slot_index": 1
+        },
+        {
+          "link": 220,
+          "name": "batch_size",
+          "type": "INT",
+          "widget": {
+            "name": "batch_size"
+          },
+          "slot_index": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [221],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ADE_EmptyLatentImageLarge"
+      },
+      "widgets_values": [512, 768, 300]
+    },
+    {
+      "id": 5,
+      "pos": [767, 391],
+      "mode": 0,
+      "size": [210, 82],
+      "type": "PrimitiveNode",
+      "color": "#2a363b",
+      "flags": {},
+      "order": 3,
+      "title": "Seed",
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [6, 223],
+          "widget": {
+            "name": "seed"
+          },
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [162394089606883, "randomize"]
+    },
+    {
+      "id": 1,
+      "pos": [-182, -467],
+      "mode": 0,
+      "size": [319.20001220703125, 170],
+      "type": "CheckpointLoaderSimpleWithNoiseSelect",
+      "color": "#432",
+      "flags": {},
+      "order": 4,
+      "bgcolor": "#653",
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [236],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [202, 222],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": null,
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimpleWithNoiseSelect"
+      },
+      "widgets_values": [
+        "sd1/artUniverse_v80.safetensors",
+        "sqrt_linear (AnimateDiff)",
+        false,
+        0.18215
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [1238, -446],
+      "mode": 0,
+      "size": [356.7564392089844, 264.7169189453125],
+      "type": "KSampler",
+      "color": "#223",
+      "flags": {
+        "pinned": false
+      },
+      "order": 11,
+      "inputs": [
+        {
+          "link": 205,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 217,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 215,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 221,
+          "name": "latent_image",
+          "type": "LATENT"
+        },
+        {
+          "link": 6,
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          }
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [9, 239],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        162394089606883,
+        "fixed",
+        30,
+        5,
+        "dpmpp_2m_sde",
+        "karras",
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "pos": [1240, -88],
+      "mode": 0,
+      "size": [345.6938171386719, 66.55177307128906],
+      "type": "VAELoader",
+      "color": "#332922",
+      "flags": {},
+      "order": 5,
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [10, 228],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAELoader"
+      },
+      "widgets_values": ["sd1/vae-ft-mse-840000-ema-pruned.safetensors"]
+    },
+    {
+      "id": 98,
+      "pos": [441, -110],
+      "mode": 0,
+      "size": [210, 82],
+      "type": "PrimitiveNode",
+      "color": "#332922",
+      "flags": {},
+      "order": 6,
+      "title": "Width",
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "name": "INT",
+          "type": "INT",
+          "links": [218],
+          "widget": {
+            "name": "width"
+          },
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Run widget replace on values": false
+      },
+      "widgets_values": [512, "fixed"]
+    },
+    {
+      "id": 103,
+      "pos": [1770, 130],
+      "mode": 0,
+      "size": [315, 262],
+      "type": "KSampler",
+      "color": "#223",
+      "flags": {},
+      "order": 16,
+      "title": "KSampler (upscale)",
+      "inputs": [
+        {
+          "link": 237,
+          "name": "model",
+          "type": "MODEL",
+          "slot_index": 0
+        },
+        {
+          "link": 225,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "slot_index": 1
+        },
+        {
+          "link": 224,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "slot_index": 2
+        },
+        {
+          "link": 238,
+          "name": "latent_image",
+          "type": "LATENT",
+          "slot_index": 3
+        },
+        {
+          "link": 223,
+          "name": "seed",
+          "type": "INT",
+          "widget": {
+            "name": "seed"
+          },
+          "slot_index": 4
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [227],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        162394089606883,
+        "randomize",
+        30,
+        5,
+        "dpmpp_2m_sde",
+        "karras",
+        0.65
+      ]
+    },
+    {
+      "id": 102,
+      "pos": [1762, -25],
+      "mode": 0,
+      "size": [315, 82],
+      "type": "LatentUpscaleBy",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 239,
+          "name": "samples",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [238],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LatentUpscaleBy"
+      },
+      "widgets_values": ["nearest-exact", 2]
+    },
+    {
+      "id": 12,
+      "pos": [2138, -484],
+      "mode": 0,
+      "size": [315, 270],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 130,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {},
+      "widgets_values": ["1047"]
+    },
+    {
+      "id": 6,
+      "pos": [-135, 772],
+      "mode": 0,
+      "size": [442.5990905761719, 175.22203063964844],
+      "type": "CLIPTextEncode",
+      "color": "#322",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 202,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [215, 224],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": ["(bad quality, worst quality:1.2), NSFW, nude"]
+    },
+    {
+      "id": 100,
+      "pos": [-138, -115],
+      "mode": 0,
+      "size": [444.2601013183594, 829.188720703125],
+      "type": "BatchPromptSchedule",
+      "color": "#232",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 222,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [217, 225],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "NEG",
+          "type": "CONDITIONING",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BatchPromptSchedule"
+      },
+      "widgets_values": [
+        "\"0\" :\" Grim Reaper, standing among the graves, carrying a scythe, in A misty graveyard at night, eerie fog, full moon, bats flying around, halloween pumpkins\",\n\n\"25\" :\"male Zombie, open mouth, eat a brain, in An abandoned post-apocalyptic cityscape, graffiti walls, flickering streetlights\",\n\n\"50\" :\"werewolf howling, his eyes are glowing red, in a dense eerie forest, full bright moon, pack of wolves in the background\",\n\n\"75\" :\"Frankenstein's Monster, in a dim laboratory filled with scientific equipment, Lightning flashes through the windows\",\n\n\"100\" :\"Witch wearing a dark robe and a pointy hat, sinister eyes, holding candles, in a cluttered hut, filled with spell ingredients, candles, halloween pumpkins\",\n\n\"125\" :\"a white Ghost figure hovering, eerie glow, in an old haunted mansion, dusty furniture and curtains, flickering candles, surrounded  by ghosts\",\n\n\"150\" :\"a Vampire, wearing a black and red Victorian coat and cape, in a dim Gothic castle, with ancient furniture covered in spider webs, bats flying around\",\n\n\"175\" :\"A mummy, wrapped in white bandages, standing in the shadows, its eyes glow with red light, in an ancient Egyptian tomb, spiders crawling on the walls\",\n\n\"200\" :\"Jason Voorhees, holding a machete, in a terrifying summer camp, surrounded by dense woods, and old cabins, halloween pumpkins\",\n\n\"225\" :\"The Devil, fiery eyes, a tail, and wings, nightmarish realm of fire, infernal landscape, rivers of molten lava, Hell\", \n\n\"250\" :\"Black Cat woman, glowing eyes, eerie cobblestone street in an old European village with gothic architecture, mice on the ground\",\n\n\"275\" :\"pennywise, Scary clown, in a circus tent, abandoned amusement park\",\n\n\"300\" :\" Grim Reaper, standing among the graves, carrying a scythe, in A misty graveyard at night, eerie fog, full moon, bats flying around\"\n\n",
+        300,
+        "(Masterpiece, best quality:1.2)  walking towards camera, full body closeup shot",
+        "halloween environment, horror, cinematic, sharp, highly detailed, ultra hyperrealistic, 4k",
+        "0",
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [1740, -400],
+      "mode": 0,
+      "size": [210, 46],
+      "type": "VAEDecode",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 9,
+          "name": "samples",
+          "type": "LATENT"
+        },
+        {
+          "link": 10,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [130, 240],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 104,
+      "pos": [2195, 137],
+      "mode": 0,
+      "size": [210, 46],
+      "type": "VAEDecode",
+      "flags": {},
+      "order": 17,
+      "inputs": [
+        {
+          "link": 227,
+          "name": "samples",
+          "type": "LATENT",
+          "slot_index": 0
+        },
+        {
+          "link": 228,
+          "name": "vae",
+          "type": "VAE",
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [241],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 106,
+      "pos": [2575, -483],
+      "mode": 0,
+      "size": [562.9959716796875, 290],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 15,
+      "inputs": [
+        {
+          "link": 240,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "VHS_AUDIO"
+        },
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "RunComfy_examples_1047.mp4",
+            "subfolder": "RunComfy_examples"
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1047"
+      }
+    },
+    {
+      "id": 107,
+      "pos": [3188, -487],
+      "mode": 4,
+      "size": [514.6181030273438, 290],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 18,
+      "inputs": [
+        {
+          "link": 241,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "VHS_AUDIO"
+        },
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {},
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1047"
+      }
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#a1309b",
+      "title": "Prompt Schedule",
+      "bounding": [-177, -219, 522, 1214],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "title": "AnimateDiff",
+      "bounding": [308, -672, 772, 412],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "title": "Latent Image",
+      "bounding": [412, -211, 667, 485],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 241,
+  "last_node_id": 107
+}

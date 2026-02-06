@@ -1,0 +1,828 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.5644739300537773,
+      "offset": {
+        "0": -276.0683898925781,
+        "1": 617.1983642578125
+      }
+    }
+  },
+  "links": [
+    [6, 2, 4, 4, 4, "VAE"],
+    [7, 4, 5, 5, 0, "IMAGE"],
+    [34, 24, 0, 28, 0, "CONTROL_NET"],
+    [48, 40, 0, 41, 2, "CONTROL_NET"],
+    [49, 35, 0, 41, 0, "INSTANTID"],
+    [50, 36, 0, 41, 1, "FACEANALYSIS"],
+    [55, 2, 2, 41, 6, "CONDITIONING"],
+    [56, 2, 1, 41, 5, "CONDITIONING"],
+    [57, 41, 2, 4, 2, "CONDITIONING"],
+    [58, 41, 1, 4, 1, "CONDITIONING"],
+    [60, 2, 0, 41, 4, "MODEL"],
+    [81, 28, 0, 2, 1, "CONTROL_NET_STACK"],
+    [86, 3, 0, 2, 0, "LORA_STACK"],
+    [88, 49, 0, 28, 1, "IMAGE"],
+    [90, 2, 4, 51, 1, "VAE"],
+    [100, 51, 0, 4, 3, "LATENT"],
+    [101, 41, 0, 4, 0, "MODEL"],
+    [103, 22, 0, 67, 0, "IMAGE"],
+    [104, 67, 0, 51, 0, "IMAGE"],
+    [105, 67, 0, 49, 0, "IMAGE"],
+    [106, 67, 0, 41, 3, "IMAGE"]
+  ],
+  "nodes": [
+    {
+      "id": 51,
+      "pos": [1845, 526],
+      "mode": 0,
+      "size": [210, 46],
+      "type": "VAEEncode",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 104,
+          "name": "pixels",
+          "type": "IMAGE"
+        },
+        {
+          "link": 90,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [100],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEEncode"
+      }
+    },
+    {
+      "id": 36,
+      "pos": [1428, -71],
+      "mode": 0,
+      "size": [315, 58],
+      "type": "InstantIDFaceAnalysis",
+      "flags": {},
+      "order": 0,
+      "outputs": [
+        {
+          "name": "FACEANALYSIS",
+          "type": "FACEANALYSIS",
+          "links": [50],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "InstantIDFaceAnalysis"
+      },
+      "widgets_values": ["CPU"]
+    },
+    {
+      "id": 67,
+      "pos": [998, -292],
+      "mode": 0,
+      "size": [315, 218],
+      "type": "ImageResize+",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 103,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [104, 105, 106],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageResize+"
+      },
+      "widgets_values": [1024, 1024, "nearest", "stretch", "always", 0]
+    },
+    {
+      "id": 49,
+      "pos": [605, 114],
+      "mode": 0,
+      "size": [315, 82],
+      "type": "AIO_Preprocessor",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 105,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [88],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AIO_Preprocessor"
+      },
+      "widgets_values": ["Zoe-DepthMapPreprocessor", 1024]
+    },
+    {
+      "id": 35,
+      "pos": [1429, -180],
+      "mode": 0,
+      "size": [315, 58],
+      "type": "InstantIDModelLoader",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "INSTANTID",
+          "type": "INSTANTID",
+          "links": [49],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "InstantIDModelLoader"
+      },
+      "widgets_values": ["ip-adapter.bin"]
+    },
+    {
+      "id": 40,
+      "pos": [1337, -311],
+      "mode": 0,
+      "size": [428.7978820800781, 58],
+      "type": "ControlNetLoader",
+      "flags": {},
+      "order": 2,
+      "outputs": [
+        {
+          "name": "CONTROL_NET",
+          "type": "CONTROL_NET",
+          "links": [48],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": ["instantid/diffusion_pytorch_model.safetensors"]
+    },
+    {
+      "id": 41,
+      "pos": [1845, 196],
+      "mode": 0,
+      "size": [315, 266],
+      "type": "ApplyInstantID",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 49,
+          "name": "instantid",
+          "type": "INSTANTID"
+        },
+        {
+          "link": 50,
+          "name": "insightface",
+          "type": "FACEANALYSIS"
+        },
+        {
+          "link": 48,
+          "name": "control_net",
+          "type": "CONTROL_NET"
+        },
+        {
+          "link": 106,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 60,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 56,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 55,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": null,
+          "name": "image_kps",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [101],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "POSITIVE",
+          "type": "CONDITIONING",
+          "links": [58],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "NEGATIVE",
+          "type": "CONDITIONING",
+          "links": [57],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ApplyInstantID"
+      },
+      "widgets_values": [1, 0, 1]
+    },
+    {
+      "id": 4,
+      "pos": [1842, -443],
+      "mode": 0,
+      "size": [325, 562],
+      "type": "KSampler (Efficient)",
+      "color": "#223333",
+      "flags": {},
+      "order": 12,
+      "shape": 1,
+      "inputs": [
+        {
+          "link": 101,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 58,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 57,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 100,
+          "name": "latent_image",
+          "type": "LATENT"
+        },
+        {
+          "link": 6,
+          "name": "optional_vae",
+          "type": "VAE"
+        },
+        {
+          "link": null,
+          "name": "script",
+          "type": "SCRIPT"
+        }
+      ],
+      "bgcolor": "#335555",
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CONDITIONING+",
+          "type": "CONDITIONING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "CONDITIONING-",
+          "type": "CONDITIONING",
+          "links": [],
+          "shape": 3,
+          "slot_index": 2
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [],
+          "shape": 3,
+          "slot_index": 4
+        },
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [7],
+          "shape": 3,
+          "slot_index": 5
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler (Efficient)"
+      },
+      "widgets_values": [
+        1051763972092850,
+        null,
+        20,
+        7,
+        "dpmpp_2m_sde",
+        "karras",
+        0.65,
+        "none",
+        "true"
+      ]
+    },
+    {
+      "id": 28,
+      "pos": [982, 84],
+      "mode": 0,
+      "size": [315, 146],
+      "type": "Control Net Stacker",
+      "color": "#223322",
+      "flags": {},
+      "order": 8,
+      "shape": 1,
+      "inputs": [
+        {
+          "link": 34,
+          "name": "control_net",
+          "type": "CONTROL_NET"
+        },
+        {
+          "link": 88,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "cnet_stack",
+          "type": "CONTROL_NET_STACK"
+        }
+      ],
+      "bgcolor": "#335533",
+      "outputs": [
+        {
+          "name": "CNET_STACK",
+          "type": "CONTROL_NET_STACK",
+          "links": [81],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Control Net Stacker"
+      },
+      "widgets_values": [0.8, 0, 1]
+    },
+    {
+      "id": 24,
+      "pos": [491, 244],
+      "mode": 0,
+      "size": [426.1774597167969, 60.97396469116211],
+      "type": "ControlNetLoader",
+      "flags": {},
+      "order": 3,
+      "outputs": [
+        {
+          "name": "CONTROL_NET",
+          "type": "CONTROL_NET",
+          "links": [34],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "widgets_values": ["instantid/diffusion_pytorch_model.safetensors"]
+    },
+    {
+      "id": 5,
+      "pos": [2217, -299],
+      "mode": 0,
+      "size": [472.83123779296875, 517.1922607421875],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 7,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": ["1107"]
+    },
+    {
+      "id": 3,
+      "pos": [834, 361],
+      "mode": 0,
+      "size": [474.853271484375, 226],
+      "type": "LoRA Stacker",
+      "color": "#222233",
+      "flags": {},
+      "order": 4,
+      "shape": 1,
+      "inputs": [
+        {
+          "link": null,
+          "name": "lora_stack",
+          "type": "LORA_STACK"
+        }
+      ],
+      "bgcolor": "#333355",
+      "outputs": [
+        {
+          "name": "LORA_STACK",
+          "type": "LORA_STACK",
+          "links": [86],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoRA Stacker"
+      },
+      "widgets_values": [
+        "simple",
+        3,
+        "sdxl/ClayAnimationRedm.safetensors",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1,
+        "None",
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "id": 2,
+      "pos": [1345, 130],
+      "mode": 0,
+      "size": [400, 462],
+      "type": "Efficient Loader",
+      "color": "#222233",
+      "flags": {},
+      "order": 9,
+      "shape": 1,
+      "inputs": [
+        {
+          "link": 86,
+          "name": "lora_stack",
+          "type": "LORA_STACK"
+        },
+        {
+          "link": 81,
+          "name": "cnet_stack",
+          "type": "CONTROL_NET_STACK"
+        }
+      ],
+      "bgcolor": "#333355",
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [60],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "CONDITIONING+",
+          "type": "CONDITIONING",
+          "links": [56],
+          "shape": 3,
+          "slot_index": 1
+        },
+        {
+          "name": "CONDITIONING-",
+          "type": "CONDITIONING",
+          "links": [55],
+          "shape": 3,
+          "slot_index": 2
+        },
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [],
+          "shape": 3,
+          "slot_index": 3
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [6, 90],
+          "shape": 3,
+          "slot_index": 4
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "DEPENDENCIES",
+          "type": "DEPENDENCIES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Efficient Loader"
+      },
+      "widgets_values": [
+        "sdxl/albedobaseXL_v13.safetensors",
+        "Baked VAE",
+        -1,
+        "None",
+        1,
+        1,
+        "attractive man, clay animation",
+        "photo, photography, nsfw, nude, ugly, broken, watermark",
+        "none",
+        "comfy",
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 22,
+      "pos": [584, -420],
+      "mode": 0,
+      "size": [360.0698547363281, 469.1916198730469],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 5,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [103],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": ["RunComfy_examples_1107.png", "image"]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 106,
+  "last_node_id": 74
+}

@@ -1,0 +1,4000 @@
+{
+  "id": "876de481-fec0-4676-a6ce-21ea0d053626",
+  "extra": {
+    "ds": {
+      "scale": 0.8140274938684098,
+      "offset": [-6202.838256413865, -228.84473731540552]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.20.7"
+  },
+  "links": [
+    [8, 8, 1, 9, 0, "IMAGE"],
+    [58, 37, 0, 38, 0, "*"],
+    [60, 40, 0, 8, 1, "VALSETTINGS"],
+    [69, 48, 0, 45, 1, "VALSETTINGS"],
+    [70, 45, 1, 46, 0, "IMAGE"],
+    [89, 63, 0, 60, 1, "VALSETTINGS"],
+    [90, 60, 1, 61, 0, "IMAGE"],
+    [94, 68, 0, 65, 1, "VALSETTINGS"],
+    [95, 65, 1, 66, 0, "IMAGE"],
+    [111, 79, 0, 78, 2, "STRING"],
+    [112, 8, 1, 78, 0, "IMAGE"],
+    [117, 81, 0, 80, 2, "STRING"],
+    [119, 45, 1, 80, 0, "IMAGE"],
+    [121, 82, 0, 83, 2, "STRING"],
+    [122, 60, 1, 83, 0, "IMAGE"],
+    [124, 84, 0, 85, 2, "STRING"],
+    [126, 65, 1, 85, 0, "IMAGE"],
+    [136, 89, 1, 73, 0, "*"],
+    [138, 70, 0, 90, 0, "IMAGE"],
+    [161, 97, 0, 98, 0, "IMAGE"],
+    [162, 4, 0, 97, 0, "NETWORKTRAINER"],
+    [163, 99, 0, 100, 0, "IMAGE"],
+    [164, 44, 0, 99, 0, "NETWORKTRAINER"],
+    [165, 101, 0, 102, 0, "IMAGE"],
+    [166, 59, 0, 101, 0, "NETWORKTRAINER"],
+    [179, 2, 0, 107, 0, "TRAIN_FLUX_MODELS"],
+    [180, 95, 0, 107, 2, "ARGS"],
+    [181, 107, 0, 4, 0, "NETWORKTRAINER"],
+    [182, 107, 1, 88, 0, "*"],
+    [183, 107, 2, 105, 0, "*"],
+    [185, 108, 0, 109, 0, "JSON"],
+    [187, 109, 0, 111, 0, "JSON"],
+    [188, 111, 0, 112, 0, "JSON"],
+    [189, 112, 0, 107, 1, "JSON"],
+    [195, 119, 0, 117, 0, "IMAGE"],
+    [199, 120, 3, 117, 1, "INT"],
+    [200, 78, 0, 121, 0, "*"],
+    [201, 80, 0, 122, 0, "*"],
+    [202, 123, 0, 119, 0, "IMAGE"],
+    [203, 124, 0, 119, 1, "IMAGE"],
+    [204, 83, 0, 125, 0, "*"],
+    [207, 85, 0, 127, 0, "*"],
+    [209, 123, 0, 120, 0, "IMAGE"],
+    [210, 117, 0, 129, 0, "IMAGE"],
+    [214, 129, 0, 130, 0, "IMAGE"],
+    [215, 64, 1, 84, 0, "*"],
+    [217, 65, 0, 70, 0, "NETWORKTRAINER"],
+    [218, 4, 0, 14, 0, "NETWORKTRAINER"],
+    [219, 8, 0, 44, 0, "NETWORKTRAINER"],
+    [220, 4, 1, 79, 0, "*"],
+    [221, 14, 0, 8, 0, "NETWORKTRAINER"],
+    [222, 44, 0, 47, 0, "NETWORKTRAINER"],
+    [223, 45, 0, 59, 0, "NETWORKTRAINER"],
+    [224, 59, 0, 62, 0, "NETWORKTRAINER"],
+    [225, 62, 0, 60, 0, "NETWORKTRAINER"],
+    [226, 60, 0, 64, 0, "NETWORKTRAINER"],
+    [227, 47, 0, 45, 0, "NETWORKTRAINER"],
+    [229, 65, 0, 133, 0, "NETWORKTRAINER"],
+    [230, 133, 2, 89, 1, "STRING"],
+    [231, 133, 0, 129, 2, "STRING"],
+    [232, 64, 0, 134, 0, "NETWORKTRAINER"],
+    [233, 134, 0, 65, 0, "NETWORKTRAINER"],
+    [234, 59, 1, 82, 0, "*"],
+    [235, 44, 1, 81, 0, "*"]
+  ],
+  "nodes": [
+    {
+      "id": 38,
+      "pos": [1140, 0],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "SetNode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 21,
+      "title": "Set_validation_settings",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 58,
+          "name": "VALSETTINGS",
+          "type": "VALSETTINGS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "validation_settings"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["validation_settings"]
+    },
+    {
+      "id": 48,
+      "pos": [2630, 450.65948486328125],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "GetNode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 0,
+      "title": "Get_validation_settings",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VALSETTINGS",
+          "type": "VALSETTINGS",
+          "label": null,
+          "links": [69],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["validation_settings"]
+    },
+    {
+      "id": 61,
+      "pos": [3707, 610],
+      "mode": 4,
+      "size": [809.35400390625, 458.6750793457031],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 54,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 90,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 63,
+      "pos": [3706.7109375, 460],
+      "mode": 4,
+      "size": [210, 58],
+      "type": "GetNode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 1,
+      "title": "Get_validation_settings",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VALSETTINGS",
+          "type": "VALSETTINGS",
+          "label": null,
+          "links": [89],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["validation_settings"]
+    },
+    {
+      "id": 68,
+      "pos": [4765.21875, 468.45684814453125],
+      "mode": 4,
+      "size": [210, 58],
+      "type": "GetNode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 2,
+      "title": "Get_validation_settings",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VALSETTINGS",
+          "type": "VALSETTINGS",
+          "label": null,
+          "links": [94],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["validation_settings"]
+    },
+    {
+      "id": 78,
+      "pos": [2023, 1177],
+      "mode": 0,
+      "size": [315, 274],
+      "type": "AddLabel",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 37,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 112,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "caption",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 111,
+          "name": "text",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [200],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "AddLabel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        10,
+        2,
+        48,
+        32,
+        "white",
+        "black",
+        "FreeMono.ttf",
+        "Text",
+        "up"
+      ]
+    },
+    {
+      "id": 79,
+      "pos": [1815, 1177],
+      "mode": 0,
+      "size": [315, 82],
+      "type": "SomethingToString",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 32,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 220,
+          "name": "input",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [111],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "SomethingToString"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["steps ", ""]
+    },
+    {
+      "id": 80,
+      "pos": [2982, 1177],
+      "mode": 0,
+      "size": [315, 274],
+      "type": "AddLabel",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 46,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 119,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "caption",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 117,
+          "name": "text",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [201],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "AddLabel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        10,
+        2,
+        48,
+        32,
+        "white",
+        "black",
+        "FreeMono.ttf",
+        "Text",
+        "up"
+      ]
+    },
+    {
+      "id": 81,
+      "pos": [2774, 1177],
+      "mode": 0,
+      "size": [315, 82],
+      "type": "SomethingToString",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 40,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 235,
+          "name": "input",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [117],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "SomethingToString"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["steps ", ""]
+    },
+    {
+      "id": 82,
+      "pos": [3909, 1177],
+      "mode": 4,
+      "size": [315, 82],
+      "type": "SomethingToString",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 49,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 234,
+          "name": "input",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [121],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "SomethingToString"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["steps ", ""]
+    },
+    {
+      "id": 83,
+      "pos": [4130, 1177],
+      "mode": 4,
+      "size": [315, 274],
+      "type": "AddLabel",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 55,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 122,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "caption",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 121,
+          "name": "text",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [204],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "AddLabel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        10,
+        2,
+        48,
+        32,
+        "white",
+        "black",
+        "FreeMono.ttf",
+        "Text",
+        "up"
+      ]
+    },
+    {
+      "id": 84,
+      "pos": [4963, 1177],
+      "mode": 4,
+      "size": [315, 82],
+      "type": "SomethingToString",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 57,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 215,
+          "name": "input",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "STRING",
+          "type": "STRING",
+          "label": null,
+          "links": [124],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "SomethingToString"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["steps ", ""]
+    },
+    {
+      "id": 85,
+      "pos": [5171, 1177],
+      "mode": 4,
+      "size": [315, 274],
+      "type": "AddLabel",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 63,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 126,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "caption",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 124,
+          "name": "text",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [207],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "AddLabel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        10,
+        2,
+        48,
+        32,
+        "white",
+        "black",
+        "FreeMono.ttf",
+        "Text",
+        "up"
+      ]
+    },
+    {
+      "id": 89,
+      "pos": [5900, 660],
+      "mode": 2,
+      "size": [315, 178],
+      "type": "UploadToHuggingFace",
+      "flags": {},
+      "order": 66,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 230,
+          "name": "source_path",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "source_path"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "status",
+          "type": "STRING",
+          "label": null,
+          "links": [136],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "UploadToHuggingFace"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["", "", "", true, ""]
+    },
+    {
+      "id": 115,
+      "pos": [250, -90],
+      "mode": 0,
+      "size": [462.68292236328125, 88],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "You can use same models as you use for inference in Comfy. When fp8_base is enabled, the model is downcasted to torch.float_e4m3fn on initialize, meaning if you load fp8 model here it should also be in same format."
+      ]
+    },
+    {
+      "id": 117,
+      "pos": [6580, 630],
+      "mode": 0,
+      "size": [315, 106],
+      "type": "ImageConcatFromBatch",
+      "flags": {},
+      "order": 23,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 195,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 199,
+          "name": "num_columns",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "num_columns"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [210],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "ImageConcatFromBatch"
+      },
+      "showAdvanced": null,
+      "widgets_values": [3, false, 4096]
+    },
+    {
+      "id": 120,
+      "pos": [6720, 340],
+      "mode": 0,
+      "size": [210, 86],
+      "type": "GetImageSizeAndCount",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 19,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 209,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": "1024 width",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": "1072 height",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": "1 count",
+          "links": [199],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 121,
+      "pos": [2170, 1177],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "SetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 41,
+      "title": "Set_Sampler1",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 200,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Sampler1"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Sampler1"]
+    },
+    {
+      "id": 122,
+      "pos": [3128, 1177],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "SetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 50,
+      "title": "Set_Sampler2",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 201,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Sampler2"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Sampler2"]
+    },
+    {
+      "id": 123,
+      "pos": [6530, 410],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "GetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 4,
+      "title": "Get_Sampler1",
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [202, 209],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["Sampler1"]
+    },
+    {
+      "id": 124,
+      "pos": [6530, 450],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "GetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "title": "Get_Sampler2",
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [203],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["Sampler2"]
+    },
+    {
+      "id": 125,
+      "pos": [4278, 1177],
+      "mode": 4,
+      "size": [210, 58],
+      "type": "SetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 58,
+      "title": "Set_Sampler3",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 204,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "previousName": "Sampler3"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Sampler3"]
+    },
+    {
+      "id": 127,
+      "pos": [5319, 1177],
+      "mode": 4,
+      "size": [210, 58],
+      "type": "SetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 67,
+      "title": "Set_Sampler4",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 207,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Sampler4"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["Sampler4"]
+    },
+    {
+      "id": 128,
+      "pos": [6530, 550],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "GetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 6,
+      "title": "Get_Sampler4",
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["Sampler4"]
+    },
+    {
+      "id": 65,
+      "pos": [4775.216796875, 518.4568481445312],
+      "mode": 4,
+      "size": [468.5999755859375, 46],
+      "type": "FluxTrainValidate",
+      "flags": {},
+      "order": 59,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 233,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 94,
+          "name": "validation_settings",
+          "type": "VALSETTINGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [217, 229],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "validation_images",
+          "type": "IMAGE",
+          "label": null,
+          "links": [95, 126],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainValidate"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 46,
+      "pos": [2654, 609.6594848632812],
+      "mode": 0,
+      "size": [850.0181274414062, 452.6767578125],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 45,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 70,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 66,
+      "pos": [4785, 628],
+      "mode": 4,
+      "size": [850.0181274414062, 452.6767578125],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 62,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 95,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 37,
+      "pos": [780, 20],
+      "mode": 0,
+      "size": [315, 250],
+      "type": "FluxTrainValidationSettings",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "validation_settings",
+          "type": "VALSETTINGS",
+          "label": null,
+          "links": [58],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainValidationSettings"
+      },
+      "showAdvanced": null,
+      "widgets_values": [20, 1024, 1024, 3, 42, "fixed", true, 0.5, 1.15]
+    },
+    {
+      "id": 116,
+      "pos": [780, -110],
+      "mode": 0,
+      "size": [308.08209228515625, 88],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 8,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Validation sampling settings are set here for all the sampler nodes."
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [1547, 596],
+      "mode": 0,
+      "size": [891.4732666015625, 476.6578063964844],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 36,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 8,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "pos": [1988, 256],
+      "mode": 0,
+      "size": [393, 122],
+      "type": "FluxTrainSave",
+      "flags": {},
+      "order": 31,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 218,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [221],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "lora_path",
+          "type": "STRING",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainSave"
+      },
+      "showAdvanced": null,
+      "widgets_values": [false, false]
+    },
+    {
+      "id": 8,
+      "pos": [1552, 500],
+      "mode": 0,
+      "size": [468.5999755859375, 46],
+      "type": "FluxTrainValidate",
+      "flags": {},
+      "order": 34,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 221,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 60,
+          "name": "validation_settings",
+          "type": "VALSETTINGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [219],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "validation_images",
+          "type": "IMAGE",
+          "label": null,
+          "links": [8, 112],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainValidate"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 40,
+      "pos": [1546, 433],
+      "mode": 0,
+      "size": [277.0899353027344, 58],
+      "type": "GetNode",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 9,
+      "title": "Get_validation_settings",
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VALSETTINGS",
+          "type": "VALSETTINGS",
+          "label": null,
+          "links": [60],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["validation_settings"]
+    },
+    {
+      "id": 45,
+      "pos": [2640, 500.6595153808594],
+      "mode": 0,
+      "size": [468.5999755859375, 46],
+      "type": "FluxTrainValidate",
+      "flags": {},
+      "order": 43,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 227,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 69,
+          "name": "validation_settings",
+          "type": "VALSETTINGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [223],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "validation_images",
+          "type": "IMAGE",
+          "label": null,
+          "links": [70, 119],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainValidate"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 60,
+      "pos": [3716.708740234375, 510],
+      "mode": 4,
+      "size": [468.5999755859375, 46],
+      "type": "FluxTrainValidate",
+      "flags": {},
+      "order": 52,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 225,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 89,
+          "name": "validation_settings",
+          "type": "VALSETTINGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [226],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "validation_images",
+          "type": "IMAGE",
+          "label": null,
+          "links": [90, 122],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainValidate"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 47,
+      "pos": [3114, 323.6595153808594],
+      "mode": 0,
+      "size": [393, 122],
+      "type": "FluxTrainSave",
+      "flags": {},
+      "order": 39,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 222,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [227],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "lora_path",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainSave"
+      },
+      "showAdvanced": null,
+      "widgets_values": [false, false]
+    },
+    {
+      "id": 129,
+      "pos": [6830, 280],
+      "mode": 0,
+      "size": [315, 274],
+      "type": "AddLabel",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 65,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 210,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "caption",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 231,
+          "name": "text",
+          "type": "STRING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "text"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [214],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "AddLabel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        10,
+        2,
+        48,
+        32,
+        "white",
+        "black",
+        "FreeMono.ttf",
+        "Text",
+        "up"
+      ]
+    },
+    {
+      "id": 62,
+      "pos": [4202, 331],
+      "mode": 4,
+      "size": [393, 122],
+      "type": "FluxTrainSave",
+      "flags": {},
+      "order": 48,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 224,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [225],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "lora_path",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainSave"
+      },
+      "showAdvanced": null,
+      "widgets_values": [false, false]
+    },
+    {
+      "id": 134,
+      "pos": [5275, 328],
+      "mode": 4,
+      "size": [393, 122],
+      "type": "FluxTrainSave",
+      "flags": {},
+      "order": 56,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 232,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [233],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "lora_path",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainSave"
+      },
+      "showAdvanced": null,
+      "widgets_values": [false, false]
+    },
+    {
+      "id": 99,
+      "pos": [2950, -650],
+      "mode": 0,
+      "size": [254.40000915527344, 198],
+      "type": "VisualizeLoss",
+      "flags": {},
+      "order": 38,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 164,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "plot",
+          "type": "IMAGE",
+          "label": null,
+          "links": [163],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loss_list",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "VisualizeLoss"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "seaborn-v0_8-dark-palette",
+        100,
+        true,
+        768,
+        512,
+        false
+      ]
+    },
+    {
+      "id": 95,
+      "pos": [320, 390],
+      "mode": 0,
+      "size": [315, 256],
+      "type": "OptimizerConfig",
+      "flags": {},
+      "order": 10,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "optimizer_settings",
+          "type": "ARGS",
+          "label": null,
+          "links": [180],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "OptimizerConfig"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["CAME", 1, "constant", 0, 1, 1, 5, ""]
+    },
+    {
+      "id": 114,
+      "pos": [320, 690],
+      "mode": 0,
+      "size": [315, 328],
+      "type": "OptimizerConfigAdafactor",
+      "flags": {},
+      "order": 11,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "optimizer_settings",
+          "type": "ARGS",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "OptimizerConfigAdafactor"
+      },
+      "showAdvanced": null,
+      "widgets_values": [1, "constant", 0, 1, 1, false, false, false, 1, 5, ""]
+    },
+    {
+      "id": 133,
+      "pos": [5870, 492],
+      "mode": 0,
+      "size": [317.4000244140625, 98],
+      "type": "FluxTrainEnd",
+      "color": "#322",
+      "flags": {},
+      "order": 61,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 229,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "lora_name",
+          "type": "STRING",
+          "label": null,
+          "links": [231],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "metadata",
+          "type": "STRING",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "lora_path",
+          "type": "STRING",
+          "label": null,
+          "links": [230],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainEnd"
+      },
+      "showAdvanced": null,
+      "widgets_values": [false]
+    },
+    {
+      "id": 2,
+      "pos": [250, 50],
+      "mode": 0,
+      "size": [430, 130],
+      "type": "FluxTrainModelSelect",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "lora_path",
+          "type": "STRING",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "flux_models",
+          "type": "TRAIN_FLUX_MODELS",
+          "label": null,
+          "links": [179],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainModelSelect"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux/kijai/flux1-dev-fp8.safetensors",
+        "flux/ae.sft",
+        "sd3m/clip_l.safetensors",
+        "t5/google_t5-v1_1-xxl_encoderonly-fp8_e4m3fn.safetensors"
+      ]
+    },
+    {
+      "id": 98,
+      "pos": [1680, -340],
+      "mode": 0,
+      "size": [645.9608764648438, 439.37261962890625],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 33,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 161,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["flux_lora_loss_plot"]
+    },
+    {
+      "id": 100,
+      "pos": [2990, -340],
+      "mode": 0,
+      "size": [574.23046875, 414.46881103515625],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 42,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 163,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["flux_lora_loss_plot"]
+    },
+    {
+      "id": 88,
+      "pos": [1140, 80],
+      "mode": 0,
+      "size": [210, 88],
+      "type": "Display Any (rgthree)",
+      "flags": {},
+      "order": 28,
+      "title": "Number of epochs",
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 182,
+          "name": "source",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "1.0.2506081210",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Display Any (rgthree)"
+      },
+      "showAdvanced": null,
+      "widgets_values": [""]
+    },
+    {
+      "id": 4,
+      "pos": [1519, 256],
+      "mode": 0,
+      "size": [393, 78],
+      "type": "FluxTrainLoop",
+      "color": "#232",
+      "flags": {},
+      "order": 27,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 181,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [162, 218],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [220],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainLoop"
+      },
+      "showAdvanced": null,
+      "widgets_values": [250]
+    },
+    {
+      "id": 44,
+      "pos": [2630, 330.6595153808594],
+      "mode": 0,
+      "size": [393, 78],
+      "type": "FluxTrainLoop",
+      "color": "#232",
+      "flags": {},
+      "order": 35,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 219,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [164, 222],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [235],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainLoop"
+      },
+      "showAdvanced": null,
+      "widgets_values": [250]
+    },
+    {
+      "id": 59,
+      "pos": [3700, 330],
+      "mode": 4,
+      "size": [393, 78],
+      "type": "FluxTrainLoop",
+      "color": "#232",
+      "flags": {},
+      "order": 44,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 223,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [166, 224],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [234],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainLoop"
+      },
+      "showAdvanced": null,
+      "widgets_values": [250]
+    },
+    {
+      "id": 64,
+      "pos": [4770, 330],
+      "mode": 4,
+      "size": [393, 78],
+      "type": "FluxTrainLoop",
+      "color": "#232",
+      "flags": {},
+      "order": 53,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 226,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [232],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "steps",
+          "type": "INT",
+          "label": null,
+          "links": [215],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "FluxTrainLoop"
+      },
+      "showAdvanced": null,
+      "widgets_values": [250]
+    },
+    {
+      "id": 90,
+      "pos": [5050, -340],
+      "mode": 4,
+      "size": [574.23046875, 414.46881103515625],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 64,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 138,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["flux_lora_loss_plot"]
+    },
+    {
+      "id": 70,
+      "pos": [5140, -660],
+      "mode": 4,
+      "size": [254.40000915527344, 198],
+      "type": "VisualizeLoss",
+      "flags": {},
+      "order": 60,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 217,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "plot",
+          "type": "IMAGE",
+          "label": null,
+          "links": [138],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loss_list",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "VisualizeLoss"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["ggplot", 1000, true, 768, 512, false]
+    },
+    {
+      "id": 102,
+      "pos": [4080, -340],
+      "mode": 4,
+      "size": [574.23046875, 414.46881103515625],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 51,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 165,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["flux_lora_loss_plot"]
+    },
+    {
+      "id": 101,
+      "pos": [4090, -650],
+      "mode": 4,
+      "size": [254.40000915527344, 198],
+      "type": "VisualizeLoss",
+      "flags": {},
+      "order": 47,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 166,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "plot",
+          "type": "IMAGE",
+          "label": null,
+          "links": [165],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loss_list",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "VisualizeLoss"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "seaborn-v0_8-dark-palette",
+        100,
+        true,
+        768,
+        512,
+        false
+      ]
+    },
+    {
+      "id": 73,
+      "pos": [6270, 660],
+      "mode": 2,
+      "size": [210, 88],
+      "type": "Display Any (rgthree)",
+      "flags": {},
+      "order": 69,
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 136,
+          "name": "source",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "1.0.2506081210",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Display Any (rgthree)"
+      },
+      "showAdvanced": null,
+      "widgets_values": [""]
+    },
+    {
+      "id": 126,
+      "pos": [6529, 499],
+      "mode": 0,
+      "size": [210, 58],
+      "type": "GetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 13,
+      "title": "Get_Sampler3",
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": ["Sampler3"]
+    },
+    {
+      "id": 119,
+      "pos": [6710, 400],
+      "mode": 0,
+      "size": [210, 142],
+      "type": "ImageBatchMulti",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 202,
+          "name": "image_1",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 203,
+          "name": "image_2",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "image_3",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "image_4",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "links": [195],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.1.1",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "ImageBatchMulti"
+      },
+      "showAdvanced": null,
+      "widgets_values": [2, null]
+    },
+    {
+      "id": 105,
+      "pos": [240, -780],
+      "mode": 0,
+      "size": [1073.7608642578125, 492.8503112792969],
+      "type": "Display Any (rgthree)",
+      "flags": {},
+      "order": 29,
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 183,
+          "name": "source",
+          "type": "*",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "1.0.2506081210",
+        "cnr_id": "rgthree-comfy",
+        "Node name for S&R": "Display Any (rgthree)"
+      },
+      "showAdvanced": null,
+      "widgets_values": [""]
+    },
+    {
+      "id": 97,
+      "pos": [1690, -600],
+      "mode": 0,
+      "size": [303.6300048828125, 198],
+      "type": "VisualizeLoss",
+      "flags": {},
+      "order": 30,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 162,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "plot",
+          "type": "IMAGE",
+          "label": null,
+          "links": [161],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "loss_list",
+          "type": "FLOAT",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "VisualizeLoss"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "seaborn-v0_8-dark-palette",
+        100,
+        true,
+        768,
+        512,
+        false
+      ]
+    },
+    {
+      "id": 131,
+      "pos": [261, -863],
+      "mode": 0,
+      "size": [210, 88],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 14,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": ["sanity check that all the args are chosen correctly"]
+    },
+    {
+      "id": 111,
+      "pos": [-470, 270],
+      "mode": 4,
+      "size": [267.5897521972656, 354],
+      "type": "TrainDatasetAdd",
+      "flags": {},
+      "order": 24,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 187,
+          "name": "dataset_config",
+          "type": "JSON",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "regularization",
+          "type": "JSON",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "dataset",
+          "type": "JSON",
+          "label": null,
+          "links": [188],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "TrainDatasetAdd"
+      },
+      "showAdvanced": null,
+      "widgets_values": [768, 768, 1, "", "", true, false, 1, 256, 1024]
+    },
+    {
+      "id": 109,
+      "pos": [-770, 270],
+      "mode": 4,
+      "size": [281.5897521972656, 354],
+      "type": "TrainDatasetAdd",
+      "flags": {},
+      "order": 22,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 185,
+          "name": "dataset_config",
+          "type": "JSON",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "regularization",
+          "type": "JSON",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "dataset",
+          "type": "JSON",
+          "label": null,
+          "links": [187],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "TrainDatasetAdd"
+      },
+      "showAdvanced": null,
+      "widgets_values": [512, 512, 1, "", "", true, false, 1, 256, 1024]
+    },
+    {
+      "id": 108,
+      "pos": [-1137, 44],
+      "mode": 0,
+      "size": [315, 202],
+      "type": "TrainDatasetGeneralConfig",
+      "flags": {},
+      "order": 15,
+      "inputs": [],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "dataset_general",
+          "type": "JSON",
+          "label": null,
+          "links": [185],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "TrainDatasetGeneralConfig"
+      },
+      "showAdvanced": null,
+      "widgets_values": [false, false, false, 0, false, false, ".txt"]
+    },
+    {
+      "id": 113,
+      "pos": [-772, 43],
+      "mode": 0,
+      "size": [511.0753173828125, 168.7640838623047],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 16,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "For multiresolution training, input same source directory with different dataset resolution. From what I hear, Flux likes multiple resolutions.\n\nFor single resolution training, just add single dataset."
+      ]
+    },
+    {
+      "id": 107,
+      "pos": [784, 560],
+      "mode": 0,
+      "size": [449.94586181640625, 934],
+      "type": "InitFluxLoRATraining",
+      "flags": {},
+      "order": 26,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 179,
+          "name": "flux_models",
+          "type": "TRAIN_FLUX_MODELS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 189,
+          "name": "dataset",
+          "type": "JSON",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 180,
+          "name": "optimizer_settings",
+          "type": "ARGS",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "resume_args",
+          "type": "ARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "block_args",
+          "type": "ARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "loss_args",
+          "type": "ARGS",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "network_config",
+          "type": "NETWORK_CONFIG",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "network_trainer",
+          "type": "NETWORKTRAINER",
+          "label": null,
+          "links": [181],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "epochs_count",
+          "type": "INT",
+          "label": null,
+          "links": [182],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "args",
+          "type": "KOHYA_ARGS",
+          "label": null,
+          "links": [183],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "InitFluxLoRATraining"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux_lora_file",
+        "output/flux_lora",
+        16,
+        1,
+        0.0004,
+        1000,
+        true,
+        "disk",
+        "disk",
+        false,
+        "logit_normal",
+        0,
+        1,
+        1.29,
+        "shift",
+        1,
+        "raw",
+        1,
+        3.1582000000000003,
+        false,
+        true,
+        "bf16",
+        "bf16",
+        "sdpa",
+        "high quality, a girl in her twenties, shoulder-length straight pink hair, solo, half-body",
+        "",
+        "disabled",
+        0,
+        0,
+        "enabled"
+      ]
+    },
+    {
+      "id": 136,
+      "pos": [791, 389],
+      "mode": 0,
+      "size": [437.9247131347656, 125.05298614501953],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 17,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "output dir:\n\nOn the RunComfy platform, you can choose output/{file_name} as the location for your output. \n\nOnce the training is complete, you will be able to view it in the file browser."
+      ]
+    },
+    {
+      "id": 135,
+      "pos": [-194, 39],
+      "mode": 0,
+      "size": [325.83026123046875, 176.38719177246094],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 18,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {
+        "text": ""
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "🌟🌟🌟 IMPORTANT 🌟🌟🌟\n\nDataset Path:\nWhen using RunComfy’s file browser, place the training data in the input/{file-name} directory.\n\nClass Token:\nIf your dataset benefits from using specific class tokens or trigger words, you can enter them in the `class_tokens` parameter."
+      ]
+    },
+    {
+      "id": 112,
+      "pos": [-170, 270],
+      "mode": 0,
+      "size": [259.5897521972656, 354],
+      "type": "TrainDatasetAdd",
+      "flags": {},
+      "order": 25,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 188,
+          "name": "dataset_config",
+          "type": "JSON",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "regularization",
+          "type": "JSON",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "dataset",
+          "type": "JSON",
+          "label": null,
+          "links": [189],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "1.0.2",
+        "cnr_id": "comfyui-fluxtrainer",
+        "Node name for S&R": "TrainDatasetAdd"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1024,
+        1024,
+        1,
+        "input/runcomfy-flux-lora-training-example",
+        "",
+        false,
+        false,
+        1,
+        256,
+        1024
+      ]
+    },
+    {
+      "id": 130,
+      "pos": [7000, 300],
+      "mode": 0,
+      "size": [619.8221435546875, 714.4110107421875],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 68,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 214,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["flux_lora_image"]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Train_01",
+      "bounding": [1439, 120, 1111, 1091],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#b06634",
+      "flags": {},
+      "title": "Settings and init",
+      "bounding": [200, -190, 1217, 1685],
+      "font_size": 24
+    },
+    {
+      "id": 3,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Train_02",
+      "bounding": [2602, 125, 1036, 1086],
+      "font_size": 24
+    },
+    {
+      "id": 4,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Train_03",
+      "bounding": [3681, 128, 1045, 1081],
+      "font_size": 24
+    },
+    {
+      "id": 5,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Train_04",
+      "bounding": [4753, 127, 1002, 1083],
+      "font_size": 24
+    },
+    {
+      "id": 6,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Dataset",
+      "bounding": [-1160, -200, 1312, 853],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 236,
+  "last_node_id": 136,
+  "floatingLinks": null
+}

@@ -1,0 +1,761 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.5559917313492295,
+      "offset": {
+        "0": 1126.658748265396,
+        "1": 298.08655238659065
+      }
+    }
+  },
+  "links": [
+    [
+      1,
+      4,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      2,
+      5,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      5,
+      4,
+      1,
+      7,
+      0,
+      "CLIP"
+    ],
+    [
+      6,
+      7,
+      0,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      8,
+      4,
+      2,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      9,
+      8,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      10,
+      4,
+      1,
+      10,
+      0,
+      "CLIP"
+    ],
+    [
+      11,
+      10,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      13,
+      12,
+      0,
+      13,
+      0,
+      "IMAGE"
+    ],
+    [
+      14,
+      14,
+      0,
+      15,
+      0,
+      "IMAGE"
+    ],
+    [
+      15,
+      13,
+      0,
+      16,
+      0,
+      "IMAGE"
+    ],
+    [
+      16,
+      15,
+      0,
+      16,
+      1,
+      "IMAGE"
+    ],
+    [
+      17,
+      16,
+      0,
+      10,
+      2,
+      "IMAGE"
+    ],
+    [
+      18,
+      17,
+      0,
+      10,
+      1,
+      "PHOTOMAKER"
+    ],
+    [
+      19,
+      18,
+      0,
+      10,
+      3,
+      "INSIGHTFACE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 15,
+      "pos": [
+        -619.5472399902347,
+        376.5354837074281
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "PrepImageForClipVision",
+      "color": "#232",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 14,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            16
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PrepImageForClipVision"
+      },
+      "widgets_values": [
+        "LANCZOS",
+        "center",
+        0
+      ]
+    },
+    {
+      "id": 13,
+      "pos": [
+        -616.5472399902347,
+        2.535483707427989
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "PrepImageForClipVision",
+      "color": "#232",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 13,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            15
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PrepImageForClipVision"
+      },
+      "widgets_values": [
+        "LANCZOS",
+        "center",
+        0
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        -260.5472399902343,
+        167.5354837074279
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        46
+      ],
+      "type": "ImageBatch",
+      "color": "#232",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 15,
+          "name": "image1",
+          "type": "IMAGE"
+        },
+        {
+          "link": 16,
+          "name": "image2",
+          "type": "IMAGE"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            17
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageBatch"
+      }
+    },
+    {
+      "id": 7,
+      "pos": [
+        412,
+        385
+      ],
+      "mode": 0,
+      "size": [
+        414.8550109863281,
+        132.65277099609375
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#322",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 5,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        "text, watermark"
+      ]
+    },
+    {
+      "id": 5,
+      "pos": [
+        511,
+        578
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "EmptyLatentImage",
+      "color": "#323",
+      "flags": {},
+      "order": 0,
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        1265,
+        180
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        46
+      ],
+      "type": "VAEDecode",
+      "color": "#323",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 7,
+          "name": "samples",
+          "type": "LATENT"
+        },
+        {
+          "link": 8,
+          "name": "vae",
+          "type": "VAE"
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            9
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      }
+    },
+    {
+      "id": 17,
+      "pos": [
+        34,
+        115
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        58
+      ],
+      "type": "PhotoMakerLoaderPlus",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "PHOTOMAKER",
+          "type": "PHOTOMAKER",
+          "links": [
+            18
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PhotoMakerLoaderPlus"
+      },
+      "widgets_values": [
+        "photomaker-v2.bin"
+      ]
+    },
+    {
+      "id": 18,
+      "pos": [
+        36,
+        259
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        58
+      ],
+      "type": "PhotoMakerInsightFaceLoader",
+      "flags": {},
+      "order": 2,
+      "outputs": [
+        {
+          "name": "INSIGHTFACE",
+          "type": "INSIGHTFACE",
+          "links": [
+            19
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PhotoMakerInsightFaceLoader"
+      },
+      "widgets_values": [
+        "CPU"
+      ]
+    },
+    {
+      "id": 14,
+      "pos": [
+        -992.5472399902343,
+        376.5354837074281
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#232",
+      "flags": {},
+      "order": 3,
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            14
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1109_2.png",
+        "image"
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [
+        -997.5472399902342,
+        1.5354837074279897
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#232",
+      "flags": {},
+      "order": 4,
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            13
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1109_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 4,
+      "pos": [
+        45,
+        389
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        98
+      ],
+      "type": "CheckpointLoaderSimple",
+      "color": "#233",
+      "flags": {},
+      "order": 5,
+      "bgcolor": "#355",
+      "outputs": [
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            5,
+            10
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            8
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "sdxl/protovisionXLHighFidelity3D_releaseV660Bakedvae.safetensors"
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [
+        1270,
+        292
+      ],
+      "mode": 0,
+      "size": [
+        314.4577941894531,
+        368.9012145996094
+      ],
+      "type": "SaveImage",
+      "color": "#323",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 9,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "bgcolor": "#535",
+      "properties": {
+        "Node name for S&R": "SaveImage"
+      },
+      "widgets_values": [
+        "1109"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        862.9999999860954,
+        176.00353838272093
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        262
+      ],
+      "type": "KSampler",
+      "color": "#323",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 1,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 11,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 6,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 2,
+          "name": "latent_image",
+          "type": "LATENT"
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        138001214610787,
+        "fixed",
+        30,
+        8,
+        "euler",
+        "normal",
+        1
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [
+        421.9999999860954,
+        120.00353838272095
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "PhotoMakerEncodePlus",
+      "color": "#232",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 10,
+          "name": "clip",
+          "type": "CLIP"
+        },
+        {
+          "link": 18,
+          "name": "photomaker",
+          "type": "PHOTOMAKER",
+          "slot_index": 1
+        },
+        {
+          "link": 17,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 19,
+          "name": "insightface_opt",
+          "type": "INSIGHTFACE"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            11
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PhotoMakerEncodePlus"
+      },
+      "widgets_values": [
+        "img",
+        "An img of an attractive woman, happy, smiling"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#3f789e",
+      "title": "Group",
+      "bounding": [
+        7,
+        14,
+        1645,
+        679
+      ],
+      "font_size": 24
+    },
+    {
+      "color": "#8A8",
+      "title": "Group",
+      "bounding": [
+        -1008,
+        -72,
+        967,
+        773
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 19,
+  "last_node_id": 18
+}

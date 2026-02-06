@@ -51,10 +51,6 @@
     "vitest.config.ts",
     "**/*.test.ts",
     "**/*.spec.ts",
-    "**/test/**/*",
-    "**/__tests__/**/*",
-    "**/mocks/**/*",
-    "lib/test/**/*",
-    "src/test/**/*"
+    "lib/test/**/*"
   ]
 }

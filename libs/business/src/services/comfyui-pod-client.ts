@@ -128,9 +128,12 @@ export class ComfyUIPodClient {
   async getJobStatus(promptId: string): Promise<ComfyUIJobResult> {
     // Use error handler for retry logic if available
     if (this.errorHandler) {
-      return this.errorHandler.executeWithRetry(async () => {
-        return this.getJobStatusInternal(promptId);
-      }, this.baseUrl);
+      return this.errorHandler.executeWithRetry(
+        async () => {
+          return this.getJobStatusInternal(promptId);
+        },
+        this.baseUrl
+      );
     }
 
     return this.getJobStatusInternal(promptId);
@@ -139,9 +142,7 @@ export class ComfyUIPodClient {
   /**
    * Internal method to get job status (without retry)
    */
-  private async getJobStatusInternal(
-    promptId: string
-  ): Promise<ComfyUIJobResult> {
+  private async getJobStatusInternal(promptId: string): Promise<ComfyUIJobResult> {
     const response = await fetch(`${this.baseUrl}/history/${promptId}`, {
       signal: AbortSignal.timeout(10000), // 10 second timeout
     });
@@ -151,15 +152,10 @@ export class ComfyUIPodClient {
       if (response.status === 404) {
         return { promptId, status: 'processing' };
       }
-      throw new Error(
-        `ComfyUI history error: ${response.status} ${response.statusText}`
-      );
+      throw new Error(`ComfyUI history error: ${response.status} ${response.statusText}`);
     }
 
-    const history = (await response.json()) as Record<
-      string,
-      ComfyUIHistoryItem
-    >;
+    const history = (await response.json()) as Record<string, ComfyUIHistoryItem>;
     const item = history[promptId];
 
     if (!item) {
@@ -249,9 +245,7 @@ export class ComfyUIPodClient {
   ): Promise<ComfyUIJobResult> {
     if (!this.websocketClient) {
       // Fallback to polling if WebSocket client not available
-      console.warn(
-        'WebSocket client not available, falling back to REST polling'
-      );
+      console.warn('WebSocket client not available, falling back to REST polling');
       return this.executeWorkflowPolling(workflow, 2000);
     }
 
@@ -278,9 +272,7 @@ export class ComfyUIPodClient {
         const timeoutId = setTimeout(() => {
           this.websocketClient?.disconnect(clientId);
           // Fallback to polling if WebSocket times out
-          console.warn(
-            `WebSocket timeout for prompt ${promptId}, falling back to polling`
-          );
+          console.warn(`WebSocket timeout for prompt ${promptId}, falling back to polling`);
           this.executeWorkflowPolling(workflow, 2000)
             .then(resolve)
             .catch(reject);
@@ -289,7 +281,7 @@ export class ComfyUIPodClient {
         // Register completion handler
         this.websocketClient!.onCompletion(promptId, async (result) => {
           clearTimeout(timeoutId);
-
+          
           // Fetch final job status to get images (WebSocket doesn't download images)
           try {
             const finalResult = await this.getJobStatus(promptId);
@@ -297,9 +289,7 @@ export class ComfyUIPodClient {
             resolve(finalResult);
           } catch (error) {
             // If getJobStatus fails, return the WebSocket result without images
-            console.warn(
-              `Failed to fetch final job status for ${promptId}: ${error}`
-            );
+            console.warn(`Failed to fetch final job status for ${promptId}: ${error}`);
             this.websocketClient?.disconnect(clientId);
             resolve(result);
           }
@@ -317,9 +307,7 @@ export class ComfyUIPodClient {
         });
       });
     } catch (error) {
-      console.warn(
-        `WebSocket execution failed, falling back to REST polling: ${error}`
-      );
+      console.warn(`WebSocket execution failed, falling back to REST polling: ${error}`);
       return this.executeWorkflowPolling(workflow, 2000);
     }
   }
@@ -372,9 +360,7 @@ export class ComfyUIPodClient {
       try {
         return await this.executeWorkflowWithWebSocket(workflow, onProgress);
       } catch (error) {
-        console.warn(
-          `WebSocket execution failed, falling back to polling: ${error}`
-        );
+        console.warn(`WebSocket execution failed, falling back to polling: ${error}`);
         // Continue to polling fallback
       }
     }
@@ -414,7 +400,7 @@ export class ComfyUIPodClient {
         if (response.status === 404) {
           console.warn(
             `[ComfyUI] Pod not available at ${this.baseUrl}/object_info (404 Not Found). ` +
-              `ComfyUI features will be disabled until pod is started.`
+            `ComfyUI features will be disabled until pod is started.`
           );
         } else {
           console.warn(
@@ -428,15 +414,11 @@ export class ComfyUIPodClient {
       return Object.keys(data);
     } catch (error) {
       // Handle network errors, timeouts, etc.
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      if (
-        errorMessage.includes('timeout') ||
-        errorMessage.includes('aborted')
-      ) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      if (errorMessage.includes('timeout') || errorMessage.includes('aborted')) {
         console.warn(
           `[ComfyUI] Timeout connecting to pod at ${this.baseUrl}. ` +
-            `ComfyUI features will be disabled until pod is available.`
+          `ComfyUI features will be disabled until pod is available.`
         );
       } else {
         console.warn(
@@ -458,11 +440,7 @@ export class ComfyUIPodClient {
     const formData = new FormData();
     // Node's Buffer type can be incompatible with BlobPart typing in TS.
     // Convert to Uint8Array for a stable BlobPart.
-    formData.append(
-      'image',
-      new Blob([new Uint8Array(imageBuffer)], { type: 'image/png' }),
-      filename
-    );
+    formData.append('image', new Blob([new Uint8Array(imageBuffer)], { type: 'image/png' }), filename);
     formData.append('subfolder', '');
     formData.append('type', 'input');
 
@@ -490,17 +468,14 @@ export class ComfyUIPodClient {
     diffusion: string[];
     textEncoders: string[];
   }> {
-    const response = await fetch(
-      `${this.baseUrl}/object_info/CheckpointLoaderSimple`
-    );
+    const response = await fetch(`${this.baseUrl}/object_info/CheckpointLoaderSimple`);
 
     if (!response.ok) {
       throw new Error(`Failed to get models: ${response.statusText}`);
     }
 
     const data = await response.json();
-    const checkpoints =
-      data.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
+    const checkpoints = data.CheckpointLoaderSimple?.input?.required?.ckpt_name?.[0] || [];
 
     // Get LoRAs
     const loraResponse = await fetch(`${this.baseUrl}/object_info/LoraLoader`);
@@ -515,14 +490,12 @@ export class ComfyUIPodClient {
     // Get diffusion models (UNETs)
     const unetResponse = await fetch(`${this.baseUrl}/object_info/UNETLoader`);
     const unetData = await unetResponse.json();
-    const diffusion =
-      unetData.UNETLoader?.input?.required?.unet_name?.[0] || [];
+    const diffusion = unetData.UNETLoader?.input?.required?.unet_name?.[0] || [];
 
     // Get text encoders (CLIPs)
     const clipResponse = await fetch(`${this.baseUrl}/object_info/CLIPLoader`);
     const clipData = await clipResponse.json();
-    const textEncoders =
-      clipData.CLIPLoader?.input?.required?.clip_name?.[0] || [];
+    const textEncoders = clipData.CLIPLoader?.input?.required?.clip_name?.[0] || [];
 
     return { checkpoints, loras, vaes, diffusion, textEncoders };
   }
@@ -541,3 +514,4 @@ export function createComfyUIPodClient(): ComfyUIPodClient {
 
   return new ComfyUIPodClient({ baseUrl });
 }
+

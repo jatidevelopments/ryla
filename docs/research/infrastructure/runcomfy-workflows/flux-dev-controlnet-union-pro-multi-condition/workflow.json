@@ -1,0 +1,2545 @@
+{
+  "id": "23520d72-a4e4-4ab9-84a9-b285565b4285",
+  "extra": {
+    "ds": {
+      "scale": 0.3186308177103567,
+      "offset": [
+        284.17146057339596,
+        75.14554857280024
+      ]
+    },
+    "reroutes": null,
+    "frontendVersion": "1.18.9",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      7,
+      3,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      9,
+      8,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ],
+    [
+      10,
+      10,
+      0,
+      3,
+      3,
+      "LATENT"
+    ],
+    [
+      11,
+      6,
+      0,
+      11,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      56,
+      31,
+      0,
+      47,
+      3,
+      "IMAGE"
+    ],
+    [
+      93,
+      78,
+      0,
+      74,
+      0,
+      "IMAGE"
+    ],
+    [
+      99,
+      31,
+      0,
+      32,
+      0,
+      "IMAGE"
+    ],
+    [
+      100,
+      48,
+      0,
+      84,
+      0,
+      "CONTROL_NET"
+    ],
+    [
+      101,
+      84,
+      0,
+      47,
+      2,
+      "CONTROL_NET"
+    ],
+    [
+      110,
+      91,
+      1,
+      10,
+      0,
+      "INT"
+    ],
+    [
+      111,
+      91,
+      2,
+      10,
+      1,
+      "INT"
+    ],
+    [
+      113,
+      93,
+      0,
+      6,
+      0,
+      "CLIP"
+    ],
+    [
+      114,
+      93,
+      0,
+      7,
+      0,
+      "CLIP"
+    ],
+    [
+      120,
+      97,
+      0,
+      3,
+      0,
+      "MODEL"
+    ],
+    [
+      121,
+      27,
+      0,
+      98,
+      0,
+      "*"
+    ],
+    [
+      122,
+      99,
+      0,
+      47,
+      4,
+      "VAE"
+    ],
+    [
+      123,
+      100,
+      0,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      125,
+      101,
+      2,
+      31,
+      1,
+      "INT"
+    ],
+    [
+      126,
+      74,
+      0,
+      102,
+      0,
+      "*"
+    ],
+    [
+      127,
+      103,
+      0,
+      101,
+      0,
+      "IMAGE"
+    ],
+    [
+      128,
+      103,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      129,
+      104,
+      0,
+      91,
+      0,
+      "IMAGE"
+    ],
+    [
+      132,
+      108,
+      0,
+      47,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      133,
+      107,
+      0,
+      47,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      138,
+      88,
+      0,
+      95,
+      0,
+      "MODEL"
+    ],
+    [
+      141,
+      112,
+      0,
+      95,
+      1,
+      "CLIP"
+    ],
+    [
+      150,
+      7,
+      0,
+      105,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      151,
+      11,
+      0,
+      106,
+      0,
+      "CONDITIONING"
+    ],
+    [
+      152,
+      47,
+      0,
+      3,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      153,
+      47,
+      1,
+      3,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      154,
+      95,
+      0,
+      96,
+      0,
+      "MODEL"
+    ],
+    [
+      155,
+      95,
+      1,
+      92,
+      0,
+      "CLIP"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 93,
+      "pos": [
+        -460,
+        310
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        60
+      ],
+      "type": "GetNode",
+      "color": "#432",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 0,
+      "title": "Get_Clip",
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            113,
+            114
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Clip"
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        3020,
+        100
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        46
+      ],
+      "type": "VAEDecode",
+      "color": "#222",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 33,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 7,
+          "name": "samples",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 123,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#000",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            9
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 100,
+      "pos": [
+        3030,
+        50
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "GetNode",
+      "color": "#222",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 1,
+      "title": "Get_Vae",
+      "inputs": [],
+      "bgcolor": "#000",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            123
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Vae"
+      ]
+    },
+    {
+      "id": 91,
+      "pos": [
+        2440,
+        350
+      ],
+      "mode": 0,
+      "size": [
+        277.20001220703125,
+        86
+      ],
+      "type": "GetImageSizeAndCount",
+      "color": "#222",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 16,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 129,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#000",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": "1024 width",
+          "links": [
+            110
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": "1024 height",
+          "links": [
+            111
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": "1 count",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "07b804cb3ff3b3eb8d2c5fdadd62d0822bebe4e8",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 104,
+      "pos": [
+        2470,
+        410
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "GetNode",
+      "color": "#222",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 2,
+      "title": "Get_Image",
+      "inputs": [],
+      "bgcolor": "#000",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            129
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Image"
+      ]
+    },
+    {
+      "id": 101,
+      "pos": [
+        1420,
+        160
+      ],
+      "mode": 0,
+      "size": [
+        277.20001220703125,
+        86
+      ],
+      "type": "GetImageSizeAndCount",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 17,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 127,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "width",
+          "type": "INT",
+          "label": "1024 width",
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "height",
+          "type": "INT",
+          "label": "1024 height",
+          "links": [
+            125
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "count",
+          "type": "INT",
+          "label": "1 count",
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "07b804cb3ff3b3eb8d2c5fdadd62d0822bebe4e8",
+        "cnr_id": "comfyui-kjnodes",
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 103,
+      "pos": [
+        1420,
+        120
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "GetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 3,
+      "title": "Get_Image",
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            127,
+            128
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Image"
+      ]
+    },
+    {
+      "id": 99,
+      "pos": [
+        1920,
+        110
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "GetNode",
+      "color": "#222",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 4,
+      "title": "Get_Vae",
+      "inputs": [],
+      "bgcolor": "#000",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            122
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Vae"
+      ]
+    },
+    {
+      "id": 97,
+      "pos": [
+        2670,
+        20
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "GetNode",
+      "color": "#223",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 5,
+      "title": "Get_Model",
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            120
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Model"
+      ]
+    },
+    {
+      "id": 102,
+      "pos": [
+        1210,
+        340
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "SetNode",
+      "color": "#2a363b",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 26,
+      "title": "Set_Image",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 126,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Image"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Image"
+      ]
+    },
+    {
+      "id": 74,
+      "pos": [
+        1080,
+        190
+      ],
+      "mode": 0,
+      "size": [
+        226.8000030517578,
+        83.0844955444336
+      ],
+      "type": "ImageScaleToTotalPixels",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 93,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            126
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ImageScaleToTotalPixels"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "nearest-exact",
+        1
+      ]
+    },
+    {
+      "id": 32,
+      "pos": [
+        1480,
+        340
+      ],
+      "mode": 0,
+      "size": [
+        263.3109130859375,
+        306.7424621582031
+      ],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 31,
+      "title": "Preprocessor Preview",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 99,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 9,
+      "pos": [
+        3260,
+        70
+      ],
+      "mode": 0,
+      "size": [
+        451.0457458496094,
+        553.6652221679688
+      ],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 34,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 9,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SaveImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ComfyUI"
+      ]
+    },
+    {
+      "id": 10,
+      "pos": [
+        2430,
+        190
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        106
+      ],
+      "type": "EmptySD3LatentImage",
+      "color": "#323",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 24,
+      "title": "Empty Latent",
+      "inputs": [
+        {
+          "dir": null,
+          "link": 110,
+          "name": "width",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "width"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 111,
+          "name": "height",
+          "type": "INT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "height"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            10
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "EmptySD3LatentImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 98,
+      "pos": [
+        -760,
+        720
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "SetNode",
+      "color": "#322",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 18,
+      "title": "Set_Vae",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 121,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Vae"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Vae"
+      ]
+    },
+    {
+      "id": 27,
+      "pos": [
+        -970,
+        600
+      ],
+      "mode": 0,
+      "size": [
+        325.085693359375,
+        68.10101318359375
+      ],
+      "type": "VAELoader",
+      "color": "#322",
+      "flags": {},
+      "order": 6,
+      "inputs": [],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            121
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "VAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "flux/ae.safetensors"
+      ]
+    },
+    {
+      "id": 78,
+      "pos": [
+        720,
+        190
+      ],
+      "mode": 0,
+      "size": [
+        315.8743896484375,
+        423.7917175292969
+      ],
+      "type": "LoadImage",
+      "color": "#39885b",
+      "flags": {},
+      "order": 7,
+      "inputs": [],
+      "bgcolor": "#257447",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            93
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Runcomfy_Example_1230.webp",
+        "image"
+      ]
+    },
+    {
+      "id": 96,
+      "pos": [
+        -728.75,
+        137.5
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "SetNode",
+      "color": "#223",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 27,
+      "title": "Set_Model",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 154,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Model"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Model"
+      ]
+    },
+    {
+      "id": 92,
+      "pos": [
+        -725,
+        193.75
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        60
+      ],
+      "type": "SetNode",
+      "color": "#432",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 28,
+      "title": "Set_Clip",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 155,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#653",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Clip"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Clip"
+      ]
+    },
+    {
+      "id": 88,
+      "pos": [
+        -1556.0858154296875,
+        50.46481704711914
+      ],
+      "mode": 0,
+      "size": [
+        323.9044494628906,
+        82
+      ],
+      "type": "UNETLoader",
+      "color": "#223",
+      "flags": {},
+      "order": 8,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            138
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.27",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "UNETLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "fluxmania_Legacy.safetensors",
+        "default"
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [
+        -220,
+        330
+      ],
+      "mode": 0,
+      "size": [
+        522.8846435546875,
+        203.38104248046875
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#322",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 15,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 114,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            150
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        ""
+      ]
+    },
+    {
+      "id": 105,
+      "pos": [
+        349.5455322265625,
+        550.6817016601562
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "SetNode",
+      "color": "#332922",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 23,
+      "title": "Set_Prompt_Neg",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 150,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Prompt_Neg"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Prompt_Neg"
+      ]
+    },
+    {
+      "id": 106,
+      "pos": [
+        371.3634338378906,
+        240.2274932861328
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "SetNode",
+      "color": "#332922",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 29,
+      "title": "Set_Prompt_Pos",
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 151,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "*",
+          "type": "*",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "previousName": "Prompt_Pos"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Prompt_Pos"
+      ]
+    },
+    {
+      "id": 108,
+      "pos": [
+        1925.1031494140625,
+        66.09505462646484
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "GetNode",
+      "color": "#332922",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 9,
+      "title": "Get_Prompt_Neg",
+      "inputs": [],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            132
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Prompt_Neg"
+      ]
+    },
+    {
+      "id": 107,
+      "pos": [
+        1924.1041259765625,
+        26.704547882080078
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        58
+      ],
+      "type": "GetNode",
+      "color": "#332922",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 10,
+      "title": "Get_Prompt_Pos",
+      "inputs": [],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            133
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Prompt_Pos"
+      ]
+    },
+    {
+      "id": 26,
+      "pos": [
+        -1557.03955078125,
+        410.14593505859375
+      ],
+      "mode": 4,
+      "size": [
+        325.960205078125,
+        121.46393585205078
+      ],
+      "type": "DualCLIPLoaderGGUF",
+      "color": "#223",
+      "flags": {},
+      "order": 11,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "66c50234a45b949072f8c063147211037add9030",
+        "cnr_id": "comfyui-gguf",
+        "Node name for S&R": "DualCLIPLoaderGGUF"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "t5-v1_1-xxl-encoder-Q8_0.gguf",
+        "sd3m/clip_l.safetensors",
+        "flux"
+      ]
+    },
+    {
+      "id": 11,
+      "pos": [
+        340,
+        110
+      ],
+      "mode": 0,
+      "size": [
+        211.60000610351562,
+        58
+      ],
+      "type": "FluxGuidance",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 22,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 11,
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            151
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "FluxGuidance"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        3.5
+      ]
+    },
+    {
+      "id": 95,
+      "pos": [
+        -1158.800048828125,
+        104.04447937011719
+      ],
+      "mode": 0,
+      "size": [
+        340.20001220703125,
+        166
+      ],
+      "type": "Power Lora Loader (rgthree)",
+      "color": "#223",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 138,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": 3,
+          "pos": null,
+          "link": 141,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            154
+          ],
+          "shape": 3,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": 4,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            155
+          ],
+          "shape": 3,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "ab37a0bd377a4443d04896b34a9491ddb1cb014b",
+        "cnr_id": "rgthree-comfy",
+        "Show Strengths": "Single Strength"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        {},
+        {
+          "type": "PowerLoraLoaderHeaderWidget"
+        },
+        {
+          "on": false,
+          "lora": "Flux/CPA.safetensors",
+          "strength": 1,
+          "strengthTwo": null
+        },
+        {
+          "on": true,
+          "lora": "Flux/flat_colour_anime_style_v3.4.safetensors",
+          "strength": 1,
+          "strengthTwo": null
+        },
+        {},
+        ""
+      ]
+    },
+    {
+      "id": 48,
+      "pos": [
+        1900,
+        520
+      ],
+      "mode": 0,
+      "size": [
+        398.650146484375,
+        58
+      ],
+      "type": "ControlNetLoader",
+      "color": "#4438a3",
+      "flags": {},
+      "order": 12,
+      "inputs": [],
+      "bgcolor": "#30248f",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONTROL_NET",
+          "type": "CONTROL_NET",
+          "label": null,
+          "links": [
+            100
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ControlNetLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "FLUX.1-dev-ControlNet-Union-Pro-2.0 ( FP8) .safetensors"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        2670,
+        70
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        262
+      ],
+      "type": "KSampler",
+      "flags": {},
+      "order": 32,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 120,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 152,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 153,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 10,
+          "name": "latent_image",
+          "type": "LATENT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "LATENT",
+          "type": "LATENT",
+          "label": null,
+          "links": [
+            7
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "KSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        627658380236143,
+        "fixed",
+        20,
+        1,
+        "euler",
+        "simple",
+        1
+      ]
+    },
+    {
+      "id": 84,
+      "pos": [
+        1960,
+        400
+      ],
+      "mode": 0,
+      "size": [
+        277.4180603027344,
+        58
+      ],
+      "type": "SetUnionControlNetType",
+      "color": "#332922",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 100,
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONTROL_NET",
+          "type": "CONTROL_NET",
+          "label": null,
+          "links": [
+            101
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "SetUnionControlNetType"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "canny/lineart/anime_lineart/mlsd"
+      ]
+    },
+    {
+      "id": 31,
+      "pos": [
+        1420,
+        210
+      ],
+      "mode": 0,
+      "size": [
+        374.098388671875,
+        82
+      ],
+      "type": "AIO_Preprocessor",
+      "color": "#332922",
+      "flags": {},
+      "order": 25,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 128,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 125,
+          "name": "resolution",
+          "type": "INT",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "widget": {
+            "name": "resolution"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            56,
+            99
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "83463c2e4b04e729268e57f638b4212e0da4badc",
+        "cnr_id": "comfyui_controlnet_aux",
+        "Node name for S&R": "AIO_Preprocessor"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "HEDPreprocessor",
+        1024
+      ]
+    },
+    {
+      "id": 47,
+      "pos": [
+        1930,
+        150
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        186
+      ],
+      "type": "ControlNetApplyAdvanced",
+      "color": "#332922",
+      "flags": {},
+      "order": 30,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 133,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 132,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 101,
+          "name": "control_net",
+          "type": "CONTROL_NET",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 56,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 122,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#593930",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "positive",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            152
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "negative",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            153
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "ControlNetApplyAdvanced"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        0.4900000000000001,
+        0,
+        0.4370000000000001
+      ]
+    },
+    {
+      "id": 6,
+      "pos": [
+        -220,
+        120
+      ],
+      "mode": 0,
+      "size": [
+        520.4517211914062,
+        164.31304931640625
+      ],
+      "type": "CLIPTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 113,
+          "name": "clip",
+          "type": "CLIP",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "label": null,
+          "links": [
+            11
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.30",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "2d, anime, high qaulity, Flat colour anime style image showing a cute dog, vibrant colors,  halftone blue background, flat background"
+      ]
+    },
+    {
+      "id": 112,
+      "pos": [
+        -1548.8939208984375,
+        209.6223907470703
+      ],
+      "mode": 0,
+      "size": [
+        317.8963317871094,
+        140.33058166503906
+      ],
+      "type": "DualCLIPLoader",
+      "color": "#223",
+      "flags": {},
+      "order": 13,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": [
+            141
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.33",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "DualCLIPLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "sd3m/t5xxl_fp8_e4m3fn.safetensors",
+        "clip_l.safetensors",
+        "flux",
+        "default"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#21633e",
+      "flags": {},
+      "title": "2) Prompts",
+      "bounding": [
+        -500,
+        -70,
+        1100,
+        830
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 2,
+      "color": "#443b87",
+      "flags": {},
+      "title": "1) Model",
+      "bounding": [
+        -1640,
+        -70,
+        1090,
+        830
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 3,
+      "color": "#9c8c26",
+      "flags": {},
+      "title": "3) ControlNet",
+      "bounding": [
+        650,
+        -70,
+        1690,
+        830
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 4,
+      "color": "#611b6f",
+      "flags": {},
+      "title": "4) Ksampler and Output",
+      "bounding": [
+        2390,
+        -70,
+        1360,
+        830
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 155,
+  "last_node_id": 113,
+  "floatingLinks": null
+}

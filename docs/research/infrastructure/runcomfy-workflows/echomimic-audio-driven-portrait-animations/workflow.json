@@ -1,0 +1,432 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.7513148009015778,
+      "offset": [
+        -1908.548956496426,
+        201.2081190267351
+      ]
+    }
+  },
+  "links": [
+    [
+      20,
+      3,
+      0,
+      9,
+      1,
+      "AUDIO"
+    ],
+    [
+      23,
+      1,
+      0,
+      9,
+      2,
+      "MODEL_PIPE_E"
+    ],
+    [
+      24,
+      1,
+      1,
+      9,
+      3,
+      "MODEL_FACE_E"
+    ],
+    [
+      25,
+      1,
+      2,
+      9,
+      4,
+      "MODEL_VISUAL_E"
+    ],
+    [
+      26,
+      9,
+      0,
+      5,
+      0,
+      "IMAGE"
+    ],
+    [
+      27,
+      9,
+      1,
+      5,
+      1,
+      "AUDIO"
+    ],
+    [
+      28,
+      9,
+      2,
+      5,
+      4,
+      "FLOAT"
+    ],
+    [
+      32,
+      4,
+      0,
+      9,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 5,
+      "pos": [
+        3294,
+        -18
+      ],
+      "mode": 0,
+      "size": [
+        329.955810546875,
+        330
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 26,
+          "name": "images",
+          "type": "IMAGE",
+          "shape": 7
+        },
+        {
+          "link": 27,
+          "name": "audio",
+          "type": "AUDIO",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7
+        },
+        {
+          "link": 28,
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "widget": {
+            "name": "frame_rate"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "1172_00001-audio.mp4",
+            "subfolder": "",
+            "frame_rate": 25
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1172"
+      }
+    },
+    {
+      "id": 4,
+      "pos": [
+        2038,
+        65
+      ],
+      "mode": 0,
+      "size": [
+        326.4537353515625,
+        400.65985107421875
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            32
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1172_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 3,
+      "pos": [
+        2041,
+        -125
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        124
+      ],
+      "type": "LoadAudio",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "links": [
+            20
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadAudio"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1172_2.mp3",
+        null,
+        ""
+      ]
+    },
+    {
+      "id": 1,
+      "pos": [
+        2423,
+        175
+      ],
+      "mode": 0,
+      "size": [
+        389.7275085449219,
+        242
+      ],
+      "type": "Echo_LoadModel",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL_PIPE_E",
+          "links": [
+            23
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "face_detector",
+          "type": "MODEL_FACE_E",
+          "links": [
+            24
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "visualizer",
+          "type": "MODEL_VISUAL_E",
+          "links": [
+            25
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Echo_LoadModel"
+      },
+      "widgets_values": [
+        "stabilityai/sd-vae-ft-mse",
+        true,
+        "audio_drived",
+        false,
+        false,
+        true,
+        "V2"
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        2430,
+        480
+      ],
+      "mode": 0,
+      "size": [
+        378.6166687011719,
+        135.4796600341797
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "EchoMimic v1: Realistic Audio-Driven Portrait Animations with Customizable Landmark Control\n\nEchoMimic v2: Simplified, Expressive, and Semi-Body Human Animations.(The pose synchronization code for v2 has not been implemented yet. If you choose 'None' for the pose path, the default official pose file will be used.)"
+      ]
+    },
+    {
+      "id": 9,
+      "pos": [
+        2921,
+        -20
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        494
+      ],
+      "type": "Echo_Sampler",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 32,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 20,
+          "name": "audio",
+          "type": "AUDIO"
+        },
+        {
+          "link": 23,
+          "name": "model",
+          "type": "MODEL_PIPE_E"
+        },
+        {
+          "link": 24,
+          "name": "face_detector",
+          "type": "MODEL_FACE_E"
+        },
+        {
+          "link": 25,
+          "name": "visualizer",
+          "type": "MODEL_VISUAL_E",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "video_images",
+          "type": "IMAGE",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [
+            26
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": [
+            27
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "links": [
+            28
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "Echo_Sampler"
+      },
+      "widgets_values": [
+        "none",
+        85172787,
+        "randomize",
+        2.5,
+        30,
+        25,
+        16000,
+        0.1,
+        0.8,
+        12,
+        3,
+        150,
+        768,
+        768,
+        false
+      ]
+    },
+    {
+      "id": 17,
+      "pos": [
+        2917,
+        540
+      ],
+      "mode": 0,
+      "size": [
+        321.54351806640625,
+        132.60842895507812
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "widgets_values": [
+        "For a 6-second audio clip using a 2XL machine, video generation takes approximately 20 minutes.\n\nAdjust the \"fps\" and \"length\" based on your audio. For example, if your audio is 6 seconds long and the \"fps\" is set to 25, the \"length\" should be 150 frames."
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 32,
+  "last_node_id": 17
+}

@@ -1,0 +1,412 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.6830134553650714,
+      "offset": [
+        487.7340986885089,
+        323.8597449176224
+      ]
+    }
+  },
+  "links": [
+    [
+      2,
+      1,
+      0,
+      3,
+      0,
+      "HYVIDEOMODEL"
+    ],
+    [
+      4,
+      3,
+      0,
+      5,
+      1,
+      "LATENT"
+    ],
+    [
+      6,
+      7,
+      0,
+      5,
+      0,
+      "VAE"
+    ],
+    [
+      35,
+      16,
+      0,
+      30,
+      0,
+      "HYVIDTEXTENCODER"
+    ],
+    [
+      36,
+      30,
+      0,
+      3,
+      1,
+      "HYVIDEMBEDS"
+    ],
+    [
+      42,
+      5,
+      0,
+      34,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 3,
+      "pos": [
+        266,
+        -141
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "HyVideoSampler",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 2,
+          "name": "model",
+          "type": "HYVIDEOMODEL"
+        },
+        {
+          "link": 36,
+          "name": "hyvid_embeds",
+          "type": "HYVIDEMBEDS"
+        },
+        {
+          "link": null,
+          "name": "samples",
+          "type": "LATENT",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [
+            4
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        512,
+        320,
+        85,
+        30,
+        6,
+        9,
+        6,
+        "fixed",
+        1,
+        1
+      ]
+    },
+    {
+      "id": 16,
+      "pos": [
+        -312,
+        243
+      ],
+      "mode": 0,
+      "size": [
+        441,
+        154
+      ],
+      "type": "DownloadAndLoadHyVideoTextEncoder",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "hyvid_text_encoder",
+          "type": "HYVIDTEXTENCODER",
+          "links": [
+            35
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DownloadAndLoadHyVideoTextEncoder"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Kijai/llava-llama-3-8b-text-encoder-tokenizer",
+        "openai/clip-vit-large-patch14",
+        "fp16",
+        false,
+        2
+      ]
+    },
+    {
+      "id": 5,
+      "pos": [
+        651,
+        -285
+      ],
+      "mode": 0,
+      "size": [
+        345.4285888671875,
+        102
+      ],
+      "type": "HyVideoDecode",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 6,
+          "name": "vae",
+          "type": "VAE"
+        },
+        {
+          "link": 4,
+          "name": "samples",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            42
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        true,
+        8
+      ]
+    },
+    {
+      "id": 7,
+      "pos": [
+        -277,
+        -284
+      ],
+      "mode": 0,
+      "size": [
+        379.166748046875,
+        82
+      ],
+      "type": "HyVideoVAELoader",
+      "flags": {},
+      "order": 1,
+      "inputs": [
+        {
+          "link": null,
+          "name": "compile_args",
+          "type": "COMPILEARGS",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "vae",
+          "type": "VAE",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoVAELoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan_video_vae_bf16.safetensors",
+        "fp16"
+      ]
+    },
+    {
+      "id": 1,
+      "pos": [
+        -285,
+        -94
+      ],
+      "mode": 0,
+      "size": [
+        426.1773986816406,
+        174
+      ],
+      "type": "HyVideoModelLoader",
+      "flags": {},
+      "order": 2,
+      "inputs": [
+        {
+          "link": null,
+          "name": "compile_args",
+          "type": "COMPILEARGS",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "block_swap_args",
+          "type": "BLOCKSWAPARGS",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "HYVIDEOMODEL",
+          "links": [
+            2
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "hunyuan_video_720_cfgdistill_bf16.safetensors",
+        "bf16",
+        "fp8_e4m3fn",
+        "offload_device",
+        "sageattn_varlen"
+      ]
+    },
+    {
+      "id": 34,
+      "pos": [
+        657,
+        -112
+      ],
+      "mode": 0,
+      "size": [
+        580.7774658203125,
+        310
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 42,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 16,
+        "loop_count": 0,
+        "save_output": false,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "temp",
+            "format": "video/h264-mp4",
+            "filename": "1176_00003.mp4",
+            "subfolder": "",
+            "frame_rate": 16
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1176"
+      }
+    },
+    {
+      "id": 30,
+      "pos": [
+        179,
+        242
+      ],
+      "mode": 0,
+      "size": [
+        403.6325988769531,
+        213.38235473632812
+      ],
+      "type": "HyVideoTextEncode",
+      "flags": {},
+      "order": 3,
+      "inputs": [
+        {
+          "link": 35,
+          "name": "text_encoders",
+          "type": "HYVIDTEXTENCODER"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "hyvid_embeds",
+          "type": "HYVIDEMBEDS",
+          "links": [
+            36
+          ]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "HyVideoTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Wide shot: A caravan of camels winds its way through the endless golden dunes, resembling a long snake slithering across the earth. The setting sun paints the desert in deep orange hues, while the sky transitions into a gradient of purples and reds. Close-up shot: The aged guide's wrinkled fingers pick up a handful of fine sand, letting it drift away with the wind. His headscarf flutters gently in the breeze, and his weathered face is bathed in the glow of the sunset, his eyes steady and wise. Cinematic detail portrayal.",
+        "bad quality video"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 50,
+  "last_node_id": 40
+}

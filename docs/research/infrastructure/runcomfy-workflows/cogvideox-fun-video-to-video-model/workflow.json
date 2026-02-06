@@ -1,0 +1,971 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.5209868481924504,
+      "offset": [162.1277090210774, 58.398691895490515]
+    }
+  },
+  "links": [
+    [54, 20, 0, 30, 0, "CLIP"],
+    [130, 37, 0, 61, 0, "IMAGE"],
+    [183, 30, 0, 83, 1, "CONDITIONING"],
+    [184, 31, 0, 83, 2, "CONDITIONING"],
+    [186, 84, 0, 83, 0, "COGVIDEOMODEL"],
+    [188, 84, 1, 85, 0, "VAE"],
+    [189, 83, 0, 85, 1, "LATENT"],
+    [191, 84, 1, 86, 0, "VAE"],
+    [192, 61, 0, 86, 1, "IMAGE"],
+    [193, 86, 0, 83, 4, "LATENT"],
+    [194, 30, 1, 31, 0, "CLIP"],
+    [195, 72, 0, 83, 9, "INT"],
+    [204, 87, 0, 84, 1, "COGLORA"],
+    [239, 85, 0, 44, 0, "IMAGE"],
+    [251, 72, 0, 117, 2, "INT"],
+    [252, 117, 0, 116, 0, "IMAGE"],
+    [258, 72, 0, 123, 1, "INT"],
+    [267, 123, 0, 120, 0, "*"],
+    [270, 121, 0, 123, 0, "IMAGE"],
+    [272, 122, 0, 121, 0, "IMAGE"],
+    [276, 116, 0, 119, 0, "*"],
+    [277, 121, 0, 131, 0, "IMAGE"],
+    [278, 119, 0, 37, 0, "IMAGE"]
+  ],
+  "nodes": [
+    {
+      "id": 20,
+      "pos": [1029.6099853515625, 196.1041259765625],
+      "mode": 0,
+      "size": [210, 82],
+      "type": "CLIPLoader",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [54],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["sd3m/t5xxl_fp16.safetensors", "sd3"]
+    },
+    {
+      "id": 61,
+      "pos": [1449.60986328125, 1146.10400390625],
+      "mode": 0,
+      "size": [180, 90],
+      "type": "GetImageSizeAndCount",
+      "flags": {},
+      "order": 17,
+      "title": "Check Final Size",
+      "inputs": [
+        {
+          "link": 130,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [192],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "GetImageSizeAndCount"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 85,
+      "pos": [2600, 290],
+      "mode": 0,
+      "size": [320, 200],
+      "type": "CogVideoDecode",
+      "flags": {},
+      "order": 20,
+      "inputs": [
+        {
+          "link": 188,
+          "name": "vae",
+          "type": "VAE"
+        },
+        {
+          "link": 189,
+          "name": "samples",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [239, 240],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [true, 240, 360, 0.2, 0.2, true]
+    },
+    {
+      "id": 120,
+      "pos": [929.6103515625, 1046.10400390625],
+      "mode": 0,
+      "size": [75, 26],
+      "type": "Reroute",
+      "color": "#37be7f",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 267,
+          "name": "",
+          "type": "*"
+        }
+      ],
+      "bgcolor": "#4bd293",
+      "outputs": [
+        {
+          "name": "",
+          "type": "IMAGE",
+          "links": [],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 123,
+      "pos": [640, 1140],
+      "mode": 2,
+      "size": [320, 60],
+      "type": "RepeatImageBatch",
+      "flags": {
+        "collapsed": true
+      },
+      "order": 11,
+      "inputs": [
+        {
+          "link": 270,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 258,
+          "name": "amount",
+          "type": "INT",
+          "widget": {
+            "name": "amount"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [267],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RepeatImageBatch"
+      },
+      "showAdvanced": null,
+      "widgets_values": [1]
+    },
+    {
+      "id": 87,
+      "pos": [1970, 280],
+      "mode": 0,
+      "size": [320, 110],
+      "type": "CogVideoLoraSelect",
+      "color": "#752572",
+      "flags": {},
+      "order": 1,
+      "inputs": [
+        {
+          "link": null,
+          "name": "prev_lora",
+          "type": "COGLORA",
+          "shape": 7
+        }
+      ],
+      "bgcolor": "#893986",
+      "outputs": [
+        {
+          "name": "lora",
+          "type": "COGLORA",
+          "links": [204],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoLoraSelect"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["CogVideoX-Fun-V1.1-5b-InP-MPS.safetensors", 1, false]
+    },
+    {
+      "id": 121,
+      "pos": [390, 1150],
+      "mode": 2,
+      "size": [210, 174],
+      "type": "OpenposePreprocessor",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 272,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [270, 277],
+          "slot_index": 0
+        },
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "OpenposePreprocessor"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["enable", "enable", "enable", 768, "disable"]
+    },
+    {
+      "id": 131,
+      "pos": [640, 1190],
+      "mode": 2,
+      "size": [167.4006805419922, 246],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 277,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 37,
+      "pos": [1079.60986328125, 1026.10400390625],
+      "mode": 0,
+      "size": [320, 270],
+      "type": "ImageResizeKJ",
+      "color": "#3d2f84",
+      "flags": {},
+      "order": 16,
+      "inputs": [
+        {
+          "link": 278,
+          "name": "image",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "get_image_size",
+          "type": "IMAGE",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "width_input",
+          "type": "INT",
+          "widget": {
+            "name": "width_input"
+          }
+        },
+        {
+          "link": null,
+          "name": "height_input",
+          "type": "INT",
+          "widget": {
+            "name": "height_input"
+          }
+        }
+      ],
+      "bgcolor": "#514398",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [130],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "width",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "height",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ImageResizeKJ"
+      },
+      "showAdvanced": null,
+      "widgets_values": [768, 768, "lanczos", true, 16, 0, 0, "disabled"]
+    },
+    {
+      "id": 128,
+      "pos": [1079.60986328125, 1346.10400390625],
+      "mode": 0,
+      "size": [310.0125427246094, 166.04937744140625],
+      "type": "Note",
+      "color": "#4c38ae",
+      "flags": {},
+      "order": 2,
+      "title": "Video Or Single Image ",
+      "inputs": [],
+      "bgcolor": "#604cc2",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "Connect the Reroute node of the group you want to use, Video or Single Image OpenPose Image(s) into the resize node\n\n\n\nKeep Resolution - in 512 to 1024. \n768 gives the best result.\n"
+      ]
+    },
+    {
+      "id": 83,
+      "pos": [1960, 730],
+      "mode": 0,
+      "size": [320, 360],
+      "type": "CogVideoSampler",
+      "flags": {},
+      "order": 19,
+      "inputs": [
+        {
+          "link": 186,
+          "name": "model",
+          "type": "COGVIDEOMODEL"
+        },
+        {
+          "link": 183,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 184,
+          "name": "negative",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": null,
+          "name": "samples",
+          "type": "LATENT",
+          "shape": 7
+        },
+        {
+          "link": 193,
+          "name": "image_cond_latents",
+          "type": "LATENT",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "context_options",
+          "type": "COGCONTEXT",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "controlnet",
+          "type": "COGVIDECONTROLNET",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "tora_trajectory",
+          "type": "TORAFEATURES",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "fastercache",
+          "type": "FASTERCACHEARGS",
+          "shape": 7
+        },
+        {
+          "link": 195,
+          "name": "num_frames",
+          "type": "INT",
+          "widget": {
+            "name": "num_frames"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [189]
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [49, 50, 7, 0, "fixed", "Euler A", 1]
+    },
+    {
+      "id": 122,
+      "pos": [50, 1120],
+      "mode": 2,
+      "size": [320, 314],
+      "type": "LoadImage",
+      "color": "#13824e",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#279662",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [272],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["RunComfy_example_1175_2.png", "image"]
+    },
+    {
+      "id": 119,
+      "pos": [929.6103515625, 986.1044311523438],
+      "mode": 0,
+      "size": [75, 26],
+      "type": "Reroute",
+      "color": "#1078c7",
+      "flags": {},
+      "order": 15,
+      "inputs": [
+        {
+          "link": 276,
+          "name": "",
+          "type": "*"
+        }
+      ],
+      "bgcolor": "#248cdb",
+      "outputs": [
+        {
+          "name": "",
+          "type": "IMAGE",
+          "links": [278],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "horizontal": false,
+        "showOutputText": false
+      },
+      "showAdvanced": null
+    },
+    {
+      "id": 116,
+      "pos": [460, 320],
+      "mode": 0,
+      "size": [270, 180],
+      "type": "OpenposePreprocessor",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 252,
+          "name": "image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [276],
+          "slot_index": 0
+        },
+        {
+          "name": "POSE_KEYPOINT",
+          "type": "POSE_KEYPOINT",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "OpenposePreprocessor"
+      },
+      "showAdvanced": null,
+      "widgets_values": ["enable", "enable", "enable", 768, "disable"]
+    },
+    {
+      "id": 118,
+      "pos": [469, 176],
+      "mode": 0,
+      "size": [248.2517547607422, 76.41398620605469],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "bgcolor": "#653",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "If your video does not have side view or Back view, you can use the DWPose node for faster OpenPose Rendering"
+      ]
+    },
+    {
+      "id": 31,
+      "pos": [1029.6099853515625, 576.1043701171875],
+      "mode": 0,
+      "size": [560, 170],
+      "type": "CogVideoTextEncode",
+      "color": "#322",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 194,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "bgcolor": "#533",
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [184],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "The video is not of a high quality, it has a low resolution. Watermark present in each frame. Strange motion trajectory. Character is speaking, blurry, pixelated",
+        1,
+        true
+      ]
+    },
+    {
+      "id": 86,
+      "pos": [1699.6097412109375, 1166.10400390625],
+      "mode": 0,
+      "size": [320, 194],
+      "type": "CogVideoImageEncode",
+      "flags": {},
+      "order": 18,
+      "inputs": [
+        {
+          "link": 191,
+          "name": "vae",
+          "type": "VAE"
+        },
+        {
+          "link": 192,
+          "name": "start_image",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "end_image",
+          "type": "IMAGE",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "links": [193],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoImageEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [true, 0, 1, 0, 1]
+    },
+    {
+      "id": 30,
+      "pos": [1029.6099853515625, 316.1042785644531],
+      "mode": 0,
+      "size": [550, 210],
+      "type": "CogVideoTextEncode",
+      "color": "#232",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 54,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "bgcolor": "#353",
+      "outputs": [
+        {
+          "name": "conditioning",
+          "type": "CONDITIONING",
+          "links": [183],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": [194],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CogVideoTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "girl dancing in fire, fire in the background, flames, turning around ",
+        1,
+        false
+      ]
+    },
+    {
+      "id": 72,
+      "pos": [29.610116958618164, 906.104248046875],
+      "mode": 0,
+      "size": [210, 60],
+      "type": "INTConstant",
+      "color": "#1b4669",
+      "flags": {},
+      "order": 5,
+      "title": "Frames",
+      "inputs": [],
+      "bgcolor": "#29699c",
+      "outputs": [
+        {
+          "name": "value",
+          "type": "INT",
+          "links": [195, 251, 258],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "INTConstant"
+      },
+      "showAdvanced": null,
+      "widgets_values": [48]
+    },
+    {
+      "id": 117,
+      "pos": [100, 140],
+      "mode": 0,
+      "size": [252.056640625, 262],
+      "type": "VHS_LoadVideo",
+      "color": "#024f98",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7
+        },
+        {
+          "link": 251,
+          "name": "frame_load_cap",
+          "type": "INT",
+          "widget": {
+            "name": "frame_load_cap"
+          }
+        }
+      ],
+      "bgcolor": "#1663ac",
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [252],
+          "slot_index": 0
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null
+        },
+        {
+          "name": "audio",
+          "type": "AUDIO",
+          "links": null
+        },
+        {
+          "name": "video_info",
+          "type": "VHS_VIDEOINFO",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "video": "RunComfy_example_1175_1.mp4",
+        "force_rate": 0,
+        "force_size": "Disabled",
+        "custom_width": 512,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "RunComfy_example_1175_1.mp4",
+            "force_rate": 0,
+            "frame_load_cap": 0,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 512,
+        "frame_load_cap": 0,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    },
+    {
+      "id": 84,
+      "pos": [1970, 448],
+      "mode": 0,
+      "size": [320, 220],
+      "type": "DownloadAndLoadCogVideoModel",
+      "color": "#512575",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": null,
+          "name": "block_edit",
+          "type": "TRANSFORMERBLOCKS",
+          "shape": 7
+        },
+        {
+          "link": 204,
+          "name": "lora",
+          "type": "COGLORA",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "compile_args",
+          "type": "COMPILEARGS",
+          "shape": 7
+        }
+      ],
+      "bgcolor": "#653989",
+      "outputs": [
+        {
+          "name": "model",
+          "type": "COGVIDEOMODEL",
+          "links": [186],
+          "slot_index": 0
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "links": [188, 191],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DownloadAndLoadCogVideoModel"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "alibaba-pai/CogVideoX-Fun-V1.1-5b-Control",
+        "bf16",
+        "disabled",
+        false,
+        "sdpa",
+        "main_device"
+      ]
+    },
+    {
+      "id": 44,
+      "pos": [2574, 552],
+      "mode": 0,
+      "size": [360, 310],
+      "type": "VHS_VideoCombine",
+      "color": "#0e3ba5",
+      "flags": {},
+      "order": 21,
+      "inputs": [
+        {
+          "link": 239,
+          "name": "images",
+          "type": "IMAGE",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7
+        }
+      ],
+      "bgcolor": "#224fb9",
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "muted": false,
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "1175_00002.mp4",
+            "subfolder": "",
+            "frame_rate": 8
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1175"
+      }
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 0,
+      "color": "#0089eb",
+      "flags": {},
+      "title": "Pose Video",
+      "bounding": [
+        32.9072380065918, 36.65259552001953, 825.779296875, 790.265380859375
+      ],
+      "font_size": 24
+    },
+    {
+      "id": 1,
+      "color": "#4deba1",
+      "flags": {},
+      "title": "Single Pose Image",
+      "bounding": [
+        24.445566177368164, 1016.8428955078125, 841.9822998046875,
+        527.44091796875
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 278,
+  "last_node_id": 131
+}

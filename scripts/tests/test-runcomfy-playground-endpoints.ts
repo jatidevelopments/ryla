@@ -17,12 +17,6 @@
 const DEFAULT_API_URL = process.env.API_URL ?? 'http://localhost:3001';
 const DEFAULT_PROMPT = 'a cute cat, portrait, high quality';
 
-/** Known override node IDs per deployment (prompt + seed). RunComfy doc uses 6 + 31 for FLUX. */
-const OVERRIDES_BY_NAME: Record<string, { promptNode: string; promptKey: string; seedNode: string; seedKey: string }> = {
-  'FLUX': { promptNode: '6', promptKey: 'text', seedNode: '31', seedKey: 'seed' },
-  'SDXL-Turbo': { promptNode: '6', promptKey: 'text', seedNode: '25', seedKey: 'noise_seed' },
-};
-
 interface Deployment {
   id: string;
   name: string;
@@ -46,37 +40,20 @@ async function listEndpoints(baseUrl: string): Promise<Deployment[] | { error: s
   return { error: 'Invalid response' };
 }
 
-function getOverridesForDeployment(name: string, prompt: string, seed: number): Record<string, { inputs: Record<string, unknown> }> | undefined {
-  for (const [key, spec] of Object.entries(OVERRIDES_BY_NAME)) {
-    if (name.includes(key)) {
-      return {
-        [spec.promptNode]: { inputs: { [spec.promptKey]: prompt } },
-        [spec.seedNode]: { inputs: { [spec.seedKey]: seed } },
-      };
-    }
-  }
-  return undefined;
-}
-
 async function callDeployment(
   baseUrl: string,
   deploymentId: string,
-  deploymentName: string,
   prompt: string,
   seed: number
 ): Promise<{ ok: boolean; error?: string; timeSec?: number }> {
-  const overrides = getOverridesForDeployment(deploymentName, prompt, seed);
-  const body: { deployment_id: string; prompt?: string; seed?: number; overrides?: Record<string, { inputs: Record<string, unknown> }> } = {
-    deployment_id: deploymentId,
-    prompt,
-    seed,
-  };
-  if (overrides) body.overrides = overrides;
-
   const res = await fetch(`${baseUrl}/playground/runcomfy/call`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      deployment_id: deploymentId,
+      prompt,
+      seed,
+    }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
@@ -141,8 +118,8 @@ async function main() {
       console.log('Deployment not found:', callOne);
       process.exit(1);
     }
-    console.log(`2. POST /playground/runcomfy/call (one: ${deployment.name})${getOverridesForDeployment(deployment.name, prompt, seed) ? ' [known overrides]' : ''}`);
-    const result = await callDeployment(base, deployment.id, deployment.name, prompt, seed);
+    console.log(`2. POST /playground/runcomfy/call (one: ${deployment.name})`);
+    const result = await callDeployment(base, deployment.id, prompt, seed);
     if (result.ok) {
       console.log(`   OK (${result.timeSec?.toFixed(1) ?? '?'}s)`);
     } else {
@@ -157,7 +134,7 @@ async function main() {
   let ok = 0;
   let fail = 0;
   for (const d of list) {
-    const result = await callDeployment(base, d.id, d.name, prompt, seed);
+    const result = await callDeployment(base, d.id, prompt, seed);
     if (result.ok) {
       ok++;
       console.log(`   OK  ${d.name} (${result.timeSec?.toFixed(1) ?? '?'}s)`);

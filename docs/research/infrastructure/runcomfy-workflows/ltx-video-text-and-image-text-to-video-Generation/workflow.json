@@ -1,0 +1,834 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.5209868481924496,
+      "offset": [
+        1104.14387272118,
+        492.972135177733
+      ]
+    }
+  },
+  "links": [
+    [
+      70,
+      14,
+      0,
+      36,
+      2,
+      "SAMPLER"
+    ],
+    [
+      72,
+      37,
+      0,
+      36,
+      0,
+      "NOISE"
+    ],
+    [
+      78,
+      36,
+      0,
+      8,
+      0,
+      "LATENT"
+    ],
+    [
+      87,
+      42,
+      0,
+      36,
+      1,
+      "GUIDER"
+    ],
+    [
+      121,
+      8,
+      0,
+      60,
+      0,
+      "IMAGE"
+    ],
+    [
+      214,
+      88,
+      0,
+      42,
+      2,
+      "CONDITIONING"
+    ],
+    [
+      215,
+      87,
+      0,
+      42,
+      1,
+      "CONDITIONING"
+    ],
+    [
+      254,
+      102,
+      0,
+      103,
+      0,
+      "MODEL"
+    ],
+    [
+      255,
+      102,
+      1,
+      103,
+      1,
+      "VAE"
+    ],
+    [
+      256,
+      102,
+      1,
+      8,
+      1,
+      "VAE"
+    ],
+    [
+      258,
+      103,
+      1,
+      36,
+      4,
+      "LATENT"
+    ],
+    [
+      259,
+      103,
+      2,
+      104,
+      1,
+      "FLOAT"
+    ],
+    [
+      260,
+      103,
+      0,
+      42,
+      0,
+      "MODEL"
+    ],
+    [
+      261,
+      103,
+      0,
+      81,
+      0,
+      "MODEL"
+    ],
+    [
+      262,
+      81,
+      0,
+      104,
+      0,
+      "SIGMAS"
+    ],
+    [
+      263,
+      104,
+      0,
+      36,
+      3,
+      "SIGMAS"
+    ],
+    [
+      264,
+      105,
+      0,
+      87,
+      0,
+      "CLIP"
+    ],
+    [
+      265,
+      105,
+      0,
+      88,
+      0,
+      "CLIP"
+    ],
+    [
+      268,
+      106,
+      0,
+      103,
+      2,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 36,
+      "pos": [
+        1107,
+        -259
+      ],
+      "mode": 0,
+      "size": [
+        355.20001220703125,
+        106
+      ],
+      "type": "SamplerCustomAdvanced",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 72,
+          "name": "noise",
+          "type": "NOISE"
+        },
+        {
+          "link": 87,
+          "name": "guider",
+          "type": "GUIDER",
+          "slot_index": 1
+        },
+        {
+          "link": 70,
+          "name": "sampler",
+          "type": "SAMPLER"
+        },
+        {
+          "link": 263,
+          "name": "sigmas",
+          "type": "SIGMAS"
+        },
+        {
+          "link": 258,
+          "name": "latent_image",
+          "type": "LATENT"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "output",
+          "type": "LATENT",
+          "links": [
+            78
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "denoised_output",
+          "type": "LATENT",
+          "links": [],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "SamplerCustomAdvanced"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 14,
+      "pos": [
+        768,
+        -132
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        58
+      ],
+      "type": "KSamplerSelect",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "SAMPLER",
+          "type": "SAMPLER",
+          "links": [
+            70
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSamplerSelect"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "euler"
+      ]
+    },
+    {
+      "id": 104,
+      "pos": [
+        770,
+        -19
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "LTXVShiftSigmas",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 262,
+          "name": "sigmas",
+          "type": "SIGMAS"
+        },
+        {
+          "link": 259,
+          "name": "sigma_shift",
+          "type": "FLOAT",
+          "widget": {
+            "name": "sigma_shift"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            263
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LTXVShiftSigmas"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        1.820833333,
+        true,
+        0.1
+      ]
+    },
+    {
+      "id": 42,
+      "pos": [
+        776,
+        133
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        98
+      ],
+      "type": "CFGGuider",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 260,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 215,
+          "name": "positive",
+          "type": "CONDITIONING"
+        },
+        {
+          "link": 214,
+          "name": "negative",
+          "type": "CONDITIONING"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "GUIDER",
+          "type": "GUIDER",
+          "links": [
+            87
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CFGGuider"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        4
+      ]
+    },
+    {
+      "id": 81,
+      "pos": [
+        409,
+        -10
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "BasicScheduler",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 261,
+          "name": "model",
+          "type": "MODEL"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "SIGMAS",
+          "type": "SIGMAS",
+          "links": [
+            262
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BasicScheduler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "normal",
+        20,
+        1
+      ]
+    },
+    {
+      "id": 8,
+      "pos": [
+        1491,
+        -252
+      ],
+      "mode": 0,
+      "size": [
+        210,
+        46
+      ],
+      "type": "VAEDecode",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 78,
+          "name": "samples",
+          "type": "LATENT"
+        },
+        {
+          "link": 256,
+          "name": "vae",
+          "type": "VAE",
+          "slot_index": 1
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            121
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "showAdvanced": null,
+      "widgets_values": []
+    },
+    {
+      "id": 88,
+      "pos": [
+        -29,
+        5
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CLIPTextEncode",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 265,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            214
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "worst quality, inconsistent motion, blurry, jittery, distorted, watermarks"
+      ]
+    },
+    {
+      "id": 37,
+      "pos": [
+        765,
+        -259
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        82
+      ],
+      "type": "RandomNoise",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "NOISE",
+          "type": "NOISE",
+          "links": [
+            72
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RandomNoise"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        260602304614137,
+        "randomize"
+      ]
+    },
+    {
+      "id": 102,
+      "pos": [
+        -464,
+        -301
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        102
+      ],
+      "type": "LTXVLoader",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            254
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "links": [
+            255,
+            256
+          ],
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LTXVLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "ltx/ltx-video-2b-v0.9.safetensors",
+        "float32"
+      ]
+    },
+    {
+      "id": 105,
+      "pos": [
+        -464,
+        -141
+      ],
+      "mode": 0,
+      "size": [
+        351.8352966308594,
+        58
+      ],
+      "type": "LTXVCLIPModelLoader",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "links": [
+            264,
+            265
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LTXVCLIPModelLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "text_encoder/model-00001-of-00002.safetensors"
+      ]
+    },
+    {
+      "id": 103,
+      "pos": [
+        -22,
+        257
+      ],
+      "mode": 0,
+      "size": [
+        378,
+        242
+      ],
+      "type": "LTXVModelConfigurator",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 254,
+          "name": "model",
+          "type": "MODEL"
+        },
+        {
+          "link": 255,
+          "name": "vae",
+          "type": "VAE"
+        },
+        {
+          "link": 268,
+          "name": "conditioning",
+          "type": "IMAGE",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "links": [
+            260,
+            261
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "latent",
+          "type": "LATENT",
+          "links": [
+            258
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "sigma_shift",
+          "type": "FLOAT",
+          "links": [
+            259
+          ],
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LTXVModelConfigurator"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Custom",
+        768,
+        512,
+        121,
+        24,
+        1,
+        true
+      ]
+    },
+    {
+      "id": 106,
+      "pos": [
+        -455,
+        -18
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 4,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            268
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "RunComfy_examples_1173.png",
+        "image"
+      ]
+    },
+    {
+      "id": 60,
+      "pos": [
+        1197,
+        -104
+      ],
+      "mode": 0,
+      "size": [
+        521.32666015625,
+        310
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 121,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "AUDIO",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "shape": 7
+        },
+        {
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "shape": 7
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 25,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "1173_00021.mp4",
+            "subfolder": "",
+            "frame_rate": 25
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1173"
+      }
+    },
+    {
+      "id": 87,
+      "pos": [
+        -27,
+        -245
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        200
+      ],
+      "type": "CLIPTextEncode",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 264,
+          "name": "clip",
+          "type": "CLIP"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            215
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "Three dogs in black and white suits playing musical instruments, standing on their hind legs inside an old wooden house with large windows. The dogs move slowly as they play, swaying to the music. In the background, there are woodworking tools and books, in the style of Pixar."
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 268,
+  "last_node_id": 108
+}

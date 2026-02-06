@@ -1,0 +1,1160 @@
+{
+  "extra": {},
+  "links": [
+    [
+      31,
+      3,
+      0,
+      1,
+      0,
+      "IMAGE"
+    ],
+    [
+      37,
+      1,
+      0,
+      23,
+      1,
+      "IMAGE"
+    ],
+    [
+      38,
+      24,
+      0,
+      23,
+      0,
+      "IMAGE"
+    ],
+    [
+      39,
+      26,
+      0,
+      25,
+      0,
+      "IMAGE"
+    ],
+    [
+      46,
+      32,
+      0,
+      31,
+      0,
+      "IMAGE"
+    ],
+    [
+      54,
+      38,
+      0,
+      1,
+      1,
+      "IMAGE"
+    ],
+    [
+      56,
+      39,
+      0,
+      40,
+      0,
+      "IMAGE"
+    ],
+    [
+      57,
+      38,
+      2,
+      40,
+      1,
+      "VHS_AUDIO"
+    ],
+    [
+      58,
+      41,
+      0,
+      31,
+      1,
+      "IMAGE"
+    ],
+    [
+      61,
+      42,
+      0,
+      43,
+      0,
+      "IMAGE"
+    ],
+    [
+      62,
+      41,
+      2,
+      43,
+      1,
+      "VHS_AUDIO"
+    ],
+    [
+      63,
+      44,
+      0,
+      25,
+      1,
+      "IMAGE"
+    ],
+    [
+      66,
+      45,
+      0,
+      46,
+      0,
+      "IMAGE"
+    ],
+    [
+      67,
+      23,
+      0,
+      39,
+      0,
+      "IMAGE"
+    ],
+    [
+      68,
+      31,
+      0,
+      42,
+      0,
+      "IMAGE"
+    ],
+    [
+      69,
+      25,
+      0,
+      45,
+      0,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 3,
+      "pos": [
+        277,
+        1083
+      ],
+      "mode": 0,
+      "size": [
+        272.9229736328125,
+        419.8668212890625
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 0,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            31
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1034_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 24,
+      "pos": [
+        266.2772103325582,
+        1579.948639373345
+      ],
+      "mode": 0,
+      "size": [
+        284.4854736328125,
+        384.2027587890625
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            38
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1034_2.png",
+        "image"
+      ]
+    },
+    {
+      "id": 32,
+      "pos": [
+        281.23191147555235,
+        164.78213824304478
+      ],
+      "mode": 4,
+      "size": [
+        322.55975341796875,
+        537.9998779296875
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 2,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            46
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1034_1.png",
+        "image"
+      ]
+    },
+    {
+      "id": 26,
+      "pos": [
+        275,
+        2215
+      ],
+      "mode": 4,
+      "size": [
+        272.9229736328125,
+        419.8668212890625
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 3,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            39
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1034_3.png",
+        "image"
+      ]
+    },
+    {
+      "id": 1,
+      "pos": [
+        1039.2772103325594,
+        1080.9486393733443
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        338
+      ],
+      "type": "ReActorFaceSwap",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 31,
+          "name": "source_image",
+          "type": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "link": 54,
+          "name": "input_image",
+          "type": "IMAGE",
+          "slot_index": 1
+        },
+        {
+          "link": null,
+          "name": "face_model",
+          "type": "FACE_MODEL"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            37
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "FACE_MODEL",
+          "type": "FACE_MODEL",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ReActorFaceSwap"
+      },
+      "widgets_values": [
+        true,
+        "inswapper_128.onnx",
+        "retinaface_resnet50",
+        "codeformer.pth",
+        1,
+        0.75,
+        "no",
+        "no",
+        "0",
+        "0",
+        1
+      ]
+    },
+    {
+      "id": 41,
+      "pos": [
+        660,
+        294
+      ],
+      "mode": 4,
+      "size": [
+        328.6084899902344,
+        242
+      ],
+      "type": "VHS_LoadVideo",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            58
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "audio",
+          "type": "VHS_AUDIO",
+          "links": [
+            62
+          ],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "widgets_values": {
+        "video": "RunComfy_examples_1034_5.mp4",
+        "force_rate": 0,
+        "force_size": "Disabled",
+        "custom_width": 512,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "RunComfy_examples_1034_5.mp4",
+            "force_rate": 0,
+            "frame_load_cap": 0,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 512,
+        "frame_load_cap": 0,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    },
+    {
+      "id": 43,
+      "pos": [
+        1765,
+        416
+      ],
+      "mode": 4,
+      "size": [
+        315.89837646484375,
+        290
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 13,
+      "inputs": [
+        {
+          "link": 61,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": 62,
+          "name": "audio",
+          "type": "VHS_AUDIO"
+        },
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 30,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "RunComfy_examples_1034_0.mp4",
+            "subfolder": "RunComfy_examples"
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "RunComfy_examples_1034_0"
+      }
+    },
+    {
+      "id": 38,
+      "pos": [
+        645,
+        1176
+      ],
+      "mode": 0,
+      "size": [
+        328.6084899902344,
+        242
+      ],
+      "type": "VHS_LoadVideo",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            54
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "audio",
+          "type": "VHS_AUDIO",
+          "links": [
+            57
+          ],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "widgets_values": {
+        "video": "RunComfy_examples_1034_4.mp4",
+        "force_rate": 0,
+        "force_size": "Disabled",
+        "custom_width": 512,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "RunComfy_examples_1034_4.mp4",
+            "force_rate": 0,
+            "frame_load_cap": 0,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 512,
+        "frame_load_cap": 0,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    },
+    {
+      "id": 44,
+      "pos": [
+        573,
+        2308
+      ],
+      "mode": 4,
+      "size": [
+        328.6084899902344,
+        242
+      ],
+      "type": "VHS_LoadVideo",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            63
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "frame_count",
+          "type": "INT",
+          "links": null,
+          "shape": 3
+        },
+        {
+          "name": "audio",
+          "type": "VHS_AUDIO",
+          "links": [],
+          "shape": 3,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_LoadVideo"
+      },
+      "widgets_values": {
+        "video": "RunComfy_examples_1034_4.mp4",
+        "force_rate": 0,
+        "force_size": "Disabled",
+        "custom_width": 512,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "input",
+            "format": "video/mp4",
+            "filename": "RunComfy_examples_1034_4.mp4",
+            "force_rate": 0,
+            "frame_load_cap": 0,
+            "select_every_nth": 1,
+            "skip_first_frames": 0
+          },
+          "paused": false
+        },
+        "custom_height": 512,
+        "frame_load_cap": 0,
+        "select_every_nth": 1,
+        "skip_first_frames": 0,
+        "choose video to upload": "image"
+      }
+    },
+    {
+      "id": 42,
+      "pos": [
+        1768,
+        151
+      ],
+      "mode": 4,
+      "size": [
+        319.20001220703125,
+        222
+      ],
+      "type": "RIFE VFI",
+      "flags": {},
+      "order": 10,
+      "inputs": [
+        {
+          "link": 68,
+          "name": "frames",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "optional_interpolation_states",
+          "type": "INTERPOLATION_STATES"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            61
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RIFE VFI"
+      },
+      "widgets_values": [
+        "rife47.pth",
+        10,
+        1,
+        true,
+        true,
+        1
+      ]
+    },
+    {
+      "id": 39,
+      "pos": [
+        1764,
+        1067
+      ],
+      "mode": 0,
+      "size": [
+        319.20001220703125,
+        222
+      ],
+      "type": "RIFE VFI",
+      "flags": {},
+      "order": 14,
+      "inputs": [
+        {
+          "link": 67,
+          "name": "frames",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "optional_interpolation_states",
+          "type": "INTERPOLATION_STATES"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            56
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RIFE VFI"
+      },
+      "widgets_values": [
+        "rife47.pth",
+        10,
+        1,
+        true,
+        true,
+        1
+      ]
+    },
+    {
+      "id": 40,
+      "pos": [
+        1597,
+        1349
+      ],
+      "mode": 0,
+      "size": [
+        414.6490783691406,
+        290
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 16,
+      "inputs": [
+        {
+          "link": 56,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": 57,
+          "name": "audio",
+          "type": "VHS_AUDIO"
+        },
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 30,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "RunComfy_examples_1034_1.mp4",
+            "subfolder": "RunComfy_examples"
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1034"
+      }
+    },
+    {
+      "id": 45,
+      "pos": [
+        1723,
+        2183
+      ],
+      "mode": 4,
+      "size": [
+        319.20001220703125,
+        222
+      ],
+      "type": "RIFE VFI",
+      "flags": {},
+      "order": 12,
+      "inputs": [
+        {
+          "link": 69,
+          "name": "frames",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "optional_interpolation_states",
+          "type": "INTERPOLATION_STATES"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            66
+          ],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "RIFE VFI"
+      },
+      "widgets_values": [
+        "rife47.pth",
+        10,
+        1,
+        true,
+        true,
+        1
+      ]
+    },
+    {
+      "id": 46,
+      "pos": [
+        1673,
+        2452
+      ],
+      "mode": 4,
+      "size": [
+        414.6490783691406,
+        290
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 15,
+      "inputs": [
+        {
+          "link": 66,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "VHS_AUDIO"
+        },
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 30,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "RunComfy_examples_1034_2.mp4",
+            "subfolder": "RunComfy_examples"
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1034_2"
+      }
+    },
+    {
+      "id": 23,
+      "pos": [
+        1049.2772103325594,
+        1485.9486393733448
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        338
+      ],
+      "type": "ReActorFaceSwap",
+      "flags": {},
+      "order": 11,
+      "inputs": [
+        {
+          "link": 38,
+          "name": "source_image",
+          "type": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "link": 37,
+          "name": "input_image",
+          "type": "IMAGE",
+          "slot_index": 1
+        },
+        {
+          "link": null,
+          "name": "face_model",
+          "type": "FACE_MODEL"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            67
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "FACE_MODEL",
+          "type": "FACE_MODEL",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ReActorFaceSwap"
+      },
+      "widgets_values": [
+        true,
+        "inswapper_128.onnx",
+        "retinaface_resnet50",
+        "codeformer.pth",
+        1,
+        0.75,
+        "no",
+        "no",
+        "0",
+        "1",
+        1
+      ]
+    },
+    {
+      "id": 31,
+      "pos": [
+        1046,
+        164
+      ],
+      "mode": 4,
+      "size": [
+        315,
+        338
+      ],
+      "type": "ReActorFaceSwap",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "link": 46,
+          "name": "source_image",
+          "type": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "link": 58,
+          "name": "input_image",
+          "type": "IMAGE",
+          "slot_index": 1
+        },
+        {
+          "link": null,
+          "name": "face_model",
+          "type": "FACE_MODEL"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            68
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "FACE_MODEL",
+          "type": "FACE_MODEL",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ReActorFaceSwap"
+      },
+      "widgets_values": [
+        true,
+        "inswapper_128.onnx",
+        "retinaface_resnet50",
+        "codeformer.pth",
+        1,
+        0.75,
+        "no",
+        "no",
+        "0",
+        "0",
+        1
+      ]
+    },
+    {
+      "id": 25,
+      "pos": [
+        935.4252385807425,
+        2215.4015863846307
+      ],
+      "mode": 4,
+      "size": [
+        315,
+        338
+      ],
+      "type": "ReActorFaceSwap",
+      "flags": {},
+      "order": 9,
+      "inputs": [
+        {
+          "link": 39,
+          "name": "source_image",
+          "type": "IMAGE",
+          "slot_index": 0
+        },
+        {
+          "link": 63,
+          "name": "input_image",
+          "type": "IMAGE",
+          "slot_index": 1
+        },
+        {
+          "link": null,
+          "name": "face_model",
+          "type": "FACE_MODEL"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            69
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "FACE_MODEL",
+          "type": "FACE_MODEL",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "ReActorFaceSwap"
+      },
+      "widgets_values": [
+        true,
+        "inswapper_128.onnx",
+        "retinaface_resnet50",
+        "codeformer.pth",
+        1,
+        0.75,
+        "no",
+        "no",
+        "0,1",
+        "1,0",
+        1
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#3f789e",
+      "title": "Multiple Faces Swap in One Image",
+      "bounding": [
+        237,
+        2097,
+        1899,
+        992
+      ],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "title": "Multiple Faces Swap in Separate Images ",
+      "bounding": [
+        256,
+        990,
+        1887,
+        1008
+      ],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "title": "Single Face Swap",
+      "bounding": [
+        260,
+        79,
+        1889,
+        888
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 69,
+  "last_node_id": 46
+}

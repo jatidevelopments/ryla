@@ -1,0 +1,318 @@
+{
+  "extra": {
+    "ds": {
+      "scale": 0.751314800901578,
+      "offset": [153.41456921792937, 4.024983722786972]
+    }
+  },
+  "links": [
+    [10, 10, 0, 13, 1, "IMAGE"],
+    [11, 12, 0, 13, 0, "MODEL"],
+    [14, 10, 0, 16, 1, "IMAGE"],
+    [15, 11, 0, 16, 2, "IMAGE"],
+    [17, 13, 1, 14, 0, "IMAGE"],
+    [18, 13, 0, 15, 0, "IMAGE"],
+    [19, 13, 0, 16, 3, "IMAGE"],
+    [20, 17, 0, 16, 0, "MODEL"],
+    [28, 16, 0, 24, 0, "IMAGE"]
+  ],
+  "nodes": [
+    {
+      "id": 12,
+      "pos": [97, 118],
+      "mode": 0,
+      "size": [436.1082458496094, 58],
+      "type": "LoadAutoMasker",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "pipe",
+          "type": "MODEL",
+          "links": [11],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadAutoMasker"
+      },
+      "widgets_values": ["zhengchong/CatVTON"]
+    },
+    {
+      "id": 14,
+      "pos": [1028, 115],
+      "mode": 0,
+      "size": [160.99398803710938, 246],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 7,
+      "title": "Masked Target",
+      "inputs": [
+        {
+          "link": 17,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 15,
+      "pos": [845, 116],
+      "mode": 0,
+      "size": [160.1082305908203, 246],
+      "type": "PreviewImage",
+      "flags": {},
+      "order": 5,
+      "title": "Binary Mask",
+      "inputs": [
+        {
+          "link": 18,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 17,
+      "pos": [101, 223],
+      "mode": 0,
+      "size": [431.00823974609375, 106],
+      "type": "LoadCatVTONPipeline",
+      "flags": {},
+      "order": 1,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "pipe",
+          "type": "MODEL",
+          "links": [20],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadCatVTONPipeline"
+      },
+      "widgets_values": [
+        "runwayml/stable-diffusion-inpainting",
+        "zhengchong/CatVTON",
+        "bf16"
+      ]
+    },
+    {
+      "id": 13,
+      "pos": [593, 116],
+      "mode": 0,
+      "size": [227.4981231689453, 240.48341369628906],
+      "type": "AutoMasker",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 11,
+          "name": "pipe",
+          "type": "MODEL"
+        },
+        {
+          "link": 10,
+          "name": "target_image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [18, 19],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "image_masked",
+          "type": "IMAGE",
+          "links": [17],
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "AutoMasker"
+      },
+      "widgets_values": ["upper"]
+    },
+    {
+      "id": 10,
+      "pos": [93.77685546875, 465.34710693359375],
+      "mode": 0,
+      "size": [210, 345.0123291015625],
+      "type": "LoadImage",
+      "flags": {
+        "pinned": false
+      },
+      "order": 2,
+      "shape": 2,
+      "title": "Target Person",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [10, 14],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": ["RunComfy_examples_1152_1.png", "image"]
+    },
+    {
+      "id": 11,
+      "pos": [319.77685546875, 463.34710693359375],
+      "mode": 0,
+      "size": [210, 347.0123291015625],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 3,
+      "shape": 2,
+      "title": "Reference Garment",
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [15],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": ["RunComfy_examples_1152_2.png", "image"]
+    },
+    {
+      "id": 16,
+      "pos": [599, 471],
+      "mode": 0,
+      "size": [242.99398803710938, 338.0123291015625],
+      "type": "CatVTON",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "link": 20,
+          "name": "pipe",
+          "type": "MODEL"
+        },
+        {
+          "link": 14,
+          "name": "target_image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 15,
+          "name": "refer_image",
+          "type": "IMAGE"
+        },
+        {
+          "link": 19,
+          "name": "mask_image",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "image",
+          "type": "IMAGE",
+          "links": [28],
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CatVTON"
+      },
+      "widgets_values": [505824879015184, "randomize", 50, 2.5]
+    },
+    {
+      "id": 24,
+      "pos": [864, 471],
+      "mode": 0,
+      "size": [322.7810974121094, 329.9058532714844],
+      "type": "SaveImage",
+      "flags": {},
+      "order": 8,
+      "inputs": [
+        {
+          "link": 28,
+          "name": "images",
+          "type": "IMAGE"
+        }
+      ],
+      "outputs": [],
+      "properties": {},
+      "widgets_values": ["1152"]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "color": "#b06634",
+      "flags": {},
+      "title": "Model Loading",
+      "bounding": [80, 38, 480, 333],
+      "font_size": 24
+    },
+    {
+      "color": "#8AA",
+      "flags": {},
+      "title": "Auto Mask Generating",
+      "bounding": [579, 37, 630, 339],
+      "font_size": 24
+    },
+    {
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Inputs Image",
+      "bounding": [80, 384, 483, 443],
+      "font_size": 24
+    },
+    {
+      "color": "#b58b2a",
+      "flags": {},
+      "title": "TryOn by CatVTON",
+      "bounding": [580, 387, 629, 441],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "last_link_id": 28,
+  "last_node_id": 24
+}

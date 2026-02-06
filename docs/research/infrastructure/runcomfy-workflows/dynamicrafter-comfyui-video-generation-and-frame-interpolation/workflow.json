@@ -1,0 +1,316 @@
+{
+  "extra": {},
+  "links": [
+    [
+      13,
+      11,
+      0,
+      10,
+      0,
+      "DCMODEL"
+    ],
+    [
+      15,
+      10,
+      0,
+      13,
+      0,
+      "IMAGE"
+    ],
+    [
+      18,
+      12,
+      0,
+      10,
+      2,
+      "IMAGE"
+    ],
+    [
+      19,
+      15,
+      0,
+      10,
+      1,
+      "IMAGE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 13,
+      "pos": [
+        1097.49609375,
+        130
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        290
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "link": 15,
+          "name": "images",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "audio",
+          "type": "VHS_AUDIO"
+        },
+        {
+          "link": null,
+          "name": "batch_manager",
+          "type": "VHS_BatchManager"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "links": null,
+          "shape": 3,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "1084_00001.mp4",
+            "subfolder": ""
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "filename_prefix": "1084"
+      }
+    },
+    {
+      "id": 10,
+      "pos": [
+        597.49609375,
+        130
+      ],
+      "mode": 0,
+      "size": [
+        400,
+        400
+      ],
+      "type": "DynamiCrafterI2V",
+      "flags": {},
+      "order": 4,
+      "inputs": [
+        {
+          "link": 13,
+          "name": "model",
+          "type": "DCMODEL",
+          "slot_index": 0
+        },
+        {
+          "link": 19,
+          "name": "image",
+          "type": "IMAGE",
+          "slot_index": 1
+        },
+        {
+          "link": 18,
+          "name": "image2",
+          "type": "IMAGE"
+        },
+        {
+          "link": null,
+          "name": "mask",
+          "type": "MASK"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "links": [
+            15
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "last_image",
+          "type": "IMAGE",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DynamiCrafterI2V"
+      },
+      "widgets_values": [
+        50,
+        7,
+        1,
+        16,
+        "a boy stops smiling",
+        697075014738603,
+        "randomize",
+        10,
+        true,
+        "auto",
+        16,
+        4
+      ]
+    },
+    {
+      "id": 14,
+      "pos": [
+        100,
+        130
+      ],
+      "mode": 0,
+      "size": [
+        397.49609375,
+        89.48046875
+      ],
+      "type": "Note",
+      "color": "#432",
+      "flags": {},
+      "order": 0,
+      "bgcolor": "#653",
+      "properties": {
+        "text": ""
+      },
+      "widgets_values": [
+        "Options:\n-ModelLoader: Pick corresponding model with different input image size, 320*512 -> 512, 576*1024 -> 1024, bf16 is pruned version\n-I2V: Try different prompt for single image video gen"
+      ]
+    },
+    {
+      "id": 11,
+      "pos": [
+        100,
+        349.48046875
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        106
+      ],
+      "type": "DynamiCrafterModelLoader",
+      "flags": {},
+      "order": 1,
+      "outputs": [
+        {
+          "name": "DynCraft_model",
+          "type": "DCMODEL",
+          "links": [
+            13
+          ],
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "DynamiCrafterModelLoader"
+      },
+      "widgets_values": [
+        "dynamicrafter/dynamicrafter_512_interp_v1.ckpt",
+        "auto",
+        false
+      ]
+    },
+    {
+      "id": 15,
+      "pos": [
+        100,
+        585.48046875
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 2,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            19
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1084_0.png",
+        "image"
+      ]
+    },
+    {
+      "id": 12,
+      "pos": [
+        100,
+        1029.48046875
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "flags": {},
+      "order": 3,
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ],
+          "shape": 3,
+          "slot_index": 0
+        },
+        {
+          "name": "MASK",
+          "type": "MASK",
+          "links": null,
+          "shape": 3
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "LoadImage"
+      },
+      "widgets_values": [
+        "RunComfy_examples_1084_1.png",
+        "image"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [],
+  "version": 0.4,
+  "last_link_id": 19,
+  "last_node_id": 17
+}

@@ -3,16 +3,20 @@
 import { useState, useCallback } from 'react';
 import type { ReferralSource, AiInfluencerExperience } from './constants';
 
+interface WaitlistFormData {
+  email: string;
+  referralSource: ReferralSource | null;
+  referralSourceOther: string;
+  experience: AiInfluencerExperience | null;
+  customMessage: string;
+}
+
 export function useWaitlistForm() {
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [email, setEmail] = useState('');
-  const [referralSource, setReferralSource] = useState<ReferralSource | null>(
-    null
-  );
+  const [referralSource, setReferralSource] = useState<ReferralSource | null>(null);
   const [referralSourceOther, setReferralSourceOther] = useState('');
-  const [experience, setExperience] = useState<AiInfluencerExperience | null>(
-    null
-  );
+  const [experience, setExperience] = useState<AiInfluencerExperience | null>(null);
   const [customMessage, setCustomMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -71,8 +75,7 @@ export function useWaitlistForm() {
         body: JSON.stringify({
           email: email.trim(),
           referralSource,
-          referralSourceOther:
-            referralSource === 'other' ? referralSourceOther.trim() : undefined,
+          referralSourceOther: referralSource === 'other' ? referralSourceOther.trim() : undefined,
           aiInfluencerExperience: experience,
           customMessage: customMessage.trim() || undefined,
         }),
@@ -80,37 +83,24 @@ export function useWaitlistForm() {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}));
-        throw new Error(
-          data.error || 'Failed to join waitlist. Please try again.'
-        );
+        throw new Error(data.error || 'Failed to join waitlist. Please try again.');
       }
 
       setIsSuccess(true);
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Failed to join waitlist. Please try again.'
-      );
+      setError(err instanceof Error ? err.message : 'Failed to join waitlist. Please try again.');
     } finally {
       setIsSubmitting(false);
     }
-  }, [
-    step,
-    email,
-    referralSource,
-    referralSourceOther,
-    experience,
-    customMessage,
-  ]);
+  }, [step, email, referralSource, referralSourceOther, experience, customMessage]);
 
   const canProceed =
     step === 1
       ? email.trim().length > 0 && validateEmail(email)
       : step === 2
-      ? referralSource !== null &&
-        (referralSource !== 'other' || referralSourceOther.trim().length > 0)
-      : experience !== null;
+        ? referralSource !== null &&
+          (referralSource !== 'other' || referralSourceOther.trim().length > 0)
+        : experience !== null;
 
   return {
     step,

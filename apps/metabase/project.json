@@ -1,0 +1,18 @@
+{
+  "name": "metabase",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "apps/metabase",
+  "projectType": "application",
+  "tags": ["scope:integration", "type:app"],
+  "targets": {
+    "serve": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bash scripts/setup/setup-metabase.sh",
+        "cwd": "{workspaceRoot}"
+      },
+      "configurations": {},
+      "description": "Start Metabase (Docker). UI at http://localhost:3040. Add Postgres data source in Metabase; see docs/technical/METABASE-SETUP.md"
+    }
+  }
+}

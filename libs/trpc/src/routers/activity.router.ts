@@ -68,10 +68,7 @@ function mapJobToActivity(
     const out = job.output as Record<string, unknown>;
 
     // Try thumbnailUrls array first (most common)
-    if (
-      Array.isArray(out['thumbnailUrls']) &&
-      out['thumbnailUrls'].length > 0
-    ) {
+    if (Array.isArray(out['thumbnailUrls']) && out['thumbnailUrls'].length > 0) {
       thumbnailUrl = out['thumbnailUrls'][0] as string;
     }
     // Try images array with thumbnailUrl property
@@ -79,8 +76,7 @@ function mapJobToActivity(
       const first = out['images'][0];
       if (typeof first === 'object' && first !== null) {
         const img = first as Record<string, unknown>;
-        thumbnailUrl =
-          (img['thumbnailUrl'] as string) ?? (img['url'] as string) ?? null;
+        thumbnailUrl = (img['thumbnailUrl'] as string) ?? (img['url'] as string) ?? null;
       } else if (typeof first === 'string') {
         thumbnailUrl = first;
       }
@@ -164,11 +160,7 @@ function getTimeBoundaries(
     case 'week': {
       const dayOfWeek = now.getDay();
       const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-      timeStart = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate() + mondayOffset
-      );
+      timeStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
       timeEnd = new Date(timeStart.getTime() + 7 * 24 * 60 * 60 * 1000);
       break;
     }
@@ -205,38 +197,20 @@ export const activityRouter = router({
         .optional()
     )
     .query(async ({ ctx, input }) => {
-      const {
-        limit = 20,
-        cursor,
-        page,
-        filter = 'all',
-        timeRange = 'all',
-        startDate,
-        endDate,
-      } = input ?? {};
+      const { limit = 20, cursor, page, filter = 'all', timeRange = 'all', startDate, endDate } = input ?? {};
       const userId = ctx.user.id;
 
       // Calculate time range boundaries
-      const { timeStart, timeEnd } = getTimeBoundaries(
-        timeRange,
-        startDate,
-        endDate
-      );
+      const { timeStart, timeEnd } = getTimeBoundaries(timeRange, startDate, endDate);
 
       // Calculate offset if page is provided
       const offset = page ? (page - 1) * limit : undefined;
 
       // Decode cursor if present (for backward compatibility)
-      let cursorData: {
-        occurredAt: string;
-        sourceType: string;
-        sourceId: string;
-      } | null = null;
+      let cursorData: { occurredAt: string; sourceType: string; sourceId: string } | null = null;
       if (cursor && !page) {
         try {
-          cursorData = JSON.parse(
-            Buffer.from(cursor, 'base64').toString('utf-8')
-          );
+          cursorData = JSON.parse(Buffer.from(cursor, 'base64').toString('utf-8'));
         } catch {
           // ignore invalid cursor
         }
@@ -253,9 +227,7 @@ export const activityRouter = router({
       if (filter === 'all' || filter === 'generations') {
         const occurredAtExpr = sql<Date>`coalesce(${generationJobs.completedAt}, ${generationJobs.startedAt}, ${generationJobs.createdAt})`;
 
-        const jobConditions: ReturnType<typeof eq>[] = [
-          eq(generationJobs.userId, userId),
-        ];
+        const jobConditions: ReturnType<typeof eq>[] = [eq(generationJobs.userId, userId)];
 
         // Apply time range filter
         if (timeStart) {
@@ -285,7 +257,7 @@ export const activityRouter = router({
 
         // For each job, find the associated credit transaction to get balance
         const jobsWithBalance = await Promise.all(
-          jobs.map(async (job: (typeof jobs)[number]) => {
+          jobs.map(async (job: typeof jobs[number]) => {
             // Find credit transaction for this generation
             // Credits are usually deducted when job is created/started, so look around that time
             const jobTime = job.createdAt ?? job.startedAt ?? new Date();
@@ -299,14 +271,12 @@ export const activityRouter = router({
               eq(creditTransactions.userId, userId),
               eq(creditTransactions.type, 'generation'),
               gte(creditTransactions.createdAt, timeBefore),
-              lte(creditTransactions.createdAt, timeAfter),
+              lte(creditTransactions.createdAt, timeAfter)
             ];
 
             // Add characterId match if available
             if (job.characterId) {
-              conditions.push(
-                eq(creditTransactions.referenceId, job.characterId)
-              );
+              conditions.push(eq(creditTransactions.referenceId, job.characterId));
             }
 
             const txRows = await ctx.db
@@ -341,24 +311,12 @@ export const activityRouter = router({
           })
         );
 
-        items.push(
-          ...jobsWithBalance.map(
-            ({
-              job,
-              balance,
-            }: {
-              job: (typeof jobs)[number];
-              balance: number | null;
-            }) => mapJobToActivity(job, balance)
-          )
-        );
+        items.push(...jobsWithBalance.map(({ job, balance }: { job: typeof jobs[number]; balance: number | null }) => mapJobToActivity(job, balance)));
       }
 
       // Fetch credit transactions if filter allows
       if (filter === 'all' || filter === 'credits') {
-        const txConditions: ReturnType<typeof eq>[] = [
-          eq(creditTransactions.userId, userId),
-        ];
+        const txConditions: ReturnType<typeof eq>[] = [eq(creditTransactions.userId, userId)];
 
         // Apply time range filter
         if (timeStart) {
@@ -375,9 +333,7 @@ export const activityRouter = router({
               sql`(${creditTransactions.createdAt} < ${cursorDate} OR (${creditTransactions.createdAt} = ${cursorDate} AND ${creditTransactions.id} < ${cursorData.sourceId}))` as any
             );
           } else {
-            txConditions.push(
-              sql`${creditTransactions.createdAt} < ${cursorDate}` as any
-            );
+            txConditions.push(sql`${creditTransactions.createdAt} < ${cursorDate}` as any);
           }
         }
 
@@ -385,20 +341,14 @@ export const activityRouter = router({
           .select()
           .from(creditTransactions)
           .where(and(...txConditions))
-          .orderBy(
-            desc(creditTransactions.createdAt),
-            desc(creditTransactions.id)
-          )
+          .orderBy(desc(creditTransactions.createdAt), desc(creditTransactions.id))
           .limit(maxFetchLimit);
 
         items.push(...txs.map(mapTxToActivity));
       }
 
       // Merge and sort by occurredAt desc
-      items.sort(
-        (a, b) =>
-          new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()
-      );
+      items.sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime());
 
       // For page-based pagination, get total count and apply offset
       let totalCount: number | undefined = undefined;
@@ -420,15 +370,15 @@ export const activityRouter = router({
         const [jobCount, txCount] = await Promise.all([
           filter === 'all' || filter === 'generations'
             ? ctx.db
-                .select({ count: sql<number>`count(*)::int` })
-                .from(generationJobs)
-                .where(and(...jobCountConditions))
+              .select({ count: sql<number>`count(*)::int` })
+              .from(generationJobs)
+              .where(and(...jobCountConditions))
             : Promise.resolve([{ count: 0 }]),
           filter === 'all' || filter === 'credits'
             ? ctx.db
-                .select({ count: sql<number>`count(*)::int` })
-                .from(creditTransactions)
-                .where(and(...txCountConditions))
+              .select({ count: sql<number>`count(*)::int` })
+              .from(creditTransactions)
+              .where(and(...txCountConditions))
             : Promise.resolve([{ count: 0 }]),
         ]);
 
@@ -445,9 +395,7 @@ export const activityRouter = router({
         const startIndex = offset!;
         const endIndex = startIndex + limit;
         pageItems = items.slice(startIndex, endIndex);
-        hasMore =
-          items.length > endIndex ||
-          (totalCount !== undefined && totalCount > endIndex);
+        hasMore = items.length > endIndex || (totalCount !== undefined && totalCount > endIndex);
       } else {
         // For cursor-based, take limit + 1 to check for next page
         hasMore = items.length > limit;
@@ -482,19 +430,10 @@ export const activityRouter = router({
   summary: protectedProcedure
     .input(activityFilterSchema.optional())
     .query(async ({ ctx, input }) => {
-      const {
-        filter = 'all',
-        timeRange = 'all',
-        startDate,
-        endDate,
-      } = input ?? {};
+      const { filter = 'all', timeRange = 'all', startDate, endDate } = input ?? {};
       const userId = ctx.user.id;
 
-      const { timeStart, timeEnd } = getTimeBoundaries(
-        timeRange,
-        startDate,
-        endDate
-      );
+      const { timeStart, timeEnd } = getTimeBoundaries(timeRange, startDate, endDate);
 
       // Build conditions for count/sum queries
       const jobConditions = [eq(generationJobs.userId, userId)];
@@ -513,70 +452,43 @@ export const activityRouter = router({
       const jobCounts =
         filter === 'all' || filter === 'generations'
           ? await ctx.db
-              .select({
-                status: generationJobs.status,
-                count: sql<number>`count(*)::int`,
-              })
-              .from(generationJobs)
-              .where(and(...jobConditions))
-              .groupBy(generationJobs.status)
+            .select({
+              status: generationJobs.status,
+              count: sql<number>`count(*)::int`,
+            })
+            .from(generationJobs)
+            .where(and(...jobConditions))
+            .groupBy(generationJobs.status)
           : [];
 
       // Sum credit amounts by type
       const txSums =
         filter === 'all' || filter === 'credits'
           ? await ctx.db
-              .select({
-                type: creditTransactions.type,
-                total: sql<number>`COALESCE(SUM(${creditTransactions.amount}), 0)::int`,
-              })
-              .from(creditTransactions)
-              .where(and(...txConditions))
-              .groupBy(creditTransactions.type)
+            .select({
+              type: creditTransactions.type,
+              total: sql<number>`COALESCE(SUM(${creditTransactions.amount}), 0)::int`,
+            })
+            .from(creditTransactions)
+            .where(and(...txConditions))
+            .groupBy(creditTransactions.type)
           : [];
 
       const generations = {
-        completed:
-          jobCounts.find(
-            (j: (typeof jobCounts)[number]) => j.status === 'completed'
-          )?.count ?? 0,
-        failed:
-          jobCounts.find(
-            (j: (typeof jobCounts)[number]) => j.status === 'failed'
-          )?.count ?? 0,
-        processing:
-          jobCounts.find(
-            (j: (typeof jobCounts)[number]) => j.status === 'processing'
-          )?.count ?? 0,
-        queued:
-          jobCounts.find(
-            (j: (typeof jobCounts)[number]) => j.status === 'queued'
-          )?.count ?? 0,
+        completed: jobCounts.find((j: typeof jobCounts[number]) => j.status === 'completed')?.count ?? 0,
+        failed: jobCounts.find((j: typeof jobCounts[number]) => j.status === 'failed')?.count ?? 0,
+        processing: jobCounts.find((j: typeof jobCounts[number]) => j.status === 'processing')?.count ?? 0,
+        queued: jobCounts.find((j: typeof jobCounts[number]) => j.status === 'queued')?.count ?? 0,
       };
 
       const credits = {
         added:
-          (txSums.find(
-            (t: (typeof txSums)[number]) =>
-              (t.type as string) === 'subscription_grant'
-          )?.total ?? 0) +
-          (txSums.find(
-            (t: (typeof txSums)[number]) => (t.type as string) === 'purchase'
-          )?.total ?? 0) +
-          (txSums.find(
-            (t: (typeof txSums)[number]) =>
-              (t.type as string) === 'admin_adjustment'
-          )?.total ?? 0) +
-          (txSums.find(
-            (t: (typeof txSums)[number]) => (t.type as string) === 'bonus'
-          )?.total ?? 0),
-        spent: Math.abs(
-          txSums.find((t: (typeof txSums)[number]) => t.type === 'generation')
-            ?.total ?? 0
-        ),
-        refunded:
-          txSums.find((t: (typeof txSums)[number]) => t.type === 'refund')
-            ?.total ?? 0,
+          (txSums.find((t: typeof txSums[number]) => (t.type as string) === 'subscription_grant')?.total ?? 0) +
+          (txSums.find((t: typeof txSums[number]) => (t.type as string) === 'purchase')?.total ?? 0) +
+          (txSums.find((t: typeof txSums[number]) => (t.type as string) === 'admin_adjustment')?.total ?? 0) +
+          (txSums.find((t: typeof txSums[number]) => (t.type as string) === 'bonus')?.total ?? 0),
+        spent: Math.abs(txSums.find((t: typeof txSums[number]) => t.type === 'generation')?.total ?? 0),
+        refunded: txSums.find((t: typeof txSums[number]) => t.type === 'refund')?.total ?? 0,
       };
 
       return {
@@ -588,3 +500,4 @@ export const activityRouter = router({
       };
     }),
 });
+

@@ -1,0 +1,799 @@
+{
+  "id": "297cab55-b91d-4dfd-b011-26f26632f484",
+  "extra": {
+    "ds": {
+      "scale": 1.1167815779424837,
+      "offset": [
+        171.87579130705083,
+        -114.17798071164918
+      ]
+    },
+    "reroutes": null,
+    "ue_links": [],
+    "node_versions": {
+      "comfy-core": "v0.3.10",
+      "ComfyUI_Sonic": "b1fa53b5f37ff1b94f6905795d8bff2f161b4d6f",
+      "comfyui-videohelpersuite": "1.5.1"
+    },
+    "frontendVersion": "1.20.7",
+    "VHS_MetadataImage": true,
+    "VHS_latentpreview": false,
+    "VHS_KeepIntermediate": true,
+    "VHS_latentpreviewrate": 0
+  },
+  "links": [
+    [
+      38,
+      277,
+      0,
+      271,
+      0,
+      "MODEL"
+    ],
+    [
+      41,
+      271,
+      0,
+      229,
+      0,
+      "MODEL_SONIC"
+    ],
+    [
+      42,
+      226,
+      0,
+      279,
+      3,
+      "IMAGE"
+    ],
+    [
+      43,
+      277,
+      2,
+      279,
+      1,
+      "VAE"
+    ],
+    [
+      44,
+      277,
+      3,
+      279,
+      0,
+      "CLIP_VISION"
+    ],
+    [
+      45,
+      279,
+      0,
+      229,
+      1,
+      "SONIC_PREDATA"
+    ],
+    [
+      46,
+      225,
+      0,
+      279,
+      2,
+      "AUDIO"
+    ],
+    [
+      48,
+      229,
+      0,
+      286,
+      0,
+      "IMAGE"
+    ],
+    [
+      49,
+      225,
+      0,
+      286,
+      1,
+      "AUDIO"
+    ],
+    [
+      50,
+      229,
+      1,
+      286,
+      4,
+      "FLOAT,INT"
+    ],
+    [
+      53,
+      271,
+      1,
+      279,
+      4,
+      "DTYPE"
+    ]
+  ],
+  "nodes": [
+    {
+      "id": 229,
+      "pos": [
+        1003.958251953125,
+        530.9850463867188
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        174
+      ],
+      "type": "SONICSampler",
+      "color": "#323",
+      "flags": {},
+      "order": 6,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 41,
+          "name": "model",
+          "type": "MODEL_SONIC",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 45,
+          "name": "data_dict",
+          "type": "SONIC_PREDATA",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "bgcolor": "#535",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            48
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "fps",
+          "type": "FLOAT",
+          "label": null,
+          "links": [
+            50
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        }
+      ],
+      "properties": {
+        "ver": "8a8400d4170062beed4385fb6334a9d5baccb22c",
+        "cnr_id": "ComfyUI_Sonic",
+        "Node name for S&R": "SONICSampler"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        660000323,
+        "fixed",
+        25,
+        1,
+        25
+      ]
+    },
+    {
+      "id": 277,
+      "pos": [
+        99.83999633789062,
+        137.26699829101562
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        118
+      ],
+      "type": "unCLIPCheckpointLoader",
+      "color": "#233",
+      "flags": {},
+      "order": 0,
+      "inputs": [],
+      "bgcolor": "#355",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MODEL",
+          "type": "MODEL",
+          "label": null,
+          "links": [
+            38
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 1
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "VAE",
+          "type": "VAE",
+          "label": null,
+          "links": [
+            43
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 2
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "CLIP_VISION",
+          "type": "CLIP_VISION",
+          "label": null,
+          "links": [
+            44
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 3
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "unCLIPCheckpointLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "svd/svd_xt_1_1.safetensors"
+      ]
+    },
+    {
+      "id": 286,
+      "pos": [
+        1535.9476318359375,
+        387.1354064941406
+      ],
+      "mode": 0,
+      "size": [
+        214.7587890625,
+        334
+      ],
+      "type": "VHS_VideoCombine",
+      "flags": {},
+      "order": 7,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 48,
+          "name": "images",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 49,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "meta_batch",
+          "type": "VHS_BatchManager",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": null,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": 7,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "link": 50,
+          "name": "frame_rate",
+          "type": "FLOAT",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "widget": {
+            "name": "frame_rate"
+          },
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "Filenames",
+          "type": "VHS_FILENAMES",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "1.6.1",
+        "cnr_id": "comfyui-videohelpersuite",
+        "Node name for S&R": "VHS_VideoCombine"
+      },
+      "showAdvanced": null,
+      "widgets_values": {
+        "crf": 19,
+        "format": "video/h264-mp4",
+        "pix_fmt": "yuv420p",
+        "pingpong": false,
+        "frame_rate": 8,
+        "loop_count": 0,
+        "save_output": true,
+        "videopreview": {
+          "hidden": false,
+          "params": {
+            "type": "output",
+            "format": "video/h264-mp4",
+            "filename": "Output_00005-audio.mp4",
+            "fullpath": "/workspace/ComfyUI/output/Output_00005-audio.mp4",
+            "workflow": "Output_00005.png",
+            "subfolder": "",
+            "frame_rate": 25
+          },
+          "paused": false
+        },
+        "save_metadata": true,
+        "trim_to_audio": false,
+        "filename_prefix": "Output"
+      }
+    },
+    {
+      "id": 287,
+      "pos": [
+        756.0107421875,
+        -120.26529693603516
+      ],
+      "mode": 0,
+      "size": [
+        264.5449523925781,
+        88
+      ],
+      "type": "Note",
+      "color": "#223",
+      "flags": {},
+      "order": 1,
+      "title": "Original Repo",
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [],
+      "properties": {},
+      "showAdvanced": null,
+      "widgets_values": [
+        "https://github.com/smthemex/ComfyUI_Sonic"
+      ]
+    },
+    {
+      "id": 225,
+      "pos": [
+        97.45438385009766,
+        411.7266540527344
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        136
+      ],
+      "type": "LoadAudio",
+      "color": "#2a363b",
+      "flags": {},
+      "order": 2,
+      "inputs": [],
+      "bgcolor": "#3f5159",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "AUDIO",
+          "type": "AUDIO",
+          "label": null,
+          "links": [
+            46,
+            49
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadAudio"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1191_Main.mp3",
+        null,
+        null
+      ]
+    },
+    {
+      "id": 279,
+      "pos": [
+        656.0673217773438,
+        539.8280029296875
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        186
+      ],
+      "type": "SONIC_PreData",
+      "flags": {},
+      "order": 5,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 44,
+          "name": "clip_vision",
+          "type": "CLIP_VISION",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 43,
+          "name": "vae",
+          "type": "VAE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 46,
+          "name": "audio",
+          "type": "AUDIO",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 42,
+          "name": "image",
+          "type": "IMAGE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "link": 53,
+          "name": "weight_dtype",
+          "type": "DTYPE",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "data_dict",
+          "type": "SONIC_PREDATA",
+          "label": null,
+          "links": [
+            45
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "ver": "8a8400d4170062beed4385fb6334a9d5baccb22c",
+        "cnr_id": "ComfyUI_Sonic",
+        "Node name for S&R": "SONIC_PreData"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        512,
+        10000,
+        0.5
+      ]
+    },
+    {
+      "id": 226,
+      "pos": [
+        97.45438385009766,
+        611.7265625
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        314
+      ],
+      "type": "LoadImage",
+      "color": "#223",
+      "flags": {},
+      "order": 3,
+      "inputs": [],
+      "bgcolor": "#335",
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "label": null,
+          "links": [
+            42
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "MASK",
+          "type": "MASK",
+          "label": null,
+          "links": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "0.3.39",
+        "cnr_id": "comfy-core",
+        "Node name for S&R": "LoadImage"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "1191_Example_08.png",
+        "image"
+      ]
+    },
+    {
+      "id": 271,
+      "pos": [
+        927.7630615234375,
+        246.62661743164062
+      ],
+      "mode": 0,
+      "size": [
+        315,
+        150
+      ],
+      "type": "SONICTLoader",
+      "flags": {
+        "collapsed": false
+      },
+      "order": 4,
+      "inputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "link": 38,
+          "name": "model",
+          "type": "MODEL",
+          "label": null,
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null
+        }
+      ],
+      "outputs": [
+        {
+          "dir": null,
+          "pos": null,
+          "name": "model",
+          "type": "MODEL_SONIC",
+          "label": null,
+          "links": [
+            41
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": 0
+        },
+        {
+          "dir": null,
+          "pos": null,
+          "name": "weight_dtype",
+          "type": "DTYPE",
+          "label": null,
+          "links": [
+            53
+          ],
+          "shape": null,
+          "locked": null,
+          "color_on": null,
+          "color_off": null,
+          "removable": null,
+          "nameLocked": null,
+          "slot_index": null
+        }
+      ],
+      "properties": {
+        "ver": "8a8400d4170062beed4385fb6334a9d5baccb22c",
+        "cnr_id": "ComfyUI_Sonic",
+        "Node name for S&R": "SONICTLoader"
+      },
+      "showAdvanced": null,
+      "widgets_values": [
+        "unet.pth",
+        1,
+        true,
+        "fp16"
+      ]
+    }
+  ],
+  "config": {},
+  "groups": [
+    {
+      "id": 1,
+      "color": "#3f789e",
+      "flags": {},
+      "title": "Inputs",
+      "bounding": [
+        16.20439910888672,
+        307.8765869140625,
+        477.0833435058594,
+        733.2666625976562
+      ],
+      "font_size": 24
+    }
+  ],
+  "version": 0.4,
+  "revision": 0,
+  "last_link_id": 53,
+  "last_node_id": 289,
+  "floatingLinks": null
+}
