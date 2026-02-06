@@ -1,0 +1,45 @@
+{
+  "name": "nellab",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "application",
+  "sourceRoot": "apps/nellab",
+  "tags": ["type:app", "scope:nellab"],
+  "targets": {
+    "build": {
+      "executor": "@nx/next:build",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "outputPath": "dist/apps/nellab"
+      },
+      "configurations": {
+        "development": {
+          "outputPath": "apps/nellab"
+        },
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/next:server",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "nellab:build",
+        "dev": true,
+        "port": 3006
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "nellab:build:development",
+          "dev": true
+        },
+        "production": {
+          "buildTarget": "nellab:build:production",
+          "dev": false
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint"
+    }
+  }
+}

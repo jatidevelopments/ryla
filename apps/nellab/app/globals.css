@@ -1,0 +1,140 @@
+@import 'tailwindcss';
+
+/* Apple-inspired: calm neutrals, one accent, system typography */
+:root {
+  --nel-bg: #000000;
+  --nel-bg-elevated: #0a0a0a;
+  --nel-surface: #111111;
+  --nel-surface-hover: #1a1a1a;
+  --nel-text: #f5f5f7;
+  --nel-text-secondary: #a1a1a6;
+  --nel-text-tertiary: #6e6e73;
+  --nel-border: rgba(255, 255, 255, 0.08);
+  --nel-accent: #06b6d4;
+  --nel-accent-hover: #22d3ee;
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--nel-bg);
+  color: var(--nel-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Aceternity-style animations */
+@theme inline {
+  --animate-spotlight: spotlight 2s ease 0.75s 1 forwards;
+  --animate-aurora: aurora 60s linear infinite;
+  --animate-first: moveVertical 30s ease infinite;
+  --animate-second: moveInCircle 20s reverse infinite;
+  --animate-third: moveInCircle 40s linear infinite;
+  --animate-fourth: moveHorizontal 40s ease infinite;
+  --animate-fifth: moveInCircle 20s ease infinite;
+}
+@keyframes spotlight {
+  0% {
+    opacity: 0;
+    transform: translate(-72%, -62%) scale(0.5);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -40%) scale(1);
+  }
+}
+@keyframes aurora {
+  from {
+    background-position: 50% 50%, 50% 50%;
+  }
+  to {
+    background-position: 350% 50%, 350% 50%;
+  }
+}
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Background gradient animation (Aceternity) */
+@keyframes moveHorizontal {
+  0% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+  50% {
+    transform: translateX(50%) translateY(10%);
+  }
+  100% {
+    transform: translateX(-50%) translateY(-10%);
+  }
+}
+@keyframes moveInCircle {
+  0% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes moveVertical {
+  0% {
+    transform: translateY(-50%);
+  }
+  50% {
+    transform: translateY(50%);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+/* Illustration ring rotation */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Flow along path (stroke-dashoffset) */
+@keyframes flow-path {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -40;
+  }
+}
+
+/* Anchor offset for fixed header */
+section[id] {
+  scroll-margin-top: 5.5rem;
+}
+
+/* Section eyebrow label */
+.section-eyebrow {
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--nel-text-tertiary);
+}
+
+/* Subtle focus for accessibility */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--nel-bg), 0 0 0 4px var(--nel-accent);
+}
