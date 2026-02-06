@@ -79,6 +79,8 @@ jobs:
       nellab: ${{ steps.affected.outputs.nellab }}
       metabase: ${{ steps.affected.outputs.metabase }}
       has-changes: ${{ steps.affected.outputs.has-changes }}
+      base: ${{ steps.affected.outputs.base }}
+      head: ${{ steps.affected.outputs.head }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -178,6 +180,8 @@ jobs:
           fi
 
           # Set outputs
+          echo "base=$BASE" >> $GITHUB_OUTPUT
+          echo "head=$HEAD" >> $GITHUB_OUTPUT
           echo "web=$WEB_CHANGED" >> $GITHUB_OUTPUT
           echo "api=$API_CHANGED" >> $GITHUB_OUTPUT
           echo "funnel=$FUNNEL_CHANGED" >> $GITHUB_OUTPUT
@@ -194,9 +198,41 @@ jobs:
             echo "No app changes detected"
           fi
 
+  build-affected:
+    name: Build Affected Apps
+    needs: [detect-environment, detect-changes]
+    if: needs.detect-changes.outputs.has-changes == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          lfs: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Enable corepack (for pnpm)
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.26.1 --activate
+          echo "pnpm version: $(pnpm --version)"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build affected apps
+        run: |
+          BASE="${{ needs.detect-changes.outputs.base }}"
+          HEAD="${{ needs.detect-changes.outputs.head }}"
+          echo "Building projects affected between $BASE and $HEAD..."
+          pnpm nx affected -t build --configuration=production --base="$BASE" --head="$HEAD" --verbose
+
   deploy-web:
     name: Deploy Web App (Fly.io)
-    needs: [detect-environment, detect-changes]
+    needs: [detect-environment, detect-changes, build-affected]
     if: needs.detect-changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
@@ -403,7 +439,7 @@ jobs:
 
   deploy-api:
     name: Deploy API App
-    needs: [detect-environment, detect-changes]
+    needs: [detect-environment, detect-changes, build-affected]
     if: needs.detect-changes.outputs.api == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
@@ -593,7 +629,7 @@ jobs:
 
   deploy-funnel:
     name: Deploy Funnel App (Cloudflare Pages)
-    needs: [detect-environment, detect-changes]
+    needs: [detect-environment, detect-changes, build-affected]
     if: needs.detect-changes.outputs.funnel == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
@@ -674,7 +710,7 @@ jobs:
 
   deploy-landing:
     name: Deploy Landing App (Cloudflare Pages)
-    needs: [detect-environment, detect-changes]
+    needs: [detect-environment, detect-changes, build-affected]
     if: needs.detect-changes.outputs.landing == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
@@ -767,7 +803,7 @@ jobs:
 
   deploy-nellab:
     name: Deploy Nellab App (Cloudflare Pages)
-    needs: [detect-environment, detect-changes]
+    needs: [detect-environment, detect-changes, build-affected]
     if: needs.detect-changes.outputs.nellab == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
@@ -836,7 +872,7 @@ jobs:
 
   deploy-admin:
     name: Deploy Admin App
-    needs: [detect-environment, detect-changes]
+    needs: [detect-environment, detect-changes, build-affected]
     if: needs.detect-changes.outputs.admin == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
@@ -1096,7 +1132,7 @@ jobs:
 
   deploy-metabase:
     name: Deploy Metabase (Fly.io)
-    needs: [detect-environment, detect-changes]
+    needs: [detect-environment, detect-changes, build-affected]
     if: needs.detect-changes.outputs.metabase == 'true'
     runs-on: ubuntu-latest
     environment: ${{ needs.detect-environment.outputs.github_env }}
@@ -1136,13 +1172,12 @@ jobs:
         run: |
           set -e
           APP_NAME="ryla-metabase-${{ needs.detect-environment.outputs.fly_suffix }}"
-          ORG="${FLY_ORG:-my-dream-companion}"
-          echo "Deploying to app: $APP_NAME (org: $ORG)"
+          export FLY_ORG="${FLY_ORG:-my-dream-companion}"
+          echo "Deploying to app: $APP_NAME (org: $FLY_ORG)"
           flyctl deploy \
             --config apps/metabase/fly.toml \
             --dockerfile apps/metabase/Dockerfile \
             --app "$APP_NAME" \
-            --org "$ORG" \
             --strategy immediate \
             --verbose
 

@@ -1,4 +1,4 @@
-// Test deployment trigger - 2025-01-11 (final test)
+// Deployment trigger - 2026-02-06: CI build-affected check
 import type { Metadata, Viewport } from 'next';
 import { DM_Sans, JetBrains_Mono } from 'next/font/google';
 import './globals.css';

@@ -1,6 +1,6 @@
 # NEL (Neural Evolution Labs) landing
 
-Company site for Neural Evolution Labs ÖÜ. Static Next.js app deployed to **Cloudflare Pages** (project `ryla-nellab`).
+Company site for Neural Evolution Labs ÖÜ. (Deploy trigger 2026-02-06) Static Next.js app deployed to **Cloudflare Pages** (project `ryla-nellab`).
 
 ## Local deploy (Wrangler)
 

@@ -1,5 +1,5 @@
 // import './instrument';
-// Deployment trigger - 2026-01-13: Fix module format (CommonJS)
+// Deployment trigger - 2026-02-06: CI build-affected check
 
 // Load dotenv FIRST before any other imports
 import { config } from 'dotenv';
