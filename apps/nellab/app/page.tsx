@@ -1,3 +1,4 @@
+// Deployment trigger - 2026-02-06: redeploy after CI fix
 import {
   Navigation,
   Footer,
