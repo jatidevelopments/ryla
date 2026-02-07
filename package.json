@@ -93,8 +93,8 @@
     "deploy:funnel": "npm run predeploy && flyctl deploy --config apps/funnel/fly.toml --dockerfile apps/funnel/Dockerfile --build-arg NEXT_PUBLIC_CDN_URL=\"https://cdn.ryla.ai\" --build-arg NEXT_PUBLIC_DEBUG_CDN=\"true\" --build-arg NEXT_PUBLIC_SITE_URL=\"https://goviral.ryla.ai\" --build-arg NEXT_PUBLIC_API_BASE_URL=\"https://devapi.mydreamcompanion.com\" --build-arg NEXT_PUBLIC_FINBY_PAYMENT_REDIRECT=\"/\" --build-arg NEXT_PUBLIC_POSTHOG_HOST=\"https://us.i.posthog.com\" --build-arg NEXT_PUBLIC_POSTHOG_KEY=\"phc_z3f9QIPUEEiNCGvf2JUH1A73ucx43IG8Ru9qfdfkkGU\" --build-arg NEXT_PUBLIC_SUPABASE_URL=\"https://wkmhcjjphidaaxsulhrw.supabase.co\" --build-arg NEXT_PUBLIC_SUPABASE_ANON_KEY=\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndrbWhjampwaGlkYWF4c3VsaHJ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0OTAzOTMsImV4cCI6MjA4MDA2NjM5M30.Ktt35-wkIFmJepj85VWopFG1_M89DXsSU8ic5vO1orA\""
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.948.0",
-    "@aws-sdk/s3-request-presigner": "^3.948.0",
+    "@aws-sdk/client-s3": "^3.974.0",
+    "@aws-sdk/s3-request-presigner": "^3.980.0",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
@@ -112,7 +112,7 @@
     "@nestjs/platform-express": "^11.1.9",
     "@nestjs/platform-socket.io": "^11.1.9",
     "@nestjs/schedule": "^6.1.0",
-    "@nestjs/swagger": "^11.2.3",
+    "@nestjs/swagger": "^11.2.6",
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/websockets": "^11.1.9",
     "@radix-ui/react-accordion": "^1.2.12",
