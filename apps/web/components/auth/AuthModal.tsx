@@ -3,19 +3,21 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { withCdn } from '@ryla/shared';
 import { useAuthFlow } from '../../app/auth/hooks';
 import { AuthFormContent } from '../../app/auth/components';
 import { fadeIn } from '../../app/auth/constants';
 
-// Promotional images from existing assets (SFW only - bikini/beach/professional)
-const PROMO_IMAGES = [
-  '/poses/expressive-laughing.webp',
-  '/templates/beach/poolside-luxury.webp',
-  '/templates/trending/clean-girl-aesthetic.webp',
-  '/templates/professional/boss-mode-office.webp',
-  '/templates/beginner/golden-hour-magic.webp',
+// Promotional images: upscaled via SeedVR2, served from CDN in prod when NEXT_PUBLIC_CDN_URL is set
+const PROMO_IMAGE_PATHS = [
+  '/auth-promo/auth-promo-1.webp',
+  '/auth-promo/auth-promo-2.webp',
+  '/auth-promo/auth-promo-3.webp',
+  '/auth-promo/auth-promo-4.webp',
+  '/auth-promo/auth-promo-5.webp',
 ];
+const PROMO_IMAGES = PROMO_IMAGE_PATHS.map(withCdn);
 
 // Promotional Image Carousel Component
 function PromotionalImageCarousel() {
@@ -155,7 +157,8 @@ function AuthModalContent() {
         <div
           className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
             filter: 'blur(60px)',
             animation: 'float 12s ease-in-out infinite',
           }}
@@ -163,7 +166,8 @@ function AuthModalContent() {
         <div
           className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] opacity-25"
           style={{
-            background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
             filter: 'blur(60px)',
             animation: 'float 15s ease-in-out infinite reverse',
           }}
@@ -186,7 +190,8 @@ function AuthModalContent() {
               <div
                 className="absolute -inset-[1px] rounded-[28px] lg:rounded-r-none opacity-60"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
                 }}
               />
 
@@ -246,7 +251,7 @@ function AuthModalContent() {
           </div>
 
           {/* Right Column - Promotional Image (Desktop Only) */}
-          <div 
+          <div
             className="hidden lg:block lg:w-[440px]"
             style={{ height: formHeight > 0 ? formHeight : 'auto' }}
           >
@@ -255,7 +260,8 @@ function AuthModalContent() {
               <div
                 className="absolute -inset-[1px] rounded-r-[28px] opacity-60"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
                 }}
               />
               <div className="relative w-full h-full rounded-r-[28px] overflow-hidden border-y border-r border-white/[0.08]">
@@ -269,10 +275,19 @@ function AuthModalContent() {
       {/* CSS for animations */}
       <style jsx global>{`
         @keyframes float {
-          0%, 100% { transform: translate(0, 0); }
-          25% { transform: translate(3%, 3%); }
-          50% { transform: translate(0, 6%); }
-          75% { transform: translate(-3%, 3%); }
+          0%,
+          100% {
+            transform: translate(0, 0);
+          }
+          25% {
+            transform: translate(3%, 3%);
+          }
+          50% {
+            transform: translate(0, 6%);
+          }
+          75% {
+            transform: translate(-3%, 3%);
+          }
         }
       `}</style>
     </div>

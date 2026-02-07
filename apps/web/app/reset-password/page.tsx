@@ -5,19 +5,21 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
+import { withCdn } from '@ryla/shared';
 import { RylaInput } from '@ryla/ui';
 import { resetPassword } from '@/lib/auth';
 import { routes } from '@/lib/routes';
 import { fadeIn } from '../auth/constants';
 
-// Promotional images from existing assets (SFW only - bikini/beach/professional)
-const PROMO_IMAGES = [
-  '/poses/expressive-laughing.webp',
-  '/templates/beach/poolside-luxury.webp',
-  '/templates/trending/clean-girl-aesthetic.webp',
-  '/templates/professional/boss-mode-office.webp',
-  '/templates/beginner/golden-hour-magic.webp',
+// Promotional images: upscaled via SeedVR2, served from CDN in prod when NEXT_PUBLIC_CDN_URL is set
+const PROMO_IMAGE_PATHS = [
+  '/auth-promo/auth-promo-1.webp',
+  '/auth-promo/auth-promo-2.webp',
+  '/auth-promo/auth-promo-3.webp',
+  '/auth-promo/auth-promo-4.webp',
+  '/auth-promo/auth-promo-5.webp',
 ];
+const PROMO_IMAGES = PROMO_IMAGE_PATHS.map(withCdn);
 
 // Promotional Image Carousel Component
 function PromotionalImageCarousel() {
@@ -178,7 +180,7 @@ function ResetPasswordContent() {
     try {
       await resetPassword({ token, password });
       setSuccess(true);
-      
+
       // Redirect to login after 3 seconds
       setTimeout(() => {
         router.push(routes.auth);
@@ -198,7 +200,8 @@ function ResetPasswordContent() {
           <div
             className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] opacity-30"
             style={{
-              background: 'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
+              background:
+                'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
               filter: 'blur(60px)',
               animation: 'float 12s ease-in-out infinite',
             }}
@@ -206,7 +209,8 @@ function ResetPasswordContent() {
           <div
             className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] opacity-25"
             style={{
-              background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
+              background:
+                'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
               filter: 'blur(60px)',
               animation: 'float 15s ease-in-out infinite reverse',
             }}
@@ -225,7 +229,8 @@ function ResetPasswordContent() {
                 <div
                   className="absolute -inset-[1px] rounded-[28px] lg:rounded-r-none opacity-60"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
+                    background:
+                      'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
                   }}
                 />
                 <div className="relative h-full bg-[#12121A] rounded-[28px] lg:rounded-r-none border border-white/[0.08] backdrop-blur-xl p-8 lg:p-10">
@@ -267,7 +272,8 @@ function ResetPasswordContent() {
                           Password Updated
                         </h3>
                         <p className="text-sm text-white/70">
-                          Your password has been successfully reset. Redirecting to login...
+                          Your password has been successfully reset. Redirecting
+                          to login...
                         </p>
                       </div>
                     </div>
@@ -292,7 +298,8 @@ function ResetPasswordContent() {
                 <div
                   className="absolute -inset-[1px] rounded-r-[28px] opacity-60"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
+                    background:
+                      'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
                   }}
                 />
                 <div className="relative w-full h-full rounded-r-[28px] overflow-hidden border-y border-r border-white/[0.08]">
@@ -313,7 +320,8 @@ function ResetPasswordContent() {
         <div
           className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
             filter: 'blur(60px)',
             animation: 'float 12s ease-in-out infinite',
           }}
@@ -321,7 +329,8 @@ function ResetPasswordContent() {
         <div
           className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] opacity-25"
           style={{
-            background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
             filter: 'blur(60px)',
             animation: 'float 15s ease-in-out infinite reverse',
           }}
@@ -329,7 +338,8 @@ function ResetPasswordContent() {
         <div
           className="absolute top-[30%] right-[15%] w-[25%] h-[25%] opacity-20"
           style={{
-            background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 60%)',
             filter: 'blur(50px)',
             animation: 'float 10s ease-in-out infinite',
           }}
@@ -351,7 +361,8 @@ function ResetPasswordContent() {
               <div
                 className="absolute -inset-[1px] rounded-[28px] lg:rounded-r-none opacity-60"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
                 }}
               />
 
@@ -381,8 +392,18 @@ function ResetPasswordContent() {
                   {(error || passwordError) && (
                     <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-red-500/10 to-red-600/5 border border-red-500/20 text-red-400 text-sm font-medium flex items-center gap-3">
                       <div className="w-5 h-5 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-                        <svg className="w-3 h-3 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        <svg
+                          className="w-3 h-3 text-red-400"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
                         </svg>
                       </div>
                       {error || passwordError}
@@ -409,7 +430,8 @@ function ResetPasswordContent() {
                         aria-label="New password"
                       />
                       <p className="mt-2 text-xs text-white/40">
-                        Must be at least 8 characters with a lowercase letter and number
+                        Must be at least 8 characters with a lowercase letter
+                        and number
                       </p>
                     </div>
 
@@ -425,7 +447,9 @@ function ResetPasswordContent() {
                         type="password"
                         placeholder="Confirm your new password"
                         value={confirmPassword}
-                        onChange={(e) => handleConfirmPasswordChange(e.target.value)}
+                        onChange={(e) =>
+                          handleConfirmPasswordChange(e.target.value)
+                        }
                         disabled={isLoading || !token}
                         aria-label="Confirm password"
                       />
@@ -474,8 +498,8 @@ function ResetPasswordContent() {
                         className="text-purple-400/80 hover:text-purple-300 transition-colors"
                       >
                         Terms of use
-                      </Link>
-                      {' '}and{' '}
+                      </Link>{' '}
+                      and{' '}
                       <Link
                         href="/privacy"
                         className="text-purple-400/80 hover:text-purple-300 transition-colors"
@@ -499,7 +523,8 @@ function ResetPasswordContent() {
               <div
                 className="absolute -inset-[1px] rounded-r-[28px] opacity-60"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
                 }}
               />
               <div className="relative w-full h-full rounded-r-[28px] overflow-hidden border-y border-r border-white/[0.08]">
@@ -513,10 +538,19 @@ function ResetPasswordContent() {
       {/* CSS for animations */}
       <style jsx global>{`
         @keyframes float {
-          0%, 100% { transform: translate(0, 0); }
-          25% { transform: translate(3%, 3%); }
-          50% { transform: translate(0, 6%); }
-          75% { transform: translate(-3%, 3%); }
+          0%,
+          100% {
+            transform: translate(0, 0);
+          }
+          25% {
+            transform: translate(3%, 3%);
+          }
+          50% {
+            transform: translate(0, 6%);
+          }
+          75% {
+            transform: translate(-3%, 3%);
+          }
         }
       `}</style>
     </div>
@@ -525,11 +559,13 @@ function ResetPasswordContent() {
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b]">
-        <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-[#0a0a0b]">
+          <div className="w-8 h-8 border-2 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+        </div>
+      }
+    >
       <ResetPasswordContent />
     </Suspense>
   );

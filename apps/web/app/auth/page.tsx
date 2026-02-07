@@ -3,19 +3,21 @@
 import { Suspense, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
+import { withCdn } from '@ryla/shared';
 import { useAuthFlow } from './hooks';
 import { AuthFormContent } from './components';
 import { fadeIn } from './constants';
 
-// Promotional images from existing assets (SFW only - bikini/beach/professional)
-const PROMO_IMAGES = [
-  '/poses/expressive-laughing.webp',
-  '/templates/beach/poolside-luxury.webp',
-  '/templates/trending/clean-girl-aesthetic.webp',
-  '/templates/professional/boss-mode-office.webp',
-  '/templates/beginner/golden-hour-magic.webp',
+// Promotional images: upscaled via SeedVR2, served from CDN in prod when NEXT_PUBLIC_CDN_URL is set
+const PROMO_IMAGE_PATHS = [
+  '/auth-promo/auth-promo-1.webp',
+  '/auth-promo/auth-promo-2.webp',
+  '/auth-promo/auth-promo-3.webp',
+  '/auth-promo/auth-promo-4.webp',
+  '/auth-promo/auth-promo-5.webp',
 ];
+const PROMO_IMAGES = PROMO_IMAGE_PATHS.map(withCdn);
 
 // Promotional Image Carousel Component
 function PromotionalImageCarousel() {
@@ -144,7 +146,8 @@ function AuthContent() {
         <div
           className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] opacity-30"
           style={{
-            background: 'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(147, 51, 234, 0.5) 0%, transparent 60%)',
             filter: 'blur(60px)',
             animation: 'float 12s ease-in-out infinite',
           }}
@@ -152,7 +155,8 @@ function AuthContent() {
         <div
           className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] opacity-25"
           style={{
-            background: 'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(236, 72, 153, 0.4) 0%, transparent 60%)',
             filter: 'blur(60px)',
             animation: 'float 15s ease-in-out infinite reverse',
           }}
@@ -160,7 +164,8 @@ function AuthContent() {
         <div
           className="absolute top-[30%] right-[15%] w-[25%] h-[25%] opacity-20"
           style={{
-            background: 'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 60%)',
+            background:
+              'radial-gradient(circle, rgba(168, 85, 247, 0.4) 0%, transparent 60%)',
             filter: 'blur(50px)',
             animation: 'float 10s ease-in-out infinite',
           }}
@@ -183,7 +188,8 @@ function AuthContent() {
               <div
                 className="absolute -inset-[1px] rounded-[28px] lg:rounded-r-none opacity-60"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(168, 85, 247, 0.4) 0%, rgba(236, 72, 153, 0.2) 50%, rgba(168, 85, 247, 0.3) 100%)',
                 }}
               />
 
@@ -192,62 +198,62 @@ function AuthContent() {
                   {/* RYLA Logo */}
                   <div className="mb-8">
                     <Link href="/" className="inline-block mb-6">
-              <Image
-                src="/logos/Ryla_Logo_white.png"
-                alt="RYLA"
+                      <Image
+                        src="/logos/Ryla_Logo_white.png"
+                        alt="RYLA"
                         width={100}
                         height={32}
                         className="h-8 w-auto transition-all duration-300 hover:scale-105 hover:opacity-90"
-                priority
-              />
-            </Link>
+                        priority
+                      />
+                    </Link>
                     <h1 className="text-[32px] lg:text-[36px] font-bold text-white leading-tight">
-              {mode === 'email' && 'Welcome to RYLA'}
-              {mode === 'login' && 'Welcome back'}
+                      {mode === 'email' && 'Welcome to RYLA'}
+                      {mode === 'login' && 'Welcome back'}
                       {mode === 'register' && 'Create account'}
-            </h1>
+                    </h1>
                     <p className="text-white/50 text-base mt-2">
                       {mode === 'email' && 'Create stunning AI influencers'}
                       {mode === 'login' && 'Sign in to continue'}
                       {mode === 'register' && 'Join thousands of creators'}
-            </p>
-          </div>
+                    </p>
+                  </div>
 
-              <AuthFormContent
-                mode={mode}
-                email={email}
-                emailError={emailError}
-                isLoading={isLoading}
-                isChecking={isChecking}
-                submitError={submitError}
-                emailCheckError={emailCheckError}
-                loginData={loginData}
-                registerData={registerData}
-                handleEmailChange={handleEmailChange}
-                handleEmailCheck={handleEmailCheck}
-                handleEmailKeyDown={handleEmailKeyDown}
-                handleLoginChange={handleLoginChange}
-                handleRegisterChange={handleRegisterChange}
-                handleModeSwitch={handleModeSwitch}
-                handleLoginSubmit={handleLoginSubmit}
-                handleRegisterSubmit={handleRegisterSubmit}
-                handleGoogleAuth={handleGoogleAuth}
-                handleFacebookAuth={handleFacebookAuth}
-                handleDiscordAuth={handleDiscordAuth}
-                handleSwitchToForgotPassword={handleSwitchToForgotPassword}
-                handleForgotPasswordSubmit={handleForgotPasswordSubmit}
-                handleForgotPasswordRetry={handleForgotPasswordRetry}
-                forgotPasswordSuccess={forgotPasswordSuccess}
-                cooldownSeconds={cooldownSeconds}
-                canRetry={canRetry}
-              />
+                  <AuthFormContent
+                    mode={mode}
+                    email={email}
+                    emailError={emailError}
+                    isLoading={isLoading}
+                    isChecking={isChecking}
+                    submitError={submitError}
+                    emailCheckError={emailCheckError}
+                    loginData={loginData}
+                    registerData={registerData}
+                    handleEmailChange={handleEmailChange}
+                    handleEmailCheck={handleEmailCheck}
+                    handleEmailKeyDown={handleEmailKeyDown}
+                    handleLoginChange={handleLoginChange}
+                    handleRegisterChange={handleRegisterChange}
+                    handleModeSwitch={handleModeSwitch}
+                    handleLoginSubmit={handleLoginSubmit}
+                    handleRegisterSubmit={handleRegisterSubmit}
+                    handleGoogleAuth={handleGoogleAuth}
+                    handleFacebookAuth={handleFacebookAuth}
+                    handleDiscordAuth={handleDiscordAuth}
+                    handleSwitchToForgotPassword={handleSwitchToForgotPassword}
+                    handleForgotPasswordSubmit={handleForgotPasswordSubmit}
+                    handleForgotPasswordRetry={handleForgotPasswordRetry}
+                    forgotPasswordSuccess={forgotPasswordSuccess}
+                    cooldownSeconds={cooldownSeconds}
+                    canRetry={canRetry}
+                  />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Right Column - Promotional Image (Desktop Only) */}
-          <div 
+          <div
             className="hidden lg:block lg:w-[440px]"
             style={{ height: formHeight > 0 ? formHeight : 'auto' }}
           >
@@ -256,7 +262,8 @@ function AuthContent() {
               <div
                 className="absolute -inset-[1px] rounded-r-[28px] opacity-60"
                 style={{
-                  background: 'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
+                  background:
+                    'linear-gradient(135deg, rgba(236, 72, 153, 0.2) 0%, rgba(168, 85, 247, 0.3) 50%, rgba(236, 72, 153, 0.2) 100%)',
                 }}
               />
               <div className="relative w-full h-full rounded-r-[28px] overflow-hidden border-y border-r border-white/[0.08]">
@@ -270,10 +277,19 @@ function AuthContent() {
       {/* CSS for animations */}
       <style jsx global>{`
         @keyframes float {
-          0%, 100% { transform: translate(0, 0); }
-          25% { transform: translate(3%, 3%); }
-          50% { transform: translate(0, 6%); }
-          75% { transform: translate(-3%, 3%); }
+          0%,
+          100% {
+            transform: translate(0, 0);
+          }
+          25% {
+            transform: translate(3%, 3%);
+          }
+          50% {
+            transform: translate(0, 6%);
+          }
+          75% {
+            transform: translate(-3%, 3%);
+          }
         }
       `}</style>
     </div>

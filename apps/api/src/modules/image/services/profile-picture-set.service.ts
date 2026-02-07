@@ -5,9 +5,17 @@
  * Uses PuLID workflow for face consistency with the selected base image.
  */
 
-import { forwardRef, Inject, Injectable, Logger, BadRequestException, InternalServerErrorException } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  Logger,
+  BadRequestException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { eq } from 'drizzle-orm';
+import { randomUUID } from 'crypto';
 import {
   getProfilePictureSet,
   buildProfilePicturePrompt,
@@ -18,6 +26,7 @@ import {
   PromptBuilder,
   CharacterDNA,
   ProfilePicturePosition,
+  type ComfyUIWorkflow,
 } from '@ryla/business';
 import { CharacterConfig } from '@ryla/data/schema';
 import { characterConfigToDNA } from './character-config-to-dna';
@@ -68,6 +77,20 @@ export interface ProfilePictureGenerationResult {
   }>;
 }
 
+/** In-memory result for FAL fallback profile picture jobs (SFW only). */
+const FAL_PROFILE_JOB_PREFIX = 'fal_profile:';
+
+interface FalProfileJobState {
+  status: 'in_progress' | 'completed' | 'failed';
+  images?: Array<{
+    id: string;
+    url: string;
+    thumbnailUrl?: string;
+    s3Key?: string;
+  }>;
+  error?: string;
+}
+
 @Injectable()
 export class ProfilePictureSetService {
   private readonly logger = new Logger(ProfilePictureSetService.name);
@@ -77,6 +100,8 @@ export class ProfilePictureSetService {
   private readonly generationJobsRepo: GenerationJobsRepository;
   private readonly imagesRepo: ImagesRepository;
   private readonly db: NodePgDatabase<typeof schema>;
+  /** FAL Z-Image Turbo fallback: jobId -> result (SFW profile pics when Modal unavailable) */
+  private readonly falProfileResults = new Map<string, FalProfileJobState>();
 
   constructor(
     @Inject('DRIZZLE_DB')
@@ -88,7 +113,7 @@ export class ProfilePictureSetService {
     @Inject(forwardRef(() => FalImageService))
     private readonly fal: FalImageService,
     @Inject(forwardRef(() => ImageStorageService))
-    imageStorage: ImageStorageService,
+    imageStorage: ImageStorageService
   ) {
     this.db = db;
     this.comfyuiAdapter = comfyuiAdapter;
@@ -102,36 +127,59 @@ export class ProfilePictureSetService {
    * Generate profile picture set (7-10 images) from selected base image
    */
   async generateProfilePictureSet(
-    input: ProfilePictureSetGenerationInput,
+    input: ProfilePictureSetGenerationInput
   ): Promise<ProfilePictureGenerationResult> {
-    // Priority: Modal.com > FAL (if available) > Error
+    // Priority: Modal.com > FAL Z-Image Turbo (SFW only fallback) > Error
     // Never fallback to ComfyUI/RunPod - they are legacy
     const useModal = this.modalAdapter.isAvailable();
+    const useFalFallback = this.fal.isConfigured() && !input.nsfwEnabled;
 
-    if (!useModal) {
+    if (!useModal && !useFalFallback) {
       throw new BadRequestException(
-        'Modal.com endpoint not available. Check MODAL_ENDPOINT_URL or MODAL_WORKSPACE configuration. Profile pictures require Modal.com for face consistency workflows.',
+        'Modal.com endpoint not available. Set MODAL_WORKSPACE (e.g. ryla) in Infisical /apps/api. For SFW-only profile pictures, FAL_KEY can be set to use fal.ai Z-Image Turbo as fallback. NSFW profile pictures require Modal.com.'
       );
     }
 
-    this.logger.log(`Using Modal.com for profile picture generation`);
+    if (input.nsfwEnabled && !useModal) {
+      throw new BadRequestException(
+        'Profile pictures with NSFW enabled require Modal.com. Set MODAL_WORKSPACE in Infisical /apps/api.'
+      );
+    }
+
+    if (useModal) {
+      this.logger.log(`Using Modal.com for profile picture generation`);
+    } else {
+      this.logger.log(
+        `Using FAL Z-Image Turbo fallback for SFW profile picture generation`
+      );
+    }
 
     // Get profile picture set definition
     const set = getProfilePictureSet(input.setId);
     if (!set) {
-      throw new BadRequestException(`Profile picture set '${input.setId}' not found`);
+      throw new BadRequestException(
+        `Profile picture set '${input.setId}' not found`
+      );
     }
 
     // Convert character config to CharacterDNA if provided, otherwise use set's default DNA
     // Create TWO versions: SFW (excludes breast/ass size) and NSFW (includes them)
     let sfwCharacterDNA: CharacterDNA;
     let nsfwCharacterDNA: CharacterDNA;
-    
+
     if (input.characterConfig && input.characterName) {
       // SFW DNA: excludes breast size and ass size from the prompt
-      sfwCharacterDNA = characterConfigToDNA(input.characterConfig, input.characterName, { sfwMode: true });
+      sfwCharacterDNA = characterConfigToDNA(
+        input.characterConfig,
+        input.characterName,
+        { sfwMode: true }
+      );
       // NSFW DNA: includes breast size and ass size for adult content
-      nsfwCharacterDNA = characterConfigToDNA(input.characterConfig, input.characterName, { sfwMode: false });
+      nsfwCharacterDNA = characterConfigToDNA(
+        input.characterConfig,
+        input.characterName,
+        { sfwMode: false }
+      );
     } else {
       // Fall back to set's default character DNA (used for both SFW and NSFW)
       sfwCharacterDNA = set.characterDNA;
@@ -140,86 +188,23 @@ export class ProfilePictureSetService {
 
     // Generate regular images (7-10 based on set) using PromptBuilder
     // Regular images are SFW - use sfwCharacterDNA (excludes breast/ass size)
-    const regularImages = set.positions.map((position: ProfilePictureSet['positions'][0]) => {
-      // Use actual studio components from position
-      const scene = position.scene || this.mapPositionToScene(position);
-      const environment = position.environment || this.mapPositionToEnvironment(position);
-      const outfit = position.outfit || input.characterConfig?.defaultOutfit || 'casual';
-      const lighting = position.lighting || this.mapPositionToLighting(position);
+    const regularImages = set.positions.map(
+      (position: ProfilePictureSet['positions'][0]) => {
+        // Use actual studio components from position
+        const scene = position.scene || this.mapPositionToScene(position);
+        const environment =
+          position.environment || this.mapPositionToEnvironment(position);
+        const outfit =
+          position.outfit || input.characterConfig?.defaultOutfit || 'casual';
+        const lighting =
+          position.lighting || this.mapPositionToLighting(position);
 
-      // Use PromptBuilder with SFW character DNA (excludes breast/ass size)
-      // Use a dynamic template based on framing - this ensures variety in shots
-      const template = this.getTemplateForFraming(position.framing);
-      
-      const promptBuilder = new PromptBuilder()
-        .withCharacter(sfwCharacterDNA)
-        .withTemplate(template)
-        .withScene(scene)
-        .withOutfit(outfit)
-        .withLighting(lighting)
-        .withExpression(this.mapPositionToExpression(position));
-
-      // CRITICAL: Add framing/shot type to the prompt (full-body, medium, close-up)
-      // This is essential for variety in the generated images
-      promptBuilder.addDetails(this.getFramingPrompt(position.framing));
-      
-      // Add the angle explicitly (front view, back view, side view, three-quarter, etc.)
-      if (position.angle) {
-        promptBuilder.addDetails(position.angle);
-      }
-
-      // Add pose using actual poseId if available, otherwise use the FULL pose description
-      if (position.poseId) {
-        const posePrompt = getPosePrompt(position.poseId);
-        if (posePrompt) {
-          promptBuilder.addDetails(posePrompt);
-        }
-      }
-      
-      // Always add the detailed pose description from the position
-      // This contains important information like "back to camera", "walking", "lying", etc.
-      if (position.pose) {
-        promptBuilder.addDetails(position.pose);
-      }
-
-      // Add activity/personality element if specified
-      if (position.activity) {
-        promptBuilder.addDetails(position.activity);
-      }
-
-      const builtPrompt = promptBuilder
-        .withStylePreset('quality')
-        .build();
-
-      return {
-        position,
-        prompt: builtPrompt.prompt,
-        negativePrompt: builtPrompt.negativePrompt,
-        isNSFW: false,
-        // Store metadata for database
-        scene,
-        environment,
-        outfit,
-        lighting,
-        poseId: position.poseId || null,
-      };
-    });
-
-    // Generate NSFW images if enabled (3 additional) using PromptBuilder
-    // NSFW images can include breast/ass size - use nsfwCharacterDNA
-    const nsfwImages = input.nsfwEnabled
-      ? this.generateNSFWPositions().map((position) => {
-        const scene = (position as any).scene || this.mapPositionToScene(position);
-        const environment = (position as any).environment || this.mapPositionToEnvironment(position);
-        const outfit = 'intimate'; // NSFW appropriate outfit
-        const lighting = position.lighting || this.mapPositionToLighting(position);
-
-        // Use NSFW character DNA (includes breast/ass size for adult content)
+        // Use PromptBuilder with SFW character DNA (excludes breast/ass size)
         // Use a dynamic template based on framing - this ensures variety in shots
         const template = this.getTemplateForFraming(position.framing);
-        
+
         const promptBuilder = new PromptBuilder()
-          .withCharacter(nsfwCharacterDNA)
+          .withCharacter(sfwCharacterDNA)
           .withTemplate(template)
           .withScene(scene)
           .withOutfit(outfit)
@@ -227,49 +212,122 @@ export class ProfilePictureSetService {
           .withExpression(this.mapPositionToExpression(position));
 
         // CRITICAL: Add framing/shot type to the prompt (full-body, medium, close-up)
+        // This is essential for variety in the generated images
         promptBuilder.addDetails(this.getFramingPrompt(position.framing));
-        
-        // Add the angle explicitly
+
+        // Add the angle explicitly (front view, back view, side view, three-quarter, etc.)
         if (position.angle) {
           promptBuilder.addDetails(position.angle);
         }
 
-        // Add pose using actual poseId if available
-        const poseId = (position as any).poseId;
-        if (poseId) {
-          const posePrompt = getPosePrompt(poseId);
+        // Add pose using actual poseId if available, otherwise use the FULL pose description
+        if (position.poseId) {
+          const posePrompt = getPosePrompt(position.poseId);
           if (posePrompt) {
             promptBuilder.addDetails(posePrompt);
           }
         }
-        
-        // Always add the detailed pose description
+
+        // Always add the detailed pose description from the position
+        // This contains important information like "back to camera", "walking", "lying", etc.
         if (position.pose) {
           promptBuilder.addDetails(position.pose);
         }
 
-        const builtPrompt = promptBuilder
-          .withStylePreset('quality')
-          .build();
+        // Add activity/personality element if specified
+        if (position.activity) {
+          promptBuilder.addDetails(position.activity);
+        }
+
+        const builtPrompt = promptBuilder.withStylePreset('quality').build();
 
         return {
           position,
           prompt: builtPrompt.prompt,
           negativePrompt: builtPrompt.negativePrompt,
-          isNSFW: true,
+          isNSFW: false,
           // Store metadata for database
           scene,
           environment,
           outfit,
           lighting,
-          poseId: (position as any).poseId || null,
+          poseId: position.poseId || null,
         };
-      })
+      }
+    );
+
+    // Generate NSFW images if enabled (3 additional) using PromptBuilder
+    // NSFW images can include breast/ass size - use nsfwCharacterDNA
+    const nsfwImages = input.nsfwEnabled
+      ? this.generateNSFWPositions().map((position) => {
+          const scene =
+            (position as any).scene || this.mapPositionToScene(position);
+          const environment =
+            (position as any).environment ||
+            this.mapPositionToEnvironment(position);
+          const outfit = 'intimate'; // NSFW appropriate outfit
+          const lighting =
+            position.lighting || this.mapPositionToLighting(position);
+
+          // Use NSFW character DNA (includes breast/ass size for adult content)
+          // Use a dynamic template based on framing - this ensures variety in shots
+          const template = this.getTemplateForFraming(position.framing);
+
+          const promptBuilder = new PromptBuilder()
+            .withCharacter(nsfwCharacterDNA)
+            .withTemplate(template)
+            .withScene(scene)
+            .withOutfit(outfit)
+            .withLighting(lighting)
+            .withExpression(this.mapPositionToExpression(position));
+
+          // CRITICAL: Add framing/shot type to the prompt (full-body, medium, close-up)
+          promptBuilder.addDetails(this.getFramingPrompt(position.framing));
+
+          // Add the angle explicitly
+          if (position.angle) {
+            promptBuilder.addDetails(position.angle);
+          }
+
+          // Add pose using actual poseId if available
+          const poseId = (position as any).poseId;
+          if (poseId) {
+            const posePrompt = getPosePrompt(poseId);
+            if (posePrompt) {
+              promptBuilder.addDetails(posePrompt);
+            }
+          }
+
+          // Always add the detailed pose description
+          if (position.pose) {
+            promptBuilder.addDetails(position.pose);
+          }
+
+          const builtPrompt = promptBuilder.withStylePreset('quality').build();
+
+          return {
+            position,
+            prompt: builtPrompt.prompt,
+            negativePrompt: builtPrompt.negativePrompt,
+            isNSFW: true,
+            // Store metadata for database
+            scene,
+            environment,
+            outfit,
+            lighting,
+            poseId: (position as any).poseId || null,
+          };
+        })
       : [];
 
     const allImages = [...regularImages, ...nsfwImages];
 
     const generationMode = input.generationMode ?? 'fast';
+
+    // FAL Z-Image Turbo fallback: SFW only, text-to-image (no face consistency)
+    if (useFalFallback) {
+      return this.generateProfilePictureSetViaFal(input, regularImages);
+    }
 
     // Handle reference image based on adapter:
     // - Modal: Convert to base64 data URL (required for Modal endpoints)
@@ -285,16 +343,25 @@ export class ProfilePictureSetService {
           const arrayBuffer = await response.arrayBuffer();
           const buffer = Buffer.from(arrayBuffer);
           const base64 = buffer.toString('base64');
-          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          const contentType =
+            response.headers.get('content-type') || 'image/jpeg';
           referenceImageForModal = `data:${contentType};base64,${base64}`;
-          this.logger.log('Converted reference image to base64 for Modal endpoint');
+          this.logger.log(
+            'Converted reference image to base64 for Modal endpoint'
+          );
         } catch (error) {
-          this.logger.error(`Failed to convert reference image to base64: ${error}`);
-          throw new BadRequestException('Failed to load reference image for Modal endpoint');
+          this.logger.error(
+            `Failed to convert reference image to base64: ${error}`
+          );
+          throw new BadRequestException(
+            'Failed to load reference image for Modal endpoint'
+          );
         }
       } else {
         // For ComfyUI: Upload to input folder
-        referenceImageFilename = await this.uploadReferenceImageToComfyUI(input.baseImageUrl);
+        referenceImageFilename = await this.uploadReferenceImageToComfyUI(
+          input.baseImageUrl
+        );
       }
     }
 
@@ -316,12 +383,13 @@ export class ProfilePictureSetService {
         imageData.position,
         input.width,
         input.height,
-        defaultSize,
+        defaultSize
       );
 
       // Fast mode: speed-first, no PuLID / no reference image
       if (generationMode === 'fast') {
-        const workflowId = input.workflowId ?? this.comfyuiAdapter.getRecommendedWorkflow();
+        const workflowId =
+          input.workflowId ?? this.comfyuiAdapter.getRecommendedWorkflow();
         return buildWorkflow(workflowId, {
           prompt: imageData.prompt,
           negativePrompt: imageData.negativePrompt,
@@ -338,7 +406,9 @@ export class ProfilePictureSetService {
       // InstantID works better than PuLID for single-image workflows and handles extreme angles better
       if (useModal) {
         if (!referenceImageForModal) {
-          throw new BadRequestException('Reference image is required for consistent mode');
+          throw new BadRequestException(
+            'Reference image is required for consistent mode'
+          );
         }
         // For Modal: Use base64 data URL in workflow (will be extracted by detector)
         // We'll pass it as a special marker that the detector can recognize
@@ -359,7 +429,9 @@ export class ProfilePictureSetService {
       } else {
         // For ComfyUI: Use filename
         if (!referenceImageFilename) {
-          throw new BadRequestException('Reference image is required for consistent mode');
+          throw new BadRequestException(
+            'Reference image is required for consistent mode'
+          );
         }
         return buildZImageInstantIDWorkflow({
           prompt: imageData.prompt,
@@ -403,12 +475,16 @@ export class ProfilePictureSetService {
           imageData.position,
           input.width,
           input.height,
-          defaultSize,
+          defaultSize
         );
 
         // Map aspect ratio from position to valid enum value
-        const aspectRatio = imageData.position.aspectRatio === '1:1' ? '1:1' :
-          imageData.position.aspectRatio === '4:5' ? '2:3' : '9:16';
+        const aspectRatio =
+          imageData.position.aspectRatio === '1:1'
+            ? '1:1'
+            : imageData.position.aspectRatio === '4:5'
+            ? '2:3'
+            : '9:16';
 
         // Convert scene/environment to snake_case (as studio does)
         const sceneSnakeCase = (imageData as any).scene
@@ -419,12 +495,18 @@ export class ProfilePictureSetService {
           : null;
 
         // Validate scene/environment against enum values
-        const scene = sceneSnakeCase && schema.scenePresetEnum.enumValues.includes(sceneSnakeCase as any)
-          ? sceneSnakeCase
-          : null;
-        const environment = environmentSnakeCase && schema.environmentPresetEnum.enumValues.includes(environmentSnakeCase as any)
-          ? environmentSnakeCase
-          : null;
+        const scene =
+          sceneSnakeCase &&
+          schema.scenePresetEnum.enumValues.includes(sceneSnakeCase as any)
+            ? sceneSnakeCase
+            : null;
+        const environment =
+          environmentSnakeCase &&
+          schema.environmentPresetEnum.enumValues.includes(
+            environmentSnakeCase as any
+          )
+            ? environmentSnakeCase
+            : null;
 
         await this.generationJobsRepo.createJob({
           userId, // This should be the authenticated user's ID
@@ -443,7 +525,10 @@ export class ProfilePictureSetService {
             // Store actual studio metadata from position
             scene,
             environment,
-            outfit: (imageData as any).outfit || input.characterConfig?.defaultOutfit || null,
+            outfit:
+              (imageData as any).outfit ||
+              input.characterConfig?.defaultOutfit ||
+              null,
             poseId: (imageData as any).poseId || null,
             lightingId: (imageData as any).lighting || null,
             aspectRatio, // Valid enum value: '1:1', '2:3', or '9:16'
@@ -462,17 +547,19 @@ export class ProfilePictureSetService {
       }
 
       this.logger.log(
-        `Queued ${jobIds.length} workflows in parallel for profile picture generation (mode=${generationMode}, steps=${steps})`,
+        `Queued ${jobIds.length} workflows in parallel for profile picture generation (mode=${generationMode}, steps=${steps})`
       );
     } catch (error) {
       this.logger.error(`Failed to queue profile picture workflows: ${error}`);
       throw new InternalServerErrorException(
-        `Failed to queue profile picture generation: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to queue profile picture generation: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
       );
     }
 
     this.logger.log(
-      `Submitted ${workflows.length} profile picture generation jobs (${regularImages.length} regular, ${nsfwImages.length} NSFW)`,
+      `Submitted ${workflows.length} profile picture generation jobs (${regularImages.length} regular, ${nsfwImages.length} NSFW)`
     );
 
     // Map job IDs to positions for progressive loading
@@ -492,6 +579,282 @@ export class ProfilePictureSetService {
       jobPositions, // Map to track which job corresponds to which position
       images: [], // Will be populated when jobs complete
     };
+  }
+
+  /**
+   * Generate SFW profile picture set via FAL Z-Image Turbo (fallback when Modal unavailable).
+   * Text-to-image only; no face consistency.
+   */
+  private async generateProfilePictureSetViaFal(
+    input: ProfilePictureSetGenerationInput,
+    regularImages: Array<{
+      position: ProfilePicturePosition;
+      prompt: string;
+      negativePrompt: string;
+      isNSFW: boolean;
+      scene: string;
+      environment: string;
+      outfit: string;
+      lighting: string;
+      poseId: string | null;
+    }>
+  ): Promise<ProfilePictureGenerationResult> {
+    const defaultSize = 768;
+    const userId = input.userId || 'anonymous';
+    const jobIds: string[] = [];
+
+    for (let i = 0; i < regularImages.length; i++) {
+      const imageData = regularImages[i];
+      const jobId = `${FAL_PROFILE_JOB_PREFIX}${randomUUID()}`;
+      jobIds.push(jobId);
+
+      const { width, height } = this.getDimensionsForPosition(
+        imageData.position,
+        input.width,
+        input.height,
+        defaultSize
+      );
+
+      const aspectRatio =
+        imageData.position.aspectRatio === '1:1'
+          ? '1:1'
+          : imageData.position.aspectRatio === '4:5'
+          ? '2:3'
+          : '9:16';
+
+      const sceneSnake = imageData.scene?.replace(/-/g, '_') ?? null;
+      const environmentSnake =
+        imageData.environment?.replace(/-/g, '_') ?? null;
+      const scene =
+        sceneSnake &&
+        schema.scenePresetEnum.enumValues.includes(sceneSnake as any)
+          ? sceneSnake
+          : null;
+      const environment =
+        environmentSnake &&
+        schema.environmentPresetEnum.enumValues.includes(
+          environmentSnake as any
+        )
+          ? environmentSnake
+          : null;
+
+      await this.generationJobsRepo.createJob({
+        userId,
+        characterId: input.characterId || undefined,
+        type: 'character_sheet_generation',
+        status: 'queued',
+        input: {
+          prompt: imageData.prompt,
+          negativePrompt: imageData.negativePrompt,
+          width,
+          height,
+          nsfw: false,
+          scene,
+          environment,
+          outfit: imageData.outfit,
+          poseId: imageData.poseId,
+          lightingId: imageData.lighting,
+          aspectRatio,
+        } as any,
+        imageCount: 1,
+        completedCount: 0,
+        externalJobId: jobId,
+        externalProvider: 'fal',
+        startedAt: new Date(),
+      });
+
+      this.falProfileResults.set(jobId, { status: 'in_progress' });
+
+      void this.runFalProfileImageJob({
+        jobId,
+        prompt: imageData.prompt,
+        negativePrompt: imageData.negativePrompt,
+        width,
+        height,
+        userId,
+        characterId: input.characterId,
+        jobInput: {
+          prompt: imageData.prompt,
+          negativePrompt: imageData.negativePrompt,
+          width,
+          height,
+          nsfw: false,
+          scene,
+          environment,
+          outfit: imageData.outfit,
+          poseId: imageData.poseId,
+          lightingId: imageData.lighting,
+          aspectRatio,
+        },
+      });
+    }
+
+    const jobPositions = jobIds.map((jobId, index) => {
+      const imageData = regularImages[index];
+      return {
+        jobId,
+        positionId: imageData.position.id,
+        positionName: imageData.position.name,
+        prompt: imageData.prompt,
+        negativePrompt: imageData.negativePrompt,
+        isNSFW: false,
+      };
+    });
+
+    this.logger.log(
+      `Queued ${jobIds.length} FAL Z-Image Turbo profile picture jobs (SFW fallback)`
+    );
+
+    return {
+      jobId: jobIds[0],
+      allJobIds: jobIds,
+      jobPositions,
+      images: [],
+    };
+  }
+
+  /**
+   * Run a single profile picture generation via FAL fal-ai/z-image/turbo (SFW fallback).
+   */
+  private async runFalProfileImageJob(params: {
+    jobId: string;
+    prompt: string;
+    negativePrompt: string;
+    width: number;
+    height: number;
+    userId: string;
+    characterId?: string;
+    jobInput: Record<string, unknown>;
+  }): Promise<void> {
+    const {
+      jobId,
+      prompt,
+      negativePrompt,
+      width,
+      height,
+      userId,
+      characterId,
+      jobInput,
+    } = params;
+    const modelId = 'fal-ai/z-image/turbo' as const;
+
+    try {
+      const out = await this.fal.runFlux(modelId, {
+        prompt,
+        negativePrompt,
+        width,
+        height,
+        seed: Math.floor(Math.random() * 2 ** 32),
+        numImages: 1,
+      });
+
+      if (!out.imageUrls?.length) {
+        throw new Error('FAL returned no images');
+      }
+
+      const base64 = await this.fal.downloadToBase64DataUrl(out.imageUrls[0]);
+      const { images: stored } = await this.imageStorage.uploadImages(
+        [base64],
+        {
+          userId,
+          category: 'profile-pictures',
+          jobId,
+          characterId: characterId || undefined,
+        }
+      );
+
+      if (!stored?.length) {
+        throw new Error('Failed to upload profile picture to storage');
+      }
+
+      const img = stored[0];
+      const normalizeString = (v: unknown): string | null =>
+        v != null && typeof v === 'string' && v.trim() !== '' ? v.trim() : null;
+
+      const scene = normalizeString(jobInput.scene);
+      const sceneValid =
+        scene && schema.scenePresetEnum.enumValues.includes(scene as any)
+          ? scene
+          : null;
+      const environment = normalizeString(jobInput.environment);
+      const environmentValid =
+        environment &&
+        schema.environmentPresetEnum.enumValues.includes(environment as any)
+          ? environment
+          : null;
+      const aspectRatio =
+        jobInput.aspectRatio &&
+        schema.aspectRatioEnum.enumValues.includes(jobInput.aspectRatio as any)
+          ? jobInput.aspectRatio
+          : null;
+
+      const imageRow = await this.imagesRepo.createImage({
+        characterId: characterId ?? null,
+        userId,
+        s3Key: img.key,
+        thumbnailKey: img.key,
+        status: 'completed',
+        nsfw: false,
+        prompt: normalizeString(jobInput.prompt) ?? undefined,
+        negativePrompt: normalizeString(jobInput.negativePrompt) ?? undefined,
+        width: (jobInput.width as number) ?? undefined,
+        height: (jobInput.height as number) ?? undefined,
+        scene: sceneValid ?? undefined,
+        environment: environmentValid ?? undefined,
+        outfit: normalizeString(jobInput.outfit) ?? undefined,
+        poseId: normalizeString(jobInput.poseId) ?? undefined,
+        lightingId: normalizeString(jobInput.lightingId) ?? undefined,
+        aspectRatio: (aspectRatio as string) ?? undefined,
+      } as any);
+
+      const trackedJob = await this.generationJobsRepo.getByExternalJobId({
+        externalJobId: jobId,
+        userId,
+      });
+      if (trackedJob) {
+        await this.generationJobsRepo.updateById(trackedJob.id, {
+          status: 'completed',
+          completedAt: new Date(),
+          completedCount: 1,
+          output: {
+            imageUrls: [img.url],
+            thumbnailUrls: [img.thumbnailUrl],
+            s3Keys: [img.key],
+            imageIds: [imageRow.id],
+          } as Record<string, unknown>,
+        });
+      }
+
+      this.falProfileResults.set(jobId, {
+        status: 'completed',
+        images: [
+          {
+            id: imageRow.id,
+            url: img.url,
+            thumbnailUrl: img.thumbnailUrl,
+            s3Key: img.key,
+          },
+        ],
+      });
+
+      this.logger.log(`FAL profile picture completed jobId=${jobId}`);
+    } catch (e) {
+      const errMsg = e instanceof Error ? e.message : String(e);
+      this.logger.error(`FAL profile picture failed jobId=${jobId}: ${errMsg}`);
+      this.falProfileResults.set(jobId, { status: 'failed', error: errMsg });
+
+      const trackedJob = await this.generationJobsRepo.getByExternalJobId({
+        externalJobId: jobId,
+        userId,
+      });
+      if (trackedJob) {
+        await this.generationJobsRepo.updateById(trackedJob.id, {
+          status: 'failed',
+          completedAt: new Date(),
+          error: errMsg,
+        });
+      }
+    }
   }
 
   /**
@@ -517,34 +880,34 @@ export class ProfilePictureSetService {
 
     if (!useModal && !useFal) {
       throw new BadRequestException(
-        'Neither Modal.com nor FAL available. Check MODAL_ENDPOINT_URL or FAL_KEY configuration. Note: Profile pictures require Modal.com or FAL (ComfyUI/RunPod not supported).',
+        'Neither Modal.com nor FAL available. Set MODAL_WORKSPACE or FAL_KEY in Infisical /apps/api. Profile pictures require Modal.com or FAL (ComfyUI/RunPod not supported).'
       );
     }
-
-    if (!useModal) {
-      // FAL doesn't support workflow-based generation
-      throw new BadRequestException(
-        'Profile picture regeneration requires Modal.com. FAL does not support Z-Image or face consistency workflows.',
-      );
-    }
-
-    this.logger.log(`Using Modal.com for profile picture regeneration`);
 
     // Get profile picture set
     const set = getProfilePictureSet(input.setId);
     if (!set) {
-      throw new BadRequestException(`Profile picture set '${input.setId}' not found`);
+      throw new BadRequestException(
+        `Profile picture set '${input.setId}' not found`
+      );
     }
 
     // Find position
-    const position = set.positions.find((p: ProfilePictureSet['positions'][0]) => p.id === input.positionId);
+    const position = set.positions.find(
+      (p: ProfilePictureSet['positions'][0]) => p.id === input.positionId
+    );
     if (!position) {
-      throw new BadRequestException(`Position '${input.positionId}' not found in set`);
+      throw new BadRequestException(
+        `Position '${input.positionId}' not found in set`
+      );
     }
 
     // Use provided prompt or build from position
     const { prompt, negativePrompt } = input.prompt
-      ? { prompt: input.prompt, negativePrompt: input.negativePrompt || set.negativePrompt }
+      ? {
+          prompt: input.prompt,
+          negativePrompt: input.negativePrompt || set.negativePrompt,
+        }
       : buildProfilePicturePrompt(set, position);
 
     const generationMode = input.generationMode ?? 'fast';
@@ -555,15 +918,99 @@ export class ProfilePictureSetService {
       position,
       input.width,
       input.height,
-      defaultSize,
+      defaultSize
     );
+
+    // FAL Z-Image Turbo fallback (SFW, text-to-image only; no face consistency)
+    if (useFal) {
+      const jobId = `${FAL_PROFILE_JOB_PREFIX}${randomUUID()}`;
+      const userId = 'anonymous';
+      const aspectRatio =
+        position.aspectRatio === '1:1'
+          ? '1:1'
+          : position.aspectRatio === '4:5'
+          ? '2:3'
+          : '9:16';
+      const sceneSnake = (position as any).scene?.replace(/-/g, '_') ?? null;
+      const environmentSnake =
+        (position as any).environment?.replace(/-/g, '_') ?? null;
+      const scene =
+        sceneSnake &&
+        schema.scenePresetEnum.enumValues.includes(sceneSnake as any)
+          ? sceneSnake
+          : null;
+      const environment =
+        environmentSnake &&
+        schema.environmentPresetEnum.enumValues.includes(
+          environmentSnake as any
+        )
+          ? environmentSnake
+          : null;
+
+      await this.generationJobsRepo.createJob({
+        userId,
+        characterId: undefined,
+        type: 'character_sheet_generation',
+        status: 'queued',
+        input: {
+          prompt,
+          negativePrompt,
+          width,
+          height,
+          nsfw: false,
+          scene,
+          environment,
+          outfit: (position as any).outfit ?? null,
+          poseId: (position as any).poseId ?? null,
+          lightingId: (position as any).lighting ?? null,
+          aspectRatio,
+        } as any,
+        imageCount: 1,
+        completedCount: 0,
+        externalJobId: jobId,
+        externalProvider: 'fal',
+        startedAt: new Date(),
+      });
+
+      this.falProfileResults.set(jobId, { status: 'in_progress' });
+      void this.runFalProfileImageJob({
+        jobId,
+        prompt,
+        negativePrompt,
+        width,
+        height,
+        userId,
+        characterId: undefined,
+        jobInput: {
+          prompt,
+          negativePrompt,
+          width,
+          height,
+          nsfw: false,
+          scene,
+          environment,
+          outfit: (position as any).outfit ?? null,
+          poseId: (position as any).poseId ?? null,
+          lightingId: (position as any).lighting ?? null,
+          aspectRatio,
+        },
+      });
+
+      this.logger.log(
+        `Regenerated profile picture via FAL Z-Image Turbo for position '${input.positionId}'`
+      );
+      return { jobId };
+    }
+
+    this.logger.log(`Using Modal.com for profile picture regeneration`);
 
     let workflow: unknown;
     let referenceImageForModal: string | undefined;
     let referenceImageFilename: string | undefined;
-    
+
     if (generationMode === 'fast') {
-      const workflowId = input.workflowId ?? this.comfyuiAdapter.getRecommendedWorkflow();
+      const workflowId =
+        input.workflowId ?? this.comfyuiAdapter.getRecommendedWorkflow();
       workflow = buildWorkflow(workflowId, {
         prompt,
         negativePrompt,
@@ -584,27 +1031,38 @@ export class ProfilePictureSetService {
           const arrayBuffer = await response.arrayBuffer();
           const buffer = Buffer.from(arrayBuffer);
           const base64 = buffer.toString('base64');
-          const contentType = response.headers.get('content-type') || 'image/jpeg';
+          const contentType =
+            response.headers.get('content-type') || 'image/jpeg';
           referenceImageForModal = `data:${contentType};base64,${base64}`;
-        } catch (error) {
-          throw new BadRequestException('Failed to load reference image for Modal endpoint');
+        } catch (_error) {
+          throw new BadRequestException(
+            'Failed to load reference image for Modal endpoint'
+          );
         }
       } else {
         // For ComfyUI: Upload to input folder
-        referenceImageFilename = await this.uploadReferenceImageToComfyUI(input.baseImageUrl);
+        referenceImageFilename = await this.uploadReferenceImageToComfyUI(
+          input.baseImageUrl
+        );
       }
 
       if (useModal && !referenceImageForModal) {
-        throw new BadRequestException('Reference image is required for consistent mode');
+        throw new BadRequestException(
+          'Reference image is required for consistent mode'
+        );
       }
       if (!useModal && !referenceImageFilename) {
-        throw new BadRequestException('Reference image is required for consistent mode');
+        throw new BadRequestException(
+          'Reference image is required for consistent mode'
+        );
       }
 
       workflow = buildZImageInstantIDWorkflow({
         prompt,
         negativePrompt,
-        referenceImage: useModal ? referenceImageForModal! : referenceImageFilename!,
+        referenceImage: useModal
+          ? referenceImageForModal!
+          : referenceImageFilename!,
         width,
         height,
         steps,
@@ -620,31 +1078,56 @@ export class ProfilePictureSetService {
     // Submit workflow using Modal (FAL doesn't support workflows)
     const jobId = await this.modalAdapter.queueWorkflow(workflow as any);
 
-    this.logger.log(`Regenerated profile picture for position '${input.positionId}'`);
+    this.logger.log(
+      `Regenerated profile picture for position '${input.positionId}'`
+    );
 
     return { jobId };
+  }
+
+  /**
+   * Align dimension to multiple of 16 (required by Z-Image / ComfyUI samplers).
+   */
+  private alignToMultipleOf16(value: number): number {
+    return Math.round(value / 16) * 16;
   }
 
   private getDimensionsForPosition(
     position: { aspectRatio?: '1:1' | '4:5' | '9:16' } | undefined,
     widthOverride: number | undefined,
     heightOverride: number | undefined,
-    baseSize: number,
+    baseSize: number
   ): { width: number; height: number } {
+    let width: number;
+    let height: number;
+
     if (widthOverride && heightOverride) {
-      return { width: widthOverride, height: heightOverride };
+      width = widthOverride;
+      height = heightOverride;
+    } else {
+      const ratio = position?.aspectRatio ?? '1:1';
+      switch (ratio) {
+        case '4:5':
+          width = baseSize;
+          height = Math.round((baseSize * 5) / 4);
+          break;
+        case '9:16':
+          width = baseSize;
+          height = Math.round((baseSize * 16) / 9);
+          break;
+        case '1:1':
+        default:
+          width = baseSize;
+          height = baseSize;
+          break;
+      }
     }
 
-    const ratio = position?.aspectRatio ?? '1:1';
-    switch (ratio) {
-      case '4:5':
-        return { width: baseSize, height: Math.round(baseSize * 5 / 4) };
-      case '9:16':
-        return { width: baseSize, height: Math.round(baseSize * 16 / 9) };
-      case '1:1':
-      default:
-        return { width: baseSize, height: baseSize };
-    }
+    // Z-Image and ComfyUI samplers require width/height divisible by 16
+    return {
+      width: this.alignToMultipleOf16(width),
+      height: this.alignToMultipleOf16(height),
+    };
   }
 
   /**
@@ -704,12 +1187,38 @@ export class ProfilePictureSetService {
     // Look up the generation job to get characterId and metadata
     const trackedJob = userId
       ? await this.generationJobsRepo.getByExternalJobId({
-        externalJobId: jobId,
-        userId,
-      })
+          externalJobId: jobId,
+          userId,
+        })
       : null;
 
-    // Profile pictures always use Modal.com (jobId starts with "modal_")
+    // FAL Z-Image Turbo fallback (SFW profile pics when Modal unavailable)
+    if (jobId.startsWith(FAL_PROFILE_JOB_PREFIX)) {
+      const falState = this.falProfileResults.get(jobId);
+      if (!falState) {
+        return { status: 'processing', images: [] };
+      }
+      if (falState.status === 'in_progress') {
+        return { status: 'processing', images: [] };
+      }
+      if (falState.status === 'failed') {
+        return { status: 'failed', images: [], error: falState.error };
+      }
+      if (falState.status === 'completed' && falState.images?.length) {
+        return {
+          status: 'completed',
+          images: falState.images.map((img) => ({
+            id: img.id,
+            url: img.url,
+            thumbnailUrl: img.thumbnailUrl ?? img.url,
+            s3Key: img.s3Key,
+          })),
+        };
+      }
+      return { status: 'completed', images: [] };
+    }
+
+    // Modal.com path (jobId from Modal)
     const status = await this.modalAdapter.getJobStatus(jobId);
 
     if (status.status === 'COMPLETED' && status.output) {
@@ -722,7 +1231,12 @@ export class ProfilePictureSetService {
           await this.generationJobsRepo.updateById(trackedJob.id, {
             status: 'completed',
             completedAt: new Date(),
-            output: { imageUrls: [], thumbnailUrls: [], s3Keys: [], imageIds: [] },
+            output: {
+              imageUrls: [],
+              thumbnailUrls: [],
+              s3Keys: [],
+              imageIds: [],
+            },
           });
         }
         return {
@@ -743,16 +1257,20 @@ export class ProfilePictureSetService {
             category: 'profile-pictures',
             jobId,
             characterId: characterId || undefined,
-          },
+          }
         );
 
-        this.logger.log(`Uploaded ${storedImages.length} profile picture(s) for job ${jobId}`);
+        this.logger.log(
+          `Uploaded ${storedImages.length} profile picture(s) for job ${jobId}`
+        );
 
         // Save images to database with characterId for proper association
         const createdImages = [];
         for (let i = 0; i < storedImages.length; i++) {
           const img = storedImages[i];
-          const jobInput = trackedJob?.input as schema.GenerationInput | undefined;
+          const jobInput = trackedJob?.input as
+            | schema.GenerationInput
+            | undefined;
 
           // Helper to normalize values: convert empty strings, undefined, and invalid values to null
           const normalizeString = (value: any): string | null => {
@@ -834,7 +1352,7 @@ export class ProfilePictureSetService {
             // qualityMode removed - EP-045
 
             // Remove undefined values to avoid passing them to Drizzle
-            Object.keys(imageData).forEach(key => {
+            Object.keys(imageData).forEach((key) => {
               if (imageData[key] === undefined) {
                 delete imageData[key];
               }
@@ -844,11 +1362,21 @@ export class ProfilePictureSetService {
             createdImages.push(imageRow);
           } catch (error) {
             this.logger.error(
-              `Failed to create image record for job ${jobId}: ${error instanceof Error ? error.message : String(error)}`
+              `Failed to create image record for job ${jobId}: ${
+                error instanceof Error ? error.message : String(error)
+              }`
             );
-            this.logger.error(`Image data: s3Key=${img.key}, characterId=${characterId}, userId=${actualUserId}`);
-            this.logger.error(`Validated values: scene=${scene}, environment=${environment}, outfit=${outfit}, poseId=${poseId}, aspectRatio=${aspectRatio}`);
-            this.logger.error(`Full error: ${error instanceof Error ? error.stack : String(error)}`);
+            this.logger.error(
+              `Image data: s3Key=${img.key}, characterId=${characterId}, userId=${actualUserId}`
+            );
+            this.logger.error(
+              `Validated values: scene=${scene}, environment=${environment}, outfit=${outfit}, poseId=${poseId}, aspectRatio=${aspectRatio}`
+            );
+            this.logger.error(
+              `Full error: ${
+                error instanceof Error ? error.stack : String(error)
+              }`
+            );
             throw error; // Re-throw to be caught by outer try-catch
           }
         }
@@ -873,7 +1401,8 @@ export class ProfilePictureSetService {
           images: createdImages.map((row) => ({
             id: row.id,
             url: row.s3Url || storedImages[0]?.url || '',
-            thumbnailUrl: row.thumbnailUrl || storedImages[0]?.thumbnailUrl || '',
+            thumbnailUrl:
+              row.thumbnailUrl || storedImages[0]?.thumbnailUrl || '',
             s3Key: row.s3Key || storedImages[0]?.key,
           })),
         };
@@ -885,7 +1414,8 @@ export class ProfilePictureSetService {
           await this.generationJobsRepo.updateById(trackedJob.id, {
             status: 'failed',
             completedAt: new Date(),
-            error: error instanceof Error ? error.message : 'Failed to save images',
+            error:
+              error instanceof Error ? error.message : 'Failed to save images',
           });
         }
 
@@ -908,21 +1438,23 @@ export class ProfilePictureSetService {
         status.status === 'IN_QUEUE'
           ? 'queued'
           : status.status === 'IN_PROGRESS'
-            ? 'processing'
-            : status.status === 'FAILED'
-              ? 'failed'
-              : 'processing';
+          ? 'processing'
+          : status.status === 'FAILED'
+          ? 'failed'
+          : 'processing';
 
       // Handle failed jobs with automatic retry (up to 3 attempts)
       if (mapped === 'failed' && trackedJob.status !== 'failed') {
-        const retryCount = (trackedJob.retryCount || 0);
+        const retryCount = trackedJob.retryCount || 0;
         const maxRetries = 3;
 
         if (retryCount < maxRetries) {
           // Automatically retry the job
           try {
             this.logger.log(
-              `Retrying failed profile picture job ${jobId} (attempt ${retryCount + 1}/${maxRetries})`
+              `Retrying failed profile picture job ${jobId} (attempt ${
+                retryCount + 1
+              }/${maxRetries})`
             );
 
             // Rebuild workflow from job input
@@ -937,8 +1469,10 @@ export class ProfilePictureSetService {
               trackedJob.characterId
             );
 
-            // Re-queue the workflow
-            const newJobId = await this.comfyuiAdapter.queueWorkflow(workflow);
+            // Re-queue the workflow via Modal (same as initial submit)
+            const newJobId = await this.modalAdapter.queueWorkflow(
+              workflow as ComfyUIWorkflow
+            );
 
             // Update job with new external job ID and reset status
             await this.generationJobsRepo.updateById(trackedJob.id, {
@@ -950,7 +1484,9 @@ export class ProfilePictureSetService {
             });
 
             this.logger.log(
-              `Retried job ${jobId} -> new job ${newJobId} (retry ${retryCount + 1}/${maxRetries})`
+              `Retried job ${jobId} -> new job ${newJobId} (retry ${
+                retryCount + 1
+              }/${maxRetries})`
             );
 
             // Return queued status for the new job - retry successful
@@ -960,12 +1496,22 @@ export class ProfilePictureSetService {
             };
           } catch (retryError) {
             this.logger.error(
-              `Failed to retry job ${jobId}: ${retryError instanceof Error ? retryError.message : String(retryError)}`
+              `Failed to retry job ${jobId}: ${
+                retryError instanceof Error
+                  ? retryError.message
+                  : String(retryError)
+              }`
             );
             // Mark as failed if retry itself fails
             await this.generationJobsRepo.updateById(trackedJob.id, {
               status: 'failed',
-              error: status.error || `Retry failed: ${retryError instanceof Error ? retryError.message : String(retryError)}`,
+              error:
+                status.error ||
+                `Retry failed: ${
+                  retryError instanceof Error
+                    ? retryError.message
+                    : String(retryError)
+                }`,
             });
           }
         } else {
@@ -1013,14 +1559,20 @@ export class ProfilePictureSetService {
       }
     } else if (position.framing === 'medium') {
       // Medium shots use lifestyle scenes
-      if (position.lighting?.includes('golden') || position.lighting?.includes('sunlight')) {
+      if (
+        position.lighting?.includes('golden') ||
+        position.lighting?.includes('sunlight')
+      ) {
         return 'cozy-cafe'; // Warm lifestyle scene
       } else {
         return 'luxury-bedroom'; // Indoor lifestyle scene
       }
     } else {
       // Full-body shots use outdoor/urban scenes
-      if (position.lighting?.includes('golden') || position.lighting?.includes('sunset')) {
+      if (
+        position.lighting?.includes('golden') ||
+        position.lighting?.includes('sunset')
+      ) {
         return 'beach-sunset'; // Golden hour outdoor scene
       } else if (position.lighting?.includes('dramatic')) {
         return 'city-rooftop'; // Urban dramatic scene
@@ -1041,11 +1593,38 @@ export class ProfilePictureSetService {
 
     // Fallback: Infer from scene
     const scene = position.scene || this.mapPositionToScene(position);
-    if (scene.includes('studio') || scene.includes('gym') || scene.includes('cafe') || scene.includes('bedroom') || scene.includes('office') || scene.includes('gallery') || scene.includes('boutique') || scene.includes('library') || scene.includes('kitchen') || scene.includes('bathroom')) {
+    if (
+      scene.includes('studio') ||
+      scene.includes('gym') ||
+      scene.includes('cafe') ||
+      scene.includes('bedroom') ||
+      scene.includes('office') ||
+      scene.includes('gallery') ||
+      scene.includes('boutique') ||
+      scene.includes('library') ||
+      scene.includes('kitchen') ||
+      scene.includes('bathroom')
+    ) {
       return 'indoor';
-    } else if (scene.includes('beach') || scene.includes('park') || scene.includes('forest') || scene.includes('mountain') || scene.includes('lake') || scene.includes('desert') || scene.includes('snow')) {
+    } else if (
+      scene.includes('beach') ||
+      scene.includes('park') ||
+      scene.includes('forest') ||
+      scene.includes('mountain') ||
+      scene.includes('lake') ||
+      scene.includes('desert') ||
+      scene.includes('snow')
+    ) {
       return 'outdoor';
-    } else if (scene.includes('rooftop') || scene.includes('street') || scene.includes('alley') || scene.includes('subway') || scene.includes('market') || scene.includes('bridge') || scene.includes('garage')) {
+    } else if (
+      scene.includes('rooftop') ||
+      scene.includes('street') ||
+      scene.includes('alley') ||
+      scene.includes('subway') ||
+      scene.includes('market') ||
+      scene.includes('bridge') ||
+      scene.includes('garage')
+    ) {
       return 'urban';
     }
 
@@ -1057,16 +1636,31 @@ export class ProfilePictureSetService {
    */
   private mapPositionToLighting(position: ProfilePicturePosition): string {
     // Convert position lighting description to actual lighting preset IDs
-    const lightingLower = (position.lighting || 'natural-daylight').toLowerCase();
+    const lightingLower = (
+      position.lighting || 'natural-daylight'
+    ).toLowerCase();
     if (lightingLower.includes('natural') || lightingLower.includes('window')) {
       return 'natural-daylight'; // Maps to natural.soft in PromptBuilder
-    } else if (lightingLower.includes('golden') || lightingLower.includes('sunlight') || lightingLower.includes('golden hour')) {
+    } else if (
+      lightingLower.includes('golden') ||
+      lightingLower.includes('sunlight') ||
+      lightingLower.includes('golden hour')
+    ) {
       return 'golden-hour'; // Maps to natural.golden-hour
-    } else if (lightingLower.includes('professional') || lightingLower.includes('softbox')) {
+    } else if (
+      lightingLower.includes('professional') ||
+      lightingLower.includes('softbox')
+    ) {
       return 'studio-softbox'; // Maps to studio.soft
-    } else if (lightingLower.includes('dramatic') || lightingLower.includes('shadows')) {
+    } else if (
+      lightingLower.includes('dramatic') ||
+      lightingLower.includes('shadows')
+    ) {
       return 'dramatic-shadows'; // Maps to studio.dramatic
-    } else if (lightingLower.includes('soft') || lightingLower.includes('diffused')) {
+    } else if (
+      lightingLower.includes('soft') ||
+      lightingLower.includes('diffused')
+    ) {
       return 'soft-diffused'; // Maps to natural.soft
     }
     return 'natural-daylight'; // Default to natural daylight
@@ -1076,7 +1670,9 @@ export class ProfilePictureSetService {
    * Get template ID based on framing type
    * Different framings need different templates for best results
    */
-  private getTemplateForFraming(framing: 'close-up' | 'medium' | 'full-body'): string {
+  private getTemplateForFraming(
+    framing: 'close-up' | 'medium' | 'full-body'
+  ): string {
     switch (framing) {
       case 'full-body':
         return 'fullbody-standing-casual'; // Template optimized for full-body shots
@@ -1092,7 +1688,9 @@ export class ProfilePictureSetService {
    * Get framing prompt text for the shot type
    * This is critical for generating the right camera distance
    */
-  private getFramingPrompt(framing: 'close-up' | 'medium' | 'full-body'): string {
+  private getFramingPrompt(
+    framing: 'close-up' | 'medium' | 'full-body'
+  ): string {
     switch (framing) {
       case 'full-body':
         return 'full body shot, entire body visible from head to feet, wide framing, environmental portrait';
@@ -1109,17 +1707,42 @@ export class ProfilePictureSetService {
    */
   private mapPositionToExpression(position: ProfilePicturePosition): string {
     const exprLower = position.expression.toLowerCase();
-    if (exprLower.includes('smile') || exprLower.includes('warm') || exprLower.includes('genuine') || exprLower.includes('happy')) {
+    if (
+      exprLower.includes('smile') ||
+      exprLower.includes('warm') ||
+      exprLower.includes('genuine') ||
+      exprLower.includes('happy')
+    ) {
       return 'positive.happy';
-    } else if (exprLower.includes('confident') || exprLower.includes('self-assured') || exprLower.includes('fierce')) {
+    } else if (
+      exprLower.includes('confident') ||
+      exprLower.includes('self-assured') ||
+      exprLower.includes('fierce')
+    ) {
       return 'positive.confident';
-    } else if (exprLower.includes('relaxed') || exprLower.includes('natural') || exprLower.includes('peaceful')) {
+    } else if (
+      exprLower.includes('relaxed') ||
+      exprLower.includes('natural') ||
+      exprLower.includes('peaceful')
+    ) {
       return 'neutral.natural';
-    } else if (exprLower.includes('seductive') || exprLower.includes('alluring') || exprLower.includes('sultry')) {
+    } else if (
+      exprLower.includes('seductive') ||
+      exprLower.includes('alluring') ||
+      exprLower.includes('sultry')
+    ) {
       return 'suggestive.seductive';
-    } else if (exprLower.includes('playful') || exprLower.includes('joyful') || exprLower.includes('laughing')) {
+    } else if (
+      exprLower.includes('playful') ||
+      exprLower.includes('joyful') ||
+      exprLower.includes('laughing')
+    ) {
       return 'positive.playful';
-    } else if (exprLower.includes('thoughtful') || exprLower.includes('contemplative') || exprLower.includes('mysterious')) {
+    } else if (
+      exprLower.includes('thoughtful') ||
+      exprLower.includes('contemplative') ||
+      exprLower.includes('mysterious')
+    ) {
       return 'neutral.thoughtful';
     }
     return 'positive.confident'; // Default
@@ -1162,7 +1785,8 @@ export class ProfilePictureSetService {
     },
     characterId?: string | null
   ): Promise<unknown> {
-    const generationMode = jobInput.editType === 'inpaint' ? 'consistent' : 'fast';
+    const generationMode =
+      jobInput.editType === 'inpaint' ? 'consistent' : 'fast';
     let baseImageUrl = jobInput.sourceImageId; // baseImageUrl was stored in sourceImageId
 
     if (!baseImageUrl && characterId) {
@@ -1177,11 +1801,14 @@ export class ProfilePictureSetService {
     }
 
     if (!baseImageUrl && generationMode === 'consistent') {
-      throw new BadRequestException('Cannot retry: base image URL not available for consistent mode');
+      throw new BadRequestException(
+        'Cannot retry: base image URL not available for consistent mode'
+      );
     }
 
-    const width = jobInput.width || 768;
-    const height = jobInput.height || 768;
+    // Align to multiple of 16 (Z-Image / ComfyUI requirement)
+    const width = this.alignToMultipleOf16(jobInput.width || 768);
+    const height = this.alignToMultipleOf16(jobInput.height || 768);
     const steps = jobInput.steps || (generationMode === 'fast' ? 9 : 20);
     const cfg = (jobInput as any).cfg || 1.0;
 
@@ -1200,16 +1827,25 @@ export class ProfilePictureSetService {
       });
     }
 
-    // Consistent mode: Z-Image InstantID workflow (better than PuLID)
+    // Consistent mode: Z-Image InstantID workflow (Modal expects base64 ref image)
     if (!baseImageUrl) {
-      throw new BadRequestException('Reference image is required for consistent mode retry');
+      throw new BadRequestException(
+        'Reference image is required for consistent mode retry'
+      );
     }
 
-    const referenceImageFilename = await this.uploadReferenceImageToComfyUI(baseImageUrl);
+    // Use base64 data URL for Modal (retry uses modalAdapter)
+    const response = await fetch(baseImageUrl);
+    const arrayBuffer = await response.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString('base64');
+    const contentType = response.headers.get('content-type') || 'image/jpeg';
+    const referenceImageBase64 = `data:${contentType};base64,${base64}`;
+
     return buildZImageInstantIDWorkflow({
       prompt: jobInput.prompt || '',
       negativePrompt: jobInput.negativePrompt || '',
-      referenceImage: referenceImageFilename,
+      referenceImage: referenceImageBase64,
       width,
       height,
       steps,
@@ -1226,7 +1862,9 @@ export class ProfilePictureSetService {
    * Upload reference image to ComfyUI input folder
    * Returns the filename that can be used with LoadImage node
    */
-  private async uploadReferenceImageToComfyUI(imageUrl: string): Promise<string> {
+  private async uploadReferenceImageToComfyUI(
+    imageUrl: string
+  ): Promise<string> {
     try {
       // Fetch image from URL
       const response = await fetch(imageUrl);
@@ -1242,16 +1880,24 @@ export class ProfilePictureSetService {
       const filename = `pulid-reference-${timestamp}.png`;
 
       // Upload to ComfyUI input folder
-      const uploadedFilename = await this.comfyuiAdapter.uploadImage(buffer, filename);
+      const uploadedFilename = await this.comfyuiAdapter.uploadImage(
+        buffer,
+        filename
+      );
 
-      this.logger.log(`Uploaded reference image to ComfyUI: ${uploadedFilename}`);
+      this.logger.log(
+        `Uploaded reference image to ComfyUI: ${uploadedFilename}`
+      );
       return uploadedFilename;
     } catch (error) {
-      this.logger.error(`Failed to upload reference image to ComfyUI: ${error}`);
+      this.logger.error(
+        `Failed to upload reference image to ComfyUI: ${error}`
+      );
       throw new BadRequestException(
-        `Failed to upload reference image: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        `Failed to upload reference image: ${
+          error instanceof Error ? error.message : 'Unknown error'
+        }`
       );
     }
   }
 }
-

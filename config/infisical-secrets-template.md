@@ -95,6 +95,24 @@ Secrets for the NestJS backend API (`apps/api`).
 | `AWS_S3_ENDPOINT`         | Custom endpoint (MinIO/R2)  | `http://localhost:9000` |
 | `AWS_S3_FORCE_PATH_STYLE` | Path style access           | `false`                 |
 
+### Modal.com (required for profile pictures & image generation)
+
+| Secret Name       | Description                                       | Example |
+| ----------------- | ------------------------------------------------- | ------- |
+| `MODAL_WORKSPACE` | Modal workspace name (used to build per-app URLs) | `ryla`  |
+
+Set `MODAL_WORKSPACE` in **dev**, **staging**, and **prod** under `/apps/api` so profile picture generation and Modal image workflows work. Without it, you'll see: "Modal.com endpoint not available".
+
+### Fal.ai (optional fallback when Modal unavailable)
+
+| Secret Name | Description                                        | Example   |
+| ----------- | -------------------------------------------------- | --------- |
+| `FAL_KEY`   | Fal.ai API key (single env; use this in Infisical) | `fal_xxx` |
+
+- **Dev:** `FAL_KEY` is set under `/apps/api` in Infisical. SFW image flows (base images, profile pictures, studio) use Fal.ai when Modal is down.
+- **Staging / prod:** Add `FAL_KEY` under `/apps/api` (or `/shared` if the API loads shared) if you want FAL fallback there.
+- Code reads only `FAL_KEY`; `FAL_API_KEY` is still supported as a fallback for backward compatibility.
+
 ### AI/LLM
 
 | Secret Name                     | Description               | Example              |
@@ -204,6 +222,26 @@ Secrets for the admin dashboard (`apps/admin`).
 | `NEXT_PUBLIC_API_URL`      | Backend API URL     | `https://end.ryla.ai`   |
 | `NEXT_PUBLIC_API_BASE_URL` | Alias for API URL   | `https://end.ryla.ai`   |
 
+### Database (required for login and tRPC)
+
+Store **`DATABASE_URL` in `/shared`** (prod) so it’s synced to Fly the same way as the web app; the admin deploy exports `/shared` and sets secrets on the admin Fly app, so Fly injects it at runtime. Alternatively use `POSTGRES_*` in `/apps/admin`.
+
+| Secret Name        | Where to set  | Description                                        |
+| ------------------ | ------------- | -------------------------------------------------- |
+| `DATABASE_URL`     | **`/shared`** | Postgres URL (same as web); Fly injects at runtime |
+| `ADMIN_JWT_SECRET` | `/apps/admin` | JWT signing secret                                 |
+| `POSTGRES_*`       | `/apps/admin` | (optional) if not using DATABASE_URL               |
+
+### First admin user (optional – auto-seed on deploy)
+
+Set these in **`/shared`** (prod) so they are synced to the admin Fly app and the deploy workflow can create the first admin user after each deploy (idempotent: no-op if user exists). Same DB as web/app; no tunnel needed.
+
+| Secret Name        | Description                                                                                                                                                      |
+| ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ADMIN_EMAIL`      | Email for the first admin user (e.g. `admin@ryla.ai`)                                                                                                            |
+| `ADMIN_PASSWORD`   | Password for the first admin user (strong, stored only in Infisical)                                                                                             |
+| `ADMIN_SEED_TOKEN` | Secret token for `POST /api/auth/seed` (Bearer). Deploy step calls this endpoint; app uses `ADMIN_EMAIL`/`ADMIN_PASSWORD` from env to create user if not exists. |
+
 ### Analytics (PostHog)
 
 | Secret Name                | Description         | Example                    |
@@ -251,7 +289,15 @@ Secrets for the landing page (`apps/landing`).
 
 ## `/shared` - Shared Secrets
 
-Secrets shared across multiple applications.
+Secrets shared across multiple applications. Fly deploy workflows export `/shared` and set these on each app’s Fly secrets, so they are injected at runtime (e.g. web and admin both get `DATABASE_URL` from here).
+
+### Database
+
+| Secret Name    | Description             | Used by                                         |
+| -------------- | ----------------------- | ----------------------------------------------- |
+| `DATABASE_URL` | Postgres connection URL | Web, Admin, API (when configured to use shared) |
+
+Example (prod): `postgres://user:pass@host:5432/fly-db?sslmode=require`
 
 ### Supabase
 

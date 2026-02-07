@@ -64,11 +64,11 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
       provide: JOB_RUNNER_TOKEN,
       useFactory: (
         modal: ModalJobRunnerAdapter,
-        runpod: RunPodJobRunnerAdapter,
+        runpod: RunPodJobRunnerAdapter
       ) => {
         // Priority: Modal.com > RunPod
         // Use Modal.com if endpoint URL or workspace is configured
-        if (process.env['MODAL_ENDPOINT_URL'] || process.env['MODAL_WORKSPACE']) {
+        if (process.env['MODAL_WORKSPACE']) {
           return modal;
         }
         // Fall back to RunPod serverless endpoints
@@ -81,7 +81,7 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
       provide: ImageGenerationService,
       useFactory: (
         db: NodePgDatabase<typeof schema>,
-        jobRunner: ModalJobRunnerAdapter | RunPodJobRunnerAdapter,
+        jobRunner: ModalJobRunnerAdapter | RunPodJobRunnerAdapter
       ) => {
         const generationJobsRepo = new GenerationJobsRepository(db);
         return new ImageGenerationService(generationJobsRepo, jobRunner);
@@ -102,4 +102,3 @@ export const JOB_RUNNER_TOKEN = 'JOB_RUNNER';
   ],
 })
 export class ImageModule {}
-

@@ -29,7 +29,7 @@ export class VoiceTranscriptionService {
    */
   async transcribeAudio(
     audioFile: Buffer,
-    audioFormat: string = 'audio/webm',
+    audioFormat: string = 'audio/webm'
   ): Promise<TranscriptionResult> {
     const falKey = this.getFalKey();
     if (!falKey) {
@@ -52,7 +52,9 @@ export class VoiceTranscriptionService {
       // language: 'en',
     };
 
-    this.logger.log(`Transcribing audio with ${modelId} (requestId: ${requestId})`);
+    this.logger.log(
+      `Transcribing audio with ${modelId} (requestId: ${requestId})`
+    );
 
     const res = await fetch(url, {
       method: 'POST',
@@ -67,9 +69,13 @@ export class VoiceTranscriptionService {
     const text = await res.text();
     if (!res.ok) {
       this.logger.warn(
-        `Fal transcription failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`,
+        `Fal transcription failed (${modelId}) status=${
+          res.status
+        } body=${text.slice(0, 500)}`
       );
-      throw new Error(`Fal transcription failed (${modelId}) status=${res.status}`);
+      throw new Error(
+        `Fal transcription failed (${modelId}) status=${res.status}`
+      );
     }
 
     let json: unknown;
@@ -90,7 +96,7 @@ export class VoiceTranscriptionService {
    */
   async *streamTranscription(
     audioFile: Buffer,
-    audioFormat: string = 'audio/webm',
+    audioFormat: string = 'audio/webm'
   ): AsyncGenerator<string, void, unknown> {
     const falKey = this.getFalKey();
     if (!falKey) {
@@ -107,7 +113,9 @@ export class VoiceTranscriptionService {
       audio_url: `data:${mimeType};base64,${base64Audio}`,
     };
 
-    this.logger.log(`Transcribing audio with ${modelId} (requestId: ${requestId})`);
+    this.logger.log(
+      `Transcribing audio with ${modelId} (requestId: ${requestId})`
+    );
 
     // Send initial "processing" signal
     yield '';
@@ -125,9 +133,13 @@ export class VoiceTranscriptionService {
     const text = await res.text();
     if (!res.ok) {
       this.logger.warn(
-        `Fal transcription failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`,
+        `Fal transcription failed (${modelId}) status=${
+          res.status
+        } body=${text.slice(0, 500)}`
       );
-      throw new Error(`Fal transcription failed (${modelId}) status=${res.status}`);
+      throw new Error(
+        `Fal transcription failed (${modelId}) status=${res.status}`
+      );
     }
 
     let json: unknown;
@@ -154,7 +166,7 @@ export class VoiceTranscriptionService {
   }
 
   private getFalKey(): string | undefined {
-    return process.env['FAL_KEY'];
+    return process.env['FAL_KEY'] ?? process.env['FAL_API_KEY'];
   }
 
   private getMimeType(audioFormat: string): string {
@@ -187,4 +199,3 @@ export class VoiceTranscriptionService {
     };
   }
 }
-

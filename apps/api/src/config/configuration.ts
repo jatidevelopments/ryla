@@ -27,7 +27,7 @@ export default (): Config => ({
         const url = new URL(process.env.REDIS_URL);
         const port = Number(url.port) || 6379;
         const host = url.hostname;
-        
+
         // Handle username:password format (Fly.io/Upstash)
         // If username is present, password is in url.password
         // If no username, password might be in url.password or url.username
@@ -50,10 +50,15 @@ export default (): Config => ({
           environment: process.env.REDIS_ENVIRONMENT || 'production',
         };
 
-        console.log(`[Config] Redis configured from REDIS_URL: ${host}:${port} (env: ${config.environment})`);
+        console.log(
+          `[Config] Redis configured from REDIS_URL: ${host}:${port} (env: ${config.environment})`
+        );
         return config;
       } catch (error) {
-        console.warn('[Config] Failed to parse REDIS_URL, using individual variables:', error);
+        console.warn(
+          '[Config] Failed to parse REDIS_URL, using individual variables:',
+          error
+        );
       }
     }
     // Fallback to individual variables
@@ -63,7 +68,9 @@ export default (): Config => ({
       password: process.env.REDIS_PASSWORD || '',
       environment: process.env.REDIS_ENVIRONMENT || 'local',
     };
-    console.log(`[Config] Redis configured from individual vars: ${config.host}:${config.port} (env: ${config.environment})`);
+    console.log(
+      `[Config] Redis configured from individual vars: ${config.host}:${config.port} (env: ${config.environment})`
+    );
     return config;
   })(),
   jwt: {
@@ -71,10 +78,10 @@ export default (): Config => ({
     accessExpiresIn: Number(process.env.JWT_ACCESS_EXPIRES_IN) || 3600,
     refreshSecret: process.env.JWT_REFRESH_SECRET || 'refresh-secret',
     refreshExpiresIn: Number(process.env.JWT_REFRESH_EXPIRES_IN) || 86400,
-    actionForgotPasswordSecret: process.env.JWT_ACTION_FORGOT_PASSWORD_SECRET || 'forgot-secret',
-    actionForgotPasswordExpiresIn: Number(
-      process.env.JWT_ACTION_FORGOT_PASSWORD_EXPIRES_IN,
-    ) || 3600,
+    actionForgotPasswordSecret:
+      process.env.JWT_ACTION_FORGOT_PASSWORD_SECRET || 'forgot-secret',
+    actionForgotPasswordExpiresIn:
+      Number(process.env.JWT_ACTION_FORGOT_PASSWORD_EXPIRES_IN) || 3600,
   },
   aws: {
     region: process.env.AWS_S3_REGION || 'us-east-1',
@@ -133,21 +140,24 @@ export default (): Config => ({
     retryCount: Number(process.env.LLM_RETRY_COUNT) || 3,
     delay: Number(process.env.LLM_DELAY) || 1000,
     chatmlUrl:
-      process.env.LLM_CHATML_CHAT_COMPLETION_PROMPT_PREPARATION_LAMBDA_URL || '',
+      process.env.LLM_CHATML_CHAT_COMPLETION_PROMPT_PREPARATION_LAMBDA_URL ||
+      '',
     mistralUrl:
-      process.env.LLM_MISTRAL_CHAT_COMPLETION_PROMPT_PREPARATION_LAMBDA_URL || '',
+      process.env.LLM_MISTRAL_CHAT_COMPLETION_PROMPT_PREPARATION_LAMBDA_URL ||
+      '',
     alpacaUrl:
-      process.env.LLM_ALPACA_CHAT_COMPLETION_PROMPT_PREPARATION_LAMBDA_URL || '',
+      process.env.LLM_ALPACA_CHAT_COMPLETION_PROMPT_PREPARATION_LAMBDA_URL ||
+      '',
   },
   llmParameters: {
     temperature: Number(process.env.LLM_PARAMS_TEMPERATURE) || 0.7,
     minP: Number(process.env.LLM_PARAMS_MIN_P) || 0.1,
     maxTokens: Number(process.env.LLM_PARAMS_MAX_TOKENS) || 1000,
     repetitionPenalty: Number(process.env.LLM_PARAMS_REPETITION_PENALTY) || 1.1,
-    repetitionPenaltyRange: Number(
-      process.env.LLM_PARAMS_REPETITION_PENALTY_RANGE,
-    ) || 1024,
-    summaryTemperature: Number(process.env.LLM_SUMMARY_PARAMS_TEMPERATURE) || 0.7,
+    repetitionPenaltyRange:
+      Number(process.env.LLM_PARAMS_REPETITION_PENALTY_RANGE) || 1024,
+    summaryTemperature:
+      Number(process.env.LLM_SUMMARY_PARAMS_TEMPERATURE) || 0.7,
     summaryMaxTokens: Number(process.env.LLM_SUMMARY_PARAMS_MAX_TOKENS) || 500,
   },
   slack: {
@@ -191,7 +201,8 @@ export default (): Config => ({
     secret: process.env.OPEN_AI_MODERATION_SECRET || '',
     customModerationModelAuthToken:
       process.env.CUSTOM_MODERATION_MODEL_AUTH_TOKEN || '',
-    customModerationModelEndpoint: process.env.CUSTOM_MODRATION_MODEL_ENDPOINT || '',
+    customModerationModelEndpoint:
+      process.env.CUSTOM_MODRATION_MODEL_ENDPOINT || '',
   },
   awsBlurredConfig: {
     url: process.env.AWS_BLURRED_URL || '',
@@ -274,7 +285,8 @@ export default (): Config => ({
     apiKey: process.env.XAI_API_KEY || '',
     apiUrl: process.env.XAI_API_URL || '',
     model: process.env.XAI_MODEL || '',
-    modelForCharacterModeration: process.env.XAI_MODEL_FOR_CHARACTER_MODERATION || '',
+    modelForCharacterModeration:
+      process.env.XAI_MODEL_FOR_CHARACTER_MODERATION || '',
   },
   fishAudioConfig: {
     apiKey: process.env.FISH_AUDIO_API_KEY || '',
@@ -292,7 +304,8 @@ export default (): Config => ({
   },
   imageGalleryConfig: {
     albumPurchasePrice: Number(process.env.ALBUM_PURCHASE_PRICE) || 0,
-    imagePromptPurchasePrice: Number(process.env.IMAGE_PROMPT_PURCHASE_PRICE) || 0,
+    imagePromptPurchasePrice:
+      Number(process.env.IMAGE_PROMPT_PURCHASE_PRICE) || 0,
   },
   finbyConfig: {
     projectId: process.env.FINBY_PROJECT_ID || '',
@@ -304,7 +317,6 @@ export default (): Config => ({
     apiVersion: (process.env.FINBY_API_VERSION as 'v1' | 'v3') || 'v1',
   },
   modalConfig: {
-    endpointUrl: process.env.MODAL_ENDPOINT_URL || '',
     workspace: process.env.MODAL_WORKSPACE || '',
   },
 });

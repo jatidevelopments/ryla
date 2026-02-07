@@ -6,14 +6,17 @@
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { ModalJobRunnerAdapter } from './modal-job-runner.adapter';
-import { ModalJobRunner } from '@ryla/business';
+// Direct import - ModalJobRunner uses Node.js-only APIs (undici)
+import { ModalJobRunner } from '@ryla/business/services/modal-job-runner';
 
 // Mock ModalJobRunner
-vi.mock('@ryla/business', async () => {
-  const actual = await vi.importActual('@ryla/business');
+vi.mock('@ryla/business/services/modal-job-runner', async () => {
+  const actual = await vi.importActual(
+    '@ryla/business/services/modal-job-runner'
+  );
   return {
     ...actual,
-    ModalJobRunner: vi.fn().mockImplementation(function(this: any) {
+    ModalJobRunner: vi.fn().mockImplementation(function (this: any) {
       // Return the mock runner instance when called with 'new'
       return mockRunnerInstance;
     }),
@@ -42,7 +45,7 @@ describe('ModalJobRunnerAdapter', () => {
   beforeEach(() => {
     // Clear all mocks before each test
     vi.clearAllMocks();
-    
+
     mockRunner = {
       submitBaseImages: vi.fn(),
       submitFaceSwap: vi.fn(),
@@ -55,51 +58,37 @@ describe('ModalJobRunnerAdapter', () => {
     mockRunnerInstance = mockRunner;
 
     // Reset the mock implementation
-    (ModalJobRunner as any).mockImplementation(function(this: any) {
+    (ModalJobRunner as any).mockImplementation(function (this: any) {
       return mockRunnerInstance;
     });
 
-    // Clear env vars before each test
-    delete process.env.MODAL_ENDPOINT_URL;
     delete process.env.MODAL_WORKSPACE;
-
     adapter = new ModalJobRunnerAdapter();
   });
 
   afterEach(() => {
     vi.restoreAllMocks();
-    delete process.env.MODAL_ENDPOINT_URL;
     delete process.env.MODAL_WORKSPACE;
   });
 
+  const testWorkspace = 'test-workspace';
+  const expectedEndpointUrl = `https://${testWorkspace}--ryla-flux-comfyui-fastapi-app.modal.run`;
+
   describe('onModuleInit', () => {
-    it('should initialize when MODAL_ENDPOINT_URL is set', async () => {
-      process.env.MODAL_ENDPOINT_URL = 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run';
-      mockRunner.healthCheck.mockResolvedValue(true);
-
-      await adapter.onModuleInit();
-
-      expect(ModalJobRunner).toHaveBeenCalledWith({
-        endpointUrl: 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run',
-        timeout: 180000,
-      });
-      expect(adapter.isAvailable()).toBe(true);
-    });
-
     it('should initialize when MODAL_WORKSPACE is set', async () => {
-      process.env.MODAL_WORKSPACE = 'test-workspace';
+      process.env.MODAL_WORKSPACE = testWorkspace;
       mockRunner.healthCheck.mockResolvedValue(true);
 
       await adapter.onModuleInit();
 
       expect(ModalJobRunner).toHaveBeenCalledWith({
-        endpointUrl: 'https://test-workspace--ryla-comfyui-comfyui-fastapi-app.modal.run',
+        endpointUrl: expectedEndpointUrl,
         timeout: 180000,
       });
       expect(adapter.isAvailable()).toBe(true);
     });
 
-    it('should not initialize when neither env var is set', async () => {
+    it('should not initialize when MODAL_WORKSPACE is not set', async () => {
       await adapter.onModuleInit();
 
       expect(ModalJobRunner).not.toHaveBeenCalled();
@@ -107,7 +96,7 @@ describe('ModalJobRunnerAdapter', () => {
     });
 
     it('should not initialize when health check fails', async () => {
-      process.env.MODAL_ENDPOINT_URL = 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run';
+      process.env.MODAL_WORKSPACE = testWorkspace;
       mockRunner.healthCheck.mockResolvedValue(false);
 
       await adapter.onModuleInit();
@@ -116,7 +105,7 @@ describe('ModalJobRunnerAdapter', () => {
     });
 
     it('should handle initialization errors gracefully', async () => {
-      process.env.MODAL_ENDPOINT_URL = 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run';
+      process.env.MODAL_WORKSPACE = testWorkspace;
       mockRunner.healthCheck.mockRejectedValue(new Error('Connection failed'));
 
       await adapter.onModuleInit();
@@ -127,7 +116,7 @@ describe('ModalJobRunnerAdapter', () => {
 
   describe('submitBaseImages', () => {
     it('should delegate to runner when initialized', async () => {
-      process.env.MODAL_ENDPOINT_URL = 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run';
+      process.env.MODAL_WORKSPACE = testWorkspace;
       mockRunner.healthCheck.mockResolvedValue(true);
       mockRunner.submitBaseImages.mockResolvedValue('job-123');
 
@@ -152,14 +141,14 @@ describe('ModalJobRunnerAdapter', () => {
         adapter.submitBaseImages({
           prompt: 'test prompt',
           nsfw: false,
-        }),
+        })
       ).rejects.toThrow('Modal.com endpoint not initialized');
     });
   });
 
   describe('getJobStatus', () => {
     it('should delegate to runner when initialized', async () => {
-      process.env.MODAL_ENDPOINT_URL = 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run';
+      process.env.MODAL_WORKSPACE = testWorkspace;
       mockRunner.healthCheck.mockResolvedValue(true);
       mockRunner.getJobStatus.mockResolvedValue({
         status: 'COMPLETED',
@@ -176,7 +165,7 @@ describe('ModalJobRunnerAdapter', () => {
 
     it('should throw error when not initialized', async () => {
       await expect(adapter.getJobStatus('job-123')).rejects.toThrow(
-        'Modal.com endpoint not initialized',
+        'Modal.com endpoint not initialized'
       );
     });
   });
@@ -188,7 +177,7 @@ describe('ModalJobRunnerAdapter', () => {
     });
 
     it('should delegate to runner when initialized', async () => {
-      process.env.MODAL_ENDPOINT_URL = 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run';
+      process.env.MODAL_WORKSPACE = testWorkspace;
       mockRunner.healthCheck.mockResolvedValue(true);
 
       await adapter.onModuleInit();
@@ -205,7 +194,7 @@ describe('ModalJobRunnerAdapter', () => {
     });
 
     it('should return true when initialized', async () => {
-      process.env.MODAL_ENDPOINT_URL = 'https://test--ryla-comfyui-comfyui-fastapi-app.modal.run';
+      process.env.MODAL_WORKSPACE = testWorkspace;
       mockRunner.healthCheck.mockResolvedValue(true);
 
       await adapter.onModuleInit();

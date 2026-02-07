@@ -1,5 +1,6 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import { ModalClient } from '@ryla/business';
+// Direct import - ModalClient uses Node.js-only APIs (undici) and cannot be bundled client-side
+import { ModalClient } from '@ryla/business/services/modal-client';
 
 export interface PlaygroundCallResult {
   imageBase64: string;
@@ -15,19 +16,12 @@ export class PlaygroundService implements OnModuleInit {
   private client: ModalClient | null = null;
 
   onModuleInit() {
-    const g = globalThis as unknown as {
-      __RYLA_MODAL_ENDPOINT_URL?: string;
-      __RYLA_MODAL_WORKSPACE?: string;
-    };
-    const endpointUrl =
-      (g.__RYLA_MODAL_ENDPOINT_URL ?? process.env['MODAL_ENDPOINT_URL'] ?? '').trim() ||
-      undefined;
     const workspace =
-      (g.__RYLA_MODAL_WORKSPACE ?? process.env['MODAL_WORKSPACE'] ?? 'ryla').trim() || 'ryla';
+      (process.env['MODAL_WORKSPACE'] ?? 'ryla').trim() || undefined;
 
-    if (!endpointUrl && !workspace) {
+    if (!workspace) {
       this.logger.warn(
-        'Playground Modal: MODAL_ENDPOINT_URL and MODAL_WORKSPACE not set (check Infisical /apps/api).'
+        'Playground Modal: MODAL_WORKSPACE not set (check Infisical /apps/api).'
       );
       return;
     }
@@ -35,10 +29,11 @@ export class PlaygroundService implements OnModuleInit {
     try {
       this.client = new ModalClient({
         workspace,
-        endpointUrl,
         timeout: 300000,
       });
-      this.logger.log(`Playground Modal client initialized (workspace: ${workspace})`);
+      this.logger.log(
+        `Playground Modal client initialized (workspace: ${workspace})`
+      );
     } catch (error) {
       this.logger.error('Playground Modal client init failed', error);
     }
@@ -51,7 +46,7 @@ export class PlaygroundService implements OnModuleInit {
     if (!this.client) {
       return {
         error:
-          'Modal not configured. Set MODAL_WORKSPACE or MODAL_ENDPOINT_URL.',
+          'Modal not configured. Set MODAL_WORKSPACE (e.g. ryla) in Infisical /apps/api.',
       };
     }
 

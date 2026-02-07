@@ -118,17 +118,17 @@ export interface FalRunOutput {
 /**
  * Pricing information for fal-ai models
  * Based on fal.ai pricing as of 2025-01-17
- * 
+ *
  * Pricing structure:
  * - Per megapixel: cost scales with image size (width * height / 1,000,000)
  * - Per image: fixed cost regardless of size
  * - Per processed megapixel: similar to per megapixel but for processed images
- * 
+ *
  * Credit calculation uses 10x margin model:
  * - USD cost × 10 = credits (for psychological impact, values are ×10)
  * - Example: $0.003/MP × 10 = 0.03 credits per MP, but we multiply by 10 again = 0.3 credits per MP
  * - For 1MP (1024x1024): 0.3 credits
- * 
+ *
  * Standard image sizes:
  * - 1:1 (1024x1024) = 1.05 MP ≈ 1 MP
  * - 9:16 (832x1472) = 1.22 MP
@@ -570,7 +570,10 @@ export class FalImageService {
    * Runs a Fal model and returns image URLs (provider-hosted).
    * We then download+upload those images into our own storage elsewhere.
    */
-  async runFlux(modelId: FalFluxModelId, input: FalRunInput): Promise<FalRunOutput> {
+  async runFlux(
+    modelId: FalFluxModelId,
+    input: FalRunInput
+  ): Promise<FalRunOutput> {
     const falKey = this.getFalKey();
     if (!falKey) {
       throw new Error('FAL_KEY is not configured');
@@ -615,14 +618,21 @@ export class FalImageService {
     } catch (err) {
       clearTimeout(timeoutId);
       if (err instanceof Error && err.name === 'AbortError') {
-        throw new Error(`Fal request timeout (${modelId}) - model may require async polling`);
+        throw new Error(
+          `Fal request timeout (${modelId}) - model may require async polling`
+        );
       }
       throw err;
     }
 
     const text = await res.text();
     if (!res.ok) {
-      this.logger.warn(`Fal run failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`);
+      this.logger.warn(
+        `Fal run failed (${modelId}) status=${res.status} body=${text.slice(
+          0,
+          500
+        )}`
+      );
       throw new Error(`Fal run failed (${modelId}) status=${res.status}`);
     }
 
@@ -630,41 +640,66 @@ export class FalImageService {
     try {
       json = JSON.parse(text);
     } catch {
-      this.logger.error(`Fal returned non-JSON response for (${modelId}): ${text.slice(0, 500)}`);
+      this.logger.error(
+        `Fal returned non-JSON response for (${modelId}): ${text.slice(0, 500)}`
+      );
       throw new Error(`Fal returned non-JSON response for (${modelId})`);
     }
 
     // Log response structure for debugging
-    this.logger.debug(`Fal response for ${modelId}: ${JSON.stringify(json).substring(0, 200)}`);
+    this.logger.debug(
+      `Fal response for ${modelId}: ${JSON.stringify(json).substring(0, 200)}`
+    );
 
     // Check if this is an async queue response (returns request_id for polling)
     // Some models like Seedream 4.5 use async queue API
-    const queueResponse = json as { request_id?: string; status?: string; images?: unknown };
+    const queueResponse = json as {
+      request_id?: string;
+      status?: string;
+      images?: unknown;
+    };
     const hasImages = this.extractImageUrls(json).length > 0;
 
-    this.logger.debug(`Fal response check ${modelId}: request_id=${queueResponse.request_id || 'none'}, status=${queueResponse.status || 'none'}, hasImages=${hasImages}`);
+    this.logger.debug(
+      `Fal response check ${modelId}: request_id=${
+        queueResponse.request_id || 'none'
+      }, status=${queueResponse.status || 'none'}, hasImages=${hasImages}`
+    );
 
     // If we got a request_id but no images, it's async - need to poll
     if (queueResponse.request_id && !hasImages) {
-      this.logger.log(`Fal model ${modelId} returned async request_id=${queueResponse.request_id}, polling queue...`);
+      this.logger.log(
+        `Fal model ${modelId} returned async request_id=${queueResponse.request_id}, polling queue...`
+      );
       return await this.pollFalQueue(queueResponse.request_id, modelId);
     }
 
     // Also check if status indicates async processing
-    if (queueResponse.status === 'IN_QUEUE' || queueResponse.status === 'IN_PROGRESS') {
+    if (
+      queueResponse.status === 'IN_QUEUE' ||
+      queueResponse.status === 'IN_PROGRESS'
+    ) {
       if (queueResponse.request_id) {
-        this.logger.log(`Fal model ${modelId} status=${queueResponse.status} request_id=${queueResponse.request_id}, polling...`);
+        this.logger.log(
+          `Fal model ${modelId} status=${queueResponse.status} request_id=${queueResponse.request_id}, polling...`
+        );
         return await this.pollFalQueue(queueResponse.request_id, modelId);
       }
     }
 
     const imageUrls = this.extractImageUrls(json);
     if (imageUrls.length === 0) {
-      this.logger.error(`Fal returned 0 image URLs (${modelId}) response=${JSON.stringify(json).substring(0, 500)}`);
+      this.logger.error(
+        `Fal returned 0 image URLs (${modelId}) response=${JSON.stringify(
+          json
+        ).substring(0, 500)}`
+      );
       throw new Error(`Fal returned no images (${modelId})`);
     }
 
-    this.logger.log(`Fal model ${modelId} returned ${imageUrls.length} image(s) immediately`);
+    this.logger.log(
+      `Fal model ${modelId} returned ${imageUrls.length} image(s) immediately`
+    );
     return { requestId, imageUrls };
   }
 
@@ -672,7 +707,10 @@ export class FalImageService {
    * Upscale an image using a Fal.ai upscaling model.
    * Takes an image URL and returns upscaled image URLs.
    */
-  async runUpscale(modelId: FalFluxModelId, input: FalUpscaleInput): Promise<FalRunOutput> {
+  async runUpscale(
+    modelId: FalFluxModelId,
+    input: FalUpscaleInput
+  ): Promise<FalRunOutput> {
     const falKey = this.getFalKey();
     if (!falKey) {
       throw new Error('FAL_KEY is not configured');
@@ -704,7 +742,12 @@ export class FalImageService {
 
     const text = await res.text();
     if (!res.ok) {
-      this.logger.warn(`Fal upscale failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`);
+      this.logger.warn(
+        `Fal upscale failed (${modelId}) status=${res.status} body=${text.slice(
+          0,
+          500
+        )}`
+      );
       throw new Error(`Fal upscale failed (${modelId}) status=${res.status}`);
     }
 
@@ -717,7 +760,9 @@ export class FalImageService {
 
     const imageUrls = this.extractImageUrls(json);
     if (imageUrls.length === 0) {
-      this.logger.warn(`Fal returned 0 image URLs (${modelId}) body=${text.slice(0, 500)}`);
+      this.logger.warn(
+        `Fal returned 0 image URLs (${modelId}) body=${text.slice(0, 500)}`
+      );
       throw new Error(`Fal returned no images (${modelId})`);
     }
 
@@ -727,7 +772,7 @@ export class FalImageService {
   /**
    * Run a reference image generation using Fal.ai PuLID endpoints.
    * Supports face-consistent generation with a reference image.
-   * 
+   *
    * @param modelId - PuLID model ID (fal-ai/flux-pulid or fal-ai/pulid)
    * @param input - Reference image input parameters
    */
@@ -793,8 +838,14 @@ export class FalImageService {
 
     const text = await res.text();
     if (!res.ok) {
-      this.logger.warn(`Fal reference image failed (${modelId}) status=${res.status} body=${text.slice(0, 500)}`);
-      throw new Error(`Fal reference image failed (${modelId}) status=${res.status}`);
+      this.logger.warn(
+        `Fal reference image failed (${modelId}) status=${
+          res.status
+        } body=${text.slice(0, 500)}`
+      );
+      throw new Error(
+        `Fal reference image failed (${modelId}) status=${res.status}`
+      );
     }
 
     let json: unknown;
@@ -809,17 +860,26 @@ export class FalImageService {
     const hasImages = this.extractImageUrls(json).length > 0;
 
     if (queueResponse.request_id && !hasImages) {
-      this.logger.log(`Fal reference model ${modelId} returned async request_id=${queueResponse.request_id}, polling...`);
-      return await this.pollFalQueue(queueResponse.request_id, modelId as FalFluxModelId);
+      this.logger.log(
+        `Fal reference model ${modelId} returned async request_id=${queueResponse.request_id}, polling...`
+      );
+      return await this.pollFalQueue(
+        queueResponse.request_id,
+        modelId as FalFluxModelId
+      );
     }
 
     const imageUrls = this.extractImageUrls(json);
     if (imageUrls.length === 0) {
-      this.logger.warn(`Fal returned 0 image URLs (${modelId}) body=${text.slice(0, 500)}`);
+      this.logger.warn(
+        `Fal returned 0 image URLs (${modelId}) body=${text.slice(0, 500)}`
+      );
       throw new Error(`Fal returned no images (${modelId})`);
     }
 
-    this.logger.log(`Fal reference model ${modelId} returned ${imageUrls.length} image(s)`);
+    this.logger.log(
+      `Fal reference model ${modelId} returned ${imageUrls.length} image(s)`
+    );
     return { requestId, imageUrls };
   }
 
@@ -841,7 +901,10 @@ export class FalImageService {
    * Poll Fal AI queue API for async model results
    * Some models (like Seedream 4.5) use async queue instead of immediate response
    */
-  private async pollFalQueue(requestId: string, modelId: FalFluxModelId): Promise<FalRunOutput> {
+  private async pollFalQueue(
+    requestId: string,
+    modelId: FalFluxModelId
+  ): Promise<FalRunOutput> {
     const falKey = this.getFalKey();
     if (!falKey) {
       throw new Error('FAL_KEY is not configured');
@@ -858,7 +921,9 @@ export class FalImageService {
       try {
         // Poll the queue endpoint: https://queue.fal.run/{modelId}/requests/{request_id}
         // Remove 'fal-ai/' prefix if present for queue API
-        const modelPath = modelId.startsWith('fal-ai/') ? modelId : `fal-ai/${modelId}`;
+        const modelPath = modelId.startsWith('fal-ai/')
+          ? modelId
+          : `fal-ai/${modelId}`;
         const pollUrl = `https://queue.fal.run/${modelPath}/requests/${requestId}`;
 
         const res = await fetch(pollUrl, {
@@ -869,43 +934,66 @@ export class FalImageService {
         });
 
         if (!res.ok) {
-          this.logger.warn(`Fal queue poll failed (${modelId}) requestId=${requestId} status=${res.status}`);
+          this.logger.warn(
+            `Fal queue poll failed (${modelId}) requestId=${requestId} status=${res.status}`
+          );
           if (attempts >= maxAttempts) {
-            throw new Error(`Fal queue polling timeout (${modelId}) after ${maxAttempts} attempts`);
+            throw new Error(
+              `Fal queue polling timeout (${modelId}) after ${maxAttempts} attempts`
+            );
           }
           continue;
         }
 
-        const json = await res.json() as { status: string; images?: Array<{ url: string }>; error?: string };
+        const json = (await res.json()) as {
+          status: string;
+          images?: Array<{ url: string }>;
+          error?: string;
+        };
 
-        if (json.status === 'COMPLETED' && json.images && json.images.length > 0) {
+        if (
+          json.status === 'COMPLETED' &&
+          json.images &&
+          json.images.length > 0
+        ) {
           const imageUrls = json.images.map((img) => img.url);
-          this.logger.log(`Fal queue completed (${modelId}) requestId=${requestId} images=${imageUrls.length}`);
+          this.logger.log(
+            `Fal queue completed (${modelId}) requestId=${requestId} images=${imageUrls.length}`
+          );
           return { requestId, imageUrls };
         }
 
         if (json.status === 'FAILED' || json.error) {
-          throw new Error(`Fal queue failed (${modelId}): ${json.error || 'Unknown error'}`);
+          throw new Error(
+            `Fal queue failed (${modelId}): ${json.error || 'Unknown error'}`
+          );
         }
 
         // Still processing - continue polling
-        this.logger.debug(`Fal queue status (${modelId}) requestId=${requestId} status=${json.status} attempt=${attempts}/${maxAttempts}`);
+        this.logger.debug(
+          `Fal queue status (${modelId}) requestId=${requestId} status=${json.status} attempt=${attempts}/${maxAttempts}`
+        );
       } catch (err) {
         if (err instanceof Error && err.message.includes('timeout')) {
           throw err;
         }
         // Log but continue polling on transient errors
-        this.logger.warn(`Fal queue poll error (${modelId}) requestId=${requestId} attempt=${attempts}: ${err}`);
+        this.logger.warn(
+          `Fal queue poll error (${modelId}) requestId=${requestId} attempt=${attempts}: ${err}`
+        );
       }
     }
 
-    throw new Error(`Fal queue polling timeout (${modelId}) after ${maxAttempts} attempts`);
+    throw new Error(
+      `Fal queue polling timeout (${modelId}) after ${maxAttempts} attempts`
+    );
   }
 
   private getFalKey(): string | undefined {
     // apps/api loads apps/api/.env via dotenv in src/main.ts.
     // We use process.env directly to avoid DI timing / runtime metadata issues.
-    return process.env['FAL_KEY'];
+    // Accept FAL_KEY or FAL_API_KEY (same key; FAL_API_KEY used in some envs/scripts).
+    return process.env['FAL_KEY'] ?? process.env['FAL_API_KEY'];
   }
 
   private extractImageUrls(payload: unknown): string[] {
@@ -924,7 +1012,8 @@ export class FalImageService {
 
     if (urls.length > 0) return urls;
 
-    const singleUrl = typeof p?.image?.url === 'string' ? p.image.url : undefined;
+    const singleUrl =
+      typeof p?.image?.url === 'string' ? p.image.url : undefined;
     if (singleUrl) return [singleUrl];
 
     // Sometimes models return just { url: "..." }
@@ -933,5 +1022,3 @@ export class FalImageService {
     return [];
   }
 }
-
-

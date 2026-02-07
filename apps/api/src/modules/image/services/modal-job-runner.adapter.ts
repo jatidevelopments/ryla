@@ -8,11 +8,9 @@
  */
 
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
-import {
-  ModalJobRunner,
-  detectWorkflowType,
-  type ComfyUIWorkflow,
-} from '@ryla/business';
+// Direct import - ModalJobRunner uses Node.js-only APIs (undici) and cannot be bundled client-side
+import { ModalJobRunner } from '@ryla/business/services/modal-job-runner';
+import { detectWorkflowType, type ComfyUIWorkflow } from '@ryla/business';
 import type { RunPodJobRunner, RunPodJobStatus } from '@ryla/business';
 
 @Injectable()
@@ -22,30 +20,22 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   private isInitialized = false;
 
   async onModuleInit() {
-    // Use process.env directly to avoid ConfigService DI timing issues
-    const endpointUrl = process.env['MODAL_ENDPOINT_URL'];
-    const workspace = process.env['MODAL_WORKSPACE'];
-
-    // Construct endpoint URL from workspace if not provided directly
-    let finalEndpointUrl = endpointUrl;
-    if (!finalEndpointUrl && workspace) {
-      finalEndpointUrl = `https://${workspace}--ryla-comfyui-comfyui-fastapi-app.modal.run`;
-    }
-
-    if (!finalEndpointUrl) {
+    const workspace = (process.env['MODAL_WORKSPACE'] ?? '').trim();
+    if (!workspace) {
       this.logger.warn(
-        'MODAL_ENDPOINT_URL or MODAL_WORKSPACE not configured - Modal.com image generation disabled'
+        'MODAL_WORKSPACE not configured - Modal.com image generation disabled'
       );
       return;
     }
 
+    const endpointUrl = `https://${workspace}--ryla-flux-comfyui-fastapi-app.modal.run`;
+
     try {
       this.runner = new ModalJobRunner({
-        endpointUrl: finalEndpointUrl,
+        endpointUrl,
         timeout: 180000, // 3 minutes
       });
 
-      // Test connection
       const isHealthy = await this.runner.healthCheck();
       if (!isHealthy) {
         this.logger.warn('Modal.com endpoint health check failed');
@@ -53,7 +43,9 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       }
 
       this.isInitialized = true;
-      this.logger.log(`Modal.com endpoint initialized: ${finalEndpointUrl}`);
+      this.logger.log(
+        `Modal.com endpoint initialized (workspace: ${workspace})`
+      );
     } catch (error) {
       this.logger.error('Failed to initialize Modal.com endpoint:', error);
     }
@@ -62,7 +54,7 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
   private ensureInitialized(): void {
     if (!this.isInitialized || !this.runner) {
       throw new Error(
-        'Modal.com endpoint not initialized. Check MODAL_ENDPOINT_URL or MODAL_WORKSPACE configuration.'
+        'Modal.com endpoint not initialized. Set MODAL_WORKSPACE (e.g. ryla) in Infisical /apps/api.'
       );
     }
   }
@@ -557,22 +549,19 @@ export class ModalJobRunnerAdapter implements RunPodJobRunner, OnModuleInit {
       }
 
       case 'z-image-instantid': {
-        // Z-Image + InstantID is not supported - route to SDXL InstantID instead
-        this.logger.warn(
-          'Z-Image InstantID not supported, using SDXL InstantID instead'
-        );
+        // Use Z-Image + InstantID with ref image (ryla-z-image app) for profile pictures
         if (!detected.parameters.referenceImage) {
           throw new Error('InstantID workflow requires reference image');
         }
 
-        let referenceImage = detected.parameters.referenceImage;
+        const referenceImage = detected.parameters.referenceImage;
         if (!referenceImage.startsWith('data:')) {
           throw new Error(
             'Reference image must be base64 data URL for Modal endpoints'
           );
         }
 
-        return this.runner!.generateSDXLInstantID({
+        return this.runner!.generateZImageInstantID({
           prompt: detected.parameters.prompt || '',
           reference_image: referenceImage,
           negative_prompt: detected.parameters.negativePrompt,

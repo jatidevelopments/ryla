@@ -52,6 +52,11 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'cdn.ryla.ai',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
         hostname: '*.amazonaws.com',
         pathname: '/**',
       },
@@ -117,8 +122,8 @@ const nextConfig = {
       // @ryla/* package aliases
       // Point to directories, webpack will resolve index.js automatically
       '@ryla/ui': path.resolve(__dirname, '../../dist/libs/ui/src'),
-      '@ryla/shared': path.resolve(__dirname, '../../dist/libs/shared/src'),
-      '@ryla/business': path.resolve(__dirname, '../../dist/libs/business/src'),
+      '@ryla/shared': path.resolve(__dirname, '../../libs/shared/src'),
+      '@ryla/business': path.resolve(__dirname, '../../libs/business/src'),
       '@ryla/trpc': path.resolve(__dirname, '../../dist/libs/trpc/src'),
       '@ryla/trpc/client': path.resolve(
         __dirname,
@@ -143,8 +148,6 @@ const nextConfig = {
     config.module.rules.push({
       test: /\.js$/,
       include: [
-        path.resolve(__dirname, '../../dist/libs/business'),
-        path.resolve(__dirname, '../../dist/libs/shared'),
         path.resolve(__dirname, '../../dist/libs/ui'),
         path.resolve(__dirname, '../../dist/libs/trpc'),
         path.resolve(__dirname, '../../dist/libs/payments'),
@@ -165,8 +168,26 @@ const nextConfig = {
       );
     }
 
+    // Handle node: protocol (Node 16+) in client bundle - webpack doesn't support it by default
+    if (!isServer) {
+      const emptyModulePath = path.resolve(
+        __dirname,
+        './lib/trpc/empty-module.js'
+      );
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(
+          /^node:assert$/,
+          emptyModulePath
+        )
+      );
+    }
+
     // Exclude server-only modules from client bundle
     if (!isServer) {
+      const emptyModulePath = path.resolve(
+        __dirname,
+        './lib/trpc/empty-module.js'
+      );
       // Add all Node.js built-ins to fallback
       config.resolve.fallback = {
         ...config.resolve.fallback,
@@ -189,6 +210,9 @@ const nextConfig = {
         zlib: false,
         url: false,
         querystring: false,
+        // node: protocol (Node 16+) - replace with empty module so client bundle doesn't fail
+        assert: emptyModulePath,
+        'node:assert': emptyModulePath,
       };
 
       // Ignore server-only packages on client side

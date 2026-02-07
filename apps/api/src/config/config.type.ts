@@ -6,8 +6,8 @@ export type Config = {
   aws: AwsConfig;
   google: GoogleConfig;
   swagger: SwaggerConfig;
-  // ... other types mapped as any or defined if needed. 
-  // For brevity/mvp, I'll include the ones defined in MDC configuration.ts 
+  // ... other types mapped as any or defined if needed.
+  // For brevity/mvp, I'll include the ones defined in MDC configuration.ts
   // but typed loosely where I missed copying the type exactly to avoid errors.
   // Actually, I have the full file content from read_file, I will use that.
   millionVerifier: MillionVerifierConfig;
@@ -342,6 +342,5 @@ export type FinbyConfig = {
 };
 
 export type ModalConfig = {
-  endpointUrl: string;
   workspace: string;
 };
