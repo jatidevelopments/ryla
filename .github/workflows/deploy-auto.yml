@@ -986,77 +986,50 @@ jobs:
         env:
           INFISICAL_TOKEN: ${{ secrets.INFISICAL_TOKEN }}
         run: |
+          set +e  # Don't fail step; use defaults if Infisical unavailable
           echo "📦 Exporting build args from Infisical (${{ needs.detect-environment.outputs.infisical_env }})..."
 
-          # Verify Infisical CLI is installed
           if ! command -v infisical &> /dev/null; then
-            echo "❌ Infisical CLI not found"
-            exit 1
-          fi
-
-          echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
-
-          # Check if INFISICAL_TOKEN is set
-          if [ -z "$INFISICAL_TOKEN" ]; then
-            echo "❌ INFISICAL_TOKEN is not set"
-            exit 1
-          fi
-
-          # Export secrets to temporary file
-          # Try with /apps/admin first, fallback to /shared only if folder doesn't exist
-          # Note: Redirect stderr separately and filter output to only include valid dotenv lines
-          if ! infisical export \
-            --domain=https://eu.infisical.com/api \
-            --path=/apps/admin \
-            --path=/shared \
-            --env=${{ needs.detect-environment.outputs.infisical_env }} \
-            --format=dotenv 2>/tmp/infisical-stderr.log | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env; then
-            echo "⚠️  Failed to export from /apps/admin, trying /shared only..."
-            echo "Stderr from first attempt:"
-            cat /tmp/infisical-stderr.log || true
-            if ! infisical export \
+            echo "⚠️  Infisical CLI not found, using fly.toml defaults"
+          elif [ -z "$INFISICAL_TOKEN" ]; then
+            echo "⚠️  INFISICAL_TOKEN not set, using fly.toml defaults"
+          else
+            echo "Infisical CLI version: $(infisical --version || echo 'unknown')"
+            # Export raw (single path /shared - multi-path uses only last)
+            infisical export \
               --domain=https://eu.infisical.com/api \
               --path=/shared \
               --env=${{ needs.detect-environment.outputs.infisical_env }} \
-              --format=dotenv 2>/tmp/infisical-stderr.log | grep -E '^[A-Z_]+=.*' > /tmp/build-args.env; then
-              echo "❌ Failed to export secrets from Infisical"
-              echo "Stderr output:"
-              cat /tmp/infisical-stderr.log || echo "Could not read stderr"
-              exit 1
+              --format=dotenv > /tmp/raw-build-args.env 2>/tmp/infisical-stderr.log
+            if [ -s /tmp/raw-build-args.env ]; then
+              grep -E '^[A-Za-z_][A-Za-z0-9_]*=.*' /tmp/raw-build-args.env > /tmp/build-args.env || true
+            fi
+            if [ ! -s /tmp/build-args.env ]; then
+              echo "⚠️  Infisical export empty or no matching vars; stderr:"
+              cat /tmp/infisical-stderr.log 2>/dev/null || true
             fi
           fi
 
-          # Check if file was created and has content
-          if [ ! -s /tmp/build-args.env ]; then
-            echo "⚠️  Build args file is empty, but continuing with defaults..."
-            echo "# Empty build args - using code defaults" > /tmp/build-args.env
+          if [ -s /tmp/build-args.env ]; then
+            set -a
+            source /tmp/build-args.env
+            set +a
+            echo "✅ Loaded build args from Infisical"
+          else
+            echo "⚠️  Using fly.toml / Dockerfile defaults for build args"
           fi
 
-          # Source the file to make variables available (now safe - only contains valid dotenv lines)
-          set -a
-          source /tmp/build-args.env
-          set +a
-
-          # Verify required variables are set
-          if [ -z "$NEXT_PUBLIC_SITE_URL" ]; then
-            echo "⚠️  WARNING: NEXT_PUBLIC_SITE_URL is not set"
-          fi
-          if [ -z "$NEXT_PUBLIC_API_URL" ]; then
-            echo "⚠️  WARNING: NEXT_PUBLIC_API_URL is not set"
-          fi
-
-          # Set as outputs for use in deployment step (with defaults to prevent empty values)
-          echo "site_url=${NEXT_PUBLIC_SITE_URL:-}" >> $GITHUB_OUTPUT
-          echo "api_url=${NEXT_PUBLIC_API_URL:-}" >> $GITHUB_OUTPUT
-          echo "api_base_url=${NEXT_PUBLIC_API_BASE_URL:-}" >> $GITHUB_OUTPUT
+          # Set as outputs (empty is ok; deploy step passes them to build-arg)
+          echo "site_url=${NEXT_PUBLIC_SITE_URL:-https://admin.ryla.ai}" >> $GITHUB_OUTPUT
+          echo "api_url=${NEXT_PUBLIC_API_URL:-https://end.ryla.ai}" >> $GITHUB_OUTPUT
+          echo "api_base_url=${NEXT_PUBLIC_API_BASE_URL:-https://end.ryla.ai}" >> $GITHUB_OUTPUT
           echo "posthog_key=${NEXT_PUBLIC_POSTHOG_KEY:-}" >> $GITHUB_OUTPUT
           echo "posthog_host=${NEXT_PUBLIC_POSTHOG_HOST:-}" >> $GITHUB_OUTPUT
           echo "supabase_url=${NEXT_PUBLIC_SUPABASE_URL:-}" >> $GITHUB_OUTPUT
           echo "supabase_anon_key=${NEXT_PUBLIC_SUPABASE_ANON_KEY:-}" >> $GITHUB_OUTPUT
 
-          echo "✅ Build args exported"
-          echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-<not set>}"
-          echo "  NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-<not set>}"
+          echo "  NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://admin.ryla.ai}"
+          echo "  NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://end.ryla.ai}"
 
       - name: Stop old machines (if any)
         run: |
