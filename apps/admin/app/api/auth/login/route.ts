@@ -1,29 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { sign } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import { eq, and, gt } from 'drizzle-orm';
-import { createDrizzleDb, adminUsers, adminSessions, adminAuditLog } from '@ryla/data';
+import { eq } from 'drizzle-orm';
+import {
+  createDrizzleDb,
+  adminUsers,
+  adminSessions,
+  adminAuditLog,
+} from '@ryla/data';
 import { createHash } from 'crypto';
+import { getAdminDbConfig } from '@/lib/db-config';
 
-const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'admin-secret-change-in-production';
-
-/**
- * Get database configuration from environment
- */
-function getDbConfig() {
-  const env = process.env['POSTGRES_ENVIRONMENT'] || process.env['NODE_ENV'] || 'development';
-  const isLocal = env === 'local' || env === 'development';
-  const isProduction = env === 'production';
-
-  return {
-    host: process.env['POSTGRES_HOST'] || 'localhost',
-    port: Number(process.env['POSTGRES_PORT']) || 5432,
-    user: process.env['POSTGRES_USER'] || 'ryla',
-    password: process.env['POSTGRES_PASSWORD'] || 'ryla_local_dev',
-    database: process.env['POSTGRES_DB'] || 'ryla',
-    ssl: isLocal ? false : isProduction ? { rejectUnauthorized: false } : false,
-  };
-}
+const JWT_SECRET =
+  process.env.ADMIN_JWT_SECRET || 'admin-secret-change-in-production';
 
 /**
  * Get client IP address from request
@@ -42,7 +31,7 @@ function hashToken(token: string): string {
 }
 
 export async function POST(request: NextRequest) {
-  const db = createDrizzleDb(getDbConfig());
+  const db = createDrizzleDb(getAdminDbConfig());
   const ipAddress = getClientIp(request);
   const userAgent = request.headers.get('user-agent') || 'unknown';
 
@@ -179,9 +168,10 @@ export async function POST(request: NextRequest) {
     });
 
     // Get permissions from role or stored permissions
-    const permissions = admin.permissions && Array.isArray(admin.permissions) 
-      ? admin.permissions 
-      : admin.permissions === '*' || admin.role === 'super_admin'
+    const permissions =
+      admin.permissions && Array.isArray(admin.permissions)
+        ? admin.permissions
+        : admin.permissions === '*' || admin.role === 'super_admin'
         ? ['*']
         : [];
 

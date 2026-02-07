@@ -8,6 +8,10 @@
 import * as jwt from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { createDrizzleDb, adminUsers } from '@ryla/data';
+import { getAdminDbConfig } from '@/lib/db-config';
+
+// Import types from base.ts (they're defined there to avoid circular dependencies)
+import type { AdminContextUser, AdminContext } from './base';
 
 /**
  * Admin JWT payload structure
@@ -20,35 +24,20 @@ export interface AdminJwtPayload {
   exp?: number;
 }
 
-// Import types from base.ts (they're defined there to avoid circular dependencies)
-import type { AdminContextUser, AdminContext } from './base';
-
-/**
- * Get database configuration from environment
- */
-function getDbConfig() {
-  const env = process.env['POSTGRES_ENVIRONMENT'] || process.env['NODE_ENV'] || 'development';
-  const isLocal = env === 'local' || env === 'development';
-  const isProduction = env === 'production';
-
-  return {
-    host: process.env['POSTGRES_HOST'] || 'localhost',
-    port: Number(process.env['POSTGRES_PORT']) || 5432,
-    user: process.env['POSTGRES_USER'] || 'ryla',
-    password: process.env['POSTGRES_PASSWORD'] || 'ryla_local_dev',
-    database: process.env['POSTGRES_DB'] || 'ryla',
-    ssl: isLocal ? false : isProduction ? { rejectUnauthorized: false } : false,
-  };
-}
-
 /**
  * Verify admin JWT token and return payload
  */
 function verifyAdminToken(token: string): AdminJwtPayload | null {
-  const secret = process.env['ADMIN_JWT_SECRET'] || 'admin-secret-change-in-production';
+  const secret =
+    process.env['ADMIN_JWT_SECRET'] || 'admin-secret-change-in-production';
 
-  if (process.env['NODE_ENV'] === 'production' && !process.env['ADMIN_JWT_SECRET']) {
-    console.error('[Admin tRPC Context] ADMIN_JWT_SECRET not configured in production!');
+  if (
+    process.env['NODE_ENV'] === 'production' &&
+    !process.env['ADMIN_JWT_SECRET']
+  ) {
+    console.error(
+      '[Admin tRPC Context] ADMIN_JWT_SECRET not configured in production!'
+    );
     return null;
   }
 
@@ -82,7 +71,7 @@ export async function createAdminContext(
   const { headers } = opts;
 
   // Create database connection
-  const db = createDrizzleDb(getDbConfig());
+  const db = createDrizzleDb(getAdminDbConfig());
 
   // Extract authorization header
   const authHeader = headers.get('authorization');

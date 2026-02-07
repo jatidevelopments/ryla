@@ -2,26 +2,10 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verify } from 'jsonwebtoken';
 import { eq } from 'drizzle-orm';
 import { createDrizzleDb, adminUsers } from '@ryla/data';
+import { getAdminDbConfig } from '@/lib/db-config';
 
-const JWT_SECRET = process.env.ADMIN_JWT_SECRET || 'admin-secret-change-in-production';
-
-/**
- * Get database configuration from environment
- */
-function getDbConfig() {
-  const env = process.env['POSTGRES_ENVIRONMENT'] || process.env['NODE_ENV'] || 'development';
-  const isLocal = env === 'local' || env === 'development';
-  const isProduction = env === 'production';
-
-  return {
-    host: process.env['POSTGRES_HOST'] || 'localhost',
-    port: Number(process.env['POSTGRES_PORT']) || 5432,
-    user: process.env['POSTGRES_USER'] || 'ryla',
-    password: process.env['POSTGRES_PASSWORD'] || 'ryla_local_dev',
-    database: process.env['POSTGRES_DB'] || 'ryla',
-    ssl: isLocal ? false : isProduction ? { rejectUnauthorized: false } : false,
-  };
-}
+const JWT_SECRET =
+  process.env.ADMIN_JWT_SECRET || 'admin-secret-change-in-production';
 
 interface JWTPayload {
   sub: string;
@@ -32,7 +16,7 @@ interface JWTPayload {
 export async function GET(request: NextRequest) {
   try {
     const authHeader = request.headers.get('Authorization');
-    
+
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json(
         { message: 'Missing or invalid authorization header' },
@@ -41,7 +25,7 @@ export async function GET(request: NextRequest) {
     }
 
     const token = authHeader.split(' ')[1];
-    
+
     let payload: JWTPayload;
     try {
       payload = verify(token, JWT_SECRET) as JWTPayload;
@@ -53,7 +37,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Look up admin in database
-    const db = createDrizzleDb(getDbConfig());
+    const db = createDrizzleDb(getAdminDbConfig());
     const admin = await db.query.adminUsers.findFirst({
       where: eq(adminUsers.id, payload.sub),
       columns: {
