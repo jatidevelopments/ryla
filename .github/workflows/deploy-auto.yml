@@ -12,8 +12,38 @@ on:
         options:
           - staging
           - production
+      force_deploy_web:
+        description: 'Force deploy web app (even if no web changes)'
+        required: false
+        type: boolean
+        default: false
+      force_deploy_api:
+        description: 'Force deploy API app (even if no api changes)'
+        required: false
+        type: boolean
+        default: false
+      force_deploy_funnel:
+        description: 'Force deploy funnel app (even if no funnel changes)'
+        required: false
+        type: boolean
+        default: false
       force_deploy_landing:
         description: 'Force deploy landing app (even if no landing changes)'
+        required: false
+        type: boolean
+        default: false
+      force_deploy_admin:
+        description: 'Force deploy admin app (even if no admin changes)'
+        required: false
+        type: boolean
+        default: false
+      force_deploy_nellab:
+        description: 'Force deploy nellab app (even if no nellab changes)'
+        required: false
+        type: boolean
+        default: false
+      force_deploy_metabase:
+        description: 'Force deploy metabase app (even if no metabase changes)'
         required: false
         type: boolean
         default: false
@@ -168,10 +198,15 @@ jobs:
             echo "✓ Metabase app or dashboard script has changes"
           fi
 
-          # workflow_dispatch: allow forcing landing deploy without file changes
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ github.event.inputs.force_deploy_landing }}" = "true" ]; then
-            LANDING_CHANGED=true
-            echo "✓ Landing deploy forced via workflow input"
+          # workflow_dispatch: allow forcing deploys without file changes
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            [ "${{ github.event.inputs.force_deploy_web }}" = "true" ] && { WEB_CHANGED=true; echo "✓ Web deploy forced via workflow input"; }
+            [ "${{ github.event.inputs.force_deploy_api }}" = "true" ] && { API_CHANGED=true; echo "✓ API deploy forced via workflow input"; }
+            [ "${{ github.event.inputs.force_deploy_funnel }}" = "true" ] && { FUNNEL_CHANGED=true; echo "✓ Funnel deploy forced via workflow input"; }
+            [ "${{ github.event.inputs.force_deploy_landing }}" = "true" ] && { LANDING_CHANGED=true; echo "✓ Landing deploy forced via workflow input"; }
+            [ "${{ github.event.inputs.force_deploy_admin }}" = "true" ] && { ADMIN_CHANGED=true; echo "✓ Admin deploy forced via workflow input"; }
+            [ "${{ github.event.inputs.force_deploy_nellab }}" = "true" ] && { NELLAB_CHANGED=true; echo "✓ Nellab deploy forced via workflow input"; }
+            [ "${{ github.event.inputs.force_deploy_metabase }}" = "true" ] && { METABASE_CHANGED=true; echo "✓ Metabase deploy forced via workflow input"; }
           fi
 
           # Also check if workflow files changed (affects all apps)
